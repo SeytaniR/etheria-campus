@@ -8,9 +8,9 @@
 ---
 
 ## 📌 Status Atual do Projeto
-* **Versão Atual:** `v0.2.0`
+* **Versão Atual:** `v0.2.1`
 * **Última Atualização:** `2026-11-05`
-* **Fase Atual:** **Etapa 1 Concluída (`@etheria/database` criado com todas as 22 tabelas PostgreSQL, Seeds dos 40 Biomas / 5 Elementos / 11 Raças / 16+6 Slots e SnapshotManager) $\rightarrow$ Pronta para Etapa 2 (Conector `mcrework` + Rota `/admin` Low-Code com Editor Visual de Colisão e Sobreposição de Mapas)**
+* **Fase Atual:** **Etapa 1 Concluída (`@etheria/database`) $\rightarrow$ Iniciando Etapa 2 (Rota `/admin` com Editor de Polígonos Estilo Google Earth para Colisão e Sobreposição de Mapas)**
 * **Repositório Oficial:** `https://github.com/SeytaniR/etheria-campus`
 * **Fonte Bruta de Assets:** `https://github.com/SeytaniR/mcrework` (`https://seytanir.github.io/mcrework/`)
 

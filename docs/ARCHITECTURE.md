@@ -44,8 +44,8 @@ Na tabela de mapas e no Editor Visual da Rota `/admin`, você define e salva dir
 2. **Nível de Acesso** (progressão de 10 em 10: Mapa 1 = Nv. 1, Mapa 2 = Nv. 10, Mapa 3 = Nv. 20...).
 3. **Tipo de Mapa** (um dos 5 acima, herdando automaticamente as regras de spawn, PvP e dominação).
 4. **Dois Biomas** (`primary_biome_id` e `secondary_biome_id` escolhidos dentre os 40 biomas).
-5. **Malha de Colisão (`collision_mesh_json`):** Áreas desenhadas visualmente por você no `/admin` onde o personagem colide e não pode atravessar (validada pelo Servidor Autoritário e pelo Cliente).
-6. **Malha de Sobreposição (`overlap_mesh_json`):** Áreas desenhadas visualmente por você no `/admin` que ficam "acima" do personagem (ex: copas de árvores, telhados, arcos). Quando o personagem passa por essa malha, o motor gráfico diminui automaticamente a opacidade da região do corpo do personagem coberta pela sobreposição (efeito de silhueta/transparência).
+5. **Malha de Colisão (`collision_mesh_json` — Polígonos Estilo Google Earth):** Áreas desenhadas visualmente por você no `/admin` pontilhando vértices onde o polígono se fecha automaticamente a partir do 3º ponto. Define onde o personagem colide e não pode atravessar (validada via algoritmo *Point-in-Polygon + Bounding Box* pelo Servidor Autoritário e pelo Cliente).
+6. **Malha de Sobreposição (`overlap_mesh_json` — Polígonos Estilo Google Earth):** Áreas poligonais desenhadas visualmente no `/admin` que ficam "acima" do personagem (ex: copas de árvores, telhados, arcos). Quando o personagem entra nessa área, o renderizador usa o polígono como máscara de recorte para diminuir a opacidade apenas da região do corpo do personagem que está coberta pela sobreposição.
 7. **Pontos de Teleporte (`map_portals`):** Coordenadas $(X, Y)$ no mapa e para qual mapa/coordenada levam.
 8. **NPCs (`map_npcs`):** Quais NPCs estão no mapa e suas coordenadas $(X, Y)$.
 
