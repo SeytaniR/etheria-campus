@@ -1,77 +1,125 @@
 # 🗄️ Modelagem do Banco de Dados Low-Code & Procedural (Etheria Campus)
 
 > **REGRA DA CURADORIA ("WHITELIST"):**
-> Nenhum mapa, personagem, monstro, montaria, NPC, item ou habilidade do repositório `mcrework` existe no jogo automaticamente.
-> Um elemento só passa a existir no **Etheria Campus** quando é adicionado em uma das tabelas abaixo através da **Rota `/admin`**.
+> Nenhum arquivo do repositório `mcrework` entra no jogo automaticamente. Somente registros cadastrados nas tabelas abaixo através da **Rota `/admin`** existem no jogo.
 
 ---
 
-## 1. Diagrama de Tabelas Principais
+## 1. Bloco A — Mundo, 40 Biomas, 5 Tipos de Mapa e Mapas
 
-```mermaid
-erDiagram
-    BIOME ||--o{ MAP_CONFIG : "primario / secundario"
-    MAP_TYPE ||--o{ MAP_CONFIG : "classifica"
-    MAP_CONFIG ||--o{ MAP_PORTAL : "portais"
-    MAP_CONFIG ||--o{ MAP_NPC : "npcs"
+### 1.1. Tabela `map_types` (5 Tipos Fixos com Dominação, Spawn e PvP)
+Os parâmetros de **Dominação**, **Spawn de Monstros** e **Regra de PvP** são fixados diretamente nesta tabela:
 
-    CLASS_TEMPLATE ||--o{ CHARACTER : "define"
-    CHARACTER ||--o{ CHARACTER_PET : "possui"
-    PET_TEMPLATE ||--o{ CHARACTER_PET : "base"
-    PARTY_FORMATION ||--o{ FORMATION_SLOT : "10 slots (1..10)"
+| `code` | Nome | `domination_target` | `allow_monster_spawn` | `pvp_rule` | `forces_criminal_status` |
+| :--- | :--- | :---: | :---: | :---: | :---: |
+| `CITY` | Cidade | `ALLIANCE` (Aliança de Facções) | `false` | `DUEL_ONLY` | `false` |
+| `VILLAGE` | Vila | `ALLIANCE` (Aliança de Facções) | `false` | `DUEL_ONLY` | `false` |
+| `SUBURB` | Subúrbio | `FACTION` (Facção) | `true` | `DUEL_ONLY` | `false` |
+| `HOSTILE_ZONE` | Zona Hostil | `FACTION` (Facção) | `true` | `FORCED_PK` | `true` (Vira Criminoso) |
+| `CONFLICT_ZONE` | Zona de Conflito | `FACTION` (Facção) | `true` | `OPEN_PVP` | `false` |
 
-    MONSTER_RARITY ||--o{ MONSTER_TEMPLATE : "raridade padrao"
-    MONSTER_TEMPLATE ||--o{ MONSTER_BIOME : "habita"
-    BIOME ||--o{ MONSTER_BIOME : "contem"
+### 1.2. Tabela `biomes` (Os 40 Biomas para Cruzamento Procedural de Spawn)
+> **Regra:** Biomas possuem apenas `id`, `code`, `category`, `name_i18n_key` e `description_i18n_key`. Não possuem vínculo com elementos nem interferem em cálculo de dano. Sua única função é o vínculo `Mapa <-> Bioma <-> Monstro`.
 
-    BASE_ATTRIBUTE ||--o{ ATTRIBUTE_CONVERSION : "converte de"
-    COMBAT_ATTRIBUTE ||--o{ ATTRIBUTE_CONVERSION : "converte para"
-```
+1. `VERDANT_PLAINS` — Planície Verdejante (Campos abertos de grama baixa e clima ameno)
+2. `TEMPERATE_WOODS` — Bosque Temperado (Árvores espaçadas com luz solar filtrada e fauna silvestre)
+3. `DENSE_FOREST` — Floresta Densa (Vegetação fechada de árvores antigas e copas altas)
+4. `TROPICAL_JUNGLE` — Selva Tropical (Mata úmida, cipós e plantas/répteis tropicais)
+5. `BAMBOO_GROVE` — Floresta de Bambu (Bosques orientais altos e silenciosos)
+6. `FAIRY_GARDEN` — Jardim Feérico (Floresta encantada com flores gigantes luminescentes)
+7. `AUTUMN_WOODS` — Bosque Outonal (Floresta de folhas douradas e avermelhadas)
+8. `GIANT_ROOTS` — Raízes Gigantes (Sub-bosque formado por raízes colossais)
+9. `DRY_STEPPES` — Estepes Secas (Terras áridas de vegetação rasteira amarelada)
+10. `SAND_DUNES` — Deserto de Dunas (Mar de areia escaldante e tempestades solares)
+11. `HIDDEN_OASIS` — Oásis Escondido (Refúgio fértil de água cristalina no deserto)
+12. `ROCKY_CANYON` — Cânion Rochoso (Desfiladeiros estreitos de pedra avermelhada)
+13. `ALPINE_HIGHLANDS` — Cordilheira Alpina (Montanhas altas de pedra fria e ar rarefeito)
+14. `DEEP_CAVERN` — Caverna Subterrânea (Túneis escuros de pedra úmida e estalactites)
+15. `CRYSTAL_MINE` — Mina de Cristais (Grutas iluminadas por veios de minérios e cristais)
+16. `BADLANDS` — Terras Devastadas (Solo rachado, seco e hostil sem vegetação)
+17. `TROPICAL_COAST` — Costa Tropical (Praias de areia clara e recifes rasos)
+18. `SEA_CLIFFS` — Penhasco Marítimo (Rochas costeiras açoitadas por ondas fortes)
+19. `MISTY_SWAMP` — Pântano Nebuloso (Águas paradas e lamacentas cobertas por neblina)
+20. `POISON_MANGROVE` — Manguezal Venenoso (Charco tóxico de águas esverdeadas e esporos)
+21. `MIRROR_LAKE` — Lago Espelhado (Margens de grandes lagos serenos e cristalinos)
+22. `CORAL_REEF` — Recife de Corais (Ambiente costeiro/submerso repleto de corais)
+23. `ABYSSAL_TRENCH` — Fenda Abissal (Profundezas oceânicas escuras sob alta pressão)
+24. `FROZEN_TUNDRA` — Tundra Congelada (Planícies cobertas de geada e neve rasa)
+25. `SNOWY_TAIGA` — Floresta Boreal Nevada (Pinheiros cobertos de neve pesada)
+26. `ETERNAL_GLACIER` — Geleira Eterna (Paredes e pontes de gelo puro translúcido)
+27. `BLIZZARD_PEAK` — Pico da Nevasca (Topo de montanha sob tempestade de neve perpétua)
+28. `ASHLANDS` — Campos de Cinzas (Terra coberta por fuligem vulcânica e fumaça)
+29. `LAVA_CALDERA` — Caldeira de Lava (Rios de magma incandescente e rocha derretida)
+30. `STORM_PLATEAU` — Platô das Tempestades (Região elevada atingida por raios constantes)
+31. `FLOATING_ISLANDS` — Ilhas Flutuantes (Fragmentos de terra suspensos no céu)
+32. `DEADWOOD` — Floresta Morta (Árvores secas e retorcidas sob noite eterna)
+33. `ANCIENT_NECROPOLIS` — Necrópole Antiga (Cemitérios monumentais e mausoléus)
+34. `BLIGHTED_LANDS` — Terras Corrompidas (Solo contaminado por miasma sombrio)
+35. `DEMONIC_RIFT` — Fenda Demoníaca (Território dimensional rasgado pelo submundo)
+36. `ACADEMY_GROUNDS` — Jardins da Academia (Pátios pavimentados, fontes e bibliotecas do Campus)
+37. `ANCIENT_RUINS` — Ruínas Ancestrais (Templos de pedra de uma civilização perdida)
+38. `ASTRAL_SANCTUARY` — Santuário Astral (Dimensão etérea com céu estrelado no horizonte)
+39. `CLOCKWORK_FORGE` — Forja Mecânica (Complexo de engrenagens a vapor e magia tecno-arcana)
+40. `CELESTIAL_PALACE` — Palácio Celestial (Salões de mármore branco e ouro acima das nuvens)
+
+### 1.3. Tabelas de Mapas (`maps`, `map_portals`, `map_npcs`)
+* **`maps`:**
+  * `id`, `mcrework_map_folder` (`map1..map76`), `name_i18n_key`, `required_level` (1, 10, 20, 30...), `map_type_id` (FK para `map_types`), `primary_biome_id` (FK para `biomes`), `secondary_biome_id` (FK para `biomes`), `controlling_faction_id` / `controlling_alliance_id` (nullable), `is_active`.
+* **`map_portals` (Pontos de Teleporte):**
+  * `id`, `source_map_id`, `source_x`, `source_y`, `target_map_id`, `target_x`, `target_y`, `portal_vfx_key`.
+* **`map_npcs` (NPCs e Posições):**
+  * `id`, `map_id`, `npc_template_id`, `pos_x`, `pos_y`, `direction`.
 
 ---
 
-## 2. Especificação das Tabelas Low-Code (Para Edição no `/admin`)
+## 2. Bloco B — Elementos, Raças, Atributos e Entidades
 
-### 2.1. Módulo de Mundo & Mapas Procedurais
-* **`biomes` (Biomas):**
-  * `id`, `code` (ex: `JUNGLE`, `WOODS`, `FOREST`, `DESERT`, `SWAMP`, `VOLCANO`, `GLACIER`, `RUINS`), `name_i18n_key`, `elemental_modifiers` (JSON).
-* **`map_types` (Tipos de Zona):**
-  * `id`, `code` (`CITY`, `VILLAGE`, `SUBURB`, `DUNGEON`, `HOSTILE_ZONE`, `CONFLICT_ZONE`), `name_i18n_key`, `pvp_enabled` (boolean), `allow_encounters` (boolean), `encounter_rate_per_step` (float), `min_monsters_per_encounter` (1..10), `max_monsters_per_encounter` (1..10), `exp_multiplier`, `drop_multiplier`.
-* **`maps` (Mapas Curados pelo Admin):**
-  * `id`, `mcrework_map_folder` (ex: `map1`, `map15` — selecionado visualmente do `mcrework`), `name_i18n_key`, `order_index` (1, 2, 3... calcula nível mínimo de 10 em 10: `1, 10, 20, 30...`), `custom_min_level` (nullable), `level_variance_min` (ex: `-2`), `level_variance_max` (ex: `+5`), `primary_biome_id`, `secondary_biome_id`, `map_type_id`, `is_active`.
-* **`map_portals` (Portais editáveis no Mapa):**
-  * `id`, `source_map_id`, `source_x`, `source_y`, `radius`, `target_map_id`, `target_x`, `target_y`, `vfx_asset_key`.
-* **`map_npcs` (Posicionamento de NPCs no Mapa):**
-  * `id`, `map_id`, `npc_template_id`, `pos_x`, `pos_y`, `direction` (0..7).
+### 2.1. Tabela `elements` e `element_matchups` (5 Elementos)
+* **`elements`:**
+  * `FIRE` (Fogo), `EARTH` (Terra), `AIR` (Ar), `WATER` (Água), `NEUTRAL` (Neutro).
+  * Pesos de sorteio inicial para Personagens e Pets: `NEUTRAL = 10%` (peso 10), `FIRE = 20%`, `EARTH = 20%`, `AIR = 20%`, `WATER = 20%` (configurável no Admin).
+* **`element_matchups`:**
+  * Ciclo Ativo (`+25%` de dano causado / `-25%` sofrido): `FIRE > EARTH > AIR > WATER > FIRE`.
+  * Regra `NEUTRAL`: Causa `-25%` (`0.75x`) contra qualquer elemento e recebe `+25%` (`1.25x`) de qualquer elemento.
 
-### 2.2. Módulo de Atributos Procedurais (Base $\rightarrow$ Combate)
-* **`base_attributes` (Atributos Base):**
-  * `code` (`VIT`, `STR`, `INT`, `AGI`, `DEX`, `WIL`), `name_i18n_key`, `description_i18n_key`.
-* **`combat_attributes` (Atributos Derivados de Combate):**
-  * `code` (`MAX_HP`, `MAX_MP`, `PHYS_ATK`, `MAG_ATK`, `PHYS_DEF`, `MAG_DEF`, `SPEED`, `CRIT_RATE`, `CRIT_DMG`, `EVASION`, `ACCURACY`, `STARTING_AP`, `AP_PER_TURN`), `name_i18n_key`, `base_default_value`, `is_percentage`.
-* **`attribute_conversions` (Matriz Procedural de Derivação):**
-  * `id`, `base_attribute_code`, `combat_attribute_code`, `points_per_unit` (Ex: `1 VIT -> +20 MAX_HP`, `1 VIT -> +1.5 PHYS_DEF`).
-* **`global_formulas` (Fórmulas Gerais parametrizadas):**
-  * `key` (ex: `MAP_MIN_LEVEL_FORMULA`, `MONSTER_LEVEL_SCALING_CURVE`, `PARTY_PET_LIMIT_SOLO_DUO`, `PARTY_PET_LIMIT_TRIO_PLUS`), `expression_json`, `description`.
+### 2.2. Tabela `races` e `race_matchups` (11 Raças — Vantagem de `10%`)
+* **`races`:**
+  1. `HUMAN` (Humanos) — `+10%` de vantagem sobre todas as outras 10 raças.
+  2. `PLANT` (Plantas) — `+10%` sobre `DRAGON`
+  3. `DRAGON` (Dragões) — `+10%` sobre `REPTILIAN`
+  4. `REPTILIAN` (Reptilianos) — `+10%` sobre `AQUATIC`
+  5. `AQUATIC` (Aquáticos) — `+10%` sobre `ROBOTIC`
+  6. `ROBOTIC` (Robóticos) — `+10%` sobre `CELESTIAL`
+  7. `CELESTIAL` (Celestiais) — `+10%` sobre `DEMON`
+  8. `DEMON` (Demônios) — `+10%` sobre `FAIRY`
+  9. `FAIRY` (Fadas) — `+10%` sobre `SPIRIT`
+  10. `SPIRIT` (Espíritos) — `+10%` sobre `BEAST`
+  11. `BEAST` (Selvagens) — `+10%` sobre `PLANT`
 
-### 2.3. Módulo de Classes, Monstros, Pets e Formação de 10 Slots
-* **`class_templates` (Classes/Skins de Personagens):**
-  * `id`, `mcrework_char_key` (escolhido da pasta `characters` do `mcrework`), `name_i18n_key`, `gender`, `initial_base_attributes` (JSON), `attributes_per_level` (JSON), `available_skill_ids` (JSON).
-* **`monster_rarities` (Raridades de Monstros):**
-  * `id`, `code` (`COMMON`, `UNCOMMON`, `ELITE`, `RARE`, `MINIBOSS`, `BOSS`), `stat_multiplier`, `exp_multiplier`, `drop_multiplier`, `visual_scale_multiplier`, `spawn_weight`.
-* **`monster_templates` (Monstros e Pets Curados):**
-  * `id`, `mcrework_monster_key` (escolhido da pasta `monsters` do `mcrework`), `name_i18n_key`, `monster_type` (`BEAST`, `PLANT`, `UNDEAD`, `ELEMENTAL`, `DEMON`, `DRAGON`, `HUMANOID`), `default_rarity_id`, `is_tamable_as_pet` (boolean), `preferred_arena_row` (`FRONTLINE` | `BACKLINE`), `base_attributes_seed` (JSON: pesos de VIT, STR, INT, AGI...), `skill_ids` (JSON), `loot_table_id`.
-* **`monster_biomes` (Vínculo Monstro $\leftrightarrow$ Biomas):**
-  * `monster_template_id`, `biome_id` (Determina em quais mapas o monstro pode nascer proceduralmente).
-* **`arena_formations` (Formação Tática dos 10 Slots):**
-  * `id`, `owner_id` (Jogador Solo ou Grupo/Capitão), `slot_1` a `slot_5` (Vanguarda), `slot_6` a `slot_10` (Retaguarda) — valida automaticamente a regra:
-    * **Solo ou Dupla:** até `1 Personagem + 3 Pets` por jogador.
-    * **3 a 5 Jogadores:** no máximo `1 Personagem + 1 Pet` por jogador.
+### 2.3. Tabelas de Atributos (`base_attributes`, `combat_attributes`, `attribute_conversions`)
+* **`base_attributes`:** `VIT`, `STR`, `INT`, `WIS`, `AGI`, `DEX`.
+* **`combat_attributes`:** `MAX_HP`, `MAX_MP`, `PHYS_ATK`, `MAG_ATK`, `PHYS_DEF`, `MAG_DEF`, `PHYS_PEN`, `MAG_PEN`, `HEAL_POWER`, `SPEED`, `EVASION`, `ACCURACY`, `CRIT_RATE`, `CRIT_DMG`, `STATUS_HIT_RATE`, `DOT_RESIST`.
+* **`attribute_conversions`:** Matriz low-code que define quanto 1 ponto de cada Atributo Base soma em cada Atributo de Combate.
 
-### 2.4. Módulo de Habilidades (Skills), Efeitos (VFX) e Equipamentos
-* **`skill_templates` (Habilidades de Combate 5B):**
-  * `id`, `name_i18n_key`, `mcrework_icon_key` (`skills/icons/`), `cast_action_id`, `mcrework_vfx_key` (`effects/`), `ap_cost` (Custo em Pontos de Turno), `cooldown_turns`, `range_rule` (`MELEE_FRONTLINE`, `RANGED_ANY`, `PIERCE_ROW`, `COLUMN`, `CROSS`, `ALL_ENEMIES`, `ALLY_SINGLE`, `ALLY_ALL`), `scaling_formula` (JSON: ex: `1.5 * PHYS_ATK`), `status_effect_json`.
-* **`item_templates` (Armas, Equipamentos e Consumíveis):**
-  * `id`, `name_i18n_key`, `mcrework_icon_key` (`equipment/`), `slot_type` (`WEAPON`, `HELMET`, `ARMOR`, `BOOTS`, `NECKLACE`, `RING`, `MOUNT`, `CONSUMABLE`), `required_level`, `base_attribute_bonuses` (JSON), `combat_attribute_bonuses` (JSON), `set_id`.
-* **`i18n_translations` (Traduções Dinâmicas do Banco):**
-  * `key`, `locale` (`pt-BR`, `en-US`, `es-ES`), `text`.
+### 2.4. Tabelas de Entidades (`class_templates`, `monster_rarities`, `monster_templates`, `monster_biomes`)
+* **`class_templates` (Personagens Jogáveis):**
+  * `id`, `mcrework_char_key`, `name_i18n_key`, `race_code` (padrão `HUMAN`), `base_attributes_json`, `growth_per_level_json`, `skill_ids_json`. *(Elemento sorteado ao criar o personagem).*
+* **`monster_rarities`:**
+  * `COMMON`, `UNCOMMON`, `ELITE`, `RARE`, `MINIBOSS`, `BOSS` (com multiplicadores de status, EXP, drop e escala visual).
+* **`monster_templates` (Monstros e Templates de Pets):**
+  * `id`, `mcrework_monster_key`, `name_i18n_key`, `race_code` (FK para `races`), `fixed_element_code` (FK para `elements` — usado quando é monstro inimigo; se capturado como Pet, sorteia elemento inicial), `default_rarity_id`, `is_tamable_as_pet`, `base_attributes_seed_json`, `skill_ids_json`, `loot_table_id`.
+* **`monster_biomes` (Vínculo Procedural `Monstro <-> Bioma`):**
+  * `monster_template_id`, `biome_id`.
+
+---
+
+## 3. Bloco C — Habilidades (Blocos de Efeito), Formações 10x10 e Itens
+
+* **`skill_templates`:**
+  * `id`, `name_i18n_key`, `description_i18n_key`, `mcrework_icon_key`, `cast_action_id`, `mcrework_vfx_key`, `skill_type` (`ACTIVE` | `PASSIVE`), `trigger_type` (`MANUAL_AP`, `PASSIVE_ALWAYS`, `ON_TURN_START`, `ON_HIT`, `ON_CRIT`, `ON_DAMAGE_TAKEN`, `ON_KILL`), `ap_cost`, `cooldown_turns`, `target_scope` (`MELEE_FRONTLINE`, `RANGED_SINGLE`, `ROW_FRONT`, `ROW_BACK`, `COLUMN_PIERCE`, `CROSS`, `ALL_ENEMIES`, `SELF`, `ALLY_SINGLE`, `ALLY_ALL`), `effect_blocks_json` (Lista dos 7 blocos: `DAMAGE`, `HEAL`, `SHIELD`, `STATUS`, `MOVE_SLOT`, `CLEANSE_DISPEL`, `RESOURCE`).
+* **`status_effect_templates` (Buffs e Debuffs):**
+  * `id`, `code`, `name_i18n_key`, `icon_key`, `is_buff` (boolean), `max_stacks`, `default_duration_turns`, `stat_modifiers_json`, `dot_hot_formula_json`, `control_flags_json` (`STUN`, `SILENCE`, `FREEZE`, `ROOT`).
+* **`arena_formations` (10 Slots por Equipe):**
+  * `id`, `owner_id`, `slot_1`..`slot_5` (Vanguarda), `slot_6`..`slot_10` (Retaguarda).
+* **`item_templates` (Armas, Equipamentos, Consumíveis, Troca de Elemento):**
+  * `id`, `name_i18n_key`, `mcrework_icon_key`, `item_category` (`WEAPON`, `ARMOR`, `ACCESSORY`, `MOUNT`, `CONSUMABLE`, `ELEMENT_CHANGER`), `required_level`, `stat_bonuses_json`, `special_effect_json`.

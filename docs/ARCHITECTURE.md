@@ -1,113 +1,125 @@
 # 🏛️ Arquitetura de Sistema, Motor Procedural & Combate Tático (Etheria Campus)
 
-Este documento detalha os módulos Orientados a Objetos, o Motor de Regras Procedurais, o Sistema de Combate em Arena de **10x10 Slots (Modo 5B)** e a infraestrutura de desenvolvimento e testes Mobile/PC.
+Este documento detalha os módulos Orientados a Objetos, o Motor de Regras Procedurais, os Sistemas de Elementos e Raças, o Cálculo Universal de Dano e o Combate em Arena de **10x10 Slots (Modo 5B)**.
 
 ---
 
 ## 1. Visão Geral dos 6 Módulos Principais (Monorepo OO)
 
-O projeto **Etheria Campus** é estruturado como um **Monorepo em TypeScript** fortemente Orientado a Objetos:
-
-1. **`@etheria/asset-bridge` (Módulo Conector da Galeria `mcrework`):**
+1. **`@etheria/asset-bridge` (Conector da Galeria Bruta `mcrework`):**
    * Lê os catálogos, atlases WebP, malhas binárias de colisão (`collision.bin`), ícones e efeitos especiais (VFX) do repositório `SeytaniR/mcrework`.
-   * **Regra da Curadoria (Whitelist):** O `asset-bridge` apenas fornece a galeria visual para a Rota `/admin` e carrega em tempo de execução **exclusivamente** os assets que foram vinculados a registros ativos no nosso Banco de Dados.
-2. **`@etheria/shared` (Núcleo OO Compartilhado & i18n):**
-   * Classes de domínio base (`Entity`, `Actor`, `Character`, `Pet`, `Monster`, `ArenaFormation`, `SkillFormula`), contratos de pacotes de rede e sistema de tradução `i18n` (`pt-BR`, `en-US`, `es-ES`).
-3. **`@etheria/database` (Módulo de Banco de Dados Low-Code):**
-   * Tabelas relacionais gerenciadas via **Prisma ORM + PostgreSQL**.
-   * Criadas pelas IAs via *Migrations* e populadas pelo usuário através da interface Low-Code (`/admin`).
+   * **Regra da Curadoria (Whitelist):** Nenhum arquivo do `mcrework` existe no jogo automaticamente. Apenas o que for selecionado e salvo nas tabelas do nosso Banco de Dados via `/admin` passa a existir no jogo.
+2. **`@etheria/shared` (Núcleo OO Compartilhado, Motor Procedural & i18n):**
+   * Classes de domínio (`Entity`, `Actor`, `Character`, `Pet`, `Monster`, `ArenaFormation`, `CombatCalculator`), contratos de pacotes de rede e sistema de tradução `i18n` (`pt-BR`, `en-US`, `es-ES`).
+3. **`@etheria/database` (Banco de Dados Low-Code):**
+   * Tabelas relacionais gerenciadas via **Prisma ORM + PostgreSQL**, populadas pelo usuário através da Rota `/admin`.
 4. **`@etheria/server` (Servidor Autoritário):**
-   * Gerencia instâncias de mapas (`MapInstance`), validação de movimento contra `collision.bin`, encontros de batalha, instâncias de arena (`BattleArenaInstance`), cálculo procedural de atributos e persistência.
+   * Gerencia instâncias de mapas (`MapInstance`), validação de movimento contra `collision.bin`, dominação de Facções/Alianças, encontros procedurais, instâncias de arena (`BattleArenaInstance`) e anti-cheat.
 5. **`@etheria/client` (Cliente WebGL Pixi.js + UI Camaleão + APK Capacitor):**
-   * Renderiza o mundo 2.5D e as Arenas de Batalha a 60 FPS, com interface adaptativa para PC, Tablet, Celular Horizontal e Celular Vertical.
-6. **Rotas Administrativas (`/admin` Studio Low-Code & `/gm` Game Master Overlay):**
-   * **`/admin`:** CRUD visual completo para editar mapas, portais, NPCs, biomas, monstros, classes, skills, itens e fórmulas procedurais com *Hot-Reload*.
-   * **`/gm`:** Ferramentas *in-game* para teleporte, *summon*, edição de nível/atributos ao vivo, inspeção de jogadores e moderação.
+   * Renderiza mapas 2.5D e Arenas 10x10 a 60 FPS com interface 100% responsiva (PC, Tablet, Celular Horizontal e Celular Vertical).
+6. **Rotas `/admin` (Studio Low-Code) & `/gm` (Game Master In-Game):**
+   * **`/admin`:** Interface visual para criar e editar todas as tabelas do jogo com *Hot-Reload*.
+   * **`/gm`:** Painel dentro do jogo para teleporte, *summon*, edição de nível/atributos ao vivo e moderação.
 
 ---
 
-## 2. Sistema de Encontros & Combate Tático em Arena (10x10 Slots — Modo 5B)
+## 2. Mundo Procedural: Tipos de Mapa, Dominação e os 40 Biomas
 
-### 2.1. Gatilho de Encontro (Mapas $\rightarrow$ Arena Isolada)
-* **PvE (Caça e Masmorras):** Enquanto o jogador (ou grupo) caminha por um mapa que possui monstros configurados para seus biomas, o Servidor Autoritário calcula a taxa de encontro por passo/tempo (ou colisão com chefes visíveis) e instancia uma **Arena Isolada de Batalha**.
-* **PvP (Zonas de Conflito / Duelos):** Em mapas classificados como `CONFLICT_ZONE`, jogadores ou grupos que atendam ao requisito de nível podem iniciar combate PvP aberto (até **5v5 jogadores**), sendo transportados para a Arena de Batalha.
+### 2.1. Os 5 Tipos de Mapa (Regras de Spawn, Dominação e PvP Fixadas no Tipo)
+O comportamento de **Spawn de Monstros**, **Dominação Territorial** e **Regra de PvP** é determinado diretamente pelo **Tipo de Mapa (`map_types`)**:
 
-### 2.2. Topologia da Arena: **10 Slots de Cada Lado (5 Vanguarda + 5 Retaguarda)**
+| Código | Nome | Quem Pode Dominar? | Spawna Monstros? | Regra de PvP |
+| :--- | :--- | :---: | :---: | :--- |
+| **`CITY`** | **Cidade** | **Alianças** (União de Facções) | ❌ Não | 🤝 **Apenas Duelo Aceito** (Ambos jogadores/equipes devem aceitar) |
+| **`VILLAGE`** | **Vila** | **Alianças** (União de Facções) | ❌ Não | 🤝 **Apenas Duelo Aceito** (Ambos jogadores/equipes devem aceitar) |
+| **`SUBURB`** | **Subúrbio** | **Facções** | ✅ Sim | 🤝 **Apenas Duelo Aceito** (Sem PvP forçado) |
+| **`HOSTILE_ZONE`** | **Zona Hostil** | **Facções** | ✅ Sim | ⚠️ **PvP Forçado (PK) Permitido** (Atacar quem está com PvP desativado transforma o atacante em **Criminoso**) |
+| **`CONFLICT_ZONE`** | **Zona de Conflito** | **Facções** | ✅ Sim | ⚔️ **PvP Totalmente Aberto** (Combate livre a todos sem penalidade de crime) |
 
-Cada lado da arena possui exatamente **10 posições pré-definidas**, organizadas em 2 fileiras de 5 colunas:
+### 2.2. Estrutura Enxuta de Cada Mapa (`maps`)
+Na tabela de mapas, o Admin define apenas:
+1. **Nome do Mapa** (`i18n`) e **Asset Visual** (`mcrework`).
+2. **Nível de Acesso** (progressão de 10 em 10: Mapa 1 = Nv. 1, Mapa 2 = Nv. 10, Mapa 3 = Nv. 20...).
+3. **Tipo de Mapa** (um dos 5 acima, herdando automaticamente as regras de spawn, PvP e dominação).
+4. **Dois Biomas** (`primary_biome_id` e `secondary_biome_id` escolhidos dentre os 40 biomas).
+5. **Pontos de Teleporte (`map_portals`):** Coordenadas $(X, Y)$ no mapa e para qual mapa/coordenada levam.
+6. **NPCs (`map_npcs`):** Quais NPCs estão no mapa e suas coordenadas $(X, Y)$.
 
-```text
-================================================================================
-                🏟️ ARENA DE COMBATE ETHERIA CAMPUS (10 vs 10 SLOTS)
-================================================================================
-
-   LADO A (EQUIPE ALIADA)                         LADO B (INIMIGOS / PVP)
- [Retaguarda]   [Vanguarda]                     [Vanguarda]   [Retaguarda]
-  (Slots 6-10)   (Slots 1-5)                     (Slots 1-5)   (Slots 6-10)
-
-   [Slot 06]      [Slot 01]       <--Topo-->      [Slot 01]      [Slot 06]
-   [Slot 07]      [Slot 02]      <--Médio-S-->    [Slot 02]      [Slot 07]
-   [Slot 08]      [Slot 03]       <--Centro-->    [Slot 03]      [Slot 08]
-   [Slot 09]      [Slot 04]      <--Médio-I-->    [Slot 04]      [Slot 09]
-   [Slot 10]      [Slot 05]       <--Base-->      [Slot 05]      [Slot 10]
-================================================================================
-```
-
-### 2.3. Regra Escalonada de Pets e Limite de Unidades por Equipe
-> **REGRA DE OURO:** Não existe vantagem de classe que altere o limite de pets em combate. A quantidade máxima de pets instanciados por jogador depende exclusivamente do **tamanho do grupo (Party)**:
-
-| Tamanho da Equipe | Unidades Permitidas por Jogador | Máximo Total da Equipe nos 10 Slots | Quem Define a Formação nos 10 Slots? |
-| :--- | :--- | :---: | :--- |
-| **Solo (1 Jogador)** | **1 Personagem + até 3 Pets** (4 unidades) | **Até 4 unidades** | O próprio Jogador |
-| **Dupla (2 Jogadores)** | **1 Personagem + até 3 Pets** por jogador | **Até 8 unidades** | O Capitão do Grupo |
-| **Trio (3 Jogadores)** | **1 Personagem + 1 Pet** por jogador | **Até 6 unidades** | O Capitão do Grupo |
-| **Quarteto (4 Jogadores)** | **1 Personagem + 1 Pet** por jogador | **Até 8 unidades** | O Capitão do Grupo |
-| **Grupo Cheio (5 Jogadores / 5v5)** | **1 Personagem + 1 Pet** por jogador | **Até 10 unidades** (100% dos slots) | O Capitão do Grupo |
-| **Horda Inimiga (PvE)** | Gerado pelo `ProceduralSpawner` | **De 1 a 10 Monstros** (Caçada em Massa) | Motor Procedural do Mapa |
-
-### 2.4. Dinâmica de Turno: **Opção 5B (Pontos de Ação [AP] + Posições com Alcance + Planejamento Simultâneo "We-Go")**
-1. **Regra de Alcance e Bloqueio de Vanguarda:**
-   * Unidades na **Vanguarda (Slots 1 a 5)** protegem as unidades na **Retaguarda (Slots 6 a 10)**.
-   * Habilidades de **Curto Alcance (Melee)** só podem alvejar a Retaguarda inimiga se a Vanguarda correspondente estiver vazia/derrotada.
-   * Habilidades de **Longo Alcance, Magias e Áreas (Linha, Coluna, Cruz, 3x3, Todos)** possuem regras próprias de mira configuradas na tabela de `skills`.
-2. **Fase de Planejamento Simultâneo ("We-Go" com AP):**
-   * No início da rodada, todas as unidades recebem seus **Pontos de Ação (AP)** do turno.
-   * Ambos os lados possuem uma janela de tempo simultânea (ex: 20 segundos) para alocar as habilidades e combos de AP das suas unidades.
-   * *(Assistente de Conforto para Pets):* Para facilitar quando o jogador estiver Solo/Dupla com 3 Pets, cada Pet pode ter uma "Skill Padrão Favorita" pré-selecionada caso o jogador queira focar o tempo do turno apenas em mudar o combo do seu Personagem principal.
-3. **Fase de Resolução por Iniciativa (Velocidade):**
-   * Encerrado o planejamento (ou quando todos confirmam *"Pronto"*), o Servidor Autoritário ordena todas as unidades da arena pela **Velocidade/Iniciativa de Combate** e executa as sequências de ações, calculando danos, curas, escudos, mortes e transmitindo o pacote de eventos de animação para os clientes.
+### 2.3. Função Exclusiva dos 40 Biomas: Vínculo Procedural de Spawn (`Mapa ↔ Bioma ↔ Monstro`)
+* **Biomas NÃO interferem em cálculo de dano nem possuem vínculo com elementos.**
+* A única função dos **40 Biomas** é gerar a *pool* procedural de monstros de cada mapa:
+  * Monstros não são amarrados manualmente a mapas individuais.
+  * Cada monstro é vinculado aos **Biomas** onde habita.
+  * Se um mapa é Nv. 80 e possui os biomas **Bosque Temperado** e **Floresta Densa**, qualquer monstro do banco que habite *Bosque Temperado* **OU** *Floresta Densa* poderá nascer nos encontros daquele mapa, com seu nível e atributos escalados proceduralmente para $\text{Nv. } 80 \pm \text{Variação}$!
 
 ---
 
-## 3. Motor Procedural de Mapas e Atributos
+## 3. Sistema de Elementos e Raças (Vinculados à Entidade)
 
-### 3.1. Regras Procedurais de Mapas
-* **Progressão de Nível (10 em 10):**
-  * Mapa Ordem 1 = Nv. 1 | Mapa Ordem 2 = Nv. 10 | Mapa Ordem 3 = Nv. 20 | Mapa Ordem $N$ = $(N - 1) \times 10$.
-  * O servidor bloqueia a entrada nos portais se $\text{Nível do Jogador} < \text{Nível Mínimo do Mapa}$.
-* **Duplo Bioma por Mapa:**
-  * Cada mapa possui `primary_biome_id` e `secondary_biome_id` (ex: `SELVA` + `BOSQUE`).
-* **6 Tipos de Mapa:**
-  * `CITY` (Cidade), `VILLAGE` (Vila), `SUBURB` (Subúrbio), `DUNGEON` (Masmorra), `HOSTILE_ZONE` (Zona Hostil), `CONFLICT_ZONE` (Zona de Conflito — PvP Aberto).
-* **Spawn e Encontros Procedurais:**
-  * Um mapa **Nv. 80 [Bosque / Floresta] [Zona de Conflito]** só aceita jogadores **Nv. 80+**, habilita **PvP Aberto**, e sorteia encontros de 1 a 10 monstros cadastrados nos biomas **Bosque ou Floresta**, escalando o nível deles para $\text{Nv. } 80 \pm \text{Variação}$!
+Toda entidade do jogo (Personagem, Pet ou Monstro) possui **1 Elemento** e **1 Raça**.
 
-### 3.2. Derivação Procedural de Atributos (Base $\rightarrow$ Combate)
-* **Atributos Base (Primários):** `VIT`, `STR`, `INT`, `AGI`, `DEX`, `WIL` (configuráveis no banco).
-* **Atributos de Combate (Secundários):** `MAX_HP`, `MAX_MP`, `PHYS_ATK`, `MAG_ATK`, `PHYS_DEF`, `MAG_DEF`, `SPEED`, `CRIT_RATE`, `CRIT_DMG`, `EVASION`, `ACCURACY`, `MAX_AP`.
-* **Como escalam:**
-  * **Jogadores:** Distribuem pontos de nível + somam equipamentos/armas/conjuntos $\rightarrow$ multiplicam pela Matriz de Conversão (`attribute_conversions`).
-  * **Monstros e Pets:** Usam os atributos base da sua tabela $\times$ Fórmula de Nível/Variação $\times$ Multiplicador de Raridade (`Comum`, `Incomum`, `Elite`, `Raro`, `Chefe`) $\rightarrow$ multiplicam pela mesma Matriz de Conversão.
+### 3.1. Os 5 Elementos (4 Ativos + Neutro Penalizado)
+> **Nota:** Não existem elementos de Luz ou Escuridão no jogo.
+
+* **Ciclo dos 4 Elementos Ativos (`+25%` Vantagem / `-25%` Desvantagem):**
+  $$\text{🔥 Fogo (\texttt{FIRE})} > \text{🌿 Terra (\texttt{EARTH})} > \text{💨 Ar (\texttt{AIR})} > \text{🌊 Água (\texttt{WATER})} > \text{🔥 Fogo (\texttt{FIRE})}$$
+* **Penalidade do Elemento Neutro (`NEUTRAL`):**
+  * Entidades com elemento **Neutro** sofrem penalidade completa: **causam `-25%` de dano** contra qualquer alvo e **recebem `+25%` de dano** de qualquer elemento.
+* **Regra de Atribuição de Elemento:**
+  * **Entidades Inimigas (Monstros):** Elemento fixo definido na tabela pelo Admin.
+  * **Entidades Controláveis (Personagens e Pets):** Ao serem criados/capturados, sorteiam um elemento inicial aleatório com a distribuição:
+    * **`NEUTRAL` (Neutro):** Peso `10` (`10%` de chance — ou `11.1%` se normalizado em pesos `10:20:20:20:20`; para cravar exatos `10%` em base $100\%$, usa-se `10%` Neutro e `22.5%` para cada um dos 4 elementos ativos, configurável na tabela `global_formulas`).
+    * **`FIRE`, `EARTH`, `AIR`, `WATER`:** `20%` (peso 20) para cada um.
+    * *Futuro:* O jogador poderá alterar o elemento do seu Personagem ou Pet utilizando um item específico.
+
+### 3.2. As 11 Raças (`+10%` de Vantagem Racial)
+1. **Humanos (`HUMAN`):** Possuem **`+10%` de vantagem** sobre **todas** as outras raças.
+2. **Ciclo das 10 Raças (`+10%` de vantagem na sequência abaixo):**
+   $$\text{🌿 Plantas (\texttt{PLANT})} > \text{🐉 Dragões (\texttt{DRAGON})} > \text{🦎 Reptilianos (\texttt{REPTILIAN})} > \text{🌊 Aquáticos (\texttt{AQUATIC})} > \text{🤖 Robóticos (\texttt{ROBOTIC})} > \text{🪽 Celestiais (\texttt{CELESTIAL})} > \text{👿 Demônios (\texttt{DEMON})} > \text{🧚 Fadas (\texttt{FAIRY})} > \text{👻 Espíritos (\texttt{SPIRIT})} > \text{🐾 Selvagens (\texttt{BEAST})} > \text{🌿 Plantas (\texttt{PLANT})}$$
 
 ---
 
-## 4. Solução para Testes no Celular (Mesmo com Provedor em CGNAT)
+## 4. Atributos Procedurais, Habilidades e Cálculo Universal de Combate
 
-Como a internet residencial passa por **CGNAT** (que impede abrir portas diretas no roteador para a internet externa), utilizaremos uma arquitetura em **3 Níveis de Acesso Mobile**:
+### 4.1. Os 6 Atributos Base $\rightarrow$ Derivação para Atributos de Combate
+* **Atributos Base:**
+  1. `VIT` (Vitalidade) $\rightarrow$ `HP Máximo`, `Defesa Física`, `Resistência a DoT`
+  2. `STR` (Força) $\rightarrow$ `Ataque Físico`, `Penetração Física`, `Dano Crítico`
+  3. `INT` (Inteligência) $\rightarrow$ `Ataque Mágico`, `MP Máximo`, `Penetração Mágica`
+  4. `WIS` (Sabedoria) $\rightarrow$ `Poder de Cura/Escudo`, `Defesa Mágica`, `Regen de MP`
+  5. `AGI` (Agilidade) $\rightarrow$ `Velocidade (Iniciativa)`, `Esquiva`, `Ataque Físico Leve`
+  6. `DEX` (Destreza) $\rightarrow$ `Chance Crítica`, `Precisão (Acerto)`, `Taxa de Aplicação de Debuff`
+* **Pontos de Ação (AP):** Valores base fixos e controlados por turno (ex: 4 AP inicial, +3 AP/turno, teto de 10 AP), sem escalonamento infinito por atributo base.
 
-1. **GitHub Pages Automático (`https://seytanir.github.io/etheria-campus/`):**
-   * O repositório público compila e publica automaticamente a interface do Cliente e do Studio a cada `git push`. Você pode abrir o link no navegador do celular de qualquer lugar (4G/5G ou Wi-Fi).
-2. **Rede Local Wi-Fi (LAN Direta sem passar pelo CGNAT):**
-   * Quando o seu celular estiver conectado no mesmo Wi-Fi do seu PC, o CGNAT da operadora não interfere! O celular acessa o servidor e o banco diretamente pelo IP local do PC (`http://192.168.X.X:3000`).
-3. **Túnel HTTPS Gratuito Anti-CGNAT (Cloudflare Tunnel / `cloudflared`):**
-   * Para testar no celular pelo 4G/5G ou permitir que amigos testem o seu servidor rodando no seu PC mesmo atrás de CGNAT, deixaremos um script pronto com `cloudflared tunnel`. Ele gera uma URL `https://xxxx.trycloudflare.com` (com WSS seguro compatível com o GitHub Pages!) sem precisar abrir nenhuma porta no roteador!
+### 4.2. Cálculo de Dano em 4 Passos
+Toda habilidade ofensiva passa pelo mesmo pipeline no servidor:
+1. **Dano Bruto:** $\text{Ataque (Físico ou Mágico)} \times \text{Multiplicador da Skill (\%)}$.
+2. **Mitigação Proporcional pela Defesa (Assintótica por Nível):**
+   $$\text{Redução (\%)} = \frac{\text{Defesa Efetiva}}{\text{Defesa Efetiva} + (100 + 10 \times \text{Nível do Atacante})}$$
+3. **Multiplicadores de Entidade (Elemento + Raça + Buffs/Debuffs):**
+   * Multiplicador de **Elemento** (`+25%` vantagem, `-25%` desvantagem ou penalidade de Neutro).
+   * Multiplicador de **Raça** (`+10%` vantagem, `-10%` desvantagem).
+   * Multiplicador de **Buffs/Debuffs ativos**.
+4. **Crítico e Variação ($\pm 5\%$):** Se critar, multiplica pelo `Dano Crítico` da entidade.
+
+### 4.3. Arquitetura de Efeitos Atomizados (Skills Ativas, Passivas, Buffs e Debuffs)
+Todas as habilidades são compostas no banco de dados usando **7 Primitivas Universais**:
+1. `DAMAGE` (Dano Físico, Mágico ou Verdadeiro)
+2. `HEAL` (Cura de HP/MP)
+3. `SHIELD` (Barreira absorvedora de dano)
+4. `STATUS` (Buffs/Debuffs de atributo em `%`, Dano por Turno [DoT] e Controle [Stun, Silêncio, Congelamento])
+5. `MOVE_SLOT` (Empurrar/Puxar alvos entre Vanguarda e Retaguarda nos 10 slots)
+6. `CLEANSE_DISPEL` (Remover debuffs aliados ou buffs inimigos)
+7. `RESOURCE` (Ganhar/Drenar AP ou alterar Cooldown)
+* **Passivas:** Utilizam os mesmos blocos acima acionados por **Gatilhos (`Triggers`)**: `PASSIVE_ALWAYS`, `ON_TURN_START`, `ON_HIT`, `ON_CRIT`, `ON_DAMAGE_TAKEN`, `ON_KILL`.
+
+---
+
+## 5. Combate em Arena Isolada 10x10 Slots (Modo 5B)
+
+* **10 Slots de cada lado:** 5 na Vanguarda (`Slots 1..5`) + 5 na Retaguarda (`Slots 6..10`), permitindo caçadas em massa (até 10 monstros) e **PvP 5v5**.
+* **Regra Escalonada de Pets por Tamanho da Equipe (Sem vantagem de classe):**
+  * **Solo (1 Jogador) ou Dupla (2 Jogadores):** `1 Personagem + até 3 Pets` por jogador (Solo = até 4 unidades; Dupla = até 8 unidades).
+  * **Grupo de 3 a 5 Jogadores:** `1 Personagem + 1 Pet` por jogador (3 jogadores = 6 unidades; 4 = 8 unidades; 5 = 10 unidades).
+  * O **Capitão/Solo** escolhe a formação de batalha da equipe nos 10 slots.
+* **Execução 5B:** Pontos de Turno (AP) + Bloqueio de curto alcance pela Vanguarda + Planejamento Simultâneo ("We-Go") resolvido pela ordem de Velocidade.

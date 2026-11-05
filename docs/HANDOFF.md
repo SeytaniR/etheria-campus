@@ -8,34 +8,37 @@
 ---
 
 ## 📌 Status Atual do Projeto
-* **Versão Atual:** `v0.1.1`
+* **Versão Atual:** `v0.1.2`
 * **Última Atualização:** `2026-11-05`
-* **Fase Atual:** **Fase 1 concluída (Fundação, Governança de IA, Documentação Mestra & GitHub Pages) $\rightarrow$ Aguardando definição do usuário para iniciar a Fase 2 (Banco de Dados e Tabelas)**
+* **Fase Atual:** **Fase 1 Concluída (Documentação Mestra Consolidada sem Ideias Descartadas) $\rightarrow$ Pronta para Iniciar Fase 2 (Implementação do Banco de Dados e Tabelas)**
 * **Repositório Oficial:** `https://github.com/SeytaniR/etheria-campus`
 * **Fonte Bruta de Assets:** `https://github.com/SeytaniR/mcrework` (`https://seytanir.github.io/mcrework/`)
 
 ---
 
-## ✅ Resumo do Último Turno Concluído (Turno #001)
-1. Criação do repositório público **`SeytaniR/etheria-campus`** com pipeline automático para **GitHub Pages**.
-2. Definição e gravação da **Constituição Rígida das IAs (`AGENTS.md` e `.gemini/rules/AGENTS.md`)** incluindo:
-   * **Cláusula 0 (Regra Anti-Vibe-Coder):** Obrigação da IA de questionar qualquer pedido que viole Segurança (Servidor Autoritário), Performance, Orientação a Objetos, Motor Procedural ou Coerência Lógica.
-   * **Regra da Curadoria (Whitelist no Banco):** O repositório `mcrework` é apenas uma galeria bruta; só entra no jogo o que for cadastrado nas tabelas do nosso banco de dados.
-   * **Regra de Código Comentado para IAs:** Cabeçalhos `@file`, `@module`, `@description`, `@rules` e TSDoc em todas as classes/métodos.
-   * **Regra de Versionamento Incremental:** Atualização obrigatória do `CHANGELOG.md`.
-3. Documentação completa da **Arquitetura e Combate 5B em Arena 10x10 (`docs/ARCHITECTURE.md`)**:
-   * **10 Slots de cada lado** (5 Vanguarda + 5 Retaguarda) para caçadas em massa e PvP 5v5.
-   * **Regra de Pets por Tamanho do Grupo (sem vantagem de classe):**
-     * **Solo (1 Jogador) ou Dupla (2 Jogadores):** `1 Personagem + até 3 Pets` por jogador.
-     * **Grupo de 3 a 5 Jogadores:** `1 Personagem + 1 Pet` por jogador.
-     * **Capitão/Solo** escolhe a formação de batalha nos 10 slots.
-   * **Modo 5B:** Pontos de Turno (AP) + Posições Pré-Definidas com Alcance + Planejamento Simultâneo ("We-Go").
-4. Documentação da **Modelagem de Tabelas Procedurais e Low-Code (`docs/DATABASE_SCHEMA.md`)**.
+## ✅ Decisões Consolidadas na Documentação (`v0.1.2`)
+1. **Regra de Escopo Estrito (Cláusula 0.1):** Proibido criar simuladores, mocks ou código não solicitado; dúvidas devem ser perguntadas antes de codificar.
+2. **Regra da Curadoria (Whitelist):** O repositório `mcrework` é apenas galeria bruta; só entra no jogo o que estiver salvo nas tabelas do nosso banco de dados.
+3. **5 Tipos de Mapa (Com Dominação, Spawn e PvP fixos no Tipo):**
+   * `CITY` e `VILLAGE`: Dominadas por **Alianças**, sem spawn de monstros, PvP apenas por **Duelo Aceito**.
+   * `SUBURB`: Dominado por **Facções**, spawna monstros, PvP apenas por **Duelo Aceito**.
+   * `HOSTILE_ZONE`: Dominada por **Facções**, spawna monstros, permite **PvP Forçado (PK)** (quem força vira **Criminoso**).
+   * `CONFLICT_ZONE`: Dominada por **Facções**, spawna monstros, **PvP Totalmente Aberto**.
+4. **40 Biomas:** Função 100% dedicada ao vínculo procedural de spawn **`Mapa <-> Bioma <-> Monstro`** (zero relação com elementos ou cálculo de dano).
+5. **5 Elementos Vinculados à Entidade (Sem Luz/Escuridão):**
+   * Ciclo Ativo (`±25%`): `FIRE > EARTH > AIR > WATER > FIRE`.
+   * `NEUTRAL` (Neutro): Penalidade de `-25%` de dano causado e `+25%` de dano sofrido contra tudo.
+   * Monstros têm elemento fixo na tabela; Personagens e Pets sorteiam elemento inicial (`10%` Neutro, `20%` para cada elemento ativo), alterável no futuro via item.
+6. **11 Raças (`+10%` de Vantagem):**
+   * `HUMAN` tem `+10%` sobre todas as raças.
+   * Ciclo das 10 raças (`+10%`): `PLANT > DRAGON > REPTILIAN > AQUATIC > ROBOTIC > CELESTIAL > DEMON > FAIRY > SPIRIT > BEAST > PLANT`.
+7. **Atributos, Habilidades e Combate 5B (10x10 Slots):**
+   * 6 Atributos Base (`VIT`, `STR`, `INT`, `WIS`, `AGI`, `DEX`) $\rightarrow$ Atributos de Combate.
+   * Mitigação proporcional por nível: $\text{Defesa} / (\text{Defesa} + 100 + 10 \times \text{Nível})$.
+   * 7 Blocos Universais de Efeito + Gatilhos para Passivas/Buffs/Debuffs.
+   * Arena 10x10 Slots (Solo/Dupla = `1 Char + até 3 Pets`; 3 a 5 Jogadores = `1 Char + 1 Pet`).
 
 ---
 
-## 🎯 Próxima Tarefa Exata da Fila (Para o Próximo Turno)
-* **Objetivo (Fase 2 - Passo 1):**
-  1. Inicializar a estrutura de pacotes do Monorepo TypeScript (`package.json`, `tsconfig.base.json`, `packages/shared`, `packages/database`, `packages/asset-bridge`, `apps/server`, `apps/client`).
-  2. Criar o `schema.prisma` (ou migrações SQL/TypeScript equivalentes) implementando exatamente as tabelas documentadas em `docs/DATABASE_SCHEMA.md` (Biomas, Tipos de Mapa, Mapas com progressão de 10 em 10, Portais, NPCs, Atributos Base, Atributos de Combate, Matriz de Conversão, Classes, Raridades, Monstros, Formações de 10 Slots, Skills, Itens e `i18n`).
-  3. Criar as classes Orientadas a Objetos do Motor Procedural em `@etheria/shared` (`StatCalculator`, `MapRuleResolver`, `ArenaFormationValidator` com a regra de 10 slots e limite de pets Solo/Dupla vs 3+ jogadores).
+## 🎯 Próxima Tarefa Exata da Fila
+* Criar o código das tabelas do Banco de Dados (`@etheria/database`) conforme especificado em `docs/DATABASE_SCHEMA.md`, sob comando do usuário.
