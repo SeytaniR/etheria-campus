@@ -5,6 +5,16 @@ Qualquer IA trabalhando neste repositório **DEVE** incrementar a versão e regi
 
 ---
 
+## [v0.3.6] - 2026-11-05
+### Adicionado
+* **Auto-Incremento Automático de ID e Chave do Mapa (`map_1`, `map_2`, `map_3`...):**
+  * Em [`AdminMapsController.saveMap`](file:///C:/Users/Dani/.gemini/antigravity/scratch/etheria-campus/apps/server/src/controllers/AdminMapsController.ts#L230-L295) e na interface da Rota `/admin`, tanto o `id` quanto a chave `code` (`map_1`, `map_2`, `map_3`...) agora são gerados e auto-incrementados automaticamente em sincronia, exigindo que o usuário digite apenas o **Nome do Mapa**.
+  * Padronizado o Mapa #2 (`Pantanal das Nuvens`) para `id = 2` e `code = 'map_2'`.
+* **Pré-Compilação de Bounding Box (AABB) em `MapPolygonMesh` (`packages/shared/src/MapPolygonMesh.ts`):**
+  * Os limites `minX, maxX, minY, maxY` de cada polígono agora são pré-calculados no construtor em memória, descartando malhas distantes em $O(1)$ com apenas 4 comparações de float.
+
+---
+
 ## [v0.3.5] - 2026-11-05
 ### Corrigido
 * **Correção Crítica do Botão `➕ Novo do mcrework` (`apps/server/public/admin/admin.js` & `index.html`):**

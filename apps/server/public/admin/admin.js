@@ -374,7 +374,7 @@ class EtheriaAdminStudio {
         return `
       <div class="item-row ${m.id === this.currentMapId ? 'selected' : ''}" onclick="AdminApp.selectSavedMap(${m.id})" style="cursor:pointer; flex-direction:column; align-items:stretch;">
         <div style="display:flex; justify-content:space-between; align-items:center;">
-          <strong>${m.namePtBr} <span style="color:var(--accent); font-size:0.74rem;">(Nv.${m.requiredLevel})</span></strong>
+          <strong>#${m.id} &bull; ${m.namePtBr} <span style="color:var(--accent); font-size:0.74rem;">(Nv.${m.requiredLevel})</span></strong>
           ${statusBadge}
         </div>
         <div style="font-size:0.7rem; color:var(--text-muted);">
@@ -387,16 +387,17 @@ class EtheriaAdminStudio {
 
   newBlankMapState(mcreworkItem) {
     this.currentMapId = null;
-    const nextOrder = this.savedMaps.length + 1;
-    const suggestedLevel = nextOrder === 1 ? 1 : (nextOrder - 1) * 10;
+    const maxId = this.savedMaps.reduce((acc, m) => Math.max(acc, Number(m.id) || 0), 0);
+    const nextId = maxId + 1;
+    const suggestedLevel = nextId === 1 ? 1 : (nextId - 1) * 10;
 
     const titleBadge = document.getElementById('mapFormTitleBadge');
     if (titleBadge) {
-      titleBadge.innerHTML = `<span style="color:#fde047;">🆕 CRIANDO NOVO MAPA (Será salvo como um novo registro)</span>`;
+      titleBadge.innerHTML = `<span style="color:#fde047;">🆕 CRIANDO NOVO MAPA #${nextId} (map_${nextId})</span>`;
     }
 
-    document.getElementById('mapCode').value = mcreworkItem ? mcreworkItem.folderCode : `map_${nextOrder}`;
-    document.getElementById('mapNamePtBr').value = mcreworkItem ? `Mapa ${mcreworkItem.mcreworkId}` : '';
+    document.getElementById('mapCode').value = `#${nextId} • map_${nextId} (Automático)`;
+    document.getElementById('mapNamePtBr').value = '';
     document.getElementById('mapReqLevel').value = suggestedLevel;
     document.getElementById('mapImagePath').value = mcreworkItem ? mcreworkItem.bgImageUrl : '';
     document.getElementById('mapOverlapOpacity').value = '0.45';
@@ -436,10 +437,10 @@ class EtheriaAdminStudio {
 
     const titleBadge = document.getElementById('mapFormTitleBadge');
     if (titleBadge) {
-      titleBadge.innerHTML = `✏️ Editando Mapa #${m.id}: <span style="color:#86efac;">${m.namePtBr}</span>`;
+      titleBadge.innerHTML = `✏️ Editando Mapa #${m.id} (${m.code}): <span style="color:#86efac;">${m.namePtBr}</span>`;
     }
 
-    document.getElementById('mapCode').value = m.code;
+    document.getElementById('mapCode').value = `#${m.id} • ${m.code}`;
     document.getElementById('mapNamePtBr').value = m.namePtBr;
     document.getElementById('mapReqLevel').value = m.requiredLevel;
     document.getElementById('mapImagePath').value = m.mcreworkMapImage;

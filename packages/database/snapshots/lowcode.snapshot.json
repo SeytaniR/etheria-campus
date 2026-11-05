@@ -1,6 +1,6 @@
 {
   "version": "0.2.0",
-  "exportedAt": "2026-11-05T23:44:52.373Z",
+  "exportedAt": "2026-11-05T23:51:46.594Z",
   "i18nTranslations": [
     {
       "id": 1,
@@ -1117,7 +1117,7 @@
     },
     {
       "id": 162,
-      "key": "map.map_3.name",
+      "key": "map.map_2.name",
       "locale": "pt-BR",
       "text": "Pantanal das Nuvens",
       "updatedAt": "2026-11-05T23:35:29.265Z"
@@ -3071,9 +3071,9 @@
     },
     {
       "id": 2,
-      "code": "map_3",
+      "code": "map_2",
       "mcreworkMapImage": "https://seytanir.github.io/mcrework/assets/maps/map_3/bg.jpg",
-      "nameI18nKey": "map.map_3.name",
+      "nameI18nKey": "map.map_2.name",
       "requiredLevel": 10,
       "levelVarianceMin": -2,
       "levelVarianceMax": 5,

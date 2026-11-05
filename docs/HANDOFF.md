@@ -8,9 +8,9 @@
 ---
 
 ## 📌 Status Atual do Projeto
-* **Versão Atual:** `v0.3.5`
+* **Versão Atual:** `v0.3.6`
 * **Última Atualização:** `2026-11-05`
-* **Fase Atual:** **Etapa 2 (Parte 1) Concluída (`v0.3.5`) — Mapas #1 (`Vila Izumo`) e #2 (`Pantanal das Nuvens`) 100% salvos no PostgreSQL e no Snapshot JSON!**
+* **Fase Atual:** **Etapa 2 (Parte 1) Concluída (`v0.3.6`) — Auto-incremento de `id` e `map_N`, pré-compilação AABB em `MapPolygonMesh` e Mapas #1 (`Vila Izumo`) e #2 (`Pantanal das Nuvens`) salvos!**
 * **Repositório Oficial:** `https://github.com/SeytaniR/etheria-campus`
 * **Fonte Bruta de Assets:** `https://github.com/SeytaniR/mcrework` (`https://seytanir.github.io/mcrework/`)
 

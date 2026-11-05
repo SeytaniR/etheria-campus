@@ -16,7 +16,7 @@ import { PrismaClient, SnapshotManager } from '@etheria/database';
 import type { MapPolygon } from '@etheria/shared';
 
 export interface SaveMapDto {
-  code: string;
+  code?: string;
   namePtBr: string;
   mcreworkMapImage: string;
   requiredLevel: number;
@@ -226,24 +226,16 @@ export class AdminMapsController {
   /**
    * Cria ou atualiza um Mapa completo no PostgreSQL (incluindo Polígonos de Colisão,
    * Polígonos de Sobreposição/Opacidade, Pontos de Teleporte e Posições de NPCs) e exporta o Snapshot JSON.
+   * O `id` e a chave `code` (`map_1`, `map_2`, `map_3`...) são auto-incrementados automaticamente.
    */
   public async saveMap(id: number | null, dto: SaveMapDto) {
-    const code = dto.code.trim();
-    if (!code || !dto.mcreworkMapImage || !dto.namePtBr) {
-      throw new Error('Código, Nome do Mapa e Imagem Base do mcrework são obrigatórios.');
+    if (!dto.mcreworkMapImage || !dto.namePtBr?.trim()) {
+      throw new Error('O Nome do Mapa e a Imagem Base do mcrework são obrigatórios.');
     }
 
-    const nameKey = `map.${code.toLowerCase()}.name`;
-    await this.prisma.i18nTranslation.upsert({
-      where: { key_locale: { key: nameKey, locale: 'pt-BR' } },
-      update: { text: dto.namePtBr.trim() },
-      create: { key: nameKey, locale: 'pt-BR', text: dto.namePtBr.trim() },
-    });
-
-    const mapData = {
-      code,
+    const cleanName = dto.namePtBr.trim();
+    const baseData = {
       mcreworkMapImage: dto.mcreworkMapImage,
-      nameI18nKey: nameKey,
       requiredLevel: Number(dto.requiredLevel) || 1,
       levelVarianceMin: Number(dto.levelVarianceMin ?? -2),
       levelVarianceMax: Number(dto.levelVarianceMax ?? 5),
@@ -263,15 +255,50 @@ export class AdminMapsController {
 
     await this.prisma.$transaction(async (tx) => {
       if (savedMapId) {
+        const autoCode = `map_${savedMapId}`;
+        const nameKey = `map.${autoCode}.name`;
+
+        await tx.i18nTranslation.upsert({
+          where: { key_locale: { key: nameKey, locale: 'pt-BR' } },
+          update: { text: cleanName },
+          create: { key: nameKey, locale: 'pt-BR', text: cleanName },
+        });
+
         await tx.gameMap.update({
           where: { id: savedMapId },
-          data: mapData,
+          data: {
+            ...baseData,
+            code: autoCode,
+            nameI18nKey: nameKey,
+          },
         });
       } else {
+        const tempCode = `map_pending_${Date.now()}`;
         const created = await tx.gameMap.create({
-          data: mapData,
+          data: {
+            ...baseData,
+            code: tempCode,
+            nameI18nKey: `map.${tempCode}.name`,
+          },
         });
         savedMapId = created.id;
+
+        const autoCode = `map_${savedMapId}`;
+        const nameKey = `map.${autoCode}.name`;
+
+        await tx.i18nTranslation.upsert({
+          where: { key_locale: { key: nameKey, locale: 'pt-BR' } },
+          update: { text: cleanName },
+          create: { key: nameKey, locale: 'pt-BR', text: cleanName },
+        });
+
+        await tx.gameMap.update({
+          where: { id: savedMapId },
+          data: {
+            code: autoCode,
+            nameI18nKey: nameKey,
+          },
+        });
       }
 
       // 1. Gerencia Portais preservando IDs e sincronizando Duplas de Portais (Entrada <-> Saída)
