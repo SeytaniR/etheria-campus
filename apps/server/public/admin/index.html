@@ -1,60 +1,38 @@
-<!--
-  @file apps/server/public/admin/index.html
-  @module @etheria/server
-  @description Interface Responsiva da Rota `/admin` (Studio Low-Code do Etheria Campus).
-    Otimizada para uso em Celular (Touch: Pinça de 2 dedos para Zoom/Pan, Arraste com 1 dedo,
-    Mira de Precisão Mobile, Desfazer Ponto e Modo Tela Cheia) e Desktop.
-  @rules Respeita layout fluido e responsivo (PC, Tablet, Celular Vertical e Horizontal).
--->
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
-  <title>Etheria Campus — Studio Admin (/admin)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Etheria Campus — Studio Low-Code (/admin)</title>
   <style>
     :root {
-      --bg-main: #090d16;
+      --bg-dark: #090d16;
       --bg-card: #111827;
       --bg-input: #1e293b;
       --border: #334155;
       --accent: #38bdf8;
-      --accent-green: #22c55e;
-      --accent-red: #ef4444;
       --accent-amber: #f59e0b;
-      --text-main: #f8fafc;
+      --accent-red: #ef4444;
+      --accent-green: #22c55e;
+      --text: #f8fafc;
       --text-muted: #94a3b8;
     }
+
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      background: var(--bg-main);
-      color: var(--text-main);
+      font-family: system-ui, -apple-system, sans-serif;
+      background: var(--bg-dark);
+      color: var(--text);
       min-height: 100dvh;
       display: flex;
       flex-direction: column;
       overscroll-behavior: none;
     }
-    button, input, select {
-      font-family: inherit;
-      font-size: 0.85rem;
-      color: var(--text-main);
-      background: var(--bg-input);
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      padding: 8px 10px;
-    }
-    button { cursor: pointer; font-weight: 600; transition: 0.15s; user-select: none; -webkit-user-select: none; }
-    button:hover { border-color: var(--accent); }
-    button.btn-primary { background: var(--accent); color: #020617; border-color: var(--accent); }
-    button.btn-success { background: var(--accent-green); color: #022c22; border-color: var(--accent-green); }
-    button.btn-danger { background: rgba(239, 68, 68, 0.2); color: #fca5a5; border-color: var(--accent-red); }
-    button.active-tool { outline: 2px solid var(--accent-amber); background: rgba(245, 158, 11, 0.25); color: #fde68a; }
 
     /* Login Screen */
     #loginScreen {
       margin: auto;
-      width: min(94vw, 430px);
+      width: min(94vw, 440px);
       background: var(--bg-card);
       border: 1px solid var(--border);
       border-radius: 12px;
@@ -62,160 +40,141 @@
       display: flex;
       flex-direction: column;
       gap: 14px;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
     }
+
     .status-pill {
       padding: 8px 12px;
       border-radius: 8px;
-      font-size: 0.8rem;
+      font-size: 0.82rem;
       line-height: 1.4;
+      border: 1px solid var(--border);
     }
-    .status-local { background: rgba(34, 197, 94, 0.12); border: 1px solid var(--accent-green); color: #86efac; }
-    .status-remote { background: rgba(245, 158, 11, 0.12); border: 1px solid var(--accent-amber); color: #fde68a; }
+    .status-local { background: rgba(34, 197, 94, 0.12); border-color: var(--accent-green); color: #86efac; }
+    .status-remote { background: rgba(245, 158, 11, 0.12); border-color: var(--accent-amber); color: #fde68a; }
 
-    /* Top Header */
-    #adminApp { display: none; flex: 1; flex-direction: column; min-height: 100dvh; }
+    /* Main Admin Layout */
+    #adminApp {
+      display: none;
+      flex-direction: column;
+      min-height: 100dvh;
+    }
+
     header.topbar {
       display: flex;
       flex-wrap: wrap;
       justify-content: space-between;
       align-items: center;
       gap: 10px;
-      padding: 10px 14px;
+      padding: 10px 16px;
       background: var(--bg-card);
       border-bottom: 1px solid var(--border);
     }
-    .nav-tabs { display: flex; gap: 6px; flex-wrap: wrap; }
 
-    /* Layout Grid for Map Editor */
-    .workspace-grid {
-      flex: 1;
-      display: grid;
-      grid-template-columns: 310px 1fr 330px;
-      gap: 10px;
-      padding: 10px;
-      min-height: calc(100dvh - 60px);
+    .nav-tabs {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
     }
-    @media (max-width: 1150px) {
-      .workspace-grid {
+
+    button {
+      cursor: pointer;
+      border: 1px solid var(--border);
+      background: var(--bg-input);
+      color: var(--text);
+      padding: 8px 12px;
+      border-radius: 6px;
+      font-size: 0.84rem;
+      font-weight: 600;
+      transition: 0.15s;
+      touch-action: manipulation;
+    }
+    button:hover { border-color: var(--accent); }
+    button.btn-primary { background: var(--accent); color: #020617; border-color: var(--accent); }
+    button.btn-success { background: var(--accent-green); color: #020617; border-color: var(--accent-green); }
+    button.btn-danger { background: rgba(239, 68, 68, 0.2); color: #fca5a5; border-color: var(--accent-red); }
+    button.active-tool { background: var(--accent-amber); color: #020617; border-color: var(--accent-amber); }
+
+    .btn-enter-editor {
+      background: linear-gradient(135deg, #f59e0b, #ea580c);
+      color: #020617;
+      border: none;
+      padding: 14px 18px;
+      font-size: 1rem;
+      font-weight: 800;
+      border-radius: 10px;
+      box-shadow: 0 8px 24px rgba(245, 158, 11, 0.35);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      width: 100%;
+    }
+
+    /* Dashboard de Ficha de Mapas (2 Colunas amplas) */
+    .maps-dashboard {
+      display: grid;
+      grid-template-columns: 340px 1fr;
+      gap: 14px;
+      padding: 14px;
+      max-width: 1400px;
+      width: 100%;
+      margin: 0 auto;
+      flex: 1;
+    }
+    @media (max-width: 900px) {
+      .maps-dashboard {
         grid-template-columns: 1fr;
+        padding: 10px;
       }
     }
+
     .panel {
       background: var(--bg-card);
       border: 1px solid var(--border);
       border-radius: 10px;
-      padding: 12px;
+      padding: 14px;
       display: flex;
       flex-direction: column;
-      gap: 10px;
-      overflow-y: auto;
-      max-height: calc(100dvh - 80px);
+      gap: 12px;
     }
-    @media (max-width: 1150px) {
-      .panel { max-height: none; }
-    }
+
     .panel h3 {
       font-size: 0.92rem;
       color: var(--accent);
       border-bottom: 1px solid var(--border);
       padding-bottom: 6px;
     }
-    .field { display: flex; flex-direction: column; gap: 4px; }
-    .field label { font-size: 0.75rem; color: var(--text-muted); font-weight: 600; }
-    .row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
 
-    /* Canvas Area */
-    .canvas-panel {
-      background: #05080f;
-      border: 1px solid var(--border);
-      border-radius: 10px;
+    .field {
       display: flex;
       flex-direction: column;
-      overflow: hidden;
-      min-height: 68dvh;
+      gap: 4px;
     }
-    .canvas-panel.fullscreen-map {
-      position: fixed;
-      inset: 0;
-      z-index: 90;
-      border-radius: 0;
-      min-height: 100dvh;
-    }
-    .canvas-toolbar {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 5px;
-      padding: 8px;
-      background: var(--bg-card);
-      border-bottom: 1px solid var(--border);
-      align-items: center;
-    }
-    .canvas-toolbar button {
-      padding: 7px 9px;
-      font-size: 0.78rem;
-    }
-    .canvas-viewport {
-      flex: 1;
-      position: relative;
-      overflow: hidden;
-      cursor: crosshair;
-      touch-action: none;
-      -webkit-user-select: none;
-      user-select: none;
-    }
-    canvas#mapCanvas {
-      display: block;
-      width: 100%;
-      height: 100%;
-      touch-action: none;
-    }
-
-    /* Floating Mobile Controls Inside Viewport */
-    .viewport-floating-controls {
-      position: absolute;
-      top: 10px;
-      right: 10px;
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-      z-index: 10;
-    }
-    .viewport-floating-controls button {
-      background: rgba(17, 24, 39, 0.92);
-      border: 1px solid var(--border);
-      padding: 10px 12px;
-      font-size: 0.9rem;
-      border-radius: 8px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.5);
-    }
-    .crosshair-action-bar {
-      position: absolute;
-      bottom: 44px;
-      left: 50%;
-      transform: translateX(-50%);
-      display: flex;
-      gap: 8px;
-      z-index: 10;
-      background: rgba(17, 24, 39, 0.92);
-      padding: 6px 10px;
-      border-radius: 999px;
-      border: 1px solid var(--border);
-      box-shadow: 0 4px 14px rgba(0,0,0,0.6);
-      white-space: nowrap;
-    }
-    .canvas-hint {
-      position: absolute;
-      bottom: 6px;
-      left: 6px;
-      right: 6px;
-      background: rgba(9, 13, 22, 0.85);
-      border: 1px solid var(--border);
-      padding: 5px 8px;
-      border-radius: 6px;
-      font-size: 0.72rem;
+    .field label {
+      font-size: 0.75rem;
       color: var(--text-muted);
-      pointer-events: none;
-      text-align: center;
+      font-weight: 600;
+    }
+    input, select {
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 8px 10px;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      width: 100%;
+    }
+
+    .row-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    @media (max-width: 600px) {
+      .row-2 {
+        grid-template-columns: 1fr;
+      }
     }
 
     /* Lists & Cards */
@@ -225,21 +184,168 @@
       justify-content: space-between;
       align-items: center;
       gap: 6px;
-      padding: 6px 8px;
+      padding: 8px 10px;
       background: rgba(30, 41, 59, 0.65);
       border: 1px solid var(--border);
-      border-radius: 6px;
-      font-size: 0.8rem;
+      border-radius: 8px;
+      font-size: 0.82rem;
     }
     .item-row.selected { border-color: var(--accent-amber); background: rgba(245, 158, 11, 0.14); }
+
+    /* ==========================================================================
+       TELA DEDICADA DE EDIÇÃO VISUAL DO MAPA (100% DA TELA — FOCO TOTAL NO MAPA)
+       ========================================================================== */
+    #visualMapEditorScreen {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 90;
+      background: #030712;
+      flex-direction: column;
+      width: 100vw;
+      height: 100dvh;
+      overflow: hidden;
+    }
+
+    .editor-top-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+      padding: 6px 10px;
+      background: rgba(17, 24, 39, 0.96);
+      border-bottom: 1px solid var(--border);
+      overflow-x: auto;
+      white-space: nowrap;
+      z-index: 25;
+    }
+    .editor-top-bar .tool-group {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .editor-top-bar button {
+      padding: 7px 10px;
+      font-size: 0.78rem;
+      flex-shrink: 0;
+    }
+
+    .canvas-viewport {
+      flex: 1;
+      position: relative;
+      overflow: hidden;
+      cursor: crosshair;
+      touch-action: none;
+      -webkit-user-select: none;
+      user-select: none;
+      width: 100%;
+      height: 100%;
+    }
+    canvas#mapCanvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+      touch-action: none;
+    }
+
+    /* Gaveta Lateral Flutuante (Drawer) de Camadas, Portais e NPCs dentro do Editor Visual */
+    .layers-drawer {
+      position: absolute;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      width: min(92vw, 370px);
+      background: rgba(15, 23, 42, 0.97);
+      border-left: 1px solid var(--border);
+      z-index: 30;
+      padding: 12px;
+      overflow-y: auto;
+      display: none;
+      flex-direction: column;
+      gap: 12px;
+      box-shadow: -12px 0 30px rgba(0, 0, 0, 0.7);
+    }
+    .layers-drawer.open {
+      display: flex;
+    }
+
+    /* Botões Flutuantes de Zoom e Undo/Redo no Canto Esquerdo/Direito do Mapa */
+    .viewport-floating-controls {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      z-index: 20;
+    }
+    .viewport-floating-controls button {
+      background: rgba(17, 24, 39, 0.92);
+      border: 1px solid var(--border);
+      padding: 9px 11px;
+      font-size: 0.82rem;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+    }
+
+    /* Barra Flutuante de NPC Rápido quando a ferramenta NPC está ativa */
+    .npc-quick-bar {
+      position: absolute;
+      top: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(17, 24, 39, 0.95);
+      border: 1px solid var(--accent-green);
+      padding: 6px 10px;
+      border-radius: 10px;
+      display: none;
+      align-items: center;
+      gap: 6px;
+      z-index: 20;
+      max-width: 94vw;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.6);
+    }
+
+    /* Barra Inferior de Marcação de Precisão na Mira Central (+) */
+    .crosshair-action-bar {
+      position: absolute;
+      bottom: 38px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 8px;
+      z-index: 20;
+      background: rgba(17, 24, 39, 0.94);
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      box-shadow: 0 4px 14px rgba(0,0,0,0.65);
+      white-space: nowrap;
+    }
+
+    .canvas-hint {
+      position: absolute;
+      bottom: 4px;
+      left: 6px;
+      right: 6px;
+      background: rgba(9, 13, 22, 0.88);
+      border: 1px solid var(--border);
+      padding: 4px 8px;
+      border-radius: 6px;
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      pointer-events: none;
+      text-align: center;
+      z-index: 15;
+    }
 
     /* Modal */
     .modal-backdrop {
       display: none;
       position: fixed;
       inset: 0;
-      background: rgba(0, 0, 0, 0.78);
-      z-index: 100;
+      background: rgba(0, 0, 0, 0.82);
+      z-index: 120;
       padding: 12px;
       overflow-y: auto;
       align-items: center;
@@ -327,17 +433,34 @@
       </div>
     </header>
 
-    <!-- ABA 1: EDITOR DE MAPAS -->
-    <div id="tabMaps" class="workspace-grid">
-      <!-- COLUNA ESQUERDA: LISTA DE MAPAS + PROPRIEDADES DO MAPA -->
+    <!-- ABA 1: PAINEL DE FICHAS DE MAPAS (SEM MINIATURA ESPREMIDA) -->
+    <div id="tabMaps" class="maps-dashboard">
+      <!-- COLUNA ESQUERDA: LISTA DE MAPAS SALVOS (COMPLETOS OU EM CONSTRUÇÃO) -->
       <aside class="panel">
         <div style="display:flex; justify-content:space-between; align-items:center;">
           <h3>📂 Mapas no Banco</h3>
           <button class="btn-primary" onclick="AdminApp.openMcreworkMapPicker()">➕ Novo do mcrework</button>
         </div>
-        <div id="savedMapsList" class="item-list" style="max-height:150px; overflow-y:auto;"></div>
+        <p style="font-size:0.75rem; color:var(--text-muted);">
+          Você pode salvar mapas incompletos a qualquer momento e clicar neles abaixo para continuar exatamente de onde parou.
+        </p>
+        <div id="savedMapsList" class="item-list" style="max-height:480px; overflow-y:auto;"></div>
+      </aside>
 
-        <h3>⚙️ Configurações do Mapa</h3>
+      <!-- COLUNA DIREITA: FICHA TÉCNICA DO MAPA + BOTÃO DE ENTRAR NO EDITOR VISUAL DE TELA INTEIRA -->
+      <section class="panel">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
+          <h3>⚙️ Ficha Técnica do Mapa Selecionado</h3>
+          <span id="lastSavedBadge" style="font-size:0.76rem; color:#86efac;"></span>
+        </div>
+
+        <!-- BOTÃO GIGANTE DE ENTRAR NO EDITOR VISUAL (FOCO 100% NO MAPA) -->
+        <button class="btn-enter-editor" onclick="AdminApp.enterVisualMapEditor()">
+          🎯 ENTRAR NA EDIÇÃO VISUAL DO MAPA (TELA INTEIRA)
+        </button>
+
+        <div id="mapSummaryCounters" style="display:flex; flex-wrap:wrap; gap:8px; font-size:0.78rem; background:rgba(56,189,248,0.1); border:1px solid var(--border); padding:8px 12px; border-radius:8px;"></div>
+
         <div class="row-2">
           <div class="field">
             <label>Código Único</label>
@@ -348,47 +471,61 @@
             <input type="number" id="mapReqLevel" value="1" min="1" step="1" />
           </div>
         </div>
-        <div class="field">
-          <label>Nome do Mapa (i18n PT-BR)</label>
-          <input type="text" id="mapNamePtBr" placeholder="Ex: Vila de Aetheris" />
-        </div>
-        <div class="field">
-          <label>Imagem Limpa (mcrework)</label>
-          <div style="display:flex; gap:6px;">
-            <input type="text" id="mapImagePath" readonly style="flex:1; opacity:0.8;" />
-            <button onclick="AdminApp.openMcreworkMapPicker()">Trocar</button>
+
+        <div class="row-2">
+          <div class="field">
+            <label>Nome do Mapa (i18n PT-BR)</label>
+            <input type="text" id="mapNamePtBr" placeholder="Ex: Cidade de Aetheris" />
+          </div>
+          <div class="field">
+            <label>Status do Trabalho (Pode salvar incompleto e retomar depois)</label>
+            <select id="mapIsActiveSelect">
+              <option value="false">📝 Em Edição / Incompleto (Rascunho Salvo)</option>
+              <option value="true" selected>✅ Pronto / Ativo no Jogo</option>
+            </select>
           </div>
         </div>
+
+        <div class="field">
+          <label>Imagem Limpa do Mapa (mcrework)</label>
+          <div style="display:flex; gap:6px;">
+            <input type="text" id="mapImagePath" readonly style="flex:1; opacity:0.85;" />
+            <button onclick="AdminApp.openMcreworkMapPicker()">🖼️ Trocar Imagem</button>
+          </div>
+        </div>
+
         <div class="field">
           <label>Tipo de Mapa (Fixa Domínio, Spawn e PvP)</label>
           <select id="mapTypeSelect" onchange="AdminApp.updateMapTypeRuleBadge()"></select>
-          <div id="mapTypeRulesBadge" style="font-size:0.73rem; color:#fde68a; background:rgba(245,158,11,0.12); padding:6px; border-radius:6px; margin-top:3px;"></div>
+          <div id="mapTypeRulesBadge" style="font-size:0.75rem; color:#fde68a; background:rgba(245,158,11,0.12); padding:6px 8px; border-radius:6px; margin-top:3px;"></div>
         </div>
-        <div class="field">
-          <label>Bioma Primário (1 dos 40)</label>
-          <select id="primaryBiomeSelect" onchange="AdminApp.updateBiomeDesc()"></select>
-        </div>
-        <div class="field">
-          <label>Bioma Secundário (2 dos 40)</label>
-          <select id="secondaryBiomeSelect" onchange="AdminApp.updateBiomeDesc()"></select>
-          <div id="biomeDescBox" style="font-size:0.72rem; color:var(--text-muted); margin-top:2px;"></div>
-        </div>
+
         <div class="row-2">
           <div class="field">
-            <label>⭐ Spawn X (Padrão/Respawn)</label>
+            <label>Bioma Primário (1 dos 40)</label>
+            <select id="primaryBiomeSelect" onchange="AdminApp.updateBiomeDesc()"></select>
+          </div>
+          <div class="field">
+            <label>Bioma Secundário (2 dos 40)</label>
+            <select id="secondaryBiomeSelect" onchange="AdminApp.updateBiomeDesc()"></select>
+          </div>
+        </div>
+        <div id="biomeDescBox" style="font-size:0.74rem; color:var(--text-muted);"></div>
+
+        <div class="row-2">
+          <div class="field">
+            <label>⭐ Spawn X (Padrão/Respawn/Destravar)</label>
             <input type="number" id="mapSpawnX" value="500" step="1" onchange="AdminApp.onSpawnInputChanged()" />
           </div>
           <div class="field">
-            <label>⭐ Spawn Y (Padrão/Respawn)</label>
+            <label>⭐ Spawn Y (Padrão/Respawn/Destravar)</label>
             <input type="number" id="mapSpawnY" value="500" step="1" onchange="AdminApp.onSpawnInputChanged()" />
           </div>
         </div>
-        <div style="font-size:0.7rem; color:#fde68a; background:rgba(245,158,11,0.1); padding:5px 7px; border-radius:6px;">
-          ⭐ <strong>Ponto de Spawn:</strong> Usado para novatos no Mapa 1, itens de teleporte direto, renascer em Cidade/Vila ao morrer e função "Destravar Personagem".
-        </div>
+
         <div class="row-2">
           <div class="field">
-            <label>Opacidade Sobreposição</label>
+            <label>Opacidade da Área de Sobreposição</label>
             <input type="number" id="mapOverlapOpacity" value="0.45" min="0.1" max="0.95" step="0.05" />
           </div>
           <div class="field">
@@ -397,73 +534,13 @@
           </div>
         </div>
 
-        <div style="display:flex; gap:8px; margin-top:6px;">
-          <button class="btn-success" style="flex:1;" onclick="AdminApp.saveCurrentMap()">💾 Salvar Mapa no Banco</button>
-          <button class="btn-danger" onclick="AdminApp.deleteCurrentMap()">🗑️</button>
-        </div>
-      </aside>
-
-      <!-- COLUNA CENTRAL: CANVAS INTERATIVO (OTIMIZADO PARA CELULAR E PC) -->
-      <section class="canvas-panel" id="canvasPanel">
-        <div class="canvas-toolbar">
-          <button id="toolPan" class="active-tool" onclick="AdminApp.setTool('PAN')">🖐️ Mover/Zoom</button>
-          <button id="toolSpawn" onclick="AdminApp.setTool('SPAWN')" title="Definir Ponto de Spawn do Mapa">⭐ Ponto Spawn</button>
-          <button id="toolCollision" onclick="AdminApp.setTool('COLLISION')">🛑 +Pontos Colisão</button>
-          <button onclick="AdminApp.startNewPolygon('COLLISION')" title="Criar um novo polígono de colisão separado">➕ Nova Colisão</button>
-          <button id="toolOverlap" onclick="AdminApp.setTool('OVERLAP')">🟦 +Pontos Sobrep.</button>
-          <button onclick="AdminApp.startNewPolygon('OVERLAP')" title="Criar um novo polígono de sobreposição separado">➕ Nova Sobrep.</button>
-          <button id="toolPortal" onclick="AdminApp.setTool('PORTAL')">🌀 +Portal</button>
-          <button id="toolNpc" onclick="AdminApp.setTool('NPC')">🧙 +NPC</button>
-          <button id="toolEdit" onclick="AdminApp.setTool('EDIT')" title="Destrava vértices e objetos para arrastar ou excluir">✏️ Editar/Arrastar Vértices</button>
-          <button id="btnToggleFullscreen" onclick="AdminApp.toggleFullscreenMap()">⛶ Tela Cheia</button>
-        </div>
-
-        <div class="canvas-viewport" id="canvasViewport">
-          <canvas id="mapCanvas"></canvas>
-
-          <!-- Botões Flutuantes de Zoom e Histórico Real de Desfazer/Refazer para Celular -->
-          <div class="viewport-floating-controls">
-            <button onclick="AdminApp.zoomByStep(1.28)" title="Aproximar Zoom">🔍 ➕</button>
-            <button onclick="AdminApp.zoomByStep(0.78)" title="Afastar Zoom">🔍 ➖</button>
-            <button onclick="AdminApp.resetCamera()" title="Centralizar Mapa">🎯 Centro</button>
-            <button id="btnUndo" onclick="AdminApp.undo()" title="Desfazer última ação (criação ou edição de vértice)">↩️ Desfazer</button>
-            <button id="btnRedo" onclick="AdminApp.redo()" title="Refazer ação desfeita">↪️ Refazer</button>
-          </div>
-
-          <!-- Barra Inferior de Marcação de Precisão na Mira Central (+) -->
-          <div class="crosshair-action-bar">
-            <button id="btnPlaceAtCrosshair" class="btn-primary" onclick="AdminApp.placeAtCenterCrosshair()" style="padding:7px 14px; border-radius:999px;">
-              📍 Marcar no Alvo Central (+)
-            </button>
-          </div>
-
-          <div class="canvas-hint" id="canvasHint">
-            🔒 Malhas existentes ficam TRAVADAS enquanto você cria outras áreas, Portais ou NPCs. Para arrastar um vértice já criado, toque em "✏️ Editar/Arrastar Vértices".
-          </div>
+        <div style="display:flex; gap:10px; margin-top:8px;">
+          <button class="btn-success" style="flex:1; padding:12px;" onclick="AdminApp.saveCurrentMap()">
+            💾 Salvar Mapa / Progresso no Banco
+          </button>
+          <button class="btn-danger" onclick="AdminApp.deleteCurrentMap()">🗑️ Excluir</button>
         </div>
       </section>
-
-      <!-- COLUNA DIREITA: CAMADAS DO MAPA (COLISÕES, SOBREPOSIÇÕES, TELEPORTES, NPCS) -->
-      <aside class="panel">
-        <h3>🛑 Áreas de Colisão (<span id="countCollision">0</span>)</h3>
-        <div id="collisionList" class="item-list"></div>
-
-        <h3>🟦 Áreas de Sobreposição (<span id="countOverlap">0</span>)</h3>
-        <div id="overlapList" class="item-list"></div>
-
-        <h3>🌀 Pontos de Teleporte (<span id="countPortals">0</span>)</h3>
-        <div id="portalsList" class="item-list"></div>
-
-        <div style="display:flex; justify-content:space-between; align-items:center;">
-          <h3>🧙 NPCs no Mapa (<span id="countNpcs">0</span>)</h3>
-          <button onclick="AdminApp.openNpcTemplateModal()" style="font-size:0.75rem; padding:4px 8px;">➕ Criar NPC</button>
-        </div>
-        <div class="field">
-          <label>NPC selecionado para posicionar:</label>
-          <select id="activeNpcTemplateSelect"></select>
-        </div>
-        <div id="npcsList" class="item-list"></div>
-      </aside>
     </div>
 
     <!-- ABA 2: CRUD DE CONTAS DE USUÁRIOS (ACESSO FORA DO LOCALHOST) -->
@@ -477,11 +554,11 @@
         <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:10px; align-items:end;">
           <div class="field">
             <label>Username (Login)</label>
-            <input type="text" id="userUsername" placeholder="Ex: dani_admin" />
+            <input type="text" id="userUsername" placeholder="Ex: dev" />
           </div>
           <div class="field">
             <label>E-mail</label>
-            <input type="email" id="userEmail" placeholder="Ex: dani@etheria.com" />
+            <input type="email" id="userEmail" placeholder="Ex: dev@etheria.com" />
           </div>
           <div class="field">
             <label>Senha (mín. 4 caracteres)</label>
@@ -521,6 +598,109 @@
     </div>
   </div>
 
+  <!-- ==========================================================================
+       ESTÚDIO DE EDIÇÃO VISUAL DE TELA INTEIRA (FOCO 100% NO MAPA E FERRAMENTAS)
+       ========================================================================== -->
+  <section id="visualMapEditorScreen">
+    <!-- Barra Superior Compacta de Ferramentas Visuais -->
+    <div class="editor-top-bar">
+      <div class="tool-group">
+        <button onclick="AdminApp.exitVisualMapEditor()" style="background:#334155; border-color:#64748b;">
+          ⬅️ Ficha
+        </button>
+        <button id="toolPan" class="active-tool" onclick="AdminApp.setTool('PAN')">🖐️ Mover</button>
+        <button id="toolSpawn" onclick="AdminApp.setTool('SPAWN')">⭐ Spawn</button>
+        <button id="toolCollision" onclick="AdminApp.setTool('COLLISION')">🛑 +Colisão</button>
+        <button onclick="AdminApp.startNewPolygon('COLLISION')" title="Iniciar novo polígono de colisão separado">➕ Nova Col.</button>
+        <button id="toolOverlap" onclick="AdminApp.setTool('OVERLAP')">🟦 +Sobrep.</button>
+        <button onclick="AdminApp.startNewPolygon('OVERLAP')" title="Iniciar novo polígono de sobreposição separado">➕ Nova Sob.</button>
+        <button id="toolPortal" onclick="AdminApp.setTool('PORTAL')">🌀 +Portal</button>
+        <button id="toolNpc" onclick="AdminApp.setTool('NPC')">🧙 +NPC</button>
+        <button id="toolEdit" onclick="AdminApp.setTool('EDIT')">✏️ Editar Vértices</button>
+      </div>
+
+      <div class="tool-group">
+        <button id="btnToggleDrawer" onclick="AdminApp.toggleLayersDrawer()">
+          🗂️ Camadas (<span id="drawerTotalBadge">0</span>)
+        </button>
+        <button class="btn-success" onclick="AdminApp.saveCurrentMap(true)">
+          💾 Salvar Progresso
+        </button>
+      </div>
+    </div>
+
+    <!-- Área 100% Mapa -->
+    <div class="canvas-viewport" id="canvasViewport">
+      <canvas id="mapCanvas"></canvas>
+
+      <!-- Barra Rápida de NPC quando a ferramenta NPC está ativa -->
+      <div id="npcQuickBar" class="npc-quick-bar">
+        <span style="font-size:0.75rem; color:#86efac; font-weight:700;">🧙 NPC:</span>
+        <select id="activeNpcTemplateSelect" style="min-width:160px; padding:5px 8px; font-size:0.78rem;"></select>
+        <button onclick="AdminApp.openNpcTemplateModal()" style="padding:5px 8px; font-size:0.75rem;">➕ Criar NPC</button>
+      </div>
+
+      <!-- Botões Flutuantes de Zoom e Undo/Redo -->
+      <div class="viewport-floating-controls">
+        <button onclick="AdminApp.zoomByStep(1.28)" title="Aproximar Zoom">🔍 ➕</button>
+        <button onclick="AdminApp.zoomByStep(0.78)" title="Afastar Zoom">🔍 ➖</button>
+        <button onclick="AdminApp.resetCamera()" title="Centralizar Mapa">🎯 Centro</button>
+        <button id="btnUndo" onclick="AdminApp.undo()" title="Desfazer última ação">↩️ Desfazer (0)</button>
+        <button id="btnRedo" onclick="AdminApp.redo()" title="Refazer ação">↪️ Refazer</button>
+      </div>
+
+      <!-- Barra Inferior de Marcação de Precisão na Mira Central (+) -->
+      <div class="crosshair-action-bar">
+        <button id="btnPlaceAtCrosshair" class="btn-primary" onclick="AdminApp.placeAtCenterCrosshair()" style="padding:8px 16px; border-radius:999px;">
+          📍 Marcar no Alvo Central (+)
+        </button>
+      </div>
+
+      <!-- Gaveta Lateral Recolhível (Drawer) de Camadas, Portais em Dupla e NPCs -->
+      <aside id="layersDrawer" class="layers-drawer">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <h3 style="color:var(--accent); font-size:0.92rem;">🗂️ Camadas e Objetos do Mapa</h3>
+          <button class="btn-danger" onclick="AdminApp.toggleLayersDrawer()" style="padding:4px 8px;">✕ Fechar</button>
+        </div>
+
+        <div>
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+            <strong style="font-size:0.82rem; color:#fca5a5;">🛑 Áreas de Colisão (<span id="countCollision">0</span>)</strong>
+            <button onclick="AdminApp.startNewPolygon('COLLISION')" style="font-size:0.72rem; padding:3px 7px;">➕ Nova</button>
+          </div>
+          <div id="collisionList" class="item-list"></div>
+        </div>
+
+        <div>
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+            <strong style="font-size:0.82rem; color:#7dd3fc;">🟦 Áreas de Sobreposição (<span id="countOverlap">0</span>)</strong>
+            <button onclick="AdminApp.startNewPolygon('OVERLAP')" style="font-size:0.72rem; padding:3px 7px;">➕ Nova</button>
+          </div>
+          <div id="overlapList" class="item-list"></div>
+        </div>
+
+        <div>
+          <strong style="font-size:0.82rem; color:#d8b4fe; display:block; margin-bottom:6px;">
+            🌀 Portais em Dupla (<span id="countPortals">0</span>)
+          </strong>
+          <div id="portalsList" class="item-list"></div>
+        </div>
+
+        <div>
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+            <strong style="font-size:0.82rem; color:#86efac;">🧙 NPCs Posicionados (<span id="countNpcs">0</span>)</strong>
+            <button onclick="AdminApp.openNpcTemplateModal()" style="font-size:0.72rem; padding:3px 7px;">➕ Criar Template</button>
+          </div>
+          <div id="npcsList" class="item-list"></div>
+        </div>
+      </aside>
+
+      <div class="canvas-hint" id="canvasHint">
+        🔒 Malhas existentes ficam TRAVADAS enquanto você cria outras áreas, Portais ou NPCs. Para ajustar um vértice, toque em "✏️ Editar Vértices".
+      </div>
+    </div>
+  </section>
+
   <!-- MODAL: SELETOR DE IMAGEM LIMPA DE MAPA DO MCREWORK -->
   <div id="mapPickerModal" class="modal-backdrop">
     <div class="modal-box">
@@ -529,7 +709,7 @@
         <button class="btn-danger" onclick="AdminApp.closeModal('mapPickerModal')">Fechar</button>
       </div>
       <p style="font-size:0.8rem; color:var(--text-muted);">
-        Importa exclusivamente a imagem de fundo limpa do mapa. Colisões, sobreposições, portais e NPCs são definidos por você no editor.
+        Importa exclusivamente a imagem de fundo limpa do mapa. Colisões, sobreposições, portais e NPCs são definidos por você no editor visual.
       </p>
       <div id="mcreworkMapsGrid" class="gallery-grid"></div>
     </div>

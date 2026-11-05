@@ -8,9 +8,9 @@
 ---
 
 ## 📌 Status Atual do Projeto
-* **Versão Atual:** `v0.3.3`
+* **Versão Atual:** `v0.3.4`
 * **Última Atualização:** `2026-11-05`
-* **Fase Atual:** **Etapa 2 (Parte 1) Concluída com Ponto de Spawn, Portais em Duplas Interligadas, Trava de Malhas (`🔒`/`✏️ Editar`) e Undo/Redo Completo de Estado (`v0.3.3`)!**
+* **Fase Atual:** **Etapa 2 (Parte 1) Concluída com Estúdio Visual de Mapas Dedicado em Tela Inteira (`100vw x 100dvh`) + Salvamento de Progresso Incompleto (`v0.3.4`)!**
 * **Repositório Oficial:** `https://github.com/SeytaniR/etheria-campus`
 * **Fonte Bruta de Assets:** `https://github.com/SeytaniR/mcrework` (`https://seytanir.github.io/mcrework/`)
 

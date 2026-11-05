@@ -5,6 +5,16 @@ Qualquer IA trabalhando neste repositório **DEVE** incrementar a versão e regi
 
 ---
 
+## [v0.3.4] - 2026-11-05
+### Adicionado
+* **Modo Dedicado de Edição Visual de Mapas em Tela Inteira (`apps/server/public/admin/index.html` & `apps/server/public/admin/admin.js`):**
+  * Removido o canvas espremido em miniatura da ficha; agora a Ficha Técnica do Mapa possui o botão **`🎯 ENTRAR NA EDIÇÃO VISUAL DO MAPA (TELA INTEIRA)`**.
+  * Ao entrar na edição visual, toda a interface administrativa muda para o **Estúdio Visual em Tela Cheia (`100vw x 100dvh`)**, focado 100% no mapa e nas ferramentas visuais (`🖐️ Mover`, `⭐ Spawn`, `🛑 +Colisão`, `🟦 +Sobrep.`, `🌀 +Portal`, `🧙 +NPC`, `✏️ Editar Vértices`).
+  * Adicionada **Gaveta Lateral Recolhível (`🗂️ Camadas`)** que só abre quando solicitada, mantendo 100% da área útil livre para o mapa tanto no Celular quanto no PC.
+  * Adicionado suporte explícito para **Salvar Mapas Incompletos (`📝 Em Edição / Rascunho`) e Retomar Depois**, incluindo botão **`💾 Salvar Progresso`** direto na barra superior do Editor Visual sem perder a posição da câmera ou o zoom.
+
+---
+
 ## [v0.3.3] - 2026-11-05
 ### Adicionado
 * **Ponto de Spawn Padrão do Mapa (`spawn_x`, `spawn_y` em `maps`):**

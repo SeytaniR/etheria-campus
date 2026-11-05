@@ -5,12 +5,12 @@
  *   Implementa:
  *   1. Autenticação Dual-Mode (.env somente no localhost / CRUD do PostgreSQL para acessos externos).
  *   2. CRUD completo de Contas de Usuários (`ADMIN`, `GM`, `PLAYER`).
- *   3. Editor Visual de Mapas com:
+ *   3. Painel de Ficha Técnica de Mapas + Modo Dedicado de Edição Visual em Tela Inteira (`100vw x 100dvh`):
+ *      - Suporte a salvar mapas incompletos (`📝 Em Edição / Rascunho`) e retomar o trabalho a qualquer momento;
  *      - Ponto de Spawn do Mapa (`spawnX`, `spawnY`) para novatos, itens de teleporte, respawn em Cidade/Vila e Destravar Personagem;
  *      - Portais sempre em Duplas Interligadas (Entrada <-> Saída bidirecional na posição do portal par);
- *      - Trava de segurança de malhas (`🔒` por padrão) + Modo Dedicado `✏️ Editar/Arrastar Vértices` (evita esbarrar em vértices prontos);
- *      - Histórico Completo de Estado (`↩️ Desfazer` e `↪️ Refazer` que desfaz tanto criações quanto edições/arrastes de vértices);
- *      - Suporte completo a Mobile Touch (Pinça de 2 dedos, Alvo Central de Precisão `+` e Tela Cheia).
+ *      - Trava de segurança de malhas (`🔒` por padrão) + Modo Dedicado `✏️ Editar Vértices`;
+ *      - Histórico Completo de Estado (`↩️ Desfazer` e `↪️ Refazer` para criações e edições).
  */
 
 class EtheriaAdminStudio {
@@ -38,7 +38,6 @@ class EtheriaAdminStudio {
     // Polígono atualmente selecionado para adicionar pontos ou editar vértices
     this.activeCollisionPolyIndex = -1;
     this.activeOverlapPolyIndex = -1;
-    // Qual camada de polígono está destravada no modo EDIT ('ALL' | 'COLLISION' | 'OVERLAP')
     this.editableLayerType = 'ALL';
 
     // Histórico completo de ações (Undo / Redo de criações e de arrastes de vértices)
@@ -54,10 +53,11 @@ class EtheriaAdminStudio {
     this.camX = 20;
     this.camY = 20;
     this.zoom = 0.45;
+    this.cameraInitializedForUrl = '';
     this.isPanning = false;
     this.panStartX = 0;
     this.panStartY = 0;
-    this.draggingVertex = null; // { list: 'COLLISION'|'OVERLAP'|'PORTAL'|'NPC'|'SPAWN', polyIdx, ptIdx }
+    this.draggingVertex = null;
     this.lastPinchDist = 0;
     this.lastPinchMidX = 0;
     this.lastPinchMidY = 0;
@@ -134,6 +134,7 @@ class EtheriaAdminStudio {
     this.token = '';
     this.session = null;
     localStorage.removeItem('etheria_admin_token');
+    document.getElementById('visualMapEditorScreen').style.display = 'none';
     document.getElementById('adminApp').style.display = 'none';
     document.getElementById('loginScreen').style.display = 'flex';
     this.checkAuthContext();
@@ -148,7 +149,6 @@ class EtheriaAdminStudio {
 
     await this.loadBootstrapData();
     await this.loadUsers();
-    this.resizeCanvas();
   }
 
   switchTab(tab) {
@@ -157,18 +157,44 @@ class EtheriaAdminStudio {
     document.getElementById('tabUsers').style.display = isMaps ? 'none' : 'flex';
     document.getElementById('tabBtnMaps').className = isMaps ? 'btn-primary' : '';
     document.getElementById('tabBtnUsers').className = !isMaps ? 'btn-primary' : '';
-    if (isMaps) {
-      setTimeout(() => this.resizeCanvas(), 50);
-    }
   }
 
-  toggleFullscreenMap() {
-    const panel = document.getElementById('canvasPanel');
-    const btn = document.getElementById('btnToggleFullscreen');
-    panel.classList.toggle('fullscreen-map');
-    const isFull = panel.classList.contains('fullscreen-map');
-    btn.textContent = isFull ? '❎ Sair Tela Cheia' : '⛶ Tela Cheia';
-    setTimeout(() => this.resizeCanvas(), 60);
+  // ==========================================================================
+  // ENTRAR / SAIR DO ESTÚDIO DE EDIÇÃO VISUAL DE TELA INTEIRA (100% FOCO NO MAPA)
+  // ==========================================================================
+
+  enterVisualMapEditor() {
+    const imgUrl = document.getElementById('mapImagePath').value.trim();
+    if (!imgUrl) {
+      alert('Selecione primeiro uma imagem base do mapa clicando em "➕ Novo do mcrework" ou "🖼️ Trocar Imagem".');
+      this.openMcreworkMapPicker();
+      return;
+    }
+
+    document.getElementById('visualMapEditorScreen').style.display = 'flex';
+    setTimeout(() => {
+      this.resizeCanvas();
+      if (this.cameraInitializedForUrl !== imgUrl) {
+        this.cameraInitializedForUrl = imgUrl;
+        this.resetCamera();
+      } else {
+        this.drawCanvas();
+      }
+    }, 40);
+  }
+
+  exitVisualMapEditor() {
+    document.getElementById('visualMapEditorScreen').style.display = 'none';
+    this.renderLayerLists();
+  }
+
+  toggleLayersDrawer(forceState) {
+    const drawer = document.getElementById('layersDrawer');
+    if (typeof forceState === 'boolean') {
+      drawer.classList.toggle('open', forceState);
+    } else {
+      drawer.classList.toggle('open');
+    }
   }
 
   // ==========================================================================
@@ -254,7 +280,7 @@ class EtheriaAdminStudio {
   }
 
   // ==========================================================================
-  // ABA 1: EDITOR DE MAPAS, SPAWN, PORTAIS EM DUPLAS & POLÍGONOS TRAVÁVEIS
+  // ABA 1: FICHA DE MAPAS, SPAWN, PORTAIS EM DUPLAS & POLÍGONOS TRAVÁVEIS
   // ==========================================================================
 
   async loadBootstrapData() {
@@ -293,7 +319,7 @@ class EtheriaAdminStudio {
 
     const npcSelect = document.getElementById('activeNpcTemplateSelect');
     if (this.npcTemplates.length === 0) {
-      npcSelect.innerHTML = `<option value="">Nenhum NPC cadastrado (Clique em + Criar NPC)</option>`;
+      npcSelect.innerHTML = `<option value="">Nenhum NPC (Clique em + Criar NPC)</option>`;
     } else {
       npcSelect.innerHTML = this.npcTemplates
         .map((n) => `<option value="${n.id}">${n.namePtBr} (${n.mcreworkNpcKey})</option>`)
@@ -314,7 +340,7 @@ class EtheriaAdminStudio {
       FORCED_PK: '⚠️ PvP: Permite Forçar PK (Vira Criminoso)',
       OPEN_PVP: '⚔️ PvP: Totalmente Aberto',
     };
-    badge.innerHTML = `${dom} &bull; ${spawn}<br>${pvpMap[mt.pvpRule] || mt.pvpRule}`;
+    badge.innerHTML = `${dom} &bull; ${spawn} &bull; ${pvpMap[mt.pvpRule] || mt.pvpRule}`;
   }
 
   updateBiomeDesc() {
@@ -331,19 +357,30 @@ class EtheriaAdminStudio {
   renderSavedMapsList() {
     const container = document.getElementById('savedMapsList');
     if (this.savedMaps.length === 0) {
-      container.innerHTML = `<div style="font-size:0.78rem; color:var(--text-muted);">Nenhum mapa salvo no banco ainda. Clique em "➕ Novo do mcrework".</div>`;
+      container.innerHTML = `<div style="font-size:0.8rem; color:var(--text-muted);">Nenhum mapa salvo no banco ainda. Clique em "➕ Novo do mcrework" para iniciar.</div>`;
       return;
     }
     container.innerHTML = this.savedMaps
-      .map(
-        (m) => `
-      <div class="item-row ${m.id === this.currentMapId ? 'selected' : ''}" onclick="AdminApp.selectSavedMap(${m.id})" style="cursor:pointer;">
-        <div>
-          <strong>${m.namePtBr}</strong> <span style="color:var(--accent); font-size:0.72rem;">(Nv.${m.requiredLevel})</span>
-          <div style="font-size:0.68rem; color:var(--text-muted);">${m.code} &bull; ${m.mapType?.code || ''} &bull; ⭐(${m.spawnX ?? 500},${m.spawnY ?? 500})</div>
+      .map((m) => {
+        const colCount = Array.isArray(m.collisionMeshJson) ? m.collisionMeshJson.length : 0;
+        const ovlCount = Array.isArray(m.overlapMeshJson) ? m.overlapMeshJson.length : 0;
+        const prtCount = Array.isArray(m.outgoingPortals) ? m.outgoingPortals.length : 0;
+        const npcCount = Array.isArray(m.npcs) ? m.npcs.length : 0;
+        const statusBadge = m.isActive
+          ? `<span style="color:#86efac; font-size:0.7rem;">✅ Pronto</span>`
+          : `<span style="color:#fde68a; font-size:0.7rem;">📝 Em Edição</span>`;
+
+        return `
+      <div class="item-row ${m.id === this.currentMapId ? 'selected' : ''}" onclick="AdminApp.selectSavedMap(${m.id})" style="cursor:pointer; flex-direction:column; align-items:stretch;">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <strong>${m.namePtBr} <span style="color:var(--accent); font-size:0.74rem;">(Nv.${m.requiredLevel})</span></strong>
+          ${statusBadge}
         </div>
-      </div>`
-      )
+        <div style="font-size:0.7rem; color:var(--text-muted);">
+          ${m.code} &bull; 🛑${colCount} &bull; 🟦${ovlCount} &bull; 🌀${prtCount} &bull; 🧙${npcCount}
+        </div>
+      </div>`;
+      })
       .join('');
   }
 
@@ -358,6 +395,7 @@ class EtheriaAdminStudio {
     document.getElementById('mapImagePath').value = mcreworkItem ? mcreworkItem.bgImageUrl : '';
     document.getElementById('mapOverlapOpacity').value = '0.45';
     document.getElementById('mapDominatedBy').value = '';
+    document.getElementById('mapIsActiveSelect').value = 'false'; // Inicia como "Em Edição / Rascunho" por padrão
 
     this.spawnX = mcreworkItem ? Math.round((mcreworkItem.width || 1600) / 2) : 500;
     this.spawnY = mcreworkItem ? Math.round((mcreworkItem.height || 1200) / 2) : 500;
@@ -370,6 +408,7 @@ class EtheriaAdminStudio {
     this.npcs = [];
     this.activeCollisionPolyIndex = -1;
     this.activeOverlapPolyIndex = -1;
+    this.cameraInitializedForUrl = '';
     this.clearHistory();
 
     if (mcreworkItem?.bgImageUrl) {
@@ -386,6 +425,7 @@ class EtheriaAdminStudio {
     const m = this.savedMaps.find((x) => x.id === mapId);
     if (!m) return;
 
+    const prevMapId = this.currentMapId;
     this.currentMapId = m.id;
     document.getElementById('mapCode').value = m.code;
     document.getElementById('mapNamePtBr').value = m.namePtBr;
@@ -396,6 +436,7 @@ class EtheriaAdminStudio {
     document.getElementById('secondaryBiomeSelect').value = String(m.secondaryBiomeId);
     document.getElementById('mapOverlapOpacity').value = String(m.overlapOpacity ?? 0.45);
     document.getElementById('mapDominatedBy').value = m.dominatedById || '';
+    document.getElementById('mapIsActiveSelect').value = m.isActive ? 'true' : 'false';
 
     this.spawnX = Number(m.spawnX ?? 500);
     this.spawnY = Number(m.spawnY ?? 500);
@@ -412,9 +453,12 @@ class EtheriaAdminStudio {
 
     this.activeCollisionPolyIndex = this.collisionPolygons.length - 1;
     this.activeOverlapPolyIndex = this.overlapPolygons.length - 1;
-    this.clearHistory();
 
-    this.loadMapBackgroundImage(m.mcreworkMapImage);
+    if (prevMapId !== m.id) {
+      this.cameraInitializedForUrl = '';
+      this.clearHistory();
+      this.loadMapBackgroundImage(m.mcreworkMapImage);
+    }
     this.renderLayerLists();
     this.renderSavedMapsList();
   }
@@ -424,6 +468,7 @@ class EtheriaAdminStudio {
     this.spawnX = Number(document.getElementById('mapSpawnX').value) || 0;
     this.spawnY = Number(document.getElementById('mapSpawnY').value) || 0;
     this.drawCanvas();
+    this.renderLayerLists();
   }
 
   loadMapBackgroundImage(url) {
@@ -432,14 +477,20 @@ class EtheriaAdminStudio {
     img.crossOrigin = 'anonymous';
     img.onload = () => {
       this.bgImage = img;
-      this.resetCamera();
+      const isEditorOpen = document.getElementById('visualMapEditorScreen').style.display === 'flex';
+      if (isEditorOpen && this.cameraInitializedForUrl !== url) {
+        this.cameraInitializedForUrl = url;
+        this.resetCamera();
+      } else {
+        this.drawCanvas();
+      }
     };
     img.src = url;
   }
 
   resetCamera() {
     const canvas = document.getElementById('mapCanvas');
-    if (this.bgImage) {
+    if (this.bgImage && canvas.width > 0 && canvas.height > 0) {
       const scaleX = (canvas.width - 24) / this.bgImage.width;
       const scaleY = (canvas.height - 24) / this.bgImage.height;
       this.zoom = Math.max(0.12, Math.min(1.2, Math.min(scaleX, scaleY)));
@@ -480,6 +531,12 @@ class EtheriaAdminStudio {
       if (el) el.className = k === toolName ? 'active-tool' : '';
     }
 
+    // Exibe barra rápida de seleção de NPC quando a ferramenta NPC está ativa
+    const npcQuickBar = document.getElementById('npcQuickBar');
+    if (npcQuickBar) {
+      npcQuickBar.style.display = toolName === 'NPC' ? 'flex' : 'none';
+    }
+
     if (toolName === 'COLLISION' && this.collisionPolygons.length === 0) {
       this.startNewPolygon('COLLISION');
     } else if (toolName === 'OVERLAP' && this.overlapPolygons.length === 0) {
@@ -490,7 +547,7 @@ class EtheriaAdminStudio {
     const crossBtn = document.getElementById('btnPlaceAtCrosshair');
     if (toolName === 'EDIT') {
       hint.innerHTML =
-        '✏️ <strong>Modo Edição Ativo:</strong> Arraste qualquer vértice amarelo, Portal, NPC ou Spawn para ajustar a posição (No PC: clique direito em um vértice para apagá-lo).';
+        '✏️ <strong>Modo Edição Ativo:</strong> Arraste qualquer vértice amarelo, Portal, NPC ou Spawn para ajustar a posição.';
       if (crossBtn) crossBtn.textContent = '🔒 Concluir Edição (Travar Malhas)';
     } else {
       hint.innerHTML =
@@ -502,9 +559,6 @@ class EtheriaAdminStudio {
     this.drawCanvas();
   }
 
-  /**
-   * Entra diretamente no Modo Editar (`EDIT`) focando em um polígono específico da lista lateral.
-   */
   enterPolygonEditMode(type, idx) {
     this.editableLayerType = type;
     if (type === 'COLLISION') {
@@ -540,12 +594,8 @@ class EtheriaAdminStudio {
     this.drawCanvas();
   }
 
-  /**
-   * Ação do botão central inferior (`📍 Marcar no Alvo Central (+)`).
-   */
   placeAtCenterCrosshair() {
     if (this.tool === 'EDIT') {
-      // Se estava em modo de edição de vértices, o botão serve para travar de volta as malhas
       this.setTool('PAN');
       return;
     }
@@ -555,7 +605,9 @@ class EtheriaAdminStudio {
     const worldY = Math.round((canvas.height / 2 - this.camY) / this.zoom);
 
     if (this.tool === 'PAN') {
-      alert('Selecione primeiro uma ferramenta na barra acima (⭐ Ponto Spawn, 🛑 +Pontos Colisão, 🟦 +Pontos Sobrep., 🌀 +Portal ou 🧙 +NPC) para marcar no Alvo Central!');
+      alert(
+        'Selecione primeiro uma ferramenta na barra superior (⭐ Spawn, 🛑 +Colisão, 🟦 +Sobrep., 🌀 +Portal ou 🧙 +NPC) para marcar no Alvo Central!'
+      );
       return;
     }
     this.applyToolPlacementAtWorldPoint(worldX, worldY);
@@ -606,10 +658,13 @@ class EtheriaAdminStudio {
         targetX: 500,
         targetY: 500,
       });
+      // Abre a gaveta de camadas para que o usuário possa nomear ou vincular o Portal Par se desejar
+      this.toggleLayersDrawer(true);
     } else if (this.tool === 'NPC') {
       const npcTemplateId = Number(document.getElementById('activeNpcTemplateSelect').value);
       if (!npcTemplateId) {
         alert('Cadastre ou selecione primeiro um Template de NPC usando o botão "➕ Criar NPC".');
+        this.openNpcTemplateModal();
         return;
       }
       this.npcs.push({
@@ -643,14 +698,9 @@ class EtheriaAdminStudio {
       };
     };
 
-    /**
-     * Busca um vértice, portal, NPC ou ponto de spawn APENAS quando `this.tool === 'EDIT'`.
-     * Isso garante 100% que o usuário NUNCA esbarre ou estrague uma malha pronta enquanto cria outras coisas!
-     */
     const findHitObjectInEditMode = (worldX, worldY, isTouch = false) => {
       const hitRadius = Math.max(14, (isTouch ? 26 : 14) / this.zoom);
 
-      // 1. Verifica vértices do polígono de Colisão ativo (ou de todos se ALL)
       const checkPolyList = (listName, polys, activeIdx) => {
         for (let pIdx = 0; pIdx < polys.length; pIdx++) {
           if (activeIdx >= 0 && pIdx !== activeIdx && this.editableLayerType === listName) continue;
@@ -669,19 +719,16 @@ class EtheriaAdminStudio {
         checkPolyList('OVERLAP', this.overlapPolygons, this.activeOverlapPolyIndex);
       if (polyHit) return polyHit;
 
-      // 2. Verifica Ponto de Spawn
       if (Math.hypot(this.spawnX - worldX, this.spawnY - worldY) <= Math.max(hitRadius, 36)) {
         return { list: 'SPAWN', polyIdx: 0, ptIdx: 0 };
       }
 
-      // 3. Verifica Portais
       for (let i = 0; i < this.portals.length; i++) {
         if (Math.hypot(this.portals[i].sourceX - worldX, this.portals[i].sourceY - worldY) <= Math.max(hitRadius, 40)) {
           return { list: 'PORTAL', polyIdx: i, ptIdx: 0 };
         }
       }
 
-      // 4. Verifica NPCs
       for (let i = 0; i < this.npcs.length; i++) {
         if (Math.hypot(this.npcs[i].posX - worldX, this.npcs[i].posY - worldY) <= Math.max(hitRadius, 30)) {
           return { list: 'NPC', polyIdx: i, ptIdx: 0 };
@@ -691,14 +738,12 @@ class EtheriaAdminStudio {
       return null;
     };
 
-    // --- EVENTOS TOUCH PARA CELULAR ---
     canvas.addEventListener(
       'touchstart',
       (e) => {
         e.preventDefault();
         this.touchMoved = false;
 
-        // 2 Dedos = Pinça de Zoom + Mover simultâneo em QUALQUER ferramenta!
         if (e.touches.length === 2) {
           this.isPanning = false;
           this.draggingVertex = null;
@@ -711,12 +756,10 @@ class EtheriaAdminStudio {
           return;
         }
 
-        // 1 Dedo
         if (e.touches.length === 1) {
           const t = e.touches[0];
           const { x, y } = toWorldCoords(t.clientX, t.clientY);
 
-          // SOMENTE no modo EDIT permitimos agarrar e arrastar vértices, portais, NPCs ou Spawn!
           if (this.tool === 'EDIT') {
             const hit = findHitObjectInEditMode(x, y, true);
             if (hit) {
@@ -731,7 +774,6 @@ class EtheriaAdminStudio {
             }
           }
 
-          // Caso contrário, 1 dedo faz Pan da câmera se arrastar (ou adiciona ponto no touchend se for um toque rápido)
           this.isPanning = true;
           this.panStartX = t.clientX - this.camX;
           this.panStartY = t.clientY - this.camY;
@@ -747,7 +789,6 @@ class EtheriaAdminStudio {
       (e) => {
         e.preventDefault();
 
-        // 2 Dedos: Pinça Zoom + Pan
         if (e.touches.length === 2) {
           this.touchMoved = true;
           const t1 = e.touches[0];
@@ -776,7 +817,6 @@ class EtheriaAdminStudio {
           return;
         }
 
-        // 1 Dedo
         if (e.touches.length === 1) {
           const t = e.touches[0];
           if (Math.hypot(t.clientX - (this.touchStartClientX || 0), t.clientY - (this.touchStartClientY || 0)) > 8) {
@@ -804,7 +844,6 @@ class EtheriaAdminStudio {
       'touchend',
       (e) => {
         e.preventDefault();
-        // Se foi um toque rápido (sem arrastar a tela) numa ferramenta de criação, adiciona o ponto!
         if (
           !this.touchMoved &&
           !this.draggingVertex &&
@@ -837,7 +876,6 @@ class EtheriaAdminStudio {
       { passive: false }
     );
 
-    // --- EVENTOS DE MOUSE (DESKTOP) ---
     canvas.addEventListener('contextmenu', (e) => {
       e.preventDefault();
       if (this.tool !== 'EDIT') return;
@@ -875,14 +913,12 @@ class EtheriaAdminStudio {
           this.drawCanvas();
           return;
         }
-        // Se clicou fora de qualquer vértice no modo EDIT, permite mover a câmera
         this.isPanning = true;
         this.panStartX = e.clientX - this.camX;
         this.panStartY = e.clientY - this.camY;
         return;
       }
 
-      // Nas ferramentas de criação (SPAWN, COLLISION, OVERLAP, PORTAL, NPC), apenas adiciona!
       this.applyToolPlacementAtWorldPoint(x, y);
     });
 
@@ -960,14 +996,14 @@ class EtheriaAdminStudio {
     const viewport = document.getElementById('canvasViewport');
     const canvas = document.getElementById('mapCanvas');
     if (!viewport || !canvas) return;
-    canvas.width = viewport.clientWidth || 800;
-    canvas.height = viewport.clientHeight || 550;
+    canvas.width = viewport.clientWidth || window.innerWidth;
+    canvas.height = viewport.clientHeight || window.innerHeight - 48;
     this.drawCanvas();
   }
 
   drawCanvas() {
     const canvas = document.getElementById('mapCanvas');
-    if (!canvas) return;
+    if (!canvas || canvas.width === 0) return;
     const ctx = canvas.getContext('2d');
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -975,7 +1011,6 @@ class EtheriaAdminStudio {
     ctx.translate(this.camX, this.camY);
     ctx.scale(this.zoom, this.zoom);
 
-    // 1. Imagem Limpa do Mapa
     if (this.bgImage) {
       ctx.drawImage(this.bgImage, 0, 0);
     } else {
@@ -983,10 +1018,9 @@ class EtheriaAdminStudio {
       ctx.fillRect(0, 0, 1600, 1200);
       ctx.fillStyle = '#94a3b8';
       ctx.font = '28px sans-serif';
-      ctx.fillText('Toque em "➕ Novo do mcrework" para abrir um mapa', 220, 560);
+      ctx.fillText('Selecione uma imagem de mapa na ficha anterior', 220, 560);
     }
 
-    // 2 & 3. Polígonos Estilo Google Earth (Colisão e Sobreposição)
     const drawPolygonLayer = (layerType, polygons, activeIdx, fillRgb, strokeHex) => {
       polygons.forEach((poly, idx) => {
         const pts = poly.points || [];
@@ -1013,7 +1047,6 @@ class EtheriaAdminStudio {
         ctx.strokeStyle = isUnlockedForEdit ? '#fde047' : isActiveForAdding ? '#ffffff' : strokeHex;
         ctx.stroke();
 
-        // Só desenha as bolinhas de vértices se o polígono estiver ativo para receber novos pontos OU destravado em EDIT!
         if (isActiveForAdding || isUnlockedForEdit) {
           const r = Math.max(6, (isUnlockedForEdit ? 9 : 6) / this.zoom);
           pts.forEach((pt, vIdx) => {
@@ -1045,7 +1078,7 @@ class EtheriaAdminStudio {
       '#38bdf8'
     );
 
-    // 4. Ponto de Spawn do Mapa (⭐ SPAWN)
+    // Ponto de Spawn do Mapa (⭐ SPAWN)
     ctx.beginPath();
     ctx.arc(this.spawnX, this.spawnY, 36, 0, Math.PI * 2);
     ctx.fillStyle = 'rgba(245, 158, 11, 0.35)';
@@ -1058,7 +1091,7 @@ class EtheriaAdminStudio {
     ctx.font = `bold ${Math.max(13, Math.round(15 / this.zoom))}px sans-serif`;
     ctx.fillText(`⭐ SPAWN (${this.spawnX}, ${this.spawnY})`, this.spawnX - 55, this.spawnY - 42);
 
-    // 5. Portais (em Duplas Interligadas)
+    // Portais (em Duplas Interligadas)
     this.portals.forEach((p, idx) => {
       const radius = Number(p.triggerRadius) || 48;
       const isLinked = Boolean(p.linkedPortalId);
@@ -1076,7 +1109,7 @@ class EtheriaAdminStudio {
       ctx.fillText(`🌀 ${title} ${isLinked ? '🔗' : '(Sem par)'}`, p.sourceX - radius, p.sourceY - radius - 6);
     });
 
-    // 6. NPCs
+    // NPCs
     this.npcs.forEach((n) => {
       const tpl = this.npcTemplates.find((t) => t.id === Number(n.npcTemplateId));
       const label = tpl ? tpl.namePtBr : `NPC #${n.npcTemplateId}`;
@@ -1095,7 +1128,7 @@ class EtheriaAdminStudio {
 
     ctx.restore();
 
-    // 7. Alvo de Precisão Central (+) fixo no centro do visor
+    // Alvo de Precisão Central (+) fixo no centro do visor
     const cx = canvas.width / 2;
     const cy = canvas.height / 2;
     const worldCenterX = Math.round((cx - this.camX) / this.zoom);
@@ -1123,9 +1156,6 @@ class EtheriaAdminStudio {
     ctx.restore();
   }
 
-  /**
-   * Monta as opções de Portais Pares de outros mapas para interligação Entrada <-> Saída.
-   */
   buildPairedPortalOptionsHtml(currentPortal) {
     const selectedPartnerId = Number(currentPortal.linkedPortalId) || 0;
     const options = [`<option value="">⏳ Sem vínculo ainda (Vincular depois que criar o outro mapa)</option>`];
@@ -1145,10 +1175,28 @@ class EtheriaAdminStudio {
   }
 
   renderLayerLists() {
-    document.getElementById('countCollision').textContent = String(this.collisionPolygons.length);
-    document.getElementById('countOverlap').textContent = String(this.overlapPolygons.length);
-    document.getElementById('countPortals').textContent = String(this.portals.length);
-    document.getElementById('countNpcs').textContent = String(this.npcs.length);
+    const cLen = this.collisionPolygons.length;
+    const oLen = this.overlapPolygons.length;
+    const pLen = this.portals.length;
+    const nLen = this.npcs.length;
+
+    document.getElementById('countCollision').textContent = String(cLen);
+    document.getElementById('countOverlap').textContent = String(oLen);
+    document.getElementById('countPortals').textContent = String(pLen);
+    document.getElementById('countNpcs').textContent = String(nLen);
+    document.getElementById('drawerTotalBadge').textContent = String(cLen + oLen + pLen + nLen);
+
+    // Resumo na Ficha Técnica (fora do editor de tela cheia)
+    const summaryBox = document.getElementById('mapSummaryCounters');
+    if (summaryBox) {
+      summaryBox.innerHTML = `
+        <span>⭐ <strong>Spawn:</strong> (${this.spawnX}, ${this.spawnY})</span> &bull;
+        <span>🛑 <strong>Colisões:</strong> ${cLen} malha(s)</span> &bull;
+        <span>🟦 <strong>Sobreposições:</strong> ${oLen} malha(s)</span> &bull;
+        <span>🌀 <strong>Portais:</strong> ${pLen}</span> &bull;
+        <span>🧙 <strong>NPCs:</strong> ${nLen}</span>
+      `;
+    }
 
     document.getElementById('collisionList').innerHTML = this.collisionPolygons
       .map((p, idx) => {
@@ -1161,7 +1209,7 @@ class EtheriaAdminStudio {
           <strong>${isEditingThis ? '🔓' : '🔒'} ${p.name}</strong>
           <span style="color:var(--text-muted); font-size:0.72rem;">(${p.points.length} pts)</span>
         </div>
-        <button onclick="AdminApp.enterPolygonEditMode('COLLISION', ${idx})" style="padding:3px 7px; font-size:0.72rem;" title="Destravar vértices desta malha para arrastar">
+        <button onclick="AdminApp.enterPolygonEditMode('COLLISION', ${idx})" style="padding:3px 7px; font-size:0.72rem;">
           ${isEditingThis ? '✏️ Editando' : '✏️ Editar'}
         </button>
         <button class="btn-danger" style="padding:3px 7px;" onclick="AdminApp.removePolygon('COLLISION', ${idx})">✕</button>
@@ -1180,7 +1228,7 @@ class EtheriaAdminStudio {
           <strong>${isEditingThis ? '🔓' : '🔒'} ${p.name}</strong>
           <span style="color:var(--text-muted); font-size:0.72rem;">(${p.points.length} pts)</span>
         </div>
-        <button onclick="AdminApp.enterPolygonEditMode('OVERLAP', ${idx})" style="padding:3px 7px; font-size:0.72rem;" title="Destravar vértices desta malha para arrastar">
+        <button onclick="AdminApp.enterPolygonEditMode('OVERLAP', ${idx})" style="padding:3px 7px; font-size:0.72rem;">
           ${isEditingThis ? '✏️ Editando' : '✏️ Editar'}
         </button>
         <button class="btn-danger" style="padding:3px 7px;" onclick="AdminApp.removePolygon('OVERLAP', ${idx})">✕</button>
@@ -1209,8 +1257,8 @@ class EtheriaAdminStudio {
         }; color:${isLinked ? '#86efac' : '#fde68a'};">
           ${
             isLinked
-              ? `🟢 <strong>Dupla Interligada:</strong> Entrar neste portal faz o jogador sair exatamente no portal par em (${p.targetX}, ${p.targetY}) e vice-versa!`
-              : `⏳ <strong>Aguardando Par:</strong> Salve este mapa e depois selecione este portal lá no mapa de destino para formar a dupla.`
+              ? `🟢 <strong>Dupla Interligada:</strong> Entrar neste portal faz sair no portal par em (${p.targetX}, ${p.targetY}) e vice-versa!`
+              : `⏳ <strong>Aguardando Par:</strong> Salve este mapa e depois vincule lá no mapa de destino.`
           }
         </div>
       </div>`;
@@ -1264,10 +1312,6 @@ class EtheriaAdminStudio {
     this.drawCanvas();
   }
 
-  /**
-   * Quando o usuário seleciona um Portal Par de outro mapa, vincula os dois portais
-   * copiando automaticamente o `targetMapId`, `targetX` e `targetY` da posição do portal par!
-   */
   onSelectPairedPortal(idx, partnerPortalIdStr) {
     const portal = this.portals[idx];
     if (!portal) return;
@@ -1311,11 +1355,11 @@ class EtheriaAdminStudio {
     this.drawCanvas();
   }
 
-  async saveCurrentMap() {
+  async saveCurrentMap(stayInVisualEditor = false) {
     try {
       const dto = {
         code: document.getElementById('mapCode').value.trim(),
-        namePtBr: document.getElementById('mapNamePtBr').value.trim(),
+        namePtBr: document.getElementById('mapNamePtBr').value.trim() || 'Mapa em Edição',
         mcreworkMapImage: document.getElementById('mapImagePath').value.trim(),
         requiredLevel: Number(document.getElementById('mapReqLevel').value) || 1,
         mapTypeId: Number(document.getElementById('mapTypeSelect').value),
@@ -1325,11 +1369,17 @@ class EtheriaAdminStudio {
         spawnY: Number(document.getElementById('mapSpawnY').value) || 500,
         overlapOpacity: Number(document.getElementById('mapOverlapOpacity').value) || 0.45,
         dominatedById: document.getElementById('mapDominatedBy').value.trim() || null,
+        isActive: document.getElementById('mapIsActiveSelect').value === 'true',
         collisionMeshJson: this.collisionPolygons,
         overlapMeshJson: this.overlapPolygons,
         portals: this.portals,
         npcs: this.npcs,
       };
+
+      // Preserva câmera atual se estiver salvando dentro do editor visual
+      const savedCamX = this.camX;
+      const savedCamY = this.camY;
+      const savedZoom = this.zoom;
 
       const path = this.currentMapId ? `/api/admin/maps/${this.currentMapId}` : '/api/admin/maps';
       const method = this.currentMapId ? 'PUT' : 'POST';
@@ -1341,7 +1391,18 @@ class EtheriaAdminStudio {
       this.currentMapId = res.id;
       await this.loadBootstrapData();
       this.selectSavedMap(res.id);
-      alert('✅ Mapa salvo no PostgreSQL (com Spawn, Malhas e Portais Pares sincronizados)!');
+
+      if (stayInVisualEditor) {
+        this.camX = savedCamX;
+        this.camY = savedCamY;
+        this.zoom = savedZoom;
+        this.drawCanvas();
+      }
+
+      const timeStr = new Date().toLocaleTimeString('pt-BR');
+      const badge = document.getElementById('lastSavedBadge');
+      if (badge) badge.textContent = `✅ Salvo no banco às ${timeStr}`;
+      alert(`✅ Progresso do mapa salvo no PostgreSQL + Snapshot JSON (${timeStr})!\nVocê pode continuar agora ou retomar depois de onde parou.`);
     } catch (err) {
       alert(`Erro ao salvar mapa: ${err.message}`);
     }
@@ -1397,6 +1458,7 @@ class EtheriaAdminStudio {
       this.newBlankMapState(item);
     } else {
       document.getElementById('mapImagePath').value = item.bgImageUrl;
+      this.cameraInitializedForUrl = '';
       this.loadMapBackgroundImage(item.bgImageUrl);
     }
   }
@@ -1449,7 +1511,9 @@ class EtheriaAdminStudio {
       });
 
       this.closeModal('npcModal');
-      await this.loadBootstrapData();
+      const data = await this.api('/api/admin/maps/bootstrap');
+      this.npcTemplates = data.npcTemplates || [];
+      this.renderSelectOptions();
       document.getElementById('activeNpcTemplateSelect').value = String(created.id);
       this.setTool('NPC');
     } catch (err) {
