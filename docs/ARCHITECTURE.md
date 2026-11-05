@@ -7,14 +7,14 @@ Este documento detalha os módulos Orientados a Objetos, o Motor de Regras Proce
 ## 1. Visão Geral dos 6 Módulos Principais (Monorepo OO)
 
 1. **`@etheria/asset-bridge` (Conector da Galeria Bruta `mcrework`):**
-   * Lê os catálogos, atlases WebP, malhas binárias de colisão (`collision.bin`), ícones e efeitos especiais (VFX) do repositório `SeytaniR/mcrework`.
+   * Lê os catálogos, atlases WebP de personagens/monstros/NPCs, imagens limpas de fundo dos mapas (sem usar malhas ou colisões antigas do `mcrework`), ícones e efeitos especiais (VFX) do repositório `SeytaniR/mcrework`.
    * **Regra da Curadoria (Whitelist):** Nenhum arquivo do `mcrework` existe no jogo automaticamente. Apenas o que for selecionado e salvo nas tabelas do nosso Banco de Dados via `/admin` passa a existir no jogo.
 2. **`@etheria/shared` (Núcleo OO Compartilhado, Motor Procedural & i18n):**
-   * Classes de domínio (`Entity`, `Actor`, `Character`, `Pet`, `Monster`, `ArenaFormation`, `CombatCalculator`), contratos de pacotes de rede e sistema de tradução `i18n` (`pt-BR`, `en-US`, `es-ES`).
+   * Classes de domínio (`Entity`, `Actor`, `Character`, `Pet`, `Monster`, `ArenaFormation`, `CombatCalculator`, `MapMeshGrid`), contratos de pacotes de rede e sistema de tradução `i18n` (`pt-BR`, `en-US`, `es-ES`).
 3. **`@etheria/database` (Banco de Dados Low-Code):**
-   * Tabelas relacionais gerenciadas via **Prisma ORM + PostgreSQL**, populadas pelo usuário através da Rota `/admin`.
+   * Tabelas relacionais gerenciadas via **Prisma ORM + PostgreSQL**, populadas pelo usuário através da Rota `/admin` e espelhadas automaticamente em snapshots JSON versionados.
 4. **`@etheria/server` (Servidor Autoritário):**
-   * Gerencia instâncias de mapas (`MapInstance`), validação de movimento contra `collision.bin`, dominação de Facções/Alianças, encontros procedurais, instâncias de arena (`BattleArenaInstance`) e anti-cheat.
+   * Gerencia instâncias de mapas (`MapInstance`), validação de movimento contra a malha de colisão salva no banco (`collision_mesh_json`), dominação de Facções/Alianças, encontros procedurais, instâncias de arena (`BattleArenaInstance`) e anti-cheat.
 5. **`@etheria/client` (Cliente WebGL Pixi.js + UI Camaleão + APK Capacitor):**
    * Renderiza mapas 2.5D e Arenas 10x10 a 60 FPS com interface 100% responsiva (PC, Tablet, Celular Horizontal e Celular Vertical).
 6. **Rotas `/admin` (Studio Low-Code) & `/gm` (Game Master In-Game):**
@@ -36,14 +36,18 @@ O comportamento de **Spawn de Monstros**, **Dominação Territorial** e **Regra 
 | **`HOSTILE_ZONE`** | **Zona Hostil** | **Facções** | ✅ Sim | ⚠️ **PvP Forçado (PK) Permitido** (Atacar quem está com PvP desativado transforma o atacante em **Criminoso**) |
 | **`CONFLICT_ZONE`** | **Zona de Conflito** | **Facções** | ✅ Sim | ⚔️ **PvP Totalmente Aberto** (Combate livre a todos sem penalidade de crime) |
 
-### 2.2. Estrutura Enxuta de Cada Mapa (`maps`)
-Na tabela de mapas, o Admin define apenas:
-1. **Nome do Mapa** (`i18n`) e **Asset Visual** (`mcrework`).
+### 2.2. Estrutura Enxuta de Cada Mapa (`maps`) & Malhas Visuais Editáveis no Banco
+> **Importante:** As malhas antigas (`collision.bin` e máscaras originais) do `mcrework` foram **descartadas** por incompatibilidade. Do `mcrework` importa-se **somente a imagem limpa do mapa**.
+
+Na tabela de mapas e no Editor Visual da Rota `/admin`, você define e salva diretamente no banco:
+1. **Nome do Mapa** (`i18n`) e **Imagem Base do Mapa** (`mcrework`).
 2. **Nível de Acesso** (progressão de 10 em 10: Mapa 1 = Nv. 1, Mapa 2 = Nv. 10, Mapa 3 = Nv. 20...).
 3. **Tipo de Mapa** (um dos 5 acima, herdando automaticamente as regras de spawn, PvP e dominação).
 4. **Dois Biomas** (`primary_biome_id` e `secondary_biome_id` escolhidos dentre os 40 biomas).
-5. **Pontos de Teleporte (`map_portals`):** Coordenadas $(X, Y)$ no mapa e para qual mapa/coordenada levam.
-6. **NPCs (`map_npcs`):** Quais NPCs estão no mapa e suas coordenadas $(X, Y)$.
+5. **Malha de Colisão (`collision_mesh_json`):** Áreas desenhadas visualmente por você no `/admin` onde o personagem colide e não pode atravessar (validada pelo Servidor Autoritário e pelo Cliente).
+6. **Malha de Sobreposição (`overlap_mesh_json`):** Áreas desenhadas visualmente por você no `/admin` que ficam "acima" do personagem (ex: copas de árvores, telhados, arcos). Quando o personagem passa por essa malha, o motor gráfico diminui automaticamente a opacidade da região do corpo do personagem coberta pela sobreposição (efeito de silhueta/transparência).
+7. **Pontos de Teleporte (`map_portals`):** Coordenadas $(X, Y)$ no mapa e para qual mapa/coordenada levam.
+8. **NPCs (`map_npcs`):** Quais NPCs estão no mapa e suas coordenadas $(X, Y)$.
 
 ### 2.3. Função Exclusiva dos 40 Biomas: Vínculo Procedural de Spawn (`Mapa ↔ Bioma ↔ Monstro`)
 * **Biomas NÃO interferem em cálculo de dano nem possuem vínculo com elementos.**

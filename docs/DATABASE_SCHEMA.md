@@ -62,12 +62,14 @@ Os parâmetros de **Dominação**, **Spawn de Monstros** e **Regra de PvP** são
 39. `CLOCKWORK_FORGE` — Forja Mecânica (Complexo de engrenagens a vapor e magia tecno-arcana)
 40. `CELESTIAL_PALACE` — Palácio Celestial (Salões de mármore branco e ouro acima das nuvens)
 
-### 1.3. Tabelas de Mapas (`maps`, `map_portals`, `map_npcs`)
+### 1.3. Tabelas de Mapas e NPCs (`maps`, `map_portals`, `npc_templates`, `map_npcs`)
 * **`maps`:**
-  * `id`, `mcrework_map_folder` (`map1..map76`), `name_i18n_key`, `required_level` (1, 10, 20, 30...), `map_type_id` (FK para `map_types`), `primary_biome_id` (FK para `biomes`), `secondary_biome_id` (FK para `biomes`), `controlling_faction_id` / `controlling_alliance_id` (nullable), `is_active`.
+  * `id`, `mcrework_map_image` (somente a imagem base do mapa vinda do `mcrework`, ignorando colisões/máscaras antigas), `name_i18n_key`, `required_level` (1, 10, 20, 30...), `map_type_id` (FK para `map_types` — que já fixa o spawn de monstros, regra de PvP e quem pode dominar), `primary_biome_id` (FK para `biomes`), `secondary_biome_id` (FK para `biomes`), `dominated_by_id` (nullable — variável que define qual Aliança ou Facção domina o mapa), `collision_mesh_json` (JSON editável visualmente no `/admin` definindo os polígonos/células onde o personagem colide), `overlap_mesh_json` (JSON editável visualmente no `/admin` definindo as áreas de sobreposição onde a região coberta do corpo do personagem tem sua opacidade reduzida), `overlap_opacity` (float, padrão `0.45`), `is_active`.
 * **`map_portals` (Pontos de Teleporte):**
-  * `id`, `source_map_id`, `source_x`, `source_y`, `target_map_id`, `target_x`, `target_y`, `portal_vfx_key`.
-* **`map_npcs` (NPCs e Posições):**
+  * `id`, `source_map_id`, `source_x`, `source_y`, `radius`, `target_map_id`, `target_x`, `target_y`, `portal_vfx_key`.
+* **`npc_templates` (Catálogo de NPCs e Gatilhos):**
+  * `id`, `mcrework_npc_key` (`npcs/`), `name_i18n_key`, `is_decoration_only` (boolean — se `true`, apenas enfeite de cenário), `triggers_json` (Lista modular de gatilhos: `QUEST`, `SHOP`, `BATTLE_BOSS`, `BATTLE_TRAINER`, `EVENT`, `DIALOGUE`, etc.).
+* **`map_npcs` (NPCs Posicionados no Mapa):**
   * `id`, `map_id`, `npc_template_id`, `pos_x`, `pos_y`, `direction`.
 
 ---
@@ -121,5 +123,17 @@ Os parâmetros de **Dominação**, **Spawn de Monstros** e **Regra de PvP** são
   * `id`, `code`, `name_i18n_key`, `icon_key`, `is_buff` (boolean), `max_stacks`, `default_duration_turns`, `stat_modifiers_json`, `dot_hot_formula_json`, `control_flags_json` (`STUN`, `SILENCE`, `FREEZE`, `ROOT`).
 * **`arena_formations` (10 Slots por Equipe):**
   * `id`, `owner_id`, `slot_1`..`slot_5` (Vanguarda), `slot_6`..`slot_10` (Retaguarda).
+* **`equipment_slots` (16 Slots de Personagem + 6 Slots de Pet):**
+  * **Personagem (16 Slots):** `SHOULDER` (Ombro), `HEAD` (Cabeça), `CHEST` (Peito), `BELT` (Cinto), `LEGS` (Pernas), `FEET` (Pés), `ORNAMENT_1` (Adorno 1), `ORNAMENT_2` (Adorno 2), `RING` (Anel), `NECKLACE` (Colar), `WEAPON_1` (Arma 1), `WEAPON_2` (Arma 2), `FISHING_ROD` (Vara de Pesca), `FLYING_MOUNT` (Montaria Voadora), `WINGS` (Asas), `FASHION` (Moda).
+  * **Pet (6 Slots):** `PET_EQUIP_1`, `PET_EQUIP_2`, `PET_EQUIP_3`, `PET_EQUIP_4`, `PET_EQUIP_5`, `PET_EQUIP_6`.
 * **`item_templates` (Armas, Equipamentos, Consumíveis, Troca de Elemento):**
-  * `id`, `name_i18n_key`, `mcrework_icon_key`, `item_category` (`WEAPON`, `ARMOR`, `ACCESSORY`, `MOUNT`, `CONSUMABLE`, `ELEMENT_CHANGER`), `required_level`, `stat_bonuses_json`, `special_effect_json`.
+  * `id`, `name_i18n_key`, `mcrework_icon_key`, `target_entity_type` (`CHARACTER` | `PET` | `BOTH`), `equipment_slot_code` (FK para `equipment_slots`, nullable se consumível), `item_category` (`EQUIPMENT`, `CONSUMABLE`, `ELEMENT_CHANGER`, `MATERIAL`), `required_level`, `stat_bonuses_json`, `special_effect_json`.
+
+---
+
+## 4. Persistência PostgreSQL + Sincronização Anti-Perda de Dados (`DB <-> Git JSON Snapshots`)
+
+1. **Banco Oficial em Dev e Produção:** **PostgreSQL** (rodando via Docker no Ubuntu WSL local e idêntico na VPS Ubuntu de produção).
+2. **Espelhamento Automático (`packages/database/snapshots/`):**
+   * Toda alteração feita pelo usuário nas tabelas de configuração via Rota `/admin` salva no **PostgreSQL** e exporta automaticamente um snapshot JSON versionado na pasta `packages/database/snapshots/`.
+   * Ao iniciar um turno ou subir na VPS, o comando `db:sync` garante que o PostgreSQL contenha 100% dos snapshots salvos no Git, impedindo perda de dados e mantendo as duas contas de IA sempre sincronizadas.

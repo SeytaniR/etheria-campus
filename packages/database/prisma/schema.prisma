@@ -1,0 +1,458 @@
+// ============================================================================
+// @file packages/database/prisma/schema.prisma
+// @module @etheria/database
+// @description Modelagem Oficial PostgreSQL do Etheria Campus (Low-Code & Motor Procedural).
+// @rules
+//   1. Regra da Curadoria (Whitelist): Só existe no jogo o que está salvo nestas tabelas.
+//   2. Mapas importam apenas a imagem base do mcrework; as áreas de colisão (collisionMeshJson)
+//      e áreas de sobreposição/opacidade (overlapMeshJson) são editadas visualmente no /admin.
+//   3. Biomas (40) servem exclusivamente para o cruzamento procedural Mapa <-> Bioma <-> Monstro.
+//   4. Elementos (5: FIRE, EARTH, AIR, WATER, NEUTRAL) e Raças (11) pertencem às entidades.
+//   5. Personagens possuem 16 slots de equipamento (incluindo BELT); Pets possuem 6 slots.
+// ============================================================================
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ----------------------------------------------------------------------------
+// 1. INTERNACIONALIZAÇÃO (i18n)
+// ----------------------------------------------------------------------------
+
+/// Armazena todas as traduções de nomes e descrições dinâmicas do banco (pt-BR, en-US, es-ES).
+model I18nTranslation {
+  id        Int      @id @default(autoincrement())
+  key       String   @map("i18n_key")
+  locale    String   @default("pt-BR")
+  text      String
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@unique([key, locale])
+  @@index([key])
+  @@map("i18n_translations")
+}
+
+// ----------------------------------------------------------------------------
+// 2. MUNDO PROCEDURAL: BIOMAS (40), TIPOS DE MAPA (5), MAPAS, PORTAIS E NPCS
+// ----------------------------------------------------------------------------
+
+/// Os 40 Biomas do mundo. Função exclusiva: cruzamento procedural Mapa <-> Bioma <-> Monstro.
+model Biome {
+  id                 Int            @id @default(autoincrement())
+  code               String         @unique
+  category           String         /// Ex: FOREST, ARID, AQUATIC, GLACIAL, VOLCANIC, UNDEAD, ARCANE
+  nameI18nKey        String         @map("name_i18n_key")
+  descriptionI18nKey String         @map("description_i18n_key")
+  primaryMaps        GameMap[]      @relation("PrimaryBiome")
+  secondaryMaps      GameMap[]      @relation("SecondaryBiome")
+  monsterBiomes      MonsterBiome[]
+
+  @@map("biomes")
+}
+
+/// Os 5 Tipos de Mapa (CITY, VILLAGE, SUBURB, HOSTILE_ZONE, CONFLICT_ZONE).
+/// Fixam quem pode dominar (ALLIANCE vs FACTION), se spawna monstros e a regra de PvP.
+model MapType {
+  id                   Int       @id @default(autoincrement())
+  code                 String    @unique /// CITY, VILLAGE, SUBURB, HOSTILE_ZONE, CONFLICT_ZONE
+  nameI18nKey          String    @map("name_i18n_key")
+  dominationTarget     String    @map("domination_target") /// ALLIANCE (Cidades/Vilas) ou FACTION (Subúrbio/Hostil/Conflito)
+  allowMonsterSpawn    Boolean   @default(false) @map("allow_monster_spawn")
+  pvpRule              String    @map("pvp_rule") /// DUEL_ONLY, FORCED_PK, OPEN_PVP
+  forcesCriminalStatus Boolean   @default(false) @map("forces_criminal_status") /// true na HOSTILE_ZONE quando força PK
+  maps                 GameMap[]
+
+  @@map("map_types")
+}
+
+/// Tabela de Mapas curados no /admin.
+/// Importa somente a imagem limpa do mcrework e armazena as malhas de colisão e sobreposição desenhadas à mão.
+model GameMap {
+  id                Int         @id @default(autoincrement())
+  code              String      @unique
+  mcreworkMapImage  String      @map("mcrework_map_image") /// Caminho da imagem limpa do mapa no mcrework
+  nameI18nKey       String      @map("name_i18n_key")
+  requiredLevel     Int         @default(1) @map("required_level") /// Ex: 1, 10, 20, 30...
+  levelVarianceMin  Int         @default(-2) @map("level_variance_min")
+  levelVarianceMax  Int         @default(5) @map("level_variance_max")
+  mapTypeId         Int         @map("map_type_id")
+  primaryBiomeId    Int         @map("primary_biome_id")
+  secondaryBiomeId  Int         @map("secondary_biome_id")
+  dominatedById     String?     @map("dominated_by_id") /// ID da Aliança ou Facção dominante (sistema de domínio/guerra)
+  collisionMeshJson Json        @default("[]") @map("collision_mesh_json") /// Áreas editáveis onde o personagem colide
+  overlapMeshJson   Json        @default("[]") @map("overlap_mesh_json") /// Áreas editáveis acima do personagem que reduzem sua opacidade
+  overlapOpacity    Float       @default(0.45) @map("overlap_opacity") /// Opacidade aplicada à região coberta do corpo do personagem
+  isActive          Boolean     @default(true) @map("is_active")
+  createdAt         DateTime    @default(now()) @map("created_at")
+  updatedAt         DateTime    @updatedAt @map("updated_at")
+
+  mapType           MapType     @relation(fields: [mapTypeId], references: [id])
+  primaryBiome      Biome       @relation("PrimaryBiome", fields: [primaryBiomeId], references: [id])
+  secondaryBiome    Biome       @relation("SecondaryBiome", fields: [secondaryBiomeId], references: [id])
+  outgoingPortals   MapPortal[] @relation("SourceMapPortals")
+  incomingPortals   MapPortal[] @relation("TargetMapPortals")
+  npcs              MapNpc[]
+
+  @@map("maps")
+}
+
+/// Pontos de Teleporte de um mapa e para qual mapa/coordenada levam.
+model MapPortal {
+  id           Int     @id @default(autoincrement())
+  sourceMapId  Int     @map("source_map_id")
+  sourceX      Float   @map("source_x")
+  sourceY      Float   @map("source_y")
+  triggerRadius Float  @default(48) @map("trigger_radius")
+  targetMapId  Int     @map("target_map_id")
+  targetX      Float   @map("target_x")
+  targetY      Float   @map("target_y")
+  portalVfxKey String? @map("portal_vfx_key")
+
+  sourceMap    GameMap @relation("SourceMapPortals", fields: [sourceMapId], references: [id], onDelete: Cascade)
+  targetMap    GameMap @relation("TargetMapPortals", fields: [targetMapId], references: [id], onDelete: Cascade)
+
+  @@map("map_portals")
+}
+
+/// Templates de NPCs (podem ser enfeites de cenário ou gatilhos para quests, lojas, lutas/boss/treinador, eventos).
+model NpcTemplate {
+  id               Int      @id @default(autoincrement())
+  code             String   @unique
+  mcreworkNpcKey   String   @map("mcrework_npc_key")
+  nameI18nKey      String   @map("name_i18n_key")
+  isDecorationOnly Boolean  @default(false) @map("is_decoration_only")
+  triggersJson     Json     @default("[]") @map("triggers_json") /// Ex: [{type: "QUEST"|"SHOP"|"BATTLE"|"EVENT", config: {...}}]
+  placements       MapNpc[]
+
+  @@map("npc_templates")
+}
+
+/// Posicionamento de um NPC dentro de um mapa específico.
+model MapNpc {
+  id            Int         @id @default(autoincrement())
+  mapId         Int         @map("map_id")
+  npcTemplateId Int         @map("npc_template_id")
+  posX          Float       @map("pos_x")
+  posY          Float       @map("pos_y")
+  direction     Int         @default(0) /// Direção inicial (0..7)
+
+  map           GameMap     @relation(fields: [mapId], references: [id], onDelete: Cascade)
+  npcTemplate   NpcTemplate @relation(fields: [npcTemplateId], references: [id], onDelete: Cascade)
+
+  @@map("map_npcs")
+}
+
+// ----------------------------------------------------------------------------
+// 3. ELEMENTOS (5) E RAÇAS (11) VINCULADOS ÀS ENTIDADES
+// ----------------------------------------------------------------------------
+
+/// Os 5 Elementos: FIRE, EARTH, AIR, WATER e NEUTRAL (penalizado).
+model Element {
+  code               String           @id /// FIRE, EARTH, AIR, WATER, NEUTRAL
+  nameI18nKey        String           @map("name_i18n_key")
+  initialRollChance  Float            @map("initial_roll_chance") /// NEUTRAL = 0.10 (10%), Ativos = 0.20 (20% peso relativo)
+  attackerMatchups   ElementMatchup[] @relation("AttackerElement")
+  defenderMatchups   ElementMatchup[] @relation("DefenderElement")
+  monsters           MonsterTemplate[]
+
+  @@map("elements")
+}
+
+/// Matriz de multiplicadores de dano entre Elementos (Vantagem +25%, Desvantagem -25%, Neutro penalizado em ambos).
+model ElementMatchup {
+  id                  Int     @id @default(autoincrement())
+  attackerElementCode String  @map("attacker_element_code")
+  defenderElementCode String  @map("defender_element_code")
+  damageMultiplier    Float   @default(1.0) @map("damage_multiplier") /// Ex: 1.25 (+25%), 0.75 (-25%), etc.
+
+  attackerElement     Element @relation("AttackerElement", fields: [attackerElementCode], references: [code])
+  defenderElement     Element @relation("DefenderElement", fields: [defenderElementCode], references: [code])
+
+  @@unique([attackerElementCode, defenderElementCode])
+  @@map("element_matchups")
+}
+
+/// As 11 Raças: HUMAN + Ciclo de 10 Raças (PLANT > DRAGON > REPTILIAN > AQUATIC > ROBOTIC > CELESTIAL > DEMON > FAIRY > SPIRIT > BEAST > PLANT).
+model Race {
+  code             String            @id
+  nameI18nKey      String            @map("name_i18n_key")
+  attackerMatchups RaceMatchup[]     @relation("AttackerRace")
+  defenderMatchups RaceMatchup[]     @relation("DefenderRace")
+  classes          ClassTemplate[]
+  monsters         MonsterTemplate[]
+
+  @@map("races")
+}
+
+/// Matriz de vantagem racial (+10% de vantagem para HUMAN sobre todas e +10% no ciclo das 10 raças).
+model RaceMatchup {
+  id               Int    @id @default(autoincrement())
+  attackerRaceCode String @map("attacker_race_code")
+  defenderRaceCode String @map("defender_race_code")
+  damageMultiplier Float  @default(1.0) @map("damage_multiplier") /// Ex: 1.10 (+10%) ou 0.90 (-10%)
+
+  attackerRace     Race   @relation("AttackerRace", fields: [attackerRaceCode], references: [code])
+  defenderRace     Race   @relation("DefenderRace", fields: [defenderRaceCode], references: [code])
+
+  @@unique([attackerRaceCode, defenderRaceCode])
+  @@map("race_matchups")
+}
+
+// ----------------------------------------------------------------------------
+// 4. ATRIBUTOS PROCEDURAIS (BASE -> COMBATE)
+// ----------------------------------------------------------------------------
+
+/// Os 6 Atributos Base: VIT, STR, INT, WIS, AGI, DEX.
+model BaseAttribute {
+  code               String                @id
+  nameI18nKey        String                @map("name_i18n_key")
+  descriptionI18nKey String                @map("description_i18n_key")
+  conversions        AttributeConversion[]
+
+  @@map("base_attributes")
+}
+
+/// Atributos Derivados de Combate (MAX_HP, MAX_MP, PHYS_ATK, MAG_ATK, PHYS_DEF, MAG_DEF, SPEED, CRIT_RATE, etc.).
+model CombatAttribute {
+  code         String                @id
+  nameI18nKey  String                @map("name_i18n_key")
+  baseDefault  Float                 @default(0) @map("base_default")
+  isPercentage Boolean               @default(false) @map("is_percentage")
+  conversions  AttributeConversion[]
+
+  @@map("combat_attributes")
+}
+
+/// Matriz Procedural: define quanto 1 ponto de um Atributo Base concede em cada Atributo de Combate.
+model AttributeConversion {
+  id                  Int             @id @default(autoincrement())
+  baseAttributeCode   String          @map("base_attribute_code")
+  combatAttributeCode String          @map("combat_attribute_code")
+  ratioPerPoint       Float           @map("ratio_per_point") /// Ex: 1 VIT -> +20 MAX_HP
+
+  baseAttribute       BaseAttribute   @relation(fields: [baseAttributeCode], references: [code], onDelete: Cascade)
+  combatAttribute     CombatAttribute @relation(fields: [combatAttributeCode], references: [code], onDelete: Cascade)
+
+  @@unique([baseAttributeCode, combatAttributeCode])
+  @@map("attribute_conversions")
+}
+
+// ----------------------------------------------------------------------------
+// 5. ENTIDADES: CLASSES DE PERSONAGEM, RARIDADES E MONSTROS/PETS
+// ----------------------------------------------------------------------------
+
+/// Templates de Classes/Personagens jogáveis curados do mcrework.
+model ClassTemplate {
+  id                  Int               @id @default(autoincrement())
+  code                String            @unique
+  mcreworkCharKey     String            @map("mcrework_char_key")
+  nameI18nKey         String            @map("name_i18n_key")
+  raceCode            String            @default("HUMAN") @map("race_code")
+  baseAttributesJson  Json              @map("base_attributes_json") /// Ex: {"VIT":10,"STR":10,"INT":10,"WIS":10,"AGI":10,"DEX":10}
+  growthPerLevelJson  Json              @map("growth_per_level_json")
+  skillIdsJson        Json              @default("[]") @map("skill_ids_json")
+  isActive            Boolean           @default(true) @map("is_active")
+
+  race                Race              @relation(fields: [raceCode], references: [code])
+  characters          PlayerCharacter[]
+
+  @@map("class_templates")
+}
+
+/// Raridades de Monstros/Pets (COMMON, UNCOMMON, ELITE, RARE, MINIBOSS, BOSS).
+model MonsterRarity {
+  id                    Int               @id @default(autoincrement())
+  code                  String            @unique
+  nameI18nKey           String            @map("name_i18n_key")
+  statMultiplier        Float             @default(1.0) @map("stat_multiplier")
+  expMultiplier         Float             @default(1.0) @map("exp_multiplier")
+  dropMultiplier        Float             @default(1.0) @map("drop_multiplier")
+  visualScaleMultiplier Float             @default(1.0) @map("visual_scale_multiplier")
+  spawnWeight           Int               @default(100) @map("spawn_weight")
+  monsters              MonsterTemplate[]
+
+  @@map("monster_rarities")
+}
+
+/// Templates de Monstros Inimigos e Pets Domáveis curados do mcrework.
+model MonsterTemplate {
+  id                 Int            @id @default(autoincrement())
+  code               String         @unique
+  mcreworkMonsterKey String         @map("mcrework_monster_key")
+  nameI18nKey        String         @map("name_i18n_key")
+  raceCode           String         @map("race_code")
+  fixedElementCode   String         @map("fixed_element_code") /// Elemento fixo quando atua como monstro inimigo
+  defaultRarityId    Int            @map("default_rarity_id")
+  isTamableAsPet     Boolean        @default(true) @map("is_tamable_as_pet")
+  baseAttributesJson Json           @map("base_attributes_json") /// Pesos de VIT, STR, INT, WIS, AGI, DEX no Nv.1
+  skillIdsJson       Json           @default("[]") @map("skill_ids_json")
+  lootTableJson      Json           @default("[]") @map("loot_table_json")
+  isActive           Boolean        @default(true) @map("is_active")
+
+  race               Race           @relation(fields: [raceCode], references: [code])
+  fixedElement       Element        @relation(fields: [fixedElementCode], references: [code])
+  defaultRarity      MonsterRarity  @relation(fields: [defaultRarityId], references: [id])
+  biomes             MonsterBiome[]
+  tamedPets          CharacterPet[]
+
+  @@map("monster_templates")
+}
+
+/// Tabela pivô que faz o vínculo procedural Mapa <-> Bioma <-> Monstro.
+model MonsterBiome {
+  id                Int             @id @default(autoincrement())
+  monsterTemplateId Int             @map("monster_template_id")
+  biomeId           Int             @map("biome_id")
+
+  monsterTemplate   MonsterTemplate @relation(fields: [monsterTemplateId], references: [id], onDelete: Cascade)
+  biome             Biome           @relation(fields: [biomeId], references: [id], onDelete: Cascade)
+
+  @@unique([monsterTemplateId, biomeId])
+  @@map("monster_biomes")
+}
+
+// ----------------------------------------------------------------------------
+// 6. HABILIDADES (ATIVAS & PASSIVAS), BUFFS/DEBUFFS E EQUIPAMENTOS (16 + 6 SLOTS)
+// ----------------------------------------------------------------------------
+
+/// Habilidades de Combate (Modo 5B) baseadas nos 7 Blocos Universais de Efeito.
+model SkillTemplate {
+  id                 Int     @id @default(autoincrement())
+  code               String  @unique
+  nameI18nKey        String  @map("name_i18n_key")
+  descriptionI18nKey String  @map("description_i18n_key")
+  mcreworkIconKey    String? @map("mcrework_icon_key")
+  castActionId       Int     @default(4) @map("cast_action_id")
+  mcreworkVfxKey     String? @map("mcrework_vfx_key")
+  skillType          String  @default("ACTIVE") @map("skill_type") /// ACTIVE ou PASSIVE
+  triggerType        String  @default("MANUAL_AP") @map("trigger_type") /// MANUAL_AP, PASSIVE_ALWAYS, ON_TURN_START, ON_HIT, ON_CRIT, ON_DAMAGE_TAKEN, ON_KILL
+  apCost             Int     @default(2) @map("ap_cost")
+  cooldownTurns      Int     @default(0) @map("cooldown_turns")
+  targetScope        String  @default("MELEE_FRONTLINE") @map("target_scope") /// MELEE_FRONTLINE, RANGED_ANY, ROW_FRONT, ROW_BACK, COLUMN_PIERCE, CROSS, ALL_ENEMIES, SELF, ALLY_SINGLE, ALLY_ALL
+  effectBlocksJson   Json    @default("[]") @map("effect_blocks_json") /// Lista dos 7 blocos: DAMAGE, HEAL, SHIELD, STATUS, MOVE_SLOT, CLEANSE_DISPEL, RESOURCE
+
+  @@map("skill_templates")
+}
+
+/// Templates de Buffs, Debuffs, Dano por Turno (DoT) e Controles de Grupo (CC).
+model StatusEffectTemplate {
+  id                   Int     @id @default(autoincrement())
+  code                 String  @unique
+  nameI18nKey          String  @map("name_i18n_key")
+  iconKey              String? @map("icon_key")
+  isBuff               Boolean @default(true) @map("is_buff")
+  maxStacks            Int     @default(1) @map("max_stacks")
+  defaultDurationTurns Int     @default(2) @map("default_duration_turns")
+  statModifiersJson    Json    @default("{}") @map("stat_modifiers_json")
+  dotHotFormulaJson    Json    @default("{}") @map("dot_hot_formula_json")
+  controlFlagsJson     Json    @default("[]") @map("control_flags_json") /// Ex: ["STUN", "SILENCE", "FREEZE"]
+
+  @@map("status_effect_templates")
+}
+
+/// Os 16 Slots de Equipamento do Personagem + 6 Slots de Equipamento do Pet.
+model EquipmentSlot {
+  code        String         @id /// SHOULDER, HEAD, CHEST, BELT, LEGS, FEET, ORNAMENT_1, ORNAMENT_2, RING, NECKLACE, WEAPON_1, WEAPON_2, FISHING_ROD, FLYING_MOUNT, WINGS, FASHION e PET_EQUIP_1..6
+  ownerType   String         @map("owner_type") /// CHARACTER (16 slots) ou PET (6 slots)
+  slotIndex   Int            @map("slot_index") /// 1..16 para CHARACTER, 1..6 para PET
+  nameI18nKey String         @map("name_i18n_key")
+  items       ItemTemplate[]
+
+  @@map("equipment_slots")
+}
+
+/// Catálogo de Itens, Equipamentos (Personagem e Pet), Consumíveis e Trocadores de Elemento.
+model ItemTemplate {
+  id                    Int            @id @default(autoincrement())
+  code                  String         @unique
+  nameI18nKey           String         @map("name_i18n_key")
+  descriptionI18nKey    String         @map("description_i18n_key")
+  mcreworkIconKey       String?        @map("mcrework_icon_key")
+  itemCategory          String         @map("item_category") /// CHARACTER_EQUIPMENT, PET_EQUIPMENT, CONSUMABLE, ELEMENT_CHANGER, MATERIAL
+  equipmentSlotCode     String?        @map("equipment_slot_code")
+  requiredLevel         Int            @default(1) @map("required_level")
+  baseStatBonusesJson   Json           @default("{}") @map("base_stat_bonuses_json")
+  combatStatBonusesJson Json           @default("{}") @map("combat_stat_bonuses_json")
+  specialEffectJson     Json           @default("{}") @map("special_effect_json")
+
+  equipmentSlot         EquipmentSlot? @relation(fields: [equipmentSlotCode], references: [code])
+
+  @@map("item_templates")
+}
+
+// ----------------------------------------------------------------------------
+// 7. CONTAS DE USUÁRIO, PERSONAGENS, PETS E FORMAÇÃO TÁTICA DE 10 SLOTS
+// ----------------------------------------------------------------------------
+
+/// Contas de usuário com permissões de acesso (PLAYER, GM, ADMIN).
+model UserAccount {
+  id           Int               @id @default(autoincrement())
+  username     String            @unique
+  email        String            @unique
+  passwordHash String            @map("password_hash")
+  role         String            @default("PLAYER") /// PLAYER, GM, ADMIN
+  locale       String            @default("pt-BR")
+  createdAt    DateTime          @default(now()) @map("created_at")
+  characters   PlayerCharacter[]
+
+  @@map("user_accounts")
+}
+
+/// Personagem de um jogador (recebe Elemento inicial sorteado ao ser criado, alterável por item).
+model PlayerCharacter {
+  id                  Int              @id @default(autoincrement())
+  userAccountId       Int              @map("user_account_id")
+  name                String           @unique
+  classTemplateId     Int              @map("class_template_id")
+  elementCode         String           @map("element_code") /// Sorteado no início: 10% NEUTRAL, 20% cada ativo
+  level               Int              @default(1)
+  experience          BigInt           @default(0)
+  unspentStatPoints   Int              @default(0) @map("unspent_stat_points")
+  distributedStatsJson Json            @default("{\"VIT\":0,\"STR\":0,\"INT\":0,\"WIS\":0,\"AGI\":0,\"DEX\":0}") @map("distributed_stats_json")
+  equippedItemsJson   Json             @default("{}") @map("equipped_items_json") /// Mapeia os 16 slots -> ID do item equipado
+  currentMapId        Int?             @map("current_map_id")
+  posX                Float            @default(400) @map("pos_x")
+  posY                Float            @default(300) @map("pos_y")
+  isCriminal          Boolean          @default(false) @map("is_criminal") /// Ativado se forçar PK em HOSTILE_ZONE
+
+  userAccount         UserAccount      @relation(fields: [userAccountId], references: [id], onDelete: Cascade)
+  classTemplate       ClassTemplate    @relation(fields: [classTemplateId], references: [id])
+  pets                CharacterPet[]
+  formation           ArenaFormation?
+
+  @@map("player_characters")
+}
+
+/// Pets pertencentes a um Personagem (possuem elemento sorteado na obtenção e 6 slots de equipamento).
+model CharacterPet {
+  id                  Int             @id @default(autoincrement())
+  characterId         Int             @map("character_id")
+  monsterTemplateId   Int             @map("monster_template_id")
+  nickname            String?
+  elementCode         String          @map("element_code") /// Sorteado na criação/captura: 10% NEUTRAL, 20% cada ativo
+  level               Int             @default(1)
+  experience          BigInt          @default(0)
+  equippedItemsJson   Json            @default("{}") @map("equipped_items_json") /// Mapeia PET_EQUIP_1..6 -> ID do item
+
+  character           PlayerCharacter @relation(fields: [characterId], references: [id], onDelete: Cascade)
+  monsterTemplate     MonsterTemplate @relation(fields: [monsterTemplateId], references: [id])
+
+  @@map("character_pets")
+}
+
+/// Formação Tática de 10 Slots (Slots 1..5 = Vanguarda, Slots 6..10 = Retaguarda).
+/// Regra validada pelo servidor: Solo/Dupla = 1 Char + até 3 Pets por jogador; 3 a 5 jogadores = 1 Char + 1 Pet por jogador.
+model ArenaFormation {
+  id          Int             @id @default(autoincrement())
+  characterId Int             @unique @map("character_id")
+  slotsJson   Json            @default("{}") @map("slots_json") /// Mapeia slot_1..slot_10 para a unidade posicionada
+
+  character   PlayerCharacter @relation(fields: [characterId], references: [id], onDelete: Cascade)
+
+  @@map("arena_formations")
+}

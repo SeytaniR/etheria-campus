@@ -1,0 +1,35 @@
+# @file docker-compose.yml
+# @module @etheria/infra
+# @description Infraestrutura PostgreSQL 16 e Redis 7 para paridade 100% entre desenvolvimento local (WSL Ubuntu) e produção (VPS Ubuntu).
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: etheria_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-etheria}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-etheria_secret_pw}
+      POSTGRES_DB: ${POSTGRES_DB:-etheria_campus}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - etheria_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-etheria} -d ${POSTGRES_DB:-etheria_campus}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    container_name: etheria_redis
+    restart: unless-stopped
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    volumes:
+      - etheria_redisdata:/data
+
+volumes:
+  etheria_pgdata:
+  etheria_redisdata:

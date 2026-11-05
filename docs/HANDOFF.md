@@ -8,9 +8,9 @@
 ---
 
 ## 📌 Status Atual do Projeto
-* **Versão Atual:** `v0.1.2`
+* **Versão Atual:** `v0.2.0`
 * **Última Atualização:** `2026-11-05`
-* **Fase Atual:** **Fase 1 Concluída (Documentação Mestra Consolidada sem Ideias Descartadas) $\rightarrow$ Pronta para Iniciar Fase 2 (Implementação do Banco de Dados e Tabelas)**
+* **Fase Atual:** **Etapa 1 Concluída (`@etheria/database` criado com todas as 22 tabelas PostgreSQL, Seeds dos 40 Biomas / 5 Elementos / 11 Raças / 16+6 Slots e SnapshotManager) $\rightarrow$ Pronta para Etapa 2 (Conector `mcrework` + Rota `/admin` Low-Code com Editor Visual de Colisão e Sobreposição de Mapas)**
 * **Repositório Oficial:** `https://github.com/SeytaniR/etheria-campus`
 * **Fonte Bruta de Assets:** `https://github.com/SeytaniR/mcrework` (`https://seytanir.github.io/mcrework/`)
 
@@ -41,4 +41,6 @@
 ---
 
 ## 🎯 Próxima Tarefa Exata da Fila
-* Criar o código das tabelas do Banco de Dados (`@etheria/database`) conforme especificado em `docs/DATABASE_SCHEMA.md`, sob comando do usuário.
+* **Etapa 2:** Criar o conector da galeria `mcrework` (`@etheria/asset-bridge`) e a **Rota `/admin` (Studio Low-Code)** para permitir ao usuário:
+  1. Cadastrar Mapas importando apenas a imagem base do `mcrework` e desenhar/salvar visualmente no banco a **Área de Colisão (`collision_mesh_json`)** e a **Área de Sobreposição/Opacidade (`overlap_mesh_json`)**, além de posicionar Portais e NPCs;
+  2. Cadastrar e editar Classes, Monstros/Pets, Habilidades, Elementos, Raças, Atributos e Itens direto nas tabelas do PostgreSQL com exportação automática de Snapshot.
