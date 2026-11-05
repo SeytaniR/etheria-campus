@@ -439,7 +439,7 @@
       <aside class="panel">
         <div style="display:flex; justify-content:space-between; align-items:center;">
           <h3>📂 Mapas no Banco</h3>
-          <button class="btn-primary" onclick="AdminApp.openMcreworkMapPicker()">➕ Novo do mcrework</button>
+          <button class="btn-primary" onclick="AdminApp.openMcreworkMapPicker('NEW_MAP')">➕ Novo do mcrework</button>
         </div>
         <p style="font-size:0.75rem; color:var(--text-muted);">
           Você pode salvar mapas incompletos a qualquer momento e clicar neles abaixo para continuar exatamente de onde parou.
@@ -450,7 +450,7 @@
       <!-- COLUNA DIREITA: FICHA TÉCNICA DO MAPA + BOTÃO DE ENTRAR NO EDITOR VISUAL DE TELA INTEIRA -->
       <section class="panel">
         <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
-          <h3>⚙️ Ficha Técnica do Mapa Selecionado</h3>
+          <h3 id="mapFormTitleBadge">⚙️ Ficha Técnica do Mapa Selecionado</h3>
           <span id="lastSavedBadge" style="font-size:0.76rem; color:#86efac;"></span>
         </div>
 
@@ -490,7 +490,7 @@
           <label>Imagem Limpa do Mapa (mcrework)</label>
           <div style="display:flex; gap:6px;">
             <input type="text" id="mapImagePath" readonly style="flex:1; opacity:0.85;" />
-            <button onclick="AdminApp.openMcreworkMapPicker()">🖼️ Trocar Imagem</button>
+            <button onclick="AdminApp.openMcreworkMapPicker('CHANGE_IMAGE')">🖼️ Trocar Imagem</button>
           </div>
         </div>
 

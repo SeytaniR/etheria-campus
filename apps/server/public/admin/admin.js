@@ -25,6 +25,7 @@ class EtheriaAdminStudio {
     this.savedMaps = [];
     this.mcreworkMaps = [];
     this.mcreworkNpcs = [];
+    this.mapPickerMode = 'NEW_MAP'; // 'NEW_MAP' | 'CHANGE_IMAGE'
 
     // Estado do Mapa atual aberto no editor
     this.currentMapId = null;
@@ -389,6 +390,11 @@ class EtheriaAdminStudio {
     const nextOrder = this.savedMaps.length + 1;
     const suggestedLevel = nextOrder === 1 ? 1 : (nextOrder - 1) * 10;
 
+    const titleBadge = document.getElementById('mapFormTitleBadge');
+    if (titleBadge) {
+      titleBadge.innerHTML = `<span style="color:#fde047;">🆕 CRIANDO NOVO MAPA (Será salvo como um novo registro)</span>`;
+    }
+
     document.getElementById('mapCode').value = mcreworkItem ? mcreworkItem.folderCode : `map_${nextOrder}`;
     document.getElementById('mapNamePtBr').value = mcreworkItem ? `Mapa ${mcreworkItem.mcreworkId}` : '';
     document.getElementById('mapReqLevel').value = suggestedLevel;
@@ -427,6 +433,12 @@ class EtheriaAdminStudio {
 
     const prevMapId = this.currentMapId;
     this.currentMapId = m.id;
+
+    const titleBadge = document.getElementById('mapFormTitleBadge');
+    if (titleBadge) {
+      titleBadge.innerHTML = `✏️ Editando Mapa #${m.id}: <span style="color:#86efac;">${m.namePtBr}</span>`;
+    }
+
     document.getElementById('mapCode').value = m.code;
     document.getElementById('mapNamePtBr').value = m.namePtBr;
     document.getElementById('mapReqLevel').value = m.requiredLevel;
@@ -1424,7 +1436,8 @@ class EtheriaAdminStudio {
   // MODAIS DE GALERIA DO MCREWORK (MAPAS LIMPOS E NPCS)
   // ==========================================================================
 
-  async openMcreworkMapPicker() {
+  async openMcreworkMapPicker(mode = 'NEW_MAP') {
+    this.mapPickerMode = mode;
     document.getElementById('mapPickerModal').style.display = 'flex';
     const grid = document.getElementById('mcreworkMapsGrid');
     if (this.mcreworkMaps.length === 0) {
@@ -1454,7 +1467,7 @@ class EtheriaAdminStudio {
     if (!item) return;
     this.closeModal('mapPickerModal');
 
-    if (!this.currentMapId && !document.getElementById('mapNamePtBr').value.trim()) {
+    if (this.mapPickerMode === 'NEW_MAP' || !this.currentMapId) {
       this.newBlankMapState(item);
     } else {
       document.getElementById('mapImagePath').value = item.bgImageUrl;

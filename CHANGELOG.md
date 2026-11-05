@@ -5,6 +5,18 @@ Qualquer IA trabalhando neste repositório **DEVE** incrementar a versão e regi
 
 ---
 
+## [v0.3.5] - 2026-11-05
+### Corrigido
+* **Correção Crítica do Botão `➕ Novo do mcrework` (`apps/server/public/admin/admin.js` & `index.html`):**
+  * Separado explicitamente o modo `NEW_MAP` (botão `➕ Novo do mcrework`, que zera `currentMapId = null` e inicia um novo registro em branco sem jamais sobrescrever o mapa anterior) do modo `CHANGE_IMAGE` (botão `🖼️ Trocar Imagem`).
+  * Adicionado indicador visual claro no cabeçalho da ficha (`🆕 CRIANDO NOVO MAPA` vs `✏️ Editando Mapa #ID: Nome`).
+* **Recuperação Forense Completa via MVCC do PostgreSQL (`packages/database/snapshots/lowcode.snapshot.json`):**
+  * Recuperado 100% do Mapa 1 (**`Vila Izumo`** — `map_1`, com suas 4 malhas de colisão, 13 malhas de sobreposição, Spawn `(167, 1231)` e 2 portais) diretamente das páginas de heap/TOAST do PostgreSQL, mantendo também 100% do Mapa 2 (**`Pantanal das Nuvens`** — `map_3`, com suas 7 malhas de colisão, 7 de sobreposição, Spawn `(1360, 1135)` e 2 portais).
+* **Utilitário CLI `cliSnapshot.ts` (`packages/database/src/cliSnapshot.ts`):**
+  * Adicionado script CLI para exportação direta do snapshot JSON (`npm run db:snapshot:export`).
+
+---
+
 ## [v0.3.4] - 2026-11-05
 ### Adicionado
 * **Modo Dedicado de Edição Visual de Mapas em Tela Inteira (`apps/server/public/admin/index.html` & `apps/server/public/admin/admin.js`):**
