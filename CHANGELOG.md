@@ -5,6 +5,17 @@ Qualquer IA trabalhando neste repositório **DEVE** incrementar a versão e regi
 
 ---
 
+## [v0.1.1] - 2026-11-05
+### Adicionado
+* **Cláusula 0.1 em `AGENTS.md` e `.gemini/rules/AGENTS.md` (Proibição de Código Não Solicitado / Escopo Estrito):**
+  * Proibição estrita de criar simuladores, páginas de demonstração, testes improvisados ou código não solicitado pelo usuário.
+  * Obrigatoriedade de perguntar ao usuário antes de codificar sempre que um pedido for vago ou faltar definições, evitando retrabalho e sujeira no repositório.
+
+### Removido
+* Removido o simulador não solicitado de `web/index.html`, mantendo apenas o ponto de entrada mínimo limpo.
+
+---
+
 ## [v0.1.0] - 2026-11-05
 ### Adicionado
 * **Constituição Rígida de IA (`AGENTS.md` e `.gemini/rules/AGENTS.md`):**

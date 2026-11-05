@@ -8,9 +8,9 @@
 ---
 
 ## 📌 Status Atual do Projeto
-* **Versão Atual:** `v0.1.0`
+* **Versão Atual:** `v0.1.1`
 * **Última Atualização:** `2026-11-05`
-* **Fase Atual:** **Fase 1 concluída (Fundação, Governança de IA, Documentação Mestra & GitHub Pages) $\rightarrow$ Iniciando Fase 2 (Tabelas do Banco de Dados & Conector Low-Code `/admin`)**
+* **Fase Atual:** **Fase 1 concluída (Fundação, Governança de IA, Documentação Mestra & GitHub Pages) $\rightarrow$ Aguardando definição do usuário para iniciar a Fase 2 (Banco de Dados e Tabelas)**
 * **Repositório Oficial:** `https://github.com/SeytaniR/etheria-campus`
 * **Fonte Bruta de Assets:** `https://github.com/SeytaniR/mcrework` (`https://seytanir.github.io/mcrework/`)
 

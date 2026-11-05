@@ -37,6 +37,16 @@ Sempre que o usuário pedir uma funcionalidade, mudança de regra, atalho ou imp
 
 ---
 
+## 🚫 CLÁUSULA 0.1 — PROIBIÇÃO DE CÓDIGO NÃO SOLICITADO, SIMULADORES E "SUJEIRA" (ESCOPO ESTRITO)
+
+1. **Zero Criação por Conta Própria:**
+   * É **estritamente proibido** criar simuladores, protótipos visuais, páginas de teste, *mocks*, dados fictícios ou funcionalidades "bônus" sem que o usuário tenha pedido explicitamente.
+2. **Dúvida ou Pedido Vago = PERGUNTE ANTES DE CODIFICAR:**
+   * Se o pedido do usuário for amplo, vago ou faltar definições (ex: quais colunas exatas uma tabela deve ter, quais valores uma regra usa, ou como uma tela deve funcionar), **PARE E PERGUNTE AO USUÁRIO** antes de criar arquivos.
+   * Nunca tente "adivinhar" e sair gerando código que depois precisará ser apagado ou refeito. Mantenha o repositório 100% enxuto e livre de código morto.
+
+---
+
 ## 📝 REGRAS OBRIGATÓRIAS DE CÓDIGO, COMENTÁRIOS E VERSIONAMENTO
 
 ### 1. Código Documentado para Contexto de IAs (AI-Friendly Comments)
