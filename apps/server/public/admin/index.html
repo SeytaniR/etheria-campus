@@ -2,16 +2,15 @@
   @file apps/server/public/admin/index.html
   @module @etheria/server
   @description Interface Responsiva da Rota `/admin` (Studio Low-Code do Etheria Campus).
-    Contém a Tela de Login Protegida (.env somente no localhost / CRUD do banco para acesso externo),
-    o Editor Visual de Mapas (Polígonos Estilo Google Earth de Colisão e Sobreposição, Teleportes e NPCs)
-    e o CRUD de Contas de Usuários (`ADMIN`, `GM`, `PLAYER`).
+    Otimizada para uso em Celular (Touch: Pinça de 2 dedos para Zoom/Pan, Arraste com 1 dedo,
+    Mira de Precisão Mobile, Desfazer Ponto e Modo Tela Cheia) e Desktop.
   @rules Respeita layout fluido e responsivo (PC, Tablet, Celular Vertical e Horizontal).
 -->
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
   <title>Etheria Campus — Studio Admin (/admin)</title>
   <style>
     :root {
@@ -34,6 +33,7 @@
       min-height: 100dvh;
       display: flex;
       flex-direction: column;
+      overscroll-behavior: none;
     }
     button, input, select {
       font-family: inherit;
@@ -44,12 +44,12 @@
       border-radius: 6px;
       padding: 8px 10px;
     }
-    button { cursor: pointer; font-weight: 600; transition: 0.15s; }
+    button { cursor: pointer; font-weight: 600; transition: 0.15s; user-select: none; -webkit-user-select: none; }
     button:hover { border-color: var(--accent); }
     button.btn-primary { background: var(--accent); color: #020617; border-color: var(--accent); }
     button.btn-success { background: var(--accent-green); color: #022c22; border-color: var(--accent-green); }
     button.btn-danger { background: rgba(239, 68, 68, 0.2); color: #fca5a5; border-color: var(--accent-red); }
-    button.active-tool { outline: 2px solid var(--accent-amber); background: rgba(245, 158, 11, 0.2); color: #fde68a; }
+    button.active-tool { outline: 2px solid var(--accent-amber); background: rgba(245, 158, 11, 0.25); color: #fde68a; }
 
     /* Login Screen */
     #loginScreen {
@@ -80,11 +80,11 @@
       justify-content: space-between;
       align-items: center;
       gap: 10px;
-      padding: 10px 16px;
+      padding: 10px 14px;
       background: var(--bg-card);
       border-bottom: 1px solid var(--border);
     }
-    .nav-tabs { display: flex; gap: 8px; flex-wrap: wrap; }
+    .nav-tabs { display: flex; gap: 6px; flex-wrap: wrap; }
 
     /* Layout Grid for Map Editor */
     .workspace-grid {
@@ -132,16 +132,27 @@
       display: flex;
       flex-direction: column;
       overflow: hidden;
-      min-height: 520px;
+      min-height: 68dvh;
+    }
+    .canvas-panel.fullscreen-map {
+      position: fixed;
+      inset: 0;
+      z-index: 90;
+      border-radius: 0;
+      min-height: 100dvh;
     }
     .canvas-toolbar {
       display: flex;
       flex-wrap: wrap;
-      gap: 6px;
-      padding: 8px 10px;
+      gap: 5px;
+      padding: 8px;
       background: var(--bg-card);
       border-bottom: 1px solid var(--border);
       align-items: center;
+    }
+    .canvas-toolbar button {
+      padding: 7px 9px;
+      font-size: 0.78rem;
     }
     .canvas-viewport {
       flex: 1;
@@ -149,24 +160,62 @@
       overflow: hidden;
       cursor: crosshair;
       touch-action: none;
+      -webkit-user-select: none;
+      user-select: none;
     }
     canvas#mapCanvas {
       display: block;
       width: 100%;
       height: 100%;
+      touch-action: none;
+    }
+
+    /* Floating Mobile Controls Inside Viewport */
+    .viewport-floating-controls {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      z-index: 10;
+    }
+    .viewport-floating-controls button {
+      background: rgba(17, 24, 39, 0.92);
+      border: 1px solid var(--border);
+      padding: 10px 12px;
+      font-size: 0.9rem;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+    }
+    .crosshair-action-bar {
+      position: absolute;
+      bottom: 44px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 8px;
+      z-index: 10;
+      background: rgba(17, 24, 39, 0.92);
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      box-shadow: 0 4px 14px rgba(0,0,0,0.6);
+      white-space: nowrap;
     }
     .canvas-hint {
       position: absolute;
-      bottom: 8px;
-      left: 8px;
-      right: 8px;
+      bottom: 6px;
+      left: 6px;
+      right: 6px;
       background: rgba(9, 13, 22, 0.85);
       border: 1px solid var(--border);
-      padding: 6px 10px;
+      padding: 5px 8px;
       border-radius: 6px;
-      font-size: 0.75rem;
+      font-size: 0.72rem;
       color: var(--text-muted);
       pointer-events: none;
+      text-align: center;
     }
 
     /* Lists & Cards */
@@ -191,7 +240,7 @@
       inset: 0;
       background: rgba(0, 0, 0, 0.78);
       z-index: 100;
-      padding: 16px;
+      padding: 12px;
       overflow-y: auto;
       align-items: center;
       justify-content: center;
@@ -204,12 +253,12 @@
       max-height: 90dvh;
       display: flex;
       flex-direction: column;
-      padding: 16px;
+      padding: 14px;
       gap: 12px;
     }
     .gallery-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+      grid-template-columns: repeat(auto-fill, minmax(145px, 1fr));
       gap: 10px;
       overflow-y: auto;
       padding: 4px;
@@ -227,7 +276,7 @@
     .gallery-card:hover { border-color: var(--accent); }
     .gallery-card img {
       width: 100%;
-      height: 105px;
+      height: 95px;
       object-fit: cover;
       border-radius: 4px;
       background: #000;
@@ -237,11 +286,11 @@
     table.crud-table {
       width: 100%;
       border-collapse: collapse;
-      font-size: 0.85rem;
+      font-size: 0.82rem;
     }
     table.crud-table th, table.crud-table td {
       border-bottom: 1px solid var(--border);
-      padding: 10px 8px;
+      padding: 8px 6px;
       text-align: left;
     }
   </style>
@@ -268,12 +317,12 @@
   <div id="adminApp">
     <header class="topbar">
       <div style="display:flex; align-items:center; gap:10px;">
-        <strong>⚔️ Etheria Studio Low-Code</strong>
+        <strong>⚔️ Etheria Studio</strong>
         <span id="sessionBadge" style="font-size:0.75rem; color:var(--accent);"></span>
       </div>
       <div class="nav-tabs">
-        <button id="tabBtnMaps" class="btn-primary" onclick="AdminApp.switchTab('maps')">🗺️ Editor de Mapas</button>
-        <button id="tabBtnUsers" onclick="AdminApp.switchTab('users')">🔐 Contas & Acesso Admin (CRUD)</button>
+        <button id="tabBtnMaps" class="btn-primary" onclick="AdminApp.switchTab('maps')">🗺️ Mapas</button>
+        <button id="tabBtnUsers" onclick="AdminApp.switchTab('users')">🔐 Contas Admin</button>
         <button class="btn-danger" onclick="AdminApp.logout()">Sair</button>
       </div>
     </header>
@@ -341,22 +390,39 @@
         </div>
       </aside>
 
-      <!-- COLUNA CENTRAL: CANVAS INTERATIVO (POLÍGONOS GOOGLE EARTH, PORTAIS, NPCS) -->
-      <section class="canvas-panel">
+      <!-- COLUNA CENTRAL: CANVAS INTERATIVO (OTIMIZADO PARA CELULAR E PC) -->
+      <section class="canvas-panel" id="canvasPanel">
         <div class="canvas-toolbar">
           <button id="toolPan" class="active-tool" onclick="AdminApp.setTool('PAN')">🖐️ Mover/Zoom</button>
-          <button id="toolCollision" onclick="AdminApp.setTool('COLLISION')">🛑 Polígono Colisão</button>
-          <button onclick="AdminApp.startNewPolygon('COLLISION')" title="Começar um novo polígono de colisão separado">➕ Nova Área Colisão</button>
-          <button id="toolOverlap" onclick="AdminApp.setTool('OVERLAP')">🟦 Polígono Sobreposição</button>
-          <button onclick="AdminApp.startNewPolygon('OVERLAP')" title="Começar um novo polígono de sobreposição separado">➕ Nova Área Sobrep.</button>
+          <button id="toolCollision" onclick="AdminApp.setTool('COLLISION')">🛑 Colisão</button>
+          <button onclick="AdminApp.startNewPolygon('COLLISION')" title="Criar um novo polígono de colisão separado">➕ Nova Colisão</button>
+          <button id="toolOverlap" onclick="AdminApp.setTool('OVERLAP')">🟦 Sobreposição</button>
+          <button onclick="AdminApp.startNewPolygon('OVERLAP')" title="Criar um novo polígono de sobreposição separado">➕ Nova Sobrep.</button>
           <button id="toolPortal" onclick="AdminApp.setTool('PORTAL')">🌀 Teleporte</button>
-          <button id="toolNpc" onclick="AdminApp.setTool('NPC')">🧙 Posicionar NPC</button>
-          <button onclick="AdminApp.resetCamera()">🎯 Centralizar</button>
+          <button id="toolNpc" onclick="AdminApp.setTool('NPC')">🧙 NPC</button>
+          <button id="btnToggleFullscreen" onclick="AdminApp.toggleFullscreenMap()">⛶ Tela Cheia</button>
         </div>
+
         <div class="canvas-viewport" id="canvasViewport">
           <canvas id="mapCanvas"></canvas>
+
+          <!-- Botões Flutuantes de Zoom e Precisão para Celular -->
+          <div class="viewport-floating-controls">
+            <button onclick="AdminApp.zoomByStep(1.28)" title="Aproximar Zoom">🔍 ➕</button>
+            <button onclick="AdminApp.zoomByStep(0.78)" title="Afastar Zoom">🔍 ➖</button>
+            <button onclick="AdminApp.resetCamera()" title="Centralizar Mapa">🎯 Centro</button>
+            <button onclick="AdminApp.undoLastPoint()" title="Desfazer último ponto do polígono ativo">↩️ Desfazer</button>
+          </div>
+
+          <!-- Barra Inferior de Marcação de Precisão na Mira Central (+) -->
+          <div class="crosshair-action-bar">
+            <button class="btn-primary" onclick="AdminApp.placeAtCenterCrosshair()" style="padding:7px 14px; border-radius:999px;">
+              📍 Marcar no Alvo Central (+)
+            </button>
+          </div>
+
           <div class="canvas-hint" id="canvasHint">
-            💡 Polígonos Estilo Google Earth: Clique nos cantos para pontilhar; a área se fecha sozinha a partir do 3º ponto! Arraste qualquer ponto para ajustar ou clique com o botão direito num ponto para removê-lo.
+            📱 No Celular: Use 2 dedos (pinça) para dar Zoom e Mover em qualquer ferramenta, ou alinhe o Alvo Central (+) e toque em "📍 Marcar no Alvo Central"!
           </div>
         </div>
       </section>
@@ -377,7 +443,7 @@
           <button onclick="AdminApp.openNpcTemplateModal()" style="font-size:0.75rem; padding:4px 8px;">➕ Criar NPC</button>
         </div>
         <div class="field">
-          <label>NPC selecionado para posicionar ao clicar:</label>
+          <label>NPC selecionado para posicionar:</label>
           <select id="activeNpcTemplateSelect"></select>
         </div>
         <div id="npcsList" class="item-list"></div>

@@ -5,9 +5,8 @@
  *   Implementa:
  *   1. Autenticação Dual-Mode (.env somente no localhost / CRUD do PostgreSQL para acessos externos).
  *   2. CRUD completo de Contas de Usuários (`ADMIN`, `GM`, `PLAYER`).
- *   3. Editor Visual de Mapas sobre a imagem limpa do `mcrework` com desenho de Polígonos Estilo Google Earth
- *      (fechamento automático da área conforme pontilha os vértices, arraste de vértices e exclusão),
- *      Pontos de Teleporte (`map_portals`) e Posicionamento de NPCs (`map_npcs`).
+ *   3. Editor Visual de Mapas com suporte completo a Touch Mobile (Pinça de 2 dedos para Zoom/Pan em qualquer ferramenta,
+ *      arraste de câmera e vértices com 1 dedo, Mira Central de Precisão (+), Desfazer Ponto e Tela Cheia) e Mouse Desktop.
  */
 
 class EtheriaAdminStudio {
@@ -34,7 +33,7 @@ class EtheriaAdminStudio {
     this.activeCollisionPolyIndex = -1;
     this.activeOverlapPolyIndex = -1;
 
-    // Câmera e Canvas
+    // Câmera, Toque Mobile e Canvas
     this.tool = 'PAN'; // PAN | COLLISION | OVERLAP | PORTAL | NPC
     this.bgImage = null;
     this.camX = 20;
@@ -43,22 +42,20 @@ class EtheriaAdminStudio {
     this.isPanning = false;
     this.panStartX = 0;
     this.panStartY = 0;
-    this.draggingVertex = null; // { list: 'COLLISION'|'OVERLAP', polyIdx, ptIdx }
+    this.draggingVertex = null; // { list: 'COLLISION'|'OVERLAP'|'PORTAL'|'NPC', polyIdx, ptIdx }
+    this.lastPinchDist = 0;
+    this.lastPinchMidX = 0;
+    this.lastPinchMidY = 0;
+    this.touchMoved = false;
 
     this.init();
   }
 
-  /**
-   * Inicializa a aplicação verificando o contexto de rede (localhost vs externo) e sessão ativa.
-   */
   async init() {
     this.setupCanvasEvents();
     await this.checkAuthContext();
   }
 
-  /**
-   * Executa chamadas autenticadas à API `/api/admin/*`.
-   */
   async api(path, options = {}) {
     const headers = Object.assign({ 'Content-Type': 'application/json' }, options.headers || {});
     if (this.token) {
@@ -72,9 +69,6 @@ class EtheriaAdminStudio {
     return data;
   }
 
-  /**
-   * Verifica se o cliente está no localhost e se o token salvo ainda é válido.
-   */
   async checkAuthContext() {
     try {
       const ctx = await this.api('/api/admin/auth/context');
@@ -98,9 +92,6 @@ class EtheriaAdminStudio {
     }
   }
 
-  /**
-   * Efetua o login na Rota `/admin`.
-   */
   async login() {
     const username = document.getElementById('loginUsername').value.trim();
     const password = document.getElementById('loginPassword').value;
@@ -122,9 +113,6 @@ class EtheriaAdminStudio {
     }
   }
 
-  /**
-   * Encerra a sessão Admin.
-   */
   logout() {
     this.token = '';
     this.session = null;
@@ -134,23 +122,17 @@ class EtheriaAdminStudio {
     this.checkAuthContext();
   }
 
-  /**
-   * Abre o Studio após autenticação bem-sucedida e carrega os dados do PostgreSQL.
-   */
   async enterStudio() {
     document.getElementById('loginScreen').style.display = 'none';
     document.getElementById('adminApp').style.display = 'flex';
     document.getElementById('sessionBadge').textContent =
-      `Logado como: ${this.session.username} (${this.session.authSource === 'LOCAL_ENV' ? '.env Localhost' : 'Banco CRUD'})`;
+      `${this.session.username} (${this.session.authSource === 'LOCAL_ENV' ? '.env' : 'CRUD'})`;
 
     await this.loadBootstrapData();
     await this.loadUsers();
     this.resizeCanvas();
   }
 
-  /**
-   * Alterna entre a aba do Editor de Mapas e a aba do CRUD de Usuários.
-   */
   switchTab(tab) {
     const isMaps = tab === 'maps';
     document.getElementById('tabMaps').style.display = isMaps ? 'grid' : 'none';
@@ -160,6 +142,15 @@ class EtheriaAdminStudio {
     if (isMaps) {
       setTimeout(() => this.resizeCanvas(), 50);
     }
+  }
+
+  toggleFullscreenMap() {
+    const panel = document.getElementById('canvasPanel');
+    const btn = document.getElementById('btnToggleFullscreen');
+    panel.classList.toggle('fullscreen-map');
+    const isFull = panel.classList.contains('fullscreen-map');
+    btn.textContent = isFull ? '❎ Sair Tela Cheia' : '⛶ Tela Cheia';
+    setTimeout(() => this.resizeCanvas(), 60);
   }
 
   // ==========================================================================
@@ -184,14 +175,12 @@ class EtheriaAdminStudio {
   }
 
   renderSelectOptions() {
-    // Tipos de Mapa (5)
     const mtSelect = document.getElementById('mapTypeSelect');
     mtSelect.innerHTML = this.mapTypes
       .map((mt) => `<option value="${mt.id}">${mt.namePtBr} (${mt.code})</option>`)
       .join('');
     this.updateMapTypeRuleBadge();
 
-    // Biomas (40)
     const biomeOptions = this.biomes
       .map((b, idx) => `<option value="${b.id}">#${idx + 1} - ${b.namePtBr} [${b.category}]</option>`)
       .join('');
@@ -202,7 +191,6 @@ class EtheriaAdminStudio {
     }
     this.updateBiomeDesc();
 
-    // Templates de NPCs
     const npcSelect = document.getElementById('activeNpcTemplateSelect');
     if (this.npcTemplates.length === 0) {
       npcSelect.innerHTML = `<option value="">Nenhum NPC cadastrado (Clique em + Criar NPC)</option>`;
@@ -333,9 +321,9 @@ class EtheriaAdminStudio {
   resetCamera() {
     const canvas = document.getElementById('mapCanvas');
     if (this.bgImage) {
-      const scaleX = (canvas.width - 40) / this.bgImage.width;
-      const scaleY = (canvas.height - 40) / this.bgImage.height;
-      this.zoom = Math.max(0.15, Math.min(1, Math.min(scaleX, scaleY)));
+      const scaleX = (canvas.width - 24) / this.bgImage.width;
+      const scaleY = (canvas.height - 24) / this.bgImage.height;
+      this.zoom = Math.max(0.12, Math.min(1.2, Math.min(scaleX, scaleY)));
       this.camX = (canvas.width - this.bgImage.width * this.zoom) / 2;
       this.camY = (canvas.height - this.bgImage.height * this.zoom) / 2;
     } else {
@@ -343,6 +331,20 @@ class EtheriaAdminStudio {
       this.camX = 20;
       this.camY = 20;
     }
+    this.drawCanvas();
+  }
+
+  /**
+   * Dá zoom mantendo o centro do canvas (Alvo Central +) fixo no mesmo ponto do mapa.
+   */
+  zoomByStep(factor) {
+    const canvas = document.getElementById('mapCanvas');
+    const cx = canvas.width / 2;
+    const cy = canvas.height / 2;
+    const newZoom = Math.max(0.1, Math.min(4.0, this.zoom * factor));
+    this.camX = cx - ((cx - this.camX) / this.zoom) * newZoom;
+    this.camY = cy - ((cy - this.camY) / this.zoom) * newZoom;
+    this.zoom = newZoom;
     this.drawCanvas();
   }
 
@@ -359,7 +361,6 @@ class EtheriaAdminStudio {
       document.getElementById(btnId).className = k === toolName ? 'active-tool' : '';
     }
 
-    // Se selecionou Colisão ou Sobreposição e ainda não há polígono ativo, cria o primeiro automaticamente
     if (toolName === 'COLLISION' && this.collisionPolygons.length === 0) {
       this.startNewPolygon('COLLISION');
     } else if (toolName === 'OVERLAP' && this.overlapPolygons.length === 0) {
@@ -368,9 +369,6 @@ class EtheriaAdminStudio {
     this.drawCanvas();
   }
 
-  /**
-   * Inicia um novo Polígono Estilo Google Earth (Colisão ou Sobreposição).
-   */
   startNewPolygon(type) {
     if (type === 'COLLISION') {
       const idx = this.collisionPolygons.length + 1;
@@ -395,8 +393,81 @@ class EtheriaAdminStudio {
     this.drawCanvas();
   }
 
+  /**
+   * Remove o último ponto adicionado ao polígono ativo (ideal para uso rápido no celular).
+   */
+  undoLastPoint() {
+    if (this.tool === 'OVERLAP') {
+      const poly = this.overlapPolygons[this.activeOverlapPolyIndex];
+      if (poly && poly.points.length > 0) {
+        poly.points.pop();
+      }
+    } else {
+      const poly = this.collisionPolygons[this.activeCollisionPolyIndex];
+      if (poly && poly.points.length > 0) {
+        poly.points.pop();
+      }
+    }
+    this.renderLayerLists();
+    this.drawCanvas();
+  }
+
+  /**
+   * Marca um ponto/portal/NPC exatamente na coordenada sob a Mira Central (+) da tela!
+   * Resolve 100% da precisão no celular (onde o dedo poderia cobrir o ponto exato).
+   */
+  placeAtCenterCrosshair() {
+    const canvas = document.getElementById('mapCanvas');
+    const worldX = Math.round((canvas.width / 2 - this.camX) / this.zoom);
+    const worldY = Math.round((canvas.height / 2 - this.camY) / this.zoom);
+
+    if (this.tool === 'PAN') {
+      // Se estava em PAN, adiciona na camada de colisão por padrão ou avisa
+      this.setTool('COLLISION');
+    }
+    this.applyToolPlacementAtWorldPoint(worldX, worldY);
+  }
+
+  applyToolPlacementAtWorldPoint(x, y) {
+    if (this.tool === 'COLLISION') {
+      if (this.activeCollisionPolyIndex < 0 || !this.collisionPolygons[this.activeCollisionPolyIndex]) {
+        this.startNewPolygon('COLLISION');
+      }
+      this.collisionPolygons[this.activeCollisionPolyIndex].points.push({ x, y });
+    } else if (this.tool === 'OVERLAP') {
+      if (this.activeOverlapPolyIndex < 0 || !this.overlapPolygons[this.activeOverlapPolyIndex]) {
+        this.startNewPolygon('OVERLAP');
+      }
+      this.overlapPolygons[this.activeOverlapPolyIndex].points.push({ x, y });
+    } else if (this.tool === 'PORTAL') {
+      const defaultTargetMapId = this.savedMaps[0]?.id || this.currentMapId || 1;
+      this.portals.push({
+        sourceX: x,
+        sourceY: y,
+        triggerRadius: 48,
+        targetMapId: defaultTargetMapId,
+        targetX: 500,
+        targetY: 500,
+      });
+    } else if (this.tool === 'NPC') {
+      const npcTemplateId = Number(document.getElementById('activeNpcTemplateSelect').value);
+      if (!npcTemplateId) {
+        alert('Cadastre ou selecione primeiro um Template de NPC usando o botão "➕ Criar NPC".');
+        return;
+      }
+      this.npcs.push({
+        npcTemplateId,
+        posX: x,
+        posY: y,
+        direction: 0,
+      });
+    }
+    this.renderLayerLists();
+    this.drawCanvas();
+  }
+
   // ==========================================================================
-  // INTERAÇÃO DO CANVAS (ZOOM, PAN E POLÍGONOS GOOGLE EARTH)
+  // INTERAÇÃO DO CANVAS (SUPORTE COMPLETO A TOUCH MOBILE + PINÇA 2 DEDOS + MOUSE)
   // ==========================================================================
 
   setupCanvasEvents() {
@@ -405,7 +476,6 @@ class EtheriaAdminStudio {
 
     window.addEventListener('resize', () => this.resizeCanvas());
 
-    // Conversão de clique na tela para coordenada real (X, Y) da imagem do mapa
     const toWorldCoords = (clientX, clientY) => {
       const rect = canvas.getBoundingClientRect();
       const sx = clientX - rect.left;
@@ -416,34 +486,178 @@ class EtheriaAdminStudio {
       };
     };
 
-    // Procura se o mouse clicou sobre um vértice existente para arrastar ou remover
-    const findHitVertex = (worldX, worldY) => {
-      const hitRadius = Math.max(10, 12 / this.zoom);
-      const checkList = (listName, polys) => {
+    const findHitObject = (worldX, worldY, isTouch = false) => {
+      const hitRadius = Math.max(14, (isTouch ? 24 : 12) / this.zoom);
+
+      // 1. Verifica vértices de polígonos
+      const checkPolyList = (listName, polys) => {
         for (let pIdx = 0; pIdx < polys.length; pIdx++) {
           const pts = polys[pIdx].points || [];
           for (let vIdx = 0; vIdx < pts.length; vIdx++) {
-            const dx = pts[vIdx].x - worldX;
-            const dy = pts[vIdx].y - worldY;
-            if (Math.hypot(dx, dy) <= hitRadius) {
+            if (Math.hypot(pts[vIdx].x - worldX, pts[vIdx].y - worldY) <= hitRadius) {
               return { list: listName, polyIdx: pIdx, ptIdx: vIdx };
             }
           }
         }
         return null;
       };
-      return (
-        checkList('COLLISION', this.collisionPolygons) ||
-        checkList('OVERLAP', this.overlapPolygons)
-      );
+
+      const polyHit =
+        checkPolyList('COLLISION', this.collisionPolygons) ||
+        checkPolyList('OVERLAP', this.overlapPolygons);
+      if (polyHit) return polyHit;
+
+      // 2. Verifica Portais para arrastar
+      for (let i = 0; i < this.portals.length; i++) {
+        if (Math.hypot(this.portals[i].sourceX - worldX, this.portals[i].sourceY - worldY) <= Math.max(hitRadius, 40)) {
+          return { list: 'PORTAL', polyIdx: i, ptIdx: 0 };
+        }
+      }
+
+      // 3. Verifica NPCs para arrastar
+      for (let i = 0; i < this.npcs.length; i++) {
+        if (Math.hypot(this.npcs[i].posX - worldX, this.npcs[i].posY - worldY) <= Math.max(hitRadius, 30)) {
+          return { list: 'NPC', polyIdx: i, ptIdx: 0 };
+        }
+      }
+
+      return null;
     };
 
-    // Clique Direito: Remove o vértice sob o cursor (Estilo Google Earth)
+    // --- EVENTOS TOUCH PARA CELULAR (1 DEDO PAN/ARRASTE/PONTO + 2 DEDOS PINÇA ZOOM/PAN) ---
+    canvas.addEventListener(
+      'touchstart',
+      (e) => {
+        e.preventDefault();
+        this.touchMoved = false;
+
+        // 2 Dedos = Pinça de Zoom + Mover simultâneo em QUALQUER ferramenta!
+        if (e.touches.length === 2) {
+          this.isPanning = false;
+          this.draggingVertex = null;
+          const t1 = e.touches[0];
+          const t2 = e.touches[1];
+          this.lastPinchDist = Math.hypot(t2.clientX - t1.clientX, t2.clientY - t1.clientY);
+          this.lastPinchMidX = (t1.clientX + t2.clientX) / 2;
+          this.lastPinchMidY = (t1.clientY + t2.clientY) / 2;
+          return;
+        }
+
+        // 1 Dedo
+        if (e.touches.length === 1) {
+          const t = e.touches[0];
+          const { x, y } = toWorldCoords(t.clientX, t.clientY);
+
+          // Se clicou em cima de um vértice, portal ou NPC existente, permite arrastar com o dedo!
+          const hit = findHitObject(x, y, true);
+          if (hit && this.tool !== 'PAN') {
+            this.draggingVertex = hit;
+            if (hit.list === 'COLLISION') this.activeCollisionPolyIndex = hit.polyIdx;
+            if (hit.list === 'OVERLAP') this.activeOverlapPolyIndex = hit.polyIdx;
+            this.renderLayerLists();
+            this.drawCanvas();
+            return;
+          }
+
+          // Na ferramenta PAN, 1 dedo move o mapa
+          this.isPanning = true;
+          this.panStartX = t.clientX - this.camX;
+          this.panStartY = t.clientY - this.camY;
+          this.touchStartClientX = t.clientX;
+          this.touchStartClientY = t.clientY;
+        }
+      },
+      { passive: false }
+    );
+
+    canvas.addEventListener(
+      'touchmove',
+      (e) => {
+        e.preventDefault();
+
+        // 2 Dedos: Pinça Zoom + Pan
+        if (e.touches.length === 2) {
+          this.touchMoved = true;
+          const t1 = e.touches[0];
+          const t2 = e.touches[1];
+          const dist = Math.hypot(t2.clientX - t1.clientX, t2.clientY - t1.clientY);
+          const midX = (t1.clientX + t2.clientX) / 2;
+          const midY = (t1.clientY + t2.clientY) / 2;
+
+          if (this.lastPinchDist > 0) {
+            const rect = canvas.getBoundingClientRect();
+            const localMidX = midX - rect.left;
+            const localMidY = midY - rect.top;
+
+            const factor = dist / this.lastPinchDist;
+            const newZoom = Math.max(0.1, Math.min(4.0, this.zoom * factor));
+
+            // Ajusta câmera pelo zoom na pinça + deslocamento dos 2 dedos
+            this.camX = localMidX - ((localMidX - this.camX) / this.zoom) * newZoom + (midX - this.lastPinchMidX);
+            this.camY = localMidY - ((localMidY - this.camY) / this.zoom) * newZoom + (midY - this.lastPinchMidY);
+            this.zoom = newZoom;
+            this.drawCanvas();
+          }
+
+          this.lastPinchDist = dist;
+          this.lastPinchMidX = midX;
+          this.lastPinchMidY = midY;
+          return;
+        }
+
+        // 1 Dedo
+        if (e.touches.length === 1) {
+          const t = e.touches[0];
+          if (Math.hypot(t.clientX - (this.touchStartClientX || 0), t.clientY - (this.touchStartClientY || 0)) > 8) {
+            this.touchMoved = true;
+          }
+
+          if (this.draggingVertex) {
+            const { x, y } = toWorldCoords(t.clientX, t.clientY);
+            this.moveDraggedObject(x, y);
+            return;
+          }
+
+          if (this.isPanning) {
+            this.camX = t.clientX - this.panStartX;
+            this.camY = t.clientY - this.panStartY;
+            this.drawCanvas();
+          }
+        }
+      },
+      { passive: false }
+    );
+
+    canvas.addEventListener(
+      'touchend',
+      (e) => {
+        e.preventDefault();
+        // Se foi um toque rápido (tap sem arrastar a tela) numa ferramenta de desenho, adiciona o ponto!
+        if (!this.touchMoved && !this.draggingVertex && e.changedTouches.length === 1 && this.tool !== 'PAN') {
+          const t = e.changedTouches[0];
+          const { x, y } = toWorldCoords(t.clientX, t.clientY);
+          this.applyToolPlacementAtWorldPoint(x, y);
+        }
+        if (e.touches.length < 2) {
+          this.lastPinchDist = 0;
+        }
+        if (e.touches.length === 0) {
+          this.isPanning = false;
+          if (this.draggingVertex) {
+            this.draggingVertex = null;
+            this.renderLayerLists();
+          }
+        }
+      },
+      { passive: false }
+    );
+
+    // --- EVENTOS DE MOUSE (DESKTOP) ---
     canvas.addEventListener('contextmenu', (e) => {
       e.preventDefault();
       const { x, y } = toWorldCoords(e.clientX, e.clientY);
-      const hit = findHitVertex(x, y);
-      if (hit) {
+      const hit = findHitObject(x, y, false);
+      if (hit && (hit.list === 'COLLISION' || hit.list === 'OVERLAP')) {
         const targetList = hit.list === 'COLLISION' ? this.collisionPolygons : this.overlapPolygons;
         targetList[hit.polyIdx].points.splice(hit.ptIdx, 1);
         this.renderLayerLists();
@@ -452,10 +666,9 @@ class EtheriaAdminStudio {
     });
 
     canvas.addEventListener('mousedown', (e) => {
-      if (e.button === 2) return; // botão direito já tratado no contextmenu
+      if (e.button === 2) return;
       const { x, y } = toWorldCoords(e.clientX, e.clientY);
 
-      // Botão do meio ou Ferramenta PAN -> move câmera
       if (e.button === 1 || this.tool === 'PAN') {
         this.isPanning = true;
         this.panStartX = e.clientX - this.camX;
@@ -463,8 +676,7 @@ class EtheriaAdminStudio {
         return;
       }
 
-      // Verifica se clicou num vértice existente para arrastá-lo
-      const hit = findHitVertex(x, y);
+      const hit = findHitObject(x, y, false);
       if (hit) {
         this.draggingVertex = hit;
         if (hit.list === 'COLLISION') this.activeCollisionPolyIndex = hit.polyIdx;
@@ -474,60 +686,7 @@ class EtheriaAdminStudio {
         return;
       }
 
-      // Ferramenta Polígono de Colisão (Pontilhando como no Google Earth)
-      if (this.tool === 'COLLISION') {
-        if (this.activeCollisionPolyIndex < 0 || !this.collisionPolygons[this.activeCollisionPolyIndex]) {
-          this.startNewPolygon('COLLISION');
-        }
-        this.collisionPolygons[this.activeCollisionPolyIndex].points.push({ x, y });
-        this.renderLayerLists();
-        this.drawCanvas();
-        return;
-      }
-
-      // Ferramenta Polígono de Sobreposição / Opacidade (Pontilhando como no Google Earth)
-      if (this.tool === 'OVERLAP') {
-        if (this.activeOverlapPolyIndex < 0 || !this.overlapPolygons[this.activeOverlapPolyIndex]) {
-          this.startNewPolygon('OVERLAP');
-        }
-        this.overlapPolygons[this.activeOverlapPolyIndex].points.push({ x, y });
-        this.renderLayerLists();
-        this.drawCanvas();
-        return;
-      }
-
-      // Ferramenta Teleporte
-      if (this.tool === 'PORTAL') {
-        const defaultTargetMapId = this.savedMaps[0]?.id || this.currentMapId || 1;
-        this.portals.push({
-          sourceX: x,
-          sourceY: y,
-          triggerRadius: 48,
-          targetMapId: defaultTargetMapId,
-          targetX: 500,
-          targetY: 500,
-        });
-        this.renderLayerLists();
-        this.drawCanvas();
-        return;
-      }
-
-      // Ferramenta NPC
-      if (this.tool === 'NPC') {
-        const npcTemplateId = Number(document.getElementById('activeNpcTemplateSelect').value);
-        if (!npcTemplateId) {
-          alert('Cadastre ou selecione primeiro um Template de NPC usando o botão "➕ Criar NPC".');
-          return;
-        }
-        this.npcs.push({
-          npcTemplateId,
-          posX: x,
-          posY: y,
-          direction: 0,
-        });
-        this.renderLayerLists();
-        this.drawCanvas();
-      }
+      this.applyToolPlacementAtWorldPoint(x, y);
     });
 
     window.addEventListener('mousemove', (e) => {
@@ -539,33 +698,28 @@ class EtheriaAdminStudio {
       }
       if (this.draggingVertex) {
         const { x, y } = toWorldCoords(e.clientX, e.clientY);
-        const list =
-          this.draggingVertex.list === 'COLLISION'
-            ? this.collisionPolygons
-            : this.overlapPolygons;
-        const poly = list[this.draggingVertex.polyIdx];
-        if (poly && poly.points[this.draggingVertex.ptIdx]) {
-          poly.points[this.draggingVertex.ptIdx] = { x, y };
-          this.drawCanvas();
-        }
+        this.moveDraggedObject(x, y);
       }
     });
 
     window.addEventListener('mouseup', () => {
       this.isPanning = false;
-      this.draggingVertex = null;
+      if (this.draggingVertex) {
+        this.draggingVertex = null;
+        this.renderLayerLists();
+      }
     });
 
     viewport.addEventListener(
       'wheel',
       (e) => {
         e.preventDefault();
-        const factor = e.deltaY < 0 ? 1.12 : 0.89;
+        const factor = e.deltaY < 0 ? 1.14 : 0.88;
         const rect = canvas.getBoundingClientRect();
         const mx = e.clientX - rect.left;
         const my = e.clientY - rect.top;
 
-        const newZoom = Math.max(0.1, Math.min(3.5, this.zoom * factor));
+        const newZoom = Math.max(0.1, Math.min(4.0, this.zoom * factor));
         this.camX = mx - ((mx - this.camX) / this.zoom) * newZoom;
         this.camY = my - ((my - this.camY) / this.zoom) * newZoom;
         this.zoom = newZoom;
@@ -573,6 +727,23 @@ class EtheriaAdminStudio {
       },
       { passive: false }
     );
+  }
+
+  moveDraggedObject(x, y) {
+    if (!this.draggingVertex) return;
+    const { list, polyIdx, ptIdx } = this.draggingVertex;
+    if (list === 'COLLISION' && this.collisionPolygons[polyIdx]?.points[ptIdx]) {
+      this.collisionPolygons[polyIdx].points[ptIdx] = { x, y };
+    } else if (list === 'OVERLAP' && this.overlapPolygons[polyIdx]?.points[ptIdx]) {
+      this.overlapPolygons[polyIdx].points[ptIdx] = { x, y };
+    } else if (list === 'PORTAL' && this.portals[polyIdx]) {
+      this.portals[polyIdx].sourceX = x;
+      this.portals[polyIdx].sourceY = y;
+    } else if (list === 'NPC' && this.npcs[polyIdx]) {
+      this.npcs[polyIdx].posX = x;
+      this.npcs[polyIdx].posY = y;
+    }
+    this.drawCanvas();
   }
 
   resizeCanvas() {
@@ -584,10 +755,6 @@ class EtheriaAdminStudio {
     this.drawCanvas();
   }
 
-  /**
-   * Renderiza no Canvas a imagem base do mapa, os Polígonos de Colisão (Vermelhos),
-   * os Polígonos de Sobreposição (Azuis), os Portais de Teleporte e os NPCs.
-   */
   drawCanvas() {
     const canvas = document.getElementById('mapCanvas');
     if (!canvas) return;
@@ -606,10 +773,10 @@ class EtheriaAdminStudio {
       ctx.fillRect(0, 0, 1600, 1200);
       ctx.fillStyle = '#94a3b8';
       ctx.font = '28px sans-serif';
-      ctx.fillText('Selecione ou importe uma Imagem de Mapa do mcrework', 240, 560);
+      ctx.fillText('Toque em "➕ Novo do mcrework" para abrir um mapa', 220, 560);
     }
 
-    // Função auxiliar para desenhar Polígonos Estilo Google Earth (auto-fechados a partir de 3 pontos)
+    // 2 & 3. Polígonos Estilo Google Earth (Colisão e Sobreposição)
     const drawPolygonLayer = (polygons, activeIdx, fillRgb, strokeHex) => {
       polygons.forEach((poly, idx) => {
         const pts = poly.points || [];
@@ -621,10 +788,9 @@ class EtheriaAdminStudio {
         for (let i = 1; i < pts.length; i++) {
           ctx.lineTo(pts[i].x, pts[i].y);
         }
-        // A partir de 3 pontos, fecha o polígono automaticamente como no Google Earth!
         if (pts.length >= 3) {
           ctx.closePath();
-          ctx.fillStyle = isSelected ? `rgba(${fillRgb}, 0.42)` : `rgba(${fillRgb}, 0.26)`;
+          ctx.fillStyle = isSelected ? `rgba(${fillRgb}, 0.44)` : `rgba(${fillRgb}, 0.28)`;
           ctx.fill();
         }
 
@@ -632,21 +798,19 @@ class EtheriaAdminStudio {
         ctx.strokeStyle = isSelected ? '#fde047' : strokeHex;
         ctx.stroke();
 
-        // Desenha cada vértice pontilhado
-        const r = Math.max(5, 6 / this.zoom);
+        const r = Math.max(6, 8 / this.zoom);
         pts.forEach((pt, vIdx) => {
           ctx.beginPath();
           ctx.arc(pt.x, pt.y, r, 0, Math.PI * 2);
-          ctx.fillStyle = vIdx === 0 ? '#fde047' : '#ffffff';
+          ctx.fillStyle = vIdx === pts.length - 1 ? '#fde047' : '#ffffff';
           ctx.fill();
-          ctx.lineWidth = 1.5 / this.zoom;
+          ctx.lineWidth = 1.8 / this.zoom;
           ctx.strokeStyle = '#020617';
           ctx.stroke();
         });
       });
     };
 
-    // 2. Camada de Polígonos de Colisão (Vermelho)
     drawPolygonLayer(
       this.collisionPolygons,
       this.tool === 'COLLISION' ? this.activeCollisionPolyIndex : -1,
@@ -654,7 +818,6 @@ class EtheriaAdminStudio {
       '#ef4444'
     );
 
-    // 3. Camada de Polígonos de Sobreposição / Opacidade (Azul Ciano)
     drawPolygonLayer(
       this.overlapPolygons,
       this.tool === 'OVERLAP' ? this.activeOverlapPolyIndex : -1,
@@ -662,28 +825,28 @@ class EtheriaAdminStudio {
       '#38bdf8'
     );
 
-    // 4. Pontos de Teleporte (Portais)
+    // 4. Portais
     this.portals.forEach((p, idx) => {
       const radius = Number(p.triggerRadius) || 48;
       ctx.beginPath();
       ctx.arc(p.sourceX, p.sourceY, radius, 0, Math.PI * 2);
-      ctx.fillStyle = 'rgba(168, 85, 247, 0.32)';
+      ctx.fillStyle = 'rgba(168, 85, 247, 0.35)';
       ctx.fill();
       ctx.lineWidth = 2.5 / this.zoom;
       ctx.strokeStyle = '#c084fc';
       ctx.stroke();
 
       ctx.fillStyle = '#ffffff';
-      ctx.font = `${Math.max(12, Math.round(14 / this.zoom))}px sans-serif`;
-      ctx.fillText(`🌀 Portal #${idx + 1} -> Mapa ${p.targetMapId}`, p.sourceX - radius, p.sourceY - radius - 6);
+      ctx.font = `bold ${Math.max(12, Math.round(14 / this.zoom))}px sans-serif`;
+      ctx.fillText(`🌀 Portal #${idx + 1}`, p.sourceX - radius, p.sourceY - radius - 6);
     });
 
-    // 5. NPCs Posicionados
-    this.npcs.forEach((n, idx) => {
+    // 5. NPCs
+    this.npcs.forEach((n) => {
       const tpl = this.npcTemplates.find((t) => t.id === Number(n.npcTemplateId));
       const label = tpl ? tpl.namePtBr : `NPC #${n.npcTemplateId}`;
       ctx.beginPath();
-      ctx.arc(n.posX, n.posY, 22, 0, Math.PI * 2);
+      ctx.arc(n.posX, n.posY, 24, 0, Math.PI * 2);
       ctx.fillStyle = 'rgba(34, 197, 94, 0.45)';
       ctx.fill();
       ctx.lineWidth = 2.5 / this.zoom;
@@ -696,18 +859,41 @@ class EtheriaAdminStudio {
     });
 
     ctx.restore();
+
+    // 6. Desenha o Alvo de Precisão Central (+) fixo no centro do visor para uso milimétrico no celular!
+    const cx = canvas.width / 2;
+    const cy = canvas.height / 2;
+    const worldCenterX = Math.round((cx - this.camX) / this.zoom);
+    const worldCenterY = Math.round((cy - this.camY) / this.zoom);
+
+    ctx.save();
+    ctx.strokeStyle = '#f59e0b';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(cx - 14, cy);
+    ctx.lineTo(cx + 14, cy);
+    ctx.moveTo(cx, cy - 14);
+    ctx.lineTo(cx, cy + 14);
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.arc(cx, cy, 6, 0, Math.PI * 2);
+    ctx.stroke();
+
+    ctx.fillStyle = 'rgba(15, 23, 42, 0.85)';
+    ctx.fillRect(cx + 10, cy - 26, 110, 20);
+    ctx.fillStyle = '#fde68a';
+    ctx.font = 'bold 11px monospace';
+    ctx.fillText(`X:${worldCenterX} Y:${worldCenterY}`, cx + 15, cy - 12);
+    ctx.restore();
   }
 
-  /**
-   * Renderiza as listas laterais direitas (Polígonos de Colisão, Sobreposição, Teleportes e NPCs).
-   */
   renderLayerLists() {
     document.getElementById('countCollision').textContent = String(this.collisionPolygons.length);
     document.getElementById('countOverlap').textContent = String(this.overlapPolygons.length);
     document.getElementById('countPortals').textContent = String(this.portals.length);
     document.getElementById('countNpcs').textContent = String(this.npcs.length);
 
-    // Colisões
     document.getElementById('collisionList').innerHTML = this.collisionPolygons
       .map(
         (p, idx) => `
@@ -720,7 +906,6 @@ class EtheriaAdminStudio {
       )
       .join('');
 
-    // Sobreposições
     document.getElementById('overlapList').innerHTML = this.overlapPolygons
       .map(
         (p, idx) => `
@@ -733,7 +918,6 @@ class EtheriaAdminStudio {
       )
       .join('');
 
-    // Portais de Teleporte
     const targetMapOptions = (selectedId) =>
       this.savedMaps
         .map(
@@ -770,7 +954,6 @@ class EtheriaAdminStudio {
       )
       .join('');
 
-    // NPCs no Mapa
     document.getElementById('npcsList').innerHTML = this.npcs
       .map((n, idx) => {
         const tpl = this.npcTemplates.find((t) => t.id === Number(n.npcTemplateId));
@@ -828,9 +1011,6 @@ class EtheriaAdminStudio {
     this.drawCanvas();
   }
 
-  /**
-   * Salva o Mapa atual e todas as suas malhas poligonais, portais e NPCs no PostgreSQL.
-   */
   async saveCurrentMap() {
     try {
       const dto = {

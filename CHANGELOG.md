@@ -5,6 +5,17 @@ Qualquer IA trabalhando neste repositório **DEVE** incrementar a versão e regi
 
 ---
 
+## [v0.3.2] - 2026-11-05
+### Adicionado
+* **Suporte Completo a Mobile Touch, Pinça e Mira de Precisão no Editor de Mapas (`apps/server/public/admin/index.html` & `apps/server/public/admin/admin.js`):**
+  * Eventos nativos `touchstart`, `touchmove` e `touchend` no Canvas de mapas.
+  * **Pinça com 2 dedos (Pinch-to-Zoom + Pan Simultâneo):** Permite dar zoom e arrastar o mapa com dois dedos a qualquer momento, mesmo quando uma ferramenta de Polígono, Portal ou NPC está selecionada.
+  * **Arraste com 1 dedo:** Move o mapa suavemente na ferramenta `🖐️ Mover/Zoom` ou arrasta vértices existentes de colisão/sobreposição, portais e NPCs com raio de captura ampliado para telas touch.
+  * **Alvo Central de Precisão (`+`) e Botão `📍 Marcar no Alvo Central (+)`:** Mira fixa no centro da tela com coordenadas `X,Y` em tempo real que permite posicionar o mapa com zoom e cravar vértices, portais ou NPCs com precisão cirúrgica de 1 pixel (sem o dedo tampar a visão).
+  * **Controles Flutuantes & Modo Tela Cheia:** Botões `🔍 ➕`, `🔍 ➖`, `🎯 Centro`, `↩️ Desfazer Ponto` e `⛶ Tela Cheia` para edição confortável no celular.
+
+---
+
 ## [v0.3.1] - 2026-11-05
 ### Adicionado
 * **Suporte a Acesso Remoto via Cloudflare Tunnel (`package.json` & `apps/server/src/index.ts`):**
