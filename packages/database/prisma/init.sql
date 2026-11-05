@@ -1,4 +1,4 @@
--- CreateTable
+﻿-- CreateTable
 CREATE TABLE "i18n_translations" (
     "id" SERIAL NOT NULL,
     "i18n_key" TEXT NOT NULL,
@@ -46,6 +46,8 @@ CREATE TABLE "maps" (
     "primary_biome_id" INTEGER NOT NULL,
     "secondary_biome_id" INTEGER NOT NULL,
     "dominated_by_id" TEXT,
+    "spawn_x" DOUBLE PRECISION NOT NULL DEFAULT 500,
+    "spawn_y" DOUBLE PRECISION NOT NULL DEFAULT 500,
     "collision_mesh_json" JSONB NOT NULL DEFAULT '[]',
     "overlap_mesh_json" JSONB NOT NULL DEFAULT '[]',
     "overlap_opacity" DOUBLE PRECISION NOT NULL DEFAULT 0.45,
@@ -59,13 +61,15 @@ CREATE TABLE "maps" (
 -- CreateTable
 CREATE TABLE "map_portals" (
     "id" SERIAL NOT NULL,
+    "label" TEXT NOT NULL DEFAULT 'Portal',
     "source_map_id" INTEGER NOT NULL,
     "source_x" DOUBLE PRECISION NOT NULL,
     "source_y" DOUBLE PRECISION NOT NULL,
     "trigger_radius" DOUBLE PRECISION NOT NULL DEFAULT 48,
-    "target_map_id" INTEGER NOT NULL,
-    "target_x" DOUBLE PRECISION NOT NULL,
-    "target_y" DOUBLE PRECISION NOT NULL,
+    "linked_portal_id" INTEGER,
+    "target_map_id" INTEGER,
+    "target_x" DOUBLE PRECISION NOT NULL DEFAULT 500,
+    "target_y" DOUBLE PRECISION NOT NULL DEFAULT 500,
     "portal_vfx_key" TEXT,
 
     CONSTRAINT "map_portals_pkey" PRIMARY KEY ("id")
@@ -408,7 +412,7 @@ ALTER TABLE "maps" ADD CONSTRAINT "maps_secondary_biome_id_fkey" FOREIGN KEY ("s
 ALTER TABLE "map_portals" ADD CONSTRAINT "map_portals_source_map_id_fkey" FOREIGN KEY ("source_map_id") REFERENCES "maps"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "map_portals" ADD CONSTRAINT "map_portals_target_map_id_fkey" FOREIGN KEY ("target_map_id") REFERENCES "maps"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "map_portals" ADD CONSTRAINT "map_portals_target_map_id_fkey" FOREIGN KEY ("target_map_id") REFERENCES "maps"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "map_npcs" ADD CONSTRAINT "map_npcs_map_id_fkey" FOREIGN KEY ("map_id") REFERENCES "maps"("id") ON DELETE CASCADE ON UPDATE CASCADE;

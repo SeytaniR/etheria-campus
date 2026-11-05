@@ -26,17 +26,22 @@ export interface SaveMapDto {
   primaryBiomeId: number;
   secondaryBiomeId: number;
   dominatedById?: string | null;
+  spawnX?: number;
+  spawnY?: number;
   overlapOpacity?: number;
   isActive?: boolean;
   collisionMeshJson: MapPolygon[];
   overlapMeshJson: MapPolygon[];
   portals: Array<{
+    id?: number | null;
+    label?: string;
     sourceX: number;
     sourceY: number;
     triggerRadius?: number;
-    targetMapId: number;
-    targetX: number;
-    targetY: number;
+    linkedPortalId?: number | null;
+    targetMapId?: number | null;
+    targetX?: number;
+    targetY?: number;
     portalVfxKey?: string | null;
   }>;
   npcs: Array<{
@@ -246,6 +251,8 @@ export class AdminMapsController {
       primaryBiomeId: Number(dto.primaryBiomeId),
       secondaryBiomeId: Number(dto.secondaryBiomeId),
       dominatedById: dto.dominatedById || null,
+      spawnX: Number(dto.spawnX ?? 500),
+      spawnY: Number(dto.spawnY ?? 500),
       overlapOpacity: Number(dto.overlapOpacity ?? 0.45),
       isActive: dto.isActive !== undefined ? Boolean(dto.isActive) : true,
       collisionMeshJson: Array.isArray(dto.collisionMeshJson) ? (dto.collisionMeshJson as any) : [],
@@ -267,27 +274,100 @@ export class AdminMapsController {
         savedMapId = created.id;
       }
 
-      // Atualiza Teleportes (Portais de Saída deste Mapa)
-      await tx.mapPortal.deleteMany({ where: { sourceMapId: savedMapId } });
-      if (Array.isArray(dto.portals) && dto.portals.length > 0) {
-        for (const p of dto.portals) {
-          if (!p.targetMapId) continue;
-          await tx.mapPortal.create({
-            data: {
-              sourceMapId: savedMapId!,
-              sourceX: Number(p.sourceX) || 0,
-              sourceY: Number(p.sourceY) || 0,
-              triggerRadius: Number(p.triggerRadius) || 48,
-              targetMapId: Number(p.targetMapId),
-              targetX: Number(p.targetX) || 0,
-              targetY: Number(p.targetY) || 0,
-              portalVfxKey: p.portalVfxKey || null,
+      // 1. Gerencia Portais preservando IDs e sincronizando Duplas de Portais (Entrada <-> Saída)
+      const existingPortals = await tx.mapPortal.findMany({
+        where: { sourceMapId: savedMapId! },
+      });
+      const incomingPortals = Array.isArray(dto.portals) ? dto.portals : [];
+      const keptPortalIds = new Set<number>(
+        incomingPortals.map((p) => Number(p.id)).filter((pid) => Number.isInteger(pid) && pid > 0)
+      );
+
+      // Remove portais excluídos pelo usuário e limpa vínculos órfãos em outros mapas
+      for (const oldP of existingPortals) {
+        if (!keptPortalIds.has(oldP.id)) {
+          await tx.mapPortal.updateMany({
+            where: { linkedPortalId: oldP.id },
+            data: { linkedPortalId: null, targetMapId: null },
+          });
+          await tx.mapPortal.delete({ where: { id: oldP.id } });
+        }
+      }
+
+      // Cria ou atualiza os portais deste mapa e sincroniza o Portal Par (bidirecional)
+      for (let idx = 0; idx < incomingPortals.length; idx++) {
+        const p = incomingPortals[idx];
+        const label = (p.label || `Portal #${idx + 1}`).trim();
+        const sourceX = Number(p.sourceX) || 0;
+        const sourceY = Number(p.sourceY) || 0;
+        const triggerRadius = Number(p.triggerRadius) || 48;
+        const requestedPartnerId = p.linkedPortalId ? Number(p.linkedPortalId) : null;
+
+        let partnerPortal = null;
+        if (requestedPartnerId) {
+          partnerPortal = await tx.mapPortal.findUnique({
+            where: { id: requestedPartnerId },
+          });
+        }
+
+        const portalData = {
+          label,
+          sourceMapId: savedMapId!,
+          sourceX,
+          sourceY,
+          triggerRadius,
+          linkedPortalId: partnerPortal ? partnerPortal.id : null,
+          targetMapId: partnerPortal ? partnerPortal.sourceMapId : p.targetMapId ? Number(p.targetMapId) : null,
+          targetX: partnerPortal ? partnerPortal.sourceX : Number(p.targetX ?? 500),
+          targetY: partnerPortal ? partnerPortal.sourceY : Number(p.targetY ?? 500),
+          portalVfxKey: p.portalVfxKey || null,
+        };
+
+        let savedPortalId: number;
+        const existingId = p.id ? Number(p.id) : null;
+        if (existingId && keptPortalIds.has(existingId)) {
+          const updatedP = await tx.mapPortal.update({
+            where: { id: existingId },
+            data: portalData,
+          });
+          savedPortalId = updatedP.id;
+        } else {
+          const createdP = await tx.mapPortal.create({
+            data: portalData,
+          });
+          savedPortalId = createdP.id;
+        }
+
+        // Se está interligado a um Portal Par, sincroniza o outro lado automaticamente (Entrada <-> Saída)!
+        if (partnerPortal) {
+          // Desvincula qualquer outro portal antigo que apontava para este ou para o parceiro
+          await tx.mapPortal.updateMany({
+            where: {
+              linkedPortalId: { in: [savedPortalId, partnerPortal.id] },
+              id: { notIn: [savedPortalId, partnerPortal.id] },
             },
+            data: { linkedPortalId: null, targetMapId: null },
+          });
+
+          await tx.mapPortal.update({
+            where: { id: partnerPortal.id },
+            data: {
+              linkedPortalId: savedPortalId,
+              targetMapId: savedMapId!,
+              targetX: sourceX,
+              targetY: sourceY,
+            },
+          });
+        } else {
+          // Caso tenha sido desvinculado, limpa quem apontava para este portal
+          await tx.mapPortal.updateMany({
+            where: { linkedPortalId: savedPortalId },
+            data: { linkedPortalId: null, targetMapId: null },
           });
         }
       }
 
-      // Atualiza NPCs posicionados neste Mapa
+      // 2. Atualiza NPCs posicionados neste Mapa
       await tx.mapNpc.deleteMany({ where: { mapId: savedMapId } });
       if (Array.isArray(dto.npcs) && dto.npcs.length > 0) {
         for (const n of dto.npcs) {

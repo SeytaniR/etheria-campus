@@ -5,6 +5,22 @@ Qualquer IA trabalhando neste repositório **DEVE** incrementar a versão e regi
 
 ---
 
+## [v0.3.3] - 2026-11-05
+### Adicionado
+* **Ponto de Spawn Padrão do Mapa (`spawn_x`, `spawn_y` em `maps`):**
+  * Adicionados campos `spawnX` e `spawnY` no schema PostgreSQL (`packages/database/prisma/schema.prisma`), `AdminMapsController` e interface visual da Rota `/admin` (ferramenta **`⭐ Ponto Spawn`**).
+  * Serve como coordenada oficial para nascimento de novatos no Mapa 1, uso de itens de teleporte direto sem passar por portais, renascimento após morte na Cidade/Vila mais próxima e função "Destravar Personagem".
+* **Portais Sempre em Duplas Interligadas (`Entrada <-> Saída` em `map_portals`):**
+  * Adicionados `label` e `linked_portal_id` em `map_portals`, permitindo cadastrar portais de saída já no Mapa 1 e vinculá-los em dupla bidirecional com o portal par do Mapa de Destino.
+  * Ao vincular dois portais no `/admin`, o servidor sincroniza automaticamente `targetMapId`, `targetX` e `targetY` nos dois lados para que entrar em um portal obrigue o jogador a sair na posição exata do portal par do outro lado.
+* **Trava de Malhas (`🔒`) e Modo Dedicado de Edição (`✏️ Editar/Arrastar Vértices`):**
+  * Polígonos de colisão/sobreposição, Portais, NPCs e Spawn ficam **100% travados contra esbarrões** enquanto o usuário está nas ferramentas de criação (`+Colisão`, `+Sobreposição`, `+Portal`, `+NPC`, `⭐ Spawn`).
+  * Criado o modo dedicado **`✏️ Editar/Arrastar Vértices`** (na barra superior e em cada polígono da lista lateral) para destravar e mover vértices existentes apenas quando desejado.
+* **Histórico Completo de Estado (`↩️ Desfazer` e `↪️ Refazer`):**
+  * Substituído o desfazer simples por uma pilha de snapshots completos (`undoStack` e `redoStack` de até 60 passos) que desfaz tanto criações quanto edições/arrastes acidentais de vértices.
+
+---
+
 ## [v0.3.2] - 2026-11-05
 ### Adicionado
 * **Suporte Completo a Mobile Touch, Pinça e Mira de Precisão no Editor de Mapas (`apps/server/public/admin/index.html` & `apps/server/public/admin/admin.js`):**

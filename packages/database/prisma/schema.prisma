@@ -84,6 +84,8 @@ model GameMap {
   primaryBiomeId    Int         @map("primary_biome_id")
   secondaryBiomeId  Int         @map("secondary_biome_id")
   dominatedById     String?     @map("dominated_by_id") /// ID da Aliança ou Facção dominante (sistema de domínio/guerra)
+  spawnX            Float       @default(500) @map("spawn_x") /// Ponto de Spawn padrão (Novatos no Mapa 1, Itens de Teleporte, Respawn em Cidade/Vila e Destravar Personagem)
+  spawnY            Float       @default(500) @map("spawn_y") /// Coordenada Y do Ponto de Spawn padrão do mapa
   collisionMeshJson Json        @default("[]") @map("collision_mesh_json") /// Áreas editáveis onde o personagem colide
   overlapMeshJson   Json        @default("[]") @map("overlap_mesh_json") /// Áreas editáveis acima do personagem que reduzem sua opacidade
   overlapOpacity    Float       @default(0.45) @map("overlap_opacity") /// Opacidade aplicada à região coberta do corpo do personagem
@@ -101,20 +103,23 @@ model GameMap {
   @@map("maps")
 }
 
-/// Pontos de Teleporte de um mapa e para qual mapa/coordenada levam.
+/// Pontos de Teleporte em Duplas Interligadas (Entrada <-> Saída).
+/// Ao entrar em um portal de um lado, o jogador sai obrigatoriamente na posição do portal par do outro lado.
 model MapPortal {
-  id           Int     @id @default(autoincrement())
-  sourceMapId  Int     @map("source_map_id")
-  sourceX      Float   @map("source_x")
-  sourceY      Float   @map("source_y")
-  triggerRadius Float  @default(48) @map("trigger_radius")
-  targetMapId  Int     @map("target_map_id")
-  targetX      Float   @map("target_x")
-  targetY      Float   @map("target_y")
-  portalVfxKey String? @map("portal_vfx_key")
+  id             Int        @id @default(autoincrement())
+  label          String     @default("Portal") /// Nome identificador no editor (ex: "Portal Norte")
+  sourceMapId    Int        @map("source_map_id")
+  sourceX        Float      @map("source_x")
+  sourceY        Float      @map("source_y")
+  triggerRadius  Float      @default(48) @map("trigger_radius")
+  linkedPortalId Int?       @map("linked_portal_id") /// ID do portal par no mapa de destino (vínculo bidirecional)
+  targetMapId    Int?       @map("target_map_id") /// Mapa de destino (opcional enquanto o portal par ainda não foi vinculado)
+  targetX        Float      @default(500) @map("target_x") /// Coordenada X de saída (sincronizada com o sourceX do portal par)
+  targetY        Float      @default(500) @map("target_y") /// Coordenada Y de saída (sincronizada com o sourceY do portal par)
+  portalVfxKey   String?    @map("portal_vfx_key")
 
-  sourceMap    GameMap @relation("SourceMapPortals", fields: [sourceMapId], references: [id], onDelete: Cascade)
-  targetMap    GameMap @relation("TargetMapPortals", fields: [targetMapId], references: [id], onDelete: Cascade)
+  sourceMap      GameMap    @relation("SourceMapPortals", fields: [sourceMapId], references: [id], onDelete: Cascade)
+  targetMap      GameMap?   @relation("TargetMapPortals", fields: [targetMapId], references: [id], onDelete: SetNull)
 
   @@map("map_portals")
 }

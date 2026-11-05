@@ -375,6 +375,19 @@
         </div>
         <div class="row-2">
           <div class="field">
+            <label>⭐ Spawn X (Padrão/Respawn)</label>
+            <input type="number" id="mapSpawnX" value="500" step="1" onchange="AdminApp.onSpawnInputChanged()" />
+          </div>
+          <div class="field">
+            <label>⭐ Spawn Y (Padrão/Respawn)</label>
+            <input type="number" id="mapSpawnY" value="500" step="1" onchange="AdminApp.onSpawnInputChanged()" />
+          </div>
+        </div>
+        <div style="font-size:0.7rem; color:#fde68a; background:rgba(245,158,11,0.1); padding:5px 7px; border-radius:6px;">
+          ⭐ <strong>Ponto de Spawn:</strong> Usado para novatos no Mapa 1, itens de teleporte direto, renascer em Cidade/Vila ao morrer e função "Destravar Personagem".
+        </div>
+        <div class="row-2">
+          <div class="field">
             <label>Opacidade Sobreposição</label>
             <input type="number" id="mapOverlapOpacity" value="0.45" min="0.1" max="0.95" step="0.05" />
           </div>
@@ -394,35 +407,38 @@
       <section class="canvas-panel" id="canvasPanel">
         <div class="canvas-toolbar">
           <button id="toolPan" class="active-tool" onclick="AdminApp.setTool('PAN')">🖐️ Mover/Zoom</button>
-          <button id="toolCollision" onclick="AdminApp.setTool('COLLISION')">🛑 Colisão</button>
+          <button id="toolSpawn" onclick="AdminApp.setTool('SPAWN')" title="Definir Ponto de Spawn do Mapa">⭐ Ponto Spawn</button>
+          <button id="toolCollision" onclick="AdminApp.setTool('COLLISION')">🛑 +Pontos Colisão</button>
           <button onclick="AdminApp.startNewPolygon('COLLISION')" title="Criar um novo polígono de colisão separado">➕ Nova Colisão</button>
-          <button id="toolOverlap" onclick="AdminApp.setTool('OVERLAP')">🟦 Sobreposição</button>
+          <button id="toolOverlap" onclick="AdminApp.setTool('OVERLAP')">🟦 +Pontos Sobrep.</button>
           <button onclick="AdminApp.startNewPolygon('OVERLAP')" title="Criar um novo polígono de sobreposição separado">➕ Nova Sobrep.</button>
-          <button id="toolPortal" onclick="AdminApp.setTool('PORTAL')">🌀 Teleporte</button>
-          <button id="toolNpc" onclick="AdminApp.setTool('NPC')">🧙 NPC</button>
+          <button id="toolPortal" onclick="AdminApp.setTool('PORTAL')">🌀 +Portal</button>
+          <button id="toolNpc" onclick="AdminApp.setTool('NPC')">🧙 +NPC</button>
+          <button id="toolEdit" onclick="AdminApp.setTool('EDIT')" title="Destrava vértices e objetos para arrastar ou excluir">✏️ Editar/Arrastar Vértices</button>
           <button id="btnToggleFullscreen" onclick="AdminApp.toggleFullscreenMap()">⛶ Tela Cheia</button>
         </div>
 
         <div class="canvas-viewport" id="canvasViewport">
           <canvas id="mapCanvas"></canvas>
 
-          <!-- Botões Flutuantes de Zoom e Precisão para Celular -->
+          <!-- Botões Flutuantes de Zoom e Histórico Real de Desfazer/Refazer para Celular -->
           <div class="viewport-floating-controls">
             <button onclick="AdminApp.zoomByStep(1.28)" title="Aproximar Zoom">🔍 ➕</button>
             <button onclick="AdminApp.zoomByStep(0.78)" title="Afastar Zoom">🔍 ➖</button>
             <button onclick="AdminApp.resetCamera()" title="Centralizar Mapa">🎯 Centro</button>
-            <button onclick="AdminApp.undoLastPoint()" title="Desfazer último ponto do polígono ativo">↩️ Desfazer</button>
+            <button id="btnUndo" onclick="AdminApp.undo()" title="Desfazer última ação (criação ou edição de vértice)">↩️ Desfazer</button>
+            <button id="btnRedo" onclick="AdminApp.redo()" title="Refazer ação desfeita">↪️ Refazer</button>
           </div>
 
           <!-- Barra Inferior de Marcação de Precisão na Mira Central (+) -->
           <div class="crosshair-action-bar">
-            <button class="btn-primary" onclick="AdminApp.placeAtCenterCrosshair()" style="padding:7px 14px; border-radius:999px;">
+            <button id="btnPlaceAtCrosshair" class="btn-primary" onclick="AdminApp.placeAtCenterCrosshair()" style="padding:7px 14px; border-radius:999px;">
               📍 Marcar no Alvo Central (+)
             </button>
           </div>
 
           <div class="canvas-hint" id="canvasHint">
-            📱 No Celular: Use 2 dedos (pinça) para dar Zoom e Mover em qualquer ferramenta, ou alinhe o Alvo Central (+) e toque em "📍 Marcar no Alvo Central"!
+            🔒 Malhas existentes ficam TRAVADAS enquanto você cria outras áreas, Portais ou NPCs. Para arrastar um vértice já criado, toque em "✏️ Editar/Arrastar Vértices".
           </div>
         </div>
       </section>

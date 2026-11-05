@@ -8,9 +8,9 @@
 ---
 
 ## 📌 Status Atual do Projeto
-* **Versão Atual:** `v0.3.2`
+* **Versão Atual:** `v0.3.3`
 * **Última Atualização:** `2026-11-05`
-* **Fase Atual:** **Etapa 2 (Parte 1) Concluída com Suporte Mobile Touch + Pinça + Mira Central de Precisão (`+`) na Rota `/admin` via Localhost e Cloudflare Tunnel!**
+* **Fase Atual:** **Etapa 2 (Parte 1) Concluída com Ponto de Spawn, Portais em Duplas Interligadas, Trava de Malhas (`🔒`/`✏️ Editar`) e Undo/Redo Completo de Estado (`v0.3.3`)!**
 * **Repositório Oficial:** `https://github.com/SeytaniR/etheria-campus`
 * **Fonte Bruta de Assets:** `https://github.com/SeytaniR/mcrework` (`https://seytanir.github.io/mcrework/`)
 
