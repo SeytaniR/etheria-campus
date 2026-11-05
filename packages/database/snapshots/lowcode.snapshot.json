@@ -1,0 +1,2846 @@
+{
+  "version": "0.2.0",
+  "exportedAt": "2026-11-05T11:29:15.121Z",
+  "i18nTranslations": [
+    {
+      "id": 1,
+      "key": "biome.verdant_plains.name",
+      "locale": "pt-BR",
+      "text": "Planície Verdejante",
+      "updatedAt": "2026-11-05T11:29:12.443Z"
+    },
+    {
+      "id": 2,
+      "key": "biome.verdant_plains.desc",
+      "locale": "pt-BR",
+      "text": "Campos abertos de grama baixa, vento leve e clima ameno.",
+      "updatedAt": "2026-11-05T11:29:12.516Z"
+    },
+    {
+      "id": 3,
+      "key": "biome.temperate_woods.name",
+      "locale": "pt-BR",
+      "text": "Bosque Temperado",
+      "updatedAt": "2026-11-05T11:29:12.533Z"
+    },
+    {
+      "id": 4,
+      "key": "biome.temperate_woods.desc",
+      "locale": "pt-BR",
+      "text": "Árvores espaçadas com luz solar filtrada, trilhas claras e fauna silvestre.",
+      "updatedAt": "2026-11-05T11:29:12.536Z"
+    },
+    {
+      "id": 5,
+      "key": "biome.dense_forest.name",
+      "locale": "pt-BR",
+      "text": "Floresta Densa",
+      "updatedAt": "2026-11-05T11:29:12.553Z"
+    },
+    {
+      "id": 6,
+      "key": "biome.dense_forest.desc",
+      "locale": "pt-BR",
+      "text": "Vegetação fechada de árvores antigas e copas altas, lar de predadores e espíritos.",
+      "updatedAt": "2026-11-05T11:29:12.559Z"
+    },
+    {
+      "id": 7,
+      "key": "biome.tropical_jungle.name",
+      "locale": "pt-BR",
+      "text": "Selva Tropical",
+      "updatedAt": "2026-11-05T11:29:12.568Z"
+    },
+    {
+      "id": 8,
+      "key": "biome.tropical_jungle.desc",
+      "locale": "pt-BR",
+      "text": "Mata úmida, cipós, plantas carnívoras gigantes e répteis tropicais.",
+      "updatedAt": "2026-11-05T11:29:12.594Z"
+    },
+    {
+      "id": 9,
+      "key": "biome.bamboo_grove.name",
+      "locale": "pt-BR",
+      "text": "Floresta de Bambu",
+      "updatedAt": "2026-11-05T11:29:12.601Z"
+    },
+    {
+      "id": 10,
+      "key": "biome.bamboo_grove.desc",
+      "locale": "pt-BR",
+      "text": "Bosques orientais altos e silenciosos, lar de feras ágeis e mestres marciais.",
+      "updatedAt": "2026-11-05T11:29:12.605Z"
+    },
+    {
+      "id": 11,
+      "key": "biome.fairy_garden.name",
+      "locale": "pt-BR",
+      "text": "Jardim Feérico",
+      "updatedAt": "2026-11-05T11:29:12.614Z"
+    },
+    {
+      "id": 12,
+      "key": "biome.fairy_garden.desc",
+      "locale": "pt-BR",
+      "text": "Floresta encantada com flores gigantes luminescentes e criaturas fadas.",
+      "updatedAt": "2026-11-05T11:29:12.617Z"
+    },
+    {
+      "id": 13,
+      "key": "biome.autumn_woods.name",
+      "locale": "pt-BR",
+      "text": "Bosque Outonal",
+      "updatedAt": "2026-11-05T11:29:12.627Z"
+    },
+    {
+      "id": 14,
+      "key": "biome.autumn_woods.desc",
+      "locale": "pt-BR",
+      "text": "Floresta de folhas douradas e vermelhas em queda constante.",
+      "updatedAt": "2026-11-05T11:29:12.631Z"
+    },
+    {
+      "id": 15,
+      "key": "biome.giant_roots.name",
+      "locale": "pt-BR",
+      "text": "Raízes Gigantes",
+      "updatedAt": "2026-11-05T11:29:12.639Z"
+    },
+    {
+      "id": 16,
+      "key": "biome.giant_roots.desc",
+      "locale": "pt-BR",
+      "text": "Sub-bosque formado pelas raízes colossais de uma Árvore do Mundo.",
+      "updatedAt": "2026-11-05T11:29:12.644Z"
+    },
+    {
+      "id": 17,
+      "key": "biome.dry_steppes.name",
+      "locale": "pt-BR",
+      "text": "Estepes Secas",
+      "updatedAt": "2026-11-05T11:29:12.651Z"
+    },
+    {
+      "id": 18,
+      "key": "biome.dry_steppes.desc",
+      "locale": "pt-BR",
+      "text": "Terras áridas de vegetação rasteira amarelada e ventos fortes.",
+      "updatedAt": "2026-11-05T11:29:12.677Z"
+    },
+    {
+      "id": 19,
+      "key": "biome.sand_dunes.name",
+      "locale": "pt-BR",
+      "text": "Deserto de Dunas",
+      "updatedAt": "2026-11-05T11:29:12.704Z"
+    },
+    {
+      "id": 20,
+      "key": "biome.sand_dunes.desc",
+      "locale": "pt-BR",
+      "text": "Mar de areia escaldante com tempestades solares e feras do deserto.",
+      "updatedAt": "2026-11-05T11:29:12.709Z"
+    },
+    {
+      "id": 21,
+      "key": "biome.hidden_oasis.name",
+      "locale": "pt-BR",
+      "text": "Oásis Escondido",
+      "updatedAt": "2026-11-05T11:29:12.716Z"
+    },
+    {
+      "id": 22,
+      "key": "biome.hidden_oasis.desc",
+      "locale": "pt-BR",
+      "text": "Refúgio fértil de água cristalina e palmeiras no meio do deserto.",
+      "updatedAt": "2026-11-05T11:29:12.719Z"
+    },
+    {
+      "id": 23,
+      "key": "biome.rocky_canyon.name",
+      "locale": "pt-BR",
+      "text": "Cânion Rochoso",
+      "updatedAt": "2026-11-05T11:29:12.728Z"
+    },
+    {
+      "id": 24,
+      "key": "biome.rocky_canyon.desc",
+      "locale": "pt-BR",
+      "text": "Desfiladeiros estreitos de pedra avermelhada e pontes suspensas.",
+      "updatedAt": "2026-11-05T11:29:12.732Z"
+    },
+    {
+      "id": 25,
+      "key": "biome.alpine_highlands.name",
+      "locale": "pt-BR",
+      "text": "Cordilheira Alpina",
+      "updatedAt": "2026-11-05T11:29:12.740Z"
+    },
+    {
+      "id": 26,
+      "key": "biome.alpine_highlands.desc",
+      "locale": "pt-BR",
+      "text": "Montanhas altas de pedra fria, ar rarefeito e feras aladas.",
+      "updatedAt": "2026-11-05T11:29:12.744Z"
+    },
+    {
+      "id": 27,
+      "key": "biome.deep_cavern.name",
+      "locale": "pt-BR",
+      "text": "Caverna Subterrânea",
+      "updatedAt": "2026-11-05T11:29:12.752Z"
+    },
+    {
+      "id": 28,
+      "key": "biome.deep_cavern.desc",
+      "locale": "pt-BR",
+      "text": "Túneis escuros de pedra úmida, estalactites e criaturas subterrâneas.",
+      "updatedAt": "2026-11-05T11:29:12.756Z"
+    },
+    {
+      "id": 29,
+      "key": "biome.crystal_mine.name",
+      "locale": "pt-BR",
+      "text": "Mina de Cristais",
+      "updatedAt": "2026-11-05T11:29:12.787Z"
+    },
+    {
+      "id": 30,
+      "key": "biome.crystal_mine.desc",
+      "locale": "pt-BR",
+      "text": "Grutas iluminadas por veios de minérios raros e cristais mágicos.",
+      "updatedAt": "2026-11-05T11:29:12.792Z"
+    },
+    {
+      "id": 31,
+      "key": "biome.badlands.name",
+      "locale": "pt-BR",
+      "text": "Terras Devastadas",
+      "updatedAt": "2026-11-05T11:29:12.800Z"
+    },
+    {
+      "id": 32,
+      "key": "biome.badlands.desc",
+      "locale": "pt-BR",
+      "text": "Solo rachado, seco e hostil, sem vegetação.",
+      "updatedAt": "2026-11-05T11:29:12.803Z"
+    },
+    {
+      "id": 33,
+      "key": "biome.tropical_coast.name",
+      "locale": "pt-BR",
+      "text": "Costa Tropical",
+      "updatedAt": "2026-11-05T11:29:12.812Z"
+    },
+    {
+      "id": 34,
+      "key": "biome.tropical_coast.desc",
+      "locale": "pt-BR",
+      "text": "Praias de areia clara, recifes rasos e criaturas costeiras.",
+      "updatedAt": "2026-11-05T11:29:12.815Z"
+    },
+    {
+      "id": 35,
+      "key": "biome.sea_cliffs.name",
+      "locale": "pt-BR",
+      "text": "Penhasco Marítimo",
+      "updatedAt": "2026-11-05T11:29:12.823Z"
+    },
+    {
+      "id": 36,
+      "key": "biome.sea_cliffs.desc",
+      "locale": "pt-BR",
+      "text": "Rochas costeiras açoitadas por ondas violentas e tempestades marinhas.",
+      "updatedAt": "2026-11-05T11:29:12.828Z"
+    },
+    {
+      "id": 37,
+      "key": "biome.misty_swamp.name",
+      "locale": "pt-BR",
+      "text": "Pântano Nebuloso",
+      "updatedAt": "2026-11-05T11:29:12.834Z"
+    },
+    {
+      "id": 38,
+      "key": "biome.misty_swamp.desc",
+      "locale": "pt-BR",
+      "text": "Águas paradas e lamacentas cobertas por neblina densa.",
+      "updatedAt": "2026-11-05T11:29:12.839Z"
+    },
+    {
+      "id": 39,
+      "key": "biome.poison_mangrove.name",
+      "locale": "pt-BR",
+      "text": "Manguezal Venenoso",
+      "updatedAt": "2026-11-05T11:29:12.868Z"
+    },
+    {
+      "id": 40,
+      "key": "biome.poison_mangrove.desc",
+      "locale": "pt-BR",
+      "text": "Charco tóxico de águas esverdeadas, esporos venenosos e plantas putrefatas.",
+      "updatedAt": "2026-11-05T11:29:12.872Z"
+    },
+    {
+      "id": 41,
+      "key": "biome.mirror_lake.name",
+      "locale": "pt-BR",
+      "text": "Lago Espelhado",
+      "updatedAt": "2026-11-05T11:29:12.881Z"
+    },
+    {
+      "id": 42,
+      "key": "biome.mirror_lake.desc",
+      "locale": "pt-BR",
+      "text": "Margens de grandes lagos serenos e mágicos.",
+      "updatedAt": "2026-11-05T11:29:12.885Z"
+    },
+    {
+      "id": 43,
+      "key": "biome.coral_reef.name",
+      "locale": "pt-BR",
+      "text": "Recife de Corais",
+      "updatedAt": "2026-11-05T11:29:12.895Z"
+    },
+    {
+      "id": 44,
+      "key": "biome.coral_reef.desc",
+      "locale": "pt-BR",
+      "text": "Ambiente repleto de corais coloridos e criaturas marinhas exóticas.",
+      "updatedAt": "2026-11-05T11:29:12.898Z"
+    },
+    {
+      "id": 45,
+      "key": "biome.abyssal_trench.name",
+      "locale": "pt-BR",
+      "text": "Fenda Abissal",
+      "updatedAt": "2026-11-05T11:29:12.906Z"
+    },
+    {
+      "id": 46,
+      "key": "biome.abyssal_trench.desc",
+      "locale": "pt-BR",
+      "text": "Profundezas oceânicas escuras sob imensa pressão.",
+      "updatedAt": "2026-11-05T11:29:12.911Z"
+    },
+    {
+      "id": 47,
+      "key": "biome.frozen_tundra.name",
+      "locale": "pt-BR",
+      "text": "Tundra Congelada",
+      "updatedAt": "2026-11-05T11:29:12.917Z"
+    },
+    {
+      "id": 48,
+      "key": "biome.frozen_tundra.desc",
+      "locale": "pt-BR",
+      "text": "Planícies cobertas de geada, neve rasa e ventos cortantes.",
+      "updatedAt": "2026-11-05T11:29:12.921Z"
+    },
+    {
+      "id": 49,
+      "key": "biome.snowy_taiga.name",
+      "locale": "pt-BR",
+      "text": "Floresta Boreal Nevada",
+      "updatedAt": "2026-11-05T11:29:12.952Z"
+    },
+    {
+      "id": 50,
+      "key": "biome.snowy_taiga.desc",
+      "locale": "pt-BR",
+      "text": "Pinheiros cobertos de neve pesada e predadores glaciais.",
+      "updatedAt": "2026-11-05T11:29:12.956Z"
+    },
+    {
+      "id": 51,
+      "key": "biome.eternal_glacier.name",
+      "locale": "pt-BR",
+      "text": "Geleira Eterna",
+      "updatedAt": "2026-11-05T11:29:12.963Z"
+    },
+    {
+      "id": 52,
+      "key": "biome.eternal_glacier.desc",
+      "locale": "pt-BR",
+      "text": "Paredes e pontes de gelo puro e translúcido.",
+      "updatedAt": "2026-11-05T11:29:12.966Z"
+    },
+    {
+      "id": 53,
+      "key": "biome.blizzard_peak.name",
+      "locale": "pt-BR",
+      "text": "Pico da Nevasca",
+      "updatedAt": "2026-11-05T11:29:12.973Z"
+    },
+    {
+      "id": 54,
+      "key": "biome.blizzard_peak.desc",
+      "locale": "pt-BR",
+      "text": "Topo de montanha sob tempestade de neve perpétua.",
+      "updatedAt": "2026-11-05T11:29:12.977Z"
+    },
+    {
+      "id": 55,
+      "key": "biome.ashlands.name",
+      "locale": "pt-BR",
+      "text": "Campos de Cinzas",
+      "updatedAt": "2026-11-05T11:29:12.984Z"
+    },
+    {
+      "id": 56,
+      "key": "biome.ashlands.desc",
+      "locale": "pt-BR",
+      "text": "Terra coberta por fuligem vulcânica cinzenta e fumaça sulfúrica.",
+      "updatedAt": "2026-11-05T11:29:12.987Z"
+    },
+    {
+      "id": 57,
+      "key": "biome.lava_caldera.name",
+      "locale": "pt-BR",
+      "text": "Caldeira de Lava",
+      "updatedAt": "2026-11-05T11:29:12.996Z"
+    },
+    {
+      "id": 58,
+      "key": "biome.lava_caldera.desc",
+      "locale": "pt-BR",
+      "text": "Rios de magma incandescente e rocha derretida.",
+      "updatedAt": "2026-11-05T11:29:13.000Z"
+    },
+    {
+      "id": 59,
+      "key": "biome.storm_plateau.name",
+      "locale": "pt-BR",
+      "text": "Platô das Tempestades",
+      "updatedAt": "2026-11-05T11:29:13.010Z"
+    },
+    {
+      "id": 60,
+      "key": "biome.storm_plateau.desc",
+      "locale": "pt-BR",
+      "text": "Região elevada constantemente atingida por raios e ventos.",
+      "updatedAt": "2026-11-05T11:29:13.035Z"
+    },
+    {
+      "id": 61,
+      "key": "biome.floating_islands.name",
+      "locale": "pt-BR",
+      "text": "Ilhas Flutuantes",
+      "updatedAt": "2026-11-05T11:29:13.126Z"
+    },
+    {
+      "id": 62,
+      "key": "biome.floating_islands.desc",
+      "locale": "pt-BR",
+      "text": "Fragmentos de terra suspensos no céu por magia gravitacional.",
+      "updatedAt": "2026-11-05T11:29:13.129Z"
+    },
+    {
+      "id": 63,
+      "key": "biome.deadwood.name",
+      "locale": "pt-BR",
+      "text": "Floresta Morta",
+      "updatedAt": "2026-11-05T11:29:13.136Z"
+    },
+    {
+      "id": 64,
+      "key": "biome.deadwood.desc",
+      "locale": "pt-BR",
+      "text": "Árvores secas e retorcidas sob noite eterna.",
+      "updatedAt": "2026-11-05T11:29:13.141Z"
+    },
+    {
+      "id": 65,
+      "key": "biome.ancient_necropolis.name",
+      "locale": "pt-BR",
+      "text": "Necrópole Antiga",
+      "updatedAt": "2026-11-05T11:29:13.148Z"
+    },
+    {
+      "id": 66,
+      "key": "biome.ancient_necropolis.desc",
+      "locale": "pt-BR",
+      "text": "Cemitérios monumentais, mausoléus e espíritos antigos.",
+      "updatedAt": "2026-11-05T11:29:13.152Z"
+    },
+    {
+      "id": 67,
+      "key": "biome.blighted_lands.name",
+      "locale": "pt-BR",
+      "text": "Terras Corrompidas",
+      "updatedAt": "2026-11-05T11:29:13.160Z"
+    },
+    {
+      "id": 68,
+      "key": "biome.blighted_lands.desc",
+      "locale": "pt-BR",
+      "text": "Solo contaminado por miasma e criaturas corrompidas.",
+      "updatedAt": "2026-11-05T11:29:13.163Z"
+    },
+    {
+      "id": 69,
+      "key": "biome.demonic_rift.name",
+      "locale": "pt-BR",
+      "text": "Fenda Demoníaca",
+      "updatedAt": "2026-11-05T11:29:13.188Z"
+    },
+    {
+      "id": 70,
+      "key": "biome.demonic_rift.desc",
+      "locale": "pt-BR",
+      "text": "Território dimensional rasgado pelo submundo.",
+      "updatedAt": "2026-11-05T11:29:13.192Z"
+    },
+    {
+      "id": 71,
+      "key": "biome.academy_grounds.name",
+      "locale": "pt-BR",
+      "text": "Jardins da Academia",
+      "updatedAt": "2026-11-05T11:29:13.199Z"
+    },
+    {
+      "id": 72,
+      "key": "biome.academy_grounds.desc",
+      "locale": "pt-BR",
+      "text": "Pátios pavimentados, fontes mágicas e arquitetura clássica do Campus.",
+      "updatedAt": "2026-11-05T11:29:13.202Z"
+    },
+    {
+      "id": 73,
+      "key": "biome.ancient_ruins.name",
+      "locale": "pt-BR",
+      "text": "Ruínas Ancestrais",
+      "updatedAt": "2026-11-05T11:29:13.211Z"
+    },
+    {
+      "id": 74,
+      "key": "biome.ancient_ruins.desc",
+      "locale": "pt-BR",
+      "text": "Templos de pedra cobertos de musgo de uma civilização perdida.",
+      "updatedAt": "2026-11-05T11:29:13.215Z"
+    },
+    {
+      "id": 75,
+      "key": "biome.astral_sanctuary.name",
+      "locale": "pt-BR",
+      "text": "Santuário Astral",
+      "updatedAt": "2026-11-05T11:29:13.223Z"
+    },
+    {
+      "id": 76,
+      "key": "biome.astral_sanctuary.desc",
+      "locale": "pt-BR",
+      "text": "Dimensão etérea com céu estrelado e energia cósmica.",
+      "updatedAt": "2026-11-05T11:29:13.226Z"
+    },
+    {
+      "id": 77,
+      "key": "biome.clockwork_forge.name",
+      "locale": "pt-BR",
+      "text": "Forja Mecânica",
+      "updatedAt": "2026-11-05T11:29:13.233Z"
+    },
+    {
+      "id": 78,
+      "key": "biome.clockwork_forge.desc",
+      "locale": "pt-BR",
+      "text": "Complexo de engrenagens a vapor e magia tecno-arcana.",
+      "updatedAt": "2026-11-05T11:29:13.236Z"
+    },
+    {
+      "id": 79,
+      "key": "biome.celestial_palace.name",
+      "locale": "pt-BR",
+      "text": "Palácio Celestial",
+      "updatedAt": "2026-11-05T11:29:13.263Z"
+    },
+    {
+      "id": 80,
+      "key": "biome.celestial_palace.desc",
+      "locale": "pt-BR",
+      "text": "Salões de mármore branco e ouro acima das nuvens.",
+      "updatedAt": "2026-11-05T11:29:13.267Z"
+    },
+    {
+      "id": 81,
+      "key": "map_type.city.name",
+      "locale": "pt-BR",
+      "text": "Cidade",
+      "updatedAt": "2026-11-05T11:29:13.276Z"
+    },
+    {
+      "id": 82,
+      "key": "map_type.village.name",
+      "locale": "pt-BR",
+      "text": "Vila",
+      "updatedAt": "2026-11-05T11:29:13.290Z"
+    },
+    {
+      "id": 83,
+      "key": "map_type.suburb.name",
+      "locale": "pt-BR",
+      "text": "Subúrbio",
+      "updatedAt": "2026-11-05T11:29:13.299Z"
+    },
+    {
+      "id": 84,
+      "key": "map_type.hostile_zone.name",
+      "locale": "pt-BR",
+      "text": "Zona Hostil",
+      "updatedAt": "2026-11-05T11:29:13.307Z"
+    },
+    {
+      "id": 85,
+      "key": "map_type.conflict_zone.name",
+      "locale": "pt-BR",
+      "text": "Zona de Conflito",
+      "updatedAt": "2026-11-05T11:29:13.315Z"
+    },
+    {
+      "id": 86,
+      "key": "element.fire.name",
+      "locale": "pt-BR",
+      "text": "Fogo",
+      "updatedAt": "2026-11-05T11:29:13.324Z"
+    },
+    {
+      "id": 87,
+      "key": "element.earth.name",
+      "locale": "pt-BR",
+      "text": "Terra",
+      "updatedAt": "2026-11-05T11:29:13.359Z"
+    },
+    {
+      "id": 88,
+      "key": "element.air.name",
+      "locale": "pt-BR",
+      "text": "Ar",
+      "updatedAt": "2026-11-05T11:29:13.368Z"
+    },
+    {
+      "id": 89,
+      "key": "element.water.name",
+      "locale": "pt-BR",
+      "text": "Água",
+      "updatedAt": "2026-11-05T11:29:13.377Z"
+    },
+    {
+      "id": 90,
+      "key": "element.neutral.name",
+      "locale": "pt-BR",
+      "text": "Neutro",
+      "updatedAt": "2026-11-05T11:29:13.385Z"
+    },
+    {
+      "id": 91,
+      "key": "race.human.name",
+      "locale": "pt-BR",
+      "text": "Humano",
+      "updatedAt": "2026-11-05T11:29:13.567Z"
+    },
+    {
+      "id": 92,
+      "key": "race.plant.name",
+      "locale": "pt-BR",
+      "text": "Planta",
+      "updatedAt": "2026-11-05T11:29:13.579Z"
+    },
+    {
+      "id": 93,
+      "key": "race.dragon.name",
+      "locale": "pt-BR",
+      "text": "Dragão",
+      "updatedAt": "2026-11-05T11:29:13.589Z"
+    },
+    {
+      "id": 94,
+      "key": "race.reptilian.name",
+      "locale": "pt-BR",
+      "text": "Reptiliano",
+      "updatedAt": "2026-11-05T11:29:13.619Z"
+    },
+    {
+      "id": 95,
+      "key": "race.aquatic.name",
+      "locale": "pt-BR",
+      "text": "Aquático",
+      "updatedAt": "2026-11-05T11:29:13.628Z"
+    },
+    {
+      "id": 96,
+      "key": "race.robotic.name",
+      "locale": "pt-BR",
+      "text": "Robótico",
+      "updatedAt": "2026-11-05T11:29:13.638Z"
+    },
+    {
+      "id": 97,
+      "key": "race.celestial.name",
+      "locale": "pt-BR",
+      "text": "Celestial",
+      "updatedAt": "2026-11-05T11:29:13.647Z"
+    },
+    {
+      "id": 98,
+      "key": "race.demon.name",
+      "locale": "pt-BR",
+      "text": "Demônio",
+      "updatedAt": "2026-11-05T11:29:13.655Z"
+    },
+    {
+      "id": 99,
+      "key": "race.fairy.name",
+      "locale": "pt-BR",
+      "text": "Fada",
+      "updatedAt": "2026-11-05T11:29:13.662Z"
+    },
+    {
+      "id": 100,
+      "key": "race.spirit.name",
+      "locale": "pt-BR",
+      "text": "Espírito",
+      "updatedAt": "2026-11-05T11:29:13.670Z"
+    },
+    {
+      "id": 101,
+      "key": "race.beast.name",
+      "locale": "pt-BR",
+      "text": "Selvagem",
+      "updatedAt": "2026-11-05T11:29:13.680Z"
+    },
+    {
+      "id": 102,
+      "key": "attr.base.vit.name",
+      "locale": "pt-BR",
+      "text": "Vitalidade",
+      "updatedAt": "2026-11-05T11:29:14.435Z"
+    },
+    {
+      "id": 103,
+      "key": "attr.base.vit.desc",
+      "locale": "pt-BR",
+      "text": "Aumenta o HP Máximo, a Defesa Física e a Resistência a efeitos contínuos.",
+      "updatedAt": "2026-11-05T11:29:14.441Z"
+    },
+    {
+      "id": 104,
+      "key": "attr.base.str.name",
+      "locale": "pt-BR",
+      "text": "Força",
+      "updatedAt": "2026-11-05T11:29:14.451Z"
+    },
+    {
+      "id": 105,
+      "key": "attr.base.str.desc",
+      "locale": "pt-BR",
+      "text": "Aumenta o Ataque Físico, a Penetração Física e o Dano Crítico.",
+      "updatedAt": "2026-11-05T11:29:14.457Z"
+    },
+    {
+      "id": 106,
+      "key": "attr.base.int.name",
+      "locale": "pt-BR",
+      "text": "Inteligência",
+      "updatedAt": "2026-11-05T11:29:14.465Z"
+    },
+    {
+      "id": 107,
+      "key": "attr.base.int.desc",
+      "locale": "pt-BR",
+      "text": "Aumenta o Ataque Mágico, o MP Máximo e a Penetração Mágica.",
+      "updatedAt": "2026-11-05T11:29:14.468Z"
+    },
+    {
+      "id": 108,
+      "key": "attr.base.wis.name",
+      "locale": "pt-BR",
+      "text": "Sabedoria",
+      "updatedAt": "2026-11-05T11:29:14.477Z"
+    },
+    {
+      "id": 109,
+      "key": "attr.base.wis.desc",
+      "locale": "pt-BR",
+      "text": "Aumenta o Poder de Cura/Escudo, a Defesa Mágica e a Regeneração de MP.",
+      "updatedAt": "2026-11-05T11:29:14.481Z"
+    },
+    {
+      "id": 110,
+      "key": "attr.base.agi.name",
+      "locale": "pt-BR",
+      "text": "Agilidade",
+      "updatedAt": "2026-11-05T11:29:14.489Z"
+    },
+    {
+      "id": 111,
+      "key": "attr.base.agi.desc",
+      "locale": "pt-BR",
+      "text": "Aumenta a Velocidade de Iniciativa no Turno, a Esquiva e o Ataque Físico Leve.",
+      "updatedAt": "2026-11-05T11:29:14.493Z"
+    },
+    {
+      "id": 112,
+      "key": "attr.base.dex.name",
+      "locale": "pt-BR",
+      "text": "Destreza",
+      "updatedAt": "2026-11-05T11:29:14.517Z"
+    },
+    {
+      "id": 113,
+      "key": "attr.base.dex.desc",
+      "locale": "pt-BR",
+      "text": "Aumenta a Chance Crítica, a Precisão e a Chance de Aplicar Debuffs.",
+      "updatedAt": "2026-11-05T11:29:14.522Z"
+    },
+    {
+      "id": 114,
+      "key": "attr.combat.max_hp.name",
+      "locale": "pt-BR",
+      "text": "HP Máximo",
+      "updatedAt": "2026-11-05T11:29:14.530Z"
+    },
+    {
+      "id": 115,
+      "key": "attr.combat.max_mp.name",
+      "locale": "pt-BR",
+      "text": "MP Máximo",
+      "updatedAt": "2026-11-05T11:29:14.543Z"
+    },
+    {
+      "id": 116,
+      "key": "attr.combat.phys_atk.name",
+      "locale": "pt-BR",
+      "text": "Ataque Físico",
+      "updatedAt": "2026-11-05T11:29:14.551Z"
+    },
+    {
+      "id": 117,
+      "key": "attr.combat.mag_atk.name",
+      "locale": "pt-BR",
+      "text": "Ataque Mágico",
+      "updatedAt": "2026-11-05T11:29:14.559Z"
+    },
+    {
+      "id": 118,
+      "key": "attr.combat.phys_def.name",
+      "locale": "pt-BR",
+      "text": "Defesa Física",
+      "updatedAt": "2026-11-05T11:29:14.566Z"
+    },
+    {
+      "id": 119,
+      "key": "attr.combat.mag_def.name",
+      "locale": "pt-BR",
+      "text": "Defesa Mágica",
+      "updatedAt": "2026-11-05T11:29:14.575Z"
+    },
+    {
+      "id": 120,
+      "key": "attr.combat.phys_pen.name",
+      "locale": "pt-BR",
+      "text": "Penetração Física",
+      "updatedAt": "2026-11-05T11:29:14.599Z"
+    },
+    {
+      "id": 121,
+      "key": "attr.combat.mag_pen.name",
+      "locale": "pt-BR",
+      "text": "Penetração Mágica",
+      "updatedAt": "2026-11-05T11:29:14.609Z"
+    },
+    {
+      "id": 122,
+      "key": "attr.combat.heal_power.name",
+      "locale": "pt-BR",
+      "text": "Poder de Cura e Escudo",
+      "updatedAt": "2026-11-05T11:29:14.618Z"
+    },
+    {
+      "id": 123,
+      "key": "attr.combat.mp_regen.name",
+      "locale": "pt-BR",
+      "text": "Regeneração de MP",
+      "updatedAt": "2026-11-05T11:29:14.628Z"
+    },
+    {
+      "id": 124,
+      "key": "attr.combat.speed.name",
+      "locale": "pt-BR",
+      "text": "Velocidade de Iniciativa",
+      "updatedAt": "2026-11-05T11:29:14.638Z"
+    },
+    {
+      "id": 125,
+      "key": "attr.combat.evasion.name",
+      "locale": "pt-BR",
+      "text": "Taxa de Esquiva",
+      "updatedAt": "2026-11-05T11:29:14.647Z"
+    },
+    {
+      "id": 126,
+      "key": "attr.combat.accuracy.name",
+      "locale": "pt-BR",
+      "text": "Taxa de Precisão",
+      "updatedAt": "2026-11-05T11:29:14.655Z"
+    },
+    {
+      "id": 127,
+      "key": "attr.combat.crit_rate.name",
+      "locale": "pt-BR",
+      "text": "Chance Crítica",
+      "updatedAt": "2026-11-05T11:29:14.681Z"
+    },
+    {
+      "id": 128,
+      "key": "attr.combat.crit_dmg.name",
+      "locale": "pt-BR",
+      "text": "Multiplicador de Dano Crítico",
+      "updatedAt": "2026-11-05T11:29:14.689Z"
+    },
+    {
+      "id": 129,
+      "key": "attr.combat.status_hit_rate.name",
+      "locale": "pt-BR",
+      "text": "Taxa de Aplicação de Efeitos",
+      "updatedAt": "2026-11-05T11:29:14.698Z"
+    },
+    {
+      "id": 130,
+      "key": "attr.combat.dot_resist.name",
+      "locale": "pt-BR",
+      "text": "Resistência a Dano Contínuo",
+      "updatedAt": "2026-11-05T11:29:14.706Z"
+    },
+    {
+      "id": 131,
+      "key": "equip_slot.shoulder.name",
+      "locale": "pt-BR",
+      "text": "Ombro",
+      "updatedAt": "2026-11-05T11:29:14.816Z"
+    },
+    {
+      "id": 132,
+      "key": "equip_slot.head.name",
+      "locale": "pt-BR",
+      "text": "Cabeça",
+      "updatedAt": "2026-11-05T11:29:14.827Z"
+    },
+    {
+      "id": 133,
+      "key": "equip_slot.chest.name",
+      "locale": "pt-BR",
+      "text": "Peito",
+      "updatedAt": "2026-11-05T11:29:14.834Z"
+    },
+    {
+      "id": 134,
+      "key": "equip_slot.belt.name",
+      "locale": "pt-BR",
+      "text": "Cinto",
+      "updatedAt": "2026-11-05T11:29:14.861Z"
+    },
+    {
+      "id": 135,
+      "key": "equip_slot.legs.name",
+      "locale": "pt-BR",
+      "text": "Pernas",
+      "updatedAt": "2026-11-05T11:29:14.868Z"
+    },
+    {
+      "id": 136,
+      "key": "equip_slot.feet.name",
+      "locale": "pt-BR",
+      "text": "Pés",
+      "updatedAt": "2026-11-05T11:29:14.877Z"
+    },
+    {
+      "id": 137,
+      "key": "equip_slot.ornament_1.name",
+      "locale": "pt-BR",
+      "text": "Adorno 1",
+      "updatedAt": "2026-11-05T11:29:14.884Z"
+    },
+    {
+      "id": 138,
+      "key": "equip_slot.ornament_2.name",
+      "locale": "pt-BR",
+      "text": "Adorno 2",
+      "updatedAt": "2026-11-05T11:29:14.892Z"
+    },
+    {
+      "id": 139,
+      "key": "equip_slot.ring.name",
+      "locale": "pt-BR",
+      "text": "Anel",
+      "updatedAt": "2026-11-05T11:29:14.899Z"
+    },
+    {
+      "id": 140,
+      "key": "equip_slot.necklace.name",
+      "locale": "pt-BR",
+      "text": "Colar",
+      "updatedAt": "2026-11-05T11:29:14.929Z"
+    },
+    {
+      "id": 141,
+      "key": "equip_slot.weapon_1.name",
+      "locale": "pt-BR",
+      "text": "Arma 1",
+      "updatedAt": "2026-11-05T11:29:14.936Z"
+    },
+    {
+      "id": 142,
+      "key": "equip_slot.weapon_2.name",
+      "locale": "pt-BR",
+      "text": "Arma 2",
+      "updatedAt": "2026-11-05T11:29:14.943Z"
+    },
+    {
+      "id": 143,
+      "key": "equip_slot.fishing_rod.name",
+      "locale": "pt-BR",
+      "text": "Vara de Pesca",
+      "updatedAt": "2026-11-05T11:29:14.950Z"
+    },
+    {
+      "id": 144,
+      "key": "equip_slot.flying_mount.name",
+      "locale": "pt-BR",
+      "text": "Montaria Voadora",
+      "updatedAt": "2026-11-05T11:29:14.957Z"
+    },
+    {
+      "id": 145,
+      "key": "equip_slot.wings.name",
+      "locale": "pt-BR",
+      "text": "Asas",
+      "updatedAt": "2026-11-05T11:29:14.964Z"
+    },
+    {
+      "id": 146,
+      "key": "equip_slot.fashion.name",
+      "locale": "pt-BR",
+      "text": "Moda",
+      "updatedAt": "2026-11-05T11:29:14.973Z"
+    },
+    {
+      "id": 147,
+      "key": "equip_slot.pet_equip_1.name",
+      "locale": "pt-BR",
+      "text": "Equipamento 1",
+      "updatedAt": "2026-11-05T11:29:14.980Z"
+    },
+    {
+      "id": 148,
+      "key": "equip_slot.pet_equip_2.name",
+      "locale": "pt-BR",
+      "text": "Equipamento 2",
+      "updatedAt": "2026-11-05T11:29:15.010Z"
+    },
+    {
+      "id": 149,
+      "key": "equip_slot.pet_equip_3.name",
+      "locale": "pt-BR",
+      "text": "Equipamento 3",
+      "updatedAt": "2026-11-05T11:29:15.016Z"
+    },
+    {
+      "id": 150,
+      "key": "equip_slot.pet_equip_4.name",
+      "locale": "pt-BR",
+      "text": "Equipamento 4",
+      "updatedAt": "2026-11-05T11:29:15.024Z"
+    },
+    {
+      "id": 151,
+      "key": "equip_slot.pet_equip_5.name",
+      "locale": "pt-BR",
+      "text": "Equipamento 5",
+      "updatedAt": "2026-11-05T11:29:15.031Z"
+    },
+    {
+      "id": 152,
+      "key": "equip_slot.pet_equip_6.name",
+      "locale": "pt-BR",
+      "text": "Equipamento 6",
+      "updatedAt": "2026-11-05T11:29:15.038Z"
+    },
+    {
+      "id": 153,
+      "key": "rarity.common.name",
+      "locale": "pt-BR",
+      "text": "Comum",
+      "updatedAt": "2026-11-05T11:29:15.046Z"
+    },
+    {
+      "id": 154,
+      "key": "rarity.uncommon.name",
+      "locale": "pt-BR",
+      "text": "Incomum",
+      "updatedAt": "2026-11-05T11:29:15.058Z"
+    },
+    {
+      "id": 155,
+      "key": "rarity.elite.name",
+      "locale": "pt-BR",
+      "text": "Elite",
+      "updatedAt": "2026-11-05T11:29:15.065Z"
+    },
+    {
+      "id": 156,
+      "key": "rarity.rare.name",
+      "locale": "pt-BR",
+      "text": "Raro",
+      "updatedAt": "2026-11-05T11:29:15.095Z"
+    },
+    {
+      "id": 157,
+      "key": "rarity.miniboss.name",
+      "locale": "pt-BR",
+      "text": "Subchefe",
+      "updatedAt": "2026-11-05T11:29:15.104Z"
+    },
+    {
+      "id": 158,
+      "key": "rarity.boss.name",
+      "locale": "pt-BR",
+      "text": "Chefe",
+      "updatedAt": "2026-11-05T11:29:15.112Z"
+    }
+  ],
+  "biomes": [
+    {
+      "id": 1,
+      "code": "VERDANT_PLAINS",
+      "category": "FOREST",
+      "nameI18nKey": "biome.verdant_plains.name",
+      "descriptionI18nKey": "biome.verdant_plains.desc"
+    },
+    {
+      "id": 2,
+      "code": "TEMPERATE_WOODS",
+      "category": "FOREST",
+      "nameI18nKey": "biome.temperate_woods.name",
+      "descriptionI18nKey": "biome.temperate_woods.desc"
+    },
+    {
+      "id": 3,
+      "code": "DENSE_FOREST",
+      "category": "FOREST",
+      "nameI18nKey": "biome.dense_forest.name",
+      "descriptionI18nKey": "biome.dense_forest.desc"
+    },
+    {
+      "id": 4,
+      "code": "TROPICAL_JUNGLE",
+      "category": "FOREST",
+      "nameI18nKey": "biome.tropical_jungle.name",
+      "descriptionI18nKey": "biome.tropical_jungle.desc"
+    },
+    {
+      "id": 5,
+      "code": "BAMBOO_GROVE",
+      "category": "FOREST",
+      "nameI18nKey": "biome.bamboo_grove.name",
+      "descriptionI18nKey": "biome.bamboo_grove.desc"
+    },
+    {
+      "id": 6,
+      "code": "FAIRY_GARDEN",
+      "category": "FOREST",
+      "nameI18nKey": "biome.fairy_garden.name",
+      "descriptionI18nKey": "biome.fairy_garden.desc"
+    },
+    {
+      "id": 7,
+      "code": "AUTUMN_WOODS",
+      "category": "FOREST",
+      "nameI18nKey": "biome.autumn_woods.name",
+      "descriptionI18nKey": "biome.autumn_woods.desc"
+    },
+    {
+      "id": 8,
+      "code": "GIANT_ROOTS",
+      "category": "FOREST",
+      "nameI18nKey": "biome.giant_roots.name",
+      "descriptionI18nKey": "biome.giant_roots.desc"
+    },
+    {
+      "id": 9,
+      "code": "DRY_STEPPES",
+      "category": "ARID",
+      "nameI18nKey": "biome.dry_steppes.name",
+      "descriptionI18nKey": "biome.dry_steppes.desc"
+    },
+    {
+      "id": 10,
+      "code": "SAND_DUNES",
+      "category": "ARID",
+      "nameI18nKey": "biome.sand_dunes.name",
+      "descriptionI18nKey": "biome.sand_dunes.desc"
+    },
+    {
+      "id": 11,
+      "code": "HIDDEN_OASIS",
+      "category": "ARID",
+      "nameI18nKey": "biome.hidden_oasis.name",
+      "descriptionI18nKey": "biome.hidden_oasis.desc"
+    },
+    {
+      "id": 12,
+      "code": "ROCKY_CANYON",
+      "category": "ARID",
+      "nameI18nKey": "biome.rocky_canyon.name",
+      "descriptionI18nKey": "biome.rocky_canyon.desc"
+    },
+    {
+      "id": 13,
+      "code": "ALPINE_HIGHLANDS",
+      "category": "ARID",
+      "nameI18nKey": "biome.alpine_highlands.name",
+      "descriptionI18nKey": "biome.alpine_highlands.desc"
+    },
+    {
+      "id": 14,
+      "code": "DEEP_CAVERN",
+      "category": "ARID",
+      "nameI18nKey": "biome.deep_cavern.name",
+      "descriptionI18nKey": "biome.deep_cavern.desc"
+    },
+    {
+      "id": 15,
+      "code": "CRYSTAL_MINE",
+      "category": "ARID",
+      "nameI18nKey": "biome.crystal_mine.name",
+      "descriptionI18nKey": "biome.crystal_mine.desc"
+    },
+    {
+      "id": 16,
+      "code": "BADLANDS",
+      "category": "ARID",
+      "nameI18nKey": "biome.badlands.name",
+      "descriptionI18nKey": "biome.badlands.desc"
+    },
+    {
+      "id": 17,
+      "code": "TROPICAL_COAST",
+      "category": "AQUATIC",
+      "nameI18nKey": "biome.tropical_coast.name",
+      "descriptionI18nKey": "biome.tropical_coast.desc"
+    },
+    {
+      "id": 18,
+      "code": "SEA_CLIFFS",
+      "category": "AQUATIC",
+      "nameI18nKey": "biome.sea_cliffs.name",
+      "descriptionI18nKey": "biome.sea_cliffs.desc"
+    },
+    {
+      "id": 19,
+      "code": "MISTY_SWAMP",
+      "category": "AQUATIC",
+      "nameI18nKey": "biome.misty_swamp.name",
+      "descriptionI18nKey": "biome.misty_swamp.desc"
+    },
+    {
+      "id": 20,
+      "code": "POISON_MANGROVE",
+      "category": "AQUATIC",
+      "nameI18nKey": "biome.poison_mangrove.name",
+      "descriptionI18nKey": "biome.poison_mangrove.desc"
+    },
+    {
+      "id": 21,
+      "code": "MIRROR_LAKE",
+      "category": "AQUATIC",
+      "nameI18nKey": "biome.mirror_lake.name",
+      "descriptionI18nKey": "biome.mirror_lake.desc"
+    },
+    {
+      "id": 22,
+      "code": "CORAL_REEF",
+      "category": "AQUATIC",
+      "nameI18nKey": "biome.coral_reef.name",
+      "descriptionI18nKey": "biome.coral_reef.desc"
+    },
+    {
+      "id": 23,
+      "code": "ABYSSAL_TRENCH",
+      "category": "AQUATIC",
+      "nameI18nKey": "biome.abyssal_trench.name",
+      "descriptionI18nKey": "biome.abyssal_trench.desc"
+    },
+    {
+      "id": 24,
+      "code": "FROZEN_TUNDRA",
+      "category": "GLACIAL",
+      "nameI18nKey": "biome.frozen_tundra.name",
+      "descriptionI18nKey": "biome.frozen_tundra.desc"
+    },
+    {
+      "id": 25,
+      "code": "SNOWY_TAIGA",
+      "category": "GLACIAL",
+      "nameI18nKey": "biome.snowy_taiga.name",
+      "descriptionI18nKey": "biome.snowy_taiga.desc"
+    },
+    {
+      "id": 26,
+      "code": "ETERNAL_GLACIER",
+      "category": "GLACIAL",
+      "nameI18nKey": "biome.eternal_glacier.name",
+      "descriptionI18nKey": "biome.eternal_glacier.desc"
+    },
+    {
+      "id": 27,
+      "code": "BLIZZARD_PEAK",
+      "category": "GLACIAL",
+      "nameI18nKey": "biome.blizzard_peak.name",
+      "descriptionI18nKey": "biome.blizzard_peak.desc"
+    },
+    {
+      "id": 28,
+      "code": "ASHLANDS",
+      "category": "VOLCANIC",
+      "nameI18nKey": "biome.ashlands.name",
+      "descriptionI18nKey": "biome.ashlands.desc"
+    },
+    {
+      "id": 29,
+      "code": "LAVA_CALDERA",
+      "category": "VOLCANIC",
+      "nameI18nKey": "biome.lava_caldera.name",
+      "descriptionI18nKey": "biome.lava_caldera.desc"
+    },
+    {
+      "id": 30,
+      "code": "STORM_PLATEAU",
+      "category": "VOLCANIC",
+      "nameI18nKey": "biome.storm_plateau.name",
+      "descriptionI18nKey": "biome.storm_plateau.desc"
+    },
+    {
+      "id": 31,
+      "code": "FLOATING_ISLANDS",
+      "category": "VOLCANIC",
+      "nameI18nKey": "biome.floating_islands.name",
+      "descriptionI18nKey": "biome.floating_islands.desc"
+    },
+    {
+      "id": 32,
+      "code": "DEADWOOD",
+      "category": "UNDEAD",
+      "nameI18nKey": "biome.deadwood.name",
+      "descriptionI18nKey": "biome.deadwood.desc"
+    },
+    {
+      "id": 33,
+      "code": "ANCIENT_NECROPOLIS",
+      "category": "UNDEAD",
+      "nameI18nKey": "biome.ancient_necropolis.name",
+      "descriptionI18nKey": "biome.ancient_necropolis.desc"
+    },
+    {
+      "id": 34,
+      "code": "BLIGHTED_LANDS",
+      "category": "UNDEAD",
+      "nameI18nKey": "biome.blighted_lands.name",
+      "descriptionI18nKey": "biome.blighted_lands.desc"
+    },
+    {
+      "id": 35,
+      "code": "DEMONIC_RIFT",
+      "category": "UNDEAD",
+      "nameI18nKey": "biome.demonic_rift.name",
+      "descriptionI18nKey": "biome.demonic_rift.desc"
+    },
+    {
+      "id": 36,
+      "code": "ACADEMY_GROUNDS",
+      "category": "ARCANE",
+      "nameI18nKey": "biome.academy_grounds.name",
+      "descriptionI18nKey": "biome.academy_grounds.desc"
+    },
+    {
+      "id": 37,
+      "code": "ANCIENT_RUINS",
+      "category": "ARCANE",
+      "nameI18nKey": "biome.ancient_ruins.name",
+      "descriptionI18nKey": "biome.ancient_ruins.desc"
+    },
+    {
+      "id": 38,
+      "code": "ASTRAL_SANCTUARY",
+      "category": "ARCANE",
+      "nameI18nKey": "biome.astral_sanctuary.name",
+      "descriptionI18nKey": "biome.astral_sanctuary.desc"
+    },
+    {
+      "id": 39,
+      "code": "CLOCKWORK_FORGE",
+      "category": "ARCANE",
+      "nameI18nKey": "biome.clockwork_forge.name",
+      "descriptionI18nKey": "biome.clockwork_forge.desc"
+    },
+    {
+      "id": 40,
+      "code": "CELESTIAL_PALACE",
+      "category": "ARCANE",
+      "nameI18nKey": "biome.celestial_palace.name",
+      "descriptionI18nKey": "biome.celestial_palace.desc"
+    }
+  ],
+  "mapTypes": [
+    {
+      "id": 1,
+      "code": "CITY",
+      "nameI18nKey": "map_type.city.name",
+      "dominationTarget": "ALLIANCE",
+      "allowMonsterSpawn": false,
+      "pvpRule": "DUEL_ONLY",
+      "forcesCriminalStatus": false
+    },
+    {
+      "id": 2,
+      "code": "VILLAGE",
+      "nameI18nKey": "map_type.village.name",
+      "dominationTarget": "ALLIANCE",
+      "allowMonsterSpawn": false,
+      "pvpRule": "DUEL_ONLY",
+      "forcesCriminalStatus": false
+    },
+    {
+      "id": 3,
+      "code": "SUBURB",
+      "nameI18nKey": "map_type.suburb.name",
+      "dominationTarget": "FACTION",
+      "allowMonsterSpawn": true,
+      "pvpRule": "DUEL_ONLY",
+      "forcesCriminalStatus": false
+    },
+    {
+      "id": 4,
+      "code": "HOSTILE_ZONE",
+      "nameI18nKey": "map_type.hostile_zone.name",
+      "dominationTarget": "FACTION",
+      "allowMonsterSpawn": true,
+      "pvpRule": "FORCED_PK",
+      "forcesCriminalStatus": true
+    },
+    {
+      "id": 5,
+      "code": "CONFLICT_ZONE",
+      "nameI18nKey": "map_type.conflict_zone.name",
+      "dominationTarget": "FACTION",
+      "allowMonsterSpawn": true,
+      "pvpRule": "OPEN_PVP",
+      "forcesCriminalStatus": false
+    }
+  ],
+  "maps": [],
+  "mapPortals": [],
+  "npcTemplates": [],
+  "mapNpcs": [],
+  "elements": [
+    {
+      "code": "AIR",
+      "nameI18nKey": "element.air.name",
+      "initialRollChance": 0.2
+    },
+    {
+      "code": "EARTH",
+      "nameI18nKey": "element.earth.name",
+      "initialRollChance": 0.2
+    },
+    {
+      "code": "FIRE",
+      "nameI18nKey": "element.fire.name",
+      "initialRollChance": 0.2
+    },
+    {
+      "code": "NEUTRAL",
+      "nameI18nKey": "element.neutral.name",
+      "initialRollChance": 0.1
+    },
+    {
+      "code": "WATER",
+      "nameI18nKey": "element.water.name",
+      "initialRollChance": 0.2
+    }
+  ],
+  "elementMatchups": [
+    {
+      "id": 1,
+      "attackerElementCode": "FIRE",
+      "defenderElementCode": "FIRE",
+      "damageMultiplier": 1
+    },
+    {
+      "id": 2,
+      "attackerElementCode": "FIRE",
+      "defenderElementCode": "EARTH",
+      "damageMultiplier": 1.25
+    },
+    {
+      "id": 3,
+      "attackerElementCode": "FIRE",
+      "defenderElementCode": "AIR",
+      "damageMultiplier": 1
+    },
+    {
+      "id": 4,
+      "attackerElementCode": "FIRE",
+      "defenderElementCode": "WATER",
+      "damageMultiplier": 0.75
+    },
+    {
+      "id": 5,
+      "attackerElementCode": "FIRE",
+      "defenderElementCode": "NEUTRAL",
+      "damageMultiplier": 1.25
+    },
+    {
+      "id": 6,
+      "attackerElementCode": "EARTH",
+      "defenderElementCode": "FIRE",
+      "damageMultiplier": 0.75
+    },
+    {
+      "id": 7,
+      "attackerElementCode": "EARTH",
+      "defenderElementCode": "EARTH",
+      "damageMultiplier": 1
+    },
+    {
+      "id": 8,
+      "attackerElementCode": "EARTH",
+      "defenderElementCode": "AIR",
+      "damageMultiplier": 1.25
+    },
+    {
+      "id": 9,
+      "attackerElementCode": "EARTH",
+      "defenderElementCode": "WATER",
+      "damageMultiplier": 1
+    },
+    {
+      "id": 10,
+      "attackerElementCode": "EARTH",
+      "defenderElementCode": "NEUTRAL",
+      "damageMultiplier": 1.25
+    },
+    {
+      "id": 11,
+      "attackerElementCode": "AIR",
+      "defenderElementCode": "FIRE",
+      "damageMultiplier": 1
+    },
+    {
+      "id": 12,
+      "attackerElementCode": "AIR",
+      "defenderElementCode": "EARTH",
+      "damageMultiplier": 0.75
+    },
+    {
+      "id": 13,
+      "attackerElementCode": "AIR",
+      "defenderElementCode": "AIR",
+      "damageMultiplier": 1
+    },
+    {
+      "id": 14,
+      "attackerElementCode": "AIR",
+      "defenderElementCode": "WATER",
+      "damageMultiplier": 1.25
+    },
+    {
+      "id": 15,
+      "attackerElementCode": "AIR",
+      "defenderElementCode": "NEUTRAL",
+      "damageMultiplier": 1.25
+    },
+    {
+      "id": 16,
+      "attackerElementCode": "WATER",
+      "defenderElementCode": "FIRE",
+      "damageMultiplier": 1.25
+    },
+    {
+      "id": 17,
+      "attackerElementCode": "WATER",
+      "defenderElementCode": "EARTH",
+      "damageMultiplier": 1
+    },
+    {
+      "id": 18,
+      "attackerElementCode": "WATER",
+      "defenderElementCode": "AIR",
+      "damageMultiplier": 0.75
+    },
+    {
+      "id": 19,
+      "attackerElementCode": "WATER",
+      "defenderElementCode": "WATER",
+      "damageMultiplier": 1
+    },
+    {
+      "id": 20,
+      "attackerElementCode": "WATER",
+      "defenderElementCode": "NEUTRAL",
+      "damageMultiplier": 1.25
+    },
+    {
+      "id": 21,
+      "attackerElementCode": "NEUTRAL",
+      "defenderElementCode": "FIRE",
+      "damageMultiplier": 0.75
+    },
+    {
+      "id": 22,
+      "attackerElementCode": "NEUTRAL",
+      "defenderElementCode": "EARTH",
+      "damageMultiplier": 0.75
+    },
+    {
+      "id": 23,
+      "attackerElementCode": "NEUTRAL",
+      "defenderElementCode": "AIR",
+      "damageMultiplier": 0.75
+    },
+    {
+      "id": 24,
+      "attackerElementCode": "NEUTRAL",
+      "defenderElementCode": "WATER",
+      "damageMultiplier": 0.75
+    },
+    {
+      "id": 25,
+      "attackerElementCode": "NEUTRAL",
+      "defenderElementCode": "NEUTRAL",
+      "damageMultiplier": 0.75
+    }
+  ],
+  "races": [
+    {
+      "code": "AQUATIC",
+      "nameI18nKey": "race.aquatic.name"
+    },
+    {
+      "code": "BEAST",
+      "nameI18nKey": "race.beast.name"
+    },
+    {
+      "code": "CELESTIAL",
+      "nameI18nKey": "race.celestial.name"
+    },
+    {
+      "code": "DEMON",
+      "nameI18nKey": "race.demon.name"
+    },
+    {
+      "code": "DRAGON",
+      "nameI18nKey": "race.dragon.name"
+    },
+    {
+      "code": "FAIRY",
+      "nameI18nKey": "race.fairy.name"
+    },
+    {
+      "code": "HUMAN",
+      "nameI18nKey": "race.human.name"
+    },
+    {
+      "code": "PLANT",
+      "nameI18nKey": "race.plant.name"
+    },
+    {
+      "code": "REPTILIAN",
+      "nameI18nKey": "race.reptilian.name"
+    },
+    {
+      "code": "ROBOTIC",
+      "nameI18nKey": "race.robotic.name"
+    },
+    {
+      "code": "SPIRIT",
+      "nameI18nKey": "race.spirit.name"
+    }
+  ],
+  "raceMatchups": [
+    {
+      "id": 1,
+      "attackerRaceCode": "HUMAN",
+      "defenderRaceCode": "HUMAN",
+      "damageMultiplier": 1
+    },
+    {
+      "id": 2,
+      "attackerRaceCode": "HUMAN",
+      "defenderRaceCode": "PLANT",
+      "damageMultiplier": 1.1
+    },
+    {
+      "id": 3,
+      "attackerRaceCode": "HUMAN",
+      "defenderRaceCode": "DRAGON",
+      "damageMultiplier": 1.1
+    },
+    {
+      "id": 4,
+      "attackerRaceCode": "HUMAN",
+      "defenderRaceCode": "REPTILIAN",
+      "damageMultiplier": 1.1
+    },
+    {
+      "id": 5,
+      "attackerRaceCode": "HUMAN",
+      "defenderRaceCode": "AQUATIC",
+      "damageMultiplier": 1.1
+    },
+    {
+      "id": 6,
+      "attackerRaceCode": "HUMAN",
+      "defenderRaceCode": "ROBOTIC",
+      "damageMultiplier": 1.1
+    },
+    {
+      "id": 7,
+      "attackerRaceCode": "HUMAN",
+      "defenderRaceCode": "CELESTIAL",
+      "damageMultiplier": 1.1
+    },
+    {
+      "id": 8,
+      "attackerRaceCode": "HUMAN",
+      "defenderRaceCode": "DEMON",
+      "damageMultiplier": 1.1
+    },
+    {
+      "id": 9,
+      "attackerRaceCode": "HUMAN",
+      "defenderRaceCode": "FAIRY",
+      "damageMultiplier": 1.1
+    },
+    {
+      "id": 10,
+      "attackerRaceCode": "HUMAN",
+      "defenderRaceCode": "SPIRIT",
+      "damageMultiplier": 1.1
+    },
+    {
+      "id": 11,
+      "attackerRaceCode": "HUMAN",
+      "defenderRaceCode": "BEAST",
+      "damageMultiplier": 1.1
+    },
+    {
+      "id": 12,
+      "attackerRaceCode": "PLANT",
+      "defenderRaceCode": "HUMAN",
+      "damageMultiplier": 0.9
+    },
+    {
+      "id": 13,
+      "attackerRaceCode": "PLANT",
+      "defenderRaceCode": "PLANT",
+      "damageMultiplier": 1
+    },
+    {
+      "id": 14,
+      "attackerRaceCode": "PLANT",
+      "defenderRaceCode": "DRAGON",
+      "damageMultiplier": 1.1
+    },
+    {
+      "id": 15,
+      "attackerRaceCode": "PLANT",
+      "defenderRaceCode": "REPTILIAN",
+      "damageMultiplier": 1
+    },
+    {
+      "id": 16,
+      "attackerRaceCode": "PLANT",
+      "defenderRaceCode": "AQUATIC",
+      "damageMultiplier": 1
+    },
+    {
+      "id": 17,
+      "attackerRaceCode": "PLANT",
+      "defenderRaceCode": "ROBOTIC",
+      "damageMultiplier": 1
+    },
+    {
+      "id": 18,
+      "attackerRaceCode": "PLANT",
+      "defenderRaceCode": "CELESTIAL",
+      "damageMultiplier": 1
+    },
+    {
+      "id": 19,
+      "attackerRaceCode": "PLANT",
+      "defenderRaceCode": "DEMON",
+      "damageMultiplier": 1
+    },
+    {
+      "id": 20,
+      "attackerRaceCode": "PLANT",
+      "defenderRaceCode": "FAIRY",
+      "damageMultiplier": 1
+    },
+    {
+      "id": 21,
+      "attackerRaceCode": "PLANT",
+      "defenderRaceCode": "SPIRIT",
+      "damageMultiplier": 1
+    },
+    {
+      "id": 22,
+      "attackerRaceCode": "PLANT",
+      "defenderRaceCode": "BEAST",
+      "damageMultiplier": 0.9
+    },
+    {
+      "id": 23,
+      "attackerRaceCode": "DRAGON",
+      "defenderRaceCode": "HUMAN",
+      "damageMultiplier": 0.9
+    },
+    {
+      "id": 24,
+      "attackerRaceCode": "DRAGON",
+      "defenderRaceCode": "PLANT",
+      "damageMultiplier": 0.9
+    },
+    {
+      "id": 25,
+      "attackerRaceCode": "DRAGON",
+      "defenderRaceCode": "DRAGON",
+      "damageMultiplier": 1
+    },
+    {
+      "id": 26,
+      "attackerRaceCode": "DRAGON",
+      "defenderRaceCode": "REPTILIAN",
+      "damageMultiplier": 1.1
+    },
+    {
+      "id": 27,
+      "attackerRaceCode": "DRAGON",
+      "defenderRaceCode": "AQUATIC",
+      "damageMultiplier": 1
+    },
+    {
+      "id": 28,
+      "attackerRaceCode": "DRAGON",
+      "defenderRaceCode": "ROBOTIC",
+      "damageMultiplier": 1
+    },
+    {
+      "id": 29,
+      "attackerRaceCode": "DRAGON",
+      "defenderRaceCode": "CELESTIAL",
+      "damageMultiplier": 1
+    },
+    {
+      "id": 30,
+      "attackerRaceCode": "DRAGON",
+      "defenderRaceCode": "DEMON",
+      "damageMultiplier": 1
+    },
+    {
+      "id": 31,
+      "attackerRaceCode": "DRAGON",
+      "defenderRaceCode": "FAIRY",
+      "damageMultiplier": 1
+    },
+    {
+      "id": 32,
+      "attackerRaceCode": "DRAGON",
+      "defenderRaceCode": "SPIRIT",
+      "damageMultiplier": 1
+    },
+    {
+      "id": 33,
+      "attackerRaceCode": "DRAGON",
+      "defenderRaceCode": "BEAST",
+      "damageMultiplier": 1
+    },
+    {
+      "id": 34,
+      "attackerRaceCode": "REPTILIAN",
+      "defenderRaceCode": "HUMAN",
+      "damageMultiplier": 0.9
+    },
+    {
+      "id": 35,
+      "attackerRaceCode": "REPTILIAN",
+      "defenderRaceCode": "PLANT",
+      "damageMultiplier": 1
+    },
+    {
+      "id": 36,
+      "attackerRaceCode": "REPTILIAN",
+      "defenderRaceCode": "DRAGON",
+      "damageMultiplier": 0.9
+    },
+    {
+      "id": 37,
+      "attackerRaceCode": "REPTILIAN",
+      "defenderRaceCode": "REPTILIAN",
+      "damageMultiplier": 1
+    },
+    {
+      "id": 38,
+      "attackerRaceCode": "REPTILIAN",
+      "defenderRaceCode": "AQUATIC",
+      "damageMultiplier": 1.1
+    },
+    {
+      "id": 39,
+      "attackerRaceCode": "REPTILIAN",
+      "defenderRaceCode": "ROBOTIC",
+      "damageMultiplier": 1
+    },
+    {
+      "id": 40,
+      "attackerRaceCode": "REPTILIAN",
+      "defenderRaceCode": "CELESTIAL",
+      "damageMultiplier": 1
+    },
+    {
+      "id": 41,
+      "attackerRaceCode": "REPTILIAN",
+      "defenderRaceCode": "DEMON",
+      "damageMultiplier": 1
+    },
+    {
+      "id": 42,
+      "attackerRaceCode": "REPTILIAN",
+      "defenderRaceCode": "FAIRY",
+      "damageMultiplier": 1
+    },
+    {
+      "id": 43,
+      "attackerRaceCode": "REPTILIAN",
+      "defenderRaceCode": "SPIRIT",
+      "damageMultiplier": 1
+    },
+    {
+      "id": 44,
+      "attackerRaceCode": "REPTILIAN",
+      "defenderRaceCode": "BEAST",
+      "damageMultiplier": 1
+    },
+    {
+      "id": 45,
+      "attackerRaceCode": "AQUATIC",
+      "defenderRaceCode": "HUMAN",
+      "damageMultiplier": 0.9
+    },
+    {
+      "id": 46,
+      "attackerRaceCode": "AQUATIC",
+      "defenderRaceCode": "PLANT",
+      "damageMultiplier": 1
+    },
+    {
+      "id": 47,
+      "attackerRaceCode": "AQUATIC",
+      "defenderRaceCode": "DRAGON",
+      "damageMultiplier": 1
+    },
+    {
+      "id": 48,
+      "attackerRaceCode": "AQUATIC",
+      "defenderRaceCode": "REPTILIAN",
+      "damageMultiplier": 0.9
+    },
+    {
+      "id": 49,
+      "attackerRaceCode": "AQUATIC",
+      "defenderRaceCode": "AQUATIC",
+      "damageMultiplier": 1
+    },
+    {
+      "id": 50,
+      "attackerRaceCode": "AQUATIC",
+      "defenderRaceCode": "ROBOTIC",
+      "damageMultiplier": 1.1
+    },
+    {
+      "id": 51,
+      "attackerRaceCode": "AQUATIC",
+      "defenderRaceCode": "CELESTIAL",
+      "damageMultiplier": 1
+    },
+    {
+      "id": 52,
+      "attackerRaceCode": "AQUATIC",
+      "defenderRaceCode": "DEMON",
+      "damageMultiplier": 1
+    },
+    {
+      "id": 53,
+      "attackerRaceCode": "AQUATIC",
+      "defenderRaceCode": "FAIRY",
+      "damageMultiplier": 1
+    },
+    {
+      "id": 54,
+      "attackerRaceCode": "AQUATIC",
+      "defenderRaceCode": "SPIRIT",
+      "damageMultiplier": 1
+    },
+    {
+      "id": 55,
+      "attackerRaceCode": "AQUATIC",
+      "defenderRaceCode": "BEAST",
+      "damageMultiplier": 1
+    },
+    {
+      "id": 56,
+      "attackerRaceCode": "ROBOTIC",
+      "defenderRaceCode": "HUMAN",
+      "damageMultiplier": 0.9
+    },
+    {
+      "id": 57,
+      "attackerRaceCode": "ROBOTIC",
+      "defenderRaceCode": "PLANT",
+      "damageMultiplier": 1
+    },
+    {
+      "id": 58,
+      "attackerRaceCode": "ROBOTIC",
+      "defenderRaceCode": "DRAGON",
+      "damageMultiplier": 1
+    },
+    {
+      "id": 59,
+      "attackerRaceCode": "ROBOTIC",
+      "defenderRaceCode": "REPTILIAN",
+      "damageMultiplier": 1
+    },
+    {
+      "id": 60,
+      "attackerRaceCode": "ROBOTIC",
+      "defenderRaceCode": "AQUATIC",
+      "damageMultiplier": 0.9
+    },
+    {
+      "id": 61,
+      "attackerRaceCode": "ROBOTIC",
+      "defenderRaceCode": "ROBOTIC",
+      "damageMultiplier": 1
+    },
+    {
+      "id": 62,
+      "attackerRaceCode": "ROBOTIC",
+      "defenderRaceCode": "CELESTIAL",
+      "damageMultiplier": 1.1
+    },
+    {
+      "id": 63,
+      "attackerRaceCode": "ROBOTIC",
+      "defenderRaceCode": "DEMON",
+      "damageMultiplier": 1
+    },
+    {
+      "id": 64,
+      "attackerRaceCode": "ROBOTIC",
+      "defenderRaceCode": "FAIRY",
+      "damageMultiplier": 1
+    },
+    {
+      "id": 65,
+      "attackerRaceCode": "ROBOTIC",
+      "defenderRaceCode": "SPIRIT",
+      "damageMultiplier": 1
+    },
+    {
+      "id": 66,
+      "attackerRaceCode": "ROBOTIC",
+      "defenderRaceCode": "BEAST",
+      "damageMultiplier": 1
+    },
+    {
+      "id": 67,
+      "attackerRaceCode": "CELESTIAL",
+      "defenderRaceCode": "HUMAN",
+      "damageMultiplier": 0.9
+    },
+    {
+      "id": 68,
+      "attackerRaceCode": "CELESTIAL",
+      "defenderRaceCode": "PLANT",
+      "damageMultiplier": 1
+    },
+    {
+      "id": 69,
+      "attackerRaceCode": "CELESTIAL",
+      "defenderRaceCode": "DRAGON",
+      "damageMultiplier": 1
+    },
+    {
+      "id": 70,
+      "attackerRaceCode": "CELESTIAL",
+      "defenderRaceCode": "REPTILIAN",
+      "damageMultiplier": 1
+    },
+    {
+      "id": 71,
+      "attackerRaceCode": "CELESTIAL",
+      "defenderRaceCode": "AQUATIC",
+      "damageMultiplier": 1
+    },
+    {
+      "id": 72,
+      "attackerRaceCode": "CELESTIAL",
+      "defenderRaceCode": "ROBOTIC",
+      "damageMultiplier": 0.9
+    },
+    {
+      "id": 73,
+      "attackerRaceCode": "CELESTIAL",
+      "defenderRaceCode": "CELESTIAL",
+      "damageMultiplier": 1
+    },
+    {
+      "id": 74,
+      "attackerRaceCode": "CELESTIAL",
+      "defenderRaceCode": "DEMON",
+      "damageMultiplier": 1.1
+    },
+    {
+      "id": 75,
+      "attackerRaceCode": "CELESTIAL",
+      "defenderRaceCode": "FAIRY",
+      "damageMultiplier": 1
+    },
+    {
+      "id": 76,
+      "attackerRaceCode": "CELESTIAL",
+      "defenderRaceCode": "SPIRIT",
+      "damageMultiplier": 1
+    },
+    {
+      "id": 77,
+      "attackerRaceCode": "CELESTIAL",
+      "defenderRaceCode": "BEAST",
+      "damageMultiplier": 1
+    },
+    {
+      "id": 78,
+      "attackerRaceCode": "DEMON",
+      "defenderRaceCode": "HUMAN",
+      "damageMultiplier": 0.9
+    },
+    {
+      "id": 79,
+      "attackerRaceCode": "DEMON",
+      "defenderRaceCode": "PLANT",
+      "damageMultiplier": 1
+    },
+    {
+      "id": 80,
+      "attackerRaceCode": "DEMON",
+      "defenderRaceCode": "DRAGON",
+      "damageMultiplier": 1
+    },
+    {
+      "id": 81,
+      "attackerRaceCode": "DEMON",
+      "defenderRaceCode": "REPTILIAN",
+      "damageMultiplier": 1
+    },
+    {
+      "id": 82,
+      "attackerRaceCode": "DEMON",
+      "defenderRaceCode": "AQUATIC",
+      "damageMultiplier": 1
+    },
+    {
+      "id": 83,
+      "attackerRaceCode": "DEMON",
+      "defenderRaceCode": "ROBOTIC",
+      "damageMultiplier": 1
+    },
+    {
+      "id": 84,
+      "attackerRaceCode": "DEMON",
+      "defenderRaceCode": "CELESTIAL",
+      "damageMultiplier": 0.9
+    },
+    {
+      "id": 85,
+      "attackerRaceCode": "DEMON",
+      "defenderRaceCode": "DEMON",
+      "damageMultiplier": 1
+    },
+    {
+      "id": 86,
+      "attackerRaceCode": "DEMON",
+      "defenderRaceCode": "FAIRY",
+      "damageMultiplier": 1.1
+    },
+    {
+      "id": 87,
+      "attackerRaceCode": "DEMON",
+      "defenderRaceCode": "SPIRIT",
+      "damageMultiplier": 1
+    },
+    {
+      "id": 88,
+      "attackerRaceCode": "DEMON",
+      "defenderRaceCode": "BEAST",
+      "damageMultiplier": 1
+    },
+    {
+      "id": 89,
+      "attackerRaceCode": "FAIRY",
+      "defenderRaceCode": "HUMAN",
+      "damageMultiplier": 0.9
+    },
+    {
+      "id": 90,
+      "attackerRaceCode": "FAIRY",
+      "defenderRaceCode": "PLANT",
+      "damageMultiplier": 1
+    },
+    {
+      "id": 91,
+      "attackerRaceCode": "FAIRY",
+      "defenderRaceCode": "DRAGON",
+      "damageMultiplier": 1
+    },
+    {
+      "id": 92,
+      "attackerRaceCode": "FAIRY",
+      "defenderRaceCode": "REPTILIAN",
+      "damageMultiplier": 1
+    },
+    {
+      "id": 93,
+      "attackerRaceCode": "FAIRY",
+      "defenderRaceCode": "AQUATIC",
+      "damageMultiplier": 1
+    },
+    {
+      "id": 94,
+      "attackerRaceCode": "FAIRY",
+      "defenderRaceCode": "ROBOTIC",
+      "damageMultiplier": 1
+    },
+    {
+      "id": 95,
+      "attackerRaceCode": "FAIRY",
+      "defenderRaceCode": "CELESTIAL",
+      "damageMultiplier": 1
+    },
+    {
+      "id": 96,
+      "attackerRaceCode": "FAIRY",
+      "defenderRaceCode": "DEMON",
+      "damageMultiplier": 0.9
+    },
+    {
+      "id": 97,
+      "attackerRaceCode": "FAIRY",
+      "defenderRaceCode": "FAIRY",
+      "damageMultiplier": 1
+    },
+    {
+      "id": 98,
+      "attackerRaceCode": "FAIRY",
+      "defenderRaceCode": "SPIRIT",
+      "damageMultiplier": 1.1
+    },
+    {
+      "id": 99,
+      "attackerRaceCode": "FAIRY",
+      "defenderRaceCode": "BEAST",
+      "damageMultiplier": 1
+    },
+    {
+      "id": 100,
+      "attackerRaceCode": "SPIRIT",
+      "defenderRaceCode": "HUMAN",
+      "damageMultiplier": 0.9
+    },
+    {
+      "id": 101,
+      "attackerRaceCode": "SPIRIT",
+      "defenderRaceCode": "PLANT",
+      "damageMultiplier": 1
+    },
+    {
+      "id": 102,
+      "attackerRaceCode": "SPIRIT",
+      "defenderRaceCode": "DRAGON",
+      "damageMultiplier": 1
+    },
+    {
+      "id": 103,
+      "attackerRaceCode": "SPIRIT",
+      "defenderRaceCode": "REPTILIAN",
+      "damageMultiplier": 1
+    },
+    {
+      "id": 104,
+      "attackerRaceCode": "SPIRIT",
+      "defenderRaceCode": "AQUATIC",
+      "damageMultiplier": 1
+    },
+    {
+      "id": 105,
+      "attackerRaceCode": "SPIRIT",
+      "defenderRaceCode": "ROBOTIC",
+      "damageMultiplier": 1
+    },
+    {
+      "id": 106,
+      "attackerRaceCode": "SPIRIT",
+      "defenderRaceCode": "CELESTIAL",
+      "damageMultiplier": 1
+    },
+    {
+      "id": 107,
+      "attackerRaceCode": "SPIRIT",
+      "defenderRaceCode": "DEMON",
+      "damageMultiplier": 1
+    },
+    {
+      "id": 108,
+      "attackerRaceCode": "SPIRIT",
+      "defenderRaceCode": "FAIRY",
+      "damageMultiplier": 0.9
+    },
+    {
+      "id": 109,
+      "attackerRaceCode": "SPIRIT",
+      "defenderRaceCode": "SPIRIT",
+      "damageMultiplier": 1
+    },
+    {
+      "id": 110,
+      "attackerRaceCode": "SPIRIT",
+      "defenderRaceCode": "BEAST",
+      "damageMultiplier": 1.1
+    },
+    {
+      "id": 111,
+      "attackerRaceCode": "BEAST",
+      "defenderRaceCode": "HUMAN",
+      "damageMultiplier": 0.9
+    },
+    {
+      "id": 112,
+      "attackerRaceCode": "BEAST",
+      "defenderRaceCode": "PLANT",
+      "damageMultiplier": 1.1
+    },
+    {
+      "id": 113,
+      "attackerRaceCode": "BEAST",
+      "defenderRaceCode": "DRAGON",
+      "damageMultiplier": 1
+    },
+    {
+      "id": 114,
+      "attackerRaceCode": "BEAST",
+      "defenderRaceCode": "REPTILIAN",
+      "damageMultiplier": 1
+    },
+    {
+      "id": 115,
+      "attackerRaceCode": "BEAST",
+      "defenderRaceCode": "AQUATIC",
+      "damageMultiplier": 1
+    },
+    {
+      "id": 116,
+      "attackerRaceCode": "BEAST",
+      "defenderRaceCode": "ROBOTIC",
+      "damageMultiplier": 1
+    },
+    {
+      "id": 117,
+      "attackerRaceCode": "BEAST",
+      "defenderRaceCode": "CELESTIAL",
+      "damageMultiplier": 1
+    },
+    {
+      "id": 118,
+      "attackerRaceCode": "BEAST",
+      "defenderRaceCode": "DEMON",
+      "damageMultiplier": 1
+    },
+    {
+      "id": 119,
+      "attackerRaceCode": "BEAST",
+      "defenderRaceCode": "FAIRY",
+      "damageMultiplier": 1
+    },
+    {
+      "id": 120,
+      "attackerRaceCode": "BEAST",
+      "defenderRaceCode": "SPIRIT",
+      "damageMultiplier": 0.9
+    },
+    {
+      "id": 121,
+      "attackerRaceCode": "BEAST",
+      "defenderRaceCode": "BEAST",
+      "damageMultiplier": 1
+    }
+  ],
+  "baseAttributes": [
+    {
+      "code": "AGI",
+      "nameI18nKey": "attr.base.agi.name",
+      "descriptionI18nKey": "attr.base.agi.desc"
+    },
+    {
+      "code": "DEX",
+      "nameI18nKey": "attr.base.dex.name",
+      "descriptionI18nKey": "attr.base.dex.desc"
+    },
+    {
+      "code": "INT",
+      "nameI18nKey": "attr.base.int.name",
+      "descriptionI18nKey": "attr.base.int.desc"
+    },
+    {
+      "code": "STR",
+      "nameI18nKey": "attr.base.str.name",
+      "descriptionI18nKey": "attr.base.str.desc"
+    },
+    {
+      "code": "VIT",
+      "nameI18nKey": "attr.base.vit.name",
+      "descriptionI18nKey": "attr.base.vit.desc"
+    },
+    {
+      "code": "WIS",
+      "nameI18nKey": "attr.base.wis.name",
+      "descriptionI18nKey": "attr.base.wis.desc"
+    }
+  ],
+  "combatAttributes": [
+    {
+      "code": "ACCURACY",
+      "nameI18nKey": "attr.combat.accuracy.name",
+      "baseDefault": 1,
+      "isPercentage": true
+    },
+    {
+      "code": "CRIT_DMG",
+      "nameI18nKey": "attr.combat.crit_dmg.name",
+      "baseDefault": 1.5,
+      "isPercentage": true
+    },
+    {
+      "code": "CRIT_RATE",
+      "nameI18nKey": "attr.combat.crit_rate.name",
+      "baseDefault": 0.05,
+      "isPercentage": true
+    },
+    {
+      "code": "DOT_RESIST",
+      "nameI18nKey": "attr.combat.dot_resist.name",
+      "baseDefault": 0,
+      "isPercentage": true
+    },
+    {
+      "code": "EVASION",
+      "nameI18nKey": "attr.combat.evasion.name",
+      "baseDefault": 0.02,
+      "isPercentage": true
+    },
+    {
+      "code": "HEAL_POWER",
+      "nameI18nKey": "attr.combat.heal_power.name",
+      "baseDefault": 10,
+      "isPercentage": false
+    },
+    {
+      "code": "MAG_ATK",
+      "nameI18nKey": "attr.combat.mag_atk.name",
+      "baseDefault": 15,
+      "isPercentage": false
+    },
+    {
+      "code": "MAG_DEF",
+      "nameI18nKey": "attr.combat.mag_def.name",
+      "baseDefault": 10,
+      "isPercentage": false
+    },
+    {
+      "code": "MAG_PEN",
+      "nameI18nKey": "attr.combat.mag_pen.name",
+      "baseDefault": 0,
+      "isPercentage": false
+    },
+    {
+      "code": "MAX_HP",
+      "nameI18nKey": "attr.combat.max_hp.name",
+      "baseDefault": 120,
+      "isPercentage": false
+    },
+    {
+      "code": "MAX_MP",
+      "nameI18nKey": "attr.combat.max_mp.name",
+      "baseDefault": 60,
+      "isPercentage": false
+    },
+    {
+      "code": "MP_REGEN",
+      "nameI18nKey": "attr.combat.mp_regen.name",
+      "baseDefault": 5,
+      "isPercentage": false
+    },
+    {
+      "code": "PHYS_ATK",
+      "nameI18nKey": "attr.combat.phys_atk.name",
+      "baseDefault": 15,
+      "isPercentage": false
+    },
+    {
+      "code": "PHYS_DEF",
+      "nameI18nKey": "attr.combat.phys_def.name",
+      "baseDefault": 10,
+      "isPercentage": false
+    },
+    {
+      "code": "PHYS_PEN",
+      "nameI18nKey": "attr.combat.phys_pen.name",
+      "baseDefault": 0,
+      "isPercentage": false
+    },
+    {
+      "code": "SPEED",
+      "nameI18nKey": "attr.combat.speed.name",
+      "baseDefault": 100,
+      "isPercentage": false
+    },
+    {
+      "code": "STATUS_HIT_RATE",
+      "nameI18nKey": "attr.combat.status_hit_rate.name",
+      "baseDefault": 0,
+      "isPercentage": true
+    }
+  ],
+  "attributeConversions": [
+    {
+      "id": 1,
+      "baseAttributeCode": "VIT",
+      "combatAttributeCode": "MAX_HP",
+      "ratioPerPoint": 20
+    },
+    {
+      "id": 2,
+      "baseAttributeCode": "VIT",
+      "combatAttributeCode": "PHYS_DEF",
+      "ratioPerPoint": 1.5
+    },
+    {
+      "id": 3,
+      "baseAttributeCode": "VIT",
+      "combatAttributeCode": "DOT_RESIST",
+      "ratioPerPoint": 0.002
+    },
+    {
+      "id": 4,
+      "baseAttributeCode": "STR",
+      "combatAttributeCode": "PHYS_ATK",
+      "ratioPerPoint": 2.5
+    },
+    {
+      "id": 5,
+      "baseAttributeCode": "STR",
+      "combatAttributeCode": "PHYS_PEN",
+      "ratioPerPoint": 0.8
+    },
+    {
+      "id": 6,
+      "baseAttributeCode": "STR",
+      "combatAttributeCode": "CRIT_DMG",
+      "ratioPerPoint": 0.003
+    },
+    {
+      "id": 7,
+      "baseAttributeCode": "INT",
+      "combatAttributeCode": "MAG_ATK",
+      "ratioPerPoint": 2.5
+    },
+    {
+      "id": 8,
+      "baseAttributeCode": "INT",
+      "combatAttributeCode": "MAX_MP",
+      "ratioPerPoint": 12
+    },
+    {
+      "id": 9,
+      "baseAttributeCode": "INT",
+      "combatAttributeCode": "MAG_PEN",
+      "ratioPerPoint": 0.8
+    },
+    {
+      "id": 10,
+      "baseAttributeCode": "WIS",
+      "combatAttributeCode": "HEAL_POWER",
+      "ratioPerPoint": 2.2
+    },
+    {
+      "id": 11,
+      "baseAttributeCode": "WIS",
+      "combatAttributeCode": "MAG_DEF",
+      "ratioPerPoint": 1.8
+    },
+    {
+      "id": 12,
+      "baseAttributeCode": "WIS",
+      "combatAttributeCode": "MP_REGEN",
+      "ratioPerPoint": 0.6
+    },
+    {
+      "id": 13,
+      "baseAttributeCode": "AGI",
+      "combatAttributeCode": "SPEED",
+      "ratioPerPoint": 1.5
+    },
+    {
+      "id": 14,
+      "baseAttributeCode": "AGI",
+      "combatAttributeCode": "EVASION",
+      "ratioPerPoint": 0.0015
+    },
+    {
+      "id": 15,
+      "baseAttributeCode": "AGI",
+      "combatAttributeCode": "PHYS_ATK",
+      "ratioPerPoint": 0.8
+    },
+    {
+      "id": 16,
+      "baseAttributeCode": "DEX",
+      "combatAttributeCode": "CRIT_RATE",
+      "ratioPerPoint": 0.002
+    },
+    {
+      "id": 17,
+      "baseAttributeCode": "DEX",
+      "combatAttributeCode": "ACCURACY",
+      "ratioPerPoint": 0.002
+    },
+    {
+      "id": 18,
+      "baseAttributeCode": "DEX",
+      "combatAttributeCode": "STATUS_HIT_RATE",
+      "ratioPerPoint": 0.0025
+    }
+  ],
+  "equipmentSlots": [
+    {
+      "code": "SHOULDER",
+      "ownerType": "CHARACTER",
+      "slotIndex": 1,
+      "nameI18nKey": "equip_slot.shoulder.name"
+    },
+    {
+      "code": "HEAD",
+      "ownerType": "CHARACTER",
+      "slotIndex": 2,
+      "nameI18nKey": "equip_slot.head.name"
+    },
+    {
+      "code": "CHEST",
+      "ownerType": "CHARACTER",
+      "slotIndex": 3,
+      "nameI18nKey": "equip_slot.chest.name"
+    },
+    {
+      "code": "BELT",
+      "ownerType": "CHARACTER",
+      "slotIndex": 4,
+      "nameI18nKey": "equip_slot.belt.name"
+    },
+    {
+      "code": "LEGS",
+      "ownerType": "CHARACTER",
+      "slotIndex": 5,
+      "nameI18nKey": "equip_slot.legs.name"
+    },
+    {
+      "code": "FEET",
+      "ownerType": "CHARACTER",
+      "slotIndex": 6,
+      "nameI18nKey": "equip_slot.feet.name"
+    },
+    {
+      "code": "ORNAMENT_1",
+      "ownerType": "CHARACTER",
+      "slotIndex": 7,
+      "nameI18nKey": "equip_slot.ornament_1.name"
+    },
+    {
+      "code": "ORNAMENT_2",
+      "ownerType": "CHARACTER",
+      "slotIndex": 8,
+      "nameI18nKey": "equip_slot.ornament_2.name"
+    },
+    {
+      "code": "RING",
+      "ownerType": "CHARACTER",
+      "slotIndex": 9,
+      "nameI18nKey": "equip_slot.ring.name"
+    },
+    {
+      "code": "NECKLACE",
+      "ownerType": "CHARACTER",
+      "slotIndex": 10,
+      "nameI18nKey": "equip_slot.necklace.name"
+    },
+    {
+      "code": "WEAPON_1",
+      "ownerType": "CHARACTER",
+      "slotIndex": 11,
+      "nameI18nKey": "equip_slot.weapon_1.name"
+    },
+    {
+      "code": "WEAPON_2",
+      "ownerType": "CHARACTER",
+      "slotIndex": 12,
+      "nameI18nKey": "equip_slot.weapon_2.name"
+    },
+    {
+      "code": "FISHING_ROD",
+      "ownerType": "CHARACTER",
+      "slotIndex": 13,
+      "nameI18nKey": "equip_slot.fishing_rod.name"
+    },
+    {
+      "code": "FLYING_MOUNT",
+      "ownerType": "CHARACTER",
+      "slotIndex": 14,
+      "nameI18nKey": "equip_slot.flying_mount.name"
+    },
+    {
+      "code": "WINGS",
+      "ownerType": "CHARACTER",
+      "slotIndex": 15,
+      "nameI18nKey": "equip_slot.wings.name"
+    },
+    {
+      "code": "FASHION",
+      "ownerType": "CHARACTER",
+      "slotIndex": 16,
+      "nameI18nKey": "equip_slot.fashion.name"
+    },
+    {
+      "code": "PET_EQUIP_1",
+      "ownerType": "PET",
+      "slotIndex": 1,
+      "nameI18nKey": "equip_slot.pet_equip_1.name"
+    },
+    {
+      "code": "PET_EQUIP_2",
+      "ownerType": "PET",
+      "slotIndex": 2,
+      "nameI18nKey": "equip_slot.pet_equip_2.name"
+    },
+    {
+      "code": "PET_EQUIP_3",
+      "ownerType": "PET",
+      "slotIndex": 3,
+      "nameI18nKey": "equip_slot.pet_equip_3.name"
+    },
+    {
+      "code": "PET_EQUIP_4",
+      "ownerType": "PET",
+      "slotIndex": 4,
+      "nameI18nKey": "equip_slot.pet_equip_4.name"
+    },
+    {
+      "code": "PET_EQUIP_5",
+      "ownerType": "PET",
+      "slotIndex": 5,
+      "nameI18nKey": "equip_slot.pet_equip_5.name"
+    },
+    {
+      "code": "PET_EQUIP_6",
+      "ownerType": "PET",
+      "slotIndex": 6,
+      "nameI18nKey": "equip_slot.pet_equip_6.name"
+    }
+  ],
+  "classTemplates": [],
+  "monsterRarities": [
+    {
+      "id": 1,
+      "code": "COMMON",
+      "nameI18nKey": "rarity.common.name",
+      "statMultiplier": 1,
+      "expMultiplier": 1,
+      "dropMultiplier": 1,
+      "visualScaleMultiplier": 1,
+      "spawnWeight": 600
+    },
+    {
+      "id": 2,
+      "code": "UNCOMMON",
+      "nameI18nKey": "rarity.uncommon.name",
+      "statMultiplier": 1.25,
+      "expMultiplier": 1.3,
+      "dropMultiplier": 1.25,
+      "visualScaleMultiplier": 1.05,
+      "spawnWeight": 250
+    },
+    {
+      "id": 3,
+      "code": "ELITE",
+      "nameI18nKey": "rarity.elite.name",
+      "statMultiplier": 1.8,
+      "expMultiplier": 2.2,
+      "dropMultiplier": 2,
+      "visualScaleMultiplier": 1.15,
+      "spawnWeight": 100
+    },
+    {
+      "id": 4,
+      "code": "RARE",
+      "nameI18nKey": "rarity.rare.name",
+      "statMultiplier": 2.6,
+      "expMultiplier": 3.5,
+      "dropMultiplier": 3.5,
+      "visualScaleMultiplier": 1.2,
+      "spawnWeight": 35
+    },
+    {
+      "id": 5,
+      "code": "MINIBOSS",
+      "nameI18nKey": "rarity.miniboss.name",
+      "statMultiplier": 4.5,
+      "expMultiplier": 7,
+      "dropMultiplier": 6,
+      "visualScaleMultiplier": 1.35,
+      "spawnWeight": 12
+    },
+    {
+      "id": 6,
+      "code": "BOSS",
+      "nameI18nKey": "rarity.boss.name",
+      "statMultiplier": 9,
+      "expMultiplier": 15,
+      "dropMultiplier": 12,
+      "visualScaleMultiplier": 1.5,
+      "spawnWeight": 3
+    }
+  ],
+  "monsterTemplates": [],
+  "monsterBiomes": [],
+  "skillTemplates": [],
+  "statusEffectTemplates": [],
+  "itemTemplates": []
+}

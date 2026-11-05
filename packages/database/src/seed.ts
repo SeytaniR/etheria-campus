@@ -8,6 +8,25 @@
  */
 
 import { PrismaClient } from '@prisma/client';
+import * as fsSync from 'node:fs';
+import * as path from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const rootEnvPath = path.resolve(__dirname, '../../../.env');
+if (fsSync.existsSync(rootEnvPath)) {
+  for (const rawLine of fsSync.readFileSync(rootEnvPath, 'utf-8').split(/\r?\n/)) {
+    const line = rawLine.trim();
+    if (!line || line.startsWith('#')) continue;
+    const eq = line.indexOf('=');
+    if (eq > 0) {
+      const k = line.slice(0, eq).trim();
+      const v = line.slice(eq + 1).trim().replace(/^["']|["']$/g, '');
+      if (!process.env[k]) process.env[k] = v;
+    }
+  }
+}
 import {
   INITIAL_BIOMES,
   INITIAL_MAP_TYPES,

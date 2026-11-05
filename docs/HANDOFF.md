@@ -8,9 +8,9 @@
 ---
 
 ## 📌 Status Atual do Projeto
-* **Versão Atual:** `v0.2.1`
+* **Versão Atual:** `v0.3.0`
 * **Última Atualização:** `2026-11-05`
-* **Fase Atual:** **Etapa 1 Concluída (`@etheria/database`) $\rightarrow$ Iniciando Etapa 2 (Rota `/admin` com Editor de Polígonos Estilo Google Earth para Colisão e Sobreposição de Mapas)**
+* **Fase Atual:** **Etapa 2 (Parte 1) Concluída: Proteção da Rota `/admin` (.env restrito ao localhost + CRUD de Contas Admin no PostgreSQL) e Editor Visual de Mapas (Polígonos Estilo Google Earth de Colisão/Sobreposição, Teleportes e NPCs) prontos e sincronizados com o PostgreSQL!**
 * **Repositório Oficial:** `https://github.com/SeytaniR/etheria-campus`
 * **Fonte Bruta de Assets:** `https://github.com/SeytaniR/mcrework` (`https://seytanir.github.io/mcrework/`)
 

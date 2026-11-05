@@ -1,0 +1,496 @@
+<!--
+  @file apps/server/public/admin/index.html
+  @module @etheria/server
+  @description Interface Responsiva da Rota `/admin` (Studio Low-Code do Etheria Campus).
+    Contém a Tela de Login Protegida (.env somente no localhost / CRUD do banco para acesso externo),
+    o Editor Visual de Mapas (Polígonos Estilo Google Earth de Colisão e Sobreposição, Teleportes e NPCs)
+    e o CRUD de Contas de Usuários (`ADMIN`, `GM`, `PLAYER`).
+  @rules Respeita layout fluido e responsivo (PC, Tablet, Celular Vertical e Horizontal).
+-->
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Etheria Campus — Studio Admin (/admin)</title>
+  <style>
+    :root {
+      --bg-main: #090d16;
+      --bg-card: #111827;
+      --bg-input: #1e293b;
+      --border: #334155;
+      --accent: #38bdf8;
+      --accent-green: #22c55e;
+      --accent-red: #ef4444;
+      --accent-amber: #f59e0b;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg-main);
+      color: var(--text-main);
+      min-height: 100dvh;
+      display: flex;
+      flex-direction: column;
+    }
+    button, input, select {
+      font-family: inherit;
+      font-size: 0.85rem;
+      color: var(--text-main);
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 8px 10px;
+    }
+    button { cursor: pointer; font-weight: 600; transition: 0.15s; }
+    button:hover { border-color: var(--accent); }
+    button.btn-primary { background: var(--accent); color: #020617; border-color: var(--accent); }
+    button.btn-success { background: var(--accent-green); color: #022c22; border-color: var(--accent-green); }
+    button.btn-danger { background: rgba(239, 68, 68, 0.2); color: #fca5a5; border-color: var(--accent-red); }
+    button.active-tool { outline: 2px solid var(--accent-amber); background: rgba(245, 158, 11, 0.2); color: #fde68a; }
+
+    /* Login Screen */
+    #loginScreen {
+      margin: auto;
+      width: min(94vw, 430px);
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    .status-pill {
+      padding: 8px 12px;
+      border-radius: 8px;
+      font-size: 0.8rem;
+      line-height: 1.4;
+    }
+    .status-local { background: rgba(34, 197, 94, 0.12); border: 1px solid var(--accent-green); color: #86efac; }
+    .status-remote { background: rgba(245, 158, 11, 0.12); border: 1px solid var(--accent-amber); color: #fde68a; }
+
+    /* Top Header */
+    #adminApp { display: none; flex: 1; flex-direction: column; min-height: 100dvh; }
+    header.topbar {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 16px;
+      background: var(--bg-card);
+      border-bottom: 1px solid var(--border);
+    }
+    .nav-tabs { display: flex; gap: 8px; flex-wrap: wrap; }
+
+    /* Layout Grid for Map Editor */
+    .workspace-grid {
+      flex: 1;
+      display: grid;
+      grid-template-columns: 310px 1fr 330px;
+      gap: 10px;
+      padding: 10px;
+      min-height: calc(100dvh - 60px);
+    }
+    @media (max-width: 1150px) {
+      .workspace-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+    .panel {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      overflow-y: auto;
+      max-height: calc(100dvh - 80px);
+    }
+    @media (max-width: 1150px) {
+      .panel { max-height: none; }
+    }
+    .panel h3 {
+      font-size: 0.92rem;
+      color: var(--accent);
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 6px;
+    }
+    .field { display: flex; flex-direction: column; gap: 4px; }
+    .field label { font-size: 0.75rem; color: var(--text-muted); font-weight: 600; }
+    .row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+
+    /* Canvas Area */
+    .canvas-panel {
+      background: #05080f;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      min-height: 520px;
+    }
+    .canvas-toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      padding: 8px 10px;
+      background: var(--bg-card);
+      border-bottom: 1px solid var(--border);
+      align-items: center;
+    }
+    .canvas-viewport {
+      flex: 1;
+      position: relative;
+      overflow: hidden;
+      cursor: crosshair;
+      touch-action: none;
+    }
+    canvas#mapCanvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+    .canvas-hint {
+      position: absolute;
+      bottom: 8px;
+      left: 8px;
+      right: 8px;
+      background: rgba(9, 13, 22, 0.85);
+      border: 1px solid var(--border);
+      padding: 6px 10px;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      pointer-events: none;
+    }
+
+    /* Lists & Cards */
+    .item-list { display: flex; flex-direction: column; gap: 6px; }
+    .item-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 8px;
+      background: rgba(30, 41, 59, 0.65);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-size: 0.8rem;
+    }
+    .item-row.selected { border-color: var(--accent-amber); background: rgba(245, 158, 11, 0.14); }
+
+    /* Modal */
+    .modal-backdrop {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.78);
+      z-index: 100;
+      padding: 16px;
+      overflow-y: auto;
+      align-items: center;
+      justify-content: center;
+    }
+    .modal-box {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      width: min(96vw, 960px);
+      max-height: 90dvh;
+      display: flex;
+      flex-direction: column;
+      padding: 16px;
+      gap: 12px;
+    }
+    .gallery-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+      gap: 10px;
+      overflow-y: auto;
+      padding: 4px;
+    }
+    .gallery-card {
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      cursor: pointer;
+    }
+    .gallery-card:hover { border-color: var(--accent); }
+    .gallery-card img {
+      width: 100%;
+      height: 105px;
+      object-fit: cover;
+      border-radius: 4px;
+      background: #000;
+    }
+
+    /* Users Table */
+    table.crud-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.85rem;
+    }
+    table.crud-table th, table.crud-table td {
+      border-bottom: 1px solid var(--border);
+      padding: 10px 8px;
+      text-align: left;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- TELA DE LOGIN PROTEGIDA -->
+  <section id="loginScreen">
+    <h2>🛡️ Etheria Campus — Rota /admin</h2>
+    <div id="authContextBanner" class="status-pill status-local">Verificando origem da conexão...</div>
+    <div class="field">
+      <label>Usuário</label>
+      <input type="text" id="loginUsername" placeholder="Digite o usuário" autocomplete="username" />
+    </div>
+    <div class="field">
+      <label>Senha</label>
+      <input type="password" id="loginPassword" placeholder="Digite a senha" autocomplete="current-password" />
+    </div>
+    <div id="loginError" style="color:#fca5a5; font-size:0.8rem; display:none;"></div>
+    <button class="btn-primary" onclick="AdminApp.login()">Entrar no Studio Low-Code</button>
+  </section>
+
+  <!-- APLICAÇÃO PRINCIPAL /ADMIN -->
+  <div id="adminApp">
+    <header class="topbar">
+      <div style="display:flex; align-items:center; gap:10px;">
+        <strong>⚔️ Etheria Studio Low-Code</strong>
+        <span id="sessionBadge" style="font-size:0.75rem; color:var(--accent);"></span>
+      </div>
+      <div class="nav-tabs">
+        <button id="tabBtnMaps" class="btn-primary" onclick="AdminApp.switchTab('maps')">🗺️ Editor de Mapas</button>
+        <button id="tabBtnUsers" onclick="AdminApp.switchTab('users')">🔐 Contas & Acesso Admin (CRUD)</button>
+        <button class="btn-danger" onclick="AdminApp.logout()">Sair</button>
+      </div>
+    </header>
+
+    <!-- ABA 1: EDITOR DE MAPAS -->
+    <div id="tabMaps" class="workspace-grid">
+      <!-- COLUNA ESQUERDA: LISTA DE MAPAS + PROPRIEDADES DO MAPA -->
+      <aside class="panel">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <h3>📂 Mapas no Banco</h3>
+          <button class="btn-primary" onclick="AdminApp.openMcreworkMapPicker()">➕ Novo do mcrework</button>
+        </div>
+        <div id="savedMapsList" class="item-list" style="max-height:150px; overflow-y:auto;"></div>
+
+        <h3>⚙️ Configurações do Mapa</h3>
+        <div class="row-2">
+          <div class="field">
+            <label>Código Único</label>
+            <input type="text" id="mapCode" placeholder="Ex: map_1" />
+          </div>
+          <div class="field">
+            <label>Nível de Acesso (10 em 10)</label>
+            <input type="number" id="mapReqLevel" value="1" min="1" step="1" />
+          </div>
+        </div>
+        <div class="field">
+          <label>Nome do Mapa (i18n PT-BR)</label>
+          <input type="text" id="mapNamePtBr" placeholder="Ex: Vila de Aetheris" />
+        </div>
+        <div class="field">
+          <label>Imagem Limpa (mcrework)</label>
+          <div style="display:flex; gap:6px;">
+            <input type="text" id="mapImagePath" readonly style="flex:1; opacity:0.8;" />
+            <button onclick="AdminApp.openMcreworkMapPicker()">Trocar</button>
+          </div>
+        </div>
+        <div class="field">
+          <label>Tipo de Mapa (Fixa Domínio, Spawn e PvP)</label>
+          <select id="mapTypeSelect" onchange="AdminApp.updateMapTypeRuleBadge()"></select>
+          <div id="mapTypeRulesBadge" style="font-size:0.73rem; color:#fde68a; background:rgba(245,158,11,0.12); padding:6px; border-radius:6px; margin-top:3px;"></div>
+        </div>
+        <div class="field">
+          <label>Bioma Primário (1 dos 40)</label>
+          <select id="primaryBiomeSelect" onchange="AdminApp.updateBiomeDesc()"></select>
+        </div>
+        <div class="field">
+          <label>Bioma Secundário (2 dos 40)</label>
+          <select id="secondaryBiomeSelect" onchange="AdminApp.updateBiomeDesc()"></select>
+          <div id="biomeDescBox" style="font-size:0.72rem; color:var(--text-muted); margin-top:2px;"></div>
+        </div>
+        <div class="row-2">
+          <div class="field">
+            <label>Opacidade Sobreposição</label>
+            <input type="number" id="mapOverlapOpacity" value="0.45" min="0.1" max="0.95" step="0.05" />
+          </div>
+          <div class="field">
+            <label>Dominado por (ID Facção/Aliança)</label>
+            <input type="text" id="mapDominatedBy" placeholder="Opcional" />
+          </div>
+        </div>
+
+        <div style="display:flex; gap:8px; margin-top:6px;">
+          <button class="btn-success" style="flex:1;" onclick="AdminApp.saveCurrentMap()">💾 Salvar Mapa no Banco</button>
+          <button class="btn-danger" onclick="AdminApp.deleteCurrentMap()">🗑️</button>
+        </div>
+      </aside>
+
+      <!-- COLUNA CENTRAL: CANVAS INTERATIVO (POLÍGONOS GOOGLE EARTH, PORTAIS, NPCS) -->
+      <section class="canvas-panel">
+        <div class="canvas-toolbar">
+          <button id="toolPan" class="active-tool" onclick="AdminApp.setTool('PAN')">🖐️ Mover/Zoom</button>
+          <button id="toolCollision" onclick="AdminApp.setTool('COLLISION')">🛑 Polígono Colisão</button>
+          <button onclick="AdminApp.startNewPolygon('COLLISION')" title="Começar um novo polígono de colisão separado">➕ Nova Área Colisão</button>
+          <button id="toolOverlap" onclick="AdminApp.setTool('OVERLAP')">🟦 Polígono Sobreposição</button>
+          <button onclick="AdminApp.startNewPolygon('OVERLAP')" title="Começar um novo polígono de sobreposição separado">➕ Nova Área Sobrep.</button>
+          <button id="toolPortal" onclick="AdminApp.setTool('PORTAL')">🌀 Teleporte</button>
+          <button id="toolNpc" onclick="AdminApp.setTool('NPC')">🧙 Posicionar NPC</button>
+          <button onclick="AdminApp.resetCamera()">🎯 Centralizar</button>
+        </div>
+        <div class="canvas-viewport" id="canvasViewport">
+          <canvas id="mapCanvas"></canvas>
+          <div class="canvas-hint" id="canvasHint">
+            💡 Polígonos Estilo Google Earth: Clique nos cantos para pontilhar; a área se fecha sozinha a partir do 3º ponto! Arraste qualquer ponto para ajustar ou clique com o botão direito num ponto para removê-lo.
+          </div>
+        </div>
+      </section>
+
+      <!-- COLUNA DIREITA: CAMADAS DO MAPA (COLISÕES, SOBREPOSIÇÕES, TELEPORTES, NPCS) -->
+      <aside class="panel">
+        <h3>🛑 Áreas de Colisão (<span id="countCollision">0</span>)</h3>
+        <div id="collisionList" class="item-list"></div>
+
+        <h3>🟦 Áreas de Sobreposição (<span id="countOverlap">0</span>)</h3>
+        <div id="overlapList" class="item-list"></div>
+
+        <h3>🌀 Pontos de Teleporte (<span id="countPortals">0</span>)</h3>
+        <div id="portalsList" class="item-list"></div>
+
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <h3>🧙 NPCs no Mapa (<span id="countNpcs">0</span>)</h3>
+          <button onclick="AdminApp.openNpcTemplateModal()" style="font-size:0.75rem; padding:4px 8px;">➕ Criar NPC</button>
+        </div>
+        <div class="field">
+          <label>NPC selecionado para posicionar ao clicar:</label>
+          <select id="activeNpcTemplateSelect"></select>
+        </div>
+        <div id="npcsList" class="item-list"></div>
+      </aside>
+    </div>
+
+    <!-- ABA 2: CRUD DE CONTAS DE USUÁRIOS (ACESSO FORA DO LOCALHOST) -->
+    <div id="tabUsers" style="display:none; padding:16px; max-width:1100px; margin:0 auto; width:100%; gap:16px; flex-direction:column;">
+      <div class="panel">
+        <h3>🔐 Criar / Editar Conta de Usuário (Acesso Externo à Rota /admin, GMs e Jogadores)</h3>
+        <p style="font-size:0.8rem; color:var(--text-muted);">
+          Quem acessar o sistema fora do <code>localhost</code> precisa entrar com um usuário e senha cadastrados abaixo com o cargo <strong>ADMIN</strong>.
+        </p>
+        <input type="hidden" id="editUserId" value="" />
+        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:10px; align-items:end;">
+          <div class="field">
+            <label>Username (Login)</label>
+            <input type="text" id="userUsername" placeholder="Ex: dani_admin" />
+          </div>
+          <div class="field">
+            <label>E-mail</label>
+            <input type="email" id="userEmail" placeholder="Ex: dani@etheria.com" />
+          </div>
+          <div class="field">
+            <label>Senha (mín. 4 caracteres)</label>
+            <input type="password" id="userPassword" placeholder="Senha de acesso" />
+          </div>
+          <div class="field">
+            <label>Cargo (Role)</label>
+            <select id="userRole">
+              <option value="ADMIN">ADMIN (Acesso Total /admin)</option>
+              <option value="GM">GM (Game Master In-Game)</option>
+              <option value="PLAYER">PLAYER (Jogador)</option>
+            </select>
+          </div>
+          <div style="display:flex; gap:6px;">
+            <button class="btn-success" onclick="AdminApp.saveUserAccount()">💾 Salvar Conta</button>
+            <button onclick="AdminApp.clearUserForm()">Limpar</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h3>👥 Contas Cadastradas no PostgreSQL</h3>
+        <table class="crud-table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Username</th>
+              <th>E-mail</th>
+              <th>Cargo</th>
+              <th>Criado em</th>
+              <th>Ações</th>
+            </tr>
+          </thead>
+          <tbody id="usersTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: SELETOR DE IMAGEM LIMPA DE MAPA DO MCREWORK -->
+  <div id="mapPickerModal" class="modal-backdrop">
+    <div class="modal-box">
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <h3>🖼️ Galeria de Imagens Limpas de Mapas (mcrework — 76 Mapas)</h3>
+        <button class="btn-danger" onclick="AdminApp.closeModal('mapPickerModal')">Fechar</button>
+      </div>
+      <p style="font-size:0.8rem; color:var(--text-muted);">
+        Importa exclusivamente a imagem de fundo limpa do mapa. Colisões, sobreposições, portais e NPCs são definidos por você no editor.
+      </p>
+      <div id="mcreworkMapsGrid" class="gallery-grid"></div>
+    </div>
+  </div>
+
+  <!-- MODAL: CRIAR NOVO TEMPLATE DE NPC ESCOLHENDO DO MCREWORK -->
+  <div id="npcModal" class="modal-backdrop">
+    <div class="modal-box">
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <h3>🧙 Cadastrar Template de NPC (mcrework — 365 NPCs)</h3>
+        <button class="btn-danger" onclick="AdminApp.closeModal('npcModal')">Fechar</button>
+      </div>
+      <div class="row-2">
+        <div class="field">
+          <label>Código Único do NPC</label>
+          <input type="text" id="npcCodeInput" placeholder="Ex: npc_ferreiro_01" />
+        </div>
+        <div class="field">
+          <label>Nome do NPC (PT-BR)</label>
+          <input type="text" id="npcNameInput" placeholder="Ex: Mestre Ferreiro Madoff" />
+        </div>
+      </div>
+      <div class="row-2">
+        <div class="field">
+          <label>Função do NPC</label>
+          <select id="npcFunctionSelect">
+            <option value="DECORATION">Apenas Enfeite de Cenário</option>
+            <option value="QUEST">Gatilho de Quest / Missão</option>
+            <option value="SHOP">Gatilho de Loja / Comércio</option>
+            <option value="BATTLE">Gatilho de Luta (Boss / Treinador)</option>
+            <option value="EVENT">Gatilho de Evento Especial</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Asset Selecionado do mcrework</label>
+          <input type="text" id="npcAssetKeyInput" readonly placeholder="Clique em um NPC abaixo" />
+        </div>
+      </div>
+      <div id="mcreworkNpcsGrid" class="gallery-grid" style="max-height:320px;"></div>
+      <button class="btn-success" onclick="AdminApp.saveNewNpcTemplate()">💾 Salvar Template de NPC no Banco</button>
+    </div>
+  </div>
+
+  <script src="/admin/admin.js"></script>
+</body>
+</html>

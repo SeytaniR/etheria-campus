@@ -1,6 +1,6 @@
 {
   "name": "etheria-campus",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "private": true,
   "description": "Etheria Campus - Modern Tactical 2.5D MMORPG Monorepo (Authoritative Server, Low-Code Admin Studio & Pixi.js WebGL/APK Client)",
   "workspaces": [
@@ -8,12 +8,14 @@
     "apps/*"
   ],
   "scripts": {
+    "build:packages": "npm --workspace=@etheria/shared run build && npm --workspace=@etheria/database run build",
     "db:generate": "npm --workspace=@etheria/database run db:generate",
     "db:push": "npm --workspace=@etheria/database run db:push",
     "db:seed": "npm --workspace=@etheria/database run db:seed",
     "db:snapshot:export": "npm --workspace=@etheria/database run snapshot:export",
     "db:snapshot:restore": "npm --workspace=@etheria/database run snapshot:restore",
-    "typecheck": "npm --workspaces --if-present run typecheck"
+    "typecheck": "npm run build:packages && npm --workspaces --if-present run typecheck",
+    "dev:server": "npm --workspace=@etheria/server run dev"
   },
   "devDependencies": {
     "typescript": "^5.6.3"
