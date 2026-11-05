@@ -1,6 +1,6 @@
 {
   "name": "etheria-campus",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "private": true,
   "description": "Etheria Campus - Modern Tactical 2.5D MMORPG Monorepo (Authoritative Server, Low-Code Admin Studio & Pixi.js WebGL/APK Client)",
   "workspaces": [
@@ -15,7 +15,8 @@
     "db:snapshot:export": "npm --workspace=@etheria/database run snapshot:export",
     "db:snapshot:restore": "npm --workspace=@etheria/database run snapshot:restore",
     "typecheck": "npm run build:packages && npm --workspaces --if-present run typecheck",
-    "dev:server": "npm --workspace=@etheria/server run dev"
+    "dev:server": "npm --workspace=@etheria/server run dev",
+    "tunnel": ".tools\\cloudflared.exe tunnel --url http://localhost:4000 --no-autoupdate"
   },
   "devDependencies": {
     "typescript": "^5.6.3"

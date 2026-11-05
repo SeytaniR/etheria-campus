@@ -5,6 +5,14 @@ Qualquer IA trabalhando neste repositório **DEVE** incrementar a versão e regi
 
 ---
 
+## [v0.3.1] - 2026-11-05
+### Adicionado
+* **Suporte a Acesso Remoto via Cloudflare Tunnel (`package.json` & `apps/server/src/index.ts`):**
+  * Configurado túnel HTTPS externo apontando para a Rota `/admin` (bloqueando automaticamente o login `.env` fora do `localhost` e autenticando via CRUD do PostgreSQL).
+  * Adicionado keep-alive automático da VM WSL2 no [`EtheriaServerApp.start`](file:///C:/Users/Dani/.gemini/antigravity/scratch/etheria-campus/apps/server/src/index.ts#L246-L255) para garantir que o banco PostgreSQL nunca entre em hibernação enquanto o servidor estiver rodando.
+
+---
+
 ## [v0.3.0] - 2026-11-05
 ### Adicionado
 * **Proteção Dual-Mode da Rota `/admin` (`apps/server/src/security/AdminAuthService.ts`):**

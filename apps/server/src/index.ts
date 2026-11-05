@@ -12,6 +12,7 @@ import * as http from 'node:http';
 import * as fs from 'node:fs/promises';
 import * as fsSync from 'node:fs';
 import * as path from 'node:path';
+import { spawn } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { PrismaClient } from '@etheria/database';
 import { AdminAuthService } from './security/AdminAuthService.js';
@@ -243,6 +244,15 @@ export class EtheriaServerApp {
    * Inicia o servidor HTTP na porta configurada.
    */
   public start(port: number): http.Server {
+    if (process.platform === 'win32') {
+      // Mantém a VM do Ubuntu WSL2 acordada enquanto o servidor estiver rodando para o PostgreSQL nunca hibernar
+      const wslKeepAlive = spawn('wsl.exe', ['-e', 'sleep', 'infinity'], {
+        stdio: 'ignore',
+        detached: false,
+      });
+      wslKeepAlive.on('error', () => {});
+    }
+
     const server = http.createServer((req, res) => {
       void this.handleRequest(req, res);
     });

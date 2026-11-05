@@ -8,9 +8,9 @@
 ---
 
 ## 📌 Status Atual do Projeto
-* **Versão Atual:** `v0.3.0`
+* **Versão Atual:** `v0.3.1`
 * **Última Atualização:** `2026-11-05`
-* **Fase Atual:** **Etapa 2 (Parte 1) Concluída: Proteção da Rota `/admin` (.env restrito ao localhost + CRUD de Contas Admin no PostgreSQL) e Editor Visual de Mapas (Polígonos Estilo Google Earth de Colisão/Sobreposição, Teleportes e NPCs) prontos e sincronizados com o PostgreSQL!**
+* **Fase Atual:** **Etapa 2 (Parte 1) Concluída e Online via Localhost e Cloudflare Tunnel! Conta `dev` (`ADMIN`) criada no PostgreSQL.**
 * **Repositório Oficial:** `https://github.com/SeytaniR/etheria-campus`
 * **Fonte Bruta de Assets:** `https://github.com/SeytaniR/mcrework` (`https://seytanir.github.io/mcrework/`)
 
