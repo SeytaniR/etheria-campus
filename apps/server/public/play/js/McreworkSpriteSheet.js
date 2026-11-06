@@ -2,7 +2,8 @@
  * @file apps/server/public/play/js/McreworkSpriteSheet.js
  * @module @etheria/server
  * @description Carregador e Animador 8-Direções de Atlas de Sprites (`mcrework`) para Personagens e NPCs.
- *   Aplica escala proporcional calibrada (-30% do tamanho bruto original, scale = 0.70) para proporção perfeita no mapa 2.5D.
+ *   Aplica escala calibrada (-30% do tamanho bruto, scale = 0.70) e recorte anatômico de sobreposição
+ *   (apenas a região do corpo que estiver sob polígonos de overlap recebe opacidade, mantendo o restante 100% opaco).
  */
 
 class McreworkSpriteSheet {
@@ -47,16 +48,80 @@ class McreworkSpriteSheet {
       });
   }
 
-  draw(ctx, worldX, worldY, action, direction, elapsedMs, alpha = 1.0) {
+  /**
+   * Renderiza o sprite aplicando máscara de recorte (clipping) anatômica:
+   * - A parte do corpo que estiver FORA dos polígonos de sobreposição fica 100% opaca (globalAlpha = 1.0).
+   * - APENAS a parte do corpo que estiver SOBREPOSTA (sob telhado, copa de árvore, etc.) recebe overlapAlpha.
+   */
+  renderSpriteWithOverlapClipping(ctx, img, sx, sy, sw, sh, dx, dy, dw, dh, meshOrAlpha) {
+    // 1. Compatibilidade com chamadas legadas passando alpha numérico direto
+    if (typeof meshOrAlpha === 'number') {
+      ctx.globalAlpha = meshOrAlpha;
+      ctx.drawImage(img, sx, sy, sw, sh, dx, dy, dw, dh);
+      return;
+    }
+
+    const mesh = meshOrAlpha;
+    const hittingPolys =
+      mesh && typeof mesh.getIntersectingOverlapPolygons === 'function'
+        ? mesh.getIntersectingOverlapPolygons(dx, dy, dw, dh)
+        : [];
+
+    // Se o sprite não toca em nenhum polígono de sobreposição: fast-path 100% opaco
+    if (hittingPolys.length === 0) {
+      ctx.globalAlpha = 1.0;
+      ctx.drawImage(img, sx, sy, sw, sh, dx, dy, dw, dh);
+      return;
+    }
+
+    // Opacidade para a parte sobreposta do corpo (restringe entre 0.1 e 0.9, padrão ~0.50)
+    const overlapAlpha = Math.max(0.1, Math.min(0.9, Number(mesh.overlapOpacity) || 0.50));
+
+    // 2. Parte do corpo FORA da sobreposição: 100% opaca via recorte 'evenodd'
+    ctx.save();
+    ctx.beginPath();
+    ctx.rect(dx - 30, dy - 30, dw + 60, dh + 60);
+    for (let pIdx = 0; pIdx < hittingPolys.length; pIdx++) {
+      const pts = hittingPolys[pIdx].points;
+      if (!pts || pts.length < 3) continue;
+      ctx.moveTo(pts[0].x, pts[0].y);
+      for (let i = 1; i < pts.length; i++) {
+        ctx.lineTo(pts[i].x, pts[i].y);
+      }
+      ctx.closePath();
+    }
+    ctx.clip('evenodd');
+    ctx.globalAlpha = 1.0;
+    ctx.drawImage(img, sx, sy, sw, sh, dx, dy, dw, dh);
+    ctx.restore();
+
+    // 3. Parte do corpo DENTRO da sobreposição: somente a região coberta recebe overlapAlpha
+    ctx.save();
+    ctx.beginPath();
+    for (let pIdx = 0; pIdx < hittingPolys.length; pIdx++) {
+      const pts = hittingPolys[pIdx].points;
+      if (!pts || pts.length < 3) continue;
+      ctx.moveTo(pts[0].x, pts[0].y);
+      for (let i = 1; i < pts.length; i++) {
+        ctx.lineTo(pts[i].x, pts[i].y);
+      }
+      ctx.closePath();
+    }
+    ctx.clip();
+    ctx.globalAlpha = overlapAlpha;
+    ctx.drawImage(img, sx, sy, sw, sh, dx, dy, dw, dh);
+    ctx.restore();
+  }
+
+  draw(ctx, worldX, worldY, action, direction, elapsedMs, meshOrAlpha = null) {
     this.load();
 
     ctx.save();
-    ctx.globalAlpha = alpha;
 
     // Escala calibrada: redução de 30% nos modelos para proporção anatômica ideal no cenário 2.5D
     const scale = 0.70;
 
-    // Sombra elíptica proporcional nos pés da entidade
+    // Sombra elíptica proporcional nos pés da entidade (sempre no nível do chão)
     ctx.beginPath();
     ctx.ellipse(worldX, worldY, Math.round(18 * scale), Math.round(9 * scale), 0, 0, Math.PI * 2);
     ctx.fillStyle = 'rgba(0, 0, 0, 0.45)';
@@ -107,7 +172,13 @@ class McreworkSpriteSheet {
           const drawX = Math.round(worldX - origW * anchorX + offX);
           const drawY = Math.round(worldY - origH * anchorY + offY);
 
-          ctx.drawImage(this.image, sx, sy, sw, sh, drawX, drawY, drawW, drawH);
+          this.renderSpriteWithOverlapClipping(
+            ctx,
+            this.image,
+            sx, sy, sw, sh,
+            drawX, drawY, drawW, drawH,
+            meshOrAlpha
+          );
           ctx.restore();
           return;
         }
@@ -118,7 +189,17 @@ class McreworkSpriteSheet {
     if (this.thumbImage) {
       const w = Math.round(64 * scale);
       const h = Math.round(76 * scale);
-      ctx.drawImage(this.thumbImage, Math.round(worldX - w / 2), Math.round(worldY - h * 0.92), w, h);
+      const drawX = Math.round(worldX - w / 2);
+      const drawY = Math.round(worldY - h * 0.92);
+      const imgW = this.thumbImage.naturalWidth || this.thumbImage.width || w;
+      const imgH = this.thumbImage.naturalHeight || this.thumbImage.height || h;
+      this.renderSpriteWithOverlapClipping(
+        ctx,
+        this.thumbImage,
+        0, 0, imgW, imgH,
+        drawX, drawY, w, h,
+        meshOrAlpha
+      );
     } else {
       ctx.beginPath();
       ctx.arc(worldX, worldY - Math.round(24 * scale), Math.round(16 * scale), 0, Math.PI * 2);

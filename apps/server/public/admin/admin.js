@@ -323,8 +323,8 @@ class EtheriaAdminStudio {
   loadMapBackgroundImage(url) {
     if (!url) return;
     const img = new Image();
-    img.crossOrigin = 'anonymous';
-    img.onload = () => {
+    // Sem crossOrigin desnecessário para evitar bloqueios de CORS e falhas de cache
+    const onLoaded = () => {
       this.bgImage = img;
       const isEditorOpen = document.getElementById('visualMapEditorScreen').style.display === 'flex';
       if (isEditorOpen && this.cameraInitializedForUrl !== url) {
@@ -334,7 +334,14 @@ class EtheriaAdminStudio {
         if (typeof this.drawCanvas === 'function') this.drawCanvas();
       }
     };
+    img.onload = onLoaded;
+    img.onerror = (err) => {
+      console.warn('Falha ao carregar imagem base do mapa no editor admin:', url, err);
+    };
     img.src = url;
+    if (img.complete && img.naturalWidth > 0) {
+      onLoaded();
+    }
   }
 
   async saveCurrentMap(stayInVisualEditor = false) {

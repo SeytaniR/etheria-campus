@@ -5,6 +5,35 @@ Qualquer IA trabalhando neste repositório **DEVE** incrementar a versão e regi
 
 ---
 
+## [v0.4.4] - 2026-11-06
+### Adicionado
+* **Proxy Reverso de Cenários no Servidor (`apps/server/src/index.ts`):**
+  * Implementado endpoint de alta performance `GET /api/assets/map-image/:id` (com suporte a `HEAD`), permitindo que clientes web e mobile carreguem as imagens dos mapas diretamente via **same-origin** multiplexado sobre o túnel Cloudflare (`trycloudflare.com`), sem dependência de DNS externo ou conexões diretas a CDNs externas em redes celulares.
+  * Adicionado cache de buffers em memória RAM (`mapImageCache`) com cabeçalhos HTTP estendidos (`Cache-Control: public, max-age=604800, stale-while-revalidate=86400`) e suporte instantâneo a sub-milissegundos.
+
+### Corrigido
+* **Resolução do Bloqueio de Carregamento do Mapa em Dispositivos Móveis (`play.js` & `admin.js`):**
+  * Removido o atributo `img.crossOrigin = 'anonymous'` que estava disparando falhas de CORS (`Access-Control-Allow-Origin`) e bloqueios de cache no Chrome Android ao transitar por túneis e proxies móveis.
+  * O Canvas 2D (`ctx.drawImage`) renderiza nativamente imagens externas sem necessidade de modo CORS.
+  * Implementada cadeia resiliente de carregamento (`loadMapBackground`): tenta primariamente o proxy local da mesma origem e, em caso de erro, comuta transparentemente para o GitHub Pages direto (e vice-versa), garantindo que o mapa nunca fique travado em tela escura.
+* **Feedback Visual Tátil de Carregamento (`apps/server/public/play/play.js`):**
+  * Substituído o fundo escuro vazio por uma grade isométrica sutil (`step = 64px`) com indicador visual centralizado (`🗺️ Carregando imagem do mapa...`), fornecendo feedback de posicionamento espacial 2.5D imediato enquanto o cenário é decodificado.
+
+---
+
+## [v0.4.3] - 2026-11-06
+### Alterado
+* **Servidor Autoritário: Redução de 20% na Velocidade Base de Movimentação (`GamePlayController.ts` & `play.js`):**
+  * Reduzida a velocidade base de movimento de 210 px/s para **168 px/s** (`baseMoveSpeed: 168`), proporcionando ritmo de exploração cadenciado e proporcional à nova escala corporal de 70%.
+  * Implementada validação autoritária de velocidade máxima com tolerância anti-jitter no endpoint `/api/play/characters/:id/sync-position`, limitando fisicamente posições enviadas que ultrapassem a velocidade autorizada (`speedClamped: true`).
+* **Recorte Anatômico de Sobreposição 2.5D (`apps/server/public/play/js/McreworkSpriteSheet.js` & `ClientPolygonMesh.js`):**
+  * Implementado o algoritmo de recorte com máscara geométrica via Canvas 2D (`renderSpriteWithOverlapClipping`):
+    1. **Região Fora da Cobertura:** Desenhada com `ctx.clip('evenodd')` subtraindo os polígonos de sobreposição da área do sprite com `globalAlpha = 1.0` (cabeça e membros expostos permanecem 100% nítidos e opacos).
+    2. **Região Sob a Cobertura:** Desenhada com `ctx.clip()` restrito aos polígonos de telhado/árvore com `globalAlpha = overlapAlpha`, aplicando a transparência estritamente na parte do corpo oculta.
+  * Adicionado método `getIntersectingOverlapPolygons` com pre-culling AABB para filtragem ultra-rápida no loop de 60 FPS.
+
+---
+
 ## [v0.4.2] - 2026-11-06
 ### Alterado
 * **Redução de 30% no Tamanho dos Modelos 2.5D (`scale = 0.70`) (`apps/server/public/play/js/McreworkSpriteSheet.js` & `play.js`):**

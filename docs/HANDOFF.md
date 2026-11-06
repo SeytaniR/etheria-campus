@@ -8,9 +8,9 @@
 ---
 
 ## 📌 Status Atual do Projeto
-* **Versão Atual:** `v0.4.2`
+* **Versão Atual:** `v0.4.4`
 * **Última Atualização:** `2026-11-06`
-* **Fase Atual:** **Etapa 2 (Parte 4) Concluída (`v0.4.2`) — Redução de 30% nos modelos de personagens/NPCs (`scale = 0.70`), refatoração modular completa sem God Objects e 100% dos arquivos com <= 1.000 linhas!**
+* **Fase Atual:** **Etapa 2 (Parte 4) Concluída (`v0.4.4`) — Proxy reverso de cenários em memória RAM (`/api/assets/map-image/:id`), resolução de CORS em mobile, velocidade base autoritária (168 px/s) e recorte anatômico de sobreposição.**
 * **Repositório Oficial:** `https://github.com/SeytaniR/etheria-campus`
 * **Fonte Bruta de Assets:** `https://github.com/SeytaniR/mcrework` (`https://seytanir.github.io/mcrework/`)
 

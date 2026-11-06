@@ -40,6 +40,17 @@ export class GamePlayController {
   private readonly snapshotManager: SnapshotManager;
   private readonly mcreworkPagesBaseUrl = 'https://seytanir.github.io/mcrework';
 
+  /**
+   * Velocidade de movimento base autoritária dos jogadores no mapa 2.5D (em pixels por segundo).
+   * Reduzida em 20% do valor anterior de 210 px/s (210 * 0.80 = 168 px/s).
+   */
+  public static readonly AUTHORITATIVE_BASE_MOVE_SPEED = 168;
+
+  /**
+   * Registro do último sync de movimento por personagem para validação autoritária de velocidade.
+   */
+  private readonly lastSyncTimes = new Map<number, number>();
+
   constructor(prisma: PrismaClient) {
     this.prisma = prisma;
     this.snapshotManager = new SnapshotManager(prisma);
@@ -140,6 +151,7 @@ export class GamePlayController {
     ).map((c) => this.serializeCharacter(c, i18nMap, mapNameById));
 
     return {
+      baseMoveSpeed: GamePlayController.AUTHORITATIVE_BASE_MOVE_SPEED,
       classTemplates,
       elements,
       races,
@@ -411,15 +423,37 @@ export class GamePlayController {
     const posY = Math.round(Number(dto.posY) || map.spawnY);
     const isGmNoClip = Boolean(dto.noClip) && (userRole === 'ADMIN' || userRole === 'GM');
 
+    // Validação autoritária de velocidade: impede speedhack em contas normais
+    let finalPosX = posX;
+    let finalPosY = posY;
+    let speedClamped = false;
+    const now = Date.now();
+    const lastSync = this.lastSyncTimes.get(characterId);
+    this.lastSyncTimes.set(characterId, now);
+
+    if (!isGmNoClip && char.currentMapId === map.id && lastSync) {
+      const elapsedSec = Math.max(0.1, (now - lastSync) / 1000);
+      const dist = Math.hypot(posX - char.posX, posY - char.posY);
+      // Margem tolerante (1.5x + 40px) para acomodar pequenas oscilações de latência/ping
+      const maxAllowedDist = GamePlayController.AUTHORITATIVE_BASE_MOVE_SPEED * elapsedSec * 1.5 + 40;
+      if (dist > maxAllowedDist) {
+        const ratio = maxAllowedDist / dist;
+        finalPosX = Math.round(char.posX + (posX - char.posX) * ratio);
+        finalPosY = Math.round(char.posY + (posY - char.posY) * ratio);
+        speedClamped = true;
+      }
+    }
+
     if (!isGmNoClip) {
       const collisionPolys = Array.isArray(map.collisionMeshJson)
         ? (map.collisionMeshJson as unknown as MapPolygon[])
         : [];
       const mesh = new MapPolygonMesh(collisionPolys);
-      if (mesh.containsPoint(posX, posY)) {
+      if (mesh.containsPoint(finalPosX, finalPosY)) {
         return {
           ok: false,
           blocked: true,
+          speedClamped,
           currentMapId: char.currentMapId ?? map.id,
           posX: char.posX,
           posY: char.posY,
@@ -431,17 +465,18 @@ export class GamePlayController {
       where: { id: characterId },
       data: {
         currentMapId: map.id,
-        posX,
-        posY,
+        posX: finalPosX,
+        posY: finalPosY,
       },
     });
 
     return {
       ok: true,
       blocked: false,
+      speedClamped,
       currentMapId: map.id,
-      posX,
-      posY,
+      posX: finalPosX,
+      posY: finalPosY,
     };
   }
 

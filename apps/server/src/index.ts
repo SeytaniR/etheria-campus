@@ -55,6 +55,7 @@ export class EtheriaServerApp {
   private readonly mapsController: AdminMapsController;
   private readonly playController: GamePlayController;
   private readonly publicDir: string;
+  private readonly mapImageCache = new Map<number, { buffer: Buffer; contentType: string }>();
 
   constructor() {
     this.prisma = new PrismaClient();
@@ -158,6 +159,64 @@ export class EtheriaServerApp {
   }
 
   /**
+   * Proxy reverso resiliente e de alta performance para imagens de mapas.
+   * Evita bloqueios de CORS, inspeção rígida de celular e requisições cross-domain,
+   * servindo a imagem diretamente através do túnel Cloudflare via same-origin com cache em memória RAM.
+   */
+  private async handleMapImageAsset(mapId: number, res: http.ServerResponse): Promise<void> {
+    try {
+      const cached = this.mapImageCache.get(mapId);
+      if (cached) {
+        res.writeHead(200, {
+          'Content-Type': cached.contentType,
+          'Content-Length': cached.buffer.length,
+          'Cache-Control': 'public, max-age=604800, stale-while-revalidate=86400',
+          'Access-Control-Allow-Origin': '*',
+        });
+        res.end(cached.buffer);
+        return;
+      }
+
+      const map = await this.prisma.gameMap.findUnique({
+        where: { id: mapId },
+        select: { mcreworkMapImage: true },
+      });
+
+      if (!map || !map.mcreworkMapImage) {
+        this.sendJson(res, 404, { error: `Imagem do mapa #${mapId} não encontrada.` });
+        return;
+      }
+
+      let targetUrl = map.mcreworkMapImage.trim();
+      if (!targetUrl.startsWith('http://') && !targetUrl.startsWith('https://')) {
+        targetUrl = `https://seytanir.github.io/mcrework/${targetUrl.replace(/^\/+/, '')}`;
+      }
+
+      const upstream = await globalThis.fetch(targetUrl);
+      if (!upstream.ok) {
+        this.sendJson(res, upstream.status, { error: `Erro upstream ao baixar imagem do mapa: HTTP ${upstream.status}` });
+        return;
+      }
+
+      const contentType = upstream.headers.get('content-type') || 'image/jpeg';
+      const arrayBuf = await upstream.arrayBuffer();
+      const buffer = Buffer.from(arrayBuf);
+
+      this.mapImageCache.set(mapId, { buffer, contentType });
+
+      res.writeHead(200, {
+        'Content-Type': contentType,
+        'Content-Length': buffer.length,
+        'Cache-Control': 'public, max-age=604800, stale-while-revalidate=86400',
+        'Access-Control-Allow-Origin': '*',
+      });
+      res.end(buffer);
+    } catch (err: any) {
+      this.sendJson(res, 500, { error: `Falha interna no proxy da imagem do mapa: ${err?.message || err}` });
+    }
+  }
+
+  /**
    * Processa todas as requisições HTTP destinadas à API e aos arquivos estáticos da Rota `/admin`.
    */
   public async handleRequest(req: http.IncomingMessage, res: http.ServerResponse): Promise<void> {
@@ -165,6 +224,14 @@ export class EtheriaServerApp {
       const urlObj = new URL(req.url ?? '/', `http://${req.headers.host ?? 'localhost'}`);
       const pathname = urlObj.pathname;
       const method = req.method ?? 'GET';
+
+      // 0. Asset Proxy Público (Imagens de Fundo dos Mapas em Cache RAM de Alta Performance)
+      const mapAssetMatch = pathname.match(/^\/api\/assets\/map-image\/(\d+)$/);
+      if (mapAssetMatch && (method === 'GET' || method === 'HEAD')) {
+        const mapId = Number(mapAssetMatch[1]);
+        await this.handleMapImageAsset(mapId, res);
+        return;
+      }
 
       // 1. Status de Conexão e Diagnóstico de Localhost para a tela de login do /admin
       if (pathname === '/api/admin/auth/context' && method === 'GET') {

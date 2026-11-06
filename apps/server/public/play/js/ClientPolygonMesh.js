@@ -75,6 +75,32 @@ class ClientPolygonMesh {
     }
     return 1.0;
   }
+
+  /**
+   * Retorna os polígonos de sobreposição cujos limites (AABB) intersectam a caixa delimitadora do sprite.
+   * Usado para recorte de precisão com Canvas Clipping (apenas a parte sobreposta do corpo recebe opacidade).
+   * @param {number} x Coordenada X do topo-esquerdo do sprite desenhado
+   * @param {number} y Coordenada Y do topo-esquerdo do sprite desenhado
+   * @param {number} w Largura do sprite desenhado
+   * @param {number} h Altura do sprite desenhado
+   * @returns {Array<any>} Lista de polígonos intersectantes
+   */
+  getIntersectingOverlapPolygons(x, y, w, h) {
+    if (!this.overlapPolygons || this.overlapPolygons.length === 0) return [];
+    const minX = x;
+    const maxX = x + w;
+    const minY = y;
+    const maxY = y + h;
+
+    const hits = [];
+    for (let i = 0; i < this.overlapPolygons.length; i++) {
+      const poly = this.overlapPolygons[i];
+      if (!(maxX < poly.minX || minX > poly.maxX || maxY < poly.minY || minY > poly.maxY)) {
+        hits.push(poly);
+      }
+    }
+    return hits;
+  }
 }
 
 window.ClientPolygonMesh = ClientPolygonMesh;

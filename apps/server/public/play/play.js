@@ -42,7 +42,7 @@ class EtheriaPlayClient {
     this.keysDown = new Set();
     this.dpadDx = 0;
     this.dpadDy = 0;
-    this.baseMoveSpeed = 210; // pixels por segundo
+    this.baseMoveSpeed = 168; // pixels por segundo (reduzido em 20% do valor anterior de 210)
 
     // Câmera do Mundo
     this.zoom = 1.0;
@@ -130,6 +130,9 @@ class EtheriaPlayClient {
   async loadPlayBootstrap() {
     const data = await this.api('/api/play/bootstrap');
     this.session = data.session;
+    if (data.baseMoveSpeed) {
+      this.baseMoveSpeed = Number(data.baseMoveSpeed);
+    }
     this.classTemplates = data.classTemplates || [];
     this.elements = data.elements || [];
     this.races = data.races || [];
@@ -337,23 +340,13 @@ class EtheriaPlayClient {
       this.moveTargetY = null;
       this.portalCooldownUntil = performance.now() + 1800;
 
-      // Carrega a imagem base limpa do mapa (com resolução segura de URL relativa ou absoluta)
-      this.mapBgImage = null;
+      // Carrega a imagem base limpa do mapa via proxy local ou remoto com fallback automático
       let rawBg = (mapData.bgImageUrl || mapData.mcreworkMapImage || '').trim();
       let finalBgUrl = rawBg;
       if (!finalBgUrl.startsWith('http://') && !finalBgUrl.startsWith('https://')) {
         finalBgUrl = `https://seytanir.github.io/mcrework/${finalBgUrl.replace(/^\/+/, '')}`;
       }
-
-      const img = new Image();
-      img.crossOrigin = 'anonymous';
-      img.onload = () => {
-        this.mapBgImage = img;
-      };
-      img.onerror = (err) => {
-        console.error('Falha ao carregar imagem base do mapa:', finalBgUrl, err);
-      };
-      img.src = finalBgUrl;
+      this.loadMapBackground(mapData.id, finalBgUrl);
 
       // Pré-aquece os sprites do personagem e dos NPCs do mapa
       if (this.activeChar) {
@@ -380,6 +373,40 @@ class EtheriaPlayClient {
     } catch (err) {
       alert(`Erro ao carregar mapa #${mapId}: ${err.message}`);
     }
+  }
+
+  loadMapBackground(mapId, remoteBgUrl) {
+    this.mapBgImage = null;
+    const localProxyUrl = `/api/assets/map-image/${mapId}`;
+
+    const tryLoad = (srcUrl, isFallback) => {
+      const img = new Image();
+      // Não define crossOrigin para evitar bloqueios de CORS e cache em redes móveis
+      img.onload = () => {
+        if (this.currentMap && this.currentMap.id === mapId) {
+          this.mapBgImage = img;
+        }
+      };
+      img.onerror = (err) => {
+        console.warn(`[MapLoader] Falha ao carregar mapa de ${srcUrl}:`, err);
+        if (!isFallback && remoteBgUrl && remoteBgUrl !== srcUrl) {
+          console.info(`[MapLoader] Tentando fonte remota de fallback: ${remoteBgUrl}`);
+          tryLoad(remoteBgUrl, true);
+        } else if (isFallback && srcUrl !== localProxyUrl) {
+          console.info(`[MapLoader] Tentando proxy local de fallback: ${localProxyUrl}`);
+          tryLoad(localProxyUrl, true);
+        }
+      };
+      img.src = srcUrl;
+      if (img.complete && img.naturalWidth > 0) {
+        if (this.currentMap && this.currentMap.id === mapId) {
+          this.mapBgImage = img;
+        }
+      }
+    };
+
+    // Prioriza o proxy local (same-origin, multiplexado no Cloudflare Tunnel e com cache em RAM)
+    tryLoad(localProxyUrl, false);
   }
 
   updateHudInfo() {
@@ -702,11 +729,30 @@ class EtheriaPlayClient {
     if (this.mapBgImage) {
       ctx.drawImage(this.mapBgImage, 0, 0);
     } else {
-      ctx.fillStyle = '#0f172a';
+      ctx.fillStyle = '#0b1120';
       ctx.fillRect(0, 0, 2000, 1500);
+
+      // Grade sutil isométrica do chão para feedback espacial imediato
+      ctx.strokeStyle = 'rgba(56, 189, 248, 0.08)';
+      ctx.lineWidth = 1 / this.zoom;
+      const step = 64;
+      for (let x = 0; x <= 2000; x += step) {
+        ctx.beginPath();
+        ctx.moveTo(x, 0);
+        ctx.lineTo(x, 1500);
+        ctx.stroke();
+      }
+      for (let y = 0; y <= 1500; y += step) {
+        ctx.beginPath();
+        ctx.moveTo(0, y);
+        ctx.lineTo(2000, y);
+        ctx.stroke();
+      }
+
       ctx.fillStyle = '#38bdf8';
-      ctx.font = 'bold 20px sans-serif';
-      ctx.fillText('Carregando imagem do mapa...', this.playerX - 120, this.playerY);
+      ctx.font = 'bold 16px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('🗺️ Carregando imagem do mapa...', this.playerX, this.playerY - 40);
     }
 
     // 2. Se o Modo Raio-X GM estiver ligado, desenha Malhas de Colisão, Sobreposição e Spawn
@@ -819,8 +865,7 @@ class EtheriaPlayClient {
           npc.atlasWebpUrl,
           npc.thumbUrl
         );
-        const alpha = this.mesh ? this.mesh.getCharacterOpacityAt(npc.posX, npc.posY) : 1.0;
-        sprite.draw(ctx, npc.posX, npc.posY, 0, npc.direction || 0, now, alpha);
+        sprite.draw(ctx, npc.posX, npc.posY, 0, npc.direction || 0, now, this.mesh);
 
         ctx.fillStyle = '#86efac';
         ctx.font = 'bold 12px sans-serif';
@@ -835,9 +880,8 @@ class EtheriaPlayClient {
           char.atlasWebpUrl,
           char.thumbUrl
         );
-        const alpha = this.mesh ? this.mesh.getCharacterOpacityAt(this.playerX, this.playerY) : 1.0;
         const action = this.isMoving ? 1 : 0;
-        sprite.draw(ctx, this.playerX, this.playerY, action, this.playerDir, now, alpha);
+        sprite.draw(ctx, this.playerX, this.playerY, action, this.playerDir, now, this.mesh);
 
         ctx.fillStyle = '#fde047';
         ctx.font = 'bold 13px sans-serif';
