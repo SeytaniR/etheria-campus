@@ -356,36 +356,43 @@
       border: 1px solid var(--border);
       border-radius: 12px;
       width: min(96vw, 960px);
-      max-height: 90dvh;
+      max-height: 94dvh;
       display: flex;
       flex-direction: column;
       padding: 14px;
-      gap: 12px;
+      gap: 10px;
+      overflow: hidden;
     }
     .gallery-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(145px, 1fr));
-      gap: 10px;
+      grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+      gap: 8px;
       overflow-y: auto;
       padding: 4px;
+      -webkit-overflow-scrolling: touch;
     }
     .gallery-card {
       background: var(--bg-input);
-      border: 1px solid var(--border);
+      border: 1.5px solid var(--border);
       border-radius: 8px;
-      padding: 8px;
+      padding: 6px;
       display: flex;
       flex-direction: column;
-      gap: 6px;
+      gap: 4px;
       cursor: pointer;
+      transition: border-color 0.15s, background 0.15s;
     }
     .gallery-card:hover { border-color: var(--accent); }
+    .gallery-card.selected {
+      border: 2px solid var(--accent-amber);
+      background: rgba(245, 158, 11, 0.18);
+    }
     .gallery-card img {
       width: 100%;
-      height: 95px;
-      object-fit: cover;
-      border-radius: 4px;
-      background: #000;
+      height: 96px;
+      object-fit: contain;
+      border-radius: 6px;
+      background: #020617;
     }
 
     /* Users Table */
@@ -787,20 +794,21 @@
 
   <!-- MODAL: CRIAR / EDITAR TEMPLATE DE NPC ESCOLHENDO DO MCREWORK (AUTO-INCREMENTO npc_N) -->
   <div id="npcModal" class="modal-backdrop">
-    <div class="modal-box">
-      <div style="display:flex; justify-content:space-between; align-items:center;">
+    <div class="modal-box" style="max-height:94dvh; display:flex; flex-direction:column; overflow:hidden;">
+      <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border); padding-bottom:8px;">
         <h3 id="npcModalTitle">🧙 Cadastrar / Editar NPC na Tabela (mcrework — 365 NPCs)</h3>
-        <button class="btn-danger" onclick="AdminApp.closeModal('npcModal')">Fechar</button>
+        <button class="btn-danger" onclick="AdminApp.closeModal('npcModal')">✕ Fechar</button>
       </div>
       <input type="hidden" id="npcEditIdInput" value="" />
+      
       <div class="row-2">
         <div class="field">
           <label>ID & Chave do NPC (Auto-Incremento Automático)</label>
           <input type="text" id="npcCodeInput" readonly style="opacity:0.8; font-weight:700; color:var(--accent);" />
         </div>
         <div class="field">
-          <label>Nome do NPC (PT-BR — pode editar depois se quiser)</label>
-          <input type="text" id="npcNameInput" placeholder="Ex: Mestre Ferreiro (ou deixe em branco para auto-nomear)" />
+          <label>Nome do NPC (PT-BR — pode editar depois)</label>
+          <input type="text" id="npcNameInput" placeholder="Ex: Mestre Ferreiro" />
         </div>
       </div>
       <div class="row-2">
@@ -820,68 +828,98 @@
           <input type="text" id="npcAssetKeyInput" readonly placeholder="Toque em um NPC da galeria abaixo" />
         </div>
       </div>
-      <div id="mcreworkNpcsGrid" class="gallery-grid" style="max-height:320px;"></div>
-      <button class="btn-success" onclick="AdminApp.saveNewNpcTemplate()">💾 Salvar na Tabela de NPCs</button>
+      
+      <div style="display:flex; gap:6px; align-items:center;">
+        <input type="text" id="npcSearchInput" placeholder="🔍 Buscar visual de NPC por chave (ex: npc_000010)..." oninput="AdminApp.filterNpcGallery()" style="padding:6px 10px; font-size:0.82rem;" />
+      </div>
+
+      <div id="mcreworkNpcsGrid" class="gallery-grid" style="flex:1; max-height:48vh; min-height:200px; overflow-y:auto; -webkit-overflow-scrolling:touch;"></div>
+      <button class="btn-success" style="padding:10px; font-weight:700;" onclick="AdminApp.saveNewNpcTemplate()">💾 Salvar na Tabela de NPCs</button>
     </div>
   </div>
 
   <!-- MODAL: CRIAR / EDITAR PERSONAGEM / CLASSE ESCOLHENDO DO MCREWORK (AUTO-INCREMENTO class_N) -->
   <div id="classModal" class="modal-backdrop">
-    <div class="modal-box">
-      <div style="display:flex; justify-content:space-between; align-items:center;">
+    <div class="modal-box" style="max-height:94dvh; display:flex; flex-direction:column; overflow:hidden;">
+      <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border); padding-bottom:8px;">
         <h3 id="classModalTitle">🦸 Cadastrar / Editar Personagem na Tabela (mcrework — 46 Modelos)</h3>
-        <button class="btn-danger" onclick="AdminApp.closeModal('classModal')">Fechar</button>
+        <button class="btn-danger" onclick="AdminApp.closeModal('classModal')">✕ Fechar</button>
       </div>
       <input type="hidden" id="classEditIdInput" value="" />
-      <div class="row-2">
-        <div class="field">
-          <label>ID & Chave da Classe (Auto-Incremento Automático)</label>
-          <input type="text" id="classCodeInput" readonly style="opacity:0.8; font-weight:700; color:var(--accent);" />
-        </div>
-        <div class="field">
-          <label>Nome do Personagem / Classe (PT-BR)</label>
-          <input type="text" id="classNameInput" placeholder="Ex: Espadachim de Izumo" />
+      <input type="hidden" id="classCodeInput" value="" />
+      <input type="hidden" id="classAssetKeyInput" value="" />
+
+      <!-- HERO PREVIEW DO PERSONAGEM SELECIONADO -->
+      <div id="classHeroCard" style="display:flex; align-items:center; gap:12px; background:rgba(30,41,59,0.7); border:1.5px solid var(--accent); border-radius:10px; padding:8px 12px;">
+        <img id="classHeroImg" src="" alt="Preview" style="width:72px; height:72px; object-fit:contain; background:#020617; border-radius:8px; border:1px solid var(--border);" />
+        <div style="flex:1; display:flex; flex-direction:column; gap:4px;">
+          <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
+            <strong id="classHeroLabel" style="font-size:0.95rem; color:#fde047;">Selecione um Modelo na Galeria</strong>
+            <span id="classHeroBadge" style="font-size:0.72rem; padding:2px 8px; border-radius:99px; background:rgba(56,189,248,0.2); color:var(--accent); font-weight:700;"></span>
+          </div>
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:6px;">
+            <input type="text" id="classNameInput" placeholder="Nome da Classe / Personagem" style="padding:6px 8px; font-size:0.82rem;" />
+            <select id="classRaceSelect" style="padding:6px 8px; font-size:0.82rem;"></select>
+          </div>
         </div>
       </div>
 
-      <div class="row-2">
-        <div class="field">
-          <label>Raça da Entidade (Padrão: HUMAN +10% vantagem universal)</label>
-          <select id="classRaceSelect"></select>
-        </div>
-        <div class="field">
-          <label>Visual Selecionado do mcrework</label>
-          <input type="text" id="classAssetKeyInput" readonly placeholder="Toque em um Personagem da galeria abaixo" />
-        </div>
+      <!-- ABAS DO MODAL: VISUAL vs ATRIBUTOS -->
+      <div style="display:flex; gap:6px;">
+        <button id="btnClassTabVisual" class="btn-primary" onclick="AdminApp.switchClassModalTab('visual')" style="flex:1; padding:7px;">
+          🎨 Visual do Personagem (<span id="classCountBadge">46</span>)
+        </button>
+        <button id="btnClassTabStats" onclick="AdminApp.switchClassModalTab('stats')" style="flex:1; padding:7px;">
+          📊 Atributos Iniciais & Crescimento
+        </button>
       </div>
 
-      <div class="row-2">
+      <!-- CONTEÚDO 1: GALERIA COM BUSCA E FILTROS -->
+      <div id="classTabVisual" style="display:flex; flex-direction:column; gap:8px; flex:1; min-height:0; overflow:hidden;">
+        <div style="display:flex; gap:6px; flex-wrap:wrap; align-items:center;">
+          <input type="text" id="classSearchInput" placeholder="🔍 Buscar modelo (ex: Guerreiro, Mago, Sacerdote, Arqueira...)" oninput="AdminApp.filterClassGallery()" style="flex:1; min-width:180px; padding:6px 10px; font-size:0.82rem;" />
+          <div style="display:flex; gap:4px;">
+            <button id="btnClassFilterAll" class="active-tool" onclick="AdminApp.setClassGenderFilter('ALL')" style="padding:5px 8px; font-size:0.76rem;">Todos (46)</button>
+            <button id="btnClassFilterMale" onclick="AdminApp.setClassGenderFilter('MALE')" style="padding:5px 8px; font-size:0.76rem;">👨 Masc (23)</button>
+            <button id="btnClassFilterFemale" onclick="AdminApp.setClassGenderFilter('FEMALE')" style="padding:5px 8px; font-size:0.76rem;">👩 Fem (23)</button>
+          </div>
+        </div>
+
+        <div id="mcreworkCharsGrid" class="gallery-grid" style="flex:1; max-height:45vh; min-height:220px; overflow-y:auto; -webkit-overflow-scrolling:touch;"></div>
+      </div>
+
+      <!-- CONTEÚDO 2: CONFIGURAÇÃO DE ATRIBUTOS -->
+      <div id="classTabStats" style="display:none; flex-direction:column; gap:10px; overflow-y:auto; padding:6px;">
         <div class="field">
           <label>Atributos Base Iniciais Nv.1 (VIT / STR / INT / WIS / AGI / DEX)</label>
-          <div style="display:grid; grid-template-columns:repeat(6, 1fr); gap:4px;">
-            <input type="number" id="classBaseVIT" value="12" min="1" title="VIT (Vitalidade)" placeholder="VIT" />
-            <input type="number" id="classBaseSTR" value="12" min="1" title="STR (Força)" placeholder="STR" />
-            <input type="number" id="classBaseINT" value="10" min="1" title="INT (Inteligência)" placeholder="INT" />
-            <input type="number" id="classBaseWIS" value="10" min="1" title="WIS (Sabedoria)" placeholder="WIS" />
-            <input type="number" id="classBaseAGI" value="10" min="1" title="AGI (Agilidade)" placeholder="AGI" />
-            <input type="number" id="classBaseDEX" value="10" min="1" title="DEX (Destreza)" placeholder="DEX" />
+          <div style="display:grid; grid-template-columns:repeat(6, 1fr); gap:6px;">
+            <div><label style="font-size:0.7rem; color:var(--text-muted);">VIT</label><input type="number" id="classBaseVIT" value="12" min="1" /></div>
+            <div><label style="font-size:0.7rem; color:var(--text-muted);">STR</label><input type="number" id="classBaseSTR" value="12" min="1" /></div>
+            <div><label style="font-size:0.7rem; color:var(--text-muted);">INT</label><input type="number" id="classBaseINT" value="10" min="1" /></div>
+            <div><label style="font-size:0.7rem; color:var(--text-muted);">WIS</label><input type="number" id="classBaseWIS" value="10" min="1" /></div>
+            <div><label style="font-size:0.7rem; color:var(--text-muted);">AGI</label><input type="number" id="classBaseAGI" value="10" min="1" /></div>
+            <div><label style="font-size:0.7rem; color:var(--text-muted);">DEX</label><input type="number" id="classBaseDEX" value="10" min="1" /></div>
           </div>
         </div>
+
         <div class="field">
-          <label>Crescimento Automático por Nível (VIT / STR / INT / WIS / AGI / DEX)</label>
-          <div style="display:grid; grid-template-columns:repeat(6, 1fr); gap:4px;">
-            <input type="number" id="classGrowVIT" value="2" min="0" step="1" title="+VIT/Nv" />
-            <input type="number" id="classGrowSTR" value="2" min="0" step="1" title="+STR/Nv" />
-            <input type="number" id="classGrowINT" value="2" min="0" step="1" title="+INT/Nv" />
-            <input type="number" id="classGrowWIS" value="2" min="0" step="1" title="+WIS/Nv" />
-            <input type="number" id="classGrowAGI" value="2" min="0" step="1" title="+AGI/Nv" />
-            <input type="number" id="classGrowDEX" value="2" min="0" step="1" title="+DEX/Nv" />
+          <label>Crescimento Automático Concedido a Cada Nível Ganho</label>
+          <div style="display:grid; grid-template-columns:repeat(6, 1fr); gap:6px;">
+            <div><label style="font-size:0.7rem; color:#86efac;">+VIT/Nv</label><input type="number" id="classGrowVIT" value="2" min="0" /></div>
+            <div><label style="font-size:0.7rem; color:#86efac;">+STR/Nv</label><input type="number" id="classGrowSTR" value="2" min="0" /></div>
+            <div><label style="font-size:0.7rem; color:#86efac;">+INT/Nv</label><input type="number" id="classGrowINT" value="2" min="0" /></div>
+            <div><label style="font-size:0.7rem; color:#86efac;">+WIS/Nv</label><input type="number" id="classGrowWIS" value="2" min="0" /></div>
+            <div><label style="font-size:0.7rem; color:#86efac;">+AGI/Nv</label><input type="number" id="classGrowAGI" value="2" min="0" /></div>
+            <div><label style="font-size:0.7rem; color:#86efac;">+DEX/Nv</label><input type="number" id="classGrowDEX" value="2" min="0" /></div>
           </div>
         </div>
       </div>
 
-      <div id="mcreworkCharsGrid" class="gallery-grid" style="max-height:280px;"></div>
-      <button class="btn-success" onclick="AdminApp.saveClassTemplate()">💾 Salvar na Tabela de Personagens</button>
+      <div style="border-top:1px solid var(--border); padding-top:8px;">
+        <button class="btn-success" style="width:100%; padding:11px; font-weight:700;" onclick="AdminApp.saveClassTemplate()">
+          💾 Salvar Personagem / Classe na Tabela
+        </button>
+      </div>
     </div>
   </div>
 

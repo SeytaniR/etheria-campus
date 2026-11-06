@@ -146,10 +146,14 @@ class McreworkSpriteSheet {
       const frames = this.atlasData.frames || {};
       const dir = ((direction % 8) + 8) % 8;
 
+      // No mcrework, a chave da animação é `${dir}-${action}`
+      // Ações: 0 = Parado (Stand), 1 = Caminhada (Walk), 2 = Corrida (Run), 3 = Golpe (Atk)...
+      const primaryKey = `${dir}-${action}`;
       let seq =
-        anims[`${action}-${dir}`] ||
-        anims[`0-${dir}`] ||
-        anims[`${action}-0`] ||
+        anims[primaryKey] ||
+        (action !== 0 ? anims[`${dir}-1`] : null) ||
+        anims[`${dir}-0`] ||
+        anims[`0-${action}`] ||
         anims['0-0'] ||
         Object.values(anims)[0];
 
@@ -158,8 +162,8 @@ class McreworkSpriteSheet {
       }
 
       if (seq.length > 0) {
-        const fps = action === 1 ? 10 : 6;
-        const frameIdx = Math.floor((elapsedMs / (1000 / fps)) % seq.length);
+        // No mcrework oficial, cada frame tem 80ms (12.5 FPS) com repetições calibradas no atlas
+        const frameIdx = Math.floor((elapsedMs / 80) % seq.length);
         const frameKey = seq[frameIdx];
         const fObj = frames[frameKey];
 
@@ -173,8 +177,11 @@ class McreworkSpriteSheet {
           const offX = fObj.spriteSourceSize?.x || 0;
           const offY = fObj.spriteSourceSize?.y || 0;
 
-          const drawX = Math.round(worldX - origW * 0.5 + offX);
-          const drawY = Math.round(worldY - origH * 0.88 + offY);
+          // Ancoragem padrão nos pés (0.5 no X, 0.92 no Y)
+          const anchorX = 0.5;
+          const anchorY = 0.92;
+          const drawX = Math.round(worldX - origW * anchorX + offX);
+          const drawY = Math.round(worldY - origH * anchorY + offY);
 
           ctx.drawImage(this.image, sx, sy, sw, sh, drawX, drawY, sw, sh);
           ctx.restore();
@@ -187,7 +194,7 @@ class McreworkSpriteSheet {
     if (this.thumbImage) {
       const w = 64;
       const h = 76;
-      ctx.drawImage(this.thumbImage, worldX - w / 2, worldY - h * 0.88, w, h);
+      ctx.drawImage(this.thumbImage, worldX - w / 2, worldY - h * 0.92, w, h);
     } else {
       ctx.beginPath();
       ctx.arc(worldX, worldY - 24, 16, 0, Math.PI * 2);
@@ -522,14 +529,23 @@ class EtheriaPlayClient {
       this.moveTargetY = null;
       this.portalCooldownUntil = performance.now() + 1800;
 
-      // Carrega a imagem base limpa do mapa
+      // Carrega a imagem base limpa do mapa (com resolução segura de URL relativa ou absoluta)
       this.mapBgImage = null;
+      let rawBg = (mapData.bgImageUrl || mapData.mcreworkMapImage || '').trim();
+      let finalBgUrl = rawBg;
+      if (!finalBgUrl.startsWith('http://') && !finalBgUrl.startsWith('https://')) {
+        finalBgUrl = `https://seytanir.github.io/mcrework/${finalBgUrl.replace(/^\/+/, '')}`;
+      }
+
       const img = new Image();
       img.crossOrigin = 'anonymous';
       img.onload = () => {
         this.mapBgImage = img;
       };
-      img.src = mapData.bgImageUrl;
+      img.onerror = (err) => {
+        console.error('Falha ao carregar imagem base do mapa:', finalBgUrl, err);
+      };
+      img.src = finalBgUrl;
 
       // Pré-aquece os sprites do personagem e dos NPCs do mapa
       if (this.activeChar) {
@@ -585,17 +601,15 @@ class EtheriaPlayClient {
   // MOVIMENTAÇÃO, COLISÃO POLIGONAL, PORTAIS E LOOP DE RENDERIZAÇÃO 60 FPS
   // ==========================================================================
 
-  vectorToDirection8(dx, dy) {
-    // 0: S, 1: SW, 2: W, 3: NW, 4: N, 5: NE, 6: E, 7: SE
-    const angle = Math.atan2(dy, dx) * (180 / Math.PI); // -180..180 (0 = East, 90 = South)
-    if (angle >= 67.5 && angle < 112.5) return 0; // S
-    if (angle >= 112.5 && angle < 157.5) return 1; // SW
-    if (angle >= 157.5 || angle < -157.5) return 2; // W
-    if (angle >= -157.5 && angle < -112.5) return 3; // NW
-    if (angle >= -112.5 && angle < -67.5) return 4; // N
-    if (angle >= -67.5 && angle < -22.5) return 5; // NE
-    if (angle >= -22.5 && angle < 22.5) return 6; // E
-    return 7; // SE
+  /**
+   * Fórmula Matemática Oficial do mcrework para 8 Direções:
+   * 0: Sul (Frente), 1: Sudeste, 2: Leste (Direita), 3: Nordeste,
+   * 4: Norte (Costas), 5: Noroeste, 6: Oeste (Esquerda), 7: Sudoeste
+   */
+  calculateDirection8(dx, dy) {
+    const angle = Math.atan2(dy, dx) * (180 / Math.PI); // -180 a 180 (dy positivo para baixo)
+    const sector = Math.round((90 - angle) / 45);
+    return ((sector % 8) + 8) % 8;
   }
 
   setDpad(dx, dy) {
@@ -740,7 +754,7 @@ class EtheriaPlayClient {
 
     if (vx !== 0 || vy !== 0) {
       this.isMoving = true;
-      this.playerDir = this.vectorToDirection8(vx, vy);
+      this.playerDir = this.calculateDirection8(vx, vy);
       const speed = this.baseMoveSpeed * this.gmSpeedMultiplier;
       const nextX = this.playerX + vx * speed * dt;
       const nextY = this.playerY + vy * speed * dt;

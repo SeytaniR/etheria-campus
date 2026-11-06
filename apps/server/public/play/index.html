@@ -179,38 +179,64 @@
       cursor: pointer;
     }
 
-    /* HUD Superior Esquerdo: Info do Personagem e Mapa */
-    .hud-top-left {
+    /* HUD Superior: Barra Unificada Responsiva */
+    .world-top-nav {
       position: absolute;
-      top: 10px;
-      left: 10px;
+      top: 0;
+      left: 0;
+      right: 0;
+      padding: 10px 12px;
       display: flex;
-      flex-direction: column;
-      gap: 6px;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 10px;
       z-index: 20;
-      max-width: min(92vw, 380px);
       pointer-events: none;
     }
+
     .hud-card {
-      background: rgba(15, 23, 42, 0.9);
+      background: rgba(15, 23, 42, 0.92);
       border: 1px solid var(--border);
       border-radius: 10px;
       padding: 8px 12px;
-      backdrop-filter: blur(6px);
+      backdrop-filter: blur(8px);
       pointer-events: auto;
       box-shadow: 0 6px 20px rgba(0, 0, 0, 0.6);
+      max-width: 320px;
     }
 
-    /* HUD Superior Direito: Ações Rápidas, Destravar e Botão GM */
-    .hud-top-right {
-      position: absolute;
-      top: 10px;
-      right: 10px;
+    .hud-actions {
       display: flex;
       flex-wrap: wrap;
       justify-content: flex-end;
       gap: 6px;
-      z-index: 20;
+      pointer-events: auto;
+      max-width: 60vw;
+    }
+
+    @media (max-width: 768px) {
+      .world-top-nav {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 6px;
+        padding: 8px;
+      }
+      .hud-card {
+        max-width: 100%;
+        padding: 6px 10px;
+      }
+      .hud-actions {
+        max-width: 100%;
+        justify-content: flex-start;
+        overflow-x: auto;
+        white-space: nowrap;
+        padding-bottom: 2px;
+        gap: 5px;
+      }
+      .hud-actions button {
+        padding: 6px 10px;
+        font-size: 0.76rem;
+      }
     }
 
     /* Botão Flutuante Central Inferior quando em cima de um Portal ou NPC */
@@ -388,8 +414,8 @@
   <section id="worldScreen">
     <canvas id="gameCanvas"></canvas>
 
-    <!-- HUD Superior Esquerdo -->
-    <div class="hud-top-left">
+    <!-- Barra de Navegação e HUD Superior Unificado (Responsivo para Celular e PC) -->
+    <header class="world-top-nav">
       <div class="hud-card">
         <div style="display:flex; align-items:center; justify-content:space-between; gap:8px;">
           <div>
@@ -398,26 +424,25 @@
           </div>
           <span id="hudElementBadge" style="font-size:0.74rem; padding:2px 8px; border-radius:99px; background:rgba(56,189,248,0.2); font-weight:700;"></span>
         </div>
-        <div style="font-size:0.76rem; color:var(--text-muted); margin-top:4px; display:flex; justify-content:space-between; gap:10px;">
+        <div style="font-size:0.76rem; color:var(--text-muted); margin-top:3px; display:flex; justify-content:space-between; gap:10px;">
           <span id="hudMapName">🗺️ Mapa</span>
           <span id="hudCoords" style="font-family:monospace; color:var(--accent);">X:0 Y:0</span>
         </div>
         <div id="hudMapRules" style="font-size:0.7rem; color:#86efac; margin-top:2px;"></div>
       </div>
-    </div>
 
-    <!-- HUD Superior Direito -->
-    <div class="hud-top-right">
-      <button onclick="PlayApp.openStatsModal()" title="Ver Ficha de Atributos Procedurais">📊 Atributos</button>
-      <button class="btn-amber" onclick="PlayApp.unstuckCharacter()" title="Voltar ao Ponto de Spawn do Mapa atual">
-        🆘 Destravar (Spawn)
-      </button>
-      <button id="btnToggleGm" class="btn-gm" style="display:none;" onclick="PlayApp.toggleGmDrawer()">
-        ⚡ Painel GM
-      </button>
-      <button onclick="PlayApp.backToLobby()" title="Trocar de Personagem">🔄 Personagens</button>
-      <button onclick="window.open('/admin', '_blank')" title="Abrir Studio /admin">🛠️ /admin</button>
-    </div>
+      <div class="hud-actions">
+        <button onclick="PlayApp.openStatsModal()" title="Ver Ficha de Atributos Procedurais">📊 Atributos</button>
+        <button class="btn-amber" onclick="PlayApp.unstuckCharacter()" title="Voltar ao Ponto de Spawn do Mapa atual">
+          🆘 Destravar (Spawn)
+        </button>
+        <button id="btnToggleGm" class="btn-gm" style="display:none;" onclick="PlayApp.toggleGmDrawer()">
+          ⚡ Painel GM
+        </button>
+        <button onclick="PlayApp.backToLobby()" title="Trocar de Personagem">🔄 Personagens</button>
+        <button onclick="window.open('/admin', '_blank')" title="Abrir Studio /admin">🛠️ /admin</button>
+      </div>
+    </header>
 
     <!-- Prompt de Interação com Portal ou NPC -->
     <div id="interactionPrompt">

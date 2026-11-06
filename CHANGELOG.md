@@ -5,6 +5,28 @@ Qualquer IA trabalhando neste repositório **DEVE** incrementar a versão e regi
 
 ---
 
+## [v0.4.1] - 2026-11-06
+### Corrigido
+* **Carregamento da Imagem de Fundo dos Mapas no `/play` (`apps/server/src/controllers/GamePlayController.ts` & `apps/server/public/play/play.js`):**
+  * Corrigida a resolução da URL da imagem base do mapa (`bgImageUrl`), que estava concatenando a base do GitHub Pages em cima de URLs já completas gravadas no banco (`https://seytanir.github.io/mcrework/...`), gerando URLs duplicadas e erro HTTP 404.
+  * O servidor e o cliente agora tratam de forma resiliente tanto caminhos relativos quanto URLs completas, garantindo que o mapa carregue imediatamente.
+* **Correção das Animações 8-Direções de Personagens e NPCs (`apps/server/public/play/play.js`):**
+  * Corrigida a chave de animação no `atlas.json` do `mcrework`: o padrão oficial é **`${dir}-${action}`** (e não `${action}-${dir}`). A inversão anterior fazia com que o personagem tocasse animações de golpe/cast/morte ao andar ou ficar parado em certas direções.
+  * Implementada a fórmula matemática oficial de 8 direções do `mcrework` (`calculateDirection8(dx, dy) = Math.round((90 - angle) / 45) % 8`), alinhando com perfeição o ângulo de movimento à direção do sprite (0 = Sul, 1 = Sudeste, 2 = Leste, 3 = Nordeste, 4 = Norte, 5 = Noroeste, 6 = Oeste, 7 = Sudoeste).
+  * Calibrada a cadência de animação para 80ms por frame (~12.5 FPS), respeitando o timing de repetição dos frames do spritesheet original.
+* **Layout Responsivo do HUD no `/play` em Smartphones (`apps/server/public/play/index.html`):**
+  * Reestruturado o topo do jogo com a barra responsiva `.world-top-nav` para que em telas verticais de celular os botões de ação (`Atributos`, `Destravar`, `Painel GM`, etc.) fiquem organizados em linha rolável sem se sobrepor sobre o card de status do jogador.
+
+### Adicionado
+* **Novo Editor Visual de Personagens com Hero Preview, Busca e Filtros (`apps/server/public/admin/index.html` & `admin.js`):**
+  * Adicionado Hero Preview em destaque no topo do modal (`#classHeroCard`) exibindo o sprite ampliado (72x72px), chave do modelo, gênero, tier e campos de edição rápida.
+  * Adicionadas abas internas no modal (`[🎨 Visual do Personagem]` e `[📊 Atributos Iniciais & Crescimento]`), liberando mais de 50% de espaço vertical útil no celular para a escolha do visual.
+  * Campo de busca instantânea por nome (`Guerreiro`, `Mago`, `Sacerdote`...) e botões de filtro por gênero (`Todos`, `👨 Masc`, `👩 Fem`).
+  * Grade da galeria (`#mcreworkCharsGrid`) com rolagem suave touch (`-webkit-overflow-scrolling: touch`), cards com imagem nítida (`object-fit: contain; background: #020617`), sem cortes e com seleção destacada em dourado.
+  * Adicionado também campo de busca instantânea no `#npcModal` para localização imediata entre os 365 visuais de NPCs do `mcrework`.
+
+---
+
 ## [v0.4.0] - 2026-11-06
 ### Adicionado
 * **Aba `🦸 Personagens` (`class_templates`) na Rota `/admin` com Auto-Incremento `class_1`, `class_2`... (`apps/server/src/controllers/AdminMapsController.ts` & `apps/server/public/admin/`):**

@@ -30,6 +30,10 @@ class EtheriaAdminStudio {
     this.mcreworkNpcs = [];
     this.mcreworkChars = [];
     this.mapPickerMode = 'NEW_MAP'; // 'NEW_MAP' | 'CHANGE_IMAGE'
+    this.classGenderFilter = 'ALL';
+    this.classSearchQuery = '';
+    this.selectedMcreworkCharKey = '';
+    this.npcSearchQuery = '';
 
     // Estado do Mapa atual aberto no editor
     this.currentMapId = null;
@@ -1540,15 +1544,47 @@ class EtheriaAdminStudio {
       }
     }
 
-    grid.innerHTML = this.mcreworkNpcs
+    this.npcSearchQuery = '';
+    const searchInput = document.getElementById('npcSearchInput');
+    if (searchInput) searchInput.value = '';
+    this.renderNpcGallery();
+  }
+
+  filterNpcGallery() {
+    const input = document.getElementById('npcSearchInput');
+    this.npcSearchQuery = (input ? input.value : '').toLowerCase().trim();
+    this.renderNpcGallery();
+  }
+
+  renderNpcGallery() {
+    const grid = document.getElementById('mcreworkNpcsGrid');
+    if (!grid) return;
+    const currentSelected = (document.getElementById('npcAssetKeyInput').value || '').trim();
+
+    const filtered = this.mcreworkNpcs.filter((n) => {
+      if (!this.npcSearchQuery) return true;
+      return n.mcreworkNpcKey.toLowerCase().includes(this.npcSearchQuery);
+    });
+
+    if (filtered.length === 0) {
+      grid.innerHTML = `<div style="grid-column:1/-1; color:var(--text-muted); padding:16px; text-align:center;">Nenhum NPC encontrado para "${this.npcSearchQuery}".</div>`;
+      return;
+    }
+
+    grid.innerHTML = filtered
       .map(
         (n) => `
-      <div class="gallery-card" onclick="document.getElementById('npcAssetKeyInput').value='${n.mcreworkNpcKey}';">
+      <div class="gallery-card ${n.mcreworkNpcKey === currentSelected ? 'selected' : ''}" onclick="AdminApp.pickNpcAsset('${n.mcreworkNpcKey}')">
         <img src="${n.thumbUrl}" alt="${n.mcreworkNpcKey}" loading="lazy" style="object-fit:contain;" />
-        <strong>${n.mcreworkNpcKey}</strong>
+        <strong style="font-size:0.75rem;">${n.mcreworkNpcKey}</strong>
       </div>`
       )
       .join('');
+  }
+
+  pickNpcAsset(npcKey) {
+    document.getElementById('npcAssetKeyInput').value = npcKey;
+    this.renderNpcGallery();
   }
 
   async saveNewNpcTemplate() {
@@ -1668,8 +1704,90 @@ class EtheriaAdminStudio {
   // ABA 3: TABELA DE PERSONAGENS / CLASSES (`class_templates` — AUTO-INCREMENTO class_N)
   // ==========================================================================
 
+  switchClassModalTab(tab) {
+    const isVisual = tab === 'visual';
+    document.getElementById('classTabVisual').style.display = isVisual ? 'flex' : 'none';
+    document.getElementById('classTabStats').style.display = isVisual ? 'none' : 'flex';
+    document.getElementById('btnClassTabVisual').className = isVisual ? 'btn-primary' : '';
+    document.getElementById('btnClassTabStats').className = isVisual ? '' : 'btn-primary';
+  }
+
+  setClassGenderFilter(filter) {
+    this.classGenderFilter = filter;
+    document.getElementById('btnClassFilterAll').className = filter === 'ALL' ? 'active-tool' : '';
+    document.getElementById('btnClassFilterMale').className = filter === 'MALE' ? 'active-tool' : '';
+    document.getElementById('btnClassFilterFemale').className = filter === 'FEMALE' ? 'active-tool' : '';
+    this.renderClassGallery();
+  }
+
+  filterClassGallery() {
+    const input = document.getElementById('classSearchInput');
+    this.classSearchQuery = (input ? input.value : '').toLowerCase().trim();
+    this.renderClassGallery();
+  }
+
+  renderClassGallery() {
+    const grid = document.getElementById('mcreworkCharsGrid');
+    if (!grid) return;
+
+    const filtered = this.mcreworkChars.filter((c) => {
+      if (this.classGenderFilter === 'MALE' && c.gender !== 'MALE') return false;
+      if (this.classGenderFilter === 'FEMALE' && c.gender !== 'FEMALE') return false;
+      if (!this.classSearchQuery) return true;
+      const text = `${c.mcreworkCharKey} ${c.suggestedName}`.toLowerCase();
+      return text.includes(this.classSearchQuery);
+    });
+
+    const countBadge = document.getElementById('classCountBadge');
+    if (countBadge) countBadge.textContent = String(filtered.length);
+
+    if (filtered.length === 0) {
+      grid.innerHTML = `<div style="grid-column:1/-1; color:var(--text-muted); padding:20px; text-align:center;">Nenhum modelo encontrado para o filtro atual.</div>`;
+      return;
+    }
+
+    grid.innerHTML = filtered
+      .map((c) => {
+        const isSel = c.mcreworkCharKey === this.selectedMcreworkCharKey;
+        const genderBadge = c.gender === 'FEMALE' ? '👩 Fem' : '👨 Masc';
+        return `
+      <div class="gallery-card ${isSel ? 'selected' : ''}" onclick="AdminApp.pickMcreworkChar('${c.mcreworkCharKey}')">
+        <img src="${c.thumbUrl}" alt="${c.mcreworkCharKey}" loading="lazy" />
+        <strong style="font-size:0.8rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${c.suggestedName}</strong>
+        <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.7rem; color:var(--text-muted);">
+          <span>${genderBadge}</span>
+          <span style="color:var(--accent); font-weight:700;">Tier ${c.tier}</span>
+        </div>
+      </div>`;
+      })
+      .join('');
+  }
+
+  updateClassHeroCard(charKey) {
+    const found = this.mcreworkChars.find((c) => c.mcreworkCharKey === charKey);
+    const heroImg = document.getElementById('classHeroImg');
+    const heroLabel = document.getElementById('classHeroLabel');
+    const heroBadge = document.getElementById('classHeroBadge');
+
+    if (found) {
+      if (heroImg) heroImg.src = found.thumbUrl;
+      if (heroLabel) heroLabel.textContent = `${found.suggestedName} (${found.mcreworkCharKey})`;
+      if (heroBadge) heroBadge.textContent = `${found.gender === 'FEMALE' ? '👩 Feminino' : '👨 Masculino'} • Tier ${found.tier}`;
+    } else {
+      if (heroImg) heroImg.src = '';
+      if (heroLabel) heroLabel.textContent = 'Selecione um Modelo na Galeria';
+      if (heroBadge) heroBadge.textContent = '';
+    }
+  }
+
   async openClassTemplateModal(editClassId = null) {
     document.getElementById('classModal').style.display = 'flex';
+    this.switchClassModalTab('visual');
+    this.classGenderFilter = 'ALL';
+    this.classSearchQuery = '';
+    const searchInput = document.getElementById('classSearchInput');
+    if (searchInput) searchInput.value = '';
+
     const existingClass = editClassId
       ? this.classTemplates.find((c) => c.id === Number(editClassId))
       : null;
@@ -1681,6 +1799,7 @@ class EtheriaAdminStudio {
       document.getElementById('classNameInput').value = existingClass.namePtBr || '';
       document.getElementById('classRaceSelect').value = existingClass.raceCode || 'HUMAN';
       document.getElementById('classAssetKeyInput').value = existingClass.mcreworkCharKey || '';
+      this.selectedMcreworkCharKey = existingClass.mcreworkCharKey || '';
 
       const base = existingClass.baseAttributesJson || {};
       document.getElementById('classBaseVIT').value = String(base.VIT ?? 12);
@@ -1706,6 +1825,7 @@ class EtheriaAdminStudio {
       document.getElementById('classNameInput').value = '';
       document.getElementById('classRaceSelect').value = 'HUMAN';
       document.getElementById('classAssetKeyInput').value = '';
+      this.selectedMcreworkCharKey = '';
 
       document.getElementById('classBaseVIT').value = '12';
       document.getElementById('classBaseSTR').value = '12';
@@ -1733,26 +1853,32 @@ class EtheriaAdminStudio {
       }
     }
 
-    grid.innerHTML = this.mcreworkChars
-      .map(
-        (c, idx) => `
-      <div class="gallery-card" onclick="AdminApp.pickMcreworkChar(${idx})">
-        <img src="${c.thumbUrl}" alt="${c.mcreworkCharKey}" loading="lazy" style="object-fit:contain;" />
-        <strong style="font-size:0.78rem;">${c.suggestedName}</strong>
-        <span style="font-size:0.7rem; color:var(--text-muted);">${c.mcreworkCharKey} &bull; Tier ${c.tier}</span>
-      </div>`
-      )
-      .join('');
+    if (!this.selectedMcreworkCharKey && this.mcreworkChars.length > 0) {
+      this.selectedMcreworkCharKey = this.mcreworkChars[0].mcreworkCharKey;
+      document.getElementById('classAssetKeyInput').value = this.selectedMcreworkCharKey;
+      if (!document.getElementById('classNameInput').value) {
+        document.getElementById('classNameInput').value = this.mcreworkChars[0].suggestedName;
+      }
+    }
+
+    this.updateClassHeroCard(this.selectedMcreworkCharKey);
+    this.renderClassGallery();
   }
 
-  pickMcreworkChar(idx) {
-    const item = this.mcreworkChars[idx];
-    if (!item) return;
-    document.getElementById('classAssetKeyInput').value = item.mcreworkCharKey;
-    const nameInput = document.getElementById('classNameInput');
-    if (!nameInput.value.trim() && item.suggestedName) {
-      nameInput.value = item.suggestedName;
+  pickMcreworkChar(charKey) {
+    this.selectedMcreworkCharKey = charKey;
+    document.getElementById('classAssetKeyInput').value = charKey;
+
+    const item = this.mcreworkChars.find((c) => c.mcreworkCharKey === charKey);
+    if (item) {
+      const nameInput = document.getElementById('classNameInput');
+      if (!nameInput.value.trim() && item.suggestedName) {
+        nameInput.value = item.suggestedName;
+      }
     }
+
+    this.updateClassHeroCard(charKey);
+    this.renderClassGallery();
   }
 
   async saveClassTemplate() {

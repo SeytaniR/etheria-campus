@@ -1,6 +1,6 @@
 {
   "version": "0.2.0",
-  "exportedAt": "2026-11-06T17:12:32.684Z",
+  "exportedAt": "2026-11-06T19:17:01.337Z",
   "i18nTranslations": [
     {
       "id": 1,
@@ -1268,6 +1268,13 @@
       "locale": "pt-BR",
       "text": "Dong Xuen",
       "updatedAt": "2026-11-06T06:08:52.745Z"
+    },
+    {
+      "id": 200,
+      "key": "class.class_1.name",
+      "locale": "pt-BR",
+      "text": "Espadachim Artista",
+      "updatedAt": "2026-11-06T18:55:01.916Z"
     }
   ],
   "biomes": [
@@ -17189,7 +17196,33 @@
       "nameI18nKey": "equip_slot.pet_equip_6.name"
     }
   ],
-  "classTemplates": [],
+  "classTemplates": [
+    {
+      "id": 1,
+      "code": "class_1",
+      "mcreworkCharKey": "PC_MALE_000004",
+      "nameI18nKey": "class.class_1.name",
+      "raceCode": "HUMAN",
+      "baseAttributesJson": {
+        "AGI": 10,
+        "DEX": 10,
+        "INT": 10,
+        "STR": 12,
+        "VIT": 12,
+        "WIS": 10
+      },
+      "growthPerLevelJson": {
+        "AGI": 2,
+        "DEX": 2,
+        "INT": 2,
+        "STR": 2,
+        "VIT": 2,
+        "WIS": 2
+      },
+      "skillIdsJson": [],
+      "isActive": true
+    }
+  ],
   "monsterRarities": [
     {
       "id": 1,

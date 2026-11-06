@@ -323,12 +323,16 @@ export class GamePlayController {
       throw new Error('Nenhum mapa cadastrado no banco de dados.');
     }
 
+    const bgUrl = map.mcreworkMapImage.startsWith('http://') || map.mcreworkMapImage.startsWith('https://')
+      ? map.mcreworkMapImage
+      : `${this.mcreworkPagesBaseUrl}/${map.mcreworkMapImage.replace(/^\/+/, '')}`;
+
     return {
       id: map.id,
       code: map.code,
       namePtBr: i18nMap.get(map.nameI18nKey) ?? map.code,
       mcreworkMapImage: map.mcreworkMapImage,
-      bgImageUrl: `${this.mcreworkPagesBaseUrl}/${map.mcreworkMapImage}`,
+      bgImageUrl: bgUrl,
       requiredLevel: map.requiredLevel,
       levelVarianceMin: map.levelVarianceMin,
       levelVarianceMax: map.levelVarianceMax,
