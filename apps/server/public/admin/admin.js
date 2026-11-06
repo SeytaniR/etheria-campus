@@ -153,11 +153,17 @@ class EtheriaAdminStudio {
   }
 
   switchTab(tab) {
-    const isMaps = tab === 'maps';
-    document.getElementById('tabMaps').style.display = isMaps ? 'grid' : 'none';
-    document.getElementById('tabUsers').style.display = isMaps ? 'none' : 'flex';
-    document.getElementById('tabBtnMaps').className = isMaps ? 'btn-primary' : '';
-    document.getElementById('tabBtnUsers').className = !isMaps ? 'btn-primary' : '';
+    document.getElementById('tabMaps').style.display = tab === 'maps' ? 'grid' : 'none';
+    document.getElementById('tabNpcs').style.display = tab === 'npcs' ? 'flex' : 'none';
+    document.getElementById('tabUsers').style.display = tab === 'users' ? 'flex' : 'none';
+
+    document.getElementById('tabBtnMaps').className = tab === 'maps' ? 'btn-primary' : '';
+    document.getElementById('tabBtnNpcs').className = tab === 'npcs' ? 'btn-primary' : '';
+    document.getElementById('tabBtnUsers').className = tab === 'users' ? 'btn-primary' : '';
+
+    if (tab === 'npcs') {
+      this.renderNpcsCrudTable();
+    }
   }
 
   // ==========================================================================
@@ -293,6 +299,7 @@ class EtheriaAdminStudio {
 
     this.renderSelectOptions();
     this.renderSavedMapsList();
+    this.renderNpcsCrudTable();
 
     if (this.savedMaps.length > 0 && !this.currentMapId) {
       this.selectSavedMap(this.savedMaps[0].id);
@@ -323,7 +330,7 @@ class EtheriaAdminStudio {
       npcSelect.innerHTML = `<option value="">Nenhum NPC (Clique em + Criar NPC)</option>`;
     } else {
       npcSelect.innerHTML = this.npcTemplates
-        .map((n) => `<option value="${n.id}">${n.namePtBr} (${n.mcreworkNpcKey})</option>`)
+        .map((n) => `<option value="${n.id}">#${n.id} &bull; ${n.namePtBr} (${n.code} / ${n.mcreworkNpcKey})</option>`)
         .join('');
     }
   }
@@ -1477,8 +1484,31 @@ class EtheriaAdminStudio {
     }
   }
 
-  async openNpcTemplateModal() {
+  async openNpcTemplateModal(editNpcId = null) {
     document.getElementById('npcModal').style.display = 'flex';
+    const existingNpc = editNpcId ? this.npcTemplates.find((n) => n.id === Number(editNpcId)) : null;
+
+    if (existingNpc) {
+      document.getElementById('npcModalTitle').textContent = `✏️ Editar NPC #${existingNpc.id} (${existingNpc.code})`;
+      document.getElementById('npcEditIdInput').value = String(existingNpc.id);
+      document.getElementById('npcCodeInput').value = `#${existingNpc.id} • ${existingNpc.code}`;
+      document.getElementById('npcNameInput').value = existingNpc.namePtBr || '';
+      document.getElementById('npcAssetKeyInput').value = existingNpc.mcreworkNpcKey || '';
+      const firstTrig = Array.isArray(existingNpc.triggersJson) && existingNpc.triggersJson[0]?.type;
+      document.getElementById('npcFunctionSelect').value = existingNpc.isDecorationOnly
+        ? 'DECORATION'
+        : firstTrig || 'QUEST';
+    } else {
+      const maxNpcId = this.npcTemplates.reduce((acc, n) => Math.max(acc, Number(n.id) || 0), 0);
+      const nextNpcId = maxNpcId + 1;
+      document.getElementById('npcModalTitle').textContent = `🧙 Novo NPC #${nextNpcId} (npc_${nextNpcId})`;
+      document.getElementById('npcEditIdInput').value = '';
+      document.getElementById('npcCodeInput').value = `#${nextNpcId} • npc_${nextNpcId} (Automático)`;
+      document.getElementById('npcNameInput').value = '';
+      document.getElementById('npcAssetKeyInput').value = '';
+      document.getElementById('npcFunctionSelect').value = 'DECORATION';
+    }
+
     const grid = document.getElementById('mcreworkNpcsGrid');
     if (this.mcreworkNpcs.length === 0) {
       grid.innerHTML = '<div>Carregando os 365 NPCs do mcrework...</div>';
@@ -1493,7 +1523,7 @@ class EtheriaAdminStudio {
     grid.innerHTML = this.mcreworkNpcs
       .map(
         (n) => `
-      <div class="gallery-card" onclick="document.getElementById('npcAssetKeyInput').value='${n.mcreworkNpcKey}'; document.getElementById('npcCodeInput').value='${n.mcreworkNpcKey}';">
+      <div class="gallery-card" onclick="document.getElementById('npcAssetKeyInput').value='${n.mcreworkNpcKey}';">
         <img src="${n.thumbUrl}" alt="${n.mcreworkNpcKey}" loading="lazy" style="object-fit:contain;" />
         <strong>${n.mcreworkNpcKey}</strong>
       </div>`
@@ -1503,20 +1533,22 @@ class EtheriaAdminStudio {
 
   async saveNewNpcTemplate() {
     try {
-      const code = document.getElementById('npcCodeInput').value.trim();
+      const editId = document.getElementById('npcEditIdInput').value.trim();
       const namePtBr = document.getElementById('npcNameInput').value.trim();
       const mcreworkNpcKey = document.getElementById('npcAssetKeyInput').value.trim();
       const fn = document.getElementById('npcFunctionSelect').value;
 
-      if (!code || !namePtBr || !mcreworkNpcKey) {
-        alert('Preencha o Código, Nome e selecione um visual de NPC da galeria.');
+      if (!mcreworkNpcKey) {
+        alert('Toque em um visual de NPC da galeria abaixo para selecioná-lo.');
         return;
       }
 
-      const created = await this.api('/api/admin/npc-templates', {
-        method: 'POST',
+      const path = editId ? `/api/admin/npc-templates/${editId}` : '/api/admin/npc-templates';
+      const method = editId ? 'PUT' : 'POST';
+
+      const saved = await this.api(path, {
+        method,
         body: JSON.stringify({
-          code,
           namePtBr,
           mcreworkNpcKey,
           isDecorationOnly: fn === 'DECORATION',
@@ -1528,10 +1560,87 @@ class EtheriaAdminStudio {
       const data = await this.api('/api/admin/maps/bootstrap');
       this.npcTemplates = data.npcTemplates || [];
       this.renderSelectOptions();
-      document.getElementById('activeNpcTemplateSelect').value = String(created.id);
-      this.setTool('NPC');
+      this.renderNpcsCrudTable();
+      this.renderLayerLists();
+      this.drawCanvas();
+      document.getElementById('activeNpcTemplateSelect').value = String(saved.id);
+      if (document.getElementById('visualMapEditorScreen').style.display === 'flex') {
+        this.setTool('NPC');
+      }
     } catch (err) {
       alert(`Erro ao salvar NPC: ${err.message}`);
+    }
+  }
+
+  renderNpcsCrudTable() {
+    const tbody = document.getElementById('npcsTableBody');
+    if (!tbody) return;
+
+    if (this.npcTemplates.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="6" style="color:var(--text-muted); padding:14px;">Nenhum NPC cadastrado ainda. Crie um NPC pelo botão <strong>"➕ Novo NPC do mcrework"</strong> acima ou direto dentro do Editor Visual do Mapa na ferramenta <strong>"🧙 +NPC"</strong>!</td></tr>`;
+      return;
+    }
+
+    const fnLabels = {
+      DECORATION: '🎨 Apenas Enfeite de Cenário',
+      QUEST: '📜 Gatilho de Quest / Missão',
+      SHOP: '🪙 Gatilho de Loja / Comércio',
+      BATTLE: '⚔️ Gatilho de Luta (Boss / Treinador)',
+      EVENT: '🎉 Gatilho de Evento Especial',
+      DIALOGUE: '💬 Diálogo / Guia',
+    };
+
+    tbody.innerHTML = this.npcTemplates
+      .map((n) => {
+        const firstTrig = Array.isArray(n.triggersJson) && n.triggersJson[0]?.type;
+        const fnKey = n.isDecorationOnly ? 'DECORATION' : firstTrig || 'QUEST';
+        const fnLabel = fnLabels[fnKey] || fnKey;
+        const thumbUrl = n.thumbUrl || `https://seytanir.github.io/mcrework/assets/npcs/${n.mcreworkNpcKey}/thumb.png`;
+
+        const placements = Array.isArray(n.placements) ? n.placements : [];
+        const placementsHtml =
+          placements.length === 0
+            ? `<span style="color:var(--text-muted); font-size:0.75rem;">Ainda não posicionado em mapas</span>`
+            : placements
+                .map(
+                  (pl) =>
+                    `<div style="font-size:0.76rem; color:#86efac;">📍 <strong>${pl.mapNamePtBr}</strong> (X:${pl.posX}, Y:${pl.posY})</div>`
+                )
+                .join('');
+
+        return `
+      <tr>
+        <td><strong>#${n.id}</strong> &bull; <span style="color:var(--accent);">${n.code}</span></td>
+        <td>
+          <div style="display:flex; align-items:center; gap:8px;">
+            <img src="${thumbUrl}" alt="${n.mcreworkNpcKey}" style="width:44px; height:44px; object-fit:contain; background:#020617; border-radius:6px; border:1px solid var(--border);" />
+            <span style="font-size:0.75rem; color:var(--text-muted);">${n.mcreworkNpcKey}</span>
+          </div>
+        </td>
+        <td><strong>${n.namePtBr}</strong></td>
+        <td><span style="font-size:0.78rem;">${fnLabel}</span></td>
+        <td>${placementsHtml}</td>
+        <td>
+          <div style="display:flex; gap:6px;">
+            <button onclick="AdminApp.openNpcTemplateModal(${n.id})">✏️ Editar</button>
+            <button class="btn-danger" onclick="AdminApp.deleteNpcTemplate(${n.id})">🗑️</button>
+          </div>
+        </td>
+      </tr>`;
+      })
+      .join('');
+  }
+
+  async deleteNpcTemplate(id) {
+    if (!confirm('Deseja realmente excluir este NPC da tabela (e removê-lo dos mapas onde estiver posicionado)?')) return;
+    try {
+      await this.api(`/api/admin/npc-templates/${id}`, { method: 'DELETE' });
+      this.npcs = this.npcs.filter((x) => Number(x.npcTemplateId) !== Number(id));
+      await this.loadBootstrapData();
+      this.renderLayerLists();
+      this.drawCanvas();
+    } catch (err) {
+      alert(`Erro ao excluir NPC: ${err.message}`);
     }
   }
 

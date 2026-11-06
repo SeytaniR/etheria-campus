@@ -53,7 +53,8 @@ export interface SaveMapDto {
 }
 
 export interface SaveNpcTemplateDto {
-  code: string;
+  id?: number | null;
+  code?: string;
   namePtBr: string;
   mcreworkNpcKey: string;
   isDecorationOnly: boolean;
@@ -153,9 +154,25 @@ export class AdminMapsController {
       namePtBr: i18nMap.get(mt.nameI18nKey) ?? mt.code,
     }));
 
-    const npcTemplates = (await this.prisma.npcTemplate.findMany({ orderBy: { id: 'asc' } })).map((nt) => ({
+    const npcTemplates = (
+      await this.prisma.npcTemplate.findMany({
+        orderBy: { id: 'asc' },
+        include: {
+          placements: {
+            include: {
+              map: true,
+            },
+          },
+        },
+      })
+    ).map((nt) => ({
       ...nt,
       namePtBr: i18nMap.get(nt.nameI18nKey) ?? nt.code,
+      thumbUrl: `${this.mcreworkPagesBaseUrl}/assets/npcs/${nt.mcreworkNpcKey}/thumb.png`,
+      placements: (nt.placements ?? []).map((pl) => ({
+        ...pl,
+        mapNamePtBr: pl.map ? (i18nMap.get(pl.map.nameI18nKey) ?? pl.map.code) : `Mapa #${pl.mapId}`,
+      })),
     }));
 
     const maps = (
@@ -187,40 +204,86 @@ export class AdminMapsController {
   }
 
   /**
-   * Cria um novo Template de NPC no banco para ser posicionado nos mapas.
+   * Cria ou atualiza um Template de NPC na tabela `npc_templates` com auto-incremento de `id` e chave `npc_N`.
    */
-  public async saveNpcTemplate(dto: SaveNpcTemplateDto) {
-    const code = dto.code.trim();
-    const nameKey = `npc.${code.toLowerCase()}.name`;
+  public async saveNpcTemplate(dto: SaveNpcTemplateDto, explicitId: number | null = null) {
+    if (!dto.mcreworkNpcKey) {
+      throw new Error('Selecione um visual de NPC da galeria do mcrework.');
+    }
 
-    await this.prisma.i18nTranslation.upsert({
-      where: { key_locale: { key: nameKey, locale: 'pt-BR' } },
-      update: { text: dto.namePtBr.trim() },
-      create: { key: nameKey, locale: 'pt-BR', text: dto.namePtBr.trim() },
-    });
+    const targetId = explicitId ?? (dto.id ? Number(dto.id) : null);
+    let savedNpc: any;
+    let finalNamePtBr = (dto.namePtBr ?? '').trim();
 
-    const saved = await this.prisma.npcTemplate.upsert({
-      where: { code },
-      update: {
-        mcreworkNpcKey: dto.mcreworkNpcKey,
-        nameI18nKey: nameKey,
-        isDecorationOnly: Boolean(dto.isDecorationOnly),
-        triggersJson: (dto.triggersJson ?? []) as any,
-      },
-      create: {
-        code,
-        mcreworkNpcKey: dto.mcreworkNpcKey,
-        nameI18nKey: nameKey,
-        isDecorationOnly: Boolean(dto.isDecorationOnly),
-        triggersJson: (dto.triggersJson ?? []) as any,
-      },
+    await this.prisma.$transaction(async (tx) => {
+      if (targetId) {
+        const autoCode = `npc_${targetId}`;
+        const nameKey = `npc.${autoCode}.name`;
+        if (!finalNamePtBr) finalNamePtBr = `NPC #${targetId}`;
+
+        await tx.i18nTranslation.upsert({
+          where: { key_locale: { key: nameKey, locale: 'pt-BR' } },
+          update: { text: finalNamePtBr },
+          create: { key: nameKey, locale: 'pt-BR', text: finalNamePtBr },
+        });
+
+        savedNpc = await tx.npcTemplate.update({
+          where: { id: targetId },
+          data: {
+            code: autoCode,
+            mcreworkNpcKey: dto.mcreworkNpcKey,
+            nameI18nKey: nameKey,
+            isDecorationOnly: Boolean(dto.isDecorationOnly),
+            triggersJson: (dto.triggersJson ?? []) as any,
+          },
+        });
+      } else {
+        const tempCode = `npc_pending_${Date.now()}`;
+        const created = await tx.npcTemplate.create({
+          data: {
+            code: tempCode,
+            mcreworkNpcKey: dto.mcreworkNpcKey,
+            nameI18nKey: `npc.${tempCode}.name`,
+            isDecorationOnly: Boolean(dto.isDecorationOnly),
+            triggersJson: (dto.triggersJson ?? []) as any,
+          },
+        });
+
+        const autoCode = `npc_${created.id}`;
+        const nameKey = `npc.${autoCode}.name`;
+        if (!finalNamePtBr) finalNamePtBr = `NPC #${created.id}`;
+
+        await tx.i18nTranslation.upsert({
+          where: { key_locale: { key: nameKey, locale: 'pt-BR' } },
+          update: { text: finalNamePtBr },
+          create: { key: nameKey, locale: 'pt-BR', text: finalNamePtBr },
+        });
+
+        savedNpc = await tx.npcTemplate.update({
+          where: { id: created.id },
+          data: {
+            code: autoCode,
+            nameI18nKey: nameKey,
+          },
+        });
+      }
     });
 
     await this.snapshotManager.exportToDisk();
     return {
-      ...saved,
-      namePtBr: dto.namePtBr.trim(),
+      ...savedNpc,
+      namePtBr: finalNamePtBr,
+      thumbUrl: `${this.mcreworkPagesBaseUrl}/assets/npcs/${savedNpc.mcreworkNpcKey}/thumb.png`,
     };
+  }
+
+  /**
+   * Exclui um NPC da tabela `npc_templates` (e automaticamente remove seus posicionamentos em `map_npcs` via Cascade).
+   */
+  public async deleteNpcTemplate(id: number) {
+    await this.prisma.npcTemplate.delete({ where: { id } });
+    await this.snapshotManager.exportToDisk();
+    return { deletedId: id };
   }
 
   /**

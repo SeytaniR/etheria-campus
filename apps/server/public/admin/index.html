@@ -428,6 +428,7 @@
       </div>
       <div class="nav-tabs">
         <button id="tabBtnMaps" class="btn-primary" onclick="AdminApp.switchTab('maps')">🗺️ Mapas</button>
+        <button id="tabBtnNpcs" onclick="AdminApp.switchTab('npcs')">🧙 Tabela de NPCs</button>
         <button id="tabBtnUsers" onclick="AdminApp.switchTab('users')">🔐 Contas Admin</button>
         <button class="btn-danger" onclick="AdminApp.logout()">Sair</button>
       </div>
@@ -543,7 +544,38 @@
       </section>
     </div>
 
-    <!-- ABA 2: CRUD DE CONTAS DE USUÁRIOS (ACESSO FORA DO LOCALHOST) -->
+    <!-- ABA 2: TABELA DE NPCS (VINCULADA DIRETAMENTE AOS NPCS POSICIONADOS NOS MAPAS) -->
+    <div id="tabNpcs" style="display:none; padding:16px; max-width:1250px; margin:0 auto; width:100%; gap:16px; flex-direction:column;">
+      <div class="panel">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+          <div>
+            <h3>🧙 Tabela Oficial de NPCs (`npc_templates` &harr; `map_npcs`)</h3>
+            <p style="font-size:0.8rem; color:var(--text-muted); margin-top:4px;">
+              Todo NPC que você criar enquanto edita os mapas (ou por aqui) entra direto nesta tabela com <strong>ID e Chave auto-incrementados (`npc_1`, `npc_2`...)</strong>, mostrando em quais mapas e coordenadas ele está posicionado.
+            </p>
+          </div>
+          <button class="btn-primary" onclick="AdminApp.openNpcTemplateModal(null)">➕ Novo NPC do mcrework</button>
+        </div>
+
+        <div style="overflow-x:auto;">
+          <table class="crud-table">
+            <thead>
+              <tr>
+                <th>ID / Chave</th>
+                <th>Visual (mcrework)</th>
+                <th>Nome (PT-BR)</th>
+                <th>Função / Gatilho</th>
+                <th>Posicionamento nos Mapas</th>
+                <th>Ações</th>
+              </tr>
+            </thead>
+            <tbody id="npcsTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ABA 3: CRUD DE CONTAS DE USUÁRIOS (ACESSO FORA DO LOCALHOST) -->
     <div id="tabUsers" style="display:none; padding:16px; max-width:1100px; margin:0 auto; width:100%; gap:16px; flex-direction:column;">
       <div class="panel">
         <h3>🔐 Criar / Editar Conta de Usuário (Acesso Externo à Rota /admin, GMs e Jogadores)</h3>
@@ -715,41 +747,43 @@
     </div>
   </div>
 
-  <!-- MODAL: CRIAR NOVO TEMPLATE DE NPC ESCOLHENDO DO MCREWORK -->
+  <!-- MODAL: CRIAR / EDITAR TEMPLATE DE NPC ESCOLHENDO DO MCREWORK (AUTO-INCREMENTO npc_N) -->
   <div id="npcModal" class="modal-backdrop">
     <div class="modal-box">
       <div style="display:flex; justify-content:space-between; align-items:center;">
-        <h3>🧙 Cadastrar Template de NPC (mcrework — 365 NPCs)</h3>
+        <h3 id="npcModalTitle">🧙 Cadastrar / Editar NPC na Tabela (mcrework — 365 NPCs)</h3>
         <button class="btn-danger" onclick="AdminApp.closeModal('npcModal')">Fechar</button>
       </div>
+      <input type="hidden" id="npcEditIdInput" value="" />
       <div class="row-2">
         <div class="field">
-          <label>Código Único do NPC</label>
-          <input type="text" id="npcCodeInput" placeholder="Ex: npc_ferreiro_01" />
+          <label>ID & Chave do NPC (Auto-Incremento Automático)</label>
+          <input type="text" id="npcCodeInput" readonly style="opacity:0.8; font-weight:700; color:var(--accent);" />
         </div>
         <div class="field">
-          <label>Nome do NPC (PT-BR)</label>
-          <input type="text" id="npcNameInput" placeholder="Ex: Mestre Ferreiro Madoff" />
+          <label>Nome do NPC (PT-BR — pode editar depois se quiser)</label>
+          <input type="text" id="npcNameInput" placeholder="Ex: Mestre Ferreiro (ou deixe em branco para auto-nomear)" />
         </div>
       </div>
       <div class="row-2">
         <div class="field">
-          <label>Função do NPC</label>
+          <label>Função / Gatilho do NPC</label>
           <select id="npcFunctionSelect">
-            <option value="DECORATION">Apenas Enfeite de Cenário</option>
-            <option value="QUEST">Gatilho de Quest / Missão</option>
-            <option value="SHOP">Gatilho de Loja / Comércio</option>
-            <option value="BATTLE">Gatilho de Luta (Boss / Treinador)</option>
-            <option value="EVENT">Gatilho de Evento Especial</option>
+            <option value="DECORATION">🎨 Apenas Enfeite de Cenário</option>
+            <option value="QUEST">📜 Gatilho de Quest / Missão</option>
+            <option value="SHOP">🪙 Gatilho de Loja / Comércio</option>
+            <option value="BATTLE">⚔️ Gatilho de Luta (Boss / Treinador)</option>
+            <option value="EVENT">🎉 Gatilho de Evento Especial</option>
+            <option value="DIALOGUE">💬 Diálogo / Guia</option>
           </select>
         </div>
         <div class="field">
-          <label>Asset Selecionado do mcrework</label>
-          <input type="text" id="npcAssetKeyInput" readonly placeholder="Clique em um NPC abaixo" />
+          <label>Visual Selecionado do mcrework</label>
+          <input type="text" id="npcAssetKeyInput" readonly placeholder="Toque em um NPC da galeria abaixo" />
         </div>
       </div>
       <div id="mcreworkNpcsGrid" class="gallery-grid" style="max-height:320px;"></div>
-      <button class="btn-success" onclick="AdminApp.saveNewNpcTemplate()">💾 Salvar Template de NPC no Banco</button>
+      <button class="btn-success" onclick="AdminApp.saveNewNpcTemplate()">💾 Salvar na Tabela de NPCs</button>
     </div>
   </div>
 

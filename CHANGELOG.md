@@ -5,6 +5,14 @@ Qualquer IA trabalhando neste repositório **DEVE** incrementar a versão e regi
 
 ---
 
+## [v0.3.7] - 2026-11-05
+### Adicionado
+* **Aba Dedicada `🧙 Tabela de NPCs` e Auto-Incremento `npc_1`, `npc_2`... (`apps/server/src/controllers/AdminMapsController.ts` & `apps/server/public/admin/`):**
+  * Adicionada a aba **`🧙 Tabela de NPCs`** na barra principal da Rota `/admin`, exibindo todos os NPCs salvos no banco (`npc_templates`), sua miniatura visual do `mcrework`, função/gatilho (`Enfeite`, `Quest`, `Loja`, `Luta Boss/Treinador`, `Evento`, `Diálogo`) e **em quais mapas e coordenadas `(X, Y)` cada NPC está posicionado** (`map_npcs`).
+  * Implementado auto-incremento automático de `id` e chave `code` (`npc_1`, `npc_2`, `npc_3`...) para NPCs, integrado diretamente com a ferramenta **`🧙 +NPC`** do Editor Visual de Mapas.
+
+---
+
 ## [v0.3.6] - 2026-11-05
 ### Adicionado
 * **Auto-Incremento Automático de ID e Chave do Mapa (`map_1`, `map_2`, `map_3`...):**

@@ -191,7 +191,19 @@ export class EtheriaServerApp {
         }
         if (pathname === '/api/admin/npc-templates' && method === 'POST') {
           const dto = await this.readJsonBody(req);
-          this.sendJson(res, 201, await this.mapsController.saveNpcTemplate(dto));
+          this.sendJson(res, 201, await this.mapsController.saveNpcTemplate(dto, null));
+          return;
+        }
+        const npcMatch = pathname.match(/^\/api\/admin\/npc-templates\/(\d+)$/);
+        if (npcMatch && method === 'PUT') {
+          const id = Number(npcMatch[1]);
+          const dto = await this.readJsonBody(req);
+          this.sendJson(res, 200, await this.mapsController.saveNpcTemplate(dto, id));
+          return;
+        }
+        if (npcMatch && method === 'DELETE') {
+          const id = Number(npcMatch[1]);
+          this.sendJson(res, 200, await this.mapsController.deleteNpcTemplate(id));
           return;
         }
         if (pathname === '/api/admin/maps' && method === 'POST') {
