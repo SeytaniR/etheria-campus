@@ -91,3 +91,9 @@ Como este projeto é desenvolvido em **revezamento de turnos entre múltiplas co
 
 ### 6. Padrão Obrigatório de Auto-Incremento de IDs e Chaves (`code`) nas Tabelas Curadas
 * Em todas as tabelas de conteúdo curado pelo usuário na Rota `/admin` (`maps`, `npc_templates`, `class_templates`, `monster_templates`, `skill_templates`, `item_templates`, etc.), tanto o `id` numérico (`1, 2, 3...`) quanto a chave única `code` (`map_1`, `npc_1`, `class_1`, `monster_1`, `skill_1`, `item_1`...) devem ser **gerados e auto-incrementados automaticamente em sincronia pelo servidor**, exigindo que o usuário digite apenas o Nome (`i18n`) do registro.
+
+### 7. Sem God Objects e Limite Máximo de 1.000 Linhas por Arquivo
+* **Proibido criar God Objects ou arquivos gigantescos:** O código deve aderir rigorosamente ao Princípio da Responsabilidade Única (SRP — *Single Responsibility Principle*).
+* **Limite estrito de 1.000 linhas:** Nenhum arquivo de código (`.ts`, `.js`, `.vue`, `.html`, etc.) no repositório pode exceder **1.000 linhas de código**.
+* Toda classe, controlador ou módulo que começar a crescer além desse limite deve ser imediatamente decomposto em submódulos ou controladores especializados (ex: separação entre autenticação, abas do CRUD, canvas editor, orquestrador, etc.).
+* Os modelos de entidades (personagens e NPCs) no renderizador 2.5D devem manter escala visual proporcional calibrada (`scale = 0.70`, ou seja, 30% menor que o tamanho original do atlas bruto) para evitar desproporção com os elementos do cenário.

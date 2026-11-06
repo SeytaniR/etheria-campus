@@ -1,210 +1,10 @@
 /**
  * @file apps/server/public/play/play.js
  * @module @etheria/server
- * @description Motor Cliente Orientado a Objetos da Rota dos Jogadores (`/play`) e Painel GM (`/gm`).
- *   Implementa:
- *   1. Carregador e Animador 8-Direções de Atlas de Sprites do `mcrework` (`McreworkSpriteSheet`) para Personagens e NPCs.
- *   2. Malha Poligonal de Colisão e Sobreposição com AABB Pre-Culling + Ray-Casting (`ClientPolygonMesh`).
- *   3. Exploração 2.5D em Tempo Real (Clique/Toque no Mapa, Teclado WASD/Setas, D-Pad Mobile e Zoom Pinça).
- *   4. Travessia de Portais Pareados (`Entrada <-> Saída`), Função `🆘 Destravar Personagem` (Spawn) e Ficha Procedural.
- *   5. Painel `/gm` Integrado (`⚡ Painel GM`): Teleporte 1-clique para qualquer mapa, Raio-X de Malhas/Portais/Spawn,
- *      No-Clip (atravessar paredes), Multiplicador de Velocidade GM e Hot-Reload do Mapa.
+ * @description Motor Cliente da Rota dos Jogadores (`/play`) e Exploração 2.5D em Tempo Real.
+ *   Gerencia autenticação, lobby de criação/seleção de personagens, loop 60 FPS, física,
+ *   colisão poligonal suave, travessia de portais pareados e renderização com profundidade (Y-Sorting).
  */
-
-class ClientPolygonMesh {
-  constructor(collisionPolygons = [], overlapPolygons = [], overlapOpacity = 0.45) {
-    this.collisionPolygons = this.compileBounds(collisionPolygons);
-    this.overlapPolygons = this.compileBounds(overlapPolygons);
-    this.overlapOpacity = Math.max(0.1, Math.min(1.0, Number(overlapOpacity) || 0.45));
-  }
-
-  compileBounds(polygons) {
-    if (!Array.isArray(polygons)) return [];
-    const compiled = [];
-    for (const poly of polygons) {
-      const pts = poly?.points;
-      if (!Array.isArray(pts) || pts.length < 3) continue;
-      let minX = pts[0].x;
-      let maxX = pts[0].x;
-      let minY = pts[0].y;
-      let maxY = pts[0].y;
-      for (let i = 1; i < pts.length; i++) {
-        const p = pts[i];
-        if (p.x < minX) minX = p.x;
-        if (p.x > maxX) maxX = p.x;
-        if (p.y < minY) minY = p.y;
-        if (p.y > maxY) maxY = p.y;
-      }
-      compiled.push({
-        id: poly.id,
-        name: poly.name,
-        points: pts,
-        minX,
-        maxX,
-        minY,
-        maxY,
-      });
-    }
-    return compiled;
-  }
-
-  static isPointInCompiledPolygon(x, y, poly) {
-    if (x < poly.minX || x > poly.maxX || y < poly.minY || y > poly.maxY) {
-      return false;
-    }
-    const pts = poly.points;
-    let inside = false;
-    for (let i = 0, j = pts.length - 1; i < pts.length; j = i++) {
-      const xi = pts[i].x;
-      const yi = pts[i].y;
-      const xj = pts[j].x;
-      const yj = pts[j].y;
-      const intersect = yi > y !== yj > y && x < ((xj - xi) * (y - yi)) / (yj - yi + 1e-12) + xi;
-      if (intersect) inside = !inside;
-    }
-    return inside;
-  }
-
-  isPointBlocked(x, y) {
-    for (let i = 0; i < this.collisionPolygons.length; i++) {
-      if (ClientPolygonMesh.isPointInCompiledPolygon(x, y, this.collisionPolygons[i])) {
-        return true;
-      }
-    }
-    return false;
-  }
-
-  getCharacterOpacityAt(x, y) {
-    for (let i = 0; i < this.overlapPolygons.length; i++) {
-      if (ClientPolygonMesh.isPointInCompiledPolygon(x, y, this.overlapPolygons[i])) {
-        return this.overlapOpacity;
-      }
-    }
-    return 1.0;
-  }
-}
-
-/**
- * Carrega e renderiza um Sprite Atlas (`atlas.json` + `atlas.webp`) do `mcrework` com suporte a 8 direções.
- */
-class McreworkSpriteSheet {
-  constructor(atlasJsonUrl, atlasWebpUrl, thumbUrl) {
-    this.atlasJsonUrl = atlasJsonUrl;
-    this.atlasWebpUrl = atlasWebpUrl;
-    this.thumbUrl = thumbUrl;
-    this.atlasData = null;
-    this.image = null;
-    this.thumbImage = null;
-    this.ready = false;
-    this.loading = false;
-  }
-
-  load() {
-    if (this.loading || this.ready) return;
-    this.loading = true;
-
-    if (this.thumbUrl) {
-      const tImg = new Image();
-      tImg.crossOrigin = 'anonymous';
-      tImg.onload = () => {
-        this.thumbImage = tImg;
-      };
-      tImg.src = this.thumbUrl;
-    }
-
-    fetch(this.atlasJsonUrl)
-      .then((r) => (r.ok ? r.json() : Promise.reject(new Error(`HTTP ${r.status}`))))
-      .then((json) => {
-        this.atlasData = json;
-        const img = new Image();
-        img.crossOrigin = 'anonymous';
-        img.onload = () => {
-          this.image = img;
-          this.ready = true;
-        };
-        img.src = this.atlasWebpUrl;
-      })
-      .catch(() => {
-        this.loading = false;
-      });
-  }
-
-  draw(ctx, worldX, worldY, action, direction, elapsedMs, alpha = 1.0) {
-    this.load();
-
-    ctx.save();
-    ctx.globalAlpha = alpha;
-
-    // Sombra elíptica nos pés da entidade
-    ctx.beginPath();
-    ctx.ellipse(worldX, worldY, 18, 9, 0, 0, Math.PI * 2);
-    ctx.fillStyle = 'rgba(0, 0, 0, 0.45)';
-    ctx.fill();
-
-    if (this.ready && this.atlasData && this.image) {
-      const anims = this.atlasData.animations || {};
-      const frames = this.atlasData.frames || {};
-      const dir = ((direction % 8) + 8) % 8;
-
-      // No mcrework, a chave da animação é `${dir}-${action}`
-      // Ações: 0 = Parado (Stand), 1 = Caminhada (Walk), 2 = Corrida (Run), 3 = Golpe (Atk)...
-      const primaryKey = `${dir}-${action}`;
-      let seq =
-        anims[primaryKey] ||
-        (action !== 0 ? anims[`${dir}-1`] : null) ||
-        anims[`${dir}-0`] ||
-        anims[`0-${action}`] ||
-        anims['0-0'] ||
-        Object.values(anims)[0];
-
-      if (!Array.isArray(seq) || seq.length === 0) {
-        seq = Object.keys(frames);
-      }
-
-      if (seq.length > 0) {
-        // No mcrework oficial, cada frame tem 80ms (12.5 FPS) com repetições calibradas no atlas
-        const frameIdx = Math.floor((elapsedMs / 80) % seq.length);
-        const frameKey = seq[frameIdx];
-        const fObj = frames[frameKey];
-
-        if (fObj && fObj.frame) {
-          const sx = fObj.frame.x;
-          const sy = fObj.frame.y;
-          const sw = fObj.frame.w;
-          const sh = fObj.frame.h;
-          const origW = fObj.sourceSize?.w || sw;
-          const origH = fObj.sourceSize?.h || sh;
-          const offX = fObj.spriteSourceSize?.x || 0;
-          const offY = fObj.spriteSourceSize?.y || 0;
-
-          // Ancoragem padrão nos pés (0.5 no X, 0.92 no Y)
-          const anchorX = 0.5;
-          const anchorY = 0.92;
-          const drawX = Math.round(worldX - origW * anchorX + offX);
-          const drawY = Math.round(worldY - origH * anchorY + offY);
-
-          ctx.drawImage(this.image, sx, sy, sw, sh, drawX, drawY, sw, sh);
-          ctx.restore();
-          return;
-        }
-      }
-    }
-
-    // Fallback para miniatura enquanto o atlas completo carrega
-    if (this.thumbImage) {
-      const w = 64;
-      const h = 76;
-      ctx.drawImage(this.thumbImage, worldX - w / 2, worldY - h * 0.92, w, h);
-    } else {
-      ctx.beginPath();
-      ctx.arc(worldX, worldY - 24, 16, 0, Math.PI * 2);
-      ctx.fillStyle = '#38bdf8';
-      ctx.fill();
-    }
-
-    ctx.restore();
-  }
-}
 
 class EtheriaPlayClient {
   constructor() {
@@ -258,6 +58,11 @@ class EtheriaPlayClient {
     this.gmXray = false;
     this.gmNoClip = false;
     this.gmSpeedMultiplier = 1;
+
+    // Vincula módulos externos (Painel GM e Ficha Procedural)
+    if (window.PlayGmController) {
+      window.PlayGmController.attach(this);
+    }
 
     this.lastFrameTime = performance.now();
     this.init();
@@ -338,7 +143,9 @@ class EtheriaPlayClient {
     }
 
     this.renderLobby();
-    this.renderGmTeleportList();
+    if (typeof this.renderGmTeleportList === 'function') {
+      this.renderGmTeleportList();
+    }
   }
 
   showLobby() {
@@ -493,7 +300,8 @@ class EtheriaPlayClient {
     const isGmOrAdmin = this.session && (this.session.role === 'ADMIN' || this.session.role === 'GM');
     document.getElementById('btnToggleGm').style.display = isGmOrAdmin ? 'inline-block' : 'none';
     if (isGmOrAdmin && window.location.pathname.startsWith('/gm')) {
-      document.getElementById('gmDrawer').classList.add('open');
+      const gmDrawer = document.getElementById('gmDrawer');
+      if (gmDrawer) gmDrawer.classList.add('open');
     }
 
     this.resizeCanvas();
@@ -566,7 +374,9 @@ class EtheriaPlayClient {
       }
 
       this.updateHudInfo();
-      this.renderGmTeleportList();
+      if (typeof this.renderGmTeleportList === 'function') {
+        this.renderGmTeleportList();
+      }
     } catch (err) {
       alert(`Erro ao carregar mapa #${mapId}: ${err.message}`);
     }
@@ -939,7 +749,11 @@ class EtheriaPlayClient {
       ctx.stroke();
       ctx.fillStyle = '#fef08a';
       ctx.font = 'bold 13px sans-serif';
-      ctx.fillText(`⭐ SPAWN (${this.currentMap.spawnX}, ${this.currentMap.spawnY})`, this.currentMap.spawnX - 50, this.currentMap.spawnY - 38);
+      ctx.fillText(
+        `⭐ SPAWN (${this.currentMap.spawnX}, ${this.currentMap.spawnY})`,
+        this.currentMap.spawnX - 50,
+        this.currentMap.spawnY - 38
+      );
     }
 
     // 3. Desenha Portais Pareados (`map_portals`) com anel energético pulsante
@@ -1011,7 +825,8 @@ class EtheriaPlayClient {
         ctx.fillStyle = '#86efac';
         ctx.font = 'bold 12px sans-serif';
         ctx.textAlign = 'center';
-        ctx.fillText(npc.namePtBr, npc.posX, npc.posY - 88);
+        // Altura do nome calibrada com a redução de 30% do sprite (offset -62)
+        ctx.fillText(npc.namePtBr, npc.posX, npc.posY - 62);
       } else {
         const char = item.data;
         const sprite = this.getOrCreateSprite(
@@ -1027,156 +842,16 @@ class EtheriaPlayClient {
         ctx.fillStyle = '#fde047';
         ctx.font = 'bold 13px sans-serif';
         ctx.textAlign = 'center';
+        // Altura do nome calibrada com a redução de 30% do sprite (offset -66)
         ctx.fillText(
           `${char.name}${this.gmNoClip ? ' [NO-CLIP]' : ''}`,
           this.playerX,
-          this.playerY - 94
+          this.playerY - 66
         );
       }
     }
 
     ctx.restore();
-  }
-
-  // ==========================================================================
-  // DESTRAVAR PERSONAGEM (UNSTUCK) & FERRAMENTAS DO PAINEL GM (`/gm`)
-  // ==========================================================================
-
-  async unstuckCharacter() {
-    if (!this.activeChar) return;
-    try {
-      const res = await this.api(`/api/play/characters/${this.activeChar.id}/unstuck`, {
-        method: 'POST',
-      });
-      this.playerX = res.posX;
-      this.playerY = res.posY;
-      this.moveTargetX = null;
-      this.moveTargetY = null;
-      this.updateHudInfo();
-    } catch (err) {
-      alert(`Erro ao destravar personagem: ${err.message}`);
-    }
-  }
-
-  toggleGmDrawer() {
-    document.getElementById('gmDrawer').classList.toggle('open');
-  }
-
-  renderGmTeleportList() {
-    const container = document.getElementById('gmMapsTeleportList');
-    if (!container) return;
-
-    container.innerHTML = this.mapsList
-      .map(
-        (m) => `
-      <button onclick="PlayApp.gmTeleportToMap(${m.id})" style="display:flex; justify-content:space-between; align-items:center; text-align:left; padding:7px 10px;">
-        <span><strong>#${m.id} ${m.namePtBr}</strong> <span style="font-size:0.72rem; color:var(--text-muted);">(${m.code})</span></span>
-        <span style="font-size:0.72rem; color:var(--accent);">Spawn (${m.spawnX}, ${m.spawnY}) 🚀</span>
-      </button>`
-      )
-      .join('');
-  }
-
-  async gmTeleportToMap(targetMapId) {
-    if (!this.activeChar) return;
-    try {
-      const res = await this.api(`/api/play/characters/${this.activeChar.id}/gm-teleport`, {
-        method: 'POST',
-        body: JSON.stringify({ targetMapId }),
-      });
-      this.activeChar.currentMapId = res.currentMapId;
-      this.activeChar.posX = res.posX;
-      this.activeChar.posY = res.posY;
-      await this.loadMapIntoWorld(res.currentMapId, res.posX, res.posY);
-    } catch (err) {
-      alert(`Erro no Teleporte GM: ${err.message}`);
-    }
-  }
-
-  toggleGmXray() {
-    this.gmXray = !this.gmXray;
-    const btn = document.getElementById('btnGmXray');
-    btn.textContent = `👁️ Raio-X de Malhas/Portais: ${this.gmXray ? 'LIGADO ✅' : 'DESLIGADO'}`;
-    btn.className = this.gmXray ? 'btn-amber' : '';
-  }
-
-  toggleGmNoClip() {
-    this.gmNoClip = !this.gmNoClip;
-    const btn = document.getElementById('btnGmNoClip');
-    btn.textContent = `👻 Atravessar Paredes (No-Clip): ${this.gmNoClip ? 'LIGADO ✅' : 'DESLIGADO'}`;
-    btn.className = this.gmNoClip ? 'btn-amber' : '';
-  }
-
-  setGmSpeed(mult) {
-    this.gmSpeedMultiplier = Number(mult) || 1;
-  }
-
-  async hotReloadCurrentMap() {
-    if (!this.currentMap) return;
-    await this.loadPlayBootstrap();
-    await this.loadMapIntoWorld(this.currentMap.id, this.playerX, this.playerY);
-    alert(`🔄 Mapa #${this.currentMap.id} (${this.currentMap.namePtBr}) recarregado em tempo real do PostgreSQL!`);
-  }
-
-  // ==========================================================================
-  // MODAL DE FICHA DE ATRIBUTOS PROCEDURAIS (6 BASE -> COMBATE)
-  // ==========================================================================
-
-  openStatsModal() {
-    if (!this.activeChar) return;
-    const c = this.activeChar;
-    const base = c.baseAttributesJson || { VIT: 10, STR: 10, INT: 10, WIS: 10, AGI: 10, DEX: 10 };
-    const dist = c.distributedStatsJson || { VIT: 0, STR: 0, INT: 0, WIS: 0, AGI: 0, DEX: 0 };
-    const grow = c.growthPerLevelJson || { VIT: 2, STR: 2, INT: 2, WIS: 2, AGI: 2, DEX: 2 };
-    const lvUps = Math.max(0, (c.level || 1) - 1);
-
-    const totalBase = {};
-    for (const k of ['VIT', 'STR', 'INT', 'WIS', 'AGI', 'DEX']) {
-      totalBase[k] = (Number(base[k]) || 0) + (Number(grow[k]) || 0) * lvUps + (Number(dist[k]) || 0);
-    }
-
-    // Calcula Atributos de Combate via Matriz Procedural (`attribute_conversions`)
-    const combatLines = this.combatAttributes.map((ca) => {
-      let val = Number(ca.baseDefault) || 0;
-      for (const conv of this.attributeConversions) {
-        if (conv.combatAttributeCode === ca.code) {
-          val += (totalBase[conv.baseAttributeCode] || 0) * Number(conv.ratioPerPoint);
-        }
-      }
-      const formatted = ca.isPercentage ? `${val.toFixed(1)}%` : Math.round(val);
-      return `<div style="display:flex; justify-content:space-between; padding:4px 8px; background:rgba(30,41,59,0.6); border-radius:6px;">
-        <span>${ca.namePtBr} (<code>${ca.code}</code>)</span>
-        <strong style="color:var(--accent);">${formatted}</strong>
-      </div>`;
-    });
-
-    const el = this.getElementStyle(c.elementCode);
-    document.getElementById('statsModalBody').innerHTML = `
-      <div style="padding:10px; background:rgba(56,189,248,0.1); border-radius:8px; border:1px solid var(--border);">
-        <strong>${c.name}</strong> &bull; Nv.${c.level} &bull; ${c.classNamePtBr} (${c.raceCode})<br/>
-        <span>Elemento: <strong style="color:${el.color};">${el.icon} ${c.elementNamePtBr}</strong></span>
-      </div>
-      <div>
-        <strong style="color:var(--accent-amber); display:block; margin-bottom:6px;">6 Atributos Base Totais:</strong>
-        <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:6px;">
-          ${['VIT', 'STR', 'INT', 'WIS', 'AGI', 'DEX']
-            .map(
-              (k) => `<div style="padding:6px; background:var(--bg-input); border-radius:6px; text-align:center;">
-                <div style="font-size:0.72rem; color:var(--text-muted);">${k}</div>
-                <strong style="font-size:0.95rem;">${totalBase[k]}</strong>
-              </div>`
-            )
-            .join('')}
-        </div>
-      </div>
-      <div>
-        <strong style="color:#86efac; display:block; margin-bottom:6px;">Atributos de Combate Derivados (Matriz Procedural):</strong>
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:6px;">
-          ${combatLines.join('')}
-        </div>
-      </div>
-    `;
-    document.getElementById('statsModal').style.display = 'flex';
   }
 }
 

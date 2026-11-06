@@ -5,6 +5,37 @@ Qualquer IA trabalhando neste repositório **DEVE** incrementar a versão e regi
 
 ---
 
+## [v0.4.2] - 2026-11-06
+### Alterado
+* **Redução de 30% no Tamanho dos Modelos 2.5D (`scale = 0.70`) (`apps/server/public/play/js/McreworkSpriteSheet.js` & `play.js`):**
+  * Calibrada a escala visual de renderização de todos os modelos de personagens e NPCs para `70%` do tamanho original (`scale = 0.70`), garantindo proporções anatômicas realistas e harmônicas com as construções, portas, caminhos e elementos dos mapas do jogo.
+  * Sombra elíptica projetada aos pés dos modelos reescalada proporcionalmente (`13 x 6 px`).
+  * Altura dos textos flutuantes de identificação sobre a cabeça das entidades rebaixada em sintonia com a nova escala (`-66px` para o jogador, `-62px` para NPCs).
+* **Refatoração Completa Frontend — Princípio da Responsabilidade Única (SRP) e Zero God Objects:**
+  * **Eliminação de God Objects no Cliente de Jogo (`/play`):**
+    * Decomposto o antigo `play.js` (1.047 linhas) em 4 submódulos independentes e focados:
+      1. `apps/server/public/play/js/ClientPolygonMesh.js` (85 linhas): Malha poligonal de colisão e sobreposição 2.5D com Pre-Culling AABB + Ray-Casting.
+      2. `apps/server/public/play/js/McreworkSpriteSheet.js` (145 linhas): Motor de animação 8-direções e desenho com escala calibrada `scale = 0.70`.
+      3. `apps/server/public/play/js/PlayGmController.js` (175 linhas): Painel GM integrado (teleporte, raio-x, no-clip, velocidade, hot-reload) e Ficha Procedural.
+      4. `apps/server/public/play/play.js` (757 linhas): Orquestrador do loop 60 FPS, física, Y-sorting e sincronização autoritária com o servidor.
+  * **Eliminação de God Objects no Studio Low-Code (`/admin`):**
+    * Decomposto o antigo `admin.js` (1.843 linhas) em 6 submódulos especializados:
+      1. `apps/server/public/admin/js/AdminAuth.js` (125 linhas): Autenticação Dual-Mode e gerenciamento de sessão segura.
+      2. `apps/server/public/admin/js/AdminUsersTab.js` (85 linhas): CRUD completo de contas de usuários (`ADMIN`, `GM`, `PLAYER`).
+      3. `apps/server/public/admin/js/AdminNpcsTab.js` (200 linhas): Catálogo dos 365 NPCs do mcrework com busca em tempo real e tabela de posicionamento.
+      4. `apps/server/public/admin/js/AdminClassesTab.js` (280 linhas): Hero Preview 72px, galeria de classes com filtro de gênero e configuração de atributos procedurais.
+      5. `apps/server/public/admin/js/AdminCanvasEditor.js` (905 linhas): Câmera, estúdio visual tela cheia, desenho de malhas, histórico real Undo/Redo e gaveta de camadas.
+      6. `apps/server/public/admin/admin.js` (440 linhas): Ficha técnica de mapas, biomas, spawn e orquestrador principal da aplicação.
+* **Servidor HTTP com Suporte a Arquivos Estáticos Modulares (`apps/server/src/index.ts`):**
+  * Implementado `tryServeStatic` com sanitização contra path traversal e tabela completa de MIME Types (`.js`, `.html`, `.css`, `.json`, `.webp`, `.png`, etc.), servindo modularmente qualquer submódulo de `public/`.
+
+### Adicionado
+* **Nova Regra Mandatória de Engenharia #7: Sem God Objects e Limite Máximo de 1.000 Linhas por Arquivo (`AGENTS.md`, `docs/ARCHITECTURE.md`):**
+  * Formalizada como regra mandatória de projeto a proibição de God Objects e a imposição estrita de que nenhum arquivo do repositório pode exceder **1.000 linhas de código**.
+  * Verificado via scanner de código: **100% dos arquivos do repositório possuem <= 1.000 linhas de código**.
+
+---
+
 ## [v0.4.1] - 2026-11-06
 ### Corrigido
 * **Carregamento da Imagem de Fundo dos Mapas no `/play` (`apps/server/src/controllers/GamePlayController.ts` & `apps/server/public/play/play.js`):**

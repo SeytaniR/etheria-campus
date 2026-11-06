@@ -128,3 +128,27 @@ Todas as habilidades são compostas no banco de dados usando **7 Primitivas Univ
   * **Grupo de 3 a 5 Jogadores:** `1 Personagem + 1 Pet` por jogador (3 jogadores = 6 unidades; 4 = 8 unidades; 5 = 10 unidades).
   * O **Capitão/Solo** escolhe a formação de batalha da equipe nos 10 slots.
 * **Execução 5B:** Pontos de Turno (AP) + Bloqueio de curto alcance pela Vanguarda + Planejamento Simultâneo ("We-Go") resolvido pela ordem de Velocidade.
+
+---
+
+## 6. Arquitetura Modular Frontend, Sem God Objects & Limite de 1.000 Linhas
+
+Para manter manutenibilidade de longo prazo, legibilidade por múltiplas IAs e escalabilidade:
+
+### 6.1. Princípio da Responsabilidade Única (SRP) e Proibição de God Objects
+Nenhum arquivo ou classe deve acumular responsabilidades de múltiplos domínios. A divisão é estrita:
+* **Rota `/play` (Cliente de Jogo & GM):**
+  * `ClientPolygonMesh.js`: Algoritmos de colisão poligonal (Point-in-Polygon + AABB Pre-Culling) e cálculo de opacidade de sobreposição.
+  * `McreworkSpriteSheet.js`: Carregamento assíncrono de Sprite Atlases, animação 8-direções e renderização calibrada com **redução de 30% (`scale = 0.70`)** nos modelos e sombras.
+  * `PlayGmController.js`: Painel flutuante GM (teleporte, raio-x, no-clip, velocidade, hot-reload) e Ficha Procedural de Atributos de Combate.
+  * `play.js`: Orquestrador de exploração 2.5D, sincronização com servidor e loop de renderização 60 FPS com ordenação Y-Sorting.
+* **Rota `/admin` (Studio Low-Code):**
+  * `AdminAuth.js`: Autenticação Dual-Mode (.env vs CRUD) e navegação.
+  * `AdminUsersTab.js`: CRUD completo de contas de usuários (`ADMIN`, `GM`, `PLAYER`).
+  * `AdminNpcsTab.js`: CRUD e catálogo de NPCs curados.
+  * `AdminClassesTab.js`: CRUD e galeria de classes/personagens com Hero Preview, filtro por gênero e atributos procedurais.
+  * `AdminCanvasEditor.js`: Estúdio visual em tela cheia, câmera, histórico real Undo/Redo e gaveta de camadas.
+  * `admin.js`: Ficha técnica de mapas e orquestrador principal da aplicação.
+
+### 6.2. Limite Mandatório de 1.000 Linhas por Arquivo
+* Nenhum arquivo de código no repositório pode exceder **1.000 linhas**. Todo módulo que atingir proporções elevadas deve ser decomposto imediatamente.

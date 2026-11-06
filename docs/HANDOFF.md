@@ -8,15 +8,15 @@
 ---
 
 ## 📌 Status Atual do Projeto
-* **Versão Atual:** `v0.4.1`
+* **Versão Atual:** `v0.4.2`
 * **Última Atualização:** `2026-11-06`
-* **Fase Atual:** **Etapa 2 (Parte 3) Concluída (`v0.4.1`) — Correção de carregamento de mapas, correção do padrão de animações 8-direções `${dir}-${action}` e novo editor visual de personagens com Hero Preview, abas e busca!**
+* **Fase Atual:** **Etapa 2 (Parte 4) Concluída (`v0.4.2`) — Redução de 30% nos modelos de personagens/NPCs (`scale = 0.70`), refatoração modular completa sem God Objects e 100% dos arquivos com <= 1.000 linhas!**
 * **Repositório Oficial:** `https://github.com/SeytaniR/etheria-campus`
 * **Fonte Bruta de Assets:** `https://github.com/SeytaniR/mcrework` (`https://seytanir.github.io/mcrework/`)
 
 ---
 
-## ✅ Decisões Consolidadas na Documentação (`v0.1.2`)
+## ✅ Decisões Consolidadas na Documentação (`v0.1.2` a `v0.4.2`)
 1. **Regra de Escopo Estrito (Cláusula 0.1):** Proibido criar simuladores, mocks ou código não solicitado; dúvidas devem ser perguntadas antes de codificar.
 2. **Regra da Curadoria (Whitelist):** O repositório `mcrework` é apenas galeria bruta; só entra no jogo o que estiver salvo nas tabelas do nosso banco de dados.
 3. **5 Tipos de Mapa (Com Dominação, Spawn e PvP fixos no Tipo):**
@@ -37,6 +37,10 @@
    * Mitigação proporcional por nível: $\text{Defesa} / (\text{Defesa} + 100 + 10 \times \text{Nível})$.
    * 7 Blocos Universais de Efeito + Gatilhos para Passivas/Buffs/Debuffs.
    * Arena 10x10 Slots (Solo/Dupla = `1 Char + até 3 Pets`; 3 a 5 Jogadores = `1 Char + 1 Pet`).
+8. **Sem God Objects & Limite Mandatório de 1.000 Linhas por Arquivo (Regra #7):**
+   * Código estritamente modularizado por responsabilidade única.
+   * Frontend de `/play` e `/admin` dividido em submódulos especializados (`ClientPolygonMesh`, `McreworkSpriteSheet`, `PlayGmController`, `AdminAuth`, `AdminUsersTab`, `AdminNpcsTab`, `AdminClassesTab`, `AdminCanvasEditor`).
+   * Escala dos modelos 2.5D padronizada em 70% (`scale = 0.70`).
 
 ---
 

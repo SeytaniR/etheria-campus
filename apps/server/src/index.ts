@@ -106,6 +106,58 @@ export class EtheriaServerApp {
   }
 
   /**
+   * Tabela de Tipos MIME suportados para servir arquivos estáticos de `public/`.
+   */
+  private static readonly MIME_TYPES: Record<string, string> = {
+    '.html': 'text/html; charset=utf-8',
+    '.js': 'application/javascript; charset=utf-8',
+    '.mjs': 'application/javascript; charset=utf-8',
+    '.css': 'text/css; charset=utf-8',
+    '.json': 'application/json; charset=utf-8',
+    '.png': 'image/png',
+    '.jpg': 'image/jpeg',
+    '.jpeg': 'image/jpeg',
+    '.gif': 'image/gif',
+    '.webp': 'image/webp',
+    '.svg': 'image/svg+xml',
+    '.ico': 'image/x-icon',
+    '.woff2': 'font/woff2',
+  };
+
+  /**
+   * Serve arquivos estáticos de `apps/server/public` de forma segura e modular.
+   * Suporta rotas raiz, subpastas (/admin/js/*, /play/js/*) e sanitização contra traversal.
+   */
+  private async tryServeStatic(pathname: string, res: http.ServerResponse): Promise<boolean> {
+    let relPath = pathname;
+    if (relPath === '/' || relPath === '/admin' || relPath === '/admin/') {
+      relPath = '/admin/index.html';
+    } else if (relPath === '/play' || relPath === '/play/' || relPath === '/gm' || relPath === '/gm/') {
+      relPath = '/play/index.html';
+    }
+
+    const safeRel = path.normalize(relPath).replace(/^(\.\.[\/\\])+/, '').replace(/^[\\\/]+/, '');
+    const fullPath = path.join(this.publicDir, safeRel);
+
+    if (!fullPath.startsWith(this.publicDir)) {
+      return false;
+    }
+
+    try {
+      const stats = await fs.stat(fullPath);
+      if (!stats.isFile()) return false;
+      const ext = path.extname(fullPath).toLowerCase();
+      const contentType = EtheriaServerApp.MIME_TYPES[ext] || 'application/octet-stream';
+      const fileData = await fs.readFile(fullPath);
+      res.writeHead(200, { 'Content-Type': contentType });
+      res.end(fileData);
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
+  /**
    * Processa todas as requisições HTTP destinadas à API e aos arquivos estáticos da Rota `/admin`.
    */
   public async handleRequest(req: http.IncomingMessage, res: http.ServerResponse): Promise<void> {
@@ -371,39 +423,9 @@ export class EtheriaServerApp {
         return;
       }
 
-      // 5. Arquivos estáticos da Rota `/play` e `/gm` (Cliente de Jogo & Painel GM Integrado)
-      if (pathname === '/play' || pathname === '/play/' || pathname === '/gm' || pathname === '/gm/') {
-        const htmlPath = path.join(this.publicDir, 'play', 'index.html');
-        const html = await fs.readFile(htmlPath, 'utf-8');
-        res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
-        res.end(html);
-        return;
-      }
-
-      if (pathname === '/play/play.js') {
-        const jsPath = path.join(this.publicDir, 'play', 'play.js');
-        const js = await fs.readFile(jsPath, 'utf-8');
-        res.writeHead(200, { 'Content-Type': 'application/javascript; charset=utf-8' });
-        res.end(js);
-        return;
-      }
-
-      // 6. Redirecionamento da raiz ou `/admin` para a interface do Studio Low-Code
-      if (pathname === '/' || pathname === '/admin' || pathname === '/admin/') {
-        const htmlPath = path.join(this.publicDir, 'admin', 'index.html');
-        const html = await fs.readFile(htmlPath, 'utf-8');
-        res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
-        res.end(html);
-        return;
-      }
-
-      if (pathname === '/admin/admin.js') {
-        const jsPath = path.join(this.publicDir, 'admin', 'admin.js');
-        const js = await fs.readFile(jsPath, 'utf-8');
-        res.writeHead(200, { 'Content-Type': 'application/javascript; charset=utf-8' });
-        res.end(js);
-        return;
-      }
+      // 5. Servir Arquivos Estáticos de `apps/server/public` (/admin, /play, /gm, subpastas /js, etc.)
+      const served = await this.tryServeStatic(pathname, res);
+      if (served) return;
 
       this.sendJson(res, 404, { error: 'Página não encontrada.' });
     } catch (err: any) {
