@@ -21,10 +21,14 @@ class EtheriaAdminStudio {
 
     this.biomes = [];
     this.mapTypes = [];
+    this.races = [];
+    this.elements = [];
+    this.classTemplates = [];
     this.npcTemplates = [];
     this.savedMaps = [];
     this.mcreworkMaps = [];
     this.mcreworkNpcs = [];
+    this.mcreworkChars = [];
     this.mapPickerMode = 'NEW_MAP'; // 'NEW_MAP' | 'CHANGE_IMAGE'
 
     // Estado do Mapa atual aberto no editor
@@ -155,14 +159,19 @@ class EtheriaAdminStudio {
   switchTab(tab) {
     document.getElementById('tabMaps').style.display = tab === 'maps' ? 'grid' : 'none';
     document.getElementById('tabNpcs').style.display = tab === 'npcs' ? 'flex' : 'none';
+    document.getElementById('tabClasses').style.display = tab === 'classes' ? 'flex' : 'none';
     document.getElementById('tabUsers').style.display = tab === 'users' ? 'flex' : 'none';
 
     document.getElementById('tabBtnMaps').className = tab === 'maps' ? 'btn-primary' : '';
     document.getElementById('tabBtnNpcs').className = tab === 'npcs' ? 'btn-primary' : '';
+    document.getElementById('tabBtnClasses').className = tab === 'classes' ? 'btn-primary' : '';
     document.getElementById('tabBtnUsers').className = tab === 'users' ? 'btn-primary' : '';
 
     if (tab === 'npcs') {
       this.renderNpcsCrudTable();
+    }
+    if (tab === 'classes') {
+      this.renderClassesCrudTable();
     }
   }
 
@@ -294,12 +303,16 @@ class EtheriaAdminStudio {
     const data = await this.api('/api/admin/maps/bootstrap');
     this.biomes = data.biomes || [];
     this.mapTypes = data.mapTypes || [];
+    this.races = data.races || [];
+    this.elements = data.elements || [];
+    this.classTemplates = data.classTemplates || [];
     this.npcTemplates = data.npcTemplates || [];
     this.savedMaps = data.maps || [];
 
     this.renderSelectOptions();
     this.renderSavedMapsList();
     this.renderNpcsCrudTable();
+    this.renderClassesCrudTable();
 
     if (this.savedMaps.length > 0 && !this.currentMapId) {
       this.selectSavedMap(this.savedMaps[0].id);
@@ -331,6 +344,13 @@ class EtheriaAdminStudio {
     } else {
       npcSelect.innerHTML = this.npcTemplates
         .map((n) => `<option value="${n.id}">#${n.id} &bull; ${n.namePtBr} (${n.code} / ${n.mcreworkNpcKey})</option>`)
+        .join('');
+    }
+
+    const raceSelect = document.getElementById('classRaceSelect');
+    if (raceSelect && this.races.length > 0) {
+      raceSelect.innerHTML = this.races
+        .map((r) => `<option value="${r.code}" ${r.code === 'HUMAN' ? 'selected' : ''}>${r.namePtBr} (${r.code})</option>`)
         .join('');
     }
   }
@@ -1641,6 +1661,198 @@ class EtheriaAdminStudio {
       this.drawCanvas();
     } catch (err) {
       alert(`Erro ao excluir NPC: ${err.message}`);
+    }
+  }
+
+  // ==========================================================================
+  // ABA 3: TABELA DE PERSONAGENS / CLASSES (`class_templates` — AUTO-INCREMENTO class_N)
+  // ==========================================================================
+
+  async openClassTemplateModal(editClassId = null) {
+    document.getElementById('classModal').style.display = 'flex';
+    const existingClass = editClassId
+      ? this.classTemplates.find((c) => c.id === Number(editClassId))
+      : null;
+
+    if (existingClass) {
+      document.getElementById('classModalTitle').textContent = `✏️ Editar Personagem / Classe #${existingClass.id} (${existingClass.code})`;
+      document.getElementById('classEditIdInput').value = String(existingClass.id);
+      document.getElementById('classCodeInput').value = `#${existingClass.id} • ${existingClass.code}`;
+      document.getElementById('classNameInput').value = existingClass.namePtBr || '';
+      document.getElementById('classRaceSelect').value = existingClass.raceCode || 'HUMAN';
+      document.getElementById('classAssetKeyInput').value = existingClass.mcreworkCharKey || '';
+
+      const base = existingClass.baseAttributesJson || {};
+      document.getElementById('classBaseVIT').value = String(base.VIT ?? 12);
+      document.getElementById('classBaseSTR').value = String(base.STR ?? 12);
+      document.getElementById('classBaseINT').value = String(base.INT ?? 10);
+      document.getElementById('classBaseWIS').value = String(base.WIS ?? 10);
+      document.getElementById('classBaseAGI').value = String(base.AGI ?? 10);
+      document.getElementById('classBaseDEX').value = String(base.DEX ?? 10);
+
+      const grow = existingClass.growthPerLevelJson || {};
+      document.getElementById('classGrowVIT').value = String(grow.VIT ?? 2);
+      document.getElementById('classGrowSTR').value = String(grow.STR ?? 2);
+      document.getElementById('classGrowINT').value = String(grow.INT ?? 2);
+      document.getElementById('classGrowWIS').value = String(grow.WIS ?? 2);
+      document.getElementById('classGrowAGI').value = String(grow.AGI ?? 2);
+      document.getElementById('classGrowDEX').value = String(grow.DEX ?? 2);
+    } else {
+      const maxClassId = this.classTemplates.reduce((acc, c) => Math.max(acc, Number(c.id) || 0), 0);
+      const nextClassId = maxClassId + 1;
+      document.getElementById('classModalTitle').textContent = `🦸 Novo Personagem / Classe #${nextClassId} (class_${nextClassId})`;
+      document.getElementById('classEditIdInput').value = '';
+      document.getElementById('classCodeInput').value = `#${nextClassId} • class_${nextClassId} (Automático)`;
+      document.getElementById('classNameInput').value = '';
+      document.getElementById('classRaceSelect').value = 'HUMAN';
+      document.getElementById('classAssetKeyInput').value = '';
+
+      document.getElementById('classBaseVIT').value = '12';
+      document.getElementById('classBaseSTR').value = '12';
+      document.getElementById('classBaseINT').value = '10';
+      document.getElementById('classBaseWIS').value = '10';
+      document.getElementById('classBaseAGI').value = '10';
+      document.getElementById('classBaseDEX').value = '10';
+
+      document.getElementById('classGrowVIT').value = '2';
+      document.getElementById('classGrowSTR').value = '2';
+      document.getElementById('classGrowINT').value = '2';
+      document.getElementById('classGrowWIS').value = '2';
+      document.getElementById('classGrowAGI').value = '2';
+      document.getElementById('classGrowDEX').value = '2';
+    }
+
+    const grid = document.getElementById('mcreworkCharsGrid');
+    if (this.mcreworkChars.length === 0) {
+      grid.innerHTML = '<div>Carregando os 46 modelos de personagens do mcrework...</div>';
+      try {
+        this.mcreworkChars = await this.api('/api/admin/mcrework/characters');
+      } catch (err) {
+        grid.innerHTML = `<div style="color:#fca5a5;">${err.message}</div>`;
+        return;
+      }
+    }
+
+    grid.innerHTML = this.mcreworkChars
+      .map(
+        (c, idx) => `
+      <div class="gallery-card" onclick="AdminApp.pickMcreworkChar(${idx})">
+        <img src="${c.thumbUrl}" alt="${c.mcreworkCharKey}" loading="lazy" style="object-fit:contain;" />
+        <strong style="font-size:0.78rem;">${c.suggestedName}</strong>
+        <span style="font-size:0.7rem; color:var(--text-muted);">${c.mcreworkCharKey} &bull; Tier ${c.tier}</span>
+      </div>`
+      )
+      .join('');
+  }
+
+  pickMcreworkChar(idx) {
+    const item = this.mcreworkChars[idx];
+    if (!item) return;
+    document.getElementById('classAssetKeyInput').value = item.mcreworkCharKey;
+    const nameInput = document.getElementById('classNameInput');
+    if (!nameInput.value.trim() && item.suggestedName) {
+      nameInput.value = item.suggestedName;
+    }
+  }
+
+  async saveClassTemplate() {
+    try {
+      const editId = document.getElementById('classEditIdInput').value.trim();
+      const namePtBr = document.getElementById('classNameInput').value.trim();
+      const raceCode = document.getElementById('classRaceSelect').value || 'HUMAN';
+      const mcreworkCharKey = document.getElementById('classAssetKeyInput').value.trim();
+
+      if (!mcreworkCharKey) {
+        alert('Toque em um modelo de Personagem da galeria abaixo para selecioná-lo.');
+        return;
+      }
+
+      const dto = {
+        namePtBr,
+        raceCode,
+        mcreworkCharKey,
+        baseAttributesJson: {
+          VIT: Number(document.getElementById('classBaseVIT').value) || 10,
+          STR: Number(document.getElementById('classBaseSTR').value) || 10,
+          INT: Number(document.getElementById('classBaseINT').value) || 10,
+          WIS: Number(document.getElementById('classBaseWIS').value) || 10,
+          AGI: Number(document.getElementById('classBaseAGI').value) || 10,
+          DEX: Number(document.getElementById('classBaseDEX').value) || 10,
+        },
+        growthPerLevelJson: {
+          VIT: Number(document.getElementById('classGrowVIT').value) || 0,
+          STR: Number(document.getElementById('classGrowSTR').value) || 0,
+          INT: Number(document.getElementById('classGrowINT').value) || 0,
+          WIS: Number(document.getElementById('classGrowWIS').value) || 0,
+          AGI: Number(document.getElementById('classGrowAGI').value) || 0,
+          DEX: Number(document.getElementById('classGrowDEX').value) || 0,
+        },
+      };
+
+      const path = editId ? `/api/admin/class-templates/${editId}` : '/api/admin/class-templates';
+      const method = editId ? 'PUT' : 'POST';
+
+      await this.api(path, {
+        method,
+        body: JSON.stringify(dto),
+      });
+
+      this.closeModal('classModal');
+      await this.loadBootstrapData();
+      this.renderClassesCrudTable();
+    } catch (err) {
+      alert(`Erro ao salvar Personagem / Classe: ${err.message}`);
+    }
+  }
+
+  renderClassesCrudTable() {
+    const tbody = document.getElementById('classesTableBody');
+    if (!tbody) return;
+
+    if (this.classTemplates.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="8" style="color:var(--text-muted); padding:14px;">Nenhum Personagem / Classe cadastrado ainda. Clique em <strong>"➕ Novo Personagem do mcrework"</strong> acima para criar o primeiro modelo jogável!</td></tr>`;
+      return;
+    }
+
+    tbody.innerHTML = this.classTemplates
+      .map((ct) => {
+        const b = ct.baseAttributesJson || {};
+        const g = ct.growthPerLevelJson || {};
+        const baseStr = `VIT:${b.VIT ?? 10} | STR:${b.STR ?? 10} | INT:${b.INT ?? 10} | WIS:${b.WIS ?? 10} | AGI:${b.AGI ?? 10} | DEX:${b.DEX ?? 10}`;
+        const growStr = `+${g.VIT ?? 2} / +${g.STR ?? 2} / +${g.INT ?? 2} / +${g.WIS ?? 2} / +${g.AGI ?? 2} / +${g.DEX ?? 2}`;
+
+        return `
+      <tr>
+        <td><strong>#${ct.id}</strong> &bull; <span style="color:var(--accent);">${ct.code}</span></td>
+        <td>
+          <div style="display:flex; align-items:center; gap:8px;">
+            <img src="${ct.thumbUrl}" alt="${ct.mcreworkCharKey}" style="width:48px; height:48px; object-fit:contain; background:#020617; border-radius:6px; border:1px solid var(--border);" />
+            <span style="font-size:0.75rem; color:var(--text-muted);">${ct.mcreworkCharKey}</span>
+          </div>
+        </td>
+        <td><strong>${ct.namePtBr}</strong></td>
+        <td><span style="padding:2px 8px; border-radius:99px; background:rgba(56,189,248,0.14); color:var(--accent); font-size:0.75rem;">${ct.raceNamePtBr || ct.raceCode}</span></td>
+        <td><span style="font-family:monospace; font-size:0.76rem;">${baseStr}</span></td>
+        <td><span style="font-family:monospace; font-size:0.75rem; color:#86efac;">${growStr}</span></td>
+        <td><strong>${ct.characterCount ?? 0}</strong> char(s)</td>
+        <td>
+          <div style="display:flex; gap:6px;">
+            <button onclick="AdminApp.openClassTemplateModal(${ct.id})">✏️ Editar</button>
+            <button class="btn-danger" onclick="AdminApp.deleteClassTemplate(${ct.id})">🗑️</button>
+          </div>
+        </td>
+      </tr>`;
+      })
+      .join('');
+  }
+
+  async deleteClassTemplate(id) {
+    if (!confirm('Deseja realmente excluir este Personagem / Classe da tabela?')) return;
+    try {
+      await this.api(`/api/admin/class-templates/${id}`, { method: 'DELETE' });
+      await this.loadBootstrapData();
+    } catch (err) {
+      alert(`Erro ao excluir Classe: ${err.message}`);
     }
   }
 

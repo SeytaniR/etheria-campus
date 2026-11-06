@@ -88,3 +88,6 @@ Como este projeto é desenvolvido em **revezamento de turnos entre múltiplas co
   2. **Tablet (4:3, 16:10)**
   3. **Celular Horizontal (Landscape)**
   4. **Celular Vertical (Portrait — ergonomia de uma mão)**
+
+### 6. Padrão Obrigatório de Auto-Incremento de IDs e Chaves (`code`) nas Tabelas Curadas
+* Em todas as tabelas de conteúdo curado pelo usuário na Rota `/admin` (`maps`, `npc_templates`, `class_templates`, `monster_templates`, `skill_templates`, `item_templates`, etc.), tanto o `id` numérico (`1, 2, 3...`) quanto a chave única `code` (`map_1`, `npc_1`, `class_1`, `monster_1`, `skill_1`, `item_1`...) devem ser **gerados e auto-incrementados automaticamente em sincronia pelo servidor**, exigindo que o usuário digite apenas o Nome (`i18n`) do registro.

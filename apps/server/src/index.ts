@@ -18,6 +18,7 @@ import { PrismaClient } from '@etheria/database';
 import { AdminAuthService } from './security/AdminAuthService.js';
 import { AdminUsersController } from './controllers/AdminUsersController.js';
 import { AdminMapsController } from './controllers/AdminMapsController.js';
+import { GamePlayController } from './controllers/GamePlayController.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -52,6 +53,7 @@ export class EtheriaServerApp {
   private readonly authService: AdminAuthService;
   private readonly usersController: AdminUsersController;
   private readonly mapsController: AdminMapsController;
+  private readonly playController: GamePlayController;
   private readonly publicDir: string;
 
   constructor() {
@@ -59,6 +61,7 @@ export class EtheriaServerApp {
     this.authService = new AdminAuthService(this.prisma);
     this.usersController = new AdminUsersController(this.prisma);
     this.mapsController = new AdminMapsController(this.prisma);
+    this.playController = new GamePlayController(this.prisma);
     this.publicDir = path.resolve(__dirname, '../public');
   }
 
@@ -176,7 +179,7 @@ export class EtheriaServerApp {
           return;
         }
 
-        // --- Rotas do Editor Visual de Mapas & Galeria mcrework ---
+        // --- Rotas do Editor Visual de Mapas, NPCs, Classes & Galeria mcrework ---
         if (pathname === '/api/admin/mcrework/maps' && method === 'GET') {
           this.sendJson(res, 200, await this.mapsController.getMcreworkCleanMapGallery());
           return;
@@ -185,8 +188,29 @@ export class EtheriaServerApp {
           this.sendJson(res, 200, await this.mapsController.getMcreworkNpcGallery());
           return;
         }
+        if (pathname === '/api/admin/mcrework/characters' && method === 'GET') {
+          this.sendJson(res, 200, await this.mapsController.getMcreworkCharacterGallery());
+          return;
+        }
         if (pathname === '/api/admin/maps/bootstrap' && method === 'GET') {
           this.sendJson(res, 200, await this.mapsController.getEditorBootstrap());
+          return;
+        }
+        if (pathname === '/api/admin/class-templates' && method === 'POST') {
+          const dto = await this.readJsonBody(req);
+          this.sendJson(res, 201, await this.mapsController.saveClassTemplate(dto, null));
+          return;
+        }
+        const classMatch = pathname.match(/^\/api\/admin\/class-templates\/(\d+)$/);
+        if (classMatch && method === 'PUT') {
+          const id = Number(classMatch[1]);
+          const dto = await this.readJsonBody(req);
+          this.sendJson(res, 200, await this.mapsController.saveClassTemplate(dto, id));
+          return;
+        }
+        if (classMatch && method === 'DELETE') {
+          const id = Number(classMatch[1]);
+          this.sendJson(res, 200, await this.mapsController.deleteClassTemplate(id));
           return;
         }
         if (pathname === '/api/admin/npc-templates' && method === 'POST') {
@@ -228,7 +252,143 @@ export class EtheriaServerApp {
         return;
       }
 
-      // 4. Redirecionamento da raiz ou `/admin` para a interface do Studio Low-Code
+      // 4. Rotas da API dos Jogadores e GM (`/api/play/*`)
+      if (pathname === '/api/play/auth/login' && method === 'POST') {
+        const body = await this.readJsonBody<{ username?: string; password?: string }>(req);
+        const result = await this.authService.authenticatePlay(
+          req,
+          body.username ?? '',
+          body.password ?? ''
+        );
+        if (!result.success) {
+          this.sendJson(res, 401, { error: result.error });
+          return;
+        }
+        this.sendJson(res, 200, {
+          token: result.token,
+          session: result.payload,
+        });
+        return;
+      }
+
+      if (pathname.startsWith('/api/play/')) {
+        const session = this.authService.verifyPlayToken(req);
+        if (!session) {
+          this.sendJson(res, 401, { error: 'Sessão expirada ou não autenticada. Faça login em /play.' });
+          return;
+        }
+
+        let userAccountId = Number(session.sub);
+        if (!Number.isInteger(userAccountId) || userAccountId <= 0) {
+          const firstAdmin = await this.prisma.userAccount.findFirst({
+            where: { role: 'ADMIN' },
+            orderBy: { id: 'asc' },
+          });
+          if (!firstAdmin) {
+            this.sendJson(res, 401, { error: 'Crie primeiro uma conta de usuário no banco.' });
+            return;
+          }
+          userAccountId = firstAdmin.id;
+        }
+
+        if (pathname === '/api/play/bootstrap' && method === 'GET') {
+          const data = await this.playController.getPlayBootstrap(userAccountId);
+          this.sendJson(res, 200, {
+            session: {
+              userAccountId,
+              username: session.username,
+              role: session.role,
+            },
+            ...data,
+          });
+          return;
+        }
+
+        if (pathname === '/api/play/characters' && method === 'POST') {
+          const dto = await this.readJsonBody(req);
+          this.sendJson(res, 201, await this.playController.createCharacter(userAccountId, dto));
+          return;
+        }
+
+        const charDeleteMatch = pathname.match(/^\/api\/play\/characters\/(\d+)$/);
+        if (charDeleteMatch && method === 'DELETE') {
+          const charId = Number(charDeleteMatch[1]);
+          this.sendJson(res, 200, await this.playController.deleteCharacter(userAccountId, charId));
+          return;
+        }
+
+        const playMapMatch = pathname.match(/^\/api\/play\/map\/(\d+)$/);
+        if (playMapMatch && method === 'GET') {
+          const mapId = Number(playMapMatch[1]);
+          this.sendJson(res, 200, await this.playController.getMapStateForPlay(mapId));
+          return;
+        }
+
+        const syncPosMatch = pathname.match(/^\/api\/play\/characters\/(\d+)\/sync-position$/);
+        if (syncPosMatch && method === 'POST') {
+          const charId = Number(syncPosMatch[1]);
+          const dto = await this.readJsonBody(req);
+          this.sendJson(
+            res,
+            200,
+            await this.playController.syncPosition(userAccountId, session.role, charId, dto)
+          );
+          return;
+        }
+
+        const traverseMatch = pathname.match(/^\/api\/play\/characters\/(\d+)\/traverse-portal$/);
+        if (traverseMatch && method === 'POST') {
+          const charId = Number(traverseMatch[1]);
+          const dto = await this.readJsonBody<{ portalId: number }>(req);
+          this.sendJson(
+            res,
+            200,
+            await this.playController.traversePortal(userAccountId, charId, Number(dto.portalId))
+          );
+          return;
+        }
+
+        const unstuckMatch = pathname.match(/^\/api\/play\/characters\/(\d+)\/unstuck$/);
+        if (unstuckMatch && method === 'POST') {
+          const charId = Number(unstuckMatch[1]);
+          this.sendJson(res, 200, await this.playController.unstuckCharacter(userAccountId, charId));
+          return;
+        }
+
+        const gmTeleportMatch = pathname.match(/^\/api\/play\/characters\/(\d+)\/gm-teleport$/);
+        if (gmTeleportMatch && method === 'POST') {
+          const charId = Number(gmTeleportMatch[1]);
+          const dto = await this.readJsonBody(req);
+          this.sendJson(
+            res,
+            200,
+            await this.playController.gmTeleport(userAccountId, session.role, charId, dto)
+          );
+          return;
+        }
+
+        this.sendJson(res, 404, { error: 'Rota da API Play não encontrada.' });
+        return;
+      }
+
+      // 5. Arquivos estáticos da Rota `/play` e `/gm` (Cliente de Jogo & Painel GM Integrado)
+      if (pathname === '/play' || pathname === '/play/' || pathname === '/gm' || pathname === '/gm/') {
+        const htmlPath = path.join(this.publicDir, 'play', 'index.html');
+        const html = await fs.readFile(htmlPath, 'utf-8');
+        res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
+        res.end(html);
+        return;
+      }
+
+      if (pathname === '/play/play.js') {
+        const jsPath = path.join(this.publicDir, 'play', 'play.js');
+        const js = await fs.readFile(jsPath, 'utf-8');
+        res.writeHead(200, { 'Content-Type': 'application/javascript; charset=utf-8' });
+        res.end(js);
+        return;
+      }
+
+      // 6. Redirecionamento da raiz ou `/admin` para a interface do Studio Low-Code
       if (pathname === '/' || pathname === '/admin' || pathname === '/admin/') {
         const htmlPath = path.join(this.publicDir, 'admin', 'index.html');
         const html = await fs.readFile(htmlPath, 'utf-8');

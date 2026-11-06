@@ -8,9 +8,9 @@
 ---
 
 ## 📌 Status Atual do Projeto
-* **Versão Atual:** `v0.3.7`
-* **Última Atualização:** `2026-11-05`
-* **Fase Atual:** **Etapa 2 (Parte 1) Concluída (`v0.3.7`) — Aba `🧙 Tabela de NPCs` com auto-incremento `npc_N` integrada ao Editor Visual de Mapas!**
+* **Versão Atual:** `v0.4.0`
+* **Última Atualização:** `2026-11-06`
+* **Fase Atual:** **Etapa 2 (Parte 2) Concluída (`v0.4.0`) — Aba `🦸 Personagens` (`class_templates` com auto-incremento `class_N`) + Rota dos Jogadores (`/play`) e Painel `/gm` Integrado (`⚡ Painel GM`) funcionando com sprites 8-direções, colisão poligonal, opacidade de sobreposição, portais pareados e teleporte GM!**
 * **Repositório Oficial:** `https://github.com/SeytaniR/etheria-campus`
 * **Fonte Bruta de Assets:** `https://github.com/SeytaniR/mcrework` (`https://seytanir.github.io/mcrework/`)
 

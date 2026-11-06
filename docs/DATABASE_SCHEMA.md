@@ -104,8 +104,8 @@ Os parâmetros de **Dominação**, **Spawn de Monstros** e **Regra de PvP** são
 * **`attribute_conversions`:** Matriz low-code que define quanto 1 ponto de cada Atributo Base soma em cada Atributo de Combate.
 
 ### 2.4. Tabelas de Entidades (`class_templates`, `monster_rarities`, `monster_templates`, `monster_biomes`)
-* **`class_templates` (Personagens Jogáveis):**
-  * `id`, `mcrework_char_key`, `name_i18n_key`, `race_code` (padrão `HUMAN`), `base_attributes_json`, `growth_per_level_json`, `skill_ids_json`. *(Elemento sorteado ao criar o personagem).*
+* **`class_templates` (Personagens Jogáveis — Auto-Incremento `class_1`, `class_2`...):**
+  * `id`, `code` (`class_N` gerado automaticamente em sincronia com o `id`), `mcrework_char_key` (selecionado dentre os 46 modelos animados de 8 direções de `assets/characters/catalog.json`), `name_i18n_key`, `race_code` (padrão `HUMAN`), `base_attributes_json`, `growth_per_level_json`, `skill_ids_json`. *(Elemento sorteado ao criar o personagem em `player_characters`).*
 * **`monster_rarities`:**
   * `COMMON`, `UNCOMMON`, `ELITE`, `RARE`, `MINIBOSS`, `BOSS` (com multiplicadores de status, EXP, drop e escala visual).
 * **`monster_templates` (Monstros e Templates de Pets):**

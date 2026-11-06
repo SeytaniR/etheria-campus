@@ -17,9 +17,10 @@ Este documento detalha os módulos Orientados a Objetos, o Motor de Regras Proce
    * Gerencia instâncias de mapas (`MapInstance`), validação de movimento contra a malha de colisão salva no banco (`collision_mesh_json`), dominação de Facções/Alianças, encontros procedurais, instâncias de arena (`BattleArenaInstance`) e anti-cheat.
 5. **`@etheria/client` (Cliente WebGL Pixi.js + UI Camaleão + APK Capacitor):**
    * Renderiza mapas 2.5D e Arenas 10x10 a 60 FPS com interface 100% responsiva (PC, Tablet, Celular Horizontal e Celular Vertical).
-6. **Rotas `/admin` (Studio Low-Code) & `/gm` (Game Master In-Game):**
-   * **`/admin`:** Interface visual para criar e editar todas as tabelas do jogo com *Hot-Reload*.
-   * **`/gm`:** Painel dentro do jogo para teleporte, *summon*, edição de nível/atributos ao vivo e moderação.
+6. **Rotas `/admin` (Studio Low-Code), `/play` (Rota dos Jogadores) & `/gm` (Game Master In-Game):**
+   * **`/admin`:** Interface visual para criar e editar todas as tabelas do jogo (`maps`, `npc_templates`, `class_templates`, `user_accounts`, etc.) com auto-incremento padronizado (`map_1`, `npc_1`, `class_1`...) e exportação automática de Snapshot JSON.
+   * **`/play`:** Rota dos jogadores para autenticação, criação/seleção de personagens (`player_characters` com sorteio elemental inicial `10%` `NEUTRAL` vs `20%` peso relativo para cada elemento ativo), exploração 2.5D em tempo real com sprites animados de 8 direções do `mcrework`, colisão poligonal (`collision_mesh_json`), opacidade de sobreposição (`overlap_mesh_json`), travessia de portais pareados (`Entrada <-> Saída`) e função **`🆘 Destravar Personagem`** (retorno ao `spawn_x, spawn_y` do mapa).
+   * **`/gm` (Integrado em `/play`):** Painel flutuante (`⚡ Painel GM`) exclusivo para contas `ADMIN` e `GM` permitindo teleporte instantâneo em 1 clique para qualquer mapa salvo, Raio-X visual das malhas de colisão/sobreposição/portais/spawn em tempo real, modo No-Clip (atravessar paredes), multiplicador de velocidade GM e *Hot-Reload* do mapa atual direto do PostgreSQL.
 
 ---
 

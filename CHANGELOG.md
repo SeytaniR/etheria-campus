@@ -5,6 +5,23 @@ Qualquer IA trabalhando neste repositório **DEVE** incrementar a versão e regi
 
 ---
 
+## [v0.4.0] - 2026-11-06
+### Adicionado
+* **Aba `🦸 Personagens` (`class_templates`) na Rota `/admin` com Auto-Incremento `class_1`, `class_2`... (`apps/server/src/controllers/AdminMapsController.ts` & `apps/server/public/admin/`):**
+  * Integração com o catálogo oficial de 46 modelos de personagens jogáveis do `mcrework` (`assets/characters/catalog.json` com sprites animados em 8 direções).
+  * Criação e edição de Classes/Personagens com `id` e chave `code` (`class_1`, `class_2`...) auto-incrementados automaticamente em sincronia, escolha de Raça (padrão `HUMAN`) e configuração dos 6 Atributos Base iniciais (`VIT`, `STR`, `INT`, `WIS`, `AGI`, `DEX`) e Crescimento por Nível.
+* **Rota dos Jogadores (`/play`) e Motor de Exploração 2.5D (`apps/server/src/controllers/GamePlayController.ts` & `apps/server/public/play/`):**
+  * Tela de Login e Lobby de Seleção/Criação de Personagens (`player_characters`), reutilizando automaticamente a sessão ativa se o usuário vier do `/admin`.
+  * **Sorteio Elemental Inicial Oficial (`rollInitialElement`):** Sorteia `10%` `NEUTRAL` vs `20%` peso relativo para cada elemento ativo (`FIRE`, `EARTH`, `AIR`, `WATER`) ao criar o personagem, posicionando-o no Ponto de Spawn oficial (`spawnX, spawnY`) do Mapa #1.
+  * **Renderizador 2.5D com Atlas de Sprites 8-Direções (`McreworkSpriteSheet`):** Carrega e anima em tempo real os arquivos `atlas.json` + `atlas.webp` do `mcrework` tanto para o Personagem do Jogador (`Idle` e `Walk` em 8 direções) quanto para os NPCs posicionados no mapa, com *Y-Sorting* de profundidade.
+  * **Física Poligonal e Portais Pareados em Tempo Real:** Colisão contra `collisionMeshJson` com deslizamento suave pelas paredes, redução de opacidade do personagem ao passar sob áreas de `overlapMeshJson` (`overlapOpacity`), travessia de portais pareados (`Entrada <-> Saída`), Ficha de Atributos Procedurais (`📊 Atributos`) e botão **`🆘 Destravar (Spawn)`**.
+* **Painel `/gm` Integrado (`⚡ Painel GM` dentro de `/play` e rota `/gm`):**
+  * Exclusivo para contas `ADMIN` e `GM`: Teleporte instantâneo em 1 clique para qualquer mapa cadastrado no banco, **Modo Raio-X (`👁️`)** para inspecionar malhas de colisão/sobreposição/portais/spawn enquanto caminha pelo mapa, **Modo No-Clip (`👻 Atravessar Paredes`)**, multiplicador de velocidade GM (`1x`, `2x`, `3.5x`, `6x`) e botão de **Hot-Reload (`🔄`)** do mapa atual direto do PostgreSQL.
+* **Atualização de Documentação e Regras (`AGENTS.md`, `.gemini/rules/AGENTS.md`, `docs/ARCHITECTURE.md`, `docs/DATABASE_SCHEMA.md`):**
+  * Consolidada a Regra #6 de Auto-Incremento Padronizado (`map_N`, `npc_N`, `class_N`) e a arquitetura das rotas `/play` e `/gm`.
+
+---
+
 ## [v0.3.7] - 2026-11-05
 ### Adicionado
 * **Aba Dedicada `🧙 Tabela de NPCs` e Auto-Incremento `npc_1`, `npc_2`... (`apps/server/src/controllers/AdminMapsController.ts` & `apps/server/public/admin/`):**

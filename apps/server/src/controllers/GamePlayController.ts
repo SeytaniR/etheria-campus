@@ -1,0 +1,571 @@
+/**
+ * @file apps/server/src/controllers/GamePlayController.ts
+ * @module @etheria/server
+ * @description Controlador Orientado a Objetos para a Rota dos Jogadores (`/play`) e Painel GM (`/gm`).
+ * @rules
+ *   1. Sorteia o Elemento inicial do Personagem respeitando a Regra Trancada:
+ *      - `NEUTRAL`: 10% de chance (0.10).
+ *      - Elementos Ativos (`FIRE`, `EARTH`, `AIR`, `WATER`): 20% de peso relativo cada (dividem os 90% restantes igualmente).
+ *   2. Posiciona novos personagens no Ponto de Spawn (`spawnX, spawnY`) do Mapa #1 (`Vila Izumo`).
+ *   3. Valida colisão poligonal no servidor usando `MapPolygonMesh` (`@etheria/shared`), exceto quando um GM/ADMIN
+ *      ativa explicitamente o modo No-Clip de inspeção.
+ *   4. Processa travessia de Portais Pareados (`Entrada <-> Saída`), função "Destravar Personagem" (Unstuck para o
+ *      `spawnX, spawnY` do mapa atual) e ferramentas GM (Teleporte instantâneo entre mapas, ajuste de nível/elemento para testes).
+ * @dependencies @etheria/database, @etheria/shared
+ */
+
+import { PrismaClient, SnapshotManager } from '@etheria/database';
+import { MapPolygonMesh, type MapPolygon } from '@etheria/shared';
+
+export interface CreateCharacterDto {
+  name: string;
+  classTemplateId: number;
+}
+
+export interface SyncPositionDto {
+  mapId: number;
+  posX: number;
+  posY: number;
+  noClip?: boolean;
+}
+
+export interface GmTeleportDto {
+  targetMapId: number;
+  targetX?: number;
+  targetY?: number;
+}
+
+export class GamePlayController {
+  private readonly prisma: PrismaClient;
+  private readonly snapshotManager: SnapshotManager;
+  private readonly mcreworkPagesBaseUrl = 'https://seytanir.github.io/mcrework';
+
+  constructor(prisma: PrismaClient) {
+    this.prisma = prisma;
+    this.snapshotManager = new SnapshotManager(prisma);
+  }
+
+  /**
+   * Sorteia o Elemento inicial conforme a regra oficial do GDD:
+   * - 10% de chance de `NEUTRAL` (penalizado).
+   * - 90% distribuídos igualmente entre os 4 elementos ativos (`FIRE`, `EARTH`, `AIR`, `WATER`).
+   */
+  public rollInitialElement(): string {
+    const roll = Math.random();
+    if (roll < 0.10) {
+      return 'NEUTRAL';
+    }
+    const activeElements = ['FIRE', 'EARTH', 'AIR', 'WATER'];
+    const idx = Math.floor(Math.random() * activeElements.length);
+    return activeElements[idx] ?? 'FIRE';
+  }
+
+  /**
+   * Carrega os dados de inicialização para a Rota `/play`:
+   * - Classes/Personagens disponíveis (`class_templates`)
+   * - Elementos (`elements`), Raças (`races`) e Matriz de Conversão de Atributos (`attribute_conversions`)
+   * - Lista de Mapas ativos (para HUD e Teleporte GM)
+   * - Lista de Personagens criados pelo usuário logado (`player_characters`)
+   */
+  public async getPlayBootstrap(userAccountId: number) {
+    const translations = await this.prisma.i18nTranslation.findMany({
+      where: { locale: 'pt-BR' },
+    });
+    const i18nMap = new Map<string, string>();
+    for (const t of translations) {
+      i18nMap.set(t.key, t.text);
+    }
+
+    const classTemplates = (
+      await this.prisma.classTemplate.findMany({
+        where: { isActive: true },
+        orderBy: { id: 'asc' },
+        include: { race: true },
+      })
+    ).map((ct) => ({
+      ...ct,
+      namePtBr: i18nMap.get(ct.nameI18nKey) ?? ct.code,
+      raceNamePtBr: ct.race ? (i18nMap.get(ct.race.nameI18nKey) ?? ct.race.code) : ct.raceCode,
+      thumbUrl: `${this.mcreworkPagesBaseUrl}/assets/characters/${ct.mcreworkCharKey}/thumb.webp`,
+      atlasJsonUrl: `${this.mcreworkPagesBaseUrl}/assets/characters/${ct.mcreworkCharKey}/atlas.json`,
+      atlasWebpUrl: `${this.mcreworkPagesBaseUrl}/assets/characters/${ct.mcreworkCharKey}/atlas.webp`,
+    }));
+
+    const elements = (await this.prisma.element.findMany({ orderBy: { code: 'asc' } })).map((e) => ({
+      ...e,
+      namePtBr: i18nMap.get(e.nameI18nKey) ?? e.code,
+    }));
+
+    const races = (await this.prisma.race.findMany({ orderBy: { code: 'asc' } })).map((r) => ({
+      ...r,
+      namePtBr: i18nMap.get(r.nameI18nKey) ?? r.code,
+    }));
+
+    const combatAttributes = (await this.prisma.combatAttribute.findMany()).map((ca) => ({
+      ...ca,
+      namePtBr: i18nMap.get(ca.nameI18nKey) ?? ca.code,
+    }));
+
+    const attributeConversions = await this.prisma.attributeConversion.findMany();
+
+    const maps = (
+      await this.prisma.gameMap.findMany({
+        where: { isActive: true },
+        orderBy: [{ requiredLevel: 'asc' }, { id: 'asc' }],
+        include: { mapType: true },
+      })
+    ).map((m) => ({
+      id: m.id,
+      code: m.code,
+      namePtBr: i18nMap.get(m.nameI18nKey) ?? m.code,
+      requiredLevel: m.requiredLevel,
+      spawnX: m.spawnX,
+      spawnY: m.spawnY,
+      mapTypeCode: m.mapType.code,
+      mapTypeNamePtBr: i18nMap.get(m.mapType.nameI18nKey) ?? m.mapType.code,
+      pvpRule: m.mapType.pvpRule,
+    }));
+
+    const mapNameById = new Map<number, string>();
+    for (const m of maps) {
+      mapNameById.set(m.id, m.namePtBr);
+    }
+
+    const characters = (
+      await this.prisma.playerCharacter.findMany({
+        where: { userAccountId },
+        orderBy: { id: 'asc' },
+        include: { classTemplate: true },
+      })
+    ).map((c) => this.serializeCharacter(c, i18nMap, mapNameById));
+
+    return {
+      classTemplates,
+      elements,
+      races,
+      combatAttributes,
+      attributeConversions,
+      maps,
+      characters,
+    };
+  }
+
+  /**
+   * Serializa um registro `PlayerCharacter` convertendo `BigInt` (`experience`) e enriquecendo URLs de sprite.
+   */
+  private serializeCharacter(c: any, i18nMap: Map<string, string>, mapNameById?: Map<number, string>) {
+    const classNamePtBr = c.classTemplate
+      ? (i18nMap.get(c.classTemplate.nameI18nKey) ?? c.classTemplate.code)
+      : `Classe #${c.classTemplateId}`;
+    const elementNamePtBr = i18nMap.get(`element.${c.elementCode.toLowerCase()}.name`) ?? c.elementCode;
+    const charKey = c.classTemplate?.mcreworkCharKey ?? 'PC_MALE_000002';
+
+    return {
+      id: c.id,
+      userAccountId: c.userAccountId,
+      name: c.name,
+      classTemplateId: c.classTemplateId,
+      classCode: c.classTemplate?.code ?? `class_${c.classTemplateId}`,
+      classNamePtBr,
+      raceCode: c.classTemplate?.raceCode ?? 'HUMAN',
+      mcreworkCharKey: charKey,
+      thumbUrl: `${this.mcreworkPagesBaseUrl}/assets/characters/${charKey}/thumb.webp`,
+      atlasJsonUrl: `${this.mcreworkPagesBaseUrl}/assets/characters/${charKey}/atlas.json`,
+      atlasWebpUrl: `${this.mcreworkPagesBaseUrl}/assets/characters/${charKey}/atlas.webp`,
+      elementCode: c.elementCode,
+      elementNamePtBr,
+      level: c.level,
+      experience: Number(c.experience ?? 0),
+      unspentStatPoints: c.unspentStatPoints,
+      distributedStatsJson: c.distributedStatsJson,
+      baseAttributesJson: c.classTemplate?.baseAttributesJson ?? {
+        VIT: 10,
+        STR: 10,
+        INT: 10,
+        WIS: 10,
+        AGI: 10,
+        DEX: 10,
+      },
+      growthPerLevelJson: c.classTemplate?.growthPerLevelJson ?? {
+        VIT: 2,
+        STR: 2,
+        INT: 2,
+        WIS: 2,
+        AGI: 2,
+        DEX: 2,
+      },
+      currentMapId: c.currentMapId ?? 1,
+      currentMapNamePtBr: mapNameById?.get(c.currentMapId ?? 1) ?? `Mapa #${c.currentMapId ?? 1}`,
+      posX: c.posX,
+      posY: c.posY,
+      isCriminal: c.isCriminal,
+    };
+  }
+
+  /**
+   * Cria um novo Personagem para o jogador logado:
+   * - Valida a Classe/Personagem escolhida em `class_templates`
+   * - Sorteia o Elemento inicial (10% NEUTRAL vs 20% cada elemento ativo)
+   * - Posiciona no Ponto de Spawn oficial (`spawnX, spawnY`) do Mapa #1
+   */
+  public async createCharacter(userAccountId: number, dto: CreateCharacterDto) {
+    const cleanName = (dto.name ?? '').trim();
+    if (cleanName.length < 2 || cleanName.length > 24) {
+      throw new Error('O nome do personagem deve ter entre 2 e 24 caracteres.');
+    }
+
+    const existingName = await this.prisma.playerCharacter.findUnique({
+      where: { name: cleanName },
+    });
+    if (existingName) {
+      throw new Error(`Já existe um personagem chamado "${cleanName}". Escolha outro nome.`);
+    }
+
+    const classId = Number(dto.classTemplateId);
+    const classTemplate = await this.prisma.classTemplate.findUnique({
+      where: { id: classId },
+    });
+    if (!classTemplate) {
+      throw new Error('Selecione uma Classe/Personagem válida cadastrada na tabela de Personagens.');
+    }
+
+    // Busca o Mapa Inicial (Mapa #1 - Vila Izumo ou o primeiro mapa ativo do banco)
+    let startMap = await this.prisma.gameMap.findUnique({ where: { id: 1 } });
+    if (!startMap) {
+      startMap = await this.prisma.gameMap.findFirst({ orderBy: { id: 'asc' } });
+    }
+
+    const startMapId = startMap ? startMap.id : null;
+    const spawnX = startMap ? startMap.spawnX : 500;
+    const spawnY = startMap ? startMap.spawnY : 500;
+    const rolledElement = this.rollInitialElement();
+
+    const created = await this.prisma.playerCharacter.create({
+      data: {
+        userAccountId,
+        name: cleanName,
+        classTemplateId: classTemplate.id,
+        elementCode: rolledElement,
+        level: 1,
+        experience: 0n,
+        unspentStatPoints: 5,
+        distributedStatsJson: { VIT: 0, STR: 0, INT: 0, WIS: 0, AGI: 0, DEX: 0 },
+        equippedItemsJson: {},
+        currentMapId: startMapId,
+        posX: spawnX,
+        posY: spawnY,
+      },
+      include: { classTemplate: true },
+    });
+
+    const translations = await this.prisma.i18nTranslation.findMany({ where: { locale: 'pt-BR' } });
+    const i18nMap = new Map<string, string>(translations.map((t) => [t.key, t.text]));
+
+    return this.serializeCharacter(created, i18nMap);
+  }
+
+  /**
+   * Exclui um personagem pertencente ao jogador logado.
+   */
+  public async deleteCharacter(userAccountId: number, characterId: number) {
+    const char = await this.prisma.playerCharacter.findUnique({ where: { id: characterId } });
+    if (!char || char.userAccountId !== userAccountId) {
+      throw new Error('Personagem não encontrado ou não pertence à sua conta.');
+    }
+    await this.prisma.playerCharacter.delete({ where: { id: characterId } });
+    return { deletedId: characterId };
+  }
+
+  /**
+   * Carrega o estado completo de um Mapa para renderização e exploração no cliente `/play`.
+   */
+  public async getMapStateForPlay(requestedMapId: number) {
+    const translations = await this.prisma.i18nTranslation.findMany({ where: { locale: 'pt-BR' } });
+    const i18nMap = new Map<string, string>(translations.map((t) => [t.key, t.text]));
+
+    let map = await this.prisma.gameMap.findUnique({
+      where: { id: requestedMapId },
+      include: {
+        mapType: true,
+        primaryBiome: true,
+        secondaryBiome: true,
+        outgoingPortals: {
+          include: { targetMap: true },
+          orderBy: { id: 'asc' },
+        },
+        npcs: {
+          include: { npcTemplate: true },
+          orderBy: { id: 'asc' },
+        },
+      },
+    });
+
+    if (!map) {
+      map = await this.prisma.gameMap.findFirst({
+        orderBy: { id: 'asc' },
+        include: {
+          mapType: true,
+          primaryBiome: true,
+          secondaryBiome: true,
+          outgoingPortals: {
+            include: { targetMap: true },
+            orderBy: { id: 'asc' },
+          },
+          npcs: {
+            include: { npcTemplate: true },
+            orderBy: { id: 'asc' },
+          },
+        },
+      });
+    }
+
+    if (!map) {
+      throw new Error('Nenhum mapa cadastrado no banco de dados.');
+    }
+
+    return {
+      id: map.id,
+      code: map.code,
+      namePtBr: i18nMap.get(map.nameI18nKey) ?? map.code,
+      mcreworkMapImage: map.mcreworkMapImage,
+      bgImageUrl: `${this.mcreworkPagesBaseUrl}/${map.mcreworkMapImage}`,
+      requiredLevel: map.requiredLevel,
+      levelVarianceMin: map.levelVarianceMin,
+      levelVarianceMax: map.levelVarianceMax,
+      spawnX: map.spawnX,
+      spawnY: map.spawnY,
+      overlapOpacity: map.overlapOpacity,
+      collisionMeshJson: (map.collisionMeshJson as unknown as MapPolygon[]) ?? [],
+      overlapMeshJson: (map.overlapMeshJson as unknown as MapPolygon[]) ?? [],
+      mapType: {
+        id: map.mapType.id,
+        code: map.mapType.code,
+        namePtBr: i18nMap.get(map.mapType.nameI18nKey) ?? map.mapType.code,
+        pvpRule: map.mapType.pvpRule,
+        allowMonsterSpawn: map.mapType.allowMonsterSpawn,
+        dominationTarget: map.mapType.dominationTarget,
+      },
+      primaryBiomeNamePtBr: i18nMap.get(map.primaryBiome.nameI18nKey) ?? map.primaryBiome.code,
+      secondaryBiomeNamePtBr: i18nMap.get(map.secondaryBiome.nameI18nKey) ?? map.secondaryBiome.code,
+      portals: map.outgoingPortals.map((p) => ({
+        id: p.id,
+        label: p.label,
+        sourceX: p.sourceX,
+        sourceY: p.sourceY,
+        triggerRadius: p.triggerRadius,
+        linkedPortalId: p.linkedPortalId,
+        targetMapId: p.targetMapId,
+        targetMapNamePtBr: p.targetMap
+          ? (i18nMap.get(p.targetMap.nameI18nKey) ?? p.targetMap.code)
+          : null,
+        targetX: p.targetX,
+        targetY: p.targetY,
+      })),
+      npcs: map.npcs.map((n) => {
+        const key = n.npcTemplate.mcreworkNpcKey;
+        return {
+          id: n.id,
+          npcTemplateId: n.npcTemplateId,
+          code: n.npcTemplate.code,
+          namePtBr: i18nMap.get(n.npcTemplate.nameI18nKey) ?? n.npcTemplate.code,
+          mcreworkNpcKey: key,
+          isDecorationOnly: n.npcTemplate.isDecorationOnly,
+          triggersJson: n.npcTemplate.triggersJson,
+          posX: n.posX,
+          posY: n.posY,
+          direction: n.direction,
+          thumbUrl: `${this.mcreworkPagesBaseUrl}/assets/npcs/${key}/thumb.png`,
+          atlasJsonUrl: `${this.mcreworkPagesBaseUrl}/assets/npcs/${key}/atlas.json`,
+          atlasWebpUrl: `${this.mcreworkPagesBaseUrl}/assets/npcs/${key}/atlas.webp`,
+        };
+      }),
+    };
+  }
+
+  /**
+   * Valida e persiste a posição do personagem no servidor.
+   * Verifica a malha de colisão (`MapPolygonMesh`) exceto se `noClip` estiver ativo para um GM/ADMIN.
+   */
+  public async syncPosition(
+    userAccountId: number,
+    userRole: string,
+    characterId: number,
+    dto: SyncPositionDto
+  ) {
+    const char = await this.prisma.playerCharacter.findUnique({ where: { id: characterId } });
+    if (!char || char.userAccountId !== userAccountId) {
+      throw new Error('Personagem inválido.');
+    }
+
+    const mapId = Number(dto.mapId) || char.currentMapId || 1;
+    const map = await this.prisma.gameMap.findUnique({ where: { id: mapId } });
+    if (!map) {
+      throw new Error('Mapa não encontrado.');
+    }
+
+    const posX = Math.round(Number(dto.posX) || map.spawnX);
+    const posY = Math.round(Number(dto.posY) || map.spawnY);
+    const isGmNoClip = Boolean(dto.noClip) && (userRole === 'ADMIN' || userRole === 'GM');
+
+    if (!isGmNoClip) {
+      const collisionPolys = Array.isArray(map.collisionMeshJson)
+        ? (map.collisionMeshJson as unknown as MapPolygon[])
+        : [];
+      const mesh = new MapPolygonMesh(collisionPolys);
+      if (mesh.containsPoint(posX, posY)) {
+        return {
+          ok: false,
+          blocked: true,
+          currentMapId: char.currentMapId ?? map.id,
+          posX: char.posX,
+          posY: char.posY,
+        };
+      }
+    }
+
+    await this.prisma.playerCharacter.update({
+      where: { id: characterId },
+      data: {
+        currentMapId: map.id,
+        posX,
+        posY,
+      },
+    });
+
+    return {
+      ok: true,
+      blocked: false,
+      currentMapId: map.id,
+      posX,
+      posY,
+    };
+  }
+
+  /**
+   * Executa a travessia autoritária de um Portal (`map_portals`) interligado (Entrada <-> Saída).
+   */
+  public async traversePortal(userAccountId: number, characterId: number, portalId: number) {
+    const char = await this.prisma.playerCharacter.findUnique({ where: { id: characterId } });
+    if (!char || char.userAccountId !== userAccountId) {
+      throw new Error('Personagem inválido.');
+    }
+
+    const portal = await this.prisma.mapPortal.findUnique({
+      where: { id: portalId },
+    });
+    if (!portal) {
+      throw new Error('Portal não encontrado.');
+    }
+
+    let destMapId = portal.targetMapId;
+    let destX = portal.targetX;
+    let destY = portal.targetY;
+
+    // Se possui linkedPortalId, busca a posição exata do portal par no mapa de destino
+    if (portal.linkedPortalId) {
+      const partner = await this.prisma.mapPortal.findUnique({
+        where: { id: portal.linkedPortalId },
+      });
+      if (partner) {
+        destMapId = partner.sourceMapId;
+        destX = partner.sourceX;
+        destY = partner.sourceY;
+      }
+    }
+
+    if (!destMapId) {
+      throw new Error(
+        `O portal "${portal.label}" ainda não possui um Portal Par de destino vinculado no editor.`
+      );
+    }
+
+    await this.prisma.playerCharacter.update({
+      where: { id: characterId },
+      data: {
+        currentMapId: destMapId,
+        posX: destX,
+        posY: destY,
+      },
+    });
+
+    return {
+      currentMapId: destMapId,
+      posX: destX,
+      posY: destY,
+    };
+  }
+
+  /**
+   * Destrava o personagem (`🆘 Destravar Personagem`), retornando-o ao Ponto de Spawn (`spawnX, spawnY`) do mapa atual.
+   */
+  public async unstuckCharacter(userAccountId: number, characterId: number) {
+    const char = await this.prisma.playerCharacter.findUnique({ where: { id: characterId } });
+    if (!char || char.userAccountId !== userAccountId) {
+      throw new Error('Personagem inválido.');
+    }
+
+    const mapId = char.currentMapId ?? 1;
+    const map = await this.prisma.gameMap.findUnique({ where: { id: mapId } });
+    const spawnX = map ? map.spawnX : 500;
+    const spawnY = map ? map.spawnY : 500;
+
+    await this.prisma.playerCharacter.update({
+      where: { id: characterId },
+      data: {
+        currentMapId: map ? map.id : 1,
+        posX: spawnX,
+        posY: spawnY,
+      },
+    });
+
+    return {
+      currentMapId: map ? map.id : 1,
+      posX: spawnX,
+      posY: spawnY,
+    };
+  }
+
+  /**
+   * Ferramenta exclusiva para contas `GM` ou `ADMIN`: Teleporta o personagem instantaneamente para qualquer mapa salvo.
+   */
+  public async gmTeleport(
+    userAccountId: number,
+    userRole: string,
+    characterId: number,
+    dto: GmTeleportDto
+  ) {
+    if (userRole !== 'ADMIN' && userRole !== 'GM') {
+      throw new Error('Apenas contas GM ou ADMIN podem utilizar o Teleporte GM.');
+    }
+
+    const char = await this.prisma.playerCharacter.findUnique({ where: { id: characterId } });
+    if (!char || char.userAccountId !== userAccountId) {
+      throw new Error('Personagem inválido.');
+    }
+
+    const targetMap = await this.prisma.gameMap.findUnique({
+      where: { id: Number(dto.targetMapId) },
+    });
+    if (!targetMap) {
+      throw new Error('Mapa de destino não encontrado.');
+    }
+
+    const posX = dto.targetX !== undefined ? Number(dto.targetX) : targetMap.spawnX;
+    const posY = dto.targetY !== undefined ? Number(dto.targetY) : targetMap.spawnY;
+
+    await this.prisma.playerCharacter.update({
+      where: { id: characterId },
+      data: {
+        currentMapId: targetMap.id,
+        posX,
+        posY,
+      },
+    });
+
+    return {
+      currentMapId: targetMap.id,
+      posX,
+      posY,
+    };
+  }
+}

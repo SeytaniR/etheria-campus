@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Etheria Campus — Jogo (/play) & Painel GM (/gm)</title>
+  <style>
+    :root {
+      --bg-dark: #060911;
+      --bg-card: #111827;
+      --bg-input: #1e293b;
+      --border: #334155;
+      --accent: #38bdf8;
+      --accent-amber: #f59e0b;
+      --accent-red: #ef4444;
+      --accent-green: #22c55e;
+      --accent-purple: #a855f7;
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      background: var(--bg-dark);
+      color: var(--text);
+      min-height: 100dvh;
+      overflow: hidden;
+      overscroll-behavior: none;
+      -webkit-user-select: none;
+      user-select: none;
+    }
+
+    button {
+      cursor: pointer;
+      border: 1px solid var(--border);
+      background: var(--bg-input);
+      color: var(--text);
+      padding: 8px 12px;
+      border-radius: 8px;
+      font-size: 0.84rem;
+      font-weight: 600;
+      transition: 0.15s;
+      touch-action: manipulation;
+    }
+    button:hover { border-color: var(--accent); }
+    button.btn-primary { background: var(--accent); color: #020617; border-color: var(--accent); font-weight: 700; }
+    button.btn-success { background: var(--accent-green); color: #020617; border-color: var(--accent-green); font-weight: 700; }
+    button.btn-amber { background: var(--accent-amber); color: #020617; border-color: var(--accent-amber); font-weight: 700; }
+    button.btn-danger { background: rgba(239, 68, 68, 0.2); color: #fca5a5; border-color: var(--accent-red); }
+    button.btn-gm {
+      background: linear-gradient(135deg, #a855f7, #6366f1);
+      color: #ffffff;
+      border-color: #c084fc;
+      font-weight: 800;
+    }
+
+    input, select {
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 9px 11px;
+      border-radius: 8px;
+      font-size: 0.88rem;
+      width: 100%;
+    }
+
+    /* ==========================================================================
+       1. TELA DE LOGIN DO JOGADOR / GM
+       ========================================================================== */
+    #playLoginScreen {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      width: min(94vw, 420px);
+      margin: 10vh auto;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 24px;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.75);
+    }
+
+    /* ==========================================================================
+       2. LOBBY DE SELEÇÃO E CRIAÇÃO DE PERSONAGEM (`player_characters`)
+       ========================================================================== */
+    #lobbyScreen {
+      display: none;
+      flex-direction: column;
+      height: 100dvh;
+      overflow-y: auto;
+      padding: 16px;
+      gap: 16px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .lobby-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+    @media (max-width: 860px) {
+      .lobby-grid { grid-template-columns: 1fr; }
+    }
+
+    .panel {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .char-card {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 12px;
+      background: rgba(30, 41, 59, 0.7);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+    }
+    .char-card:hover { border-color: var(--accent); }
+
+    .class-picker-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(135px, 1fr));
+      gap: 10px;
+      max-height: 310px;
+      overflow-y: auto;
+      padding: 4px;
+    }
+    .class-card {
+      background: var(--bg-input);
+      border: 2px solid var(--border);
+      border-radius: 10px;
+      padding: 8px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+      text-align: center;
+    }
+    .class-card.selected {
+      border-color: var(--accent-amber);
+      background: rgba(245, 158, 11, 0.15);
+    }
+    .class-card img {
+      width: 68px;
+      height: 68px;
+      object-fit: contain;
+      background: #020617;
+      border-radius: 8px;
+    }
+
+    /* ==========================================================================
+       3. TELA DO MUNDO DE JOGO (100VW X 100DVH) + HUD + PAINEL GM INTEGRADO
+       ========================================================================== */
+    #worldScreen {
+      display: none;
+      position: fixed;
+      inset: 0;
+      width: 100vw;
+      height: 100dvh;
+      background: #020617;
+      overflow: hidden;
+    }
+
+    canvas#gameCanvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+      touch-action: none;
+      cursor: pointer;
+    }
+
+    /* HUD Superior Esquerdo: Info do Personagem e Mapa */
+    .hud-top-left {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      z-index: 20;
+      max-width: min(92vw, 380px);
+      pointer-events: none;
+    }
+    .hud-card {
+      background: rgba(15, 23, 42, 0.9);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 8px 12px;
+      backdrop-filter: blur(6px);
+      pointer-events: auto;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.6);
+    }
+
+    /* HUD Superior Direito: Ações Rápidas, Destravar e Botão GM */
+    .hud-top-right {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      gap: 6px;
+      z-index: 20;
+    }
+
+    /* Botão Flutuante Central Inferior quando em cima de um Portal ou NPC */
+    #interactionPrompt {
+      position: absolute;
+      bottom: 84px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 25;
+      display: none;
+      align-items: center;
+      gap: 10px;
+      background: rgba(15, 23, 42, 0.96);
+      border: 2px solid var(--accent-purple);
+      padding: 10px 18px;
+      border-radius: 999px;
+      box-shadow: 0 10px 30px rgba(168, 85, 247, 0.5);
+      white-space: nowrap;
+    }
+
+    /* Controles Flutuantes de Zoom no Canto Inferior Direito */
+    .hud-bottom-right {
+      position: absolute;
+      bottom: 16px;
+      right: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      z-index: 20;
+    }
+
+    /* D-Pad Virtual Touch para Celular no Canto Inferior Esquerdo */
+    .touch-dpad {
+      position: absolute;
+      bottom: 16px;
+      left: 12px;
+      display: grid;
+      grid-template-columns: repeat(3, 44px);
+      grid-template-rows: repeat(3, 44px);
+      gap: 4px;
+      z-index: 20;
+      opacity: 0.85;
+    }
+    .touch-dpad button {
+      padding: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.05rem;
+      border-radius: 10px;
+      background: rgba(15, 23, 42, 0.88);
+      border: 1px solid var(--border);
+      user-select: none;
+    }
+    .touch-dpad button:active {
+      background: var(--accent);
+      color: #020617;
+    }
+
+    /* ==========================================================================
+       4. PAINEL GM INTEGRADO (`⚡ Painel GM` — Flutuante In-Game)
+       ========================================================================== */
+    #gmDrawer {
+      position: absolute;
+      top: 56px;
+      right: 10px;
+      width: min(94vw, 360px);
+      max-height: calc(100dvh - 72px);
+      background: rgba(15, 23, 42, 0.97);
+      border: 1px solid #a855f7;
+      border-radius: 12px;
+      padding: 14px;
+      z-index: 35;
+      display: none;
+      flex-direction: column;
+      gap: 12px;
+      overflow-y: auto;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.85);
+    }
+    #gmDrawer.open { display: flex; }
+
+    /* Modal de Ficha de Atributos Procedurais */
+    .modal-backdrop {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.82);
+      z-index: 50;
+      align-items: center;
+      justify-content: center;
+      padding: 12px;
+    }
+    .modal-box {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      width: min(95vw, 560px);
+      max-height: 88dvh;
+      overflow-y: auto;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 1. TELA DE LOGIN -->
+  <section id="playLoginScreen">
+    <h2>⚔️ Etheria Campus — Jogar (/play)</h2>
+    <p style="font-size:0.82rem; color:var(--text-muted);">
+      Entre com sua conta de Jogador, GM ou Admin (ex: <code>dev</code>).
+    </p>
+    <div>
+      <label style="font-size:0.75rem; color:var(--text-muted);">Usuário</label>
+      <input type="text" id="playUsername" placeholder="Digite seu usuário" autocomplete="username" />
+    </div>
+    <div>
+      <label style="font-size:0.75rem; color:var(--text-muted);">Senha</label>
+      <input type="password" id="playPassword" placeholder="Digite sua senha" autocomplete="current-password" />
+    </div>
+    <div id="playLoginError" style="color:#fca5a5; font-size:0.8rem; display:none;"></div>
+    <button class="btn-primary" onclick="PlayApp.login()">▶️ Entrar no Jogo</button>
+    <button onclick="window.location.href='/admin'">🛠️ Ir para o Studio Low-Code (/admin)</button>
+  </section>
+
+  <!-- 2. LOBBY DE SELEÇÃO E CRIAÇÃO DE PERSONAGEM -->
+  <section id="lobbyScreen">
+    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; background:var(--bg-card); padding:12px 16px; border-radius:12px; border:1px solid var(--border);">
+      <div>
+        <strong>⚔️ Etheria Campus — Seleção de Personagem</strong>
+        <span id="lobbyUserBadge" style="font-size:0.78rem; color:var(--accent); margin-left:8px;"></span>
+      </div>
+      <div style="display:flex; gap:8px;">
+        <button onclick="window.location.href='/admin'">🛠️ Studio /admin</button>
+        <button class="btn-danger" onclick="PlayApp.logout()">Sair</button>
+      </div>
+    </div>
+
+    <div class="lobby-grid">
+      <!-- Meus Personagens -->
+      <div class="panel">
+        <h3 style="color:var(--accent); font-size:0.95rem;">🧙 Meus Personagens</h3>
+        <div id="myCharactersList" style="display:flex; flex-direction:column; gap:10px;"></div>
+      </div>
+
+      <!-- Criar Novo Personagem -->
+      <div class="panel">
+        <h3 style="color:var(--accent-amber); font-size:0.95rem;">➕ Criar Novo Personagem</h3>
+        <p style="font-size:0.78rem; color:var(--text-muted);">
+          🎲 <strong>Regra Oficial de Sorteio Elemental:</strong> Ao criar o personagem, seu Elemento Inicial é sorteado pelo servidor (<strong>10% Neutro</strong> vs <strong>20% peso relativo</strong> para Fogo, Terra, Ar ou Água). Você nascerá no Ponto de Spawn oficial do Mapa #1!
+        </p>
+
+        <div>
+          <label style="font-size:0.76rem; color:var(--text-muted); font-weight:600;">Nome do Personagem</label>
+          <input type="text" id="newCharName" placeholder="Ex: Dani" maxlength="24" />
+        </div>
+
+        <div>
+          <label style="font-size:0.76rem; color:var(--text-muted); font-weight:600;">
+            Escolha a Classe / Personagem (da tabela <code>class_templates</code>):
+          </label>
+          <div id="lobbyClassesGrid" class="class-picker-grid"></div>
+        </div>
+
+        <button class="btn-success" style="padding:12px;" onclick="PlayApp.createCharacter()">
+          ✨ Criar Personagem e Sortear Elemento
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3. TELA DO MUNDO DE JOGO (EXPLORAÇÃO 2.5D + PAINEL GM) -->
+  <section id="worldScreen">
+    <canvas id="gameCanvas"></canvas>
+
+    <!-- HUD Superior Esquerdo -->
+    <div class="hud-top-left">
+      <div class="hud-card">
+        <div style="display:flex; align-items:center; justify-content:space-between; gap:8px;">
+          <div>
+            <strong id="hudCharName" style="font-size:0.92rem; color:#fde047;">Personagem</strong>
+            <span id="hudCharClass" style="font-size:0.75rem; color:var(--text-muted);"></span>
+          </div>
+          <span id="hudElementBadge" style="font-size:0.74rem; padding:2px 8px; border-radius:99px; background:rgba(56,189,248,0.2); font-weight:700;"></span>
+        </div>
+        <div style="font-size:0.76rem; color:var(--text-muted); margin-top:4px; display:flex; justify-content:space-between; gap:10px;">
+          <span id="hudMapName">🗺️ Mapa</span>
+          <span id="hudCoords" style="font-family:monospace; color:var(--accent);">X:0 Y:0</span>
+        </div>
+        <div id="hudMapRules" style="font-size:0.7rem; color:#86efac; margin-top:2px;"></div>
+      </div>
+    </div>
+
+    <!-- HUD Superior Direito -->
+    <div class="hud-top-right">
+      <button onclick="PlayApp.openStatsModal()" title="Ver Ficha de Atributos Procedurais">📊 Atributos</button>
+      <button class="btn-amber" onclick="PlayApp.unstuckCharacter()" title="Voltar ao Ponto de Spawn do Mapa atual">
+        🆘 Destravar (Spawn)
+      </button>
+      <button id="btnToggleGm" class="btn-gm" style="display:none;" onclick="PlayApp.toggleGmDrawer()">
+        ⚡ Painel GM
+      </button>
+      <button onclick="PlayApp.backToLobby()" title="Trocar de Personagem">🔄 Personagens</button>
+      <button onclick="window.open('/admin', '_blank')" title="Abrir Studio /admin">🛠️ /admin</button>
+    </div>
+
+    <!-- Prompt de Interação com Portal ou NPC -->
+    <div id="interactionPrompt">
+      <span id="interactionText" style="font-size:0.84rem; font-weight:700;"></span>
+      <button id="interactionBtn" class="btn-primary" style="padding:6px 14px; border-radius:999px;"></button>
+    </div>
+
+    <!-- D-Pad Virtual Touch / Clique (Canto Inferior Esquerdo) -->
+    <div class="touch-dpad">
+      <button onpointerdown="PlayApp.setDpad(-1,-1)" onpointerup="PlayApp.setDpad(0,0)" onpointerleave="PlayApp.setDpad(0,0)">↖</button>
+      <button onpointerdown="PlayApp.setDpad(0,-1)" onpointerup="PlayApp.setDpad(0,0)" onpointerleave="PlayApp.setDpad(0,0)">⬆</button>
+      <button onpointerdown="PlayApp.setDpad(1,-1)" onpointerup="PlayApp.setDpad(0,0)" onpointerleave="PlayApp.setDpad(0,0)">↗</button>
+      <button onpointerdown="PlayApp.setDpad(-1,0)" onpointerup="PlayApp.setDpad(0,0)" onpointerleave="PlayApp.setDpad(0,0)">⬅</button>
+      <button onclick="PlayApp.centerCameraOnPlayer()" title="Centralizar Câmera">🎯</button>
+      <button onpointerdown="PlayApp.setDpad(1,0)" onpointerup="PlayApp.setDpad(0,0)" onpointerleave="PlayApp.setDpad(0,0)">➡</button>
+      <button onpointerdown="PlayApp.setDpad(-1,1)" onpointerup="PlayApp.setDpad(0,0)" onpointerleave="PlayApp.setDpad(0,0)">↙</button>
+      <button onpointerdown="PlayApp.setDpad(0,1)" onpointerup="PlayApp.setDpad(0,0)" onpointerleave="PlayApp.setDpad(0,0)">⬇</button>
+      <button onpointerdown="PlayApp.setDpad(1,1)" onpointerup="PlayApp.setDpad(0,0)" onpointerleave="PlayApp.setDpad(0,0)">↘</button>
+    </div>
+
+    <!-- Zoom no Canto Inferior Direito -->
+    <div class="hud-bottom-right">
+      <button onclick="PlayApp.changeZoom(1.25)">🔍 ➕</button>
+      <button onclick="PlayApp.changeZoom(0.8)">🔍 ➖</button>
+    </div>
+
+    <!-- 4. GAVETA DO PAINEL GM INTEGRADO (`⚡ Painel GM`) -->
+    <aside id="gmDrawer">
+      <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border); padding-bottom:8px;">
+        <strong style="color:#d8b4fe; font-size:0.92rem;">⚡ Painel GM & Debug In-Game</strong>
+        <button class="btn-danger" style="padding:3px 8px;" onclick="PlayApp.toggleGmDrawer()">✕</button>
+      </div>
+
+      <div style="display:flex; flex-direction:column; gap:6px;">
+        <label style="font-size:0.75rem; color:var(--text-muted); font-weight:700;">
+          🚀 Teleporte Instantâneo para Mapa:
+        </label>
+        <div id="gmMapsTeleportList" style="display:flex; flex-direction:column; gap:5px; max-height:190px; overflow-y:auto;"></div>
+      </div>
+
+      <div style="display:flex; flex-direction:column; gap:6px; border-top:1px solid var(--border); padding-top:8px;">
+        <label style="font-size:0.75rem; color:var(--text-muted); font-weight:700;">
+          🛠️ Ferramentas de Inspeção de Mapa:
+        </label>
+        <button id="btnGmXray" onclick="PlayApp.toggleGmXray()">
+          👁️ Raio-X de Malhas/Portais: DESLIGADO
+        </button>
+        <button id="btnGmNoClip" onclick="PlayApp.toggleGmNoClip()">
+          👻 Atravessar Paredes (No-Clip): DESLIGADO
+        </button>
+        <button onclick="PlayApp.hotReloadCurrentMap()">
+          🔄 Recarregar Mapa do Banco (Hot-Reload)
+        </button>
+      </div>
+
+      <div style="display:flex; flex-direction:column; gap:6px; border-top:1px solid var(--border); padding-top:8px;">
+        <label style="font-size:0.75rem; color:var(--text-muted); font-weight:700;">
+          ⚡ Velocidade de Movimento GM:
+        </label>
+        <div style="display:grid; grid-template-columns:repeat(4, 1fr); gap:5px;">
+          <button onclick="PlayApp.setGmSpeed(1)">1x</button>
+          <button onclick="PlayApp.setGmSpeed(2)">2x</button>
+          <button onclick="PlayApp.setGmSpeed(3.5)">3.5x</button>
+          <button onclick="PlayApp.setGmSpeed(6)">6x</button>
+        </div>
+      </div>
+    </aside>
+  </section>
+
+  <!-- MODAL: FICHA DE ATRIBUTOS PROCEDURAIS (6 BASE -> COMBATE) -->
+  <div id="statsModal" class="modal-backdrop">
+    <div class="modal-box">
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <h3>📊 Ficha de Atributos Procedurais</h3>
+        <button class="btn-danger" onclick="document.getElementById('statsModal').style.display='none'">Fechar</button>
+      </div>
+      <div id="statsModalBody" style="display:flex; flex-direction:column; gap:10px; font-size:0.84rem;"></div>
+    </div>
+  </div>
+
+  <script src="/play/play.js"></script>
+</body>
+</html>

@@ -65,6 +65,31 @@ export interface SaveNpcTemplateDto {
   }>;
 }
 
+export interface SaveClassTemplateDto {
+  id?: number | null;
+  code?: string;
+  namePtBr: string;
+  mcreworkCharKey: string;
+  raceCode?: string;
+  isActive?: boolean;
+  baseAttributesJson?: {
+    VIT: number;
+    STR: number;
+    INT: number;
+    WIS: number;
+    AGI: number;
+    DEX: number;
+  };
+  growthPerLevelJson?: {
+    VIT: number;
+    STR: number;
+    INT: number;
+    WIS: number;
+    AGI: number;
+    DEX: number;
+  };
+}
+
 export class AdminMapsController {
   private readonly prisma: PrismaClient;
   private readonly snapshotManager: SnapshotManager;
@@ -73,6 +98,7 @@ export class AdminMapsController {
 
   private cachedMcreworkMaps: any[] | null = null;
   private cachedMcreworkNpcs: any[] | null = null;
+  private cachedMcreworkChars: any[] | null = null;
 
   constructor(prisma: PrismaClient) {
     this.prisma = prisma;
@@ -128,9 +154,36 @@ export class AdminMapsController {
   }
 
   /**
-   * Carrega todos os dados necessários para o Editor de Mapas na Rota `/admin`:
+   * Busca a galeria de 46 visuais de Classes/Personagens jogáveis do `mcrework` (`assets/characters/catalog.json`).
+   */
+  public async getMcreworkCharacterGallery() {
+    if (this.cachedMcreworkChars) return this.cachedMcreworkChars;
+
+    const res = await fetch(`${this.mcreworkRawBaseUrl}/assets/characters/catalog.json`);
+    if (!res.ok) {
+      throw new Error(`Falha ao ler catálogo de Personagens do mcrework (${res.status})`);
+    }
+    const data = (await res.json()) as { classes?: any[] };
+    const cleanChars = (data.classes ?? []).map((c) => ({
+      mcreworkCharKey: c.id,
+      suggestedName: c.name ?? c.id,
+      gender: c.gender ?? 'MALE',
+      tier: c.tier ?? 1,
+      thumbUrl: `${this.mcreworkPagesBaseUrl}/${c.thumb}`,
+      atlasJsonUrl: `${this.mcreworkPagesBaseUrl}/${c.path}`,
+      anchor: c.anchor ?? [0.5, 0.9],
+    }));
+
+    this.cachedMcreworkChars = cleanChars;
+    return cleanChars;
+  }
+
+  /**
+   * Carrega todos os dados necessários para o Editor na Rota `/admin`:
    * - Os 40 Biomas (com nome e descrição traduzidos)
    * - Os 5 Tipos de Mapa (com dominação, spawn e regra de PvP fixos)
+   * - As 11 Raças e 5 Elementos
+   * - Os Templates de Classes/Personagens (`class_templates`)
    * - Os Templates de NPCs cadastrados no nosso banco
    * - Os Mapas cadastrados no nosso banco (com seus polígonos de colisão/sobreposição, portais e NPCs)
    */
@@ -152,6 +205,35 @@ export class AdminMapsController {
     const mapTypes = (await this.prisma.mapType.findMany({ orderBy: { id: 'asc' } })).map((mt) => ({
       ...mt,
       namePtBr: i18nMap.get(mt.nameI18nKey) ?? mt.code,
+    }));
+
+    const races = (await this.prisma.race.findMany({ orderBy: { code: 'asc' } })).map((r) => ({
+      ...r,
+      namePtBr: i18nMap.get(r.nameI18nKey) ?? r.code,
+    }));
+
+    const elements = (await this.prisma.element.findMany({ orderBy: { code: 'asc' } })).map((e) => ({
+      ...e,
+      namePtBr: i18nMap.get(e.nameI18nKey) ?? e.code,
+    }));
+
+    const classTemplates = (
+      await this.prisma.classTemplate.findMany({
+        orderBy: { id: 'asc' },
+        include: {
+          race: true,
+          _count: {
+            select: { characters: true },
+          },
+        },
+      })
+    ).map((ct) => ({
+      ...ct,
+      namePtBr: i18nMap.get(ct.nameI18nKey) ?? ct.code,
+      raceNamePtBr: ct.race ? (i18nMap.get(ct.race.nameI18nKey) ?? ct.race.code) : ct.raceCode,
+      thumbUrl: `${this.mcreworkPagesBaseUrl}/assets/characters/${ct.mcreworkCharKey}/thumb.webp`,
+      atlasJsonUrl: `${this.mcreworkPagesBaseUrl}/assets/characters/${ct.mcreworkCharKey}/atlas.json`,
+      characterCount: ct._count?.characters ?? 0,
     }));
 
     const npcTemplates = (
@@ -198,9 +280,130 @@ export class AdminMapsController {
     return {
       biomes,
       mapTypes,
+      races,
+      elements,
+      classTemplates,
       npcTemplates,
       maps,
     };
+  }
+
+  /**
+   * Cria ou atualiza um Template de Classe/Personagem na tabela `class_templates`
+   * com auto-incremento de `id` e chave `class_N` (`class_1`, `class_2`, `class_3`...).
+   */
+  public async saveClassTemplate(dto: SaveClassTemplateDto, explicitId: number | null = null) {
+    if (!dto.mcreworkCharKey) {
+      throw new Error('Selecione um visual de Personagem da galeria do mcrework.');
+    }
+
+    const targetId = explicitId ?? (dto.id ? Number(dto.id) : null);
+    const raceCode = dto.raceCode?.trim() || 'HUMAN';
+    const isActive = dto.isActive !== undefined ? Boolean(dto.isActive) : true;
+
+    const baseAttrs = {
+      VIT: Number(dto.baseAttributesJson?.VIT ?? 10),
+      STR: Number(dto.baseAttributesJson?.STR ?? 10),
+      INT: Number(dto.baseAttributesJson?.INT ?? 10),
+      WIS: Number(dto.baseAttributesJson?.WIS ?? 10),
+      AGI: Number(dto.baseAttributesJson?.AGI ?? 10),
+      DEX: Number(dto.baseAttributesJson?.DEX ?? 10),
+    };
+
+    const growthAttrs = {
+      VIT: Number(dto.growthPerLevelJson?.VIT ?? 2),
+      STR: Number(dto.growthPerLevelJson?.STR ?? 2),
+      INT: Number(dto.growthPerLevelJson?.INT ?? 2),
+      WIS: Number(dto.growthPerLevelJson?.WIS ?? 2),
+      AGI: Number(dto.growthPerLevelJson?.AGI ?? 2),
+      DEX: Number(dto.growthPerLevelJson?.DEX ?? 2),
+    };
+
+    let savedClass: any;
+    let finalNamePtBr = (dto.namePtBr ?? '').trim();
+
+    await this.prisma.$transaction(async (tx) => {
+      if (targetId) {
+        const autoCode = `class_${targetId}`;
+        const nameKey = `class.${autoCode}.name`;
+        if (!finalNamePtBr) finalNamePtBr = `Classe #${targetId}`;
+
+        await tx.i18nTranslation.upsert({
+          where: { key_locale: { key: nameKey, locale: 'pt-BR' } },
+          update: { text: finalNamePtBr },
+          create: { key: nameKey, locale: 'pt-BR', text: finalNamePtBr },
+        });
+
+        savedClass = await tx.classTemplate.update({
+          where: { id: targetId },
+          data: {
+            code: autoCode,
+            mcreworkCharKey: dto.mcreworkCharKey,
+            nameI18nKey: nameKey,
+            raceCode,
+            baseAttributesJson: baseAttrs as any,
+            growthPerLevelJson: growthAttrs as any,
+            isActive,
+          },
+        });
+      } else {
+        const tempCode = `class_pending_${Date.now()}`;
+        const created = await tx.classTemplate.create({
+          data: {
+            code: tempCode,
+            mcreworkCharKey: dto.mcreworkCharKey,
+            nameI18nKey: `class.${tempCode}.name`,
+            raceCode,
+            baseAttributesJson: baseAttrs as any,
+            growthPerLevelJson: growthAttrs as any,
+            isActive,
+          },
+        });
+
+        const autoCode = `class_${created.id}`;
+        const nameKey = `class.${autoCode}.name`;
+        if (!finalNamePtBr) finalNamePtBr = `Classe #${created.id}`;
+
+        await tx.i18nTranslation.upsert({
+          where: { key_locale: { key: nameKey, locale: 'pt-BR' } },
+          update: { text: finalNamePtBr },
+          create: { key: nameKey, locale: 'pt-BR', text: finalNamePtBr },
+        });
+
+        savedClass = await tx.classTemplate.update({
+          where: { id: created.id },
+          data: {
+            code: autoCode,
+            nameI18nKey: nameKey,
+          },
+        });
+      }
+    });
+
+    await this.snapshotManager.exportToDisk();
+    return {
+      ...savedClass,
+      namePtBr: finalNamePtBr,
+      thumbUrl: `${this.mcreworkPagesBaseUrl}/assets/characters/${savedClass.mcreworkCharKey}/thumb.webp`,
+      atlasJsonUrl: `${this.mcreworkPagesBaseUrl}/assets/characters/${savedClass.mcreworkCharKey}/atlas.json`,
+    };
+  }
+
+  /**
+   * Exclui um Template de Classe/Personagem da tabela `class_templates` (se não houver jogadores usando).
+   */
+  public async deleteClassTemplate(id: number) {
+    const count = await this.prisma.playerCharacter.count({
+      where: { classTemplateId: id },
+    });
+    if (count > 0) {
+      throw new Error(
+        `Não é possível excluir a Classe #${id} pois existem ${count} personagem(ns) de jogador utilizando ela.`
+      );
+    }
+    await this.prisma.classTemplate.delete({ where: { id } });
+    await this.snapshotManager.exportToDisk();
+    return { deletedId: id };
   }
 
   /**

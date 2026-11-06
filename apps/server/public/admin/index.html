@@ -429,7 +429,9 @@
       <div class="nav-tabs">
         <button id="tabBtnMaps" class="btn-primary" onclick="AdminApp.switchTab('maps')">🗺️ Mapas</button>
         <button id="tabBtnNpcs" onclick="AdminApp.switchTab('npcs')">🧙 Tabela de NPCs</button>
-        <button id="tabBtnUsers" onclick="AdminApp.switchTab('users')">🔐 Contas Admin</button>
+        <button id="tabBtnClasses" onclick="AdminApp.switchTab('classes')">🦸 Personagens</button>
+        <button id="tabBtnUsers" onclick="AdminApp.switchTab('users')">🔐 Contas</button>
+        <button class="btn-success" onclick="window.open('/play', '_blank')">🎮 Testar no Jogo (/play)</button>
         <button class="btn-danger" onclick="AdminApp.logout()">Sair</button>
       </div>
     </header>
@@ -575,7 +577,43 @@
       </div>
     </div>
 
-    <!-- ABA 3: CRUD DE CONTAS DE USUÁRIOS (ACESSO FORA DO LOCALHOST) -->
+    <!-- ABA 3: TABELA DE PERSONAGENS / CLASSES JOGÁVEIS (`class_templates`) -->
+    <div id="tabClasses" style="display:none; padding:16px; max-width:1250px; margin:0 auto; width:100%; gap:16px; flex-direction:column;">
+      <div class="panel">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+          <div>
+            <h3>🦸 Tabela Oficial de Personagens / Classes Jogáveis (`class_templates`)</h3>
+            <p style="font-size:0.8rem; color:var(--text-muted); margin-top:4px;">
+              Escolha os sprites animados de personagens do <code>mcrework</code> (46 modelos com 8 direções), defina o Nome e os 6 Atributos Base iniciais. O <strong>ID e a Chave (`class_1`, `class_2`...)</strong> são auto-incrementados automaticamente.
+            </p>
+          </div>
+          <div style="display:flex; gap:8px; flex-wrap:wrap;">
+            <button class="btn-success" onclick="window.open('/play', '_blank')">🎮 Abrir Rota dos Jogadores (/play)</button>
+            <button class="btn-primary" onclick="AdminApp.openClassTemplateModal(null)">➕ Novo Personagem do mcrework</button>
+          </div>
+        </div>
+
+        <div style="overflow-x:auto;">
+          <table class="crud-table">
+            <thead>
+              <tr>
+                <th>ID / Chave</th>
+                <th>Visual (mcrework)</th>
+                <th>Nome da Classe / Personagem</th>
+                <th>Raça</th>
+                <th>Atributos Base Nv.1 (VIT/STR/INT/WIS/AGI/DEX)</th>
+                <th>Crescimento / Nível</th>
+                <th>Jogadores</th>
+                <th>Ações</th>
+              </tr>
+            </thead>
+            <tbody id="classesTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ABA 4: CRUD DE CONTAS DE USUÁRIOS (ACESSO FORA DO LOCALHOST) -->
     <div id="tabUsers" style="display:none; padding:16px; max-width:1100px; margin:0 auto; width:100%; gap:16px; flex-direction:column;">
       <div class="panel">
         <h3>🔐 Criar / Editar Conta de Usuário (Acesso Externo à Rota /admin, GMs e Jogadores)</h3>
@@ -784,6 +822,66 @@
       </div>
       <div id="mcreworkNpcsGrid" class="gallery-grid" style="max-height:320px;"></div>
       <button class="btn-success" onclick="AdminApp.saveNewNpcTemplate()">💾 Salvar na Tabela de NPCs</button>
+    </div>
+  </div>
+
+  <!-- MODAL: CRIAR / EDITAR PERSONAGEM / CLASSE ESCOLHENDO DO MCREWORK (AUTO-INCREMENTO class_N) -->
+  <div id="classModal" class="modal-backdrop">
+    <div class="modal-box">
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <h3 id="classModalTitle">🦸 Cadastrar / Editar Personagem na Tabela (mcrework — 46 Modelos)</h3>
+        <button class="btn-danger" onclick="AdminApp.closeModal('classModal')">Fechar</button>
+      </div>
+      <input type="hidden" id="classEditIdInput" value="" />
+      <div class="row-2">
+        <div class="field">
+          <label>ID & Chave da Classe (Auto-Incremento Automático)</label>
+          <input type="text" id="classCodeInput" readonly style="opacity:0.8; font-weight:700; color:var(--accent);" />
+        </div>
+        <div class="field">
+          <label>Nome do Personagem / Classe (PT-BR)</label>
+          <input type="text" id="classNameInput" placeholder="Ex: Espadachim de Izumo" />
+        </div>
+      </div>
+
+      <div class="row-2">
+        <div class="field">
+          <label>Raça da Entidade (Padrão: HUMAN +10% vantagem universal)</label>
+          <select id="classRaceSelect"></select>
+        </div>
+        <div class="field">
+          <label>Visual Selecionado do mcrework</label>
+          <input type="text" id="classAssetKeyInput" readonly placeholder="Toque em um Personagem da galeria abaixo" />
+        </div>
+      </div>
+
+      <div class="row-2">
+        <div class="field">
+          <label>Atributos Base Iniciais Nv.1 (VIT / STR / INT / WIS / AGI / DEX)</label>
+          <div style="display:grid; grid-template-columns:repeat(6, 1fr); gap:4px;">
+            <input type="number" id="classBaseVIT" value="12" min="1" title="VIT (Vitalidade)" placeholder="VIT" />
+            <input type="number" id="classBaseSTR" value="12" min="1" title="STR (Força)" placeholder="STR" />
+            <input type="number" id="classBaseINT" value="10" min="1" title="INT (Inteligência)" placeholder="INT" />
+            <input type="number" id="classBaseWIS" value="10" min="1" title="WIS (Sabedoria)" placeholder="WIS" />
+            <input type="number" id="classBaseAGI" value="10" min="1" title="AGI (Agilidade)" placeholder="AGI" />
+            <input type="number" id="classBaseDEX" value="10" min="1" title="DEX (Destreza)" placeholder="DEX" />
+          </div>
+        </div>
+        <div class="field">
+          <label>Crescimento Automático por Nível (VIT / STR / INT / WIS / AGI / DEX)</label>
+          <div style="display:grid; grid-template-columns:repeat(6, 1fr); gap:4px;">
+            <input type="number" id="classGrowVIT" value="2" min="0" step="1" title="+VIT/Nv" />
+            <input type="number" id="classGrowSTR" value="2" min="0" step="1" title="+STR/Nv" />
+            <input type="number" id="classGrowINT" value="2" min="0" step="1" title="+INT/Nv" />
+            <input type="number" id="classGrowWIS" value="2" min="0" step="1" title="+WIS/Nv" />
+            <input type="number" id="classGrowAGI" value="2" min="0" step="1" title="+AGI/Nv" />
+            <input type="number" id="classGrowDEX" value="2" min="0" step="1" title="+DEX/Nv" />
+          </div>
+        </div>
+      </div>
+
+      <div id="mcreworkCharsGrid" class="gallery-grid" style="max-height:280px;"></div>
+      <button class="btn-success" onclick="AdminApp.saveClassTemplate()">💾 Salvar na Tabela de Personagens</button>
     </div>
   </div>
 

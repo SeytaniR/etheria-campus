@@ -162,6 +162,95 @@ export class AdminAuthService {
   }
 
   /**
+   * Realiza a autenticação de um jogador ou GM na rota `/play`.
+   * Aceita contas `PLAYER`, `GM` e `ADMIN` cadastradas na tabela `user_accounts`.
+   */
+  public async authenticatePlay(
+    req: IncomingMessage,
+    username: string,
+    password: string
+  ): Promise<{ success: boolean; token?: string; payload?: AdminTokenPayload; error?: string }> {
+    const cleanUser = username.trim();
+    const account = await this.prisma.userAccount.findUnique({
+      where: { username: cleanUser },
+    });
+
+    if (account && AdminAuthService.verifyPassword(password, account.passwordHash)) {
+      const payload: AdminTokenPayload = {
+        sub: String(account.id),
+        username: account.username,
+        role: account.role,
+        authSource: 'DATABASE_CRUD',
+        exp: Date.now() + 24 * 60 * 60 * 1000,
+      };
+      return { success: true, token: this.signToken(payload), payload };
+    }
+
+    // Fallback de conveniência no localhost: se digitar a credencial do .env, vincula à primeira conta ADMIN do banco
+    if (
+      this.isStrictLocalhost(req) &&
+      this.localPassword.length > 0 &&
+      cleanUser === this.localUsername &&
+      password === this.localPassword
+    ) {
+      const firstAdmin = await this.prisma.userAccount.findFirst({
+        where: { role: 'ADMIN' },
+        orderBy: { id: 'asc' },
+      });
+      if (firstAdmin) {
+        const payload: AdminTokenPayload = {
+          sub: String(firstAdmin.id),
+          username: firstAdmin.username,
+          role: firstAdmin.role,
+          authSource: 'DATABASE_CRUD',
+          exp: Date.now() + 24 * 60 * 60 * 1000,
+        };
+        return { success: true, token: this.signToken(payload), payload };
+      }
+    }
+
+    return {
+      success: false,
+      error: 'Usuário ou senha inválidos.',
+    };
+  }
+
+  /**
+   * Valida o token Bearer para a rota `/play` (aceita roles `PLAYER`, `GM` e `ADMIN`).
+   */
+  public verifyPlayToken(req: IncomingMessage): AdminTokenPayload | null {
+    const authHeader = req.headers.authorization ?? '';
+    if (!authHeader.startsWith('Bearer ')) return null;
+
+    const token = authHeader.slice(7).trim();
+    const parts = token.split('.');
+    if (parts.length !== 2) return null;
+
+    const [data, signature] = parts;
+    const expectedSig = crypto
+      .createHmac('sha256', this.sessionSecret)
+      .update(data)
+      .digest('base64url');
+
+    const sigBuf = Buffer.from(signature);
+    const expBuf = Buffer.from(expectedSig);
+    if (sigBuf.length !== expBuf.length || !crypto.timingSafeEqual(sigBuf, expBuf)) {
+      return null;
+    }
+
+    try {
+      const payload = JSON.parse(Buffer.from(data, 'base64url').toString('utf-8')) as AdminTokenPayload;
+      if (Date.now() > payload.exp) return null;
+      if (payload.authSource === 'LOCAL_ENV' && !this.isStrictLocalhost(req)) {
+        return null;
+      }
+      return payload;
+    } catch {
+      return null;
+    }
+  }
+
+  /**
    * Assina um token de sessão Admin usando HMAC-SHA256.
    */
   public signToken(payload: AdminTokenPayload): string {

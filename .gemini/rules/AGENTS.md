@@ -7,4 +7,6 @@ Aplique rigorosamente:
 3. **Código Comentado para IA:** Todo arquivo deve ter cabeçalho `@file`, `@module`, `@description`, `@rules` e comentários TSDoc em classes e métodos.
 4. **Versionamento Incremental:** Atualize sempre o `CHANGELOG.md` (ex: `v0.1.1`, `v0.2.0`) e o `docs/HANDOFF.md` ao concluir mudanças.
 5. **Proibição de Código Não Solicitado / Escopo Estrito:** NUNCA crie simuladores, testes, páginas de demonstração ou funcionalidades extras sem o usuário pedir explicitamente. Se o pedido for vago ou faltar informações, PARE E PERGUNTE antes de escrever código para não gerar sujeira no projeto.
+6. **Padrão de Auto-Incremento (`id` e `code`):** Tabelas curadas pelo usuário (`maps`, `npc_templates`, `class_templates`, `monster_templates`, etc.) auto-incrementam automaticamente o `id` e a chave `code` (`map_1`, `npc_1`, `class_1`...) em sincronia no servidor.
+
 
