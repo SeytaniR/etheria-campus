@@ -5,6 +5,24 @@ Qualquer IA trabalhando neste repositório **DEVE** incrementar a versão e regi
 
 ---
 
+## [v0.5.8] - 2026-11-07
+### Corrigido & Aprimorado
+* **Restauração e Acesso Direto à Edição de Atributos e Habilidades na Tabela de Personagens (`AdminClassesTab.js`, `AdminClassModalTemplate.js`):**
+  * **Botões de Ação Direta nas Colunas da Tabela:**
+    * Na coluna **`Nome da Classe / Personagem`**: Adicionado o botão **`⚡ Editar Habilidades`** logo abaixo dos badges de skills do personagem, permitindo abrir o modal diretamente na checklist de habilidades vinculadas.
+    * Na coluna **`Atributos Base Nv.1 (VIT/STR/INT/WIS/AGI/DEX)`**: Adicionado o botão **`📊 Editar Atributos & Combate`** e clique direto na célula, permitindo abrir o modal diretamente nos 6 atributos base, crescimento e projeções de combate.
+    * Na coluna **`Ações`**: Substituído o botão genérico por ações granulares rápidas: **`🎨 Visual 2.5D`**, **`📊 Atributos`**, **`⚡ Habilidades`** e **`🗑️ Excluir`**.
+  * **Destaque Visual das Abas no Modal de Personagens (`AdminClassModalTemplate.js`):**
+    * As abas no topo do `#classModal` agora possuem bordas destacadas e títulos informativos claros: **`🎨 Visual & Posição 2.5D`**, **`📊 Atributos & Combate`** (em ciano), **`⚡ Habilidades`** (em amarelo), **`✨ Visual Reborn`** e **`📜 Lore / i18n`**, eliminando a sensação de que as funções haviam sumido da interface.
+    * Abertura contextual direta: `AdminApp.openClassTemplateModal(classId, 'stats')` ou `('skills')` foca diretamente na aba solicitada sem forçar a tela de modelo visual.
+  * **Melhorias de Produtividade na Aba de Habilidades do Personagem:**
+    * Adicionados botões de atalho rápido no topo da checklist: **`☑️ Marcar Todas`**, **`⏹️ Desmarcar`** e **`⚡ Iniciais (1, 2, 4)`**.
+    * Proteção contra perda acidental: ao salvar um personagem a partir de outras abas (visual ou atributos), o sistema preserva as habilidades pré-existentes caso o container de checkboxes ainda não tenha sido expandido.
+  * **Modularização e Conformidade com a Regra #7:**
+    * Transferência dos métodos de cálculo e preview derivado para `AdminClassModalTemplate.js` (417 linhas), mantendo `AdminClassesTab.js` em 899 linhas (estritamente abaixo de 1.000 linhas).
+
+---
+
 ## [v0.5.7] - 2026-11-07
 ### Adicionado & Aprimorado
 * **Hierarquia Master DEV acima de ADMIN (`AdminAuthService.ts`, `AdminUsersController.ts`, `schema.prisma`, `index.ts`):**

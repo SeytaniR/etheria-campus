@@ -1,6 +1,6 @@
 {
   "version": "0.2.0",
-  "exportedAt": "2026-11-07T17:42:11.169Z",
+  "exportedAt": "2026-11-07T18:51:33.598Z",
   "i18nTranslations": [
     {
       "id": 1,
@@ -1274,7 +1274,7 @@
       "key": "class.class_1.name",
       "locale": "pt-BR",
       "text": "Espadachim",
-      "updatedAt": "2026-11-07T17:02:50.670Z"
+      "updatedAt": "2026-11-07T18:51:33.589Z"
     },
     {
       "id": 201,

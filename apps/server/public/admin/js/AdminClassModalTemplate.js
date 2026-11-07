@@ -1,7 +1,7 @@
 /**
  * @file apps/server/public/admin/js/AdminClassModalTemplate.js
  * @module @etheria/server
- * @description Injeção de Template HTML para o Modal de Criação e Edição de Personagens (#classModal).
+ * @description Injeção de Template HTML e Helpers para o Modal de Criação e Edição de Personagens (#classModal).
  *   Modularizado para manter integridade arquitetural e respeitar a Regra #7 (<1.000 linhas).
  */
 
@@ -29,22 +29,22 @@ class AdminClassModalTemplate {
         <select id="classRaceSelect" style="padding:6px 8px; font-size:0.84rem;"></select>
       </div>
 
-      <!-- 5 ABAS DO MODAL (Incluindo ⚡ Habilidades e 📊 Atributos) -->
-      <div style="display:flex; gap:4px; overflow-x:auto;">
-        <button id="btnClassTabVisual" class="btn-primary" onclick="AdminApp.switchClassModalTab('visual')" style="flex:1; padding:6px 4px; font-size:0.75rem; white-space:nowrap;">
-          🎨 Padrão (<span id="classCountBadge">46</span>)
+      <!-- 5 ABAS DO MODAL COM DESTAQUE CLARO PARA ATRIBUTOS E HABILIDADES -->
+      <div style="display:flex; gap:6px; overflow-x:auto; padding:4px 0; border-bottom:1px solid var(--border); margin-bottom:4px;">
+        <button id="btnClassTabVisual" class="btn-primary" onclick="AdminApp.switchClassModalTab('visual')" style="flex:1; padding:7px 6px; font-size:0.78rem; font-weight:700; white-space:nowrap;">
+          🎨 Visual & Posição 2.5D
         </button>
-        <button id="btnClassTabReborn" onclick="AdminApp.switchClassModalTab('reborn')" style="flex:1; padding:6px 4px; font-size:0.75rem; white-space:nowrap;">
-          ✨ Reborn
-        </button>
-        <button id="btnClassTabDesc" onclick="AdminApp.switchClassModalTab('desc')" style="flex:1; padding:6px 4px; font-size:0.75rem; white-space:nowrap;">
-          📜 Lore / i18n
-        </button>
-        <button id="btnClassTabStats" onclick="AdminApp.switchClassModalTab('stats')" style="flex:1; padding:6px 4px; font-size:0.75rem; white-space:nowrap;">
+        <button id="btnClassTabStats" onclick="AdminApp.switchClassModalTab('stats')" style="flex:1; padding:7px 6px; font-size:0.78rem; font-weight:700; white-space:nowrap; border:1px solid #38bdf8;">
           📊 Atributos & Combate
         </button>
-        <button id="btnClassTabSkills" onclick="AdminApp.switchClassModalTab('skills')" style="flex:1; padding:6px 4px; font-size:0.75rem; white-space:nowrap;">
+        <button id="btnClassTabSkills" onclick="AdminApp.switchClassModalTab('skills')" style="flex:1; padding:7px 6px; font-size:0.78rem; font-weight:700; white-space:nowrap; border:1px solid #fde047;">
           ⚡ Habilidades
+        </button>
+        <button id="btnClassTabReborn" onclick="AdminApp.switchClassModalTab('reborn')" style="flex:1; padding:7px 6px; font-size:0.78rem; font-weight:700; white-space:nowrap;">
+          ✨ Visual Reborn
+        </button>
+        <button id="btnClassTabDesc" onclick="AdminApp.switchClassModalTab('desc')" style="flex:1; padding:7px 6px; font-size:0.78rem; font-weight:700; white-space:nowrap;">
+          📜 Lore / i18n
         </button>
       </div>
 
@@ -112,7 +112,7 @@ class AdminClassModalTemplate {
         <div style="display:flex; gap:6px; flex-wrap:wrap; align-items:center;">
           <input type="text" id="classSearchInput" placeholder="🔍 Buscar modelo padrão..." oninput="AdminApp.filterClassGallery()" style="flex:1; min-width:140px; padding:6px 8px; font-size:0.8rem;" />
           <div style="display:flex; gap:3px;">
-            <button id="btnClassFilterAll" class="active-tool" onclick="AdminApp.setClassGenderFilter('ALL')" style="padding:4px 6px; font-size:0.74rem;">Todos (46)</button>
+            <button id="btnClassFilterAll" class="active-tool" onclick="AdminApp.setClassGenderFilter('ALL')" style="padding:4px 6px; font-size:0.74rem;">Todos (<span id="classCountBadge">46</span>)</button>
             <button id="btnClassFilterMale" onclick="AdminApp.setClassGenderFilter('MALE')" style="padding:4px 6px; font-size:0.74rem;">👨 Masc</button>
             <button id="btnClassFilterFemale" onclick="AdminApp.setClassGenderFilter('FEMALE')" style="padding:4px 6px; font-size:0.74rem;">👩 Fem</button>
           </div>
@@ -256,10 +256,20 @@ class AdminClassModalTemplate {
 
       <!-- ABA 5: HABILIDADES DESTE PERSONAGEM (VÍNCULO DA TABELA DE HABILIDADES) -->
       <div id="classTabSkills" style="display:none; flex-direction:column; gap:10px; padding:4px;">
-        <div style="font-size:0.78rem; color:#fde047; font-weight:700;">
-          ⚡ Selecione quais Habilidades da Tabela de Habilidades este Personagem possui:
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:6px; background:rgba(15,23,42,0.85); padding:8px 10px; border-radius:8px; border:1px solid var(--border);">
+          <div>
+            <strong style="font-size:0.85rem; color:#fde047;">⚡ Habilidades do Personagem:</strong>
+            <div style="font-size:0.72rem; color:var(--text-muted); margin-top:2px;">
+              Marque as habilidades que esta classe pode usar em batalha.
+            </div>
+          </div>
+          <div style="display:flex; gap:4px; flex-wrap:wrap;">
+            <button type="button" onclick="AdminApp.checkAllClassSkills(true)" style="padding:3px 8px; font-size:0.72rem;">☑️ Marcar Todas</button>
+            <button type="button" onclick="AdminApp.checkAllClassSkills(false)" style="padding:3px 8px; font-size:0.72rem;">⏹️ Desmarcar</button>
+            <button type="button" onclick="AdminApp.selectDefaultClassSkills()" style="padding:3px 8px; font-size:0.72rem; color:#fde047; font-weight:700;">⚡ Iniciais (1, 2, 4)</button>
+          </div>
         </div>
-        <div id="classSkillsChecklist" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(210px, 1fr)); gap:6px; max-height:280px; overflow-y:auto; padding:8px; background:#020617; border:1px solid var(--border); border-radius:8px;"></div>
+        <div id="classSkillsChecklist" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(210px, 1fr)); gap:6px; max-height:300px; overflow-y:auto; padding:8px; background:#020617; border:1px solid var(--border); border-radius:8px;"></div>
       </div>
 
       <div style="border-top:1px solid var(--border); padding-top:8px;">
@@ -270,6 +280,137 @@ class AdminClassModalTemplate {
     </div>`;
 
     document.body.appendChild(modalDiv);
+  }
+
+  static attachHelpers(app) {
+    app.setClassSimLevel = function (lvl) {
+      const input = document.getElementById('classSimLevelInput');
+      if (input) {
+        input.value = String(lvl);
+        this.updateClassCombatStatsPreview();
+      }
+    };
+
+    /**
+     * Calcula e renderiza os Atributos de Combate Derivados em Tempo Real
+     * na aba 📊 Atributos & Combate do modal de Personagens.
+     */
+    app.updateClassCombatStatsPreview = function () {
+      const container = document.getElementById('classCombatStatsPreviewContainer');
+      if (!container) return;
+
+      const baseVIT = Number(document.getElementById('classBaseVIT')?.value) || 0;
+      const baseSTR = Number(document.getElementById('classBaseSTR')?.value) || 0;
+      const baseINT = Number(document.getElementById('classBaseINT')?.value) || 0;
+      const baseWIS = Number(document.getElementById('classBaseWIS')?.value) || 0;
+      const baseAGI = Number(document.getElementById('classBaseAGI')?.value) || 0;
+      const baseDEX = Number(document.getElementById('classBaseDEX')?.value) || 0;
+
+      const growVIT = Number(document.getElementById('classGrowVIT')?.value) || 0;
+      const growSTR = Number(document.getElementById('classGrowSTR')?.value) || 0;
+      const growINT = Number(document.getElementById('classGrowINT')?.value) || 0;
+      const growWIS = Number(document.getElementById('classGrowWIS')?.value) || 0;
+      const growAGI = Number(document.getElementById('classGrowAGI')?.value) || 0;
+      const growDEX = Number(document.getElementById('classGrowDEX')?.value) || 0;
+
+      const simLevel = Math.max(1, Number(document.getElementById('classSimLevelInput')?.value) || 1);
+      const levelMult = simLevel - 1;
+
+      const effAttrs = {
+        VIT: baseVIT + levelMult * growVIT,
+        STR: baseSTR + levelMult * growSTR,
+        INT: baseINT + levelMult * growINT,
+        WIS: baseWIS + levelMult * growWIS,
+        AGI: baseAGI + levelMult * growAGI,
+        DEX: baseDEX + levelMult * growDEX,
+      };
+
+      const totalBaseLv1 = baseVIT + baseSTR + baseINT + baseWIS + baseAGI + baseDEX;
+      const totalEff = effAttrs.VIT + effAttrs.STR + effAttrs.INT + effAttrs.WIS + effAttrs.AGI + effAttrs.DEX;
+      const pointsBadge = document.getElementById('classTotalBasePointsBadge');
+      if (pointsBadge) {
+        pointsBadge.innerHTML = `Nv.1: <strong>${totalBaseLv1} pts</strong> ${simLevel > 1 ? `➔ Nv.${simLevel}: <strong>${totalEff} pts</strong>` : ''}`;
+      }
+
+      const combatMap = typeof this.calculateCombatAttributes === 'function'
+        ? this.calculateCombatAttributes(effAttrs)
+        : {};
+
+      const families = [
+        { id: 'vitais', title: '💚 Recursos Vitais & Suporte', borderColor: '#22c55e', bgColor: 'rgba(34,197,94,0.06)', stats: ['MAX_HP', 'MAX_MP', 'HEAL_POWER', 'MP_REGEN'] },
+        { id: 'combate', title: '🗡️ Poder Físico & Mágico', borderColor: '#ef4444', bgColor: 'rgba(239,68,68,0.06)', stats: ['PHYS_ATK', 'MAG_ATK', 'PHYS_DEF', 'MAG_DEF', 'PHYS_PEN', 'MAG_PEN'] },
+        { id: 'iniciativa', title: '⚡ Iniciativa & Crítico', borderColor: '#f59e0b', bgColor: 'rgba(245,158,11,0.06)', stats: ['SPEED', 'CRIT_RATE', 'CRIT_DMG'] },
+        { id: 'acerto_desvio', title: '🎯 Acerto & Desvio Convencional', borderColor: '#38bdf8', bgColor: 'rgba(56,189,248,0.06)', stats: ['PHYS_ACCURACY', 'PHYS_EVASION', 'MAG_ACCURACY', 'MAG_EVASION'] },
+        { id: 'controle', title: '💫 Família de Controle (Hard CC)', subtitle: 'Paralisia, Sono, Confusão, Silêncio, Congelamento', borderColor: '#c084fc', bgColor: 'rgba(192,132,252,0.08)', stats: ['CONTROL_HIT', 'CONTROL_RESIST'] },
+        { id: 'anomalias', title: '🧪 Família de Anomalias & DoT', subtitle: 'Veneno, Queimadura, Sangramento, Cegueira', borderColor: '#f43f5e', bgColor: 'rgba(244,63,94,0.08)', stats: ['ANOMALY_HIT', 'ANOMALY_RESIST'] },
+      ];
+
+      container.innerHTML = families
+        .map((fam) => {
+          const statsCards = fam.stats
+            .map((code) => {
+              const item = combatMap[code];
+              if (!item) return '';
+
+              const isPct = Boolean(item.isPercentage);
+              const valFormatted = isPct
+                ? `${(item.value * 100).toFixed(1)}%`
+                : `${Math.round(item.value * 10) / 10}`;
+
+              const baseFormatted = isPct
+                ? `${(item.baseDefault * 100).toFixed(1)}%`
+                : `${item.baseDefault}`;
+
+              const bonusFormatted = isPct
+                ? `+${(item.bonusFromAttrs * 100).toFixed(2)}%`
+                : `+${Math.round(item.bonusFromAttrs * 10) / 10}`;
+
+              return `
+              <div style="background:rgba(15,23,42,0.9); border:1px solid var(--border); border-radius:6px; padding:6px 8px; display:flex; flex-direction:column; justify-content:space-between; gap:2px;">
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                  <span style="font-size:0.73rem; color:#f1f5f9; font-weight:600;">${item.namePtBr}</span>
+                  <code style="font-size:0.65rem; color:var(--text-muted);">${item.code}</code>
+                </div>
+                <div style="display:flex; align-items:baseline; justify-content:space-between; margin-top:2px;">
+                  <span style="font-size:0.95rem; font-weight:800; color:#fde047;">${valFormatted}</span>
+                  <span style="font-size:0.67rem; color:var(--text-muted);" title="Base padrão + bônus derivado dos atributos base">
+                    Base: ${baseFormatted} <span style="color:#86efac; font-weight:700;">(${bonusFormatted})</span>
+                  </span>
+                </div>
+              </div>`;
+            })
+            .join('');
+
+          return `
+          <div style="background:${fam.bgColor}; border:1px solid ${fam.borderColor}; border-radius:8px; padding:8px 10px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+              <span style="font-size:0.78rem; font-weight:700; color:#f8fafc;">${fam.title}</span>
+              ${fam.subtitle ? `<span style="font-size:0.68rem; color:var(--text-muted);">${fam.subtitle}</span>` : ''}
+            </div>
+            <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:6px;">
+              ${statsCards}
+            </div>
+          </div>`;
+        })
+        .join('');
+    };
+
+    app.checkAllClassSkills = function (check) {
+      const box = document.getElementById('classSkillsChecklist');
+      if (!box) return;
+      box.querySelectorAll('input.entity-skill-checkbox').forEach((cb) => {
+        cb.checked = Boolean(check);
+      });
+    };
+
+    app.selectDefaultClassSkills = function () {
+      const box = document.getElementById('classSkillsChecklist');
+      if (!box) return;
+      const defaultSet = new Set([1, 2, 4]);
+      box.querySelectorAll('input.entity-skill-checkbox').forEach((cb) => {
+        cb.checked = defaultSet.has(Number(cb.value));
+      });
+    };
   }
 }
 
