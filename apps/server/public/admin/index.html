@@ -561,7 +561,6 @@
                 <th>ID / Chave</th>
                 <th>Visual (mcrework)</th>
                 <th>Nome (PT-BR)</th>
-                <th>Função / Gatilho</th>
                 <th>Posicionamento nos Mapas</th>
                 <th>Ações</th>
               </tr>
@@ -792,7 +791,7 @@
         <button class="btn-danger" onclick="AdminApp.closeModal('npcModal')">✕ Fechar</button>
       </div>
       <input type="hidden" id="npcEditIdInput" value="" />
-      <div class="row-2">
+      <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:10px;">
         <div class="field">
           <label>ID & Chave do NPC (Auto-Incremento Automático)</label>
           <input type="text" id="npcCodeInput" readonly style="opacity:0.8; font-weight:700; color:var(--accent);" />
@@ -800,19 +799,6 @@
         <div class="field">
           <label>Nome do NPC (PT-BR — pode editar depois)</label>
           <input type="text" id="npcNameInput" placeholder="Ex: Mestre Ferreiro" />
-        </div>
-      </div>
-      <div class="row-2">
-        <div class="field">
-          <label>Função / Gatilho do NPC</label>
-          <select id="npcFunctionSelect">
-            <option value="DECORATION">🎨 Apenas Enfeite de Cenário</option>
-            <option value="QUEST">📜 Gatilho de Quest / Missão</option>
-            <option value="SHOP">🪙 Gatilho de Loja / Comércio</option>
-            <option value="BATTLE">⚔️ Gatilho de Luta (Boss / Treinador)</option>
-            <option value="EVENT">🎉 Gatilho de Evento Especial</option>
-            <option value="DIALOGUE">💬 Diálogo / Guia</option>
-          </select>
         </div>
         <div class="field">
           <label>Visual Selecionado do mcrework</label>

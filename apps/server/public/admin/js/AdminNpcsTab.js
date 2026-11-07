@@ -17,10 +17,6 @@ class AdminNpcsTab {
         document.getElementById('npcCodeInput').value = `#${existingNpc.id} • ${existingNpc.code}`;
         document.getElementById('npcNameInput').value = existingNpc.namePtBr || '';
         document.getElementById('npcAssetKeyInput').value = existingNpc.mcreworkNpcKey || '';
-        const firstTrig = Array.isArray(existingNpc.triggersJson) && existingNpc.triggersJson[0]?.type;
-        document.getElementById('npcFunctionSelect').value = existingNpc.isDecorationOnly
-          ? 'DECORATION'
-          : firstTrig || 'QUEST';
       } else {
         const maxNpcId = this.npcTemplates.reduce((acc, n) => Math.max(acc, Number(n.id) || 0), 0);
         const nextNpcId = maxNpcId + 1;
@@ -29,7 +25,6 @@ class AdminNpcsTab {
         document.getElementById('npcCodeInput').value = `#${nextNpcId} • npc_${nextNpcId} (Automático)`;
         document.getElementById('npcNameInput').value = '';
         document.getElementById('npcAssetKeyInput').value = '';
-        document.getElementById('npcFunctionSelect').value = 'DECORATION';
       }
 
       const grid = document.getElementById('mcreworkNpcsGrid');
@@ -91,7 +86,6 @@ class AdminNpcsTab {
         const editId = document.getElementById('npcEditIdInput').value.trim();
         const namePtBr = document.getElementById('npcNameInput').value.trim();
         const mcreworkNpcKey = document.getElementById('npcAssetKeyInput').value.trim();
-        const fn = document.getElementById('npcFunctionSelect').value;
 
         if (!mcreworkNpcKey) {
           alert('Toque em um visual de NPC da galeria abaixo para selecioná-lo.');
@@ -106,8 +100,8 @@ class AdminNpcsTab {
           body: JSON.stringify({
             namePtBr,
             mcreworkNpcKey,
-            isDecorationOnly: fn === 'DECORATION',
-            triggersJson: fn === 'DECORATION' ? [] : [{ type: fn }],
+            isDecorationOnly: false,
+            triggersJson: [],
           }),
         });
 
@@ -132,24 +126,12 @@ class AdminNpcsTab {
       if (!tbody) return;
 
       if (this.npcTemplates.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="6" style="color:var(--text-muted); padding:14px;">Nenhum NPC cadastrado ainda. Crie um NPC pelo botão <strong>"➕ Novo NPC do mcrework"</strong> acima ou direto dentro do Editor Visual do Mapa na ferramenta <strong>"🧙 +NPC"</strong>!</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="5" style="color:var(--text-muted); padding:14px;">Nenhum NPC cadastrado ainda. Crie um NPC pelo botão <strong>"➕ Novo NPC do mcrework"</strong> acima ou direto dentro do Editor Visual do Mapa na ferramenta <strong>"🧙 +NPC"</strong>!</td></tr>`;
         return;
       }
 
-      const fnLabels = {
-        DECORATION: '🎨 Apenas Enfeite de Cenário',
-        QUEST: '📜 Gatilho de Quest / Missão',
-        SHOP: '🪙 Gatilho de Loja / Comércio',
-        BATTLE: '⚔️ Gatilho de Luta (Boss / Treinador)',
-        EVENT: '🎉 Gatilho de Evento Especial',
-        DIALOGUE: '💬 Diálogo / Guia',
-      };
-
       tbody.innerHTML = this.npcTemplates
         .map((n) => {
-          const firstTrig = Array.isArray(n.triggersJson) && n.triggersJson[0]?.type;
-          const fnKey = n.isDecorationOnly ? 'DECORATION' : firstTrig || 'QUEST';
-          const fnLabel = fnLabels[fnKey] || fnKey;
           const thumbUrl = n.thumbUrl || `https://seytanir.github.io/mcrework/assets/npcs/${n.mcreworkNpcKey}/thumb.png`;
 
           const placements = Array.isArray(n.placements) ? n.placements : [];
@@ -173,7 +155,6 @@ class AdminNpcsTab {
             </div>
           </td>
           <td><strong>${n.namePtBr}</strong></td>
-          <td><span style="font-size:0.78rem;">${fnLabel}</span></td>
           <td>${placementsHtml}</td>
           <td>
             <div style="display:flex; gap:6px;">

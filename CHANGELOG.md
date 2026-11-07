@@ -5,6 +5,13 @@ Qualquer IA trabalhando neste repositório **DEVE** incrementar a versão e regi
 
 ---
 
+## [v0.5.1] - 2026-11-07
+### Alterado & Simplificado
+* **Simplificação da Tabela e Criação de NPCs (`AdminNpcsTab.js`, `admin/index.html`):**
+  * Removida a coluna e o seletor estático de "Função / Gatilho / Tipo" (`npcFunctionSelect`) da criação/edição e da listagem da tabela de NPCs (`npc_templates`), mantendo o cadastro do NPC focado na sua identidade (`ID`, `Chave`, `Nome PT-BR`, `Visual do mcrework` e `Posicionamento nos Mapas`), já que o papel/interação do NPC passará a ser dirigido dinamicamente pelas tabelas vinculadas (como Quests, Diálogos e Lojas).
+
+---
+
 ## [v0.5.0] - 2026-11-07
 ### Adicionado
 * **Estúdio Visual No-Code de Habilidades (`⚡ Habilidades` — `skill_templates`) (`AdminSkillsController.ts`, `AdminSkillsAndBuffsTab.js`, `schema.prisma`):**
