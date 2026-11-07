@@ -771,6 +771,24 @@ export class AdminMapsController {
   }
 
   /**
+   * Gira/espelha diretamente um NPC já posicionado e registrado na tabela `map_npcs`
+   * sem precisar excluí-lo ou recriá-lo.
+   */
+  public async rotateMapNpcPlacement(placementId: number) {
+    const existing = await this.prisma.mapNpc.findUnique({ where: { id: placementId } });
+    if (!existing) {
+      throw new Error(`Posicionamento de NPC #${placementId} não encontrado.`);
+    }
+    const nextDirection = (Number(existing.direction) || 0) === 0 ? 1 : 0;
+    const updated = await this.prisma.mapNpc.update({
+      where: { id: placementId },
+      data: { direction: nextDirection },
+    });
+    await this.snapshotManager.exportToDisk();
+    return updated;
+  }
+
+  /**
    * Exclui um mapa do banco de dados e sincroniza o Snapshot JSON.
    */
   public async deleteMap(id: number) {

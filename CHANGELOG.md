@@ -5,6 +5,17 @@ Qualquer IA trabalhando neste repositório **DEVE** incrementar a versão e regi
 
 ---
 
+## [v0.5.5] - 2026-11-07
+### Corrigido & Aprimorado
+* **Giro / Espelhamento Horizontal Real de NPCs Já Posicionados e Direto nas Tabelas sem Recriar (`McreworkSpriteSheet.js`, `AdminMapsController.ts`, `AdminNpcsTab.js`, `AdminCanvasEditor.js`, `AdminLayersDrawer.js`):**
+  * **Espelhamento 2.5D Real no Sprite (`McreworkSpriteSheet.js`):** Como os sprites de NPCs no `mcrework` possuem 1 ângulo base desenhado no `atlas.json`, o motor `McreworkSpriteSheet.prototype.draw` agora aplica espelhamento horizontal exato no eixo dos pés (`flipX` quando `direction = 1`), fazendo o modelo 2.5D do NPC virar de lado visualmente a cada clique em **`🔄 Girar`**, tanto no `/admin` quanto no `/play`.
+  * **Posicionar Primeiro e Girar Depois no Mapa (`AdminCanvasEditor.js`):** Removido o seletor prévio de 8 direções; agora você posiciona o NPC normalmente no mapa e gira ele **já posicionado** (tocando em cima do próprio NPC no mapa, clicando em **`🔄 Girar #X Nome`** na barra superior ou na Gaveta Lateral `🗂️ Camadas`).
+  * **Edição/Giro Direto dos NPCs Já Registrados nas Tabelas sem Apagar (`AdminNpcsTab.js`, `AdminLayersDrawer.js`, `POST /api/admin/map-npcs/:id/rotate`):**
+    * Na aba **`🧙 Tabela de NPCs`** (e dentro do modal **`✏️ Editar NPC`**), cada mapa onde o NPC já está registrado exibe um botão **`🔄 Girar`** ao lado da miniatura que gira e salva diretamente no PostgreSQL (`map_npcs`) com 1 clique, sem precisar apagar e criar novamente.
+    * Na **Ficha Técnica do Mapa** (aba **`🗺️ Mapas`**), adicionada a faixa **🧙 NPCs Posicionados neste Mapa** com botão **`🔄 Girar`** direto para cada NPC já registrado no mapa.
+
+---
+
 ## [v0.5.4] - 2026-11-07
 ### Adicionado & Aprimorado
 * **Calibração Realista de Personagens no Mapa #1 + Alinhamento de Sombra (`AdminClassesTab.js`, `AdminMapsController.ts`, `GamePlayController.ts`, `McreworkSpriteSheet.js`, `play.js`):**

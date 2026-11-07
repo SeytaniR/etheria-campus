@@ -131,48 +131,76 @@ class AdminLayersDrawer {
 
       const nList = document.getElementById('npcsList');
       if (nList) {
-        const dirOptions = [
-          { v: 0, l: '0: ⬇ Sul (Frente)' },
-          { v: 1, l: '1: ↙ Sudoeste' },
-          { v: 2, l: '2: ⬅ Oeste (Esquerda)' },
-          { v: 3, l: '3: ↖ Noroeste' },
-          { v: 4, l: '4: ⬆ Norte (Costas)' },
-          { v: 5, l: '5: ↗ Nordeste' },
-          { v: 6, l: '6: ➡ Leste (Direita)' },
-          { v: 7, l: '7: ↘ Sudeste' },
-        ];
         nList.innerHTML = this.npcs
           .map((n, idx) => {
             const tpl = this.npcTemplates.find((t) => t.id === Number(n.npcTemplateId));
-            const curDir = (((Number(n.direction) || 0) % 8) + 8) % 8;
+            const isFlipped = (Number(n.direction) || 0) > 0;
             const thumbHtml = tpl?.thumbUrl
-              ? `<img src="${tpl.thumbUrl}" alt="" style="width:32px; height:32px; object-fit:contain; background:#020617; border-radius:4px; border:1px solid var(--border); flex-shrink:0;" />`
+              ? `<img src="${tpl.thumbUrl}" alt="" style="width:34px; height:34px; object-fit:contain; background:#020617; border-radius:4px; border:1px solid var(--border); flex-shrink:0; transform:scaleX(${isFlipped ? -1 : 1}); transition:transform 0.15s ease;" />`
               : '';
-            const optsHtml = dirOptions
-              .map((o) => `<option value="${o.v}" ${o.v === curDir ? 'selected' : ''}>${o.l}</option>`)
-              .join('');
             return `
-          <div class="item-row" style="flex-direction:column; align-items:stretch; gap:5px;">
-            <div style="display:flex; justify-content:space-between; align-items:center; gap:6px;">
-              <div style="display:flex; align-items:center; gap:6px; min-width:0;">
-                ${thumbHtml}
-                <div style="min-width:0;">
-                  <strong style="font-size:0.8rem;">🧙 #${idx + 1} ${tpl ? tpl.namePtBr : `NPC #${n.npcTemplateId}`}</strong>
-                  <div style="font-size:0.68rem; color:var(--text-muted);">Pos: (${n.posX}, ${n.posY})</div>
+          <div class="item-row ${idx === this.selectedMapNpcIndex ? 'selected' : ''}" style="justify-content:space-between; align-items:center; gap:6px;">
+            <div style="display:flex; align-items:center; gap:6px; min-width:0;">
+              ${thumbHtml}
+              <div style="min-width:0;">
+                <strong style="font-size:0.8rem;">🧙 #${idx + 1} ${tpl ? tpl.namePtBr : `NPC #${n.npcTemplateId}`}</strong>
+                <div style="font-size:0.68rem; color:var(--text-muted);">
+                  Pos: (${n.posX}, ${n.posY}) &bull; <span style="color:#fde047; font-weight:700;">${isFlipped ? '➡️ Virado ↔️' : '⬅️ Padrão'}</span>
                 </div>
               </div>
-              <button class="btn-danger" style="padding:3px 7px;" onclick="AdminApp.removeMapNpc(${idx})">✕</button>
             </div>
-            <div style="display:flex; align-items:center; gap:4px;">
-              <span style="font-size:0.7rem; color:#fde047; font-weight:700;">🧭 Direção:</span>
-              <select onchange="AdminApp.setMapNpcDirection(${idx}, this.value)" style="flex:1; padding:3px 6px; font-size:0.74rem;">
-                ${optsHtml}
-              </select>
-              <button type="button" onclick="AdminApp.rotateMapNpc(${idx}, 1)" title="Girar 45°" style="padding:3px 7px; font-size:0.72rem;">🔄 Girar</button>
+            <div style="display:flex; align-items:center; gap:5px;">
+              <button type="button" class="btn-primary" onclick="AdminApp.rotateMapNpc(${idx})" style="padding:4px 8px; font-size:0.74rem; font-weight:700;">
+                🔄 Girar
+              </button>
+              <button class="btn-danger" style="padding:3px 7px;" onclick="AdminApp.removeMapNpc(${idx})">✕</button>
             </div>
           </div>`;
           })
           .join('');
+      }
+
+      const sheetNpcsBox = document.getElementById('mapSheetNpcsQuickList');
+      if (sheetNpcsBox) {
+        if (!this.npcs || this.npcs.length === 0) {
+          sheetNpcsBox.style.display = 'none';
+          sheetNpcsBox.innerHTML = '';
+        } else {
+          sheetNpcsBox.style.display = 'flex';
+          sheetNpcsBox.innerHTML = `
+            <div style="font-size:0.75rem; font-weight:700; color:#86efac;">
+              🧙 NPCs Posicionados neste Mapa (Gire o sentido direto por aqui sem precisar apagar):
+            </div>
+            <div style="display:flex; flex-wrap:wrap; gap:8px;">
+              ${this.npcs
+                .map((n, idx) => {
+                  const tpl = this.npcTemplates.find((t) => t.id === Number(n.npcTemplateId));
+                  const isFlipped = (Number(n.direction) || 0) > 0;
+                  const thumbUrl =
+                    tpl?.thumbUrl ||
+                    (tpl?.mcreworkNpcKey
+                      ? `https://seytanir.github.io/mcrework/assets/npcs/${tpl.mcreworkNpcKey}/thumb.png`
+                      : '');
+                  return `
+                  <div style="display:flex; align-items:center; gap:8px; background:#020617; border:1px solid var(--border); padding:5px 8px; border-radius:8px;">
+                    ${
+                      thumbUrl
+                        ? `<img src="${thumbUrl}" alt="" style="width:32px; height:32px; object-fit:contain; transform:scaleX(${isFlipped ? -1 : 1}); transition:transform 0.15s ease;" />`
+                        : ''
+                    }
+                    <div style="font-size:0.74rem;">
+                      <strong>#${idx + 1} ${tpl ? tpl.namePtBr : `NPC #${n.npcTemplateId}`}</strong>
+                      <div style="font-size:0.68rem; color:var(--text-muted);">Pos: (${n.posX}, ${n.posY}) &bull; <span style="color:#fde047;">${isFlipped ? '➡️ Virado ↔️' : '⬅️ Padrão'}</span></div>
+                    </div>
+                    <button type="button" class="btn-primary" onclick="AdminApp.rotateMapNpc(${idx})" style="padding:4px 8px; font-size:0.72rem; font-weight:700;">
+                      🔄 Girar
+                    </button>
+                  </div>`;
+                })
+                .join('')}
+            </div>
+          `;
+        }
       }
     };
 

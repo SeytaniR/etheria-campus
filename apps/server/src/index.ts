@@ -411,6 +411,12 @@ export class EtheriaServerApp {
           this.sendJson(res, 200, await this.mapsController.deleteMap(id));
           return;
         }
+        const mapNpcRotateMatch = pathname.match(/^\/api\/admin\/map-npcs\/(\d+)\/rotate$/);
+        if (mapNpcRotateMatch && method === 'POST') {
+          const placementId = Number(mapNpcRotateMatch[1]);
+          this.sendJson(res, 200, await this.mapsController.rotateMapNpcPlacement(placementId));
+          return;
+        }
 
         // Templates de Monstros / Mobs (mcrework & PostgreSQL)
         if (pathname === '/api/admin/mcrework/monsters' && method === 'GET') {

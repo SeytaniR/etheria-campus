@@ -468,6 +468,7 @@
           🎯 ENTRAR NA EDIÇÃO VISUAL DO MAPA (TELA INTEIRA)
         </button>
         <div id="mapSummaryCounters" style="display:flex; flex-wrap:wrap; gap:8px; font-size:0.78rem; background:rgba(56,189,248,0.1); border:1px solid var(--border); padding:8px 12px; border-radius:8px;"></div>
+        <div id="mapSheetNpcsQuickList" style="display:none; flex-direction:column; gap:6px; background:rgba(15,23,42,0.75); border:1px solid var(--border); padding:8px 12px; border-radius:8px;"></div>
         <div class="row-2">
           <div class="field">
             <label>ID & Chave do Mapa (Auto-Incremento Automático)</label>
@@ -713,19 +714,11 @@
       <canvas id="mapCanvas"></canvas>
       <!-- Barra Rápida de NPC quando a ferramenta NPC está ativa -->
       <div id="npcQuickBar" class="npc-quick-bar">
-        <span style="font-size:0.75rem; color:#86efac; font-weight:700;">🧙 NPC:</span>
-        <select id="activeNpcTemplateSelect" style="min-width:150px; padding:5px 8px; font-size:0.78rem;"></select>
-        <select id="activeNpcDirectionSelect" title="Sentido / Direção do NPC no cenário" style="width:140px; padding:5px 6px; font-size:0.75rem;">
-          <option value="0">0: ⬇ Sul (Frente)</option>
-          <option value="1">1: ↙ Sudoeste</option>
-          <option value="2">2: ⬅ Oeste (Esq.)</option>
-          <option value="3">3: ↖ Noroeste</option>
-          <option value="4">4: ⬆ Norte (Costas)</option>
-          <option value="5">5: ↗ Nordeste</option>
-          <option value="6">6: ➡ Leste (Dir.)</option>
-          <option value="7">7: ↘ Sudeste</option>
-        </select>
-        <button onclick="AdminApp.rotateLastMapNpc()" title="Girar último NPC posicionado (ou toque em cima do NPC no mapa)" style="padding:5px 8px; font-size:0.74rem;">🔄 Girar</button>
+        <span style="font-size:0.75rem; color:#86efac; font-weight:700;">🧙 Posicionar:</span>
+        <select id="activeNpcTemplateSelect" style="min-width:155px; padding:5px 8px; font-size:0.78rem;"></select>
+        <button id="btnRotateSelectedMapNpc" class="btn-primary" onclick="AdminApp.rotateSelectedOrLastMapNpc()" title="Gira o NPC já posicionado no mapa (ou toque direto em cima do NPC no mapa)" style="padding:5px 10px; font-size:0.75rem; font-weight:700;">
+          🔄 Girar NPC Posicionado
+        </button>
         <button onclick="AdminApp.openNpcTemplateModal()" style="padding:5px 8px; font-size:0.75rem;">➕ Criar NPC</button>
       </div>
       <!-- Botões Flutuantes de Zoom e Undo/Redo -->
@@ -816,6 +809,7 @@
           <input type="text" id="npcAssetKeyInput" readonly placeholder="Toque em um NPC da galeria abaixo" />
         </div>
       </div>
+      <div id="npcModalPlacementsContainer" style="display:none; flex-direction:column; gap:6px; background:rgba(15,23,42,0.85); border:1px solid #4ade80; padding:8px 10px; border-radius:8px;"></div>
       <div style="display:flex; gap:6px; align-items:center;">
         <input type="text" id="npcSearchInput" placeholder="🔍 Buscar visual de NPC por chave (ex: npc_000010)..." oninput="AdminApp.filterNpcGallery()" style="padding:6px 10px; font-size:0.82rem;" />
       </div>

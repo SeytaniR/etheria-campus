@@ -54,16 +54,28 @@ class McreworkSpriteSheet {
       });
   }
 
+  drawImageMaybeFlipped(ctx, img, sx, sy, sw, sh, dx, dy, dw, dh, flipX) {
+    if (!flipX) {
+      ctx.drawImage(img, sx, sy, sw, sh, dx, dy, dw, dh);
+      return;
+    }
+    ctx.save();
+    ctx.translate(dx + dw, dy);
+    ctx.scale(-1, 1);
+    ctx.drawImage(img, sx, sy, sw, sh, 0, 0, dw, dh);
+    ctx.restore();
+  }
+
   /**
    * Renderiza o sprite aplicando máscara de recorte (clipping) anatômica:
    * - A parte do corpo que estiver FORA dos polígonos de sobreposição fica 100% opaca (globalAlpha = 1.0).
    * - APENAS a parte do corpo que estiver SOBREPOSTA (sob telhado, copa de árvore, etc.) recebe overlapAlpha.
    */
-  renderSpriteWithOverlapClipping(ctx, img, sx, sy, sw, sh, dx, dy, dw, dh, meshOrAlpha) {
+  renderSpriteWithOverlapClipping(ctx, img, sx, sy, sw, sh, dx, dy, dw, dh, meshOrAlpha, flipX = false) {
     // 1. Compatibilidade com chamadas legadas passando alpha numérico direto
     if (typeof meshOrAlpha === 'number') {
       ctx.globalAlpha = meshOrAlpha;
-      ctx.drawImage(img, sx, sy, sw, sh, dx, dy, dw, dh);
+      this.drawImageMaybeFlipped(ctx, img, sx, sy, sw, sh, dx, dy, dw, dh, flipX);
       return;
     }
 
@@ -76,7 +88,7 @@ class McreworkSpriteSheet {
     // Se o sprite não toca em nenhum polígono de sobreposição: fast-path 100% opaco
     if (hittingPolys.length === 0) {
       ctx.globalAlpha = 1.0;
-      ctx.drawImage(img, sx, sy, sw, sh, dx, dy, dw, dh);
+      this.drawImageMaybeFlipped(ctx, img, sx, sy, sw, sh, dx, dy, dw, dh, flipX);
       return;
     }
 
@@ -98,7 +110,7 @@ class McreworkSpriteSheet {
     }
     ctx.clip('evenodd');
     ctx.globalAlpha = 1.0;
-    ctx.drawImage(img, sx, sy, sw, sh, dx, dy, dw, dh);
+    this.drawImageMaybeFlipped(ctx, img, sx, sy, sw, sh, dx, dy, dw, dh, flipX);
     ctx.restore();
 
     // 3. Parte do corpo DENTRO da sobreposição: somente a região coberta recebe overlapAlpha
@@ -115,7 +127,7 @@ class McreworkSpriteSheet {
     }
     ctx.clip();
     ctx.globalAlpha = overlapAlpha;
-    ctx.drawImage(img, sx, sy, sw, sh, dx, dy, dw, dh);
+    this.drawImageMaybeFlipped(ctx, img, sx, sy, sw, sh, dx, dy, dw, dh, flipX);
     ctx.restore();
   }
 
@@ -149,10 +161,19 @@ class McreworkSpriteSheet {
     ctx.fillStyle = 'rgba(0, 0, 0, 0.45)';
     ctx.fill();
 
+    const dir = (((Number(direction) || 0) % 8) + 8) % 8;
+    const isNpcSingleAngle =
+      Boolean(this.atlasJsonUrl && this.atlasJsonUrl.includes('/npcs/')) ||
+      Boolean(
+        this.atlasData?.animations &&
+          this.atlasData.animations['0-0']?.[0] &&
+          this.atlasData.animations['0-0']?.[0] === this.atlasData.animations['4-0']?.[0]
+      );
+    const flipX = isNpcSingleAngle && dir > 0;
+
     if (this.ready && this.atlasData && this.image) {
       const anims = this.atlasData.animations || {};
       const frames = this.atlasData.frames || {};
-      const dir = ((direction % 8) + 8) % 8;
 
       // No mcrework, a chave da animação é `${dir}-${action}`
       // Ações: 0 = Parado (Stand), 1 = Caminhada (Walk), 2 = Postura (Combat), 3 = Golpe (Atk), 4 = Defesa, 5 = Dano (Hit), 6 = Morte, 7 = Skill/Magia
@@ -191,10 +212,11 @@ class McreworkSpriteSheet {
           const drawW = Math.round(sw * scale);
           const drawH = Math.round(sh * scale);
 
-          // Ancoragem nos pés (0.5 no X, 0.92 no Y) + ajuste fino customizado de distância ao chão (gOffY)
+          // Ancoragem nos pés (0.5 no X, 0.92 no Y) + suporte a espelhamento horizontal (flipX) para girar NPCs
           const anchorX = 0.5;
           const anchorY = 0.92;
-          const drawX = Math.round(worldX - origW * anchorX + offX);
+          const effectiveOffX = flipX ? origW - offX - drawW : offX;
+          const drawX = Math.round(worldX - origW * anchorX + effectiveOffX);
           const drawY = Math.round(worldY - origH * anchorY + offY + gOffY);
 
           this.renderSpriteWithOverlapClipping(
@@ -202,7 +224,8 @@ class McreworkSpriteSheet {
             this.image,
             sx, sy, sw, sh,
             drawX, drawY, drawW, drawH,
-            meshOrAlpha
+            meshOrAlpha,
+            flipX
           );
           ctx.restore();
           return;
@@ -223,7 +246,8 @@ class McreworkSpriteSheet {
         this.thumbImage,
         0, 0, imgW, imgH,
         drawX, drawY, w, h,
-        meshOrAlpha
+        meshOrAlpha,
+        flipX
       );
     } else {
       ctx.beginPath();

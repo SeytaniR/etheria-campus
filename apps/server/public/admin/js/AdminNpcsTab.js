@@ -2,11 +2,95 @@
  * @file apps/server/public/admin/js/AdminNpcsTab.js
  * @module @etheria/server
  * @description Submódulo da Aba NPCs / Templates (`npc_templates`) da Rota `/admin`.
- *   Inclui busca em tempo real nos 365 assets do mcrework, CRUD de funções interativas e tabela de posicionamentos.
+ *   Inclui busca em tempo real nos 365 assets do mcrework, CRUD e rotação direta (`0 ↔ 1`) de NPCs
+ *   já posicionados nos mapas sem precisar apagá-los ou recriá-los.
  */
 
 class AdminNpcsTab {
   static attach(app) {
+    app.renderNpcModalPlacements = function (npcId) {
+      const box = document.getElementById('npcModalPlacementsContainer');
+      if (!box) return;
+      const existingNpc = npcId ? this.npcTemplates.find((n) => n.id === Number(npcId)) : null;
+      const placements = existingNpc && Array.isArray(existingNpc.placements) ? existingNpc.placements : [];
+
+      if (!existingNpc || placements.length === 0) {
+        box.style.display = 'none';
+        box.innerHTML = '';
+        return;
+      }
+
+      const thumbUrl =
+        existingNpc.thumbUrl || `https://seytanir.github.io/mcrework/assets/npcs/${existingNpc.mcreworkNpcKey}/thumb.png`;
+
+      box.style.display = 'flex';
+      box.innerHTML = `
+        <div style="font-size:0.76rem; font-weight:700; color:#86efac;">
+          📍 Mapas onde este NPC já está posicionado (Gire o sentido sem precisar apagar):
+        </div>
+        <div style="display:flex; flex-wrap:wrap; gap:8px;">
+          ${placements
+            .map((pl) => {
+              const isFlipped = (Number(pl.direction) || 0) > 0;
+              return `
+              <div style="display:flex; align-items:center; gap:8px; background:#020617; border:1px solid var(--border); padding:5px 8px; border-radius:8px;">
+                <img src="${thumbUrl}" alt="" style="width:32px; height:32px; object-fit:contain; transform:scaleX(${isFlipped ? -1 : 1}); transition:transform 0.15s ease;" />
+                <div style="font-size:0.74rem;">
+                  <strong>📍 ${pl.mapNamePtBr}</strong>
+                  <div style="font-size:0.68rem; color:var(--text-muted);">Pos: (${pl.posX}, ${pl.posY}) &bull; <span style="color:#fde047;">${isFlipped ? '➡️ Virado ↔️' : '⬅️ Padrão'}</span></div>
+                </div>
+                <button type="button" class="btn-primary" onclick="AdminApp.rotateRegisteredMapNpc(${pl.id})" style="padding:4px 8px; font-size:0.72rem;">
+                  🔄 Girar
+                </button>
+              </div>`;
+            })
+            .join('')}
+        </div>
+      `;
+    };
+
+    app.rotateRegisteredMapNpc = async function (placementId) {
+      try {
+        const updated = await this.api(`/api/admin/map-npcs/${placementId}/rotate`, {
+          method: 'POST',
+        });
+
+        const data = await this.api('/api/admin/maps/bootstrap');
+        this.npcTemplates = data.npcTemplates || [];
+        this.savedMaps = data.maps || [];
+
+        // Se o mapa deste posicionamento estiver aberto no editor atual, sincroniza em memória
+        if (this.currentMapId && Number(this.currentMapId) === Number(updated.mapId)) {
+          const currentMapObj = this.savedMaps.find((m) => Number(m.id) === Number(this.currentMapId));
+          if (currentMapObj && Array.isArray(currentMapObj.npcs)) {
+            this.npcs = JSON.parse(JSON.stringify(currentMapObj.npcs));
+          } else {
+            const targetInMem = (this.npcs || []).find(
+              (n) =>
+                Number(n.id) === Number(placementId) ||
+                (Number(n.npcTemplateId) === Number(updated.npcTemplateId) &&
+                  Number(n.posX) === Number(updated.posX) &&
+                  Number(n.posY) === Number(updated.posY))
+            );
+            if (targetInMem) {
+              targetInMem.direction = updated.direction;
+            }
+          }
+        }
+
+        this.renderNpcsCrudTable();
+        this.renderLayerLists();
+        this.drawCanvas();
+
+        const openEditNpcId = document.getElementById('npcEditIdInput')?.value;
+        if (openEditNpcId) {
+          this.renderNpcModalPlacements(Number(openEditNpcId));
+        }
+      } catch (err) {
+        alert(`Erro ao girar NPC registrado: ${err.message}`);
+      }
+    };
+
     app.openNpcTemplateModal = async function (editNpcId = null) {
       document.getElementById('npcModal').style.display = 'flex';
       const existingNpc = editNpcId ? this.npcTemplates.find((n) => n.id === Number(editNpcId)) : null;
@@ -17,6 +101,7 @@ class AdminNpcsTab {
         document.getElementById('npcCodeInput').value = `#${existingNpc.id} • ${existingNpc.code}`;
         document.getElementById('npcNameInput').value = existingNpc.namePtBr || '';
         document.getElementById('npcAssetKeyInput').value = existingNpc.mcreworkNpcKey || '';
+        this.renderNpcModalPlacements(existingNpc.id);
       } else {
         const maxNpcId = this.npcTemplates.reduce((acc, n) => Math.max(acc, Number(n.id) || 0), 0);
         const nextNpcId = maxNpcId + 1;
@@ -25,6 +110,7 @@ class AdminNpcsTab {
         document.getElementById('npcCodeInput').value = `#${nextNpcId} • npc_${nextNpcId} (Automático)`;
         document.getElementById('npcNameInput').value = '';
         document.getElementById('npcAssetKeyInput').value = '';
+        this.renderNpcModalPlacements(null);
       }
 
       const grid = document.getElementById('mcreworkNpcsGrid');
@@ -138,12 +224,26 @@ class AdminNpcsTab {
           const placementsHtml =
             placements.length === 0
               ? `<span style="color:var(--text-muted); font-size:0.75rem;">Ainda não posicionado em mapas</span>`
-              : placements
-                  .map(
-                    (pl) =>
-                      `<div style="font-size:0.76rem; color:#86efac;">📍 <strong>${pl.mapNamePtBr}</strong> (X:${pl.posX}, Y:${pl.posY})</div>`
-                  )
-                  .join('');
+              : `<div style="display:flex; flex-direction:column; gap:6px;">
+                  ${placements
+                    .map((pl) => {
+                      const isFlipped = (Number(pl.direction) || 0) > 0;
+                      return `
+                      <div style="display:flex; align-items:center; justify-content:space-between; gap:8px; background:rgba(15,23,42,0.75); border:1px solid var(--border); padding:4px 8px; border-radius:6px;">
+                        <div style="display:flex; align-items:center; gap:6px;">
+                          <img src="${thumbUrl}" alt="" style="width:28px; height:28px; object-fit:contain; background:#020617; border-radius:4px; transform:scaleX(${isFlipped ? -1 : 1}); transition:transform 0.15s ease;" title="${isFlipped ? 'Virado / Espelhado' : 'Sentido Padrão'}" />
+                          <span style="font-size:0.75rem; color:#86efac;">
+                            📍 <strong>${pl.mapNamePtBr}</strong> (X:${pl.posX}, Y:${pl.posY})
+                            <span style="color:#fde047; font-size:0.7rem; margin-left:4px;">[${isFlipped ? '➡️ Virado ↔️' : '⬅️ Padrão'}]</span>
+                          </span>
+                        </div>
+                        <button type="button" class="btn-primary" onclick="AdminApp.rotateRegisteredMapNpc(${pl.id})" style="padding:3px 8px; font-size:0.72rem; white-space:nowrap;" title="Girar este NPC diretamente no mapa sem precisar apagar">
+                          🔄 Girar
+                        </button>
+                      </div>`;
+                    })
+                    .join('')}
+                </div>`;
 
           return `
         <tr>

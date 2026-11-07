@@ -8,6 +8,7 @@
 class AdminCanvasEditor {
   static attach(app) {
     app.npcEditorSpriteCache = new Map();
+    app.selectedMapNpcIndex = -1;
 
     window.onMcreworkSpriteLoaded = () => {
       const editorScreen = document.getElementById('visualMapEditorScreen');
@@ -32,34 +33,65 @@ class AdminCanvasEditor {
       return sprite;
     };
 
-    app.rotateMapNpc = function (idx, step = 1) {
-      if (!this.npcs[idx]) return;
-      this.pushHistorySnapshot();
-      const cur = Number(this.npcs[idx].direction) || 0;
-      this.npcs[idx].direction = (((cur + step) % 8) + 8) % 8;
-      const dirSelect = document.getElementById('activeNpcDirectionSelect');
-      if (dirSelect) dirSelect.value = String(this.npcs[idx].direction);
-      this.renderLayerLists();
-      this.drawCanvas();
-    };
-
-    app.setMapNpcDirection = function (idx, dirValue) {
-      if (!this.npcs[idx]) return;
-      this.pushHistorySnapshot();
-      this.npcs[idx].direction = (((Number(dirValue) || 0) % 8) + 8) % 8;
-      this.renderLayerLists();
-      this.drawCanvas();
-    };
-
-    app.rotateLastMapNpc = function () {
+    app.updateSelectedMapNpcQuickBar = function () {
+      const btn = document.getElementById('btnRotateSelectedMapNpc');
+      if (!btn) return;
       if (!this.npcs || this.npcs.length === 0) {
-        const dirSelect = document.getElementById('activeNpcDirectionSelect');
-        if (dirSelect) {
-          dirSelect.value = String(((Number(dirSelect.value) || 0) + 1) % 8);
-        }
+        btn.textContent = '🔄 Girar NPC Posicionado';
+        btn.style.opacity = '0.55';
         return;
       }
-      this.rotateMapNpc(this.npcs.length - 1, 1);
+      btn.style.opacity = '1';
+      const idx =
+        this.selectedMapNpcIndex >= 0 && this.npcs[this.selectedMapNpcIndex]
+          ? this.selectedMapNpcIndex
+          : this.npcs.length - 1;
+      const n = this.npcs[idx];
+      const tpl = this.npcTemplates.find((t) => t.id === Number(n.npcTemplateId));
+      const name = tpl ? tpl.namePtBr : `NPC #${n.npcTemplateId}`;
+      const isFlipped = (Number(n.direction) || 0) > 0;
+      btn.textContent = `🔄 Girar #${idx + 1} ${name} (${isFlipped ? '➡️ Virado' : '⬅️ Padrão'})`;
+    };
+
+    app.rotateMapNpc = async function (idx) {
+      if (!this.npcs[idx]) return;
+      this.selectedMapNpcIndex = idx;
+      this.pushHistorySnapshot();
+      const cur = Number(this.npcs[idx].direction) || 0;
+      const nextDir = cur === 0 ? 1 : 0;
+      this.npcs[idx].direction = nextDir;
+
+      this.updateSelectedMapNpcQuickBar();
+      this.renderLayerLists();
+      this.drawCanvas();
+
+      // Se este posicionamento já estiver salvo na tabela map_npcs do banco, persiste o giro imediatamente!
+      const placementId = Number(this.npcs[idx].id);
+      if (placementId > 0) {
+        try {
+          await this.api(`/api/admin/map-npcs/${placementId}/rotate`, { method: 'POST' });
+          const data = await this.api('/api/admin/maps/bootstrap');
+          this.npcTemplates = data.npcTemplates || [];
+          this.savedMaps = data.maps || [];
+          if (typeof this.renderNpcsCrudTable === 'function') {
+            this.renderNpcsCrudTable();
+          }
+        } catch (err) {
+          console.warn('Falha ao sincronizar giro imediato do NPC:', err);
+        }
+      }
+    };
+
+    app.rotateSelectedOrLastMapNpc = function () {
+      if (!this.npcs || this.npcs.length === 0) {
+        alert('Posicione primeiro um NPC no mapa (tocando no mapa) e depois clique em Girar!');
+        return;
+      }
+      const idx =
+        this.selectedMapNpcIndex >= 0 && this.npcs[this.selectedMapNpcIndex]
+          ? this.selectedMapNpcIndex
+          : this.npcs.length - 1;
+      this.rotateMapNpc(idx);
     };
 
     app.enterVisualMapEditor = function () {
@@ -220,8 +252,9 @@ class AdminCanvasEditor {
 
       const npcQuickBar = document.getElementById('npcQuickBar');
       if (npcQuickBar) {
-        npcQuickBar.style.display = toolName === 'NPC' ? 'flex' : 'none';
+        npcQuickBar.style.display = toolName === 'NPC' || (toolName === 'EDIT' && this.npcs.length > 0) ? 'flex' : 'none';
       }
+      this.updateSelectedMapNpcQuickBar();
 
       if (toolName === 'COLLISION' && this.collisionPolygons.length === 0) {
         this.startNewPolygon('COLLISION');
@@ -350,28 +383,32 @@ class AdminCanvasEditor {
         });
         this.toggleLayersDrawer(true);
       } else if (this.tool === 'NPC') {
+        // Se tocar em cima de um NPC já posicionado (no pé ou no corpo do modelo 2.5D), gira ele no próprio lugar!
+        const existingIdx = this.npcs.findIndex((n) => {
+          const hitFoot = Math.hypot(n.posX - x, n.posY - y) <= Math.max(32, 32 / this.zoom);
+          const hitBody = Math.abs(n.posX - x) <= 28 && y >= n.posY - 68 && y <= n.posY + 14;
+          return hitFoot || hitBody;
+        });
+        if (existingIdx >= 0) {
+          this.undoStack.pop(); // rotateMapNpc já grava seu próprio snapshot
+          this.rotateMapNpc(existingIdx);
+          return;
+        }
+
         const npcTemplateId = Number(document.getElementById('activeNpcTemplateSelect').value);
         if (!npcTemplateId) {
           alert('Cadastre ou selecione primeiro um Template de NPC usando o botão "➕ Criar NPC".');
           this.openNpcTemplateModal();
           return;
         }
-        // Se tocar exatamente em cima de um NPC já posicionado na ferramenta NPC, gira a direção dele!
-        const existingIdx = this.npcs.findIndex((n) => Math.hypot(n.posX - x, n.posY - y) <= Math.max(26, 26 / this.zoom));
-        if (existingIdx >= 0) {
-          const cur = Number(this.npcs[existingIdx].direction) || 0;
-          this.npcs[existingIdx].direction = (cur + 1) % 8;
-          this.renderLayerLists();
-          this.drawCanvas();
-          return;
-        }
-        const defaultDir = Number(document.getElementById('activeNpcDirectionSelect')?.value) || 0;
         this.npcs.push({
           npcTemplateId,
           posX: x,
           posY: y,
-          direction: defaultDir,
+          direction: 0,
         });
+        this.selectedMapNpcIndex = this.npcs.length - 1;
+        this.updateSelectedMapNpcQuickBar();
       }
       this.renderLayerLists();
       this.drawCanvas();
@@ -425,7 +462,10 @@ class AdminCanvasEditor {
         }
 
         for (let i = 0; i < this.npcs.length; i++) {
-          if (Math.hypot(this.npcs[i].posX - worldX, this.npcs[i].posY - worldY) <= Math.max(hitRadius, 30)) {
+          const n = this.npcs[i];
+          const hitFoot = Math.hypot(n.posX - worldX, n.posY - worldY) <= Math.max(hitRadius, 32);
+          const hitBody = Math.abs(n.posX - worldX) <= 28 && worldY >= n.posY - 68 && worldY <= n.posY + 14;
+          if (hitFoot || hitBody) {
             return { list: 'NPC', polyIdx: i, ptIdx: 0 };
           }
         }
@@ -463,6 +503,10 @@ class AdminCanvasEditor {
                 this.draggingVertex = hit;
                 if (hit.list === 'COLLISION') this.activeCollisionPolyIndex = hit.polyIdx;
                 if (hit.list === 'OVERLAP') this.activeOverlapPolyIndex = hit.polyIdx;
+                if (hit.list === 'NPC') {
+                  this.selectedMapNpcIndex = hit.polyIdx;
+                  this.updateSelectedMapNpcQuickBar();
+                }
                 this.renderLayerLists();
                 this.drawCanvas();
                 return;
@@ -806,42 +850,24 @@ class AdminCanvasEditor {
         ctx.fillText(`🌀 ${title} ${isLinked ? '🔗' : '(Sem par)'}`, p.sourceX - radius, p.sourceY - radius - 6);
       });
 
-      // NPCs (Renderiza o Modelo Original 2.5D do NPC + Indicador de Direção 0..7)
-      const dirArrows = ['⬇ Sul', '↙ SO', '⬅ Oeste', '↖ NO', '⬆ Norte', '↗ NE', '➡ Leste', '↘ SE'];
-      const dirAngles = [
-        Math.PI / 2,
-        (3 * Math.PI) / 4,
-        Math.PI,
-        (-3 * Math.PI) / 4,
-        -Math.PI / 2,
-        -Math.PI / 4,
-        0,
-        Math.PI / 4,
-      ];
+      // NPCs (Renderiza o Modelo Original 2.5D do NPC com Espelhamento Horizontal ao Girar)
       this.npcs.forEach((n, idx) => {
         const tpl = this.npcTemplates.find((t) => t.id === Number(n.npcTemplateId));
         const label = tpl ? tpl.namePtBr : `NPC #${n.npcTemplateId}`;
-        const dir = (((Number(n.direction) || 0) % 8) + 8) % 8;
-        const dirText = dirArrows[dir] || '⬇ Sul';
+        const dir = (Number(n.direction) || 0) > 0 ? 1 : 0;
+        const dirText = dir > 0 ? '➡️ Virado ↔️' : '⬅️ Padrão';
+        const isSelected = idx === this.selectedMapNpcIndex;
 
-        // Anel discreto de pé no chão + seta indicando para onde o NPC está olhando
+        // Anel discreto nos pés do NPC (Dourado quando selecionado para girar/mover, Verde nos demais)
         ctx.save();
         ctx.beginPath();
-        ctx.ellipse(n.posX, n.posY, 22, 12, 0, 0, Math.PI * 2);
-        ctx.strokeStyle = '#4ade80';
-        ctx.lineWidth = 2 / this.zoom;
+        ctx.ellipse(n.posX, n.posY, isSelected ? 25 : 21, isSelected ? 13 : 11, 0, 0, Math.PI * 2);
+        ctx.strokeStyle = isSelected ? '#fde047' : '#4ade80';
+        ctx.lineWidth = (isSelected ? 2.8 : 2) / this.zoom;
         ctx.stroke();
-
-        const angle = dirAngles[dir] ?? Math.PI / 2;
-        const arrowX = n.posX + Math.cos(angle) * 26;
-        const arrowY = n.posY + Math.sin(angle) * 16;
-        ctx.beginPath();
-        ctx.arc(arrowX, arrowY, 4.5 / this.zoom, 0, Math.PI * 2);
-        ctx.fillStyle = '#fde047';
-        ctx.fill();
         ctx.restore();
 
-        // Modelo original 2.5D do NPC (atlas.json + atlas.webp ou thumb.png de fallback)
+        // Modelo original 2.5D do NPC (vira/espelha horizontalmente quando dir === 1)
         const sprite = this.getOrCreateMapNpcSprite(tpl);
         if (sprite) {
           sprite.draw(ctx, n.posX, n.posY, 0, dir, 0, null, 0, 0.70);
@@ -852,7 +878,7 @@ class AdminCanvasEditor {
           ctx.fill();
         }
 
-        // Etiqueta com nome e direção acima da cabeça do NPC
+        // Etiqueta com nome e sentido acima da cabeça do NPC
         ctx.save();
         ctx.font = `bold ${Math.max(11, Math.round(13 / this.zoom))}px sans-serif`;
         ctx.textAlign = 'center';
@@ -860,7 +886,7 @@ class AdminCanvasEditor {
         ctx.lineWidth = 3 / this.zoom;
         ctx.strokeStyle = 'rgba(2, 6, 23, 0.9)';
         ctx.strokeText(fullTag, n.posX, n.posY - 64);
-        ctx.fillStyle = '#86efac';
+        ctx.fillStyle = isSelected ? '#fde047' : '#86efac';
         ctx.fillText(fullTag, n.posX, n.posY - 64);
         ctx.restore();
       });
