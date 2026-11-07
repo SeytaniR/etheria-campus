@@ -76,6 +76,7 @@ class EtheriaAdminStudio {
     if (window.AdminQuestsTab) window.AdminQuestsTab.attach(this);
     if (window.AdminCanvasEditor) window.AdminCanvasEditor.attach(this);
     if (window.AdminLayersDrawer) window.AdminLayersDrawer.attach(this);
+    if (window.AdminTeleportNpcsTab) window.AdminTeleportNpcsTab.attach(this);
 
     this.init();
   }
@@ -271,6 +272,7 @@ class EtheriaAdminStudio {
       if (typeof this.drawCanvas === 'function') this.drawCanvas();
     }
     if (typeof this.renderLayerLists === 'function') this.renderLayerLists();
+    if (typeof this.renderMapTeleportNpcsTable === 'function') this.renderMapTeleportNpcsTable();
     this.renderSavedMapsList();
   }
 
@@ -319,6 +321,7 @@ class EtheriaAdminStudio {
       this.loadMapBackgroundImage(m.mcreworkMapImage);
     }
     if (typeof this.renderLayerLists === 'function') this.renderLayerLists();
+    if (typeof this.renderMapTeleportNpcsTable === 'function') this.renderMapTeleportNpcsTable();
     this.renderSavedMapsList();
   }
 

@@ -467,9 +467,38 @@ export class EtheriaServerApp {
         }
         const mapNpcRotateMatch = pathname.match(/^\/api\/admin\/map-npcs\/(\d+)\/rotate$/);
         if (mapNpcRotateMatch && method === 'POST') {
-          if (!this.enforceTablePermission(res, session, 'NPCS', 'READ_WRITE')) return;
+          if (!this.enforceTablePermission(res, session, 'NPCS', 'READ_WRITE') && !this.enforceTablePermission(res, session, 'MAPS', 'READ_WRITE')) return;
           const placementId = Number(mapNpcRotateMatch[1]);
           this.sendJson(res, 200, await this.mapsController.rotateMapNpcPlacement(placementId));
+          return;
+        }
+        const mapTeleportNpcMatch = pathname.match(/^\/api\/admin\/maps\/(\d+)\/teleport-npcs$/);
+        if (mapTeleportNpcMatch && method === 'POST') {
+          if (!this.enforceTablePermission(res, session, 'MAPS', 'READ_WRITE') && !this.enforceTablePermission(res, session, 'NPCS', 'READ_WRITE')) return;
+          const mapId = Number(mapTeleportNpcMatch[1]);
+          const dto = await this.readJsonBody(req);
+          this.sendJson(res, 201, await this.mapsController.saveMapTeleportNpc(mapId, dto));
+          return;
+        }
+        const mapNpcTeleportMatch = pathname.match(/^\/api\/admin\/map-npcs\/(\d+)\/teleport$/);
+        if (mapNpcTeleportMatch && method === 'PUT') {
+          if (!this.enforceTablePermission(res, session, 'MAPS', 'READ_WRITE') && !this.enforceTablePermission(res, session, 'NPCS', 'READ_WRITE')) return;
+          const placementId = Number(mapNpcTeleportMatch[1]);
+          const dto = await this.readJsonBody(req);
+          dto.id = placementId;
+          const existingNpc = await this.prisma.mapNpc.findUnique({ where: { id: placementId } });
+          if (!existingNpc) {
+            this.sendJson(res, 404, { error: `Posicionamento de NPC #${placementId} não encontrado.` });
+            return;
+          }
+          this.sendJson(res, 200, await this.mapsController.saveMapTeleportNpc(existingNpc.mapId, dto));
+          return;
+        }
+        const mapNpcDeleteMatch = pathname.match(/^\/api\/admin\/map-npcs\/(\d+)$/);
+        if (mapNpcDeleteMatch && method === 'DELETE') {
+          if (!this.enforceTablePermission(res, session, 'MAPS', 'READ_WRITE') && !this.enforceTablePermission(res, session, 'NPCS', 'READ_WRITE')) return;
+          const placementId = Number(mapNpcDeleteMatch[1]);
+          this.sendJson(res, 200, await this.mapsController.deleteMapNpc(placementId));
           return;
         }
 

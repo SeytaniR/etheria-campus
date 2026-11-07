@@ -139,15 +139,16 @@ model NpcTemplate {
 
 /// Posicionamento de um NPC dentro de um mapa específico.
 model MapNpc {
-  id            Int         @id @default(autoincrement())
-  mapId         Int         @map("map_id")
-  npcTemplateId Int         @map("npc_template_id")
-  posX          Float       @map("pos_x")
-  posY          Float       @map("pos_y")
-  direction     Int         @default(0) /// Direção inicial (0..7)
+  id                       Int         @id @default(autoincrement())
+  mapId                    Int         @map("map_id")
+  npcTemplateId            Int         @map("npc_template_id")
+  posX                     Float       @map("pos_x")
+  posY                     Float       @map("pos_y")
+  direction                Int         @default(0) /// Direção inicial (0..7)
+  teleportDestinationsJson Json?       @map("teleport_destinations_json") /// Destinos de teleporte do NPC: [{label, targetMapId, targetX, targetY, requiredLevel, costGold}]
 
-  map           GameMap     @relation(fields: [mapId], references: [id], onDelete: Cascade)
-  npcTemplate   NpcTemplate @relation(fields: [npcTemplateId], references: [id], onDelete: Cascade)
+  map                      GameMap     @relation(fields: [mapId], references: [id], onDelete: Cascade)
+  npcTemplate              NpcTemplate @relation(fields: [npcTemplateId], references: [id], onDelete: Cascade)
 
   @@map("map_npcs")
 }

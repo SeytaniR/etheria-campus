@@ -470,6 +470,7 @@
         </button>
         <div id="mapSummaryCounters" style="display:flex; flex-wrap:wrap; gap:8px; font-size:0.78rem; background:rgba(56,189,248,0.1); border:1px solid var(--border); padding:8px 12px; border-radius:8px;"></div>
         <div id="mapSheetNpcsQuickList" style="display:none; flex-direction:column; gap:6px; background:rgba(15,23,42,0.75); border:1px solid var(--border); padding:8px 12px; border-radius:8px;"></div>
+        <div id="mapTeleportNpcsContainer" style="margin-top:8px;"></div>
         <div class="row-2">
           <div class="field">
             <label>ID & Chave do Mapa (Auto-Incremento Automático)</label>
@@ -806,9 +807,12 @@
           <div id="portalsList" class="item-list"></div>
         </div>
         <div>
-          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px; flex-wrap:wrap; gap:4px;">
             <strong style="font-size:0.82rem; color:#86efac;">🧙 NPCs Posicionados (<span id="countNpcs">0</span>)</strong>
-            <button onclick="AdminApp.openNpcTemplateModal()" style="font-size:0.72rem; padding:3px 7px;">➕ Criar Template</button>
+            <div style="display:flex; gap:4px;">
+              <button onclick="AdminApp.openTeleportNpcModal(null)" style="font-size:0.72rem; padding:3px 7px; background:#0284c7; border-color:#38bdf8;">🌀 +Teleporte</button>
+              <button onclick="AdminApp.openNpcTemplateModal()" style="font-size:0.72rem; padding:3px 7px;">➕ Template</button>
+            </div>
           </div>
           <div id="npcsList" class="item-list"></div>
         </div>
@@ -877,6 +881,7 @@
   <script src="/admin/js/AdminQuestsTab.js"></script>
   <script src="/admin/js/AdminCanvasEditor.js"></script>
   <script src="/admin/js/AdminLayersDrawer.js"></script>
+  <script src="/admin/js/AdminTeleportNpcsTab.js"></script>
   <script src="/admin/admin.js"></script>
 </body>
 </html>

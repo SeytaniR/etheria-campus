@@ -199,7 +199,12 @@ class AdminNpcsTab {
         this.renderLayerLists();
         this.drawCanvas();
         document.getElementById('activeNpcTemplateSelect').value = String(saved.id);
-        if (document.getElementById('visualMapEditorScreen').style.display === 'flex') {
+        if (this.awaitingTeleportNpcTemplateCreation) {
+          this.awaitingTeleportNpcTemplateCreation = false;
+          if (typeof this.openTeleportNpcModal === 'function') {
+            this.openTeleportNpcModal(null, saved.id);
+          }
+        } else if (document.getElementById('visualMapEditorScreen').style.display === 'flex') {
           this.setTool('NPC');
         }
       } catch (err) {

@@ -422,6 +422,7 @@ export class GamePlayController {
           posX: n.posX,
           posY: n.posY,
           direction: n.direction,
+          teleportDestinationsJson: n.teleportDestinationsJson,
           thumbUrl: `${this.mcreworkPagesBaseUrl}/assets/npcs/${key}/thumb.png`,
           atlasJsonUrl: `${this.mcreworkPagesBaseUrl}/assets/npcs/${key}/atlas.json`,
           atlasWebpUrl: `${this.mcreworkPagesBaseUrl}/assets/npcs/${key}/atlas.webp`,

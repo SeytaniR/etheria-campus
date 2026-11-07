@@ -135,6 +135,10 @@ class AdminLayersDrawer {
           .map((n, idx) => {
             const tpl = this.npcTemplates.find((t) => t.id === Number(n.npcTemplateId));
             const isFlipped = (Number(n.direction) || 0) > 0;
+            const destCount = Array.isArray(n.teleportDestinationsJson) ? n.teleportDestinationsJson.length : 0;
+            const tpBadge = destCount > 0
+              ? `<span style="font-size:0.66rem; background:rgba(56,189,248,0.2); color:#7dd3fc; border:1px solid rgba(56,189,248,0.4); padding:1px 4px; border-radius:4px; font-weight:700;">🌀 ${destCount} dest.</span>`
+              : '';
             const thumbHtml = tpl?.thumbUrl
               ? `<img src="${tpl.thumbUrl}" alt="" style="width:34px; height:34px; object-fit:contain; background:#020617; border-radius:4px; border:1px solid var(--border); flex-shrink:0; transform:scaleX(${isFlipped ? -1 : 1}); transition:transform 0.15s ease;" />`
               : '';
@@ -143,13 +147,16 @@ class AdminLayersDrawer {
             <div style="display:flex; align-items:center; gap:6px; min-width:0;">
               ${thumbHtml}
               <div style="min-width:0;">
-                <strong style="font-size:0.8rem;">🧙 #${idx + 1} ${tpl ? tpl.namePtBr : `NPC #${n.npcTemplateId}`}</strong>
+                <strong style="font-size:0.8rem;">🧙 #${idx + 1} ${tpl ? tpl.namePtBr : `NPC #${n.npcTemplateId}`} ${tpBadge}</strong>
                 <div style="font-size:0.68rem; color:var(--text-muted);">
                   Pos: (${n.posX}, ${n.posY}) &bull; <span style="color:#fde047; font-weight:700;">${isFlipped ? '➡️ Virado ↔️' : '⬅️ Padrão'}</span>
                 </div>
               </div>
             </div>
-            <div style="display:flex; align-items:center; gap:5px;">
+            <div style="display:flex; align-items:center; gap:4px;">
+              <button type="button" class="btn-primary" onclick="AdminApp.openTeleportNpcModal(${idx})" style="padding:4px 7px; font-size:0.72rem; font-weight:700;" title="Configurar locais de teleporte deste NPC">
+                🌀
+              </button>
               <button type="button" class="btn-primary" onclick="AdminApp.rotateMapNpc(${idx})" style="padding:4px 8px; font-size:0.74rem; font-weight:700;">
                 🔄 Girar
               </button>

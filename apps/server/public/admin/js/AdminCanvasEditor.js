@@ -858,12 +858,15 @@ class AdminCanvasEditor {
         const dirText = dir > 0 ? '➡️ Virado ↔️' : '⬅️ Padrão';
         const isSelected = idx === this.selectedMapNpcIndex;
 
-        // Anel discreto nos pés do NPC (Dourado quando selecionado para girar/mover, Verde nos demais)
+        const destCount = Array.isArray(n.teleportDestinationsJson) ? n.teleportDestinationsJson.length : 0;
+        const isTeleport = destCount > 0;
+
+        // Anel nos pés do NPC (Dourado se selecionado, Ciano se for Teleporte, Verde nos demais)
         ctx.save();
         ctx.beginPath();
         ctx.ellipse(n.posX, n.posY, isSelected ? 25 : 21, isSelected ? 13 : 11, 0, 0, Math.PI * 2);
-        ctx.strokeStyle = isSelected ? '#fde047' : '#4ade80';
-        ctx.lineWidth = (isSelected ? 2.8 : 2) / this.zoom;
+        ctx.strokeStyle = isSelected ? '#fde047' : isTeleport ? '#38bdf8' : '#4ade80';
+        ctx.lineWidth = (isSelected || isTeleport ? 2.8 : 2) / this.zoom;
         ctx.stroke();
         ctx.restore();
 
@@ -874,19 +877,20 @@ class AdminCanvasEditor {
         } else {
           ctx.beginPath();
           ctx.arc(n.posX, n.posY, 20, 0, Math.PI * 2);
-          ctx.fillStyle = 'rgba(34, 197, 94, 0.45)';
+          ctx.fillStyle = isTeleport ? 'rgba(56, 189, 248, 0.45)' : 'rgba(34, 197, 94, 0.45)';
           ctx.fill();
         }
 
-        // Etiqueta com nome e sentido acima da cabeça do NPC
+        // Etiqueta com nome, teleporte e sentido acima da cabeça do NPC
         ctx.save();
         ctx.font = `bold ${Math.max(11, Math.round(13 / this.zoom))}px sans-serif`;
         ctx.textAlign = 'center';
-        const fullTag = `🧙 #${idx + 1} ${label} [${dirText}]`;
+        const tpTag = isTeleport ? ` 🌀 Teleporte (${destCount})` : '';
+        const fullTag = `🧙 #${idx + 1} ${label}${tpTag} [${dirText}]`;
         ctx.lineWidth = 3 / this.zoom;
         ctx.strokeStyle = 'rgba(2, 6, 23, 0.9)';
         ctx.strokeText(fullTag, n.posX, n.posY - 64);
-        ctx.fillStyle = isSelected ? '#fde047' : '#86efac';
+        ctx.fillStyle = isSelected ? '#fde047' : isTeleport ? '#7dd3fc' : '#86efac';
         ctx.fillText(fullTag, n.posX, n.posY - 64);
         ctx.restore();
       });

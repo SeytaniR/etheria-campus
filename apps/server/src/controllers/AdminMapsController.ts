@@ -45,11 +45,22 @@ export interface SaveMapDto {
     portalVfxKey?: string | null;
   }>;
   npcs: Array<{
+    id?: number | null;
     npcTemplateId: number;
     posX: number;
     posY: number;
     direction?: number;
+    teleportDestinationsJson?: TeleportDestinationDto[] | null;
   }>;
+}
+
+export interface TeleportDestinationDto {
+  label: string;
+  targetMapId: number;
+  targetX?: number;
+  targetY?: number;
+  requiredLevel?: number;
+  costGold?: number;
 }
 
 export interface SaveNpcTemplateDto {
@@ -760,6 +771,9 @@ export class AdminMapsController {
               posX: Number(n.posX) || 0,
               posY: Number(n.posY) || 0,
               direction: Number(n.direction) || 0,
+              teleportDestinationsJson: Array.isArray(n.teleportDestinationsJson)
+                ? (n.teleportDestinationsJson as any)
+                : undefined,
             },
           });
         }
@@ -768,6 +782,85 @@ export class AdminMapsController {
 
     await this.snapshotManager.exportToDisk();
     return { id: savedMapId };
+  }
+
+  /**
+   * Adiciona ou atualiza um NPC de Teleporte diretamente em um mapa com seus destinos cadastrados.
+   */
+  public async saveMapTeleportNpc(
+    mapId: number,
+    dto: {
+      id?: number | null;
+      npcTemplateId: number;
+      posX: number;
+      posY: number;
+      direction?: number;
+      teleportDestinationsJson: TeleportDestinationDto[];
+    }
+  ) {
+    const existingMap = await this.prisma.gameMap.findUnique({ where: { id: mapId } });
+    if (!existingMap) {
+      throw new Error(`Mapa #${mapId} não encontrado.`);
+    }
+    const npcTpl = await this.prisma.npcTemplate.findUnique({ where: { id: Number(dto.npcTemplateId) } });
+    if (!npcTpl) {
+      throw new Error(`Template de NPC #${dto.npcTemplateId} não encontrado.`);
+    }
+
+    const destinations = Array.isArray(dto.teleportDestinationsJson)
+      ? dto.teleportDestinationsJson.map((d) => ({
+          label: (d.label || '').trim(),
+          targetMapId: Number(d.targetMapId),
+          targetX: Number(d.targetX ?? 500),
+          targetY: Number(d.targetY ?? 500),
+          requiredLevel: Number(d.requiredLevel ?? 1),
+          costGold: Number(d.costGold ?? 0),
+        }))
+      : [];
+
+    let savedNpc: any;
+    const targetPlacementId = dto.id ? Number(dto.id) : null;
+    if (targetPlacementId) {
+      savedNpc = await this.prisma.mapNpc.update({
+        where: { id: targetPlacementId },
+        data: {
+          npcTemplateId: Number(dto.npcTemplateId),
+          posX: Number(dto.posX) || 0,
+          posY: Number(dto.posY) || 0,
+          direction: Number(dto.direction) || 0,
+          teleportDestinationsJson: destinations as any,
+        },
+        include: { npcTemplate: true },
+      });
+    } else {
+      savedNpc = await this.prisma.mapNpc.create({
+        data: {
+          mapId,
+          npcTemplateId: Number(dto.npcTemplateId),
+          posX: Number(dto.posX) || 0,
+          posY: Number(dto.posY) || 0,
+          direction: Number(dto.direction) || 0,
+          teleportDestinationsJson: destinations as any,
+        },
+        include: { npcTemplate: true },
+      });
+    }
+
+    await this.snapshotManager.exportToDisk();
+    return savedNpc;
+  }
+
+  /**
+   * Remove um NPC posicionado de um mapa pelo seu ID de posicionamento (`map_npcs.id`).
+   */
+  public async deleteMapNpc(placementId: number) {
+    const existing = await this.prisma.mapNpc.findUnique({ where: { id: placementId } });
+    if (!existing) {
+      throw new Error(`Posicionamento de NPC #${placementId} não encontrado.`);
+    }
+    await this.prisma.mapNpc.delete({ where: { id: placementId } });
+    await this.snapshotManager.exportToDisk();
+    return { deletedId: placementId };
   }
 
   /**
