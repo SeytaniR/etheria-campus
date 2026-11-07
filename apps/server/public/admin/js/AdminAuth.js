@@ -97,6 +97,10 @@ class AdminAuth {
       document.getElementById('tabClasses').style.display = tab === 'classes' ? 'flex' : 'none';
       const tabMonsters = document.getElementById('tabMonsters');
       if (tabMonsters) tabMonsters.style.display = tab === 'monsters' ? 'flex' : 'none';
+      const tabSkills = document.getElementById('tabSkills');
+      if (tabSkills) tabSkills.style.display = tab === 'skills' ? 'flex' : 'none';
+      const tabStatusEffects = document.getElementById('tabStatusEffects');
+      if (tabStatusEffects) tabStatusEffects.style.display = tab === 'status-effects' ? 'flex' : 'none';
       document.getElementById('tabUsers').style.display = tab === 'users' ? 'flex' : 'none';
 
       document.getElementById('tabBtnMaps').className = tab === 'maps' ? 'btn-primary' : '';
@@ -104,6 +108,10 @@ class AdminAuth {
       document.getElementById('tabBtnClasses').className = tab === 'classes' ? 'btn-primary' : '';
       const btnMonsters = document.getElementById('tabBtnMonsters');
       if (btnMonsters) btnMonsters.className = tab === 'monsters' ? 'btn-primary' : '';
+      const btnSkills = document.getElementById('tabBtnSkills');
+      if (btnSkills) btnSkills.className = tab === 'skills' ? 'btn-primary' : '';
+      const btnStatus = document.getElementById('tabBtnStatusEffects');
+      if (btnStatus) btnStatus.className = tab === 'status-effects' ? 'btn-primary' : '';
       document.getElementById('tabBtnUsers').className = tab === 'users' ? 'btn-primary' : '';
 
       if (tab === 'npcs') {
@@ -114,6 +122,12 @@ class AdminAuth {
       }
       if (tab === 'monsters' && typeof this.renderMonstersCrudTable === 'function') {
         this.renderMonstersCrudTable();
+      }
+      if (tab === 'skills' && typeof this.renderSkillsCrudTable === 'function') {
+        this.renderSkillsCrudTable();
+      }
+      if (tab === 'status-effects' && typeof this.renderStatusEffectsCrudTable === 'function') {
+        this.renderStatusEffectsCrudTable();
       }
     };
   }

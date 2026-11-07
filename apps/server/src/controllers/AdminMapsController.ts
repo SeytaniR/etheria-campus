@@ -75,6 +75,7 @@ export interface SaveClassTemplateDto {
   groundOffsetY?: number;
   rebornGroundOffsetY?: number;
   raceCode?: string;
+  skillIdsJson?: number[];
   isActive?: boolean;
   baseAttributesJson?: {
     VIT: number;
@@ -320,6 +321,7 @@ export class AdminMapsController {
     const groundOffsetY = Math.round(Number(dto.groundOffsetY) || 0);
     const rebornGroundOffsetY = Math.round(Number(dto.rebornGroundOffsetY) || 0);
     const rebornMcreworkCharKey = dto.rebornMcreworkCharKey ? dto.rebornMcreworkCharKey.trim() : null;
+    const skillIdsJson = Array.isArray(dto.skillIdsJson) ? dto.skillIdsJson.map((n) => Number(n)).filter((n) => n > 0) : undefined;
 
     const baseAttrs = {
       VIT: Number(dto.baseAttributesJson?.VIT ?? 10),
@@ -377,6 +379,7 @@ export class AdminMapsController {
             raceCode,
             baseAttributesJson: baseAttrs as any,
             growthPerLevelJson: growthAttrs as any,
+            ...(skillIdsJson !== undefined ? { skillIdsJson: skillIdsJson as any } : {}),
             isActive,
           },
         });
@@ -394,6 +397,7 @@ export class AdminMapsController {
             raceCode,
             baseAttributesJson: baseAttrs as any,
             growthPerLevelJson: growthAttrs as any,
+            skillIdsJson: (skillIdsJson ?? [1, 2, 4]) as any,
             isActive,
           },
         });

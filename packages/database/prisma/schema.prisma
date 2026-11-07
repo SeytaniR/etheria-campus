@@ -329,37 +329,47 @@ model MonsterBiome {
 // 6. HABILIDADES (ATIVAS & PASSIVAS), BUFFS/DEBUFFS E EQUIPAMENTOS (16 + 6 SLOTS)
 // ----------------------------------------------------------------------------
 
-/// Habilidades de Combate (Modo 5B) baseadas nos 7 Blocos Universais de Efeito.
+/// Habilidades de Combate (Modo 5B) baseadas nos 7 Blocos Universais de Efeito (Modo Visual No-Code).
 model SkillTemplate {
   id                 Int     @id @default(autoincrement())
   code               String  @unique
   nameI18nKey        String  @map("name_i18n_key")
-  descriptionI18nKey String  @map("description_i18n_key")
+  descriptionI18nKey String? @map("description_i18n_key")
   mcreworkIconKey    String? @map("mcrework_icon_key")
-  castActionId       Int     @default(4) @map("cast_action_id")
-  mcreworkVfxKey     String? @map("mcrework_vfx_key")
+  castActionId       Int     @default(3) @map("cast_action_id") /// 3 = Ataque Físico, 7 = Conjuração/Skill, 4 = Guarda
+  castMovement       String  @default("MELEE_ADVANCE") @map("cast_movement") /// MELEE_ADVANCE ou STAND_IN_PLACE
+  mcreworkVfxKey     String? @map("mcrework_vfx_key") /// ID do efeito em assets/effects/catalog.json
   skillType          String  @default("ACTIVE") @map("skill_type") /// ACTIVE ou PASSIVE
   triggerType        String  @default("MANUAL_AP") @map("trigger_type") /// MANUAL_AP, PASSIVE_ALWAYS, ON_TURN_START, ON_HIT, ON_CRIT, ON_DAMAGE_TAKEN, ON_KILL
+  mpCost             Int     @default(10) @map("mp_cost")
   apCost             Int     @default(2) @map("ap_cost")
   cooldownTurns      Int     @default(0) @map("cooldown_turns")
   targetScope        String  @default("MELEE_FRONTLINE") @map("target_scope") /// MELEE_FRONTLINE, RANGED_ANY, ROW_FRONT, ROW_BACK, COLUMN_PIERCE, CROSS, ALL_ENEMIES, SELF, ALLY_SINGLE, ALLY_ALL
-  effectBlocksJson   Json    @default("[]") @map("effect_blocks_json") /// Lista dos 7 blocos: DAMAGE, HEAL, SHIELD, STATUS, MOVE_SLOT, CLEANSE_DISPEL, RESOURCE
+  hitCount           Int     @default(1) @map("hit_count")
+  effectBlocksJson   Json    @default("[]") @map("effect_blocks_json") /// Lista visual de blocos: DAMAGE, HEAL, SHIELD, STATUS, MOVE_SLOT, CLEANSE_DISPEL, RESOURCE
+  isActive           Boolean @default(true) @map("is_active")
 
   @@map("skill_templates")
 }
 
 /// Templates de Buffs, Debuffs, Dano por Turno (DoT) e Controles de Grupo (CC).
+/// Não se ativam sozinhos: exigem uma Habilidade Ativa ou Passiva para serem aplicados no alvo.
 model StatusEffectTemplate {
   id                   Int     @id @default(autoincrement())
   code                 String  @unique
   nameI18nKey          String  @map("name_i18n_key")
-  iconKey              String? @map("icon_key")
-  isBuff               Boolean @default(true) @map("is_buff")
+  descriptionI18nKey   String? @map("description_i18n_key")
+  iconKey              String? @map("icon_key") /// Ícone informativo e exibido acima da cabeça do alvo na batalha
+  mcreworkVfxKey       String? @map("mcrework_vfx_key") /// Efeito especial 2.5D acionado quando o gatilho do Buff/Debuff dispara
+  isBuff               Boolean @default(true) @map("is_buff") /// true = Buff, false = Debuff
+  triggerType          String  @default("ON_TURN_START") @map("trigger_type") /// WHILE_ACTIVE, ON_APPLY, ON_TURN_START, ON_TURN_END, ON_HIT_TAKEN, ON_ATTACK
   maxStacks            Int     @default(1) @map("max_stacks")
   defaultDurationTurns Int     @default(2) @map("default_duration_turns")
-  statModifiersJson    Json    @default("{}") @map("stat_modifiers_json")
-  dotHotFormulaJson    Json    @default("{}") @map("dot_hot_formula_json")
+  statModifiersJson    Json    @default("{}") @map("stat_modifiers_json") /// Ex: {"ATK_PCT":20,"DEF_PCT":-15,"SPEED_PCT":10}
+  dotHotFormulaJson    Json    @default("{}") @map("dot_hot_formula_json") /// Configuração visual de Dano/Cura por gatilho
   controlFlagsJson     Json    @default("[]") @map("control_flags_json") /// Ex: ["STUN", "SILENCE", "FREEZE"]
+  effectBlocksJson     Json    @default("[]") @map("effect_blocks_json")
+  isActive             Boolean @default(true) @map("is_active")
 
   @@map("status_effect_templates")
 }

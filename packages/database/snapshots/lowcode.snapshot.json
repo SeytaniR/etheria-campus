@@ -1,6 +1,6 @@
 {
   "version": "0.2.0",
-  "exportedAt": "2026-11-07T08:51:21.712Z",
+  "exportedAt": "2026-11-07T09:32:06.058Z",
   "i18nTranslations": [
     {
       "id": 1,
@@ -1267,7 +1267,7 @@
       "key": "map.map_5.name",
       "locale": "pt-BR",
       "text": "Dong Xuen",
-      "updatedAt": "2026-11-06T06:08:52.745Z"
+      "updatedAt": "2026-11-07T09:25:44.021Z"
     },
     {
       "id": 200,
@@ -1371,29 +1371,29 @@
       "id": 219,
       "key": "monster.monster_2.name",
       "locale": "pt-BR",
-      "text": "Peru Selvagem da Sorte",
-      "updatedAt": "2026-11-07T05:30:50.572Z"
+      "text": "Galinha Colorida",
+      "updatedAt": "2026-11-07T08:53:24.910Z"
     },
     {
       "id": 220,
       "key": "monster.monster_2.description",
       "locale": "pt-BR",
       "text": "Criatura veloz e espalhafatosa das pradarias. Dizem que traz sorte a quem a doma.",
-      "updatedAt": "2026-11-07T05:30:50.576Z"
+      "updatedAt": "2026-11-07T08:53:24.947Z"
     },
     {
       "id": 221,
       "key": "monster.monster_3.name",
       "locale": "pt-BR",
       "text": "Cacto Venenoso",
-      "updatedAt": "2026-11-07T05:30:50.677Z"
+      "updatedAt": "2026-11-07T08:53:46.753Z"
     },
     {
       "id": 222,
       "key": "monster.monster_3.description",
       "locale": "pt-BR",
       "text": "Vegetal animado e agressivo capaz de disparar espinhos com toxina paralisante.",
-      "updatedAt": "2026-11-07T05:30:50.681Z"
+      "updatedAt": "2026-11-07T08:53:46.758Z"
     },
     {
       "id": 223,
@@ -1414,14 +1414,203 @@
       "key": "monster.monster_5.name",
       "locale": "pt-BR",
       "text": "Polvo Esmeralda",
-      "updatedAt": "2026-11-07T05:30:50.986Z"
+      "updatedAt": "2026-11-07T08:54:21.216Z"
     },
     {
       "id": 226,
       "key": "monster.monster_5.description",
       "locale": "pt-BR",
       "text": "Criatura anfíbia curiosa com tentáculos elásticos e pele verde fluorescente.",
-      "updatedAt": "2026-11-07T05:30:51.001Z"
+      "updatedAt": "2026-11-07T08:54:21.219Z"
+    },
+    {
+      "id": 238,
+      "key": "npc.npc_19.name",
+      "locale": "pt-BR",
+      "text": "Ferreiro Max",
+      "updatedAt": "2026-11-07T09:12:53.588Z"
+    },
+    {
+      "id": 239,
+      "key": "npc.npc_20.name",
+      "locale": "pt-BR",
+      "text": "Sábio Bei-Si",
+      "updatedAt": "2026-11-07T09:13:26.975Z"
+    },
+    {
+      "id": 240,
+      "key": "npc.npc_21.name",
+      "locale": "pt-BR",
+      "text": "Guarda",
+      "updatedAt": "2026-11-07T09:13:56.268Z"
+    },
+    {
+      "id": 241,
+      "key": "npc.npc_22.name",
+      "locale": "pt-BR",
+      "text": "Rei Fusion",
+      "updatedAt": "2026-11-07T09:15:40.110Z"
+    },
+    {
+      "id": 243,
+      "key": "npc.npc_23.name",
+      "locale": "pt-BR",
+      "text": "General Astron",
+      "updatedAt": "2026-11-07T09:19:07.897Z"
+    },
+    {
+      "id": 244,
+      "key": "npc.npc_24.name",
+      "locale": "pt-BR",
+      "text": "Doutor Mistaff",
+      "updatedAt": "2026-11-07T09:21:08.855Z"
+    },
+    {
+      "id": 245,
+      "key": "npc.npc_25.name",
+      "locale": "pt-BR",
+      "text": "Mercador Huang",
+      "updatedAt": "2026-11-07T09:22:24.958Z"
+    },
+    {
+      "id": 246,
+      "key": "npc.npc_26.name",
+      "locale": "pt-BR",
+      "text": "Enfermeira Polly",
+      "updatedAt": "2026-11-07T09:23:00.530Z"
+    },
+    {
+      "id": 248,
+      "key": "npc.npc_27.name",
+      "locale": "pt-BR",
+      "text": "Chef Pilaf",
+      "updatedAt": "2026-11-07T09:25:32.463Z"
+    },
+    {
+      "id": 250,
+      "key": "status.status_1.name",
+      "locale": "pt-BR",
+      "text": "Queimadura Solar",
+      "updatedAt": "2026-11-07T09:31:15.781Z"
+    },
+    {
+      "id": 251,
+      "key": "status.status_1.description",
+      "locale": "pt-BR",
+      "text": "Chamas intensas que causam dano de Fogo no início de cada turno do alvo.",
+      "updatedAt": "2026-11-07T09:31:15.802Z"
+    },
+    {
+      "id": 252,
+      "key": "status.status_2.name",
+      "locale": "pt-BR",
+      "text": "Toxina Paralisante",
+      "updatedAt": "2026-11-07T09:31:15.994Z"
+    },
+    {
+      "id": 253,
+      "key": "status.status_2.description",
+      "locale": "pt-BR",
+      "text": "Veneno corrosivo que drena a vitalidade no início do turno e reduz a velocidade.",
+      "updatedAt": "2026-11-07T09:31:15.998Z"
+    },
+    {
+      "id": 254,
+      "key": "status.status_3.name",
+      "locale": "pt-BR",
+      "text": "Fúria de Batalha",
+      "updatedAt": "2026-11-07T09:31:16.116Z"
+    },
+    {
+      "id": 255,
+      "key": "status.status_3.description",
+      "locale": "pt-BR",
+      "text": "Aumenta o Ataque em +30% e a Velocidade em +15% enquanto estiver ativo.",
+      "updatedAt": "2026-11-07T09:31:16.127Z"
+    },
+    {
+      "id": 256,
+      "key": "status.status_4.name",
+      "locale": "pt-BR",
+      "text": "Bênção Regenerativa",
+      "updatedAt": "2026-11-07T09:31:16.248Z"
+    },
+    {
+      "id": 257,
+      "key": "status.status_4.description",
+      "locale": "pt-BR",
+      "text": "Aura sagrada que restaura HP no início de cada turno e eleva a Defesa.",
+      "updatedAt": "2026-11-07T09:31:16.252Z"
+    },
+    {
+      "id": 258,
+      "key": "status.status_5.name",
+      "locale": "pt-BR",
+      "text": "Atordoamento Sísmico",
+      "updatedAt": "2026-11-07T09:31:16.363Z"
+    },
+    {
+      "id": 259,
+      "key": "status.status_5.description",
+      "locale": "pt-BR",
+      "text": "Alvo atordoado pela onda de choque, ficando impedido de agir por 1 turno.",
+      "updatedAt": "2026-11-07T09:31:16.368Z"
+    },
+    {
+      "id": 260,
+      "key": "skill.skill_1.name",
+      "locale": "pt-BR",
+      "text": "Corte Fulminante",
+      "updatedAt": "2026-11-07T09:31:16.472Z"
+    },
+    {
+      "id": 261,
+      "key": "skill.skill_1.description",
+      "locale": "pt-BR",
+      "text": "Avança contra o inimigo desferindo um golpe físico poderoso (150% do Ataque + 15).",
+      "updatedAt": "2026-11-07T09:31:16.476Z"
+    },
+    {
+      "id": 262,
+      "key": "skill.skill_2.name",
+      "locale": "pt-BR",
+      "text": "Chama Purgatorial",
+      "updatedAt": "2026-11-07T09:31:16.580Z"
+    },
+    {
+      "id": 263,
+      "key": "skill.skill_2.description",
+      "locale": "pt-BR",
+      "text": "Conjura uma explosão de fogo à distância (170% do Ataque + 20) e aplica Queimadura Solar.",
+      "updatedAt": "2026-11-07T09:31:16.584Z"
+    },
+    {
+      "id": 264,
+      "key": "skill.skill_3.name",
+      "locale": "pt-BR",
+      "text": "Espinhos Peçonhentos",
+      "updatedAt": "2026-11-07T09:31:16.680Z"
+    },
+    {
+      "id": 265,
+      "key": "skill.skill_3.description",
+      "locale": "pt-BR",
+      "text": "Dispara espinhos tóxicos que causam 130% de dano e aplicam Toxina Paralisante.",
+      "updatedAt": "2026-11-07T09:31:16.683Z"
+    },
+    {
+      "id": 266,
+      "key": "skill.skill_4.name",
+      "locale": "pt-BR",
+      "text": "Rugido do Guerreiro",
+      "updatedAt": "2026-11-07T09:31:16.774Z"
+    },
+    {
+      "id": 267,
+      "key": "skill.skill_4.description",
+      "locale": "pt-BR",
+      "text": "Restaura 18% do HP Máximo e ativa o buff Fúria de Batalha (+30% ATK) por 3 turnos.",
+      "updatedAt": "2026-11-07T09:31:16.778Z"
     }
   ],
   "biomes": [
@@ -12020,12 +12209,12 @@
           "name": "Colisão #17",
           "points": [
             {
-              "x": 2360,
-              "y": 1208
+              "x": 2351,
+              "y": 1204
             },
             {
-              "x": 2386,
-              "y": 1186
+              "x": 2378,
+              "y": 1180
             },
             {
               "x": 2418,
@@ -13854,8 +14043,8 @@
           "name": "Sobreposição #10",
           "points": [
             {
-              "x": 2367,
-              "y": 1208
+              "x": 2355,
+              "y": 1212
             },
             {
               "x": 2373,
@@ -13866,8 +14055,8 @@
               "y": 1142
             },
             {
-              "x": 2405,
-              "y": 1214
+              "x": 2413,
+              "y": 1224
             }
           ]
         },
@@ -15573,12 +15762,477 @@
           "id": "ovl_1793945281517_44",
           "name": "Sobreposição #44",
           "points": []
+        },
+        {
+          "id": "ovl_1794042522192_45",
+          "name": "Sobreposição #45",
+          "points": [
+            {
+              "x": 2502,
+              "y": 878
+            },
+            {
+              "x": 2507,
+              "y": 864
+            },
+            {
+              "x": 2524,
+              "y": 852
+            },
+            {
+              "x": 2537,
+              "y": 852
+            },
+            {
+              "x": 2545,
+              "y": 838
+            },
+            {
+              "x": 2554,
+              "y": 836
+            },
+            {
+              "x": 2569,
+              "y": 840
+            },
+            {
+              "x": 2568,
+              "y": 859
+            },
+            {
+              "x": 2554,
+              "y": 868
+            },
+            {
+              "x": 2525,
+              "y": 863
+            }
+          ]
+        },
+        {
+          "id": "ovl_1794042530719_46",
+          "name": "Sobreposição #46",
+          "points": [
+            {
+              "x": 2615,
+              "y": 819
+            },
+            {
+              "x": 2659,
+              "y": 812
+            },
+            {
+              "x": 2656,
+              "y": 799
+            },
+            {
+              "x": 2640,
+              "y": 788
+            },
+            {
+              "x": 2625,
+              "y": 803
+            }
+          ]
+        },
+        {
+          "id": "ovl_1794042538168_47",
+          "name": "Sobreposição #47",
+          "points": [
+            {
+              "x": 2848,
+              "y": 1019
+            },
+            {
+              "x": 2852,
+              "y": 1004
+            },
+            {
+              "x": 2866,
+              "y": 999
+            },
+            {
+              "x": 2879,
+              "y": 1009
+            },
+            {
+              "x": 2879,
+              "y": 1024
+            },
+            {
+              "x": 2882,
+              "y": 1037
+            },
+            {
+              "x": 2889,
+              "y": 1035
+            },
+            {
+              "x": 2905,
+              "y": 1039
+            },
+            {
+              "x": 2904,
+              "y": 1081
+            },
+            {
+              "x": 2894,
+              "y": 1085
+            },
+            {
+              "x": 2873,
+              "y": 1040
+            }
+          ]
+        },
+        {
+          "id": "ovl_1794042553993_48",
+          "name": "Sobreposição #48",
+          "points": [
+            {
+              "x": 2980,
+              "y": 994
+            },
+            {
+              "x": 2995,
+              "y": 1021
+            },
+            {
+              "x": 3004,
+              "y": 1009
+            },
+            {
+              "x": 2993,
+              "y": 984
+            }
+          ]
+        },
+        {
+          "id": "ovl_1794042558297_49",
+          "name": "Sobreposição #49",
+          "points": [
+            {
+              "x": 2874,
+              "y": 1713
+            },
+            {
+              "x": 2895,
+              "y": 1695
+            },
+            {
+              "x": 2912,
+              "y": 1703
+            },
+            {
+              "x": 2936,
+              "y": 1725
+            },
+            {
+              "x": 2901,
+              "y": 1721
+            }
+          ]
+        },
+        {
+          "id": "ovl_1794042568208_50",
+          "name": "Sobreposição #50",
+          "points": [
+            {
+              "x": 2975,
+              "y": 1761
+            },
+            {
+              "x": 2978,
+              "y": 1750
+            },
+            {
+              "x": 2987,
+              "y": 1743
+            },
+            {
+              "x": 3000,
+              "y": 1747
+            },
+            {
+              "x": 3001,
+              "y": 1759
+            },
+            {
+              "x": 3025,
+              "y": 1764
+            },
+            {
+              "x": 2998,
+              "y": 1768
+            }
+          ]
+        },
+        {
+          "id": "ovl_1794042579935_51",
+          "name": "Sobreposição #51",
+          "points": [
+            {
+              "x": 2658,
+              "y": 1982
+            },
+            {
+              "x": 2655,
+              "y": 1954
+            },
+            {
+              "x": 2673,
+              "y": 1944
+            },
+            {
+              "x": 2690,
+              "y": 1942
+            },
+            {
+              "x": 2684,
+              "y": 1921
+            },
+            {
+              "x": 2702,
+              "y": 1911
+            },
+            {
+              "x": 2712,
+              "y": 1921
+            },
+            {
+              "x": 2704,
+              "y": 1934
+            }
+          ]
+        },
+        {
+          "id": "ovl_1794042589084_52",
+          "name": "Sobreposição #52",
+          "points": [
+            {
+              "x": 2570,
+              "y": 1938
+            },
+            {
+              "x": 2566,
+              "y": 1909
+            },
+            {
+              "x": 2587,
+              "y": 1893
+            },
+            {
+              "x": 2588,
+              "y": 1920
+            }
+          ]
+        },
+        {
+          "id": "ovl_1794042592864_53",
+          "name": "Sobreposição #53",
+          "points": [
+            {
+              "x": 2236,
+              "y": 1692
+            },
+            {
+              "x": 2247,
+              "y": 1661
+            },
+            {
+              "x": 2235,
+              "y": 1642
+            },
+            {
+              "x": 2226,
+              "y": 1606
+            },
+            {
+              "x": 2213,
+              "y": 1600
+            },
+            {
+              "x": 2204,
+              "y": 1646
+            },
+            {
+              "x": 2193,
+              "y": 1682
+            }
+          ]
+        },
+        {
+          "id": "ovl_1794042600966_54",
+          "name": "Sobreposição #54",
+          "points": [
+            {
+              "x": 1584,
+              "y": 178
+            },
+            {
+              "x": 1596,
+              "y": 40
+            },
+            {
+              "x": 1557,
+              "y": -16
+            },
+            {
+              "x": 1688,
+              "y": -16
+            },
+            {
+              "x": 1697,
+              "y": 16
+            },
+            {
+              "x": 1644,
+              "y": 49
+            },
+            {
+              "x": 1625,
+              "y": 190
+            }
+          ]
+        },
+        {
+          "id": "ovl_1794042622503_55",
+          "name": "Sobreposição #55",
+          "points": [
+            {
+              "x": 1558,
+              "y": 170
+            },
+            {
+              "x": 1558,
+              "y": 125
+            },
+            {
+              "x": 1535,
+              "y": 101
+            },
+            {
+              "x": 1520,
+              "y": 69
+            },
+            {
+              "x": 1489,
+              "y": 79
+            },
+            {
+              "x": 1444,
+              "y": 79
+            },
+            {
+              "x": 1389,
+              "y": 106
+            },
+            {
+              "x": 1383,
+              "y": 124
+            },
+            {
+              "x": 1469,
+              "y": 171
+            }
+          ]
+        },
+        {
+          "id": "ovl_1794042633856_56",
+          "name": "Sobreposição #56",
+          "points": [
+            {
+              "x": 1341,
+              "y": 130
+            },
+            {
+              "x": 1342,
+              "y": 105
+            },
+            {
+              "x": 1290,
+              "y": 66
+            },
+            {
+              "x": 1259,
+              "y": -29
+            },
+            {
+              "x": 996,
+              "y": -33
+            },
+            {
+              "x": 1014,
+              "y": 1
+            },
+            {
+              "x": 1207,
+              "y": 93
+            }
+          ]
+        },
+        {
+          "id": "ovl_1794042641661_57",
+          "name": "Sobreposição #57",
+          "points": [
+            {
+              "x": 1052,
+              "y": 795
+            },
+            {
+              "x": 1057,
+              "y": 654
+            },
+            {
+              "x": 1035,
+              "y": 606
+            },
+            {
+              "x": 1074,
+              "y": 586
+            },
+            {
+              "x": 1094,
+              "y": 622
+            },
+            {
+              "x": 1081,
+              "y": 800
+            }
+          ]
+        },
+        {
+          "id": "ovl_1794042653964_58",
+          "name": "Sobreposição #58",
+          "points": [
+            {
+              "x": 715,
+              "y": 715
+            },
+            {
+              "x": 729,
+              "y": 612
+            },
+            {
+              "x": 651,
+              "y": 631
+            },
+            {
+              "x": 684,
+              "y": 693
+            }
+          ]
+        },
+        {
+          "id": "ovl_1794042662595_59",
+          "name": "Sobreposição #59",
+          "points": []
         }
       ],
       "overlapOpacity": 0.45,
       "isActive": true,
       "createdAt": "2026-11-06T05:45:53.618Z",
-      "updatedAt": "2026-11-06T06:08:52.758Z"
+      "updatedAt": "2026-11-07T09:25:44.034Z"
     }
   ],
   "mapPortals": [
@@ -15684,6 +16338,19 @@
       "targetMapId": 3,
       "targetX": 90,
       "targetY": 1531,
+      "portalVfxKey": null
+    },
+    {
+      "id": 9,
+      "label": "Portal #2",
+      "sourceMapId": 5,
+      "sourceX": 110,
+      "sourceY": 2309,
+      "triggerRadius": 48,
+      "linkedPortalId": null,
+      "targetMapId": null,
+      "targetX": 500,
+      "targetY": 500,
       "portalVfxKey": null
     }
   ],
@@ -15891,6 +16558,106 @@
           "type": "QUEST"
         }
       ]
+    },
+    {
+      "id": 19,
+      "code": "npc_19",
+      "mcreworkNpcKey": "npc_000024",
+      "nameI18nKey": "npc.npc_19.name",
+      "isDecorationOnly": true,
+      "triggersJson": []
+    },
+    {
+      "id": 20,
+      "code": "npc_20",
+      "mcreworkNpcKey": "npc_000015",
+      "nameI18nKey": "npc.npc_20.name",
+      "isDecorationOnly": false,
+      "triggersJson": [
+        {
+          "type": "QUEST"
+        }
+      ]
+    },
+    {
+      "id": 21,
+      "code": "npc_21",
+      "mcreworkNpcKey": "npc_000010",
+      "nameI18nKey": "npc.npc_21.name",
+      "isDecorationOnly": true,
+      "triggersJson": []
+    },
+    {
+      "id": 22,
+      "code": "npc_22",
+      "mcreworkNpcKey": "npc_100119",
+      "nameI18nKey": "npc.npc_22.name",
+      "isDecorationOnly": false,
+      "triggersJson": [
+        {
+          "type": "QUEST"
+        }
+      ]
+    },
+    {
+      "id": 23,
+      "code": "npc_23",
+      "mcreworkNpcKey": "npc_000010",
+      "nameI18nKey": "npc.npc_23.name",
+      "isDecorationOnly": false,
+      "triggersJson": [
+        {
+          "type": "QUEST"
+        }
+      ]
+    },
+    {
+      "id": 24,
+      "code": "npc_24",
+      "mcreworkNpcKey": "npc_000020",
+      "nameI18nKey": "npc.npc_24.name",
+      "isDecorationOnly": false,
+      "triggersJson": [
+        {
+          "type": "QUEST"
+        }
+      ]
+    },
+    {
+      "id": 25,
+      "code": "npc_25",
+      "mcreworkNpcKey": "npc_000057",
+      "nameI18nKey": "npc.npc_25.name",
+      "isDecorationOnly": false,
+      "triggersJson": [
+        {
+          "type": "QUEST"
+        }
+      ]
+    },
+    {
+      "id": 26,
+      "code": "npc_26",
+      "mcreworkNpcKey": "npc_000059",
+      "nameI18nKey": "npc.npc_26.name",
+      "isDecorationOnly": false,
+      "triggersJson": [
+        {
+          "type": "QUEST"
+        }
+      ]
+    },
+    {
+      "id": 27,
+      "code": "npc_27",
+      "mcreworkNpcKey": "npc_000027",
+      "nameI18nKey": "npc.npc_27.name",
+      "isDecorationOnly": false,
+      "triggersJson": [
+        {
+          "type": "QUEST"
+        }
+      ]
     }
   ],
   "mapNpcs": [
@@ -16036,6 +16803,126 @@
       "npcTemplateId": 7,
       "posX": 1602,
       "posY": 1034,
+      "direction": 0
+    },
+    {
+      "id": 58,
+      "mapId": 5,
+      "npcTemplateId": 19,
+      "posX": 2939,
+      "posY": 1602,
+      "direction": 0
+    },
+    {
+      "id": 59,
+      "mapId": 5,
+      "npcTemplateId": 20,
+      "posX": 1772,
+      "posY": 1405,
+      "direction": 0
+    },
+    {
+      "id": 60,
+      "mapId": 5,
+      "npcTemplateId": 21,
+      "posX": 1729,
+      "posY": 1348,
+      "direction": 0
+    },
+    {
+      "id": 61,
+      "mapId": 5,
+      "npcTemplateId": 21,
+      "posX": 1858,
+      "posY": 1420,
+      "direction": 0
+    },
+    {
+      "id": 62,
+      "mapId": 5,
+      "npcTemplateId": 22,
+      "posX": 3224,
+      "posY": 515,
+      "direction": 0
+    },
+    {
+      "id": 63,
+      "mapId": 5,
+      "npcTemplateId": 21,
+      "posX": 3081,
+      "posY": 509,
+      "direction": 0
+    },
+    {
+      "id": 64,
+      "mapId": 5,
+      "npcTemplateId": 21,
+      "posX": 3267,
+      "posY": 597,
+      "direction": 0
+    },
+    {
+      "id": 65,
+      "mapId": 5,
+      "npcTemplateId": 21,
+      "posX": 2970,
+      "posY": 695,
+      "direction": 0
+    },
+    {
+      "id": 66,
+      "mapId": 5,
+      "npcTemplateId": 21,
+      "posX": 3162,
+      "posY": 801,
+      "direction": 0
+    },
+    {
+      "id": 67,
+      "mapId": 5,
+      "npcTemplateId": 23,
+      "posX": 3037,
+      "posY": 763,
+      "direction": 0
+    },
+    {
+      "id": 68,
+      "mapId": 5,
+      "npcTemplateId": 24,
+      "posX": 2131,
+      "posY": 290,
+      "direction": 0
+    },
+    {
+      "id": 69,
+      "mapId": 5,
+      "npcTemplateId": 25,
+      "posX": 887,
+      "posY": 356,
+      "direction": 0
+    },
+    {
+      "id": 70,
+      "mapId": 5,
+      "npcTemplateId": 26,
+      "posX": 2309,
+      "posY": 1015,
+      "direction": 0
+    },
+    {
+      "id": 71,
+      "mapId": 5,
+      "npcTemplateId": 9,
+      "posX": 306,
+      "posY": 1057,
+      "direction": 0
+    },
+    {
+      "id": 72,
+      "mapId": 5,
+      "npcTemplateId": 27,
+      "posX": 3105,
+      "posY": 2523,
       "direction": 0
     }
   ],
@@ -17855,29 +18742,6 @@
       "isActive": true
     },
     {
-      "id": 4,
-      "code": "monster_4",
-      "mcreworkMonsterKey": "creature_000004",
-      "nameI18nKey": "monster.monster_4.name",
-      "descriptionI18nKey": "monster.monster_4.description",
-      "groundOffsetY": 0,
-      "raceCode": "PLANT",
-      "fixedElementCode": "WATER",
-      "rarityTier": "F",
-      "isTamableAsPet": true,
-      "baseAttributesJson": {
-        "AGI": 7,
-        "DEX": 9,
-        "INT": 11,
-        "STR": 14,
-        "VIT": 18,
-        "WIS": 12
-      },
-      "skillIdsJson": [],
-      "lootTableJson": [],
-      "isActive": true
-    },
-    {
       "id": 5,
       "code": "monster_5",
       "mcreworkMonsterKey": "creature_000006",
@@ -17902,7 +18766,265 @@
     }
   ],
   "monsterBiomes": [],
-  "skillTemplates": [],
-  "statusEffectTemplates": [],
+  "skillTemplates": [
+    {
+      "id": 1,
+      "code": "skill_1",
+      "nameI18nKey": "skill.skill_1.name",
+      "descriptionI18nKey": "skill.skill_1.description",
+      "mcreworkIconKey": "assets/skills/icons/100156.png",
+      "castActionId": 3,
+      "castMovement": "MELEE_ADVANCE",
+      "mcreworkVfxKey": "10008",
+      "skillType": "ACTIVE",
+      "triggerType": "MANUAL_AP",
+      "mpCost": 10,
+      "apCost": 2,
+      "cooldownTurns": 0,
+      "targetScope": "MELEE_FRONTLINE",
+      "hitCount": 1,
+      "effectBlocksJson": [
+        {
+          "scalePct": 150,
+          "blockType": "DAMAGE",
+          "scaleStat": "ATK",
+          "damageType": "PHYSICAL",
+          "flatAmount": 15,
+          "elementCode": "INHERIT",
+          "critBonusPct": 15,
+          "lifestealPct": 0
+        }
+      ],
+      "isActive": true
+    },
+    {
+      "id": 2,
+      "code": "skill_2",
+      "nameI18nKey": "skill.skill_2.name",
+      "descriptionI18nKey": "skill.skill_2.description",
+      "mcreworkIconKey": "assets/skills/icons/100157.png",
+      "castActionId": 7,
+      "castMovement": "STAND_IN_PLACE",
+      "mcreworkVfxKey": "10002",
+      "skillType": "ACTIVE",
+      "triggerType": "MANUAL_AP",
+      "mpCost": 18,
+      "apCost": 3,
+      "cooldownTurns": 1,
+      "targetScope": "RANGED_ANY",
+      "hitCount": 1,
+      "effectBlocksJson": [
+        {
+          "scalePct": 170,
+          "blockType": "DAMAGE",
+          "scaleStat": "ATK",
+          "damageType": "MAGICAL",
+          "flatAmount": 20,
+          "elementCode": "FIRE",
+          "critBonusPct": 20,
+          "lifestealPct": 0
+        },
+        {
+          "blockType": "STATUS",
+          "targetSelf": false,
+          "durationTurns": 3,
+          "applyChancePct": 100,
+          "statusEffectId": 1
+        }
+      ],
+      "isActive": true
+    },
+    {
+      "id": 3,
+      "code": "skill_3",
+      "nameI18nKey": "skill.skill_3.name",
+      "descriptionI18nKey": "skill.skill_3.description",
+      "mcreworkIconKey": "assets/skills/icons/100158.png",
+      "castActionId": 7,
+      "castMovement": "STAND_IN_PLACE",
+      "mcreworkVfxKey": "10004",
+      "skillType": "ACTIVE",
+      "triggerType": "MANUAL_AP",
+      "mpCost": 14,
+      "apCost": 2,
+      "cooldownTurns": 1,
+      "targetScope": "RANGED_ANY",
+      "hitCount": 1,
+      "effectBlocksJson": [
+        {
+          "scalePct": 130,
+          "blockType": "DAMAGE",
+          "scaleStat": "ATK",
+          "damageType": "PHYSICAL",
+          "flatAmount": 12,
+          "elementCode": "EARTH",
+          "critBonusPct": 10,
+          "lifestealPct": 0
+        },
+        {
+          "blockType": "STATUS",
+          "targetSelf": false,
+          "durationTurns": 3,
+          "applyChancePct": 100,
+          "statusEffectId": 2
+        }
+      ],
+      "isActive": true
+    },
+    {
+      "id": 4,
+      "code": "skill_4",
+      "nameI18nKey": "skill.skill_4.name",
+      "descriptionI18nKey": "skill.skill_4.description",
+      "mcreworkIconKey": "assets/skills/icons/100159.png",
+      "castActionId": 7,
+      "castMovement": "STAND_IN_PLACE",
+      "mcreworkVfxKey": "10001",
+      "skillType": "ACTIVE",
+      "triggerType": "MANUAL_AP",
+      "mpCost": 15,
+      "apCost": 2,
+      "cooldownTurns": 2,
+      "targetScope": "SELF",
+      "hitCount": 1,
+      "effectBlocksJson": [
+        {
+          "scalePct": 18,
+          "blockType": "HEAL",
+          "scaleStat": "MAX_HP",
+          "flatAmount": 20,
+          "targetSelf": true
+        },
+        {
+          "blockType": "STATUS",
+          "targetSelf": true,
+          "durationTurns": 3,
+          "applyChancePct": 100,
+          "statusEffectId": 3
+        }
+      ],
+      "isActive": true
+    }
+  ],
+  "statusEffectTemplates": [
+    {
+      "id": 1,
+      "code": "status_1",
+      "nameI18nKey": "status.status_1.name",
+      "descriptionI18nKey": "status.status_1.description",
+      "iconKey": "assets/skills/icons/100156.png",
+      "mcreworkVfxKey": "10002",
+      "isBuff": false,
+      "triggerType": "ON_TURN_START",
+      "maxStacks": 3,
+      "defaultDurationTurns": 3,
+      "statModifiersJson": {
+        "DEF_PCT": -10
+      },
+      "dotHotFormulaJson": {
+        "mode": "DAMAGE",
+        "scalePct": 35,
+        "scaleStat": "ATK",
+        "flatAmount": 10,
+        "elementCode": "FIRE"
+      },
+      "controlFlagsJson": [],
+      "effectBlocksJson": [],
+      "isActive": true
+    },
+    {
+      "id": 2,
+      "code": "status_2",
+      "nameI18nKey": "status.status_2.name",
+      "descriptionI18nKey": "status.status_2.description",
+      "iconKey": "assets/skills/icons/100157.png",
+      "mcreworkVfxKey": "10004",
+      "isBuff": false,
+      "triggerType": "ON_TURN_START",
+      "maxStacks": 2,
+      "defaultDurationTurns": 3,
+      "statModifiersJson": {
+        "SPEED_PCT": -20
+      },
+      "dotHotFormulaJson": {
+        "mode": "DAMAGE",
+        "scalePct": 8,
+        "scaleStat": "MAX_HP",
+        "flatAmount": 8,
+        "elementCode": "EARTH"
+      },
+      "controlFlagsJson": [],
+      "effectBlocksJson": [],
+      "isActive": true
+    },
+    {
+      "id": 3,
+      "code": "status_3",
+      "nameI18nKey": "status.status_3.name",
+      "descriptionI18nKey": "status.status_3.description",
+      "iconKey": "assets/skills/icons/100158.png",
+      "mcreworkVfxKey": "10001",
+      "isBuff": true,
+      "triggerType": "WHILE_ACTIVE",
+      "maxStacks": 1,
+      "defaultDurationTurns": 3,
+      "statModifiersJson": {
+        "ATK_PCT": 30,
+        "SPEED_PCT": 15
+      },
+      "dotHotFormulaJson": {
+        "mode": "NONE"
+      },
+      "controlFlagsJson": [],
+      "effectBlocksJson": [],
+      "isActive": true
+    },
+    {
+      "id": 4,
+      "code": "status_4",
+      "nameI18nKey": "status.status_4.name",
+      "descriptionI18nKey": "status.status_4.description",
+      "iconKey": "assets/skills/icons/100159.png",
+      "mcreworkVfxKey": "10005",
+      "isBuff": true,
+      "triggerType": "ON_TURN_START",
+      "maxStacks": 1,
+      "defaultDurationTurns": 3,
+      "statModifiersJson": {
+        "DEF_PCT": 25
+      },
+      "dotHotFormulaJson": {
+        "mode": "HEAL",
+        "scalePct": 12,
+        "scaleStat": "MAX_HP",
+        "flatAmount": 15,
+        "elementCode": "WATER"
+      },
+      "controlFlagsJson": [],
+      "effectBlocksJson": [],
+      "isActive": true
+    },
+    {
+      "id": 5,
+      "code": "status_5",
+      "nameI18nKey": "status.status_5.name",
+      "descriptionI18nKey": "status.status_5.description",
+      "iconKey": "assets/skills/icons/100160.png",
+      "mcreworkVfxKey": "10008",
+      "isBuff": false,
+      "triggerType": "WHILE_ACTIVE",
+      "maxStacks": 1,
+      "defaultDurationTurns": 1,
+      "statModifiersJson": {},
+      "dotHotFormulaJson": {
+        "mode": "NONE"
+      },
+      "controlFlagsJson": [
+        "STUN"
+      ],
+      "effectBlocksJson": [],
+      "isActive": true
+    }
+  ],
   "itemTemplates": []
 }

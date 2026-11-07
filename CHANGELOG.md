@@ -5,6 +5,34 @@ Qualquer IA trabalhando neste repositório **DEVE** incrementar a versão e regi
 
 ---
 
+## [v0.5.0] - 2026-11-07
+### Adicionado
+* **Estúdio Visual No-Code de Habilidades (`⚡ Habilidades` — `skill_templates`) (`AdminSkillsController.ts`, `AdminSkillsAndBuffsTab.js`, `schema.prisma`):**
+  * Nova aba `⚡ Habilidades` no Studio `/admin` com catálogo de Habilidades Ativas (`ACTIVE`) e Passivas (`PASSIVE`) estilo RPG Maker / Visual Blocks.
+  * **Construtor Visual de Blocos de Efeito (`effectBlocksJson`):** Permite empilhar visualmente quantos blocos desejar em cada habilidade sem digitar código ou fórmulas:
+    * `💥 Bloco de Dano`: Natureza (`PHYSICAL`, `MAGICAL`, `TRUE`), Elemento (`INHERIT`, `FIRE`, `WATER`, `EARTH`, `AIR`, `NEUTRAL`), Atributo Escalador (`ATK`, `MAX_HP`, `DEF`, `SPEED`), Multiplicador (`%`), Dano Fixo Base e Bônus Crítico (`%`).
+    * `💚 Bloco de Cura`: Alvo ou Próprio Conjurador, Atributo Escalador (`MAX_HP` / `ATK`), Multiplicador (`%`) e Cura Fixa.
+    * `🧪 Bloco de Aplicar Buff/Debuff`: Seleciona qualquer Buff ou Debuff cadastrado na tabela `status_effect_templates`, chance de aplicação (`1..100%`), duração em turnos e alvo (`Alvo da Skill` ou `Próprio Conjurador`).
+    * `🛡️ Bloco de Escudo`: Escudo protetor escalado por atributo e duração.
+  * **Integração com Catálogo do `mcrework`:** Seletor visual com **1.923 ícones de habilidades** (`assets/skills/icons/*.png`) e **128 efeitos especiais animados (VFX)** (`assets/effects/{id}/atlas.json` + `atlas.webp`), incluindo palco `<canvas>` 2.5D reproduzindo a animação do VFX ao vivo.
+  * Semeadas 4 habilidades iniciais no banco (`Corte Fulminante`, `Chama Purgatorial`, `Espinhos Peçonhentos`, `Rugido do Guerreiro`).
+* **Tabela e Estúdio Visual de Buffs & Debuffs (`🧪 Buffs & Debuffs` — `status_effect_templates`) (`AdminSkillsController.ts`, `AdminStatusEffectsTab.js`, `schema.prisma`):**
+  * Nova aba `🧪 Buffs & Debuffs` no Studio `/admin` seguindo a mesma lógica visual No-Code das habilidades.
+  * **Ativação Vinculada:** Buffs e Debuffs não se ativam sozinhos; são aplicados por Habilidades Ativas ou Passivas.
+  * **Ícone na Cabeça do Alvo (`iconKey`) & Efeito Especial (`mcreworkVfxKey`):** Cada Buff/Debuff possui um ícone que serve tanto para informação na UI quanto para ficar **flutuando acima da cabeça do alvo durante a batalha**, além de um efeito especial animado (VFX) acionado quando o status entra em ação.
+  * **Gatilhos Próprios (`triggerType`):** `ON_TURN_START` (Início do Turno do Alvo), `ON_TURN_END` (Fim do Turno do Alvo), `WHILE_ACTIVE` (Enquanto Ativo / Contínuo), `ON_APPLY` (No Momento da Aplicação), `ON_HIT_TAKEN` (Ao Receber um Golpe) e `ON_ATTACK` (Ao Atacar).
+  * **Blocos Visuais de Status:** Modificador de Atributos (`ATK`, `DEF`, `SPEED`, `MAX_HP`), Dano ou Cura por Turno (DoT / HoT) e Controle de Grupo (`STUN` / `SILENCE`).
+  * Semeados 5 Buffs/Debuffs iniciais (`Queimadura Solar`, `Toxina Paralisante`, `Fúria de Batalha`, `Bênção Regenerativa`, `Atordoamento Sísmico`).
+* **Vínculo de Habilidades na Criação/Edição de Monstros e Personagens (`AdminMonstersTab.js`, `AdminClassesTab.js`, `AdminMonstersController.ts`, `AdminMapsController.ts`):**
+  * A tabela de Habilidades atua como catálogo disponível, enquanto a definição de quais habilidades cada entidade possui (`skillIdsJson`) é feita diretamente:
+    * No modal de **Monstros (`🐉 Monstros`)**: Bloco visível `⚡ Habilidades deste Monstro` com checklist de ícones e tipos, além de exibição das badges de habilidades na tabela de Monstros.
+    * No modal de **Personagens (`🦸 Personagens`)**: Aba `⚡ Habilidades` com checklist visual de habilidades vinculadas ao personagem (`skillIdsJson`) e badges na tabela de Personagens.
+* **Suporte Visual na Arena 2.5D para Ícones de Buffs/Debuffs na Cabeça e VFX (`TemporaryCombatController.ts`, `TemporaryCombatArena.js`):**
+  * Renderização no `<canvas>` 2.5D dos **ícones ativos de Buffs (borda verde) e Debuffs (borda vermelha) flutuando na cabeça do Herói e dos Monstros**, com contador de turnos restantes (`3t`, `2t`).
+  * Reprodução animada dos **Efeitos Especiais (VFX)** do `mcrework` (`assets/effects/{id}/atlas.json` + `atlas.webp`) sobre os alvos ao usar habilidades e quando os gatilhos de Buffs/Debuffs (`ON_TURN_START`) disparam.
+
+---
+
 ## [v0.4.10] - 2026-11-07
 ### Alterado & Refatorado
 * **Sistema de Raridade de Monstros Baseado em Ranks (`SS`, `S`, `A`, `B`, `C`, `D`, `F`) (`schema.prisma`, `AdminMonstersController.ts`, `AdminMonstersTab.js`, `TemporaryCombatController.ts`, `PlayGmController.js`):**

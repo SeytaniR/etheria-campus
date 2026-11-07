@@ -404,6 +404,17 @@ class AdminMonstersTab {
 
       this.updateMonsterBiomesCounter();
 
+      if ((!this.skillTemplates || this.skillTemplates.length === 0) && typeof this.loadSkillsAndBuffsData === 'function') {
+        await this.loadSkillsAndBuffsData();
+      }
+      if (typeof this.renderEntitySkillsChecklist === 'function') {
+        const currentSkills =
+          existingMonster && Array.isArray(existingMonster.skillIdsJson) && existingMonster.skillIdsJson.length > 0
+            ? existingMonster.skillIdsJson
+            : [1];
+        this.renderEntitySkillsChecklist('monsterSkillsChecklist', currentSkills);
+      }
+
       const grid = document.getElementById('mcreworkMonstersGrid');
       if (this.mcreworkMonsters.length === 0) {
         grid.innerHTML = '<div style="padding:12px;">Carregando catálogo de monstros do mcrework...</div>';
@@ -449,6 +460,10 @@ class AdminMonstersTab {
         const selectedBiomes = Array.from(document.querySelectorAll('input[name="monsterBiome"]:checked')).map((c) =>
           Number(c.value)
         );
+        const skillIdsJson =
+          typeof this.getSelectedEntitySkillIds === 'function'
+            ? this.getSelectedEntitySkillIds('monsterSkillsChecklist')
+            : [1];
 
         const dto = {
           namePtBr,
@@ -461,6 +476,7 @@ class AdminMonstersTab {
           isTamableAsPet,
           isActive,
           biomeIds: selectedBiomes,
+          skillIdsJson,
           baseAttributesJson: {
             VIT: Number(document.getElementById('monsterBaseVIT').value) || 10,
             STR: Number(document.getElementById('monsterBaseSTR').value) || 10,
@@ -526,6 +542,15 @@ class AdminMonstersTab {
             F: { bg: 'rgba(148,163,184,0.18)', text: '#cbd5e1', border: '#64748b' },
           };
           const tc = tierColors[tier] || tierColors.F;
+          const monsterSkillIds = Array.isArray(m.skillIdsJson) ? m.skillIdsJson : [];
+          const monsterSkillsBadges = monsterSkillIds
+            .map((sid) => {
+              const sk = (this.skillTemplates || []).find((s) => Number(s.id) === Number(sid));
+              return sk
+                ? `<span style="display:inline-flex; align-items:center; gap:3px; padding:1px 6px; border-radius:4px; background:rgba(56,189,248,0.15); border:1px solid #38bdf8; font-size:0.68rem; color:#7dd3fc;">⚡ ${sk.namePtBr}</span>`
+                : `<span style="font-size:0.68rem; color:#94a3b8;">⚡ Skill #${sid}</span>`;
+            })
+            .join(' ');
 
           return `
         <tr>
@@ -547,6 +572,7 @@ class AdminMonstersTab {
             <div style="font-size:0.72rem; color:${m.descriptionPtBr ? 'var(--text-muted)' : '#64748b'}; max-width:260px; white-space:normal; line-height:1.3; margin-top:2px;">
               📜 ${m.descriptionPtBr || '<em>Sem descrição (clique em Editar)</em>'}
             </div>
+            ${monsterSkillsBadges ? `<div style="display:flex; flex-wrap:wrap; gap:4px; margin-top:4px;">${monsterSkillsBadges}</div>` : ''}
           </td>
           <td>
             <div style="display:flex; flex-direction:column; gap:4px; align-items:flex-start;">
@@ -680,6 +706,15 @@ class AdminMonstersTab {
           </div>
         </div>
         <div id="monsterBiomesChecklist" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(165px, 1fr)); gap:6px; max-height:155px; overflow-y:auto; padding:8px; background:#020617; border:1px solid var(--border); border-radius:8px;"></div>
+      </div>
+
+      <!-- BLOCO 4.5: HABILIDADES VINCULADAS A ESTE MONSTRO (SEMPRE VISÍVEL) -->
+      <div style="background:rgba(15,23,42,0.75); border:1px solid #38bdf8; border-radius:10px; padding:12px; margin-bottom:12px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:6px; margin-bottom:8px;">
+          <span style="font-size:0.8rem; font-weight:700; color:#fde047;">⚡ Habilidades deste Monstro (Da Tabela de Habilidades)</span>
+          <span style="font-size:0.72rem; color:#7dd3fc;">Marque quais habilidades ativas/passivas este monstro possui em batalha</span>
+        </div>
+        <div id="monsterSkillsChecklist" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(210px, 1fr)); gap:6px; max-height:175px; overflow-y:auto; padding:8px; background:#020617; border:1px solid var(--border); border-radius:8px;"></div>
       </div>
 
       <!-- BLOCO 5: PALCO 2.5D ANIMADO & GALERIA DE MODELOS DO MCREWORK -->

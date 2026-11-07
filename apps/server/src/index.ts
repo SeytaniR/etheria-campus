@@ -20,6 +20,7 @@ import { AdminUsersController } from './controllers/AdminUsersController.js';
 import { AdminMapsController } from './controllers/AdminMapsController.js';
 import { GamePlayController } from './controllers/GamePlayController.js';
 import { AdminMonstersController } from './controllers/AdminMonstersController.js';
+import { AdminSkillsController } from './controllers/AdminSkillsController.js';
 import { TemporaryCombatController } from './controllers/TemporaryCombatController.js';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -57,6 +58,7 @@ export class EtheriaServerApp {
   private readonly mapsController: AdminMapsController;
   private readonly playController: GamePlayController;
   private readonly monstersController: AdminMonstersController;
+  private readonly skillsController: AdminSkillsController;
   private readonly combatController: TemporaryCombatController;
   private readonly publicDir: string;
   private readonly mapImageCache = new Map<number, { buffer: Buffer; contentType: string }>();
@@ -68,6 +70,7 @@ export class EtheriaServerApp {
     this.mapsController = new AdminMapsController(this.prisma);
     this.playController = new GamePlayController(this.prisma);
     this.monstersController = new AdminMonstersController(this.prisma);
+    this.skillsController = new AdminSkillsController(this.prisma);
     this.combatController = new TemporaryCombatController(this.prisma);
     this.publicDir = path.resolve(__dirname, '../public');
   }
@@ -432,6 +435,55 @@ export class EtheriaServerApp {
           return;
         }
 
+        // --- Rotas de Habilidades (Skills) & Buffs/Debuffs (Status Effects) ---
+        if (pathname === '/api/admin/mcrework/skill-assets' && method === 'GET') {
+          this.sendJson(res, 200, await this.skillsController.getMcreworkSkillAssets());
+          return;
+        }
+        if (pathname === '/api/admin/status-effects' && method === 'GET') {
+          this.sendJson(res, 200, await this.skillsController.getStatusEffectTemplates());
+          return;
+        }
+        if (pathname === '/api/admin/status-effects' && method === 'POST') {
+          const dto = await this.readJsonBody(req);
+          this.sendJson(res, 201, await this.skillsController.createStatusEffectTemplate(dto));
+          return;
+        }
+        const statusEffectMatch = pathname.match(/^\/api\/admin\/status-effects\/(\d+)$/);
+        if (statusEffectMatch && method === 'PUT') {
+          const id = Number(statusEffectMatch[1]);
+          const dto = await this.readJsonBody(req);
+          this.sendJson(res, 200, await this.skillsController.updateStatusEffectTemplate(id, dto));
+          return;
+        }
+        if (statusEffectMatch && method === 'DELETE') {
+          const id = Number(statusEffectMatch[1]);
+          this.sendJson(res, 200, await this.skillsController.deleteStatusEffectTemplate(id));
+          return;
+        }
+
+        if (pathname === '/api/admin/skill-templates' && method === 'GET') {
+          this.sendJson(res, 200, await this.skillsController.getSkillTemplates());
+          return;
+        }
+        if (pathname === '/api/admin/skill-templates' && method === 'POST') {
+          const dto = await this.readJsonBody(req);
+          this.sendJson(res, 201, await this.skillsController.createSkillTemplate(dto));
+          return;
+        }
+        const skillMatch = pathname.match(/^\/api\/admin\/skill-templates\/(\d+)$/);
+        if (skillMatch && method === 'PUT') {
+          const id = Number(skillMatch[1]);
+          const dto = await this.readJsonBody(req);
+          this.sendJson(res, 200, await this.skillsController.updateSkillTemplate(id, dto));
+          return;
+        }
+        if (skillMatch && method === 'DELETE') {
+          const id = Number(skillMatch[1]);
+          this.sendJson(res, 200, await this.skillsController.deleteSkillTemplate(id));
+          return;
+        }
+
         this.sendJson(res, 404, { error: 'Rota da API Admin não encontrada.' });
         return;
       }
@@ -651,6 +703,7 @@ export class EtheriaServerApp {
       console.log(`🚀 [Etheria Campus Server] Rodando em http://localhost:${port}/admin`);
       void this.prewarmMapImages();
       void this.monstersController.ensureInitialMonsters();
+      void this.skillsController.ensureInitialSkillsAndBuffs();
     });
     return server;
   }

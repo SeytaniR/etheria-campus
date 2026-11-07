@@ -24,6 +24,7 @@ export interface MonsterTemplateDto {
   isTamableAsPet: boolean;
   isActive?: boolean;
   biomeIds?: number[];
+  skillIdsJson?: number[];
   baseAttributesJson: {
     VIT: number;
     STR: number;
@@ -183,6 +184,7 @@ export class AdminMonstersController {
         rarityTier: this.normalizeRarityTier(dto.rarityTier),
         isTamableAsPet: dto.isTamableAsPet !== false,
         isActive: dto.isActive !== false,
+        skillIdsJson: Array.isArray(dto.skillIdsJson) ? (dto.skillIdsJson as any) : ([1] as any),
         baseAttributesJson: dto.baseAttributesJson ?? {
           VIT: 12,
           STR: 12,
@@ -249,6 +251,7 @@ export class AdminMonstersController {
         rarityTier: dto.rarityTier ? this.normalizeRarityTier(dto.rarityTier) : existing.rarityTier,
         isTamableAsPet: dto.isTamableAsPet !== undefined ? !!dto.isTamableAsPet : existing.isTamableAsPet,
         isActive: dto.isActive !== undefined ? !!dto.isActive : existing.isActive,
+        skillIdsJson: Array.isArray(dto.skillIdsJson) ? (dto.skillIdsJson as any) : (existing.skillIdsJson as any),
         baseAttributesJson: dto.baseAttributesJson ?? (existing.baseAttributesJson as any),
       },
     });

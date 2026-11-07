@@ -16,8 +16,10 @@ class TemporaryCombatArena {
     this.isResolving = false;
     this.animFrameId = null;
 
-    // Cache de McreworkSpriteSheet por chave de sprite
+    // Cache de McreworkSpriteSheet por chave de sprite, VFX e Ícones de Status
     this.spriteSheets = new Map();
+    this.vfxAtlases = new Map();
+    this.statusIconsCache = new Map();
 
     // Estado visual em tempo real das entidades no Canvas 2.5D
     this.visualUnits = {
@@ -25,9 +27,10 @@ class TemporaryCombatArena {
       monsters: [],
     };
 
-    // Efeitos visuais temporários no Canvas (números flutuantes, impactos, auras)
+    // Efeitos visuais temporários no Canvas (números flutuantes, impactos, VFX 2.5D)
     this.floatingNumbers = [];
     this.impactEffects = [];
+    this.activeVfxInstances = [];
 
     this.injectStyles();
     this.injectModalDom();
@@ -38,89 +41,15 @@ class TemporaryCombatArena {
     const style = document.createElement('style');
     style.id = 'temporaryCombatStyles';
     style.textContent = `
-      .arena-backdrop {
-        position: fixed;
-        inset: 0;
-        z-index: 99999;
-        background: rgba(2, 6, 23, 0.96);
-        backdrop-filter: blur(8px);
-        display: none;
-        flex-direction: column;
-        justify-content: space-between;
-        padding: 10px;
-        gap: 8px;
-        box-sizing: border-box;
-        user-select: none;
-        font-family: system-ui, -apple-system, sans-serif;
-      }
-      .arena-canvas-wrapper {
-        flex: 1;
-        position: relative;
-        overflow: hidden;
-        background: radial-gradient(ellipse at 50% 65%, #1e1b4b 0%, #090d16 70%, #020617 100%);
-        border: 1.5px solid #4f46e5;
-        border-radius: 12px;
-        box-shadow: inset 0 0 40px rgba(0,0,0,0.85);
-        min-height: 240px;
-      }
-      #arenaBattleCanvas {
-        width: 100%;
-        height: 100%;
-        display: block;
-        cursor: pointer;
-        touch-action: manipulation;
-      }
-      .arena-target-bar {
-        position: absolute;
-        bottom: 8px;
-        left: 50%;
-        transform: translateX(-50%);
-        display: flex;
-        gap: 6px;
-        flex-wrap: wrap;
-        justify-content: center;
-        z-index: 10;
-        background: rgba(2, 6, 23, 0.82);
-        padding: 4px 8px;
-        border-radius: 999px;
-        border: 1px solid #334155;
-        max-width: 95%;
-      }
-      .arena-target-pill {
-        font-size: 0.72rem;
-        padding: 3px 9px;
-        border-radius: 999px;
-        border: 1px solid #475569;
-        background: #0f172a;
-        color: #e2e8f0;
-        cursor: pointer;
-        font-weight: 600;
-        white-space: nowrap;
-      }
-      .arena-target-pill.active {
-        border-color: #fde047;
-        background: rgba(253, 224, 71, 0.18);
-        color: #fde047;
-        box-shadow: 0 0 10px rgba(253, 224, 71, 0.35);
-      }
-      .arena-target-pill.dead {
-        opacity: 0.4;
-        text-decoration: line-through;
-        cursor: default;
-      }
-      .arena-bottom-panel {
-        display: grid;
-        grid-template-columns: 1.15fr 0.85fr;
-        gap: 8px;
-        min-height: 124px;
-        max-height: 165px;
-      }
-      @media (max-width: 680px) {
-        .arena-bottom-panel {
-          grid-template-columns: 1fr;
-          max-height: 210px;
-        }
-      }
+      .arena-backdrop { position:fixed; inset:0; z-index:99999; background:rgba(2,6,23,0.96); backdrop-filter:blur(8px); display:none; flex-direction:column; justify-content:space-between; padding:10px; gap:8px; box-sizing:border-box; user-select:none; font-family:system-ui,-apple-system,sans-serif; }
+      .arena-canvas-wrapper { flex:1; position:relative; overflow:hidden; background:radial-gradient(ellipse at 50% 65%, #1e1b4b 0%, #090d16 70%, #020617 100%); border:1.5px solid #4f46e5; border-radius:12px; box-shadow:inset 0 0 40px rgba(0,0,0,0.85); min-height:240px; }
+      #arenaBattleCanvas { width:100%; height:100%; display:block; cursor:pointer; touch-action:manipulation; }
+      .arena-target-bar { position:absolute; bottom:8px; left:50%; transform:translateX(-50%); display:flex; gap:6px; flex-wrap:wrap; justify-content:center; z-index:10; background:rgba(2,6,23,0.82); padding:4px 8px; border-radius:999px; border:1px solid #334155; max-width:95%; }
+      .arena-target-pill { font-size:0.72rem; padding:3px 9px; border-radius:999px; border:1px solid #475569; background:#0f172a; color:#e2e8f0; cursor:pointer; font-weight:600; white-space:nowrap; }
+      .arena-target-pill.active { border-color:#fde047; background:rgba(253,224,71,0.18); color:#fde047; box-shadow:0 0 10px rgba(253,224,71,0.35); }
+      .arena-target-pill.dead { opacity:0.4; text-decoration:line-through; cursor:default; }
+      .arena-bottom-panel { display:grid; grid-template-columns:1.15fr 0.85fr; gap:8px; min-height:124px; max-height:165px; }
+      @media (max-width: 680px) { .arena-bottom-panel { grid-template-columns:1fr; max-height:210px; } }
     `;
     document.head.appendChild(style);
   }
@@ -488,6 +417,34 @@ class TemporaryCombatArena {
     const barH = type === 'player' ? 7 : 6;
     const barX = Math.round(x - barW / 2);
 
+    // 1. Ícones de Buffs e Debuffs Ativos na Cabeça do Alvo (2.5D Overhead Status Icons)
+    const statuses = Array.isArray(u.activeStatuses) && u.activeStatuses.length > 0 ? u.activeStatuses : [];
+    if (statuses.length > 0 && u.isAlive) {
+      const iconSize = 22;
+      const gap = 4;
+      const totalW = statuses.length * iconSize + (statuses.length - 1) * gap;
+      let startX = Math.round(x - totalW / 2);
+      const bounce = Math.sin(now / 180) * 2;
+      const statusY = Math.round(headY - 40 + bounce);
+
+      for (const st of statuses) {
+        const img = this.getOrLoadStatusIcon(st.iconUrl);
+        ctx.fillStyle = 'rgba(2, 6, 23, 0.92)';
+        ctx.fillRect(startX - 1, statusY - 1, iconSize + 2, iconSize + 2);
+        ctx.strokeStyle = st.isBuff ? '#22c55e' : '#f43f5e';
+        ctx.lineWidth = 1.8;
+        ctx.strokeRect(startX - 1, statusY - 1, iconSize + 2, iconSize + 2);
+        if (img && img.complete && img.naturalWidth > 0) {
+          ctx.drawImage(img, startX, statusY, iconSize, iconSize);
+        }
+        ctx.font = 'bold 9px monospace';
+        ctx.fillStyle = '#fde047';
+        ctx.textAlign = 'right';
+        ctx.fillText(`${st.remainingTurns}t`, startX + iconSize, statusY + iconSize - 1);
+        startX += iconSize + gap;
+      }
+    }
+
     // Indicador de Alvo Selecionado
     const isTarget = type === 'monster' && u.index === this.selectedTargetIndex && u.isAlive;
     if (isTarget) {
@@ -495,7 +452,7 @@ class TemporaryCombatArena {
       ctx.font = 'bold 11px system-ui, sans-serif';
       ctx.textAlign = 'center';
       ctx.fillStyle = '#fde047';
-      ctx.fillText('🎯 ALVO', x, headY - 22 + bounce);
+      ctx.fillText('🎯 ALVO', x, headY - (statuses.length > 0 ? 46 : 22) + bounce);
     }
 
     // Nome e Nível
@@ -535,6 +492,44 @@ class TemporaryCombatArena {
     ctx.restore();
   }
 
+  getOrLoadStatusIcon(iconUrl) {
+    if (!iconUrl) return null;
+    if (this.statusIconsCache.has(iconUrl)) return this.statusIconsCache.get(iconUrl);
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.src = iconUrl;
+    this.statusIconsCache.set(iconUrl, img);
+    return img;
+  }
+
+  getOrLoadVfxAtlas(vfxKey) {
+    if (!vfxKey) return null;
+    const key = String(vfxKey).trim();
+    if (this.vfxAtlases.has(key)) return this.vfxAtlases.get(key);
+    const entry = { key, ready: false, atlasData: null, image: null };
+    this.vfxAtlases.set(key, entry);
+    fetch(`https://seytanir.github.io/mcrework/assets/effects/${key}/atlas.json`)
+      .then((r) => (r.ok ? r.json() : Promise.reject()))
+      .then((json) => {
+        entry.atlasData = json;
+        const img = new Image();
+        img.crossOrigin = 'anonymous';
+        img.onload = () => {
+          entry.image = img;
+          entry.ready = true;
+        };
+        img.src = `https://seytanir.github.io/mcrework/assets/effects/${key}/atlas.webp`;
+      })
+      .catch(() => {});
+    return entry;
+  }
+
+  spawnVfxEffect(x, y, vfxKey) {
+    if (!vfxKey) return;
+    this.getOrLoadVfxAtlas(vfxKey);
+    this.activeVfxInstances.push({ x, y: y - 28, vfxKey, startTime: performance.now(), duration: 680 });
+  }
+
   drawImpactEffects(ctx, now) {
     this.impactEffects = this.impactEffects.filter((ef) => now - ef.startTime < ef.duration);
     for (const ef of this.impactEffects) {
@@ -550,11 +545,30 @@ class TemporaryCombatArena {
       ctx.lineWidth = 4;
       ctx.stroke();
 
-      // Linhas de corte diagonal se for golpe físico/crítico
       ctx.beginPath();
       ctx.moveTo(ef.x - 24 * progress, ef.y - 24 * progress);
       ctx.lineTo(ef.x + 24 * progress, ef.y + 24 * progress);
       ctx.stroke();
+      ctx.restore();
+    }
+
+    // Renderiza Efeitos Especiais 2.5D (VFX do mcrework)
+    this.activeVfxInstances = this.activeVfxInstances.filter((vf) => now - vf.startTime < vf.duration);
+    for (const vf of this.activeVfxInstances) {
+      const vfx = this.getOrLoadVfxAtlas(vf.vfxKey);
+      if (!vfx || !vfx.ready || !vfx.atlasData || !vfx.image) continue;
+      const frames = vfx.atlasData.frames || {};
+      const seq = vfx.atlasData.animations?.play || Object.keys(frames);
+      if (!seq || seq.length === 0) continue;
+      const progress = Math.min(0.99, (now - vf.startTime) / vf.duration);
+      const frameIdx = Math.floor(progress * seq.length);
+      const fObj = frames[seq[frameIdx]];
+      if (!fObj || !fObj.frame) continue;
+      const { x: sx, y: sy, w: sw, h: sh } = fObj.frame;
+      const dw = Math.round(sw * 0.9);
+      const dh = Math.round(sh * 0.9);
+      ctx.save();
+      ctx.drawImage(vfx.image, sx, sy, sw, sh, Math.round(vf.x - dw / 2), Math.round(vf.y - dh / 2), dw, dh);
       ctx.restore();
     }
   }
@@ -719,7 +733,7 @@ class TemporaryCombatArena {
     for (const ev of events) {
       if (ev.actor === 'player') {
         if (ev.animAction === 4 || ev.type === 'HEAL') {
-          // Postura Defensiva (action = 4) + Cura
+          // Postura Defensiva (action = 4) + Cura + Buff na cabeça + VFX
           this.setButtonsDisabled(true, `🛡️ ${vPlayer.name} assumiu Postura Defensiva!`);
           vPlayer.action = 4;
           vPlayer.dir = 2;
@@ -727,10 +741,40 @@ class TemporaryCombatArena {
           vPlayer.isGuardActive = true;
           vPlayer.displayHp = ev.hpRemaining;
           vPlayer.displayMp = nextState.player.mp;
+          if (ev.statusApplied) {
+            vPlayer.activeStatuses = nextState.player.activeStatuses || [ev.statusApplied];
+          }
+          if (ev.vfxKey) {
+            this.spawnVfxEffect(vPlayer.homeX, vPlayer.homeY, ev.vfxKey);
+          }
           this.spawnImpactEffect(vPlayer.homeX, vPlayer.homeY, '#38bdf8', 48);
           this.spawnFloatingNumber(vPlayer.homeX, vPlayer.homeY, `💚 +${ev.amount} HP`, '#86efac', false);
           await this.sleep(550);
           vPlayer.action = 0;
+        } else if (ev.animAction === 5) {
+          // Gatilho de Debuff (DoT) no início do turno do monstro
+          const vTarget = this.visualUnits.monsters.find((m) => m.index === ev.targetIndex);
+          if (vTarget) {
+            this.setButtonsDisabled(true, ev.message || `🧪 Debuff ativado em ${vTarget.name}!`);
+            if (ev.vfxKey) {
+              this.spawnVfxEffect(vTarget.homeX, vTarget.homeY, ev.vfxKey);
+            }
+            this.spawnImpactEffect(vTarget.homeX, vTarget.homeY, '#f97316', 44);
+            this.spawnFloatingNumber(vTarget.homeX, vTarget.homeY, `🧪 -${ev.amount}`, '#fb923c', false);
+            vTarget.displayHp = ev.hpRemaining;
+            vTarget.hp = ev.hpRemaining;
+            if (ev.hpRemaining <= 0) {
+              vTarget.isAlive = false;
+              vTarget.action = 6;
+              vTarget.clampLastFrame = true;
+              vTarget.activeStatuses = [];
+            } else {
+              vTarget.action = 5;
+            }
+            vTarget.animStartTime = performance.now();
+            await this.sleep(420);
+            if (vTarget.isAlive) vTarget.action = 0;
+          }
         } else {
           // Ataque Físico (action = 3) ou Skill Especial (action = 7)
           const vTarget = this.visualUnits.monsters.find((m) => m.index === ev.targetIndex);
@@ -761,7 +805,13 @@ class TemporaryCombatArena {
 
             await this.sleep(280);
 
-            // 3. Impacto no monstro: monstro executa animação de Dano/Hit (5) ou Morte (6)
+            // 3. Impacto no monstro + VFX 2.5D + Ícone de Debuff na cabeça do alvo
+            if (ev.vfxKey) {
+              this.spawnVfxEffect(vTarget.homeX, vTarget.homeY, ev.vfxKey);
+            }
+            if (ev.statusApplied && ev.hpRemaining > 0) {
+              vTarget.activeStatuses = [ev.statusApplied];
+            }
             this.spawnImpactEffect(vTarget.homeX, vTarget.homeY, isSkill ? '#a855f7' : '#fde047', isSkill ? 58 : 42);
             this.spawnFloatingNumber(
               vTarget.homeX,
@@ -778,6 +828,7 @@ class TemporaryCombatArena {
               vTarget.action = 6; // Animação de Morte (6)
               vTarget.clampLastFrame = true;
               vTarget.animStartTime = performance.now();
+              vTarget.activeStatuses = [];
             } else {
               vTarget.action = 5; // Animação de Tomando Dano/Hit (5)
               vTarget.animStartTime = performance.now();
@@ -856,6 +907,13 @@ class TemporaryCombatArena {
           vMob.animStartTime = performance.now();
         }
       }
+    }
+
+    // Sincroniza status ativos finais do turno (durações decrementadas)
+    vPlayer.activeStatuses = nextState.player.activeStatuses || [];
+    for (const m of nextState.monsters || []) {
+      const vm = this.visualUnits.monsters.find((x) => x.index === m.index);
+      if (vm) vm.activeStatuses = m.activeStatuses || [];
     }
   }
 

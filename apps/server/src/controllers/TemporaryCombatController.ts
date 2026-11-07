@@ -10,6 +10,16 @@
 import { PrismaClient } from '@prisma/client';
 import { randomUUID } from 'node:crypto';
 
+export interface ActiveStatusInstance {
+  code: string;
+  name: string;
+  isBuff: boolean;
+  iconUrl: string;
+  vfxKey?: string | null;
+  triggerType: string;
+  remainingTurns: number;
+}
+
 export interface CombatUnit {
   id: string;
   index: number;
@@ -30,6 +40,7 @@ export interface CombatUnit {
   elementCode?: string;
   raceCode?: string;
   isAlive: boolean;
+  activeStatuses?: ActiveStatusInstance[];
 }
 
 export interface FloatingCombatNumber {
@@ -39,6 +50,8 @@ export interface FloatingCombatNumber {
   targetIndex?: number;
   type: 'DAMAGE' | 'HEAL' | 'CRIT' | 'MISS' | 'DEFEND';
   animAction?: number;
+  vfxKey?: string | null;
+  statusApplied?: ActiveStatusInstance | null;
   amount: number;
   isCrit?: boolean;
   hpRemaining: number;
@@ -195,6 +208,7 @@ export class TemporaryCombatController {
       elementCode: charElementCode,
       raceCode: 'HUMAN',
       isAlive: true,
+      activeStatuses: [],
     };
 
     // Calcula Atributos do Monstro (escalonados por nível; o Rank SS..F é mantido apenas como registro por ora)
@@ -233,6 +247,7 @@ export class TemporaryCombatController {
         elementCode: mobTemplate.fixedElementCode || 'NEUTRAL',
         raceCode: mobTemplate.raceCode || 'BEAST',
         isAlive: true,
+        activeStatuses: [],
       });
     }
 
@@ -338,23 +353,41 @@ export class TemporaryCombatController {
       targetMob.hp = Math.max(0, targetMob.hp - dmg);
       if (targetMob.hp === 0) targetMob.isAlive = false;
 
+      // Aplica o Debuff "Queimadura Solar" (com ícone na cabeça do alvo + VFX especial 10025)
+      const burnDebuff: ActiveStatusInstance = {
+        code: 'status_burn',
+        name: 'Queimadura Solar',
+        isBuff: false,
+        iconUrl: `${this.mcreworkPagesBaseUrl}/assets/skills/icons/100180.png`,
+        vfxKey: '10025',
+        triggerType: 'ON_TURN_START',
+        remainingTurns: 3,
+      };
+      if (targetMob.isAlive) {
+        targetMob.activeStatuses = (targetMob.activeStatuses || []).filter((s) => s.code !== 'status_burn');
+        targetMob.activeStatuses.push(burnDebuff);
+      }
+
       events.push({
         actor: 'player',
         targetType: 'monster',
         targetIndex: targetMob.index,
         type: 'CRIT',
         animAction: 7,
+        vfxKey: '10025',
+        statusApplied: targetMob.isAlive ? burnDebuff : null,
         amount: dmg,
         isCrit: true,
         hpRemaining: targetMob.hp,
-        message: `${player.name} conjurou Habilidade Especial em ${targetMob.name} causando ${dmg} de Dano Elemental!`,
+        message: `${player.name} conjurou Chama Purgatorial em ${targetMob.name} causando ${dmg} de Dano + Queimadura Solar!`,
       });
 
       battle.combatLog.unshift(
-        `🔥 [${player.name}] lançou Golpe Especial em [${targetMob.name}] causando ${dmg} de dano devastador!`
+        `🔥 [${player.name}] lançou Chama Purgatorial em [${targetMob.name}] causando ${dmg} de dano e aplicando 🧪 [Queimadura Solar]!`
       );
 
       if (!targetMob.isAlive) {
+        targetMob.activeStatuses = [];
         battle.combatLog.unshift(`💀 [${targetMob.name}] foi destruído pelo golpe especial!`);
       }
     } else if (actionType === 'DEFEND') {
@@ -364,23 +397,78 @@ export class TemporaryCombatController {
       player.hp = Math.min(player.maxHp, player.hp + healAmount);
       player.mp = Math.min(player.maxMp, player.mp + mpHeal);
 
+      const regenBuff: ActiveStatusInstance = {
+        code: 'status_regen_blessing',
+        name: 'Bênção Regenerativa',
+        isBuff: true,
+        iconUrl: `${this.mcreworkPagesBaseUrl}/assets/skills/icons/100150.png`,
+        vfxKey: '10004',
+        triggerType: 'ON_TURN_START',
+        remainingTurns: 2,
+      };
+      player.activeStatuses = (player.activeStatuses || []).filter((s) => s.code !== 'status_regen_blessing');
+      player.activeStatuses.push(regenBuff);
+
       events.push({
         actor: 'player',
         targetType: 'player',
         type: 'HEAL',
         animAction: 4,
+        vfxKey: '10004',
+        statusApplied: regenBuff,
         amount: healAmount,
         hpRemaining: player.hp,
-        message: `${player.name} assumiu Postura Defensiva (+50% Defesa, +${healAmount} HP, +${mpHeal} MP)!`,
+        message: `${player.name} assumiu Postura Defensiva (+50% Defesa, +${healAmount} HP, +${mpHeal} MP e Buff Bênção Regenerativa)!`,
       });
 
       battle.combatLog.unshift(
-        `🛡️ [${player.name}] assumiu Postura Defensiva, recuperando ${healAmount} HP e aumentando sua guarda!`
+        `🛡️ [${player.name}] assumiu Postura Defensiva, recuperando ${healAmount} HP e ativando 🟢 [Bênção Regenerativa]!`
       );
     }
 
     // 2. VERIFICA SE TODOS OS MONSTROS FORAM DERROTADOS
-    const aliveMonsters = battle.monsters.filter((m) => m.isAlive);
+    let aliveMonsters = battle.monsters.filter((m) => m.isAlive);
+    if (aliveMonsters.length === 0) {
+      battle.isFinished = true;
+      battle.winner = 'PLAYER';
+      const totalExp = battle.monsters.reduce((acc, m) => acc + m.level * 45, 0);
+      const totalGold = battle.monsters.reduce((acc, m) => acc + m.level * 18, 0);
+      battle.rewards = { exp: totalExp, gold: totalGold };
+      battle.combatLog.unshift(`🏆 VITÓRIA! Todos os monstros foram derrotados! (+${totalExp} EXP, +${totalGold} Ouro simulados)`);
+      battle.lastEvents = events;
+      return battle;
+    }
+
+    // 2.5. GATILHOS DE BUFFS/DEBUFFS DOS MONSTROS NO INÍCIO DO TURNO DELES (ON_TURN_START)
+    for (const mob of aliveMonsters) {
+      if (!mob.activeStatuses || mob.activeStatuses.length === 0) continue;
+      for (const st of mob.activeStatuses) {
+        if (st.triggerType === 'ON_TURN_START' && !st.isBuff) {
+          const dotDmg = Math.max(6, Math.round(mob.maxHp * 0.08));
+          mob.hp = Math.max(0, mob.hp - dotDmg);
+          if (mob.hp === 0) {
+            mob.isAlive = false;
+            mob.activeStatuses = [];
+          }
+          events.push({
+            actor: 'player',
+            targetType: 'monster',
+            targetIndex: mob.index,
+            type: 'DAMAGE',
+            animAction: 5,
+            vfxKey: st.vfxKey || '10025',
+            amount: dotDmg,
+            hpRemaining: mob.hp,
+            message: `🧪 Gatilho [${st.name}]: ${mob.name} sofreu ${dotDmg} de dano contínuo!`,
+          });
+          battle.combatLog.unshift(`🧪 Gatilho [${st.name}] ativado em [${mob.name}]: -${dotDmg} HP!`);
+        }
+        st.remainingTurns -= 1;
+      }
+      mob.activeStatuses = (mob.activeStatuses || []).filter((s) => s.remainingTurns > 0);
+    }
+
+    aliveMonsters = battle.monsters.filter((m) => m.isAlive);
     if (aliveMonsters.length === 0) {
       battle.isFinished = true;
       battle.winner = 'PLAYER';
