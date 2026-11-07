@@ -245,7 +245,7 @@ class PlayGmController {
         select.innerHTML = this.availableMonsters
           .map(
             (m) =>
-              `<option value="${m.id}">#${m.id} ${m.namePtBr} (${m.raceCode} • ${m.elementCode})</option>`
+              `<option value="${m.id}">#${m.id} [Rank ${m.rarityTier || 'F'}] ${m.namePtBr} (${m.raceCode} • ${m.elementCode})</option>`
           )
           .join('');
       } catch (err) {

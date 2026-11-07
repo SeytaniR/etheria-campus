@@ -1,6 +1,6 @@
 {
   "name": "etheria-campus",
-  "version": "0.4.9",
+  "version": "0.4.10",
   "private": true,
   "description": "Etheria Campus - Modern Tactical 2.5D MMORPG Monorepo (Authoritative Server, Low-Code Admin Studio & Pixi.js WebGL/APK Client)",
   "workspaces": [

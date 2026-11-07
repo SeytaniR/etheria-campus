@@ -273,17 +273,16 @@ model ClassTemplate {
   @@map("class_templates")
 }
 
-/// Raridades de Monstros/Pets (COMMON, UNCOMMON, ELITE, RARE, MINIBOSS, BOSS).
+/// Classificações procedurais futuras de encontros (desacopladas do template fixo do monstro).
 model MonsterRarity {
-  id                    Int               @id @default(autoincrement())
-  code                  String            @unique
-  nameI18nKey           String            @map("name_i18n_key")
-  statMultiplier        Float             @default(1.0) @map("stat_multiplier")
-  expMultiplier         Float             @default(1.0) @map("exp_multiplier")
-  dropMultiplier        Float             @default(1.0) @map("drop_multiplier")
-  visualScaleMultiplier Float             @default(1.0) @map("visual_scale_multiplier")
-  spawnWeight           Int               @default(100) @map("spawn_weight")
-  monsters              MonsterTemplate[]
+  id                    Int     @id @default(autoincrement())
+  code                  String  @unique
+  nameI18nKey           String  @map("name_i18n_key")
+  statMultiplier        Float   @default(1.0) @map("stat_multiplier")
+  expMultiplier         Float   @default(1.0) @map("exp_multiplier")
+  dropMultiplier        Float   @default(1.0) @map("drop_multiplier")
+  visualScaleMultiplier Float   @default(1.0) @map("visual_scale_multiplier")
+  spawnWeight           Int     @default(100) @map("spawn_weight")
 
   @@map("monster_rarities")
 }
@@ -298,7 +297,7 @@ model MonsterTemplate {
   groundOffsetY      Int            @default(0) @map("ground_offset_y")
   raceCode           String         @map("race_code")
   fixedElementCode   String         @map("fixed_element_code") /// Elemento fixo quando atua como monstro inimigo
-  defaultRarityId    Int            @map("default_rarity_id")
+  rarityTier         String         @default("F") @map("rarity_tier") /// Tier de Raridade do Monstro: SS, S, A, B, C, D, F
   isTamableAsPet     Boolean        @default(true) @map("is_tamable_as_pet")
   baseAttributesJson Json           @map("base_attributes_json") /// Pesos de VIT, STR, INT, WIS, AGI, DEX no Nv.1
   skillIdsJson       Json           @default("[]") @map("skill_ids_json")
@@ -307,7 +306,6 @@ model MonsterTemplate {
 
   race               Race           @relation(fields: [raceCode], references: [code])
   fixedElement       Element        @relation(fields: [fixedElementCode], references: [code])
-  defaultRarity      MonsterRarity  @relation(fields: [defaultRarityId], references: [id])
   biomes             MonsterBiome[]
   tamedPets          CharacterPet[]
 

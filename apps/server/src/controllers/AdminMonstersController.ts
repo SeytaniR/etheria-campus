@@ -20,7 +20,7 @@ export interface MonsterTemplateDto {
   groundOffsetY?: number;
   raceCode: string;
   fixedElementCode: string;
-  defaultRarityId: number;
+  rarityTier?: string;
   isTamableAsPet: boolean;
   isActive?: boolean;
   biomeIds?: number[];
@@ -104,7 +104,6 @@ export class AdminMonstersController {
       include: {
         race: true,
         fixedElement: true,
-        defaultRarity: true,
         biomes: {
           include: {
             biome: true,
@@ -115,11 +114,11 @@ export class AdminMonstersController {
 
     return templates.map((mt) => ({
       ...mt,
+      rarityTier: mt.rarityTier || 'F',
       namePtBr: i18nMap.get(mt.nameI18nKey) ?? mt.code,
       descriptionPtBr: mt.descriptionI18nKey ? (i18nMap.get(mt.descriptionI18nKey) ?? '') : '',
       raceNamePtBr: mt.race ? (i18nMap.get(mt.race.nameI18nKey) ?? mt.race.code) : mt.raceCode,
       elementNamePtBr: mt.fixedElement ? (i18nMap.get(mt.fixedElement.nameI18nKey) ?? mt.fixedElement.code) : mt.fixedElementCode,
-      rarityNamePtBr: mt.defaultRarity ? (i18nMap.get(mt.defaultRarity.nameI18nKey) ?? mt.defaultRarity.code) : String(mt.defaultRarityId),
       thumbUrl: `${this.mcreworkPagesBaseUrl}/assets/monsters/${mt.mcreworkMonsterKey}/thumb.webp`,
       atlasJsonUrl: `${this.mcreworkPagesBaseUrl}/assets/monsters/${mt.mcreworkMonsterKey}/atlas.json`,
       atlasWebpUrl: `${this.mcreworkPagesBaseUrl}/assets/monsters/${mt.mcreworkMonsterKey}/atlas.webp`,
@@ -129,6 +128,12 @@ export class AdminMonstersController {
         namePtBr: i18nMap.get(b.biome.nameI18nKey) ?? b.biome.code,
       })),
     }));
+  }
+
+  private normalizeRarityTier(raw?: string): string {
+    const valid = ['SS', 'S', 'A', 'B', 'C', 'D', 'F'];
+    const upper = String(raw || 'F').trim().toUpperCase();
+    return valid.includes(upper) ? upper : 'F';
   }
 
   /**
@@ -175,7 +180,7 @@ export class AdminMonstersController {
         groundOffsetY: Number(dto.groundOffsetY) || 0,
         raceCode: dto.raceCode || 'BEAST',
         fixedElementCode: dto.fixedElementCode || 'NEUTRAL',
-        defaultRarityId: Number(dto.defaultRarityId) || 1,
+        rarityTier: this.normalizeRarityTier(dto.rarityTier),
         isTamableAsPet: dto.isTamableAsPet !== false,
         isActive: dto.isActive !== false,
         baseAttributesJson: dto.baseAttributesJson ?? {
@@ -241,7 +246,7 @@ export class AdminMonstersController {
         groundOffsetY: dto.groundOffsetY !== undefined ? Number(dto.groundOffsetY) : existing.groundOffsetY,
         raceCode: dto.raceCode || existing.raceCode,
         fixedElementCode: dto.fixedElementCode || existing.fixedElementCode,
-        defaultRarityId: dto.defaultRarityId ? Number(dto.defaultRarityId) : existing.defaultRarityId,
+        rarityTier: dto.rarityTier ? this.normalizeRarityTier(dto.rarityTier) : existing.rarityTier,
         isTamableAsPet: dto.isTamableAsPet !== undefined ? !!dto.isTamableAsPet : existing.isTamableAsPet,
         isActive: dto.isActive !== undefined ? !!dto.isActive : existing.isActive,
         baseAttributesJson: dto.baseAttributesJson ?? (existing.baseAttributesJson as any),
@@ -289,8 +294,6 @@ export class AdminMonstersController {
       if (count > 0) return;
 
       console.log('🐉 [AdminMonstersController] Semeando monstros iniciais do mcrework...');
-      const defaultRarity = await this.prisma.monsterRarity.findFirst({ where: { code: 'COMMON' } });
-      const rarityId = defaultRarity ? defaultRarity.id : 1;
 
       const initialMobs = [
         {
@@ -299,6 +302,7 @@ export class AdminMonstersController {
           key: 'creature_000001',
           race: 'BEAST',
           element: 'AIR',
+          rarityTier: 'F',
           offset: 0,
           stats: { VIT: 14, STR: 13, INT: 8, WIS: 9, AGI: 12, DEX: 11 },
         },
@@ -308,6 +312,7 @@ export class AdminMonstersController {
           key: 'creature_000002',
           race: 'BEAST',
           element: 'NEUTRAL',
+          rarityTier: 'F',
           offset: 0,
           stats: { VIT: 12, STR: 10, INT: 10, WIS: 10, AGI: 15, DEX: 14 },
         },
@@ -317,6 +322,7 @@ export class AdminMonstersController {
           key: 'creature_000003',
           race: 'PLANT',
           element: 'EARTH',
+          rarityTier: 'D',
           offset: 0,
           stats: { VIT: 16, STR: 11, INT: 12, WIS: 11, AGI: 8, DEX: 10 },
         },
@@ -326,6 +332,7 @@ export class AdminMonstersController {
           key: 'creature_000004',
           race: 'PLANT',
           element: 'WATER',
+          rarityTier: 'C',
           offset: 0,
           stats: { VIT: 18, STR: 14, INT: 11, WIS: 12, AGI: 7, DEX: 9 },
         },
@@ -335,6 +342,7 @@ export class AdminMonstersController {
           key: 'creature_000006',
           race: 'AQUATIC',
           element: 'WATER',
+          rarityTier: 'D',
           offset: 0,
           stats: { VIT: 13, STR: 11, INT: 14, WIS: 13, AGI: 12, DEX: 13 },
         },
@@ -348,7 +356,7 @@ export class AdminMonstersController {
           groundOffsetY: mob.offset,
           raceCode: mob.race,
           fixedElementCode: mob.element,
-          defaultRarityId: rarityId,
+          rarityTier: mob.rarityTier,
           isTamableAsPet: true,
           baseAttributesJson: mob.stats,
         });

@@ -87,7 +87,6 @@ export class TemporaryCombatController {
       include: {
         race: true,
         fixedElement: true,
-        defaultRarity: true,
       },
     });
 
@@ -98,7 +97,7 @@ export class TemporaryCombatController {
       namePtBr: i18nMap.get(m.nameI18nKey) ?? m.code,
       raceCode: m.raceCode,
       elementCode: m.fixedElementCode,
-      rarityCode: m.defaultRarity?.code || 'COMMON',
+      rarityTier: m.rarityTier || 'F',
       thumbUrl: `${this.mcreworkPagesBaseUrl}/assets/monsters/${m.mcreworkMonsterKey}/thumb.webp`,
     }));
   }
@@ -118,7 +117,6 @@ export class TemporaryCombatController {
     // Carrega dados do monstro
     const mobTemplate = await this.prisma.monsterTemplate.findUnique({
       where: { id: Number(monsterTemplateId) },
-      include: { defaultRarity: true },
     });
 
     if (!mobTemplate) {
@@ -199,9 +197,9 @@ export class TemporaryCombatController {
       isAlive: true,
     };
 
-    // Calcula Atributos do Monstro (escalonados por nível e raridade)
+    // Calcula Atributos do Monstro (escalonados por nível; o Rank SS..F é mantido apenas como registro por ora)
     const mobStats = (mobTemplate.baseAttributesJson as any) || { VIT: 12, STR: 12, INT: 10, WIS: 10, AGI: 10, DEX: 10 };
-    const rarityMult = mobTemplate.defaultRarity?.statMultiplier || 1.0;
+    const rarityMult = 1.0;
 
     const mobMaxHp = Math.round((mobStats.VIT * 20 + lvl * 18) * rarityMult);
     const mobMaxMp = Math.round((mobStats.INT * 10 + lvl * 8) * rarityMult);

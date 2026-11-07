@@ -1,6 +1,6 @@
 {
   "version": "0.2.0",
-  "exportedAt": "2026-11-07T07:33:56.268Z",
+  "exportedAt": "2026-11-07T08:51:21.712Z",
   "i18nTranslations": [
     {
       "id": 1,
@@ -1113,7 +1113,7 @@
       "key": "map.map_1.name",
       "locale": "pt-BR",
       "text": "Vila Izumo",
-      "updatedAt": "2026-11-06T02:33:04.993Z"
+      "updatedAt": "2026-11-07T08:33:13.774Z"
     },
     {
       "id": 162,
@@ -3362,13 +3362,42 @@
         {
           "id": "ovl_1793921093318_13",
           "name": "Sobreposição #13",
-          "points": []
+          "points": [
+            {
+              "x": 330,
+              "y": 655
+            },
+            {
+              "x": 363,
+              "y": 673
+            },
+            {
+              "x": 381,
+              "y": 654
+            },
+            {
+              "x": 357,
+              "y": 635
+            },
+            {
+              "x": 367,
+              "y": 618
+            },
+            {
+              "x": 333,
+              "y": 563
+            },
+            {
+              "x": 272,
+              "y": 596
+            }
+          ]
         }
       ],
       "overlapOpacity": 0.45,
       "isActive": true,
       "createdAt": "2026-11-05T23:26:00.408Z",
-      "updatedAt": "2026-11-06T02:33:04.999Z"
+      "updatedAt": "2026-11-07T08:33:13.785Z"
     },
     {
       "id": 2,
@@ -15866,62 +15895,6 @@
   ],
   "mapNpcs": [
     {
-      "id": 7,
-      "mapId": 1,
-      "npcTemplateId": 1,
-      "posX": 286,
-      "posY": 1135,
-      "direction": 0
-    },
-    {
-      "id": 8,
-      "mapId": 1,
-      "npcTemplateId": 2,
-      "posX": 403,
-      "posY": 883,
-      "direction": 0
-    },
-    {
-      "id": 9,
-      "mapId": 1,
-      "npcTemplateId": 3,
-      "posX": 434,
-      "posY": 550,
-      "direction": 0
-    },
-    {
-      "id": 10,
-      "mapId": 1,
-      "npcTemplateId": 4,
-      "posX": 834,
-      "posY": 380,
-      "direction": 0
-    },
-    {
-      "id": 11,
-      "mapId": 1,
-      "npcTemplateId": 5,
-      "posX": 638,
-      "posY": 494,
-      "direction": 0
-    },
-    {
-      "id": 12,
-      "mapId": 1,
-      "npcTemplateId": 6,
-      "posX": 1206,
-      "posY": 487,
-      "direction": 0
-    },
-    {
-      "id": 13,
-      "mapId": 1,
-      "npcTemplateId": 7,
-      "posX": 1602,
-      "posY": 1034,
-      "direction": 0
-    },
-    {
       "id": 14,
       "mapId": 2,
       "npcTemplateId": 8,
@@ -16007,6 +15980,62 @@
       "npcTemplateId": 18,
       "posX": 287,
       "posY": 965,
+      "direction": 0
+    },
+    {
+      "id": 29,
+      "mapId": 1,
+      "npcTemplateId": 1,
+      "posX": 286,
+      "posY": 1135,
+      "direction": 0
+    },
+    {
+      "id": 30,
+      "mapId": 1,
+      "npcTemplateId": 2,
+      "posX": 403,
+      "posY": 883,
+      "direction": 0
+    },
+    {
+      "id": 31,
+      "mapId": 1,
+      "npcTemplateId": 3,
+      "posX": 434,
+      "posY": 550,
+      "direction": 0
+    },
+    {
+      "id": 32,
+      "mapId": 1,
+      "npcTemplateId": 4,
+      "posX": 834,
+      "posY": 380,
+      "direction": 0
+    },
+    {
+      "id": 33,
+      "mapId": 1,
+      "npcTemplateId": 5,
+      "posX": 638,
+      "posY": 494,
+      "direction": 0
+    },
+    {
+      "id": 34,
+      "mapId": 1,
+      "npcTemplateId": 6,
+      "posX": 1206,
+      "posY": 487,
+      "direction": 0
+    },
+    {
+      "id": 35,
+      "mapId": 1,
+      "npcTemplateId": 7,
+      "posX": 1602,
+      "posY": 1034,
       "direction": 0
     }
   ],
@@ -17765,7 +17794,7 @@
       "groundOffsetY": 0,
       "raceCode": "BEAST",
       "fixedElementCode": "AIR",
-      "defaultRarityId": 1,
+      "rarityTier": "F",
       "isTamableAsPet": true,
       "baseAttributesJson": {
         "AGI": 12,
@@ -17788,7 +17817,7 @@
       "groundOffsetY": 0,
       "raceCode": "BEAST",
       "fixedElementCode": "NEUTRAL",
-      "defaultRarityId": 1,
+      "rarityTier": "F",
       "isTamableAsPet": true,
       "baseAttributesJson": {
         "AGI": 15,
@@ -17811,7 +17840,7 @@
       "groundOffsetY": 0,
       "raceCode": "PLANT",
       "fixedElementCode": "EARTH",
-      "defaultRarityId": 1,
+      "rarityTier": "F",
       "isTamableAsPet": true,
       "baseAttributesJson": {
         "AGI": 8,
@@ -17834,7 +17863,7 @@
       "groundOffsetY": 0,
       "raceCode": "PLANT",
       "fixedElementCode": "WATER",
-      "defaultRarityId": 1,
+      "rarityTier": "F",
       "isTamableAsPet": true,
       "baseAttributesJson": {
         "AGI": 7,
@@ -17857,7 +17886,7 @@
       "groundOffsetY": 0,
       "raceCode": "AQUATIC",
       "fixedElementCode": "WATER",
-      "defaultRarityId": 1,
+      "rarityTier": "F",
       "isTamableAsPet": true,
       "baseAttributesJson": {
         "AGI": 12,

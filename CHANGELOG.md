@@ -5,6 +5,15 @@ Qualquer IA trabalhando neste repositório **DEVE** incrementar a versão e regi
 
 ---
 
+## [v0.4.10] - 2026-11-07
+### Alterado & Refatorado
+* **Sistema de Raridade de Monstros Baseado em Ranks (`SS`, `S`, `A`, `B`, `C`, `D`, `F`) (`schema.prisma`, `AdminMonstersController.ts`, `AdminMonstersTab.js`, `TemporaryCombatController.ts`, `PlayGmController.js`):**
+  * Substituída a chave `defaultRarityId` (Comum, Incomum, Elite, Raro, Mini-Chefe, Chefe — que atuará de forma procedural nos encontros futuros e não fica presa ao template do monstro) pelo campo `rarityTier` (`rarity_tier`) diretamente em `MonsterTemplate` (`monster_templates`).
+  * Valores suportados e validados no servidor e no Studio `/admin`: **`SS`**, **`S`**, **`A`**, **`B`**, **`C`**, **`D`** e **`F`** (mantido como registro no banco para futura tabela lógica).
+  * Adicionados badges visuais coloridos por Rank (`Rank SS` a `Rank F`) na tabela de Monstros do `/admin` e no seletor de Batalha GM do `/play`.
+
+---
+
 ## [v0.4.9] - 2026-11-07
 ### Corrigido & Aprimorado
 * **Revisão Completa do Modal e Tabela de Monstros no `/admin` (`AdminMonstersTab.js`, `AdminMonstersController.ts`, `AdminMapsController.ts`):**

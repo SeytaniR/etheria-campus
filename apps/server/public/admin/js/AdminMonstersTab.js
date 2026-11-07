@@ -285,22 +285,19 @@ class AdminMonstersTab {
           .join('');
       }
 
-      const fallbackRarities = [
-        { id: 1, code: 'COMMON', namePtBr: 'Comum (COMMON)' },
-        { id: 2, code: 'UNCOMMON', namePtBr: 'Incomum (UNCOMMON)' },
-        { id: 3, code: 'ELITE', namePtBr: 'Elite (ELITE)' },
-        { id: 4, code: 'RARE', namePtBr: 'Raro (RARE)' },
-        { id: 5, code: 'MINIBOSS', namePtBr: 'Mini-Chefe (MINIBOSS)' },
-        { id: 6, code: 'BOSS', namePtBr: 'Chefe / Boss (BOSS)' },
+      const rarityTiers = [
+        { code: 'SS', label: '👑 Rank SS (Mítico)' },
+        { code: 'S', label: '🌟 Rank S (Lendário)' },
+        { code: 'A', label: '💎 Rank A (Épico)' },
+        { code: 'B', label: '🔷 Rank B (Superior)' },
+        { code: 'C', label: '🟢 Rank C (Intermediário)' },
+        { code: 'D', label: '🟡 Rank D (Básico)' },
+        { code: 'F', label: '⚪ Rank F (Iniciante)' },
       ];
-      const raritiesList =
-        Array.isArray(this.monsterRarities) && this.monsterRarities.length > 0
-          ? this.monsterRarities
-          : fallbackRarities;
       const raritySelect = document.getElementById('monsterRaritySelect');
       if (raritySelect) {
-        raritySelect.innerHTML = raritiesList
-          .map((rar) => `<option value="${rar.id}">${rar.namePtBr || rar.code}</option>`)
+        raritySelect.innerHTML = rarityTiers
+          .map((rt) => `<option value="${rt.code}">${rt.label}</option>`)
           .join('');
       }
 
@@ -352,7 +349,7 @@ class AdminMonstersTab {
         document.getElementById('monsterNameInput').value = existingMonster.namePtBr || '';
         document.getElementById('monsterRaceSelect').value = existingMonster.raceCode || 'BEAST';
         document.getElementById('monsterElementSelect').value = existingMonster.fixedElementCode || 'NEUTRAL';
-        document.getElementById('monsterRaritySelect').value = String(existingMonster.defaultRarityId || 1);
+        document.getElementById('monsterRaritySelect').value = existingMonster.rarityTier || 'F';
         document.getElementById('monsterTamableSelect').value = existingMonster.isTamableAsPet !== false ? 'true' : 'false';
         document.getElementById('monsterActiveSelect').value = existingMonster.isActive !== false ? 'true' : 'false';
         document.getElementById('monsterAssetKeyInput').value = existingMonster.mcreworkMonsterKey || '';
@@ -383,7 +380,7 @@ class AdminMonstersTab {
         document.getElementById('monsterNameInput').value = '';
         document.getElementById('monsterRaceSelect').value = 'BEAST';
         document.getElementById('monsterElementSelect').value = 'NEUTRAL';
-        document.getElementById('monsterRaritySelect').value = '1';
+        document.getElementById('monsterRaritySelect').value = 'F';
         document.getElementById('monsterTamableSelect').value = 'true';
         document.getElementById('monsterActiveSelect').value = 'true';
         document.getElementById('monsterAssetKeyInput').value = '';
@@ -439,7 +436,7 @@ class AdminMonstersTab {
         const descriptionPtBr = document.getElementById('monsterDescriptionInput').value.trim();
         const raceCode = document.getElementById('monsterRaceSelect').value || 'BEAST';
         const fixedElementCode = document.getElementById('monsterElementSelect').value || 'NEUTRAL';
-        const defaultRarityId = Number(document.getElementById('monsterRaritySelect').value) || 1;
+        const rarityTier = document.getElementById('monsterRaritySelect').value || 'F';
         const isTamableAsPet = document.getElementById('monsterTamableSelect').value === 'true';
         const isActive = document.getElementById('monsterActiveSelect').value === 'true';
         const groundOffsetY = Number(document.getElementById('monsterGroundOffsetYInput').value) || 0;
@@ -460,7 +457,7 @@ class AdminMonstersTab {
           groundOffsetY,
           raceCode,
           fixedElementCode,
-          defaultRarityId,
+          rarityTier,
           isTamableAsPet,
           isActive,
           biomeIds: selectedBiomes,
@@ -518,6 +515,18 @@ class AdminMonstersTab {
               ? m.biomesList.map((bi) => `#${bi.biomeId} ${bi.namePtBr || bi.code}`).join(', ')
               : '🌍 Todos os Biomas';
 
+          const tier = m.rarityTier || 'F';
+          const tierColors = {
+            SS: { bg: 'rgba(244,63,94,0.22)', text: '#fda4af', border: '#f43f5e' },
+            S: { bg: 'rgba(234,179,8,0.22)', text: '#fde047', border: '#eab308' },
+            A: { bg: 'rgba(192,132,252,0.22)', text: '#d8b4fe', border: '#a855f7' },
+            B: { bg: 'rgba(56,189,248,0.22)', text: '#7dd3fc', border: '#0ea5e9' },
+            C: { bg: 'rgba(34,197,94,0.22)', text: '#86efac', border: '#22c55e' },
+            D: { bg: 'rgba(251,146,60,0.20)', text: '#fdba74', border: '#f97316' },
+            F: { bg: 'rgba(148,163,184,0.18)', text: '#cbd5e1', border: '#64748b' },
+          };
+          const tc = tierColors[tier] || tierColors.F;
+
           return `
         <tr>
           <td>
@@ -546,7 +555,7 @@ class AdminMonstersTab {
             </div>
           </td>
           <td>
-            <span style="padding:2px 8px; border-radius:99px; background:rgba(192,132,252,0.16); color:#c084fc; font-size:0.75rem; font-weight:700;">💎 ${m.rarityNamePtBr || 'COMMON'}</span>
+            <span style="padding:3px 10px; border-radius:99px; background:${tc.bg}; color:${tc.text}; border:1px solid ${tc.border}; font-size:0.78rem; font-weight:800;">Rank ${tier}</span>
           </td>
           <td><span style="font-family:monospace; font-size:0.75rem;">${statsStr}</span></td>
           <td><div style="font-size:0.72rem; color:var(--text-muted); max-width:200px; white-space:normal;">${biomesStr}</div></td>
