@@ -74,6 +74,10 @@ export interface SaveClassTemplateDto {
   rebornMcreworkCharKey?: string | null;
   groundOffsetY?: number;
   rebornGroundOffsetY?: number;
+  shadowOffsetX?: number;
+  shadowOffsetY?: number;
+  rebornShadowOffsetX?: number;
+  rebornShadowOffsetY?: number;
   raceCode?: string;
   skillIdsJson?: number[];
   isActive?: boolean;
@@ -176,6 +180,7 @@ export class AdminMapsController {
       tier: c.tier ?? 1,
       thumbUrl: `${this.mcreworkPagesBaseUrl}/${c.thumb}`,
       atlasJsonUrl: `${this.mcreworkPagesBaseUrl}/${c.path}`,
+      atlasWebpUrl: `${this.mcreworkPagesBaseUrl}/assets/characters/${c.id}/atlas.webp`,
       anchor: c.anchor ?? [0.5, 0.9],
     }));
 
@@ -244,11 +249,15 @@ export class AdminMapsController {
       raceNamePtBr: ct.race ? (i18nMap.get(ct.race.nameI18nKey) ?? ct.race.code) : ct.raceCode,
       thumbUrl: `${this.mcreworkPagesBaseUrl}/assets/characters/${ct.mcreworkCharKey}/thumb.webp`,
       atlasJsonUrl: `${this.mcreworkPagesBaseUrl}/assets/characters/${ct.mcreworkCharKey}/atlas.json`,
+      atlasWebpUrl: `${this.mcreworkPagesBaseUrl}/assets/characters/${ct.mcreworkCharKey}/atlas.webp`,
       rebornThumbUrl: ct.rebornMcreworkCharKey
         ? `${this.mcreworkPagesBaseUrl}/assets/characters/${ct.rebornMcreworkCharKey}/thumb.webp`
         : null,
       rebornAtlasJsonUrl: ct.rebornMcreworkCharKey
         ? `${this.mcreworkPagesBaseUrl}/assets/characters/${ct.rebornMcreworkCharKey}/atlas.json`
+        : null,
+      rebornAtlasWebpUrl: ct.rebornMcreworkCharKey
+        ? `${this.mcreworkPagesBaseUrl}/assets/characters/${ct.rebornMcreworkCharKey}/atlas.webp`
         : null,
       characterCount: ct._count?.characters ?? 0,
     }));
@@ -268,6 +277,8 @@ export class AdminMapsController {
       ...nt,
       namePtBr: i18nMap.get(nt.nameI18nKey) ?? nt.code,
       thumbUrl: `${this.mcreworkPagesBaseUrl}/assets/npcs/${nt.mcreworkNpcKey}/thumb.png`,
+      atlasJsonUrl: `${this.mcreworkPagesBaseUrl}/assets/npcs/${nt.mcreworkNpcKey}/atlas.json`,
+      atlasWebpUrl: `${this.mcreworkPagesBaseUrl}/assets/npcs/${nt.mcreworkNpcKey}/atlas.webp`,
       placements: (nt.placements ?? []).map((pl) => ({
         ...pl,
         mapNamePtBr: pl.map ? (i18nMap.get(pl.map.nameI18nKey) ?? pl.map.code) : `Mapa #${pl.mapId}`,
@@ -320,6 +331,10 @@ export class AdminMapsController {
     const isActive = dto.isActive !== undefined ? Boolean(dto.isActive) : true;
     const groundOffsetY = Math.round(Number(dto.groundOffsetY) || 0);
     const rebornGroundOffsetY = Math.round(Number(dto.rebornGroundOffsetY) || 0);
+    const shadowOffsetX = Math.round(Number(dto.shadowOffsetX) || 0);
+    const shadowOffsetY = Math.round(Number(dto.shadowOffsetY) || 0);
+    const rebornShadowOffsetX = Math.round(Number(dto.rebornShadowOffsetX) || 0);
+    const rebornShadowOffsetY = Math.round(Number(dto.rebornShadowOffsetY) || 0);
     const rebornMcreworkCharKey = dto.rebornMcreworkCharKey ? dto.rebornMcreworkCharKey.trim() : null;
     const skillIdsJson = Array.isArray(dto.skillIdsJson) ? dto.skillIdsJson.map((n) => Number(n)).filter((n) => n > 0) : undefined;
 
@@ -376,6 +391,10 @@ export class AdminMapsController {
             rebornMcreworkCharKey,
             groundOffsetY,
             rebornGroundOffsetY,
+            shadowOffsetX,
+            shadowOffsetY,
+            rebornShadowOffsetX,
+            rebornShadowOffsetY,
             raceCode,
             baseAttributesJson: baseAttrs as any,
             growthPerLevelJson: growthAttrs as any,
@@ -394,6 +413,10 @@ export class AdminMapsController {
             rebornMcreworkCharKey,
             groundOffsetY,
             rebornGroundOffsetY,
+            shadowOffsetX,
+            shadowOffsetY,
+            rebornShadowOffsetX,
+            rebornShadowOffsetY,
             raceCode,
             baseAttributesJson: baseAttrs as any,
             growthPerLevelJson: growthAttrs as any,
@@ -439,11 +462,15 @@ export class AdminMapsController {
       descriptionPtBr: finalDescPtBr,
       thumbUrl: `${this.mcreworkPagesBaseUrl}/assets/characters/${savedClass.mcreworkCharKey}/thumb.webp`,
       atlasJsonUrl: `${this.mcreworkPagesBaseUrl}/assets/characters/${savedClass.mcreworkCharKey}/atlas.json`,
+      atlasWebpUrl: `${this.mcreworkPagesBaseUrl}/assets/characters/${savedClass.mcreworkCharKey}/atlas.webp`,
       rebornThumbUrl: savedClass.rebornMcreworkCharKey
         ? `${this.mcreworkPagesBaseUrl}/assets/characters/${savedClass.rebornMcreworkCharKey}/thumb.webp`
         : null,
       rebornAtlasJsonUrl: savedClass.rebornMcreworkCharKey
         ? `${this.mcreworkPagesBaseUrl}/assets/characters/${savedClass.rebornMcreworkCharKey}/atlas.json`
+        : null,
+      rebornAtlasWebpUrl: savedClass.rebornMcreworkCharKey
+        ? `${this.mcreworkPagesBaseUrl}/assets/characters/${savedClass.rebornMcreworkCharKey}/atlas.webp`
         : null,
     };
   }
@@ -536,6 +563,8 @@ export class AdminMapsController {
       ...savedNpc,
       namePtBr: finalNamePtBr,
       thumbUrl: `${this.mcreworkPagesBaseUrl}/assets/npcs/${savedNpc.mcreworkNpcKey}/thumb.png`,
+      atlasJsonUrl: `${this.mcreworkPagesBaseUrl}/assets/npcs/${savedNpc.mcreworkNpcKey}/atlas.json`,
+      atlasWebpUrl: `${this.mcreworkPagesBaseUrl}/assets/npcs/${savedNpc.mcreworkNpcKey}/atlas.webp`,
     };
   }
 

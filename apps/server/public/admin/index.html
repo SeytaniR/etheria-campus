@@ -714,7 +714,18 @@
       <!-- Barra Rápida de NPC quando a ferramenta NPC está ativa -->
       <div id="npcQuickBar" class="npc-quick-bar">
         <span style="font-size:0.75rem; color:#86efac; font-weight:700;">🧙 NPC:</span>
-        <select id="activeNpcTemplateSelect" style="min-width:160px; padding:5px 8px; font-size:0.78rem;"></select>
+        <select id="activeNpcTemplateSelect" style="min-width:150px; padding:5px 8px; font-size:0.78rem;"></select>
+        <select id="activeNpcDirectionSelect" title="Sentido / Direção do NPC no cenário" style="width:140px; padding:5px 6px; font-size:0.75rem;">
+          <option value="0">0: ⬇ Sul (Frente)</option>
+          <option value="1">1: ↙ Sudoeste</option>
+          <option value="2">2: ⬅ Oeste (Esq.)</option>
+          <option value="3">3: ↖ Noroeste</option>
+          <option value="4">4: ⬆ Norte (Costas)</option>
+          <option value="5">5: ↗ Nordeste</option>
+          <option value="6">6: ➡ Leste (Dir.)</option>
+          <option value="7">7: ↘ Sudeste</option>
+        </select>
+        <button onclick="AdminApp.rotateLastMapNpc()" title="Girar último NPC posicionado (ou toque em cima do NPC no mapa)" style="padding:5px 8px; font-size:0.74rem;">🔄 Girar</button>
         <button onclick="AdminApp.openNpcTemplateModal()" style="padding:5px 8px; font-size:0.75rem;">➕ Criar NPC</button>
       </div>
       <!-- Botões Flutuantes de Zoom e Undo/Redo -->
@@ -814,11 +825,13 @@
   </div>
   <!-- Modal de Personagens (#classModal) injetado dinamicamente por AdminClassesTab.js -->
 
+  <script src="/play/js/McreworkSpriteSheet.js"></script>
   <script src="/admin/js/AdminAuth.js"></script>
   <script src="/admin/js/AdminUsersTab.js"></script>
   <script src="/admin/js/AdminNpcsTab.js"></script>
   <script src="/admin/js/AdminClassesTab.js"></script>
   <script src="/admin/js/AdminMonstersTab.js"></script>
+  <script src="/admin/js/AdminArenaPreview.js"></script>
   <script src="/admin/js/AdminStatusEffectsTab.js"></script>
   <script src="/admin/js/AdminSkillsAndBuffsTab.js"></script>
   <script src="/admin/js/AdminQuestsTab.js"></script>

@@ -24,6 +24,9 @@ class AdminSkillsAndBuffsTab {
     if (window.AdminStatusEffectsTab) {
       window.AdminStatusEffectsTab.attach(app);
     }
+    if (window.AdminArenaPreview) {
+      window.AdminArenaPreview.attach(app);
+    }
 
     AdminSkillsAndBuffsTab.injectTabsAndModalsDom();
 
@@ -106,73 +109,6 @@ class AdminSkillsAndBuffsTab {
       ctx.save();
       ctx.drawImage(vfx.image, sx, sy, sw, sh, Math.round(centerX - dw / 2), Math.round(centerY - dh / 2), dw, dh);
       ctx.restore();
-    };
-
-    app.startVfxPreviewCanvasLoop = function (canvasId, getVfxKeyFn, getOverheadIconUrlFn) {
-      if (this.vfxPreviewAnimFrame) {
-        cancelAnimationFrame(this.vfxPreviewAnimFrame);
-      }
-      const startTime = performance.now();
-      let cachedIconImg = null;
-      let cachedIconSrc = '';
-
-      const step = (now) => {
-        const canvas = document.getElementById(canvasId);
-        if (!canvas || canvas.offsetParent === null) {
-          this.vfxPreviewAnimFrame = null;
-          return;
-        }
-        const ctx = canvas.getContext('2d');
-        const w = canvas.width;
-        const h = canvas.height;
-        ctx.clearRect(0, 0, w, h);
-
-        const groundY = h - 28;
-        ctx.fillStyle = 'rgba(30, 41, 59, 0.85)';
-        ctx.beginPath();
-        ctx.ellipse(w / 2, groundY, 36, 14, 0, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.strokeStyle = '#38bdf8';
-        ctx.lineWidth = 2;
-        ctx.stroke();
-
-        ctx.fillStyle = 'rgba(148, 163, 184, 0.35)';
-        ctx.beginPath();
-        ctx.arc(w / 2, groundY - 46, 13, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.fillRect(w / 2 - 11, groundY - 32, 22, 30);
-
-        const vfxKey = getVfxKeyFn();
-        if (vfxKey) {
-          this.drawVfxOnCanvas(ctx, vfxKey, w / 2, groundY - 26, now - startTime, 0.85);
-        }
-
-        const iconUrl = getOverheadIconUrlFn ? getOverheadIconUrlFn() : '';
-        if (iconUrl) {
-          if (cachedIconSrc !== iconUrl) {
-            cachedIconSrc = iconUrl;
-            const img = new Image();
-            img.crossOrigin = 'anonymous';
-            img.onload = () => {
-              cachedIconImg = img;
-            };
-            img.src = iconUrl;
-          }
-          if (cachedIconImg) {
-            const bounce = Math.sin(now / 180) * 2.5;
-            const iconY = Math.round(10 + bounce);
-            ctx.fillStyle = 'rgba(2, 6, 23, 0.9)';
-            ctx.fillRect(w / 2 - 14, iconY - 2, 28, 28);
-            ctx.strokeStyle = '#fde047';
-            ctx.lineWidth = 1.5;
-            ctx.strokeRect(w / 2 - 14, iconY - 2, 28, 28);
-            ctx.drawImage(cachedIconImg, w / 2 - 12, iconY, 24, 24);
-          }
-        }
-
-        this.vfxPreviewAnimFrame = requestAnimationFrame(step);
-      };
-      this.vfxPreviewAnimFrame = requestAnimationFrame(step);
     };
 
     app.renderEntitySkillsChecklist = function (containerId, selectedIds = []) {
@@ -868,24 +804,47 @@ class AdminSkillsAndBuffsTab {
         </div>
 
         <div style="background:rgba(15,23,42,0.75); border:1px solid #334155; border-radius:10px; padding:12px;">
-          <div style="font-size:0.8rem; font-weight:700; color:#fde047; margin-bottom:8px;">3️⃣ 🎨 Coreografia 2.5D, Ícone da Skill & Efeito Especial (VFX do mcrework)</div>
-          <div style="display:flex; gap:12px; align-items:center; flex-wrap:wrap; margin-bottom:10px; background:#020617; padding:10px; border-radius:8px;">
-            <div style="position:relative; width:140px; height:140px; background:radial-gradient(ellipse at center bottom, #1e1b4b 0%, #020617 75%); border:1.5px solid #38bdf8; border-radius:8px; overflow:hidden; flex-shrink:0;">
-              <canvas id="skillVfxPreviewCanvas" width="140" height="140"></canvas>
-              <span style="position:absolute; bottom:3px; right:5px; font-size:0.6rem; color:#7dd3fc;">Preview VFX 2.5D</span>
+          <div style="font-size:0.8rem; font-weight:700; color:#fde047; margin-bottom:8px;">3️⃣ 🏟️ Arena de Batalha 2.5D Realista (Modelos Cadastrados), Ícone da Skill & Efeito Especial (VFX)</div>
+          <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(175px, 1fr)); gap:8px; margin-bottom:8px; background:rgba(2,6,23,0.75); padding:8px; border-radius:8px; border:1px solid var(--border); align-items:end;">
+            <div>
+              <label style="font-size:0.7rem; color:#7dd3fc; font-weight:700;">🦸 Conjurador na Arena (Esquerda)</label>
+              <select id="skillArenaCasterSelect" onchange="AdminApp.triggerArenaPreviewNow()" style="padding:5px 7px; font-size:0.76rem;"></select>
             </div>
-            <div style="flex:1; display:flex; flex-direction:column; gap:8px; min-width:220px;">
+            <div>
+              <label style="font-size:0.7rem; color:#fda4af; font-weight:700;">🐉 Alvo(s) na Arena (Direita)</label>
+              <select id="skillArenaTargetSelect" onchange="AdminApp.triggerArenaPreviewNow()" style="padding:5px 7px; font-size:0.76rem;"></select>
+            </div>
+            <div>
+              <label style="font-size:0.7rem; color:#fde047; font-weight:700;">⚔️ Formação de Alvos</label>
+              <select id="skillArenaFormationSelect" onchange="AdminApp.triggerArenaPreviewNow()" style="padding:5px 7px; font-size:0.76rem;">
+                <option value="1">1x1 (Duelo Individual)</option>
+                <option value="3" selected>1x3 (Formação de Batalha)</option>
+              </select>
+            </div>
+            <div>
+              <button type="button" class="btn-primary" onclick="AdminApp.triggerArenaPreviewNow()" style="width:100%; padding:6px 10px; font-size:0.76rem; font-weight:700;">
+                ▶️ Simular Golpe Agora
+              </button>
+            </div>
+          </div>
+
+          <div style="display:flex; gap:12px; align-items:stretch; flex-wrap:wrap; margin-bottom:10px; background:#020617; padding:10px; border-radius:8px;">
+            <div style="position:relative; width:480px; max-width:100%; height:210px; background:#020617; border:1.5px solid #38bdf8; border-radius:8px; overflow:hidden; flex-shrink:0; display:flex; justify-content:center;">
+              <canvas id="skillVfxPreviewCanvas" width="480" height="210" style="width:100%; height:100%; object-fit:contain;"></canvas>
+              <span style="position:absolute; bottom:4px; right:6px; font-size:0.62rem; color:#7dd3fc; background:rgba(2,6,23,0.8); padding:1px 6px; border-radius:4px;">🏟️ Arena 2.5D Ao Vivo</span>
+            </div>
+            <div style="flex:1; display:flex; flex-direction:column; justify-content:space-between; gap:8px; min-width:240px;">
               <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
                 <div>
                   <label style="font-size:0.72rem;">Movimento do Conjurador</label>
-                  <select id="skillCastMovementSelect">
+                  <select id="skillCastMovementSelect" onchange="AdminApp.triggerArenaPreviewNow()">
                     <option value="MELEE_ADVANCE">🏃 Correr até a frente do Alvo</option>
                     <option value="STAND_IN_PLACE">🧙 Conjurar parado no próprio Slot</option>
                   </select>
                 </div>
                 <div>
                   <label style="font-size:0.72rem;">Animação 2.5D do Modelo</label>
-                  <select id="skillCastActionSelect">
+                  <select id="skillCastActionSelect" onchange="AdminApp.triggerArenaPreviewNow()">
                     <option value="3">🗡️ Golpe Físico (Action 3)</option>
                     <option value="7">🔥 Conjuração / Magia (Action 7)</option>
                     <option value="4">🛡️ Postura de Guarda (Action 4)</option>

@@ -5,6 +5,20 @@ Qualquer IA trabalhando neste repositório **DEVE** incrementar a versão e regi
 
 ---
 
+## [v0.5.4] - 2026-11-07
+### Adicionado & Aprimorado
+* **Calibração Realista de Personagens no Mapa #1 + Alinhamento de Sombra (`AdminClassesTab.js`, `AdminMapsController.ts`, `GamePlayController.ts`, `McreworkSpriteSheet.js`, `play.js`):**
+  * Substituído o preview genérico do modal de Personagens (`#classModal`) por um **Palco `<canvas>` 2.5D renderizando o Mapa #1 real (`/api/assets/map-image/1`)** (com suporte a arrastar o piso do Mapa #1, alternar ações `🧍 Parado`, `🏃 Andar`, `🗡️ Golpe` e girar as 8 direções) tanto para o visual **🎨 Padrão** quanto para o visual **✨ Reborn**.
+  * Adicionados os campos `shadowOffsetX`, `shadowOffsetY`, `rebornShadowOffsetX` e `rebornShadowOffsetY` na tabela `class_templates` (`schema.prisma`), com controles finos de alinhamento horizontal (Eixo X) e vertical (Eixo Y) da sombra elíptica embaixo do personagem no `/admin` e refletidos em tempo real no `/play`.
+* **Renderização do Modelo Original 2.5D do NPC + Rotação de Direção no Editor de Mapas (`AdminCanvasEditor.js`, `AdminLayersDrawer.js`, `admin/index.html`):**
+  * Substituído o círculo placeholder verde dos NPCs no `<canvas>` do Editor Visual de Mapas pela renderização do **modelo 2.5D original do NPC (`McreworkSpriteSheet`)** na sua direção exata (`0..7`).
+  * Adicionado seletor de **8 Direções Isométricas (`0: ⬇ Sul` a `7: ↘ Sudeste`)** e botão **`🔄 Girar`** tanto na barra flutuante `#npcQuickBar` quanto na lista de NPCs posicionados na gaveta lateral (`#npcsList`), além de permitir girar um NPC tocando diretamente nele com a ferramenta `🧙 +NPC` ativa.
+* **Arena de Batalha 2.5D Realista com Modelos Cadastrados no Preview de Habilidades e Buffs/Debuffs (`AdminArenaPreview.js`, `AdminSkillsAndBuffsTab.js`, `AdminStatusEffectsTab.js`):**
+  * Novo módulo dedicado `AdminArenaPreview.js` que substitui a silhueta estática por um **Palco de Arena de Batalha 2.5D (`480x210`)** posicionando os modelos 2.5D reais já cadastrados nas tabelas de **Personagens (`class_templates`)** e **Monstros (`monster_templates`)** alinhados em batalha (`1x1 Duelo` ou `1x3 Formação de Batalha`).
+  * Simula em tempo real (e sob demanda via botão **`▶️ Simular Golpe / Testar Efeito Agora`**) a coreografia completa da habilidade: corrida até o alvo (`MELEE_ADVANCE`) ou conjuração no lugar (`STAND_IN_PLACE`), animação de ataque/magia do conjurador, disparo do **Efeito Especial (VFX)** no(s) alvo(s) conforme o alcance (`SELF`, `MELEE_FRONTLINE`, `ALL_ENEMIES`), animação de reação de dano (`Hit`), números flutuantes e **ícone de Buff/Debuff flutuando na cabeça do alvo**.
+
+---
+
 ## [v0.5.3] - 2026-11-07
 ### Adicionado & Aprimorado
 * **Progressão Linear por Capítulos e Episódios (`1-1` ➔ `1-2` ➔ `1-3` ===> `2-1` ➔ `2-2`) (`schema.prisma`, `AdminQuestsController.ts`, `AdminQuestsTab.js`):**

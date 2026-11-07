@@ -2,17 +2,226 @@
  * @file apps/server/public/admin/js/AdminClassesTab.js
  * @module @etheria/server
  * @description Submódulo da Aba Personagens / Classes (`class_templates`) da Rota `/admin`.
- *   Inclui Hero Preview 72px com linha de chão, abas de Visual Padrão, Visual Reencarnado (Reborn),
- *   calibração de distância dos pés ao solo (Ground Offset Y em pixels), descrição em PT-BR com i18n
- *   auto-incremental, galeria com filtro/busca e edição completa de atributos base/crescimento.
+ *   Inclui Palco 2.5D interativo renderizando o Mapa #1 real (`/api/assets/map-image/1`) com o modelo
+ *   animado (`McreworkSpriteSheet`), permitindo calibrar tanto a distância dos pés em relação ao chão
+ *   (`groundOffsetY` / `rebornGroundOffsetY`) quanto a posição horizontal/vertical da sombra
+ *   (`shadowOffsetX`, `shadowOffsetY` / `rebornShadowOffsetX`, `rebornShadowOffsetY`) em tempo real.
  */
 
 class AdminClassesTab {
   static attach(app) {
     app.classModalActiveTab = 'visual';
     app.classRebornSearchQuery = '';
+    app.classPreviewAction = 0; // 0 = Parado, 1 = Andando, 3 = Ataque
+    app.classPreviewDirection = 0; // 0..7
+    app.classPreviewPanX = 0;
+    app.classPreviewPanY = 0;
+    app.classPreviewMapImg = null;
+    app.classPreviewMapSpawn = { x: 1000, y: 750 };
+    app.classPreviewSpriteCache = new Map();
+    app.classPreviewAnimFrameId = null;
 
     AdminClassesTab.injectModalDom();
+
+    app.ensureClassPreviewMapLoaded = function () {
+      const map1 = (this.mapsList || []).find((m) => Number(m.id) === 1) || (this.mapsList || [])[0];
+      if (map1) {
+        this.classPreviewMapSpawn = {
+          x: Number(map1.spawnX) || 1000,
+          y: Number(map1.spawnY) || 750,
+        };
+      }
+      if (!this.classPreviewMapImg) {
+        const img = new Image();
+        img.crossOrigin = 'anonymous';
+        const mapId = map1 ? map1.id : 1;
+        img.src = `/api/assets/map-image/${mapId}`;
+        this.classPreviewMapImg = img;
+      }
+    };
+
+    app.getOrCreateClassPreviewSprite = function (charKey) {
+      if (!charKey || typeof window.McreworkSpriteSheet !== 'function') return null;
+      if (this.classPreviewSpriteCache.has(charKey)) {
+        return this.classPreviewSpriteCache.get(charKey);
+      }
+      const found = (this.mcreworkChars || []).find((c) => c.mcreworkCharKey === charKey);
+      const baseUrl = 'https://seytanir.github.io/mcrework';
+      const jsonUrl = found?.atlasJsonUrl || `${baseUrl}/assets/characters/${charKey}/atlas.json`;
+      const webpUrl = found?.atlasWebpUrl || `${baseUrl}/assets/characters/${charKey}/atlas.webp`;
+      const thumbUrl = found?.thumbUrl || `${baseUrl}/assets/characters/${charKey}/thumb.webp`;
+      const sprite = new window.McreworkSpriteSheet(jsonUrl, webpUrl, thumbUrl);
+      sprite.load();
+      this.classPreviewSpriteCache.set(charKey, sprite);
+      return sprite;
+    };
+
+    app.setClassPreviewAction = function (actionId) {
+      this.classPreviewAction = Number(actionId) || 0;
+      const b0 = document.getElementById('btnClassAct0');
+      const b1 = document.getElementById('btnClassAct1');
+      const b3 = document.getElementById('btnClassAct3');
+      if (b0) b0.className = this.classPreviewAction === 0 ? 'btn-primary' : '';
+      if (b1) b1.className = this.classPreviewAction === 1 ? 'btn-primary' : '';
+      if (b3) b3.className = this.classPreviewAction === 3 ? 'btn-primary' : '';
+    };
+
+    app.rotateClassPreviewDir = function () {
+      this.classPreviewDirection = ((this.classPreviewDirection || 0) + 1) % 8;
+    };
+
+    app.resetClassPreviewPan = function () {
+      this.classPreviewPanX = 0;
+      this.classPreviewPanY = 0;
+    };
+
+    app.startClassMap1PreviewLoop = function () {
+      if (this.classPreviewAnimFrameId) {
+        cancelAnimationFrame(this.classPreviewAnimFrameId);
+      }
+      this.ensureClassPreviewMapLoaded();
+
+      const setupDragOnCanvas = (canvasId) => {
+        const cvs = document.getElementById(canvasId);
+        if (!cvs || cvs._hasDragBound) return;
+        cvs._hasDragBound = true;
+        let dragging = false;
+        let lastX = 0;
+        let lastY = 0;
+        cvs.addEventListener('pointerdown', (e) => {
+          dragging = true;
+          lastX = e.clientX;
+          lastY = e.clientY;
+          cvs.setPointerCapture(e.pointerId);
+        });
+        cvs.addEventListener('pointermove', (e) => {
+          if (!dragging) return;
+          this.classPreviewPanX += e.clientX - lastX;
+          this.classPreviewPanY += e.clientY - lastY;
+          lastX = e.clientX;
+          lastY = e.clientY;
+        });
+        cvs.addEventListener('pointerup', () => {
+          dragging = false;
+        });
+      };
+
+      setupDragOnCanvas('classMap1PreviewCanvas');
+      setupDragOnCanvas('classRebornMap1PreviewCanvas');
+
+      const renderSingleCanvas = (canvasId, charKey, gOffsetY, sOffsetX, sOffsetY, isRebornCanvas) => {
+        const canvas = document.getElementById(canvasId);
+        if (!canvas) return;
+        const ctx = canvas.getContext('2d');
+        const w = canvas.width;
+        const h = canvas.height;
+        ctx.clearRect(0, 0, w, h);
+
+        const footX = Math.round(w / 2);
+        const footY = Math.round(h * 0.76);
+
+        // 1. Desenha o recorte real do Mapa #1 ao redor do ponto de Spawn (permitindo arrastar o piso)
+        const mapImg = this.classPreviewMapImg;
+        if (mapImg && mapImg.complete && mapImg.naturalWidth > 0) {
+          const worldCenterX = this.classPreviewMapSpawn.x - this.classPreviewPanX;
+          const worldCenterY = this.classPreviewMapSpawn.y - this.classPreviewPanY;
+          const sx = Math.max(0, Math.min(mapImg.naturalWidth - w, worldCenterX - footX));
+          const sy = Math.max(0, Math.min(mapImg.naturalHeight - h, worldCenterY - footY));
+          ctx.drawImage(mapImg, sx, sy, w, h, 0, 0, w, h);
+        } else {
+          const grad = ctx.createRadialGradient(footX, footY, 10, footX, footY, 180);
+          grad.addColorStop(0, '#1e293b');
+          grad.addColorStop(1, '#020617');
+          ctx.fillStyle = grad;
+          ctx.fillRect(0, 0, w, h);
+        }
+
+        // 2. Mira de referência exata do piso (Nível 0 dos pés)
+        ctx.save();
+        ctx.strokeStyle = isRebornCanvas ? 'rgba(192, 132, 252, 0.75)' : 'rgba(253, 224, 71, 0.75)';
+        ctx.lineWidth = 1;
+        ctx.setLineDash([4, 3]);
+        ctx.beginPath();
+        ctx.moveTo(footX - 48, footY);
+        ctx.lineTo(footX + 48, footY);
+        ctx.moveTo(footX, footY - 18);
+        ctx.lineTo(footX, footY + 18);
+        ctx.stroke();
+        ctx.restore();
+
+        // 3. Modelo 2.5D animado do personagem + Sombra ajustável
+        if (charKey) {
+          const sprite = this.getOrCreateClassPreviewSprite(charKey);
+          if (sprite) {
+            sprite.draw(
+              ctx,
+              footX,
+              footY,
+              this.classPreviewAction || 0,
+              this.classPreviewDirection || 0,
+              performance.now(),
+              null,
+              gOffsetY,
+              0.70,
+              false,
+              sOffsetX,
+              sOffsetY
+            );
+          }
+        } else {
+          ctx.fillStyle = 'rgba(15, 23, 42, 0.75)';
+          ctx.fillRect(footX - 95, footY - 50, 190, 28);
+          ctx.fillStyle = '#e2e8f0';
+          ctx.font = 'bold 11px sans-serif';
+          ctx.textAlign = 'center';
+          ctx.fillText('Selecione um modelo abaixo', footX, footY - 32);
+        }
+
+        // 4. Legenda superior do Mapa #1
+        const map1 = (this.mapsList || []).find((m) => Number(m.id) === 1) || (this.mapsList || [])[0];
+        const mapLabel = map1 ? `🗺️ Mapa #${map1.id}: ${map1.namePtBr}` : '🗺️ Mapa #1 (Preview Real)';
+        ctx.fillStyle = 'rgba(2, 6, 23, 0.78)';
+        ctx.fillRect(6, 6, 210, 20);
+        ctx.fillStyle = '#86efac';
+        ctx.font = 'bold 10px sans-serif';
+        ctx.textAlign = 'left';
+        ctx.fillText(`${mapLabel} (Arraste o chão)`, 11, 19);
+
+        const dirLabels = ['⬇ Sul', '↙ SO', '⬅ Oeste', '↖ NO', '⬆ Norte', '↗ NE', '➡ Leste', '↘ SE'];
+        const dirText = dirLabels[this.classPreviewDirection || 0] || '⬇ Sul';
+        ctx.fillStyle = 'rgba(2, 6, 23, 0.78)';
+        ctx.fillRect(w - 68, 6, 62, 20);
+        ctx.fillStyle = '#fde047';
+        ctx.textAlign = 'center';
+        ctx.fillText(dirText, w - 37, 19);
+      };
+
+      const step = () => {
+        const modal = document.getElementById('classModal');
+        if (!modal || modal.style.display === 'none') {
+          this.classPreviewAnimFrameId = null;
+          return;
+        }
+
+        const gOff = Number(document.getElementById('classGroundOffsetYInput')?.value) || 0;
+        const sOffX = Number(document.getElementById('classShadowOffsetXInput')?.value) || 0;
+        const sOffY = Number(document.getElementById('classShadowOffsetYInput')?.value) || 0;
+
+        const rgOff = Number(document.getElementById('classRebornGroundOffsetYInput')?.value) || 0;
+        const rsOffX = Number(document.getElementById('classRebornShadowOffsetXInput')?.value) || 0;
+        const rsOffY = Number(document.getElementById('classRebornShadowOffsetYInput')?.value) || 0;
+
+        if (this.classModalActiveTab === 'visual') {
+          renderSingleCanvas('classMap1PreviewCanvas', this.selectedMcreworkCharKey, gOff, sOffX, sOffY, false);
+        } else if (this.classModalActiveTab === 'reborn') {
+          renderSingleCanvas('classRebornMap1PreviewCanvas', this.selectedMcreworkRebornCharKey, rgOff, rsOffX, rsOffY, true);
+        }
+
+        this.classPreviewAnimFrameId = requestAnimationFrame(step);
+      };
+
+      this.classPreviewAnimFrameId = requestAnimationFrame(step);
+    };
 
     app.switchClassModalTab = function (tab) {
       this.classModalActiveTab = tab;
@@ -73,7 +282,7 @@ class AdminClassesTab {
       const input = document.getElementById('classGroundOffsetYInput');
       if (!input) return;
       let val = (Number(input.value) || 0) + delta;
-      val = Math.max(-60, Math.min(60, val));
+      val = Math.max(-80, Math.min(80, val));
       input.value = String(val);
       this.updateGroundOffsetPreview();
     };
@@ -84,11 +293,29 @@ class AdminClassesTab {
       this.updateGroundOffsetPreview();
     };
 
+    app.adjustShadowOffset = function (axis, delta) {
+      const id = axis === 'X' ? 'classShadowOffsetXInput' : 'classShadowOffsetYInput';
+      const input = document.getElementById(id);
+      if (!input) return;
+      let val = (Number(input.value) || 0) + delta;
+      val = Math.max(-80, Math.min(80, val));
+      input.value = String(val);
+      this.updateGroundOffsetPreview();
+    };
+
+    app.resetShadowOffset = function () {
+      const xIn = document.getElementById('classShadowOffsetXInput');
+      const yIn = document.getElementById('classShadowOffsetYInput');
+      if (xIn) xIn.value = '0';
+      if (yIn) yIn.value = '0';
+      this.updateGroundOffsetPreview();
+    };
+
     app.adjustRebornGroundOffset = function (delta) {
       const input = document.getElementById('classRebornGroundOffsetYInput');
       if (!input) return;
       let val = (Number(input.value) || 0) + delta;
-      val = Math.max(-60, Math.min(60, val));
+      val = Math.max(-80, Math.min(80, val));
       input.value = String(val);
       this.updateGroundOffsetPreview();
     };
@@ -99,44 +326,64 @@ class AdminClassesTab {
       this.updateGroundOffsetPreview();
     };
 
+    app.adjustRebornShadowOffset = function (axis, delta) {
+      const id = axis === 'X' ? 'classRebornShadowOffsetXInput' : 'classRebornShadowOffsetYInput';
+      const input = document.getElementById(id);
+      if (!input) return;
+      let val = (Number(input.value) || 0) + delta;
+      val = Math.max(-80, Math.min(80, val));
+      input.value = String(val);
+      this.updateGroundOffsetPreview();
+    };
+
+    app.resetRebornShadowOffset = function () {
+      const xIn = document.getElementById('classRebornShadowOffsetXInput');
+      const yIn = document.getElementById('classRebornShadowOffsetYInput');
+      if (xIn) xIn.value = '0';
+      if (yIn) yIn.value = '0';
+      this.updateGroundOffsetPreview();
+    };
+
     app.updateGroundOffsetPreview = function () {
-      const heroImg = document.getElementById('classHeroImg');
       const offsetInput = document.getElementById('classGroundOffsetYInput');
+      const sXInput = document.getElementById('classShadowOffsetXInput');
+      const sYInput = document.getElementById('classShadowOffsetYInput');
       const statusBadge = document.getElementById('classGroundStatusBadge');
-      if (heroImg && offsetInput) {
+      if (offsetInput && statusBadge) {
         const offsetY = Number(offsetInput.value) || 0;
-        heroImg.style.transform = `translateY(${offsetY}px)`;
-        if (statusBadge) {
-          if (offsetY === 0) {
-            statusBadge.textContent = '🟢 Pés no solo (0px)';
-            statusBadge.style.color = '#86efac';
-          } else if (offsetY > 0) {
-            statusBadge.textContent = `🔵 Afundado +${offsetY}px no chão`;
-            statusBadge.style.color = '#38bdf8';
-          } else {
-            statusBadge.textContent = `🟡 Flutuando ${Math.abs(offsetY)}px acima do solo`;
-            statusBadge.style.color = '#fde047';
-          }
+        const sx = Number(sXInput?.value) || 0;
+        const sy = Number(sYInput?.value) || 0;
+        const shadowText = sx !== 0 || sy !== 0 ? ` | 🌑 Sombra (${sx > 0 ? '+' : ''}${sx}, ${sy > 0 ? '+' : ''}${sy})` : '';
+        if (offsetY === 0) {
+          statusBadge.textContent = `🟢 Pés no solo (0px)${shadowText}`;
+          statusBadge.style.color = '#86efac';
+        } else if (offsetY > 0) {
+          statusBadge.textContent = `🔵 Abaixo +${offsetY}px no chão${shadowText}`;
+          statusBadge.style.color = '#38bdf8';
+        } else {
+          statusBadge.textContent = `🟡 Elevado ${Math.abs(offsetY)}px acima do solo${shadowText}`;
+          statusBadge.style.color = '#fde047';
         }
       }
 
-      const rebornHeroImg = document.getElementById('classRebornHeroImg');
       const rebornOffsetInput = document.getElementById('classRebornGroundOffsetYInput');
+      const rsXInput = document.getElementById('classRebornShadowOffsetXInput');
+      const rsYInput = document.getElementById('classRebornShadowOffsetYInput');
       const rebornStatusBadge = document.getElementById('classRebornGroundStatusBadge');
-      if (rebornHeroImg && rebornOffsetInput) {
+      if (rebornOffsetInput && rebornStatusBadge) {
         const rOffsetY = Number(rebornOffsetInput.value) || 0;
-        rebornHeroImg.style.transform = `translateY(${rOffsetY}px)`;
-        if (rebornStatusBadge) {
-          if (rOffsetY === 0) {
-            rebornStatusBadge.textContent = '🟢 Pés no solo (0px)';
-            rebornStatusBadge.style.color = '#86efac';
-          } else if (rOffsetY > 0) {
-            rebornStatusBadge.textContent = `🔵 Afundado +${rOffsetY}px no chão`;
-            rebornStatusBadge.style.color = '#38bdf8';
-          } else {
-            rebornStatusBadge.textContent = `✨ Flutuando ${Math.abs(rOffsetY)}px acima do solo`;
-            rebornStatusBadge.style.color = '#c084fc';
-          }
+        const rsx = Number(rsXInput?.value) || 0;
+        const rsy = Number(rsYInput?.value) || 0;
+        const rShadowText = rsx !== 0 || rsy !== 0 ? ` | 🌑 Sombra (${rsx > 0 ? '+' : ''}${rsx}, ${rsy > 0 ? '+' : ''}${rsy})` : '';
+        if (rOffsetY === 0) {
+          rebornStatusBadge.textContent = `🟢 Pés no solo (0px)${rShadowText}`;
+          rebornStatusBadge.style.color = '#86efac';
+        } else if (rOffsetY > 0) {
+          rebornStatusBadge.textContent = `🔵 Abaixo +${rOffsetY}px no chão${rShadowText}`;
+          rebornStatusBadge.style.color = '#38bdf8';
+        } else {
+          rebornStatusBadge.textContent = `✨ Elevado ${Math.abs(rOffsetY)}px acima do solo${rShadowText}`;
+          rebornStatusBadge.style.color = '#c084fc';
         }
       }
     };
@@ -212,16 +459,14 @@ class AdminClassesTab {
 
     app.updateClassHeroCard = function (charKey) {
       const found = this.mcreworkChars.find((c) => c.mcreworkCharKey === charKey);
-      const heroImg = document.getElementById('classHeroImg');
       const heroLabel = document.getElementById('classHeroLabel');
       const heroBadge = document.getElementById('classHeroBadge');
 
       if (found) {
-        if (heroImg) heroImg.src = found.thumbUrl;
         if (heroLabel) heroLabel.textContent = `${found.suggestedName} (${found.mcreworkCharKey})`;
         if (heroBadge) heroBadge.textContent = `${found.gender === 'FEMALE' ? '👩 Feminino' : '👨 Masculino'} • Tier ${found.tier}`;
+        this.getOrCreateClassPreviewSprite(charKey);
       } else {
-        if (heroImg) heroImg.src = '';
         if (heroLabel) heroLabel.textContent = 'Selecione um Modelo na Galeria';
         if (heroBadge) heroBadge.textContent = '';
       }
@@ -230,22 +475,14 @@ class AdminClassesTab {
 
     app.updateClassRebornHeroCard = function (charKey) {
       const found = this.mcreworkChars.find((c) => c.mcreworkCharKey === charKey);
-      const heroImg = document.getElementById('classRebornHeroImg');
       const heroLabel = document.getElementById('classRebornHeroLabel');
       const heroBadge = document.getElementById('classRebornHeroBadge');
 
       if (found) {
-        if (heroImg) {
-          heroImg.src = found.thumbUrl;
-          heroImg.style.display = 'block';
-        }
         if (heroLabel) heroLabel.textContent = `${found.suggestedName} (${found.mcreworkCharKey})`;
         if (heroBadge) heroBadge.textContent = `Visual Reencarnado Ativo • ${found.gender === 'FEMALE' ? 'Feminino' : 'Masculino'} (Tier ${found.tier})`;
+        this.getOrCreateClassPreviewSprite(charKey);
       } else {
-        if (heroImg) {
-          heroImg.src = '';
-          heroImg.style.display = 'none';
-        }
         if (heroLabel) heroLabel.textContent = 'Sem Visual Reencarnado';
         if (heroBadge) heroBadge.textContent = 'Toque em um modelo abaixo para vincular o visual Reborn';
       }
@@ -258,6 +495,12 @@ class AdminClassesTab {
       this.classGenderFilter = 'ALL';
       this.classSearchQuery = '';
       this.classRebornSearchQuery = '';
+      this.classPreviewAction = 0;
+      this.classPreviewDirection = 0;
+      this.classPreviewPanX = 0;
+      this.classPreviewPanY = 0;
+      this.setClassPreviewAction(0);
+
       const searchInput = document.getElementById('classSearchInput');
       if (searchInput) searchInput.value = '';
       const rebornSearchInput = document.getElementById('classRebornSearchInput');
@@ -279,7 +522,12 @@ class AdminClassesTab {
         document.getElementById('classDescI18nDisplay').textContent = `Chave i18n: class.${existingClass.code}.description`;
 
         document.getElementById('classGroundOffsetYInput').value = String(existingClass.groundOffsetY || 0);
+        document.getElementById('classShadowOffsetXInput').value = String(existingClass.shadowOffsetX || 0);
+        document.getElementById('classShadowOffsetYInput').value = String(existingClass.shadowOffsetY || 0);
+
         document.getElementById('classRebornGroundOffsetYInput').value = String(existingClass.rebornGroundOffsetY || 0);
+        document.getElementById('classRebornShadowOffsetXInput').value = String(existingClass.rebornShadowOffsetX || 0);
+        document.getElementById('classRebornShadowOffsetYInput').value = String(existingClass.rebornShadowOffsetY || 0);
 
         this.selectedMcreworkCharKey = existingClass.mcreworkCharKey || '';
         this.selectedMcreworkRebornCharKey = existingClass.rebornMcreworkCharKey || '';
@@ -313,7 +561,12 @@ class AdminClassesTab {
         document.getElementById('classDescI18nDisplay').textContent = `Chave i18n: class.class_${nextClassId}.description (Auto-gerada)`;
 
         document.getElementById('classGroundOffsetYInput').value = '0';
+        document.getElementById('classShadowOffsetXInput').value = '0';
+        document.getElementById('classShadowOffsetYInput').value = '0';
+
         document.getElementById('classRebornGroundOffsetYInput').value = '0';
+        document.getElementById('classRebornShadowOffsetXInput').value = '0';
+        document.getElementById('classRebornShadowOffsetYInput').value = '0';
 
         this.selectedMcreworkCharKey = '';
         this.selectedMcreworkRebornCharKey = '';
@@ -368,6 +621,7 @@ class AdminClassesTab {
       this.renderClassGallery();
       this.renderClassRebornGallery();
       this.updateGroundOffsetPreview();
+      this.startClassMap1PreviewLoop();
     };
 
     app.pickMcreworkChar = function (charKey) {
@@ -409,8 +663,14 @@ class AdminClassesTab {
         const mcreworkCharKey = document.getElementById('classAssetKeyInput').value.trim();
         const rebornMcreworkCharKey = document.getElementById('classRebornAssetKeyInput').value.trim() || null;
         const descriptionPtBr = document.getElementById('classDescriptionInput').value.trim();
+
         const groundOffsetY = Number(document.getElementById('classGroundOffsetYInput').value) || 0;
+        const shadowOffsetX = Number(document.getElementById('classShadowOffsetXInput').value) || 0;
+        const shadowOffsetY = Number(document.getElementById('classShadowOffsetYInput').value) || 0;
+
         const rebornGroundOffsetY = Number(document.getElementById('classRebornGroundOffsetYInput').value) || 0;
+        const rebornShadowOffsetX = Number(document.getElementById('classRebornShadowOffsetXInput').value) || 0;
+        const rebornShadowOffsetY = Number(document.getElementById('classRebornShadowOffsetYInput').value) || 0;
 
         if (!mcreworkCharKey) {
           alert('Toque em um modelo de Personagem da galeria abaixo para selecioná-lo.');
@@ -429,7 +689,11 @@ class AdminClassesTab {
           rebornMcreworkCharKey,
           descriptionPtBr,
           groundOffsetY,
+          shadowOffsetX,
+          shadowOffsetY,
           rebornGroundOffsetY,
+          rebornShadowOffsetX,
+          rebornShadowOffsetY,
           skillIdsJson,
           baseAttributesJson: {
             VIT: Number(document.getElementById('classBaseVIT').value) || 10,
@@ -480,7 +744,11 @@ class AdminClassesTab {
           const g = ct.growthPerLevelJson || {};
           const baseStr = `VIT:${b.VIT ?? 10} | STR:${b.STR ?? 10} | INT:${b.INT ?? 10} | WIS:${b.WIS ?? 10} | AGI:${b.AGI ?? 10} | DEX:${b.DEX ?? 10}`;
           const growStr = `+${g.VIT ?? 2} / +${g.STR ?? 2} / +${g.INT ?? 2} / +${g.WIS ?? 2} / +${g.AGI ?? 2} / +${g.DEX ?? 2}`;
-          const gOffYStr = ct.groundOffsetY !== 0 ? ` [↧ ${ct.groundOffsetY > 0 ? '+' : ''}${ct.groundOffsetY}px]` : '';
+          const gOffYStr = ct.groundOffsetY ? ` [↧ ${ct.groundOffsetY > 0 ? '+' : ''}${ct.groundOffsetY}px]` : '';
+          const sOffStr =
+            ct.shadowOffsetX || ct.shadowOffsetY
+              ? ` [🌑 ${ct.shadowOffsetX || 0},${ct.shadowOffsetY || 0}]`
+              : '';
 
           const rebornHtml = ct.rebornThumbUrl
             ? `<div style="display:flex; align-items:center; gap:6px; margin-top:4px;">
@@ -510,7 +778,7 @@ class AdminClassesTab {
             <div style="display:flex; flex-direction:column;">
               <div style="display:flex; align-items:center; gap:8px;">
                 <img src="${ct.thumbUrl}" alt="${ct.mcreworkCharKey}" style="width:48px; height:48px; object-fit:contain; background:#020617; border-radius:6px; border:1px solid var(--border);" />
-                <span style="font-size:0.75rem; color:var(--text-muted);">${ct.mcreworkCharKey}<span style="color:#fde047; font-weight:600;">${gOffYStr}</span></span>
+                <span style="font-size:0.75rem; color:var(--text-muted);">${ct.mcreworkCharKey}<span style="color:#fde047; font-weight:600;">${gOffYStr}${sOffStr}</span></span>
               </div>
               ${rebornHtml}
             </div>
@@ -554,7 +822,7 @@ class AdminClassesTab {
     modalDiv.className = 'modal-backdrop';
     modalDiv.style.display = 'none';
     modalDiv.innerHTML = `
-    <div class="modal-box" style="max-height:94dvh; display:flex; flex-direction:column; overflow-y:auto; -webkit-overflow-scrolling:touch; gap:8px;">
+    <div class="modal-box" style="max-width:860px; max-height:94dvh; display:flex; flex-direction:column; overflow-y:auto; -webkit-overflow-scrolling:touch; gap:8px;">
       <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border); padding-bottom:6px;">
         <h3 id="classModalTitle" style="font-size:0.95rem;">🦸 Cadastrar / Editar Personagem</h3>
         <button class="btn-danger" onclick="AdminApp.closeModal('classModal')">✕ Fechar</button>
@@ -588,33 +856,67 @@ class AdminClassesTab {
         </button>
       </div>
 
-      <!-- ABA 1: VISUAL PADRÃO -->
+      <!-- ABA 1: VISUAL PADRÃO COM PALCO DO MAPA #1 REAL E CALIBRAÇÃO DE SOMBRA -->
       <div id="classTabVisual" style="display:flex; flex-direction:column; gap:8px;">
-        <div id="classHeroCard" style="display:flex; align-items:center; gap:10px; background:rgba(30,41,59,0.7); border:1.5px solid var(--accent); border-radius:10px; padding:8px 10px;">
-          <div style="position:relative; width:100px; height:116px; background:radial-gradient(ellipse at center bottom, #1e293b 0%, #020617 75%); border:1px solid var(--border); border-radius:8px; overflow:hidden; display:flex; flex-direction:column; align-items:center; justify-content:flex-end; padding-bottom:12px; box-shadow:inset 0 0 15px rgba(0,0,0,0.7); flex-shrink:0;">
-            <div style="position:absolute; bottom:0; left:0; right:0; height:16px; background:linear-gradient(to bottom, #15803d, #14532d); border-top:2px solid #86efac;"></div>
-            <div style="position:absolute; bottom:15px; left:0; right:0; height:1px; background:rgba(253,224,71,0.6);" title="Nível 0 do Solo"></div>
-            <div style="position:absolute; bottom:10px; width:44px; height:13px; background:rgba(0,0,0,0.55); border-radius:50%;"></div>
-            <img id="classHeroImg" src="" alt="Preview" style="position:relative; z-index:2; max-height:84px; max-width:76px; object-fit:contain; transition:transform 0.08s ease-out;" />
-            <span style="position:absolute; top:3px; right:4px; font-size:0.6rem; color:#86efac; background:rgba(0,0,0,0.7); padding:1px 4px; border-radius:3px;">Chão 2.5D</span>
+        <div id="classHeroCard" style="display:flex; flex-wrap:wrap; align-items:stretch; gap:10px; background:rgba(15,23,42,0.85); border:1.5px solid var(--accent); border-radius:10px; padding:8px 10px;">
+          <div style="display:flex; flex-direction:column; gap:4px; align-items:center;">
+            <canvas id="classMap1PreviewCanvas" width="320" height="170" style="width:320px; height:170px; max-width:100%; border-radius:8px; border:1px solid #38bdf8; cursor:grab; background:#020617;"></canvas>
+            <div style="display:flex; gap:4px; flex-wrap:wrap; justify-content:center;">
+              <button type="button" id="btnClassAct0" class="btn-primary" onclick="AdminApp.setClassPreviewAction(0)" style="padding:2px 7px; font-size:0.7rem;">🧍 Parado</button>
+              <button type="button" id="btnClassAct1" onclick="AdminApp.setClassPreviewAction(1)" style="padding:2px 7px; font-size:0.7rem;">🏃 Andar</button>
+              <button type="button" id="btnClassAct3" onclick="AdminApp.setClassPreviewAction(3)" style="padding:2px 7px; font-size:0.7rem;">🗡️ Golpe</button>
+              <button type="button" onclick="AdminApp.rotateClassPreviewDir()" style="padding:2px 7px; font-size:0.7rem;">🔄 Girar</button>
+              <button type="button" onclick="AdminApp.resetClassPreviewPan()" title="Centralizar no Spawn do Mapa #1" style="padding:2px 6px; font-size:0.7rem;">🎯 Spawn</button>
+            </div>
           </div>
-          <div style="flex:1; display:flex; flex-direction:column; gap:4px; min-width:0;">
+
+          <div style="flex:1; min-width:230px; display:flex; flex-direction:column; justify-content:space-between; gap:5px;">
             <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
-              <strong id="classHeroLabel" style="font-size:0.88rem; color:#fde047; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">Selecione um Modelo</strong>
+              <strong id="classHeroLabel" style="font-size:0.88rem; color:#fde047;">Selecione um Modelo</strong>
               <span id="classHeroBadge" style="font-size:0.7rem; padding:1px 6px; border-radius:99px; background:rgba(56,189,248,0.2); color:var(--accent); font-weight:700;"></span>
             </div>
-            <span style="font-size:0.7rem; color:var(--text-muted);">Calibrar pés no chão (sombra fixa):</span>
-            <div style="display:flex; align-items:center; gap:3px; flex-wrap:wrap;">
-              <button type="button" onclick="AdminApp.adjustGroundOffset(-5)" style="padding:3px 6px; font-size:0.72rem;">-5</button>
-              <button type="button" onclick="AdminApp.adjustGroundOffset(-1)" style="padding:3px 6px; font-size:0.72rem;">-1</button>
-              <input type="number" id="classGroundOffsetYInput" value="0" min="-60" max="60" oninput="AdminApp.updateGroundOffsetPreview()" style="width:48px; text-align:center; padding:3px; font-size:0.8rem;" />
-              <button type="button" onclick="AdminApp.adjustGroundOffset(1)" style="padding:3px 6px; font-size:0.72rem;">+1</button>
-              <button type="button" onclick="AdminApp.adjustGroundOffset(5)" style="padding:3px 6px; font-size:0.72rem;">+5</button>
-              <button type="button" onclick="AdminApp.resetGroundOffset()" title="Zerar" style="padding:3px 5px; font-size:0.72rem;">↩0</button>
+
+            <!-- Calibragem de Distância do Modelo em relação ao Chão -->
+            <div style="background:rgba(2,6,23,0.65); border:1px solid var(--border); border-radius:6px; padding:5px 7px;">
+              <span style="font-size:0.7rem; color:#fde047; font-weight:700; display:block; margin-bottom:3px;">📏 Posição do Modelo ao Chão (Ground Offset Y):</span>
+              <div style="display:flex; align-items:center; gap:3px; flex-wrap:wrap;">
+                <button type="button" onclick="AdminApp.adjustGroundOffset(-5)" style="padding:2px 6px; font-size:0.72rem;">⬆ -5</button>
+                <button type="button" onclick="AdminApp.adjustGroundOffset(-1)" style="padding:2px 6px; font-size:0.72rem;">⬆ -1</button>
+                <input type="number" id="classGroundOffsetYInput" value="0" min="-80" max="80" oninput="AdminApp.updateGroundOffsetPreview()" style="width:52px; text-align:center; padding:2px; font-size:0.78rem;" />
+                <button type="button" onclick="AdminApp.adjustGroundOffset(1)" style="padding:2px 6px; font-size:0.72rem;">+1 ⬇</button>
+                <button type="button" onclick="AdminApp.adjustGroundOffset(5)" style="padding:2px 6px; font-size:0.72rem;">+5 ⬇</button>
+                <button type="button" onclick="AdminApp.resetGroundOffset()" title="Zerar" style="padding:2px 5px; font-size:0.7rem;">↩0</button>
+              </div>
             </div>
-            <span id="classGroundStatusBadge" style="font-size:0.7rem; color:#86efac; font-weight:600;">Pés no solo (0px)</span>
+
+            <!-- Calibragem de Posição da Sombra (X e Y) -->
+            <div style="background:rgba(2,6,23,0.65); border:1px solid var(--border); border-radius:6px; padding:5px 7px; display:flex; flex-direction:column; gap:4px;">
+              <div style="display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:0.7rem; color:#38bdf8; font-weight:700;">🌑 Alinhamento da Sombra (X / Y):</span>
+                <button type="button" onclick="AdminApp.resetShadowOffset()" style="padding:1px 6px; font-size:0.66rem;">↩ Zerar Sombra</button>
+              </div>
+              <div style="display:flex; align-items:center; gap:3px; flex-wrap:wrap;">
+                <span style="font-size:0.68rem; color:var(--text-muted); width:40px;">Eixo X:</span>
+                <button type="button" onclick="AdminApp.adjustShadowOffset('X', -5)" style="padding:2px 5px; font-size:0.7rem;">⬅-5</button>
+                <button type="button" onclick="AdminApp.adjustShadowOffset('X', -1)" style="padding:2px 5px; font-size:0.7rem;">⬅-1</button>
+                <input type="number" id="classShadowOffsetXInput" value="0" min="-80" max="80" oninput="AdminApp.updateGroundOffsetPreview()" style="width:46px; text-align:center; padding:2px; font-size:0.75rem;" />
+                <button type="button" onclick="AdminApp.adjustShadowOffset('X', 1)" style="padding:2px 5px; font-size:0.7rem;">+1➡</button>
+                <button type="button" onclick="AdminApp.adjustShadowOffset('X', 5)" style="padding:2px 5px; font-size:0.7rem;">+5➡</button>
+              </div>
+              <div style="display:flex; align-items:center; gap:3px; flex-wrap:wrap;">
+                <span style="font-size:0.68rem; color:var(--text-muted); width:40px;">Eixo Y:</span>
+                <button type="button" onclick="AdminApp.adjustShadowOffset('Y', -5)" style="padding:2px 5px; font-size:0.7rem;">⬆-5</button>
+                <button type="button" onclick="AdminApp.adjustShadowOffset('Y', -1)" style="padding:2px 5px; font-size:0.7rem;">⬆-1</button>
+                <input type="number" id="classShadowOffsetYInput" value="0" min="-80" max="80" oninput="AdminApp.updateGroundOffsetPreview()" style="width:46px; text-align:center; padding:2px; font-size:0.75rem;" />
+                <button type="button" onclick="AdminApp.adjustShadowOffset('Y', 1)" style="padding:2px 5px; font-size:0.7rem;">+1⬇</button>
+                <button type="button" onclick="AdminApp.adjustShadowOffset('Y', 5)" style="padding:2px 5px; font-size:0.7rem;">+5⬇</button>
+              </div>
+            </div>
+
+            <span id="classGroundStatusBadge" style="font-size:0.7rem; color:#86efac; font-weight:600;">🟢 Pés no solo (0px)</span>
           </div>
         </div>
+
         <div style="display:flex; gap:6px; flex-wrap:wrap; align-items:center;">
           <input type="text" id="classSearchInput" placeholder="🔍 Buscar modelo padrão..." oninput="AdminApp.filterClassGallery()" style="flex:1; min-width:140px; padding:6px 8px; font-size:0.8rem;" />
           <div style="display:flex; gap:3px;">
@@ -623,41 +925,74 @@ class AdminClassesTab {
             <button id="btnClassFilterFemale" onclick="AdminApp.setClassGenderFilter('FEMALE')" style="padding:4px 6px; font-size:0.74rem;">👩 Fem</button>
           </div>
         </div>
-        <div id="mcreworkCharsGrid" class="gallery-grid" style="max-height:48vh; min-height:220px;"></div>
+        <div id="mcreworkCharsGrid" class="gallery-grid" style="max-height:42vh; min-height:200px;"></div>
       </div>
 
-      <!-- ABA 2: VISUAL REENCARNADO -->
+      <!-- ABA 2: VISUAL REENCARNADO COM PALCO DO MAPA #1 REAL E CALIBRAÇÃO DE SOMBRA -->
       <div id="classTabReborn" style="display:none; flex-direction:column; gap:8px;">
-        <div style="display:flex; align-items:center; gap:10px; background:rgba(30,41,59,0.7); border:1.5px solid #c084fc; border-radius:10px; padding:8px 10px;">
-          <div style="position:relative; width:100px; height:116px; background:radial-gradient(ellipse at center bottom, #3b0764 0%, #020617 75%); border:1px solid #c084fc; border-radius:8px; overflow:hidden; display:flex; flex-direction:column; align-items:center; justify-content:flex-end; padding-bottom:12px; box-shadow:inset 0 0 15px rgba(0,0,0,0.7); flex-shrink:0;">
-            <div style="position:absolute; bottom:0; left:0; right:0; height:16px; background:linear-gradient(to bottom, #15803d, #14532d); border-top:2px solid #c084fc;"></div>
-            <div style="position:absolute; bottom:15px; left:0; right:0; height:1px; background:rgba(192,132,252,0.6);" title="Nível 0 do Solo"></div>
-            <div style="position:absolute; bottom:10px; width:44px; height:13px; background:rgba(0,0,0,0.55); border-radius:50%;"></div>
-            <img id="classRebornHeroImg" src="" alt="Reborn Preview" style="position:relative; z-index:2; max-height:84px; max-width:76px; object-fit:contain; transition:transform 0.08s ease-out; display:none;" />
-            <span style="position:absolute; top:3px; right:4px; font-size:0.6rem; color:#e9d5ff; background:rgba(0,0,0,0.7); padding:1px 4px; border-radius:3px;">Reborn</span>
+        <div style="display:flex; flex-wrap:wrap; align-items:stretch; gap:10px; background:rgba(15,23,42,0.85); border:1.5px solid #c084fc; border-radius:10px; padding:8px 10px;">
+          <div style="display:flex; flex-direction:column; gap:4px; align-items:center;">
+            <canvas id="classRebornMap1PreviewCanvas" width="320" height="170" style="width:320px; height:170px; max-width:100%; border-radius:8px; border:1px solid #c084fc; cursor:grab; background:#020617;"></canvas>
+            <div style="display:flex; gap:4px; flex-wrap:wrap; justify-content:center;">
+              <button type="button" onclick="AdminApp.setClassPreviewAction(0)" style="padding:2px 7px; font-size:0.7rem;">🧍 Parado</button>
+              <button type="button" onclick="AdminApp.setClassPreviewAction(1)" style="padding:2px 7px; font-size:0.7rem;">🏃 Andar</button>
+              <button type="button" onclick="AdminApp.setClassPreviewAction(3)" style="padding:2px 7px; font-size:0.7rem;">🗡️ Golpe</button>
+              <button type="button" onclick="AdminApp.rotateClassPreviewDir()" style="padding:2px 7px; font-size:0.7rem;">🔄 Girar</button>
+              <button type="button" onclick="AdminApp.resetClassPreviewPan()" style="padding:2px 6px; font-size:0.7rem;">🎯 Spawn</button>
+            </div>
           </div>
-          <div style="flex:1; display:flex; flex-direction:column; gap:4px; min-width:0;">
+
+          <div style="flex:1; min-width:230px; display:flex; flex-direction:column; justify-content:space-between; gap:5px;">
             <div style="display:flex; align-items:center; justify-content:space-between; gap:4px;">
-              <strong id="classRebornHeroLabel" style="font-size:0.86rem; color:#e9d5ff; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">Sem Visual Reborn</strong>
+              <strong id="classRebornHeroLabel" style="font-size:0.86rem; color:#e9d5ff;">Sem Visual Reborn</strong>
               <button type="button" class="btn-danger" onclick="AdminApp.clearRebornVisual()" style="padding:2px 6px; font-size:0.7rem;">✕ Limpar</button>
             </div>
             <div id="classRebornHeroBadge" style="font-size:0.68rem; color:var(--text-muted);">Toque em um modelo abaixo para vincular</div>
-            <span style="font-size:0.7rem; color:var(--text-muted);">Calibrar pés Reborn no chão:</span>
-            <div style="display:flex; align-items:center; gap:3px; flex-wrap:wrap;">
-              <button type="button" onclick="AdminApp.adjustRebornGroundOffset(-5)" style="padding:3px 6px; font-size:0.72rem;">-5</button>
-              <button type="button" onclick="AdminApp.adjustRebornGroundOffset(-1)" style="padding:3px 6px; font-size:0.72rem;">-1</button>
-              <input type="number" id="classRebornGroundOffsetYInput" value="0" min="-60" max="60" oninput="AdminApp.updateGroundOffsetPreview()" style="width:48px; text-align:center; padding:3px; font-size:0.8rem;" />
-              <button type="button" onclick="AdminApp.adjustRebornGroundOffset(1)" style="padding:3px 6px; font-size:0.72rem;">+1</button>
-              <button type="button" onclick="AdminApp.adjustRebornGroundOffset(5)" style="padding:3px 6px; font-size:0.72rem;">+5</button>
-              <button type="button" onclick="AdminApp.resetRebornGroundOffset()" title="Zerar" style="padding:3px 5px; font-size:0.72rem;">↩0</button>
+
+            <!-- Calibragem de Distância Reborn ao Chão -->
+            <div style="background:rgba(2,6,23,0.65); border:1px solid var(--border); border-radius:6px; padding:5px 7px;">
+              <span style="font-size:0.7rem; color:#e9d5ff; font-weight:700; display:block; margin-bottom:3px;">📏 Posição Reborn ao Chão (Offset Y):</span>
+              <div style="display:flex; align-items:center; gap:3px; flex-wrap:wrap;">
+                <button type="button" onclick="AdminApp.adjustRebornGroundOffset(-5)" style="padding:2px 6px; font-size:0.72rem;">⬆ -5</button>
+                <button type="button" onclick="AdminApp.adjustRebornGroundOffset(-1)" style="padding:2px 6px; font-size:0.72rem;">⬆ -1</button>
+                <input type="number" id="classRebornGroundOffsetYInput" value="0" min="-80" max="80" oninput="AdminApp.updateGroundOffsetPreview()" style="width:52px; text-align:center; padding:2px; font-size:0.78rem;" />
+                <button type="button" onclick="AdminApp.adjustRebornGroundOffset(1)" style="padding:2px 6px; font-size:0.72rem;">+1 ⬇</button>
+                <button type="button" onclick="AdminApp.adjustRebornGroundOffset(5)" style="padding:2px 6px; font-size:0.72rem;">+5 ⬇</button>
+                <button type="button" onclick="AdminApp.resetRebornGroundOffset()" title="Zerar" style="padding:2px 5px; font-size:0.7rem;">↩0</button>
+              </div>
             </div>
-            <span id="classRebornGroundStatusBadge" style="font-size:0.7rem; color:#c084fc; font-weight:600;">Pés no solo (0px)</span>
+
+            <!-- Calibragem de Sombra Reborn (X e Y) -->
+            <div style="background:rgba(2,6,23,0.65); border:1px solid var(--border); border-radius:6px; padding:5px 7px; display:flex; flex-direction:column; gap:4px;">
+              <div style="display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:0.7rem; color:#c084fc; font-weight:700;">🌑 Sombra Reborn (X / Y):</span>
+                <button type="button" onclick="AdminApp.resetRebornShadowOffset()" style="padding:1px 6px; font-size:0.66rem;">↩ Zerar Sombra</button>
+              </div>
+              <div style="display:flex; align-items:center; gap:3px; flex-wrap:wrap;">
+                <span style="font-size:0.68rem; color:var(--text-muted); width:40px;">Eixo X:</span>
+                <button type="button" onclick="AdminApp.adjustRebornShadowOffset('X', -5)" style="padding:2px 5px; font-size:0.7rem;">⬅-5</button>
+                <button type="button" onclick="AdminApp.adjustRebornShadowOffset('X', -1)" style="padding:2px 5px; font-size:0.7rem;">⬅-1</button>
+                <input type="number" id="classRebornShadowOffsetXInput" value="0" min="-80" max="80" oninput="AdminApp.updateGroundOffsetPreview()" style="width:46px; text-align:center; padding:2px; font-size:0.75rem;" />
+                <button type="button" onclick="AdminApp.adjustRebornShadowOffset('X', 1)" style="padding:2px 5px; font-size:0.7rem;">+1➡</button>
+                <button type="button" onclick="AdminApp.adjustRebornShadowOffset('X', 5)" style="padding:2px 5px; font-size:0.7rem;">+5➡</button>
+              </div>
+              <div style="display:flex; align-items:center; gap:3px; flex-wrap:wrap;">
+                <span style="font-size:0.68rem; color:var(--text-muted); width:40px;">Eixo Y:</span>
+                <button type="button" onclick="AdminApp.adjustRebornShadowOffset('Y', -5)" style="padding:2px 5px; font-size:0.7rem;">⬆-5</button>
+                <button type="button" onclick="AdminApp.adjustRebornShadowOffset('Y', -1)" style="padding:2px 5px; font-size:0.7rem;">⬆-1</button>
+                <input type="number" id="classRebornShadowOffsetYInput" value="0" min="-80" max="80" oninput="AdminApp.updateGroundOffsetPreview()" style="width:46px; text-align:center; padding:2px; font-size:0.75rem;" />
+                <button type="button" onclick="AdminApp.adjustRebornShadowOffset('Y', 1)" style="padding:2px 5px; font-size:0.7rem;">+1⬇</button>
+                <button type="button" onclick="AdminApp.adjustRebornShadowOffset('Y', 5)" style="padding:2px 5px; font-size:0.7rem;">+5⬇</button>
+              </div>
+            </div>
+
+            <span id="classRebornGroundStatusBadge" style="font-size:0.7rem; color:#c084fc; font-weight:600;">🟢 Pés no solo (0px)</span>
           </div>
         </div>
         <div style="display:flex; gap:6px; flex-wrap:wrap; align-items:center;">
           <input type="text" id="classRebornSearchInput" placeholder="🔍 Buscar modelo para reencarnação..." oninput="AdminApp.filterClassRebornGallery()" style="flex:1; min-width:180px; padding:6px 10px; font-size:0.82rem;" />
         </div>
-        <div id="mcreworkCharsRebornGrid" class="gallery-grid" style="max-height:48vh; min-height:220px;"></div>
+        <div id="mcreworkCharsRebornGrid" class="gallery-grid" style="max-height:42vh; min-height:200px;"></div>
       </div>
 
       <!-- ABA 3: DESCRIÇÃO & LORE -->

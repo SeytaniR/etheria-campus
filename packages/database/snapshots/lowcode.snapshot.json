@@ -1,6 +1,6 @@
 {
   "version": "0.2.0",
-  "exportedAt": "2026-11-07T16:20:53.755Z",
+  "exportedAt": "2026-11-07T16:54:23.812Z",
   "i18nTranslations": [
     {
       "id": 1,
@@ -25291,6 +25291,10 @@
       "rebornMcreworkCharKey": null,
       "groundOffsetY": 0,
       "rebornGroundOffsetY": 0,
+      "shadowOffsetX": 0,
+      "shadowOffsetY": 0,
+      "rebornShadowOffsetX": 0,
+      "rebornShadowOffsetY": 0,
       "raceCode": "HUMAN",
       "baseAttributesJson": {
         "AGI": 10,
@@ -25320,6 +25324,10 @@
       "rebornMcreworkCharKey": null,
       "groundOffsetY": 40,
       "rebornGroundOffsetY": 0,
+      "shadowOffsetX": 0,
+      "shadowOffsetY": 0,
+      "rebornShadowOffsetX": 0,
+      "rebornShadowOffsetY": 0,
       "raceCode": "HUMAN",
       "baseAttributesJson": {
         "AGI": 10,
@@ -25349,6 +25357,10 @@
       "rebornMcreworkCharKey": null,
       "groundOffsetY": 0,
       "rebornGroundOffsetY": 0,
+      "shadowOffsetX": 0,
+      "shadowOffsetY": 0,
+      "rebornShadowOffsetX": 0,
+      "rebornShadowOffsetY": 0,
       "raceCode": "HUMAN",
       "baseAttributesJson": {
         "AGI": 10,
@@ -25378,6 +25390,10 @@
       "rebornMcreworkCharKey": null,
       "groundOffsetY": 0,
       "rebornGroundOffsetY": 0,
+      "shadowOffsetX": 0,
+      "shadowOffsetY": 0,
+      "rebornShadowOffsetX": 0,
+      "rebornShadowOffsetY": 0,
       "raceCode": "HUMAN",
       "baseAttributesJson": {
         "AGI": 10,
@@ -25407,6 +25423,10 @@
       "rebornMcreworkCharKey": null,
       "groundOffsetY": 0,
       "rebornGroundOffsetY": 0,
+      "shadowOffsetX": 0,
+      "shadowOffsetY": 0,
+      "rebornShadowOffsetX": 0,
+      "rebornShadowOffsetY": 0,
       "raceCode": "HUMAN",
       "baseAttributesJson": {
         "AGI": 10,
@@ -25436,6 +25456,10 @@
       "rebornMcreworkCharKey": null,
       "groundOffsetY": 0,
       "rebornGroundOffsetY": 0,
+      "shadowOffsetX": 0,
+      "shadowOffsetY": 0,
+      "rebornShadowOffsetX": 0,
+      "rebornShadowOffsetY": 0,
       "raceCode": "HUMAN",
       "baseAttributesJson": {
         "AGI": 10,
@@ -25465,6 +25489,10 @@
       "rebornMcreworkCharKey": null,
       "groundOffsetY": 0,
       "rebornGroundOffsetY": 0,
+      "shadowOffsetX": 0,
+      "shadowOffsetY": 0,
+      "rebornShadowOffsetX": 0,
+      "rebornShadowOffsetY": 0,
       "raceCode": "HUMAN",
       "baseAttributesJson": {
         "AGI": 10,
@@ -25494,6 +25522,10 @@
       "rebornMcreworkCharKey": null,
       "groundOffsetY": 0,
       "rebornGroundOffsetY": 0,
+      "shadowOffsetX": 0,
+      "shadowOffsetY": 0,
+      "rebornShadowOffsetX": 0,
+      "rebornShadowOffsetY": 0,
       "raceCode": "HUMAN",
       "baseAttributesJson": {
         "AGI": 10,
@@ -25523,6 +25555,10 @@
       "rebornMcreworkCharKey": null,
       "groundOffsetY": 0,
       "rebornGroundOffsetY": 0,
+      "shadowOffsetX": 0,
+      "shadowOffsetY": 0,
+      "rebornShadowOffsetX": 0,
+      "rebornShadowOffsetY": 0,
       "raceCode": "HUMAN",
       "baseAttributesJson": {
         "AGI": 10,
@@ -25552,6 +25588,10 @@
       "rebornMcreworkCharKey": null,
       "groundOffsetY": 0,
       "rebornGroundOffsetY": 0,
+      "shadowOffsetX": 0,
+      "shadowOffsetY": 0,
+      "rebornShadowOffsetX": 0,
+      "rebornShadowOffsetY": 0,
       "raceCode": "HUMAN",
       "baseAttributesJson": {
         "AGI": 10,
@@ -25581,6 +25621,10 @@
       "rebornMcreworkCharKey": null,
       "groundOffsetY": 0,
       "rebornGroundOffsetY": 0,
+      "shadowOffsetX": 0,
+      "shadowOffsetY": 0,
+      "rebornShadowOffsetX": 0,
+      "rebornShadowOffsetY": 0,
       "raceCode": "HUMAN",
       "baseAttributesJson": {
         "AGI": 10,
@@ -25610,6 +25654,10 @@
       "rebornMcreworkCharKey": null,
       "groundOffsetY": 0,
       "rebornGroundOffsetY": 0,
+      "shadowOffsetX": 0,
+      "shadowOffsetY": 0,
+      "rebornShadowOffsetX": 0,
+      "rebornShadowOffsetY": 0,
       "raceCode": "HUMAN",
       "baseAttributesJson": {
         "AGI": 10,

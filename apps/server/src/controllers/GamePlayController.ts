@@ -189,6 +189,12 @@ export class GamePlayController {
     const groundOffsetY = isUsingReborn
       ? (ct?.rebornGroundOffsetY ?? 0)
       : (ct?.groundOffsetY ?? 0);
+    const shadowOffsetX = isUsingReborn
+      ? (ct?.rebornShadowOffsetX ?? 0)
+      : (ct?.shadowOffsetX ?? 0);
+    const shadowOffsetY = isUsingReborn
+      ? (ct?.rebornShadowOffsetY ?? 0)
+      : (ct?.shadowOffsetY ?? 0);
 
     return {
       id: c.id,
@@ -200,9 +206,13 @@ export class GamePlayController {
       raceCode: c.classTemplate?.raceCode ?? 'HUMAN',
       isReborn,
       groundOffsetY,
+      shadowOffsetX,
+      shadowOffsetY,
       mcreworkCharKey: charKey,
       rebornMcreworkCharKey: ct?.rebornMcreworkCharKey ?? null,
       rebornGroundOffsetY: ct?.rebornGroundOffsetY ?? 0,
+      rebornShadowOffsetX: ct?.rebornShadowOffsetX ?? 0,
+      rebornShadowOffsetY: ct?.rebornShadowOffsetY ?? 0,
       thumbUrl: `${this.mcreworkPagesBaseUrl}/assets/characters/${charKey}/thumb.webp`,
       atlasJsonUrl: `${this.mcreworkPagesBaseUrl}/assets/characters/${charKey}/atlas.json`,
       atlasWebpUrl: `${this.mcreworkPagesBaseUrl}/assets/characters/${charKey}/atlas.webp`,

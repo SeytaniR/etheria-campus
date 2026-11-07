@@ -914,7 +914,22 @@ class EtheriaPlayClient {
         );
         const action = this.isMoving ? 1 : 0;
         const groundOffsetY = char.groundOffsetY || 0;
-        sprite.draw(ctx, this.playerX, this.playerY, action, this.playerDir, now, this.mesh, groundOffsetY);
+        const shadowOffsetX = char.shadowOffsetX || 0;
+        const shadowOffsetY = char.shadowOffsetY || 0;
+        sprite.draw(
+          ctx,
+          this.playerX,
+          this.playerY,
+          action,
+          this.playerDir,
+          now,
+          this.mesh,
+          groundOffsetY,
+          0.70,
+          false,
+          shadowOffsetX,
+          shadowOffsetY
+        );
 
         ctx.fillStyle = '#fde047';
         ctx.font = 'bold 13px sans-serif';

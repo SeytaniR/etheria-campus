@@ -428,13 +428,36 @@ class AdminStatusEffectsTab {
         </div>
 
         <div style="background:rgba(15,23,42,0.75); border:1.5px solid #c084fc; border-radius:10px; padding:12px;">
-          <div style="font-size:0.8rem; font-weight:700; color:#fde047; margin-bottom:8px;">3️⃣ 🎨 Ícone na Cabeça do Alvo & Efeito Especial (VFX 2.5D Ao Vivo)</div>
-          <div style="display:flex; gap:12px; align-items:center; flex-wrap:wrap; margin-bottom:10px; background:#020617; padding:10px; border-radius:8px;">
-            <div style="position:relative; width:140px; height:140px; background:radial-gradient(ellipse at center bottom, #3b0764 0%, #020617 75%); border:1.5px solid #c084fc; border-radius:8px; overflow:hidden; flex-shrink:0;">
-              <canvas id="statusVfxPreviewCanvas" width="140" height="140"></canvas>
-              <span style="position:absolute; bottom:3px; right:5px; font-size:0.6rem; color:#d8b4fe;">Cabeça + VFX</span>
+          <div style="font-size:0.8rem; font-weight:700; color:#fde047; margin-bottom:8px;">3️⃣ 🏟️ Arena de Batalha 2.5D Realista: Ícone na Cabeça do Alvo & Efeito Especial (VFX Ao Vivo)</div>
+          <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(175px, 1fr)); gap:8px; margin-bottom:8px; background:rgba(2,6,23,0.75); padding:8px; border-radius:8px; border:1px solid var(--border); align-items:end;">
+            <div>
+              <label style="font-size:0.7rem; color:#7dd3fc; font-weight:700;">🦸 Conjurador (Esquerda)</label>
+              <select id="statusArenaCasterSelect" onchange="AdminApp.triggerArenaPreviewNow()" style="padding:5px 7px; font-size:0.76rem;"></select>
             </div>
-            <div style="flex:1; display:flex; flex-direction:column; gap:8px;">
+            <div>
+              <label style="font-size:0.7rem; color:#fda4af; font-weight:700;">🐉 Alvo do Buff/Debuff (Direita)</label>
+              <select id="statusArenaTargetSelect" onchange="AdminApp.triggerArenaPreviewNow()" style="padding:5px 7px; font-size:0.76rem;"></select>
+            </div>
+            <div>
+              <label style="font-size:0.7rem; color:#fde047; font-weight:700;">⚔️ Formação</label>
+              <select id="statusArenaFormationSelect" onchange="AdminApp.triggerArenaPreviewNow()" style="padding:5px 7px; font-size:0.76rem;">
+                <option value="1" selected>1x1 (Duelo Individual)</option>
+                <option value="3">1x3 (Formação de Batalha)</option>
+              </select>
+            </div>
+            <div>
+              <button type="button" class="btn-primary" onclick="AdminApp.triggerArenaPreviewNow()" style="width:100%; padding:6px 10px; font-size:0.76rem; font-weight:700;">
+                ▶️ Testar Efeito Agora
+              </button>
+            </div>
+          </div>
+
+          <div style="display:flex; gap:12px; align-items:stretch; flex-wrap:wrap; margin-bottom:10px; background:#020617; padding:10px; border-radius:8px;">
+            <div style="position:relative; width:480px; max-width:100%; height:210px; background:#020617; border:1.5px solid #c084fc; border-radius:8px; overflow:hidden; flex-shrink:0; display:flex; justify-content:center;">
+              <canvas id="statusVfxPreviewCanvas" width="480" height="210" style="width:100%; height:100%; object-fit:contain;"></canvas>
+              <span style="position:absolute; bottom:4px; right:6px; font-size:0.62rem; color:#d8b4fe; background:rgba(2,6,23,0.8); padding:1px 6px; border-radius:4px;">🏟️ Arena 2.5D + Ícone na Cabeça</span>
+            </div>
+            <div style="flex:1; display:flex; flex-direction:column; justify-content:space-between; gap:8px; min-width:230px;">
               <div style="display:flex; align-items:center; gap:10px;">
                 <img id="statusSelectedIconImg" src="" alt="Icon" style="width:44px; height:44px; border-radius:8px; border:2px solid #fde047; background:#0f172a; object-fit:contain;" />
                 <div>

@@ -27,6 +27,9 @@ class McreworkSpriteSheet {
       tImg.crossOrigin = 'anonymous';
       tImg.onload = () => {
         this.thumbImage = tImg;
+        if (typeof window !== 'undefined' && typeof window.onMcreworkSpriteLoaded === 'function') {
+          window.onMcreworkSpriteLoaded(this);
+        }
       };
       tImg.src = this.thumbUrl;
     }
@@ -40,6 +43,9 @@ class McreworkSpriteSheet {
         img.onload = () => {
           this.image = img;
           this.ready = true;
+          if (typeof window !== 'undefined' && typeof window.onMcreworkSpriteLoaded === 'function') {
+            window.onMcreworkSpriteLoaded(this);
+          }
         };
         img.src = this.atlasWebpUrl;
       })
@@ -123,7 +129,9 @@ class McreworkSpriteSheet {
     meshOrAlpha = null,
     groundOffsetY = 0,
     customScale = 0.70,
-    clampLastFrame = false
+    clampLastFrame = false,
+    shadowOffsetX = 0,
+    shadowOffsetY = 0
   ) {
     this.load();
 
@@ -132,10 +140,12 @@ class McreworkSpriteSheet {
     // Escala calibrada: padrão 0.70 no mundo aberto (-30% do bruto) ou customScale na Arena/Preview
     const scale = Number(customScale) > 0 ? Number(customScale) : 0.70;
     const gOffY = Math.round((Number(groundOffsetY) || 0) * scale);
+    const sOffX = Math.round((Number(shadowOffsetX) || 0) * scale);
+    const sOffY = Math.round((Number(shadowOffsetY) || 0) * scale);
 
-    // Sombra elíptica proporcional nos pés da entidade (sempre no nível do chão fixo)
+    // Sombra elíptica proporcional nos pés da entidade (com ajuste fino shadowOffsetX / shadowOffsetY)
     ctx.beginPath();
-    ctx.ellipse(worldX, worldY, Math.round(18 * scale), Math.round(9 * scale), 0, 0, Math.PI * 2);
+    ctx.ellipse(worldX + sOffX, worldY + sOffY, Math.round(18 * scale), Math.round(9 * scale), 0, 0, Math.PI * 2);
     ctx.fillStyle = 'rgba(0, 0, 0, 0.45)';
     ctx.fill();
 
