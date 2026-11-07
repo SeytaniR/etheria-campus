@@ -2,7 +2,7 @@
  * @file apps/server/public/admin/js/AdminAuth.js
  * @module @etheria/server
  * @description Submódulo de Autenticação Dual-Mode e Navegação de Abas da Rota `/admin`.
- *   Valida credenciais com proteção contra bypass externo e gerencia sessão do operador.
+ *   Gerencia hierarquia de permissões (DEV Master vs ADMIN Controlado por Tabela).
  */
 
 class AdminAuth {
@@ -30,11 +30,11 @@ class AdminAuth {
           if (ctx.isStrictLocalhost) {
             banner.className = 'status-pill status-local';
             banner.innerHTML =
-              '🟢 <strong>Acesso Localhost Detectado:</strong> Você pode entrar usando o login/senha do arquivo <code>.env</code> ou qualquer conta <code>ADMIN</code> do CRUD.';
+              '🟢 <strong>Acesso Localhost Detectado:</strong> Você pode entrar usando a senha do <code>.env</code> (DEV Master) ou contas cadastradas no banco.';
           } else {
             banner.className = 'status-pill status-remote';
             banner.innerHTML =
-              '🔒 <strong>Acesso Externo Detectado:</strong> A senha do <code>.env</code> está bloqueada por segurança. Entre com uma conta <code>ADMIN</code> cadastrada no CRUD do banco.';
+              '🔒 <strong>Acesso Externo Detectado:</strong> A senha do <code>.env</code> está bloqueada. Entre com uma conta <code>DEV</code> ou <code>ADMIN</code> cadastrada no banco.';
           }
         }
 
@@ -83,40 +83,121 @@ class AdminAuth {
     app.enterStudio = async function () {
       document.getElementById('loginScreen').style.display = 'none';
       document.getElementById('adminApp').style.display = 'flex';
-      document.getElementById('sessionBadge').textContent = `${this.session.username} (${
-        this.session.authSource === 'LOCAL_ENV' ? '.env' : 'CRUD'
-      })`;
+
+      const isDev = this.session?.role === 'DEV';
+      const roleIcon = isDev ? '👑' : '🛡️';
+      const roleColor = isDev ? '#fde047' : '#93c5fd';
+      const roleBg = isDev ? 'rgba(168,85,247,0.3)' : 'rgba(30,58,138,0.3)';
+      const roleBorder = isDev ? '#a855f7' : '#3b82f6';
+
+      const badge = document.getElementById('sessionBadge');
+      if (badge) {
+        badge.innerHTML = `<span style="padding:2px 8px; border-radius:99px; background:${roleBg}; color:${roleColor}; border:1px solid ${roleBorder}; font-weight:700; font-size:0.75rem;">${roleIcon} ${this.session.role}: ${this.session.username}</span>`;
+      }
+
+      this.applyTablePermissions();
 
       await this.loadBootstrapData();
       await this.loadUsers();
     };
 
-    app.switchTab = function (tab) {
-      document.getElementById('tabMaps').style.display = tab === 'maps' ? 'grid' : 'none';
-      document.getElementById('tabNpcs').style.display = tab === 'npcs' ? 'flex' : 'none';
-      const tabQuests = document.getElementById('tabQuests');
-      if (tabQuests) tabQuests.style.display = tab === 'quests' ? 'flex' : 'none';
-      document.getElementById('tabClasses').style.display = tab === 'classes' ? 'flex' : 'none';
-      const tabMonsters = document.getElementById('tabMonsters');
-      if (tabMonsters) tabMonsters.style.display = tab === 'monsters' ? 'flex' : 'none';
-      const tabSkills = document.getElementById('tabSkills');
-      if (tabSkills) tabSkills.style.display = tab === 'skills' ? 'flex' : 'none';
-      const tabStatusEffects = document.getElementById('tabStatusEffects');
-      if (tabStatusEffects) tabStatusEffects.style.display = tab === 'status-effects' ? 'flex' : 'none';
-      document.getElementById('tabUsers').style.display = tab === 'users' ? 'flex' : 'none';
+    /**
+     * Aplica as permissões da sessão do operador na interface:
+     * - DEV: visualiza e acessa todas as abas sem qualquer restrição.
+     * - ADMIN: esconde abas marcadas como NONE e restringe abas marcadas como READ.
+     */
+    app.applyTablePermissions = function () {
+      if (!this.session) return;
+      const isDev = this.session.role === 'DEV';
+      const perms = this.session.tablePermissions || {};
 
-      document.getElementById('tabBtnMaps').className = tab === 'maps' ? 'btn-primary' : '';
-      document.getElementById('tabBtnNpcs').className = tab === 'npcs' ? 'btn-primary' : '';
-      const btnQuests = document.getElementById('tabBtnQuests');
-      if (btnQuests) btnQuests.className = tab === 'quests' ? 'btn-primary' : '';
-      document.getElementById('tabBtnClasses').className = tab === 'classes' ? 'btn-primary' : '';
-      const btnMonsters = document.getElementById('tabBtnMonsters');
-      if (btnMonsters) btnMonsters.className = tab === 'monsters' ? 'btn-primary' : '';
-      const btnSkills = document.getElementById('tabBtnSkills');
-      if (btnSkills) btnSkills.className = tab === 'skills' ? 'btn-primary' : '';
-      const btnStatus = document.getElementById('tabBtnStatusEffects');
-      if (btnStatus) btnStatus.className = tab === 'status-effects' ? 'btn-primary' : '';
-      document.getElementById('tabBtnUsers').className = tab === 'users' ? 'btn-primary' : '';
+      const tabMap = {
+        maps: 'MAPS',
+        npcs: 'NPCS',
+        classes: 'CLASSES',
+        monsters: 'MONSTERS',
+        attributes: 'ATTRIBUTES',
+        skills: 'SKILLS',
+        'status-effects': 'STATUS_EFFECTS',
+        quests: 'QUESTS',
+        users: 'USERS',
+      };
+
+      const btnMap = {
+        maps: document.getElementById('tabBtnMaps'),
+        npcs: document.getElementById('tabBtnNpcs'),
+        classes: document.getElementById('tabBtnClasses'),
+        monsters: document.getElementById('tabBtnMonsters'),
+        attributes: document.getElementById('tabBtnAttributes'),
+        skills: document.getElementById('tabBtnSkills'),
+        'status-effects': document.getElementById('tabBtnStatusEffects'),
+        quests: document.getElementById('tabBtnQuests'),
+        users: document.getElementById('tabBtnUsers'),
+      };
+
+      if (btnMap.users) {
+        btnMap.users.textContent = isDev ? '🔐 Contas & Permissões' : '🛡️ Minha Conta';
+      }
+
+      for (const [tabKey, tableCode] of Object.entries(tabMap)) {
+        const btn = btnMap[tabKey];
+        if (!btn) continue;
+
+        if (isDev || tabKey === 'users') {
+          btn.style.display = 'inline-block';
+          continue;
+        }
+
+        const perm = perms[tableCode] || 'NONE';
+        if (perm === 'NONE') {
+          btn.style.display = 'none';
+        } else {
+          btn.style.display = 'inline-block';
+        }
+      }
+
+      // Se a aba atual estiver bloqueada, chaveia para a primeira permitida
+      const currentTab = this.activeTab || 'maps';
+      const currentCode = tabMap[currentTab];
+      if (!isDev && currentTab !== 'users' && perms[currentCode] === 'NONE') {
+        const firstAllowed = Object.keys(tabMap).find(
+          (k) => k === 'users' || perms[tabMap[k]] !== 'NONE'
+        );
+        if (firstAllowed) {
+          this.switchTab(firstAllowed);
+        }
+      }
+    };
+
+    app.switchTab = function (tab) {
+      this.activeTab = tab;
+
+      const tabs = [
+        { id: 'tabMaps', btn: 'tabBtnMaps', key: 'maps', code: 'MAPS' },
+        { id: 'tabNpcs', btn: 'tabBtnNpcs', key: 'npcs', code: 'NPCS' },
+        { id: 'tabQuests', btn: 'tabBtnQuests', key: 'quests', code: 'QUESTS' },
+        { id: 'tabClasses', btn: 'tabBtnClasses', key: 'classes', code: 'CLASSES' },
+        { id: 'tabMonsters', btn: 'tabBtnMonsters', key: 'monsters', code: 'MONSTERS' },
+        { id: 'tabSkills', btn: 'tabBtnSkills', key: 'skills', code: 'SKILLS' },
+        { id: 'tabStatusEffects', btn: 'tabBtnStatusEffects', key: 'status-effects', code: 'STATUS_EFFECTS' },
+        { id: 'tabAttributes', btn: 'tabBtnAttributes', key: 'attributes', code: 'ATTRIBUTES' },
+        { id: 'tabUsers', btn: 'tabBtnUsers', key: 'users', code: 'USERS' },
+      ];
+
+      for (const t of tabs) {
+        const el = document.getElementById(t.id);
+        const btn = document.getElementById(t.btn);
+        const isActive = tab === t.key;
+        if (el) {
+          el.style.display = isActive ? (t.key === 'maps' ? 'grid' : 'flex') : 'none';
+        }
+        if (btn) {
+          btn.className = isActive ? 'btn-primary' : '';
+        }
+      }
+
+      // Alerta visual de Somente Leitura se for ADMIN com permissão READ
+      this.renderReadOnlyIndicator(tab);
 
       if (tab === 'npcs') {
         this.renderNpcsCrudTable();
@@ -135,6 +216,60 @@ class AdminAuth {
       }
       if (tab === 'status-effects' && typeof this.renderStatusEffectsCrudTable === 'function') {
         this.renderStatusEffectsCrudTable();
+      }
+      if (tab === 'attributes' && typeof this.renderAttributesTabContent === 'function') {
+        this.renderAttributesTabContent();
+      }
+    };
+
+    /**
+     * Renderiza banner indicativo de Somente Leitura em abas onde o ADMIN só tem acesso READ.
+     */
+    app.renderReadOnlyIndicator = function (tabKey) {
+      const bannerId = `readonly_banner_${tabKey}`;
+      const existing = document.getElementById(bannerId);
+      if (existing) existing.remove();
+
+      if (!this.session || this.session.role === 'DEV' || tabKey === 'users') {
+        return;
+      }
+
+      const tabMap = {
+        maps: 'MAPS',
+        npcs: 'NPCS',
+        classes: 'CLASSES',
+        monsters: 'MONSTERS',
+        attributes: 'ATTRIBUTES',
+        skills: 'SKILLS',
+        'status-effects': 'STATUS_EFFECTS',
+        quests: 'QUESTS',
+      };
+
+      const code = tabMap[tabKey];
+      const perm = this.session.tablePermissions?.[code];
+
+      if (perm === 'READ') {
+        const containerMap = {
+          maps: document.getElementById('tabMaps'),
+          npcs: document.getElementById('tabNpcs'),
+          classes: document.getElementById('tabClasses'),
+          monsters: document.getElementById('tabMonsters'),
+          attributes: document.getElementById('tabAttributes'),
+          skills: document.getElementById('tabSkills'),
+          'status-effects': document.getElementById('tabStatusEffects'),
+          quests: document.getElementById('tabQuests'),
+        };
+
+        const targetEl = containerMap[tabKey];
+        if (targetEl) {
+          const banner = document.createElement('div');
+          banner.id = bannerId;
+          banner.style.cssText =
+            'background:rgba(234,179,8,0.15); border:1.5px solid #eab308; color:#fde047; padding:8px 12px; border-radius:8px; font-size:0.78rem; font-weight:600; display:flex; align-items:center; gap:8px; margin-bottom:8px; width:100%; box-sizing:border-box;';
+          banner.innerHTML =
+            '🔒 <strong>Modo Somente Leitura:</strong> O Desenvolvedor (DEV) liberou apenas visualização para esta tabela. Criações, edições e exclusões estão bloqueadas.';
+          targetEl.insertBefore(banner, targetEl.firstChild);
+        }
       }
     };
   }

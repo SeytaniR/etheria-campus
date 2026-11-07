@@ -15,10 +15,26 @@ import * as crypto from 'node:crypto';
 import type { IncomingMessage } from 'node:http';
 import type { PrismaClient } from '@etheria/database';
 
+export type TablePermissionLevel = 'NONE' | 'READ' | 'READ_WRITE';
+
+export const ALL_TABLE_CODES = [
+  'MAPS',
+  'NPCS',
+  'CLASSES',
+  'MONSTERS',
+  'ATTRIBUTES',
+  'SKILLS',
+  'STATUS_EFFECTS',
+  'QUESTS',
+  'USERS',
+] as const;
+
 export interface AdminTokenPayload {
   sub: string;
+  userId?: number;
   username: string;
-  role: string;
+  role: 'DEV' | 'ADMIN' | string;
+  tablePermissions: Record<string, TablePermissionLevel>;
   authSource: 'LOCAL_ENV' | 'DATABASE_CRUD';
   exp: number;
 }
@@ -119,10 +135,16 @@ export class AdminAuthService {
         };
       }
 
+      const allReadWrite: Record<string, TablePermissionLevel> = {};
+      for (const t of ALL_TABLE_CODES) {
+        allReadWrite[t] = 'READ_WRITE';
+      }
+
       const payload: AdminTokenPayload = {
-        sub: 'env-local-admin',
+        sub: 'env-local-dev',
         username: this.localUsername,
-        role: 'ADMIN',
+        role: 'DEV',
+        tablePermissions: allReadWrite,
         authSource: 'LOCAL_ENV',
         exp: Date.now() + 12 * 60 * 60 * 1000, // 12 horas
       };
@@ -143,17 +165,36 @@ export class AdminAuthService {
       };
     }
 
-    if (account.role !== 'ADMIN') {
+    if (account.role !== 'ADMIN' && account.role !== 'DEV') {
       return {
         success: false,
-        error: `A conta "${account.username}" possui cargo "${account.role}", mas a rota /admin exige cargo "ADMIN".`,
+        error: `A conta "${account.username}" possui cargo "${account.role}", mas a rota /admin exige cargo "ADMIN" ou "DEV".`,
       };
+    }
+
+    let permissions: Record<string, TablePermissionLevel> = {};
+    if (account.role === 'DEV') {
+      for (const t of ALL_TABLE_CODES) {
+        permissions[t] = 'READ_WRITE';
+      }
+    } else {
+      const raw = (account.tablePermissionsJson as Record<string, string>) || {};
+      for (const t of ALL_TABLE_CODES) {
+        const val = raw[t];
+        if (val === 'NONE' || val === 'READ' || val === 'READ_WRITE') {
+          permissions[t] = val as TablePermissionLevel;
+        } else {
+          permissions[t] = t === 'USERS' ? 'NONE' : 'READ_WRITE';
+        }
+      }
     }
 
     const payload: AdminTokenPayload = {
       sub: String(account.id),
+      userId: account.id,
       username: account.username,
-      role: account.role,
+      role: account.role as 'DEV' | 'ADMIN',
+      tablePermissions: permissions,
       authSource: 'DATABASE_CRUD',
       exp: Date.now() + 12 * 60 * 60 * 1000,
     };
@@ -180,6 +221,7 @@ export class AdminAuthService {
         sub: String(account.id),
         username: account.username,
         role: account.role,
+        tablePermissions: {},
         authSource: 'DATABASE_CRUD',
         exp: Date.now() + 24 * 60 * 60 * 1000,
       };
@@ -202,6 +244,7 @@ export class AdminAuthService {
           sub: String(firstAdmin.id),
           username: firstAdmin.username,
           role: firstAdmin.role,
+          tablePermissions: {},
           authSource: 'DATABASE_CRUD',
           exp: Date.now() + 24 * 60 * 60 * 1000,
         };
@@ -288,7 +331,7 @@ export class AdminAuthService {
     try {
       const payload = JSON.parse(Buffer.from(data, 'base64url').toString('utf-8')) as AdminTokenPayload;
       if (Date.now() > payload.exp) return null;
-      if (payload.role !== 'ADMIN') return null;
+      if (payload.role !== 'ADMIN' && payload.role !== 'DEV') return null;
 
       // Trava extra: Um token gerado pelo .env NUNCA pode ser usado se a requisição atual não for localhost!
       if (payload.authSource === 'LOCAL_ENV' && !this.isStrictLocalhost(req)) {
@@ -299,5 +342,27 @@ export class AdminAuthService {
     } catch {
       return null;
     }
+  }
+
+  /**
+   * Verifica se o operador autenticado possui permissão suficiente para a tabela informada.
+   * - DEV tem passe livre irrestrito para todas as tabelas (READ e READ_WRITE).
+   * - ADMIN segue a matriz configurada pelo DEV.
+   */
+  public canAccessTable(
+    payload: AdminTokenPayload,
+    tableKey: string,
+    mode: 'READ' | 'READ_WRITE'
+  ): boolean {
+    if (payload.role === 'DEV') return true;
+    if (payload.role !== 'ADMIN') return false;
+
+    const perms = payload.tablePermissions || {};
+    const tablePerm = perms[tableKey] || (tableKey === 'USERS' ? 'NONE' : 'READ_WRITE');
+
+    if (tablePerm === 'NONE') return false;
+    if (mode === 'READ') return tablePerm === 'READ' || tablePerm === 'READ_WRITE';
+    if (mode === 'READ_WRITE') return tablePerm === 'READ_WRITE';
+    return false;
   }
 }

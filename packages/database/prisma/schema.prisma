@@ -412,16 +412,17 @@ model ItemTemplate {
 // 7. CONTAS DE USUÁRIO, PERSONAGENS, PETS E FORMAÇÃO TÁTICA DE 10 SLOTS
 // ----------------------------------------------------------------------------
 
-/// Contas de usuário com permissões de acesso (PLAYER, GM, ADMIN).
+/// Contas de usuário com permissões de acesso (PLAYER, GM, ADMIN, DEV).
 model UserAccount {
-  id           Int               @id @default(autoincrement())
-  username     String            @unique
-  email        String            @unique
-  passwordHash String            @map("password_hash")
-  role         String            @default("PLAYER") /// PLAYER, GM, ADMIN
-  locale       String            @default("pt-BR")
-  createdAt    DateTime          @default(now()) @map("created_at")
-  characters   PlayerCharacter[]
+  id                   Int               @id @default(autoincrement())
+  username             String            @unique
+  email                String            @unique
+  passwordHash         String            @map("password_hash")
+  role                 String            @default("PLAYER") /// PLAYER, GM, ADMIN, DEV
+  tablePermissionsJson Json?             @map("table_permissions_json") /// Permissões por tabela para ADMIN: { [tableCode]: "NONE" | "READ" | "READ_WRITE" }
+  locale               String            @default("pt-BR")
+  createdAt            DateTime          @default(now()) @map("created_at")
+  characters           PlayerCharacter[]
 
   @@map("user_accounts")
 }

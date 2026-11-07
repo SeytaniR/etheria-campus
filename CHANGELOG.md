@@ -5,6 +5,32 @@ Qualquer IA trabalhando neste repositório **DEVE** incrementar a versão e regi
 
 ---
 
+## [v0.5.7] - 2026-11-07
+### Adicionado & Aprimorado
+* **Hierarquia Master DEV acima de ADMIN (`AdminAuthService.ts`, `AdminUsersController.ts`, `schema.prisma`, `index.ts`):**
+  * Criação do novo nível hierárquico `DEV` com poderes totais e irrestritos sobre todo o ecossistema `/admin` e o banco PostgreSQL.
+  * Migração da conta do usuário `dev` (`id: 1`) para a role `DEV`.
+  * Os usuários comuns permanecem como `ADMIN` (`gilbert`, `joao`, `bruno`).
+  * Admins ficam estritamente abaixo do DEV: só podem visualizar e editar os dados da sua própria conta (nome de usuário, e-mail e senha), sem permissão para criar novas contas, deletar usuários ou alterar seus próprios cargos e permissões.
+* **Matriz Granular de Permissões por Tabela (`tablePermissionsJson`, `AdminUsersTab.js`, `AdminAuth.js`, `AdminUsersController.ts`):**
+  * Adição do campo `tablePermissionsJson` no modelo `UserAccount` e geração do Prisma Client.
+  * O desenvolvedor (`DEV`) agora controla exatamente o que cada `ADMIN` pode fazer em cada tabela/módulo do estúdio:
+    * `NONE` (Bloqueado): A aba desaparece do menu do admin e qualquer rota de API correspondente é bloqueada com HTTP 403.
+    * `READ` (Apenas Leitura): O admin pode consultar dados e visualizar o conteúdo da tabela, mas qualquer tentativa de mutação (`POST`, `PUT`, `DELETE`) é barrada com HTTP 403 e aviso claro. Na interface, um banner de "Modo Somente Leitura" é exibido.
+    * `READ_WRITE` (Acesso Total): Permissão irrestrita de consulta e edição para aquela tabela específica.
+  * Cobertura completa das 9 tabelas gerenciadas: `MAPS`, `NPCS`, `CLASSES`, `MONSTERS`, `ATTRIBUTES`, `SKILLS`, `STATUS_EFFECTS`, `QUESTS` e `USERS`.
+* **Painel Visual de Permissões no `/admin` (`AdminUsersTab.js`, `AdminAuth.js`, `index.html`):**
+  * O DEV dispõe de um formulário interativo de permissões por tabela ao criar ou editar administradores, com botões de atalho rápido (**"Liberar Tudo (Read/Write)"**, **"Apenas Leitura (Read)"** e **"Bloquear Tudo (None)"**).
+  * Admins visualizam a aba renomeada para **"🛡️ Minha Conta"**, onde podem alterar seus próprios dados de login e consultar um cartão visual com o status de cada permissão liberada pelo DEV.
+  * Top bar com badge dinâmico diferenciando claramente `👑 DEV: dev` de `🛡️ ADMIN: username`.
+* **Proteção e Conformidade Arquitetural:**
+  * Trava de segurança no backend impedindo a exclusão acidental do último usuário `DEV`.
+  * Validações centralizadas via `enforceTablePermission` em todas as rotas da API `/api/admin/*`.
+  * Bateria de testes automatizados via Node Fetch validando autenticação, isolamento de contas de admin, bloqueio 403 em tentativas de criação de usuário por admins, travas de elevação de privilégio e controle de permissões `NONE` / `READ` / `READ_WRITE`.
+  * Rigoroso respeito à Regra #7 (< 1.000 linhas por arquivo).
+
+---
+
 ## [v0.5.6] - 2026-11-07
 ### Adicionado & Aprimorado
 * **Atributos de Combate Derivados por Famílias — Acerto/Desvio, Hard CC e Anomalias/DoT (`seedData.ts`, `seed.ts`, `AdminAttributesController.ts`, `AdminAttributesTab.js`):**

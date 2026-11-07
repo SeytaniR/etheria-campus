@@ -637,47 +637,90 @@
         </div>
       </div>
     </div>
-    <!-- ABA 4: CRUD DE CONTAS DE USUÁRIOS (ACESSO FORA DO LOCALHOST) -->
-    <div id="tabUsers" style="display:none; padding:16px; max-width:1100px; margin:0 auto; width:100%; gap:16px; flex-direction:column;">
+    <!-- ABA: CONTROLE DE CONTAS & PERMISSÕES (DEV & ADMIN) -->
+    <div id="tabUsers" style="display:none; padding:16px; max-width:1150px; margin:0 auto; width:100%; gap:16px; flex-direction:column;">
+      <!-- CABEÇALHO DO PAINEL DE CONTAS -->
       <div class="panel">
-        <h3>🔐 Criar / Editar Conta de Usuário (Acesso Externo à Rota /admin, GMs e Jogadores)</h3>
-        <p style="font-size:0.8rem; color:var(--text-muted);">
-          Quem acessar o sistema fora do <code>localhost</code> precisa entrar com um usuário e senha cadastrados abaixo com o cargo <strong>ADMIN</strong>.
-        </p>
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+          <div>
+            <h3 id="usersPanelTitle" style="margin:0; color:#38bdf8;">🔐 Controle de Contas & Permissões por Tabela</h3>
+            <p id="usersPanelDesc" style="margin:4px 0 0; font-size:0.8rem; color:var(--text-muted);">
+              Gerenciamento de contas de operadores, desenvolvedores e administradores do estúdio.
+            </p>
+          </div>
+          <span id="userRoleBadge" style="font-size:0.75rem; padding:3px 10px; border-radius:99px; font-weight:700;"></span>
+        </div>
+
         <input type="hidden" id="editUserId" value="" />
-        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:10px; align-items:end;">
+        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(190px, 1fr)); gap:10px; align-items:end; margin-top:10px;">
           <div class="field"><label>Username (Login)</label><input type="text" id="userUsername" placeholder="Ex: dev" /></div>
           <div class="field"><label>E-mail</label><input type="email" id="userEmail" placeholder="Ex: dev@etheria.com" /></div>
           <div class="field"><label>Senha (mín. 4 caracteres)</label><input type="password" id="userPassword" placeholder="Senha de acesso" /></div>
-          <div class="field">
+          <div class="field" id="userRoleFieldContainer">
             <label>Cargo (Role)</label>
-            <select id="userRole">
-              <option value="ADMIN">ADMIN (Acesso Total /admin)</option>
-              <option value="GM">GM (Game Master In-Game)</option>
-              <option value="PLAYER">PLAYER (Jogador)</option>
+            <select id="userRole" onchange="AdminApp.onUserRoleChange()">
+              <option value="ADMIN">🛡️ ADMIN (Acesso Controlado por Tabela)</option>
+              <option value="DEV">👑 DEV (Acesso Total / Master)</option>
+              <option value="GM">⚔️ GM (Game Master In-Game)</option>
+              <option value="PLAYER">🎮 PLAYER (Jogador)</option>
             </select>
           </div>
           <div style="display:flex; gap:6px;">
-            <button class="btn-success" onclick="AdminApp.saveUserAccount()">💾 Salvar Conta</button>
-            <button onclick="AdminApp.clearUserForm()">Limpar</button>
+            <button class="btn-success" id="btnSaveUser" onclick="AdminApp.saveUserAccount()">💾 Salvar Conta</button>
+            <button type="button" id="btnClearUserForm" onclick="AdminApp.clearUserForm()">Limpar</button>
           </div>
         </div>
+
+        <!-- SEÇÃO: MATRIZ DE PERMISSÕES POR TABELA (EXIBIDA PARA DEV AO CONFIGURAR ADMIN) -->
+        <div id="userPermissionsMatrixSection" style="margin-top:14px; padding-top:12px; border-top:1px dashed var(--border); display:none; flex-direction:column; gap:10px;">
+          <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
+            <div>
+              <strong style="color:#fde047; font-size:0.86rem;">🎯 Permissões por Tabela para este Administrador:</strong>
+              <div style="font-size:0.72rem; color:var(--text-muted);">
+                Defina se este ADMIN não tem acesso (aba oculta), se tem apenas visualização ou se pode editar cada tabela.
+              </div>
+            </div>
+            <div style="display:flex; gap:4px; flex-wrap:wrap;">
+              <button type="button" onclick="AdminApp.setAllTablePermissions('READ_WRITE')" style="padding:2px 8px; font-size:0.7rem; background:rgba(34,197,94,0.15); border:1px solid #22c55e; color:#86efac;">🟢 Liberar Todas (Edição)</button>
+              <button type="button" onclick="AdminApp.setAllTablePermissions('READ')" style="padding:2px 8px; font-size:0.7rem; background:rgba(234,179,8,0.15); border:1px solid #eab308; color:#fde047;">🟡 Todas Somente Leitura</button>
+              <button type="button" onclick="AdminApp.setAllTablePermissions('NONE')" style="padding:2px 8px; font-size:0.7rem; background:rgba(239,68,68,0.15); border:1px solid #ef4444; color:#fca5a5;">🔴 Bloquear Todas</button>
+            </div>
+          </div>
+          <div id="tablePermissionsGrid" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:8px;"></div>
+        </div>
       </div>
-      <div class="panel">
-        <h3>👥 Contas Cadastradas no PostgreSQL</h3>
-        <table class="crud-table">
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>Username</th>
-              <th>E-mail</th>
-              <th>Cargo</th>
-              <th>Criado em</th>
-              <th>Ações</th>
-            </tr>
-          </thead>
-          <tbody id="usersTableBody"></tbody>
-        </table>
+
+      <!-- SEÇÃO PARA ADMIN LOGADO: VISUALIZAÇÃO DAS SUAS PRÓPRIAS PERMISSÕES -->
+      <div id="adminSelfPermissionsPanel" class="panel" style="display:none;">
+        <h3 style="color:#38bdf8;">📋 Suas Permissões Ativas Concedidas pelo Desenvolvedor (DEV)</h3>
+        <p style="font-size:0.78rem; color:var(--text-muted);">
+          Estas são as permissões configuradas pelo DEV para o seu login. Tabelas marcadas como Somente Leitura não permitem salvar edições, e tabelas Bloqueadas ficam ocultas.
+        </p>
+        <div id="adminSelfPermissionsGrid" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(230px, 1fr)); gap:8px;"></div>
+      </div>
+
+      <!-- SEÇÃO PARA DEV: TABELA DE TODAS AS CONTAS CADASTRADAS -->
+      <div id="devUsersTablePanel" class="panel">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+          <h3>👥 Contas Cadastradas no PostgreSQL</h3>
+          <span style="font-size:0.72rem; color:var(--text-muted);">Somente o Desenvolvedor (DEV) pode gerenciar outras contas</span>
+        </div>
+        <div style="overflow-x:auto;">
+          <table class="crud-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Username</th>
+                <th>E-mail</th>
+                <th>Cargo</th>
+                <th>Permissões por Tabela</th>
+                <th>Criado em</th>
+                <th>Ações</th>
+              </tr>
+            </thead>
+            <tbody id="usersTableBody"></tbody>
+          </table>
+        </div>
       </div>
     </div>
   </div>
