@@ -69,7 +69,11 @@ export interface SaveClassTemplateDto {
   id?: number | null;
   code?: string;
   namePtBr: string;
+  descriptionPtBr?: string;
   mcreworkCharKey: string;
+  rebornMcreworkCharKey?: string | null;
+  groundOffsetY?: number;
+  rebornGroundOffsetY?: number;
   raceCode?: string;
   isActive?: boolean;
   baseAttributesJson?: {
@@ -230,9 +234,16 @@ export class AdminMapsController {
     ).map((ct) => ({
       ...ct,
       namePtBr: i18nMap.get(ct.nameI18nKey) ?? ct.code,
+      descriptionPtBr: ct.descriptionI18nKey ? (i18nMap.get(ct.descriptionI18nKey) ?? '') : '',
       raceNamePtBr: ct.race ? (i18nMap.get(ct.race.nameI18nKey) ?? ct.race.code) : ct.raceCode,
       thumbUrl: `${this.mcreworkPagesBaseUrl}/assets/characters/${ct.mcreworkCharKey}/thumb.webp`,
       atlasJsonUrl: `${this.mcreworkPagesBaseUrl}/assets/characters/${ct.mcreworkCharKey}/atlas.json`,
+      rebornThumbUrl: ct.rebornMcreworkCharKey
+        ? `${this.mcreworkPagesBaseUrl}/assets/characters/${ct.rebornMcreworkCharKey}/thumb.webp`
+        : null,
+      rebornAtlasJsonUrl: ct.rebornMcreworkCharKey
+        ? `${this.mcreworkPagesBaseUrl}/assets/characters/${ct.rebornMcreworkCharKey}/atlas.json`
+        : null,
       characterCount: ct._count?.characters ?? 0,
     }));
 
@@ -300,6 +311,9 @@ export class AdminMapsController {
     const targetId = explicitId ?? (dto.id ? Number(dto.id) : null);
     const raceCode = dto.raceCode?.trim() || 'HUMAN';
     const isActive = dto.isActive !== undefined ? Boolean(dto.isActive) : true;
+    const groundOffsetY = Math.round(Number(dto.groundOffsetY) || 0);
+    const rebornGroundOffsetY = Math.round(Number(dto.rebornGroundOffsetY) || 0);
+    const rebornMcreworkCharKey = dto.rebornMcreworkCharKey ? dto.rebornMcreworkCharKey.trim() : null;
 
     const baseAttrs = {
       VIT: Number(dto.baseAttributesJson?.VIT ?? 10),
@@ -321,11 +335,13 @@ export class AdminMapsController {
 
     let savedClass: any;
     let finalNamePtBr = (dto.namePtBr ?? '').trim();
+    let finalDescPtBr = (dto.descriptionPtBr ?? '').trim();
 
     await this.prisma.$transaction(async (tx) => {
       if (targetId) {
         const autoCode = `class_${targetId}`;
         const nameKey = `class.${autoCode}.name`;
+        const descKey = `class.${autoCode}.description`;
         if (!finalNamePtBr) finalNamePtBr = `Classe #${targetId}`;
 
         await tx.i18nTranslation.upsert({
@@ -334,12 +350,24 @@ export class AdminMapsController {
           create: { key: nameKey, locale: 'pt-BR', text: finalNamePtBr },
         });
 
+        if (finalDescPtBr) {
+          await tx.i18nTranslation.upsert({
+            where: { key_locale: { key: descKey, locale: 'pt-BR' } },
+            update: { text: finalDescPtBr },
+            create: { key: descKey, locale: 'pt-BR', text: finalDescPtBr },
+          });
+        }
+
         savedClass = await tx.classTemplate.update({
           where: { id: targetId },
           data: {
             code: autoCode,
             mcreworkCharKey: dto.mcreworkCharKey,
             nameI18nKey: nameKey,
+            descriptionI18nKey: descKey,
+            rebornMcreworkCharKey,
+            groundOffsetY,
+            rebornGroundOffsetY,
             raceCode,
             baseAttributesJson: baseAttrs as any,
             growthPerLevelJson: growthAttrs as any,
@@ -353,6 +381,10 @@ export class AdminMapsController {
             code: tempCode,
             mcreworkCharKey: dto.mcreworkCharKey,
             nameI18nKey: `class.${tempCode}.name`,
+            descriptionI18nKey: `class.${tempCode}.description`,
+            rebornMcreworkCharKey,
+            groundOffsetY,
+            rebornGroundOffsetY,
             raceCode,
             baseAttributesJson: baseAttrs as any,
             growthPerLevelJson: growthAttrs as any,
@@ -362,6 +394,7 @@ export class AdminMapsController {
 
         const autoCode = `class_${created.id}`;
         const nameKey = `class.${autoCode}.name`;
+        const descKey = `class.${autoCode}.description`;
         if (!finalNamePtBr) finalNamePtBr = `Classe #${created.id}`;
 
         await tx.i18nTranslation.upsert({
@@ -370,11 +403,20 @@ export class AdminMapsController {
           create: { key: nameKey, locale: 'pt-BR', text: finalNamePtBr },
         });
 
+        if (finalDescPtBr) {
+          await tx.i18nTranslation.upsert({
+            where: { key_locale: { key: descKey, locale: 'pt-BR' } },
+            update: { text: finalDescPtBr },
+            create: { key: descKey, locale: 'pt-BR', text: finalDescPtBr },
+          });
+        }
+
         savedClass = await tx.classTemplate.update({
           where: { id: created.id },
           data: {
             code: autoCode,
             nameI18nKey: nameKey,
+            descriptionI18nKey: descKey,
           },
         });
       }
@@ -384,8 +426,15 @@ export class AdminMapsController {
     return {
       ...savedClass,
       namePtBr: finalNamePtBr,
+      descriptionPtBr: finalDescPtBr,
       thumbUrl: `${this.mcreworkPagesBaseUrl}/assets/characters/${savedClass.mcreworkCharKey}/thumb.webp`,
       atlasJsonUrl: `${this.mcreworkPagesBaseUrl}/assets/characters/${savedClass.mcreworkCharKey}/atlas.json`,
+      rebornThumbUrl: savedClass.rebornMcreworkCharKey
+        ? `${this.mcreworkPagesBaseUrl}/assets/characters/${savedClass.rebornMcreworkCharKey}/thumb.webp`
+        : null,
+      rebornAtlasJsonUrl: savedClass.rebornMcreworkCharKey
+        ? `${this.mcreworkPagesBaseUrl}/assets/characters/${savedClass.rebornMcreworkCharKey}/atlas.json`
+        : null,
     };
   }
 

@@ -253,18 +253,22 @@ model AttributeConversion {
 
 /// Templates de Classes/Personagens jogáveis curados do mcrework.
 model ClassTemplate {
-  id                  Int               @id @default(autoincrement())
-  code                String            @unique
-  mcreworkCharKey     String            @map("mcrework_char_key")
-  nameI18nKey         String            @map("name_i18n_key")
-  raceCode            String            @default("HUMAN") @map("race_code")
-  baseAttributesJson  Json              @map("base_attributes_json") /// Ex: {"VIT":10,"STR":10,"INT":10,"WIS":10,"AGI":10,"DEX":10}
-  growthPerLevelJson  Json              @map("growth_per_level_json")
-  skillIdsJson        Json              @default("[]") @map("skill_ids_json")
-  isActive            Boolean           @default(true) @map("is_active")
+  id                    Int               @id @default(autoincrement())
+  code                  String            @unique
+  mcreworkCharKey       String            @map("mcrework_char_key")
+  nameI18nKey           String            @map("name_i18n_key")
+  descriptionI18nKey    String?           @map("description_i18n_key")
+  rebornMcreworkCharKey String?           @map("reborn_mcrework_char_key")
+  groundOffsetY         Int               @default(0) @map("ground_offset_y")
+  rebornGroundOffsetY   Int               @default(0) @map("reborn_ground_offset_y")
+  raceCode              String            @default("HUMAN") @map("race_code")
+  baseAttributesJson    Json              @map("base_attributes_json") /// Ex: {"VIT":10,"STR":10,"INT":10,"WIS":10,"AGI":10,"DEX":10}
+  growthPerLevelJson    Json              @map("growth_per_level_json")
+  skillIdsJson          Json              @default("[]") @map("skill_ids_json")
+  isActive              Boolean           @default(true) @map("is_active")
 
-  race                Race              @relation(fields: [raceCode], references: [code])
-  characters          PlayerCharacter[]
+  race                  Race              @relation(fields: [raceCode], references: [code])
+  characters            PlayerCharacter[]
 
   @@map("class_templates")
 }
@@ -424,6 +428,7 @@ model PlayerCharacter {
   posX                Float            @default(400) @map("pos_x")
   posY                Float            @default(300) @map("pos_y")
   isCriminal          Boolean          @default(false) @map("is_criminal") /// Ativado se forçar PK em HOSTILE_ZONE
+  isReborn            Boolean          @default(false) @map("is_reborn")
 
   userAccount         UserAccount      @relation(fields: [userAccountId], references: [id], onDelete: Cascade)
   classTemplate       ClassTemplate    @relation(fields: [classTemplateId], references: [id])

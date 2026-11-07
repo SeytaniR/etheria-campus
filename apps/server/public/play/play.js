@@ -383,7 +383,7 @@ class EtheriaPlayClient {
       const img = new Image();
       // Não define crossOrigin para evitar bloqueios de CORS e cache em redes móveis
       img.onload = () => {
-        if (this.currentMap && this.currentMap.id === mapId) {
+        if (this.currentMap && Number(this.currentMap.id) === Number(mapId)) {
           this.mapBgImage = img;
         }
       };
@@ -399,7 +399,7 @@ class EtheriaPlayClient {
       };
       img.src = srcUrl;
       if (img.complete && img.naturalWidth > 0) {
-        if (this.currentMap && this.currentMap.id === mapId) {
+        if (this.currentMap && Number(this.currentMap.id) === Number(mapId)) {
           this.mapBgImage = img;
         }
       }
@@ -486,6 +486,7 @@ class EtheriaPlayClient {
     const canvas = document.getElementById('gameCanvas');
 
     canvas.addEventListener('pointerdown', (e) => {
+      e.preventDefault();
       if (!this.activeChar || !this.currentMap) return;
       const rect = canvas.getBoundingClientRect();
       const sx = e.clientX - rect.left;
@@ -881,16 +882,18 @@ class EtheriaPlayClient {
           char.thumbUrl
         );
         const action = this.isMoving ? 1 : 0;
-        sprite.draw(ctx, this.playerX, this.playerY, action, this.playerDir, now, this.mesh);
+        const groundOffsetY = char.groundOffsetY || 0;
+        sprite.draw(ctx, this.playerX, this.playerY, action, this.playerDir, now, this.mesh, groundOffsetY);
 
         ctx.fillStyle = '#fde047';
         ctx.font = 'bold 13px sans-serif';
         ctx.textAlign = 'center';
-        // Altura do nome calibrada com a redução de 30% do sprite (offset -66)
+        // Altura do nome calibrada com a redução de 30% do sprite (offset -66) acompanhando o ajuste dos pés ao chão
+        const nameY = this.playerY - 66 + Math.round(groundOffsetY * 0.70);
         ctx.fillText(
-          `${char.name}${this.gmNoClip ? ' [NO-CLIP]' : ''}`,
+          `${char.name}${char.isReborn ? ' ✨' : ''}${this.gmNoClip ? ' [NO-CLIP]' : ''}`,
           this.playerX,
-          this.playerY - 66
+          nameY
         );
       }
     }

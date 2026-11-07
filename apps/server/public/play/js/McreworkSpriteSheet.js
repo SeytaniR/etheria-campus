@@ -113,15 +113,16 @@ class McreworkSpriteSheet {
     ctx.restore();
   }
 
-  draw(ctx, worldX, worldY, action, direction, elapsedMs, meshOrAlpha = null) {
+  draw(ctx, worldX, worldY, action, direction, elapsedMs, meshOrAlpha = null, groundOffsetY = 0) {
     this.load();
 
     ctx.save();
 
     // Escala calibrada: redução de 30% nos modelos para proporção anatômica ideal no cenário 2.5D
     const scale = 0.70;
+    const gOffY = Math.round((Number(groundOffsetY) || 0) * scale);
 
-    // Sombra elíptica proporcional nos pés da entidade (sempre no nível do chão)
+    // Sombra elíptica proporcional nos pés da entidade (sempre no nível do chão fixo)
     ctx.beginPath();
     ctx.ellipse(worldX, worldY, Math.round(18 * scale), Math.round(9 * scale), 0, 0, Math.PI * 2);
     ctx.fillStyle = 'rgba(0, 0, 0, 0.45)';
@@ -132,14 +133,15 @@ class McreworkSpriteSheet {
       const frames = this.atlasData.frames || {};
       const dir = ((direction % 8) + 8) % 8;
 
-      // No mcrework, a chave da animação é `${dir}-${action}`
+      // No mcrework, a chave da animação é `${action}-${dir}`
       // Ações: 0 = Parado (Stand), 1 = Caminhada (Walk), 2 = Corrida (Run), 3 = Golpe (Atk)...
-      const primaryKey = `${dir}-${action}`;
+      // Direções: 0 = Sul (Frente), 1 = Sudeste, 2 = Leste, 3 = Nordeste, 4 = Norte (Costas), 5 = Noroeste, 6 = Oeste, 7 = Sudoeste
+      const primaryKey = `${action}-${dir}`;
       let seq =
         anims[primaryKey] ||
-        (action !== 0 ? anims[`${dir}-1`] : null) ||
-        anims[`${dir}-0`] ||
-        anims[`0-${action}`] ||
+        (action !== 0 ? anims[`1-${dir}`] : null) ||
+        anims[`0-${dir}`] ||
+        anims[`${action}-0`] ||
         anims['0-0'] ||
         Object.values(anims)[0];
 
@@ -166,11 +168,11 @@ class McreworkSpriteSheet {
           const drawW = Math.round(sw * scale);
           const drawH = Math.round(sh * scale);
 
-          // Ancoragem padrão nos pés (0.5 no X, 0.92 no Y)
+          // Ancoragem nos pés (0.5 no X, 0.92 no Y) + ajuste fino customizado de distância ao chão (gOffY)
           const anchorX = 0.5;
           const anchorY = 0.92;
           const drawX = Math.round(worldX - origW * anchorX + offX);
-          const drawY = Math.round(worldY - origH * anchorY + offY);
+          const drawY = Math.round(worldY - origH * anchorY + offY + gOffY);
 
           this.renderSpriteWithOverlapClipping(
             ctx,
@@ -190,7 +192,7 @@ class McreworkSpriteSheet {
       const w = Math.round(64 * scale);
       const h = Math.round(76 * scale);
       const drawX = Math.round(worldX - w / 2);
-      const drawY = Math.round(worldY - h * 0.92);
+      const drawY = Math.round(worldY - h * 0.92 + gOffY);
       const imgW = this.thumbImage.naturalWidth || this.thumbImage.width || w;
       const imgH = this.thumbImage.naturalHeight || this.thumbImage.height || h;
       this.renderSpriteWithOverlapClipping(
@@ -202,7 +204,7 @@ class McreworkSpriteSheet {
       );
     } else {
       ctx.beginPath();
-      ctx.arc(worldX, worldY - Math.round(24 * scale), Math.round(16 * scale), 0, Math.PI * 2);
+      ctx.arc(worldX, worldY - Math.round(24 * scale) + gOffY, Math.round(16 * scale), 0, Math.PI * 2);
       ctx.fillStyle = '#38bdf8';
       ctx.fill();
     }

@@ -19,7 +19,13 @@
       --text-muted: #94a3b8;
     }
 
-    * { box-sizing: border-box; margin: 0; padding: 0; }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent !important;
+      -webkit-touch-callout: none !important;
+    }
     body {
       font-family: system-ui, -apple-system, sans-serif;
       background: var(--bg-dark);
@@ -29,6 +35,8 @@
       overscroll-behavior: none;
       -webkit-user-select: none;
       user-select: none;
+      -webkit-tap-highlight-color: transparent !important;
+      -webkit-touch-callout: none !important;
     }
 
     button {
@@ -177,6 +185,11 @@
       height: 100%;
       touch-action: none;
       cursor: pointer;
+      -webkit-tap-highlight-color: transparent !important;
+      -webkit-touch-callout: none !important;
+      user-select: none !important;
+      -webkit-user-select: none !important;
+      outline: none !important;
     }
 
     /* HUD Superior: Barra Unificada Responsiva */
@@ -495,6 +508,9 @@
         </button>
         <button onclick="PlayApp.hotReloadCurrentMap()">
           🔄 Recarregar Mapa do Banco (Hot-Reload)
+        </button>
+        <button class="btn-gm" onclick="PlayApp.toggleCharacterReborn()" style="margin-top:4px;">
+          ✨ Alternar Visual (Padrão ⇋ Reborn)
         </button>
       </div>
 

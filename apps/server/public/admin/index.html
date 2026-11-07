@@ -206,7 +206,6 @@
       height: 100dvh;
       overflow: hidden;
     }
-
     .editor-top-bar {
       display: flex;
       align-items: center;
@@ -229,7 +228,6 @@
       font-size: 0.78rem;
       flex-shrink: 0;
     }
-
     .canvas-viewport {
       flex: 1;
       position: relative;
@@ -247,7 +245,6 @@
       height: 100%;
       touch-action: none;
     }
-
     /* Gaveta Lateral Flutuante (Drawer) de Camadas, Portais e NPCs dentro do Editor Visual */
     .layers-drawer {
       position: absolute;
@@ -268,7 +265,6 @@
     .layers-drawer.open {
       display: flex;
     }
-
     /* Botões Flutuantes de Zoom e Undo/Redo no Canto Esquerdo/Direito do Mapa */
     .viewport-floating-controls {
       position: absolute;
@@ -287,7 +283,6 @@
       border-radius: 8px;
       box-shadow: 0 4px 12px rgba(0,0,0,0.5);
     }
-
     /* Barra Flutuante de NPC Rápido quando a ferramenta NPC está ativa */
     .npc-quick-bar {
       position: absolute;
@@ -305,7 +300,6 @@
       max-width: 94vw;
       box-shadow: 0 6px 18px rgba(0,0,0,0.6);
     }
-
     /* Barra Inferior de Marcação de Precisão na Mira Central (+) */
     .crosshair-action-bar {
       position: absolute;
@@ -322,7 +316,6 @@
       box-shadow: 0 4px 14px rgba(0,0,0,0.65);
       white-space: nowrap;
     }
-
     .canvas-hint {
       position: absolute;
       bottom: 4px;
@@ -338,7 +331,6 @@
       text-align: center;
       z-index: 15;
     }
-
     /* Modal */
     .modal-backdrop {
       display: none;
@@ -394,7 +386,6 @@
       border-radius: 6px;
       background: #020617;
     }
-
     /* Users Table */
     table.crud-table {
       width: 100%;
@@ -409,7 +400,6 @@
   </style>
 </head>
 <body>
-
   <!-- TELA DE LOGIN PROTEGIDA -->
   <section id="loginScreen">
     <h2>🛡️ Etheria Campus — Rota /admin</h2>
@@ -425,7 +415,6 @@
     <div id="loginError" style="color:#fca5a5; font-size:0.8rem; display:none;"></div>
     <button class="btn-primary" onclick="AdminApp.login()">Entrar no Studio Low-Code</button>
   </section>
-
   <!-- APLICAÇÃO PRINCIPAL /ADMIN -->
   <div id="adminApp">
     <header class="topbar">
@@ -442,7 +431,6 @@
         <button class="btn-danger" onclick="AdminApp.logout()">Sair</button>
       </div>
     </header>
-
     <!-- ABA 1: PAINEL DE FICHAS DE MAPAS (SEM MINIATURA ESPREMIDA) -->
     <div id="tabMaps" class="maps-dashboard">
       <!-- COLUNA ESQUERDA: LISTA DE MAPAS SALVOS (COMPLETOS OU EM CONSTRUÇÃO) -->
@@ -456,21 +444,17 @@
         </p>
         <div id="savedMapsList" class="item-list" style="max-height:480px; overflow-y:auto;"></div>
       </aside>
-
       <!-- COLUNA DIREITA: FICHA TÉCNICA DO MAPA + BOTÃO DE ENTRAR NO EDITOR VISUAL DE TELA INTEIRA -->
       <section class="panel">
         <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
           <h3 id="mapFormTitleBadge">⚙️ Ficha Técnica do Mapa Selecionado</h3>
           <span id="lastSavedBadge" style="font-size:0.76rem; color:#86efac;"></span>
         </div>
-
         <!-- BOTÃO GIGANTE DE ENTRAR NO EDITOR VISUAL (FOCO 100% NO MAPA) -->
         <button class="btn-enter-editor" onclick="AdminApp.enterVisualMapEditor()">
           🎯 ENTRAR NA EDIÇÃO VISUAL DO MAPA (TELA INTEIRA)
         </button>
-
         <div id="mapSummaryCounters" style="display:flex; flex-wrap:wrap; gap:8px; font-size:0.78rem; background:rgba(56,189,248,0.1); border:1px solid var(--border); padding:8px 12px; border-radius:8px;"></div>
-
         <div class="row-2">
           <div class="field">
             <label>ID & Chave do Mapa (Auto-Incremento Automático)</label>
@@ -481,7 +465,6 @@
             <input type="number" id="mapReqLevel" value="1" min="1" step="1" />
           </div>
         </div>
-
         <div class="row-2">
           <div class="field">
             <label>Nome do Mapa (i18n PT-BR)</label>
@@ -495,7 +478,6 @@
             </select>
           </div>
         </div>
-
         <div class="field">
           <label>Imagem Limpa do Mapa (mcrework)</label>
           <div style="display:flex; gap:6px;">
@@ -503,13 +485,11 @@
             <button onclick="AdminApp.openMcreworkMapPicker('CHANGE_IMAGE')">🖼️ Trocar Imagem</button>
           </div>
         </div>
-
         <div class="field">
           <label>Tipo de Mapa (Fixa Domínio, Spawn e PvP)</label>
           <select id="mapTypeSelect" onchange="AdminApp.updateMapTypeRuleBadge()"></select>
           <div id="mapTypeRulesBadge" style="font-size:0.75rem; color:#fde68a; background:rgba(245,158,11,0.12); padding:6px 8px; border-radius:6px; margin-top:3px;"></div>
         </div>
-
         <div class="row-2">
           <div class="field">
             <label>Bioma Primário (1 dos 40)</label>
@@ -521,7 +501,6 @@
           </div>
         </div>
         <div id="biomeDescBox" style="font-size:0.74rem; color:var(--text-muted);"></div>
-
         <div class="row-2">
           <div class="field">
             <label>⭐ Spawn X (Padrão/Respawn/Destravar)</label>
@@ -532,7 +511,6 @@
             <input type="number" id="mapSpawnY" value="500" step="1" onchange="AdminApp.onSpawnInputChanged()" />
           </div>
         </div>
-
         <div class="row-2">
           <div class="field">
             <label>Opacidade da Área de Sobreposição</label>
@@ -543,7 +521,6 @@
             <input type="text" id="mapDominatedBy" placeholder="Opcional" />
           </div>
         </div>
-
         <div style="display:flex; gap:10px; margin-top:8px;">
           <button class="btn-success" style="flex:1; padding:12px;" onclick="AdminApp.saveCurrentMap()">
             💾 Salvar Mapa / Progresso no Banco
@@ -552,7 +529,6 @@
         </div>
       </section>
     </div>
-
     <!-- ABA 2: TABELA DE NPCS (VINCULADA DIRETAMENTE AOS NPCS POSICIONADOS NOS MAPAS) -->
     <div id="tabNpcs" style="display:none; padding:16px; max-width:1250px; margin:0 auto; width:100%; gap:16px; flex-direction:column;">
       <div class="panel">
@@ -565,7 +541,6 @@
           </div>
           <button class="btn-primary" onclick="AdminApp.openNpcTemplateModal(null)">➕ Novo NPC do mcrework</button>
         </div>
-
         <div style="overflow-x:auto;">
           <table class="crud-table">
             <thead>
@@ -583,7 +558,6 @@
         </div>
       </div>
     </div>
-
     <!-- ABA 3: TABELA DE PERSONAGENS / CLASSES JOGÁVEIS (`class_templates`) -->
     <div id="tabClasses" style="display:none; padding:16px; max-width:1250px; margin:0 auto; width:100%; gap:16px; flex-direction:column;">
       <div class="panel">
@@ -599,7 +573,6 @@
             <button class="btn-primary" onclick="AdminApp.openClassTemplateModal(null)">➕ Novo Personagem do mcrework</button>
           </div>
         </div>
-
         <div style="overflow-x:auto;">
           <table class="crud-table">
             <thead>
@@ -619,7 +592,6 @@
         </div>
       </div>
     </div>
-
     <!-- ABA 4: CRUD DE CONTAS DE USUÁRIOS (ACESSO FORA DO LOCALHOST) -->
     <div id="tabUsers" style="display:none; padding:16px; max-width:1100px; margin:0 auto; width:100%; gap:16px; flex-direction:column;">
       <div class="panel">
@@ -655,7 +627,6 @@
           </div>
         </div>
       </div>
-
       <div class="panel">
         <h3>👥 Contas Cadastradas no PostgreSQL</h3>
         <table class="crud-table">
@@ -674,7 +645,6 @@
       </div>
     </div>
   </div>
-
   <!-- ==========================================================================
        ESTÚDIO DE EDIÇÃO VISUAL DE TELA INTEIRA (FOCO 100% NO MAPA E FERRAMENTAS)
        ========================================================================== -->
@@ -695,7 +665,6 @@
         <button id="toolNpc" onclick="AdminApp.setTool('NPC')">🧙 +NPC</button>
         <button id="toolEdit" onclick="AdminApp.setTool('EDIT')">✏️ Editar Vértices</button>
       </div>
-
       <div class="tool-group">
         <button id="btnToggleDrawer" onclick="AdminApp.toggleLayersDrawer()">
           🗂️ Camadas (<span id="drawerTotalBadge">0</span>)
@@ -705,18 +674,15 @@
         </button>
       </div>
     </div>
-
     <!-- Área 100% Mapa -->
     <div class="canvas-viewport" id="canvasViewport">
       <canvas id="mapCanvas"></canvas>
-
       <!-- Barra Rápida de NPC quando a ferramenta NPC está ativa -->
       <div id="npcQuickBar" class="npc-quick-bar">
         <span style="font-size:0.75rem; color:#86efac; font-weight:700;">🧙 NPC:</span>
         <select id="activeNpcTemplateSelect" style="min-width:160px; padding:5px 8px; font-size:0.78rem;"></select>
         <button onclick="AdminApp.openNpcTemplateModal()" style="padding:5px 8px; font-size:0.75rem;">➕ Criar NPC</button>
       </div>
-
       <!-- Botões Flutuantes de Zoom e Undo/Redo -->
       <div class="viewport-floating-controls">
         <button onclick="AdminApp.zoomByStep(1.28)" title="Aproximar Zoom">🔍 ➕</button>
@@ -725,21 +691,18 @@
         <button id="btnUndo" onclick="AdminApp.undo()" title="Desfazer última ação">↩️ Desfazer (0)</button>
         <button id="btnRedo" onclick="AdminApp.redo()" title="Refazer ação">↪️ Refazer</button>
       </div>
-
       <!-- Barra Inferior de Marcação de Precisão na Mira Central (+) -->
       <div class="crosshair-action-bar">
         <button id="btnPlaceAtCrosshair" class="btn-primary" onclick="AdminApp.placeAtCenterCrosshair()" style="padding:8px 16px; border-radius:999px;">
           📍 Marcar no Alvo Central (+)
         </button>
       </div>
-
       <!-- Gaveta Lateral Recolhível (Drawer) de Camadas, Portais em Dupla e NPCs -->
       <aside id="layersDrawer" class="layers-drawer">
         <div style="display:flex; justify-content:space-between; align-items:center;">
           <h3 style="color:var(--accent); font-size:0.92rem;">🗂️ Camadas e Objetos do Mapa</h3>
           <button class="btn-danger" onclick="AdminApp.toggleLayersDrawer()" style="padding:4px 8px;">✕ Fechar</button>
         </div>
-
         <div>
           <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
             <strong style="font-size:0.82rem; color:#fca5a5;">🛑 Áreas de Colisão (<span id="countCollision">0</span>)</strong>
@@ -747,7 +710,6 @@
           </div>
           <div id="collisionList" class="item-list"></div>
         </div>
-
         <div>
           <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
             <strong style="font-size:0.82rem; color:#7dd3fc;">🟦 Áreas de Sobreposição (<span id="countOverlap">0</span>)</strong>
@@ -755,14 +717,12 @@
           </div>
           <div id="overlapList" class="item-list"></div>
         </div>
-
         <div>
           <strong style="font-size:0.82rem; color:#d8b4fe; display:block; margin-bottom:6px;">
             🌀 Portais em Dupla (<span id="countPortals">0</span>)
           </strong>
           <div id="portalsList" class="item-list"></div>
         </div>
-
         <div>
           <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
             <strong style="font-size:0.82rem; color:#86efac;">🧙 NPCs Posicionados (<span id="countNpcs">0</span>)</strong>
@@ -771,13 +731,11 @@
           <div id="npcsList" class="item-list"></div>
         </div>
       </aside>
-
       <div class="canvas-hint" id="canvasHint">
         🔒 Malhas existentes ficam TRAVADAS enquanto você cria outras áreas, Portais ou NPCs. Para ajustar um vértice, toque em "✏️ Editar Vértices".
       </div>
     </div>
   </section>
-
   <!-- MODAL: SELETOR DE IMAGEM LIMPA DE MAPA DO MCREWORK -->
   <div id="mapPickerModal" class="modal-backdrop">
     <div class="modal-box">
@@ -791,7 +749,6 @@
       <div id="mcreworkMapsGrid" class="gallery-grid"></div>
     </div>
   </div>
-
   <!-- MODAL: CRIAR / EDITAR TEMPLATE DE NPC ESCOLHENDO DO MCREWORK (AUTO-INCREMENTO npc_N) -->
   <div id="npcModal" class="modal-backdrop">
     <div class="modal-box" style="max-height:94dvh; display:flex; flex-direction:column; overflow:hidden;">
@@ -800,7 +757,6 @@
         <button class="btn-danger" onclick="AdminApp.closeModal('npcModal')">✕ Fechar</button>
       </div>
       <input type="hidden" id="npcEditIdInput" value="" />
-      
       <div class="row-2">
         <div class="field">
           <label>ID & Chave do NPC (Auto-Incremento Automático)</label>
@@ -828,16 +784,13 @@
           <input type="text" id="npcAssetKeyInput" readonly placeholder="Toque em um NPC da galeria abaixo" />
         </div>
       </div>
-      
       <div style="display:flex; gap:6px; align-items:center;">
         <input type="text" id="npcSearchInput" placeholder="🔍 Buscar visual de NPC por chave (ex: npc_000010)..." oninput="AdminApp.filterNpcGallery()" style="padding:6px 10px; font-size:0.82rem;" />
       </div>
-
       <div id="mcreworkNpcsGrid" class="gallery-grid" style="flex:1; max-height:48vh; min-height:200px; overflow-y:auto; -webkit-overflow-scrolling:touch;"></div>
       <button class="btn-success" style="padding:10px; font-weight:700;" onclick="AdminApp.saveNewNpcTemplate()">💾 Salvar na Tabela de NPCs</button>
     </div>
   </div>
-
   <!-- MODAL: CRIAR / EDITAR PERSONAGEM / CLASSE ESCOLHENDO DO MCREWORK (AUTO-INCREMENTO class_N) -->
   <div id="classModal" class="modal-backdrop">
     <div class="modal-box" style="max-height:94dvh; display:flex; flex-direction:column; overflow:hidden;">
@@ -848,10 +801,14 @@
       <input type="hidden" id="classEditIdInput" value="" />
       <input type="hidden" id="classCodeInput" value="" />
       <input type="hidden" id="classAssetKeyInput" value="" />
-
+      <input type="hidden" id="classRebornAssetKeyInput" value="" />
       <!-- HERO PREVIEW DO PERSONAGEM SELECIONADO -->
       <div id="classHeroCard" style="display:flex; align-items:center; gap:12px; background:rgba(30,41,59,0.7); border:1.5px solid var(--accent); border-radius:10px; padding:8px 12px;">
-        <img id="classHeroImg" src="" alt="Preview" style="width:72px; height:72px; object-fit:contain; background:#020617; border-radius:8px; border:1px solid var(--border);" />
+        <div style="position:relative; width:72px; height:82px; display:flex; flex-direction:column; align-items:center; justify-content:flex-end;">
+          <img id="classHeroImg" src="" alt="Preview" style="width:68px; height:68px; object-fit:contain; background:#020617; border-radius:8px; border:1px solid var(--border); transition:transform 0.1s ease-out;" />
+          <!-- Linha de Chão de Referência para calibração de Ground Offset -->
+          <div style="width:100%; height:2px; background:#f59e0b; margin-top:2px; box-shadow:0 0 6px rgba(245,158,11,0.6);" title="Nível do Chão"></div>
+        </div>
         <div style="flex:1; display:flex; flex-direction:column; gap:4px;">
           <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
             <strong id="classHeroLabel" style="font-size:0.95rem; color:#fde047;">Selecione um Modelo na Galeria</strong>
@@ -863,32 +820,85 @@
           </div>
         </div>
       </div>
-
-      <!-- ABAS DO MODAL: VISUAL vs ATRIBUTOS -->
+      <!-- CAMPO DE DESCRIÇÃO EM PT-BR COM CHAVE I18N AUTOMÁTICA -->
+      <div style="display:flex; flex-direction:column; gap:3px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.75rem;">
+          <label style="color:var(--text-muted); font-weight:600;">📜 Descrição do Personagem (PT-BR):</label>
+          <span id="classDescI18nDisplay" style="color:var(--accent); font-family:monospace; font-size:0.72rem;">class.class_X.description (Auto)</span>
+        </div>
+        <textarea id="classDescriptionInput" rows="2" placeholder="Digite uma descrição ou lore sobre a classe/personagem..." style="width:100%; padding:6px 8px; font-size:0.82rem; resize:vertical;"></textarea>
+      </div>
+      <!-- ABAS DO MODAL: VISUAL PADRÃO vs REENCARNADO vs ATRIBUTOS -->
       <div style="display:flex; gap:6px;">
         <button id="btnClassTabVisual" class="btn-primary" onclick="AdminApp.switchClassModalTab('visual')" style="flex:1; padding:7px;">
-          🎨 Visual do Personagem (<span id="classCountBadge">46</span>)
+          🎨 Visual Padrão (<span id="classCountBadge">46</span>)
+        </button>
+        <button id="btnClassTabReborn" onclick="AdminApp.switchClassModalTab('reborn')" style="flex:1; padding:7px;">
+          ✨ Visual Reencarnado (Reborn)
         </button>
         <button id="btnClassTabStats" onclick="AdminApp.switchClassModalTab('stats')" style="flex:1; padding:7px;">
-          📊 Atributos Iniciais & Crescimento
+          📊 Atributos Iniciais
         </button>
       </div>
-
-      <!-- CONTEÚDO 1: GALERIA COM BUSCA E FILTROS -->
+      <!-- CONTEÚDO 1: GALERIA DO VISUAL PADRÃO COM CONTROLE DE DISTÂNCIA AO CHÃO -->
       <div id="classTabVisual" style="display:flex; flex-direction:column; gap:8px; flex:1; min-height:0; overflow:hidden;">
+        <!-- Controle de Distância do Chão (Offset Y) -->
+        <div style="display:flex; align-items:center; justify-content:space-between; background:rgba(15,23,42,0.8); border:1px solid var(--border); border-radius:8px; padding:6px 10px; gap:8px;">
+          <div style="display:flex; flex-direction:column;">
+            <strong style="font-size:0.82rem; color:#fde047;">📏 Distância do Chão (Offset Y Padrão):</strong>
+            <span style="font-size:0.7rem; color:var(--text-muted);">Calibra os pés do modelo no chão (+ desce, - sobe)</span>
+          </div>
+          <div style="display:flex; align-items:center; gap:6px;">
+            <button type="button" onclick="AdminApp.adjustGroundOffset(-1)" style="padding:4px 8px;">-1</button>
+            <input type="number" id="classGroundOffsetYInput" value="0" min="-60" max="60" step="1" oninput="AdminApp.updateGroundOffsetPreview()" style="width:65px; text-align:center; padding:4px;" />
+            <button type="button" onclick="AdminApp.adjustGroundOffset(1)" style="padding:4px 8px;">+1</button>
+            <span style="font-size:0.75rem; color:var(--accent);">px</span>
+          </div>
+        </div>
         <div style="display:flex; gap:6px; flex-wrap:wrap; align-items:center;">
-          <input type="text" id="classSearchInput" placeholder="🔍 Buscar modelo (ex: Guerreiro, Mago, Sacerdote, Arqueira...)" oninput="AdminApp.filterClassGallery()" style="flex:1; min-width:180px; padding:6px 10px; font-size:0.82rem;" />
+          <input type="text" id="classSearchInput" placeholder="🔍 Buscar modelo padrão..." oninput="AdminApp.filterClassGallery()" style="flex:1; min-width:180px; padding:6px 10px; font-size:0.82rem;" />
           <div style="display:flex; gap:4px;">
             <button id="btnClassFilterAll" class="active-tool" onclick="AdminApp.setClassGenderFilter('ALL')" style="padding:5px 8px; font-size:0.76rem;">Todos (46)</button>
             <button id="btnClassFilterMale" onclick="AdminApp.setClassGenderFilter('MALE')" style="padding:5px 8px; font-size:0.76rem;">👨 Masc (23)</button>
             <button id="btnClassFilterFemale" onclick="AdminApp.setClassGenderFilter('FEMALE')" style="padding:5px 8px; font-size:0.76rem;">👩 Fem (23)</button>
           </div>
         </div>
+        <div id="mcreworkCharsGrid" class="gallery-grid" style="flex:1; max-height:36vh; min-height:180px; overflow-y:auto; -webkit-overflow-scrolling:touch;"></div>
+      </div>
+      <!-- CONTEÚDO 2: VISUAL REENCARNADO (REBORN) -->
+      <div id="classTabReborn" style="display:none; flex-direction:column; gap:8px; flex:1; min-height:0; overflow:hidden;">
+        <!-- Card de Status do Visual Reencarnado -->
+        <div style="display:flex; align-items:center; justify-content:space-between; background:rgba(30,41,59,0.7); border:1.5px solid #c084fc; border-radius:8px; padding:6px 12px; gap:10px;">
+          <div style="display:flex; align-items:center; gap:10px;">
+            <img id="classRebornHeroImg" src="" alt="Reborn Preview" style="width:52px; height:52px; object-fit:contain; background:#020617; border-radius:6px; border:1px solid var(--border);" />
+            <div>
+              <strong id="classRebornHeroLabel" style="font-size:0.86rem; color:#e9d5ff;">Sem Visual Reencarnado</strong>
+              <div id="classRebornHeroBadge" style="font-size:0.72rem; color:var(--text-muted);">Toque em um modelo abaixo para vincular o visual Reborn</div>
+            </div>
+          </div>
+          <button type="button" class="btn-danger" onclick="AdminApp.clearRebornVisual()" style="padding:4px 8px; font-size:0.74rem;">✕ Limpar Reborn</button>
+        </div>
+        <!-- Controle de Distância do Chão Reencarnado (Offset Y) -->
+        <div style="display:flex; align-items:center; justify-content:space-between; background:rgba(15,23,42,0.8); border:1px solid var(--border); border-radius:8px; padding:6px 10px; gap:8px;">
+          <div style="display:flex; flex-direction:column;">
+            <strong style="font-size:0.82rem; color:#c084fc;">✨ Distância do Chão Reencarnado (Offset Y):</strong>
+            <span style="font-size:0.7rem; color:var(--text-muted);">Calibra os pés do modelo reencarnado (+ desce, - sobe)</span>
+          </div>
+          <div style="display:flex; align-items:center; gap:6px;">
+            <button type="button" onclick="AdminApp.adjustRebornGroundOffset(-1)" style="padding:4px 8px;">-1</button>
+            <input type="number" id="classRebornGroundOffsetYInput" value="0" min="-60" max="60" step="1" oninput="AdminApp.updateGroundOffsetPreview()" style="width:65px; text-align:center; padding:4px;" />
+            <button type="button" onclick="AdminApp.adjustRebornGroundOffset(1)" style="padding:4px 8px;">+1</button>
+            <span style="font-size:0.75rem; color:var(--accent);">px</span>
+          </div>
+        </div>
+        <div style="display:flex; gap:6px; flex-wrap:wrap; align-items:center;">
+          <input type="text" id="classRebornSearchInput" placeholder="🔍 Buscar modelo para reencarnação..." oninput="AdminApp.filterClassRebornGallery()" style="flex:1; min-width:180px; padding:6px 10px; font-size:0.82rem;" />
+        </div>
 
-        <div id="mcreworkCharsGrid" class="gallery-grid" style="flex:1; max-height:45vh; min-height:220px; overflow-y:auto; -webkit-overflow-scrolling:touch;"></div>
+        <div id="mcreworkCharsRebornGrid" class="gallery-grid" style="flex:1; max-height:30vh; min-height:160px; overflow-y:auto; -webkit-overflow-scrolling:touch;"></div>
       </div>
 
-      <!-- CONTEÚDO 2: CONFIGURAÇÃO DE ATRIBUTOS -->
+      <!-- CONTEÚDO 3: CONFIGURAÇÃO DE ATRIBUTOS -->
       <div id="classTabStats" style="display:none; flex-direction:column; gap:10px; overflow-y:auto; padding:6px;">
         <div class="field">
           <label>Atributos Base Iniciais Nv.1 (VIT / STR / INT / WIS / AGI / DEX)</label>
@@ -928,6 +938,7 @@
   <script src="/admin/js/AdminNpcsTab.js"></script>
   <script src="/admin/js/AdminClassesTab.js"></script>
   <script src="/admin/js/AdminCanvasEditor.js"></script>
+  <script src="/admin/js/AdminLayersDrawer.js"></script>
   <script src="/admin/admin.js"></script>
 </body>
 </html>

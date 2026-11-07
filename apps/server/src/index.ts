@@ -217,6 +217,38 @@ export class EtheriaServerApp {
   }
 
   /**
+   * Pré-carrega de forma assíncrona todas as imagens de fundo dos mapas ativos na memória RAM,
+   * garantindo respostas com latência zero (0ms) para jogadores em redes móveis ou pelo Cloudflare Tunnel.
+   */
+  public async prewarmMapImages(): Promise<void> {
+    try {
+      const maps = await this.prisma.gameMap.findMany({
+        select: { id: true, mcreworkMapImage: true },
+      });
+      for (const map of maps) {
+        if (!map.mcreworkMapImage) continue;
+        let targetUrl = map.mcreworkMapImage.trim();
+        if (!targetUrl.startsWith('http://') && !targetUrl.startsWith('https://')) {
+          targetUrl = `https://seytanir.github.io/mcrework/${targetUrl.replace(/^\/+/, '')}`;
+        }
+        try {
+          const upstream = await globalThis.fetch(targetUrl);
+          if (upstream.ok) {
+            const contentType = upstream.headers.get('content-type') || 'image/jpeg';
+            const arrayBuf = await upstream.arrayBuffer();
+            this.mapImageCache.set(map.id, { buffer: Buffer.from(arrayBuf), contentType });
+          }
+        } catch {
+          // Fallback silencioso; se falhar no boot, carrega sob demanda
+        }
+      }
+      console.log(`🗺️ [AssetCache] ${this.mapImageCache.size} imagem(ns) de mapas pré-carregadas em memória RAM.`);
+    } catch (err: any) {
+      console.warn(`[AssetCache] Falha ao pré-aquecer cache de mapas: ${err?.message || err}`);
+    }
+  }
+
+  /**
    * Processa todas as requisições HTTP destinadas à API e aos arquivos estáticos da Rota `/admin`.
    */
   public async handleRequest(req: http.IncomingMessage, res: http.ServerResponse): Promise<void> {
@@ -486,6 +518,17 @@ export class EtheriaServerApp {
           return;
         }
 
+        const toggleRebornMatch = pathname.match(/^\/api\/play\/characters\/(\d+)\/toggle-reborn$/);
+        if (toggleRebornMatch && method === 'POST') {
+          const charId = Number(toggleRebornMatch[1]);
+          this.sendJson(
+            res,
+            200,
+            await this.playController.toggleReborn(userAccountId, session.role, charId)
+          );
+          return;
+        }
+
         this.sendJson(res, 404, { error: 'Rota da API Play não encontrada.' });
         return;
       }
@@ -519,6 +562,7 @@ export class EtheriaServerApp {
     });
     server.listen(port, '0.0.0.0', () => {
       console.log(`🚀 [Etheria Campus Server] Rodando em http://localhost:${port}/admin`);
+      void this.prewarmMapImages();
     });
     return server;
   }

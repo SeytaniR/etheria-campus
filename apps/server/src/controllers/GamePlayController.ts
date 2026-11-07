@@ -96,10 +96,20 @@ export class GamePlayController {
     ).map((ct) => ({
       ...ct,
       namePtBr: i18nMap.get(ct.nameI18nKey) ?? ct.code,
+      descriptionPtBr: ct.descriptionI18nKey ? (i18nMap.get(ct.descriptionI18nKey) ?? '') : '',
       raceNamePtBr: ct.race ? (i18nMap.get(ct.race.nameI18nKey) ?? ct.race.code) : ct.raceCode,
       thumbUrl: `${this.mcreworkPagesBaseUrl}/assets/characters/${ct.mcreworkCharKey}/thumb.webp`,
       atlasJsonUrl: `${this.mcreworkPagesBaseUrl}/assets/characters/${ct.mcreworkCharKey}/atlas.json`,
       atlasWebpUrl: `${this.mcreworkPagesBaseUrl}/assets/characters/${ct.mcreworkCharKey}/atlas.webp`,
+      rebornThumbUrl: ct.rebornMcreworkCharKey
+        ? `${this.mcreworkPagesBaseUrl}/assets/characters/${ct.rebornMcreworkCharKey}/thumb.webp`
+        : null,
+      rebornAtlasJsonUrl: ct.rebornMcreworkCharKey
+        ? `${this.mcreworkPagesBaseUrl}/assets/characters/${ct.rebornMcreworkCharKey}/atlas.json`
+        : null,
+      rebornAtlasWebpUrl: ct.rebornMcreworkCharKey
+        ? `${this.mcreworkPagesBaseUrl}/assets/characters/${ct.rebornMcreworkCharKey}/atlas.webp`
+        : null,
     }));
 
     const elements = (await this.prisma.element.findMany({ orderBy: { code: 'asc' } })).map((e) => ({
@@ -170,7 +180,15 @@ export class GamePlayController {
       ? (i18nMap.get(c.classTemplate.nameI18nKey) ?? c.classTemplate.code)
       : `Classe #${c.classTemplateId}`;
     const elementNamePtBr = i18nMap.get(`element.${c.elementCode.toLowerCase()}.name`) ?? c.elementCode;
-    const charKey = c.classTemplate?.mcreworkCharKey ?? 'PC_MALE_000002';
+    const isReborn = Boolean(c.isReborn);
+    const ct = c.classTemplate;
+    const isUsingReborn = isReborn && Boolean(ct?.rebornMcreworkCharKey);
+    const charKey = isUsingReborn
+      ? ct.rebornMcreworkCharKey!
+      : (ct?.mcreworkCharKey ?? 'PC_MALE_000002');
+    const groundOffsetY = isUsingReborn
+      ? (ct?.rebornGroundOffsetY ?? 0)
+      : (ct?.groundOffsetY ?? 0);
 
     return {
       id: c.id,
@@ -180,7 +198,11 @@ export class GamePlayController {
       classCode: c.classTemplate?.code ?? `class_${c.classTemplateId}`,
       classNamePtBr,
       raceCode: c.classTemplate?.raceCode ?? 'HUMAN',
+      isReborn,
+      groundOffsetY,
       mcreworkCharKey: charKey,
+      rebornMcreworkCharKey: ct?.rebornMcreworkCharKey ?? null,
+      rebornGroundOffsetY: ct?.rebornGroundOffsetY ?? 0,
       thumbUrl: `${this.mcreworkPagesBaseUrl}/assets/characters/${charKey}/thumb.webp`,
       atlasJsonUrl: `${this.mcreworkPagesBaseUrl}/assets/characters/${charKey}/atlas.json`,
       atlasWebpUrl: `${this.mcreworkPagesBaseUrl}/assets/characters/${charKey}/atlas.webp`,
@@ -606,5 +628,34 @@ export class GamePlayController {
       posX,
       posY,
     };
+  }
+
+  /**
+   * Alterna o estado de Reencarnado / Reborn do personagem, alternando entre o visual padrão e o visual reencarnado.
+   */
+  public async toggleReborn(userAccountId: number, role: string, characterId: number) {
+    const char = await this.prisma.playerCharacter.findUnique({
+      where: { id: characterId },
+      include: { classTemplate: true },
+    });
+
+    if (!char) {
+      throw new Error('Personagem não encontrado.');
+    }
+
+    if (char.userAccountId !== userAccountId && !['ADMIN', 'GM'].includes(role)) {
+      throw new Error('Não autorizado a alterar este personagem.');
+    }
+
+    const nextReborn = !char.isReborn;
+    const updated = await this.prisma.playerCharacter.update({
+      where: { id: characterId },
+      data: { isReborn: nextReborn },
+      include: { classTemplate: true },
+    });
+
+    const translations = await this.prisma.i18nTranslation.findMany({ where: { locale: 'pt-BR' } });
+    const i18nMap = new Map<string, string>(translations.map((t) => [t.key, t.text]));
+    return this.serializeCharacter(updated, i18nMap);
   }
 }

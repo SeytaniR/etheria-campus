@@ -5,6 +5,41 @@ Qualquer IA trabalhando neste repositório **DEVE** incrementar a versão e regi
 
 ---
 
+## [v0.4.6] - 2026-11-06
+### Corrigido
+* **Correção da Ordem das Animações 8-Direções (`apps/server/public/play/js/McreworkSpriteSheet.js`):**
+  * Identificada e corrigida a inversão crítica na interpolação de frames do atlas do `mcrework`. A convenção oficial dos arquivos `atlas.json` é `${action}-${direction}` (onde `0` é Stand/Idle, `1` é Walk, e o segundo número é a direção `0..7`).
+  * O código anterior buscava erroneamente por `${dir}-${action}`, fazendo com que ao andar com o personagem (`action = 1`) o sistema procurasse por `${dir}-1`, que disparava sequências de ataque/combate (`3-1`, `2-1`) ao invés do ciclo de caminhada. Ao parar, disparava ataques correspondentes à direção ao invés da respiração/repouso.
+  * Corrigida a chave primária e as ordens de fallback: `${action}-${dir}` &bull; `1-${dir}` &bull; `0-${dir}` &bull; `${action}-0` &bull; `0-0`.
+* **Eliminação do Overlay/Highlight Azul ao Tocar na Tela Móvel (`/play`):**
+  * Aplicados `-webkit-tap-highlight-color: transparent !important;`, `-webkit-touch-callout: none !important;` e `user-select: none !important;` em todos os elementos globais e no Canvas.
+  * Adicionado `e.preventDefault()` nos ponteiros de toque móvel do Canvas, suprimindo o flash azul e a caixa de seleção nativa do Chrome Android ao movimentar o personagem.
+* **Resolução Definitiva do Carregamento dos Mapas em RAM (`apps/server/src/index.ts` & `play.js`):**
+  * Adicionado pré-aquecimento automático de todos os cenários ativos no boot do servidor (`prewarmMapImages`), mantendo as imagens binárias dos mapas persistidas em RAM.
+  * O endpoint proxy `GET /api/assets/map-image/:id` responde em 0ms com cabeçalhos de cache completos diretamente no túnel Cloudflare.
+  * Corrigida a validação de tipo de ID (`Number(this.currentMap.id) === Number(mapId)`) no carregador cliente de fundo.
+
+### Adicionado
+* **Descrição de Personagens com i18n Automático (`class_templates`):**
+  * Criada a coluna `description_i18n_key` em `class_templates` no PostgreSQL.
+  * No estúdio `/admin`, o formulário de classes gera automaticamente a chave auto-incremental `class.class_X.description` e salva o texto em português na tabela `i18n_translations`, disponibilizando o conteúdo nos bootstraps administrativos e in-game.
+* **Visual Reencarnado (Reborn) para Personagens:**
+  * Adicionada coluna `reborn_mcrework_char_key` em `class_templates` e `is_reborn` em `player_characters`.
+  * Adicionada a aba `✨ Visual Reencarnado (Reborn)` no modal de classes com card dedicado, busca na galeria de modelos e botão para desvincular.
+  * Criado endpoint autoritário `POST /api/play/characters/:id/toggle-reborn` e botão de alternância imediata no Painel GM in-game para testes rápidos.
+* **Calibração Fina da Distância dos Pés ao Chão (`groundOffsetY` & `rebornGroundOffsetY`):**
+  * Adicionada calibração milimétrica de offset Y tanto para o modelo padrão quanto para a forma reencarnada.
+  * No `/admin`, adicionada uma linha dourada de referência do solo sob o Hero Preview com botões de incremento `[-1]` e `[+1]` e translação em tempo real (`transform: translateY(...)`).
+  * No motor `McreworkSpriteSheet.draw()`, o offset Y é repassado e renderizado mantendo a sombra fixa no nível do solo e reajustando automaticamente a altura do nome do personagem.
+
+### Refatorado
+* **Cumprimento Estrito da Regra #7 (Zero God Objects / Limite de 1.000 Linhas por Arquivo):**
+  * Extraído o submódulo `apps/server/public/admin/js/AdminLayersDrawer.js` (245 linhas) a partir de `AdminCanvasEditor.js`, reduzindo o editor de 1.008 para 793 linhas.
+  * Otimizado `apps/server/public/admin/index.html` de 1.000 para 944 linhas.
+  * Todos os arquivos do projeto permanecem estritamente abaixo do teto de 1.000 linhas.
+
+---
+
 ## [v0.4.4] - 2026-11-06
 ### Adicionado
 * **Proxy Reverso de Cenários no Servidor (`apps/server/src/index.ts`):**

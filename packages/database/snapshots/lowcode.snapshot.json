@@ -1,6 +1,6 @@
 {
   "version": "0.2.0",
-  "exportedAt": "2026-11-06T19:17:01.337Z",
+  "exportedAt": "2026-11-07T03:04:02.915Z",
   "i18nTranslations": [
     {
       "id": 1,
@@ -1273,8 +1273,85 @@
       "id": 200,
       "key": "class.class_1.name",
       "locale": "pt-BR",
-      "text": "Espadachim Artista",
-      "updatedAt": "2026-11-06T18:55:01.916Z"
+      "text": "Espadachim",
+      "updatedAt": "2026-11-07T02:19:39.618Z"
+    },
+    {
+      "id": 201,
+      "key": "class.class_2.name",
+      "locale": "pt-BR",
+      "text": "Ladina",
+      "updatedAt": "2026-11-07T02:19:12.731Z"
+    },
+    {
+      "id": 203,
+      "key": "class.class_3.name",
+      "locale": "pt-BR",
+      "text": "Guerreira",
+      "updatedAt": "2026-11-07T02:20:39.867Z"
+    },
+    {
+      "id": 204,
+      "key": "class.class_4.name",
+      "locale": "pt-BR",
+      "text": "Curandeira",
+      "updatedAt": "2026-11-07T02:21:59.809Z"
+    },
+    {
+      "id": 205,
+      "key": "class.class_5.name",
+      "locale": "pt-BR",
+      "text": "Caçadora",
+      "updatedAt": "2026-11-07T02:22:55.174Z"
+    },
+    {
+      "id": 206,
+      "key": "class.class_6.name",
+      "locale": "pt-BR",
+      "text": "Assassina",
+      "updatedAt": "2026-11-07T02:23:51.336Z"
+    },
+    {
+      "id": 207,
+      "key": "class.class_7.name",
+      "locale": "pt-BR",
+      "text": "Barda",
+      "updatedAt": "2026-11-07T02:26:53.247Z"
+    },
+    {
+      "id": 208,
+      "key": "class.class_8.name",
+      "locale": "pt-BR",
+      "text": "Soldado",
+      "updatedAt": "2026-11-07T02:27:15.400Z"
+    },
+    {
+      "id": 209,
+      "key": "class.class_9.name",
+      "locale": "pt-BR",
+      "text": "Mago",
+      "updatedAt": "2026-11-07T02:27:41.142Z"
+    },
+    {
+      "id": 210,
+      "key": "class.class_10.name",
+      "locale": "pt-BR",
+      "text": "Paladino",
+      "updatedAt": "2026-11-07T02:27:57.620Z"
+    },
+    {
+      "id": 211,
+      "key": "class.class_11.name",
+      "locale": "pt-BR",
+      "text": "Atirador",
+      "updatedAt": "2026-11-07T02:28:09.218Z"
+    },
+    {
+      "id": 212,
+      "key": "class.class_12.name",
+      "locale": "pt-BR",
+      "text": "Necromante",
+      "updatedAt": "2026-11-07T02:28:36.520Z"
     }
   ],
   "biomes": [
@@ -17202,6 +17279,329 @@
       "code": "class_1",
       "mcreworkCharKey": "PC_MALE_000004",
       "nameI18nKey": "class.class_1.name",
+      "descriptionI18nKey": null,
+      "rebornMcreworkCharKey": null,
+      "groundOffsetY": 0,
+      "rebornGroundOffsetY": 0,
+      "raceCode": "HUMAN",
+      "baseAttributesJson": {
+        "AGI": 10,
+        "DEX": 10,
+        "INT": 10,
+        "STR": 12,
+        "VIT": 12,
+        "WIS": 10
+      },
+      "growthPerLevelJson": {
+        "AGI": 2,
+        "DEX": 2,
+        "INT": 2,
+        "STR": 2,
+        "VIT": 2,
+        "WIS": 2
+      },
+      "skillIdsJson": [],
+      "isActive": true
+    },
+    {
+      "id": 2,
+      "code": "class_2",
+      "mcreworkCharKey": "PC_FEMALE_000004",
+      "nameI18nKey": "class.class_2.name",
+      "descriptionI18nKey": null,
+      "rebornMcreworkCharKey": null,
+      "groundOffsetY": 0,
+      "rebornGroundOffsetY": 0,
+      "raceCode": "HUMAN",
+      "baseAttributesJson": {
+        "AGI": 10,
+        "DEX": 10,
+        "INT": 10,
+        "STR": 12,
+        "VIT": 12,
+        "WIS": 10
+      },
+      "growthPerLevelJson": {
+        "AGI": 2,
+        "DEX": 2,
+        "INT": 2,
+        "STR": 2,
+        "VIT": 2,
+        "WIS": 2
+      },
+      "skillIdsJson": [],
+      "isActive": true
+    },
+    {
+      "id": 3,
+      "code": "class_3",
+      "mcreworkCharKey": "PC_FEMALE_000001",
+      "nameI18nKey": "class.class_3.name",
+      "descriptionI18nKey": null,
+      "rebornMcreworkCharKey": null,
+      "groundOffsetY": 0,
+      "rebornGroundOffsetY": 0,
+      "raceCode": "HUMAN",
+      "baseAttributesJson": {
+        "AGI": 10,
+        "DEX": 10,
+        "INT": 10,
+        "STR": 12,
+        "VIT": 12,
+        "WIS": 10
+      },
+      "growthPerLevelJson": {
+        "AGI": 2,
+        "DEX": 2,
+        "INT": 2,
+        "STR": 2,
+        "VIT": 2,
+        "WIS": 2
+      },
+      "skillIdsJson": [],
+      "isActive": true
+    },
+    {
+      "id": 4,
+      "code": "class_4",
+      "mcreworkCharKey": "PC_FEMALE_000002",
+      "nameI18nKey": "class.class_4.name",
+      "descriptionI18nKey": null,
+      "rebornMcreworkCharKey": null,
+      "groundOffsetY": 0,
+      "rebornGroundOffsetY": 0,
+      "raceCode": "HUMAN",
+      "baseAttributesJson": {
+        "AGI": 10,
+        "DEX": 10,
+        "INT": 10,
+        "STR": 12,
+        "VIT": 12,
+        "WIS": 10
+      },
+      "growthPerLevelJson": {
+        "AGI": 2,
+        "DEX": 2,
+        "INT": 2,
+        "STR": 2,
+        "VIT": 2,
+        "WIS": 2
+      },
+      "skillIdsJson": [],
+      "isActive": true
+    },
+    {
+      "id": 5,
+      "code": "class_5",
+      "mcreworkCharKey": "PC_FEMALE_000003",
+      "nameI18nKey": "class.class_5.name",
+      "descriptionI18nKey": null,
+      "rebornMcreworkCharKey": null,
+      "groundOffsetY": 0,
+      "rebornGroundOffsetY": 0,
+      "raceCode": "HUMAN",
+      "baseAttributesJson": {
+        "AGI": 10,
+        "DEX": 10,
+        "INT": 10,
+        "STR": 12,
+        "VIT": 12,
+        "WIS": 10
+      },
+      "growthPerLevelJson": {
+        "AGI": 2,
+        "DEX": 2,
+        "INT": 2,
+        "STR": 2,
+        "VIT": 2,
+        "WIS": 2
+      },
+      "skillIdsJson": [],
+      "isActive": true
+    },
+    {
+      "id": 6,
+      "code": "class_6",
+      "mcreworkCharKey": "PC_FEMALE_000005",
+      "nameI18nKey": "class.class_6.name",
+      "descriptionI18nKey": null,
+      "rebornMcreworkCharKey": null,
+      "groundOffsetY": 0,
+      "rebornGroundOffsetY": 0,
+      "raceCode": "HUMAN",
+      "baseAttributesJson": {
+        "AGI": 10,
+        "DEX": 10,
+        "INT": 10,
+        "STR": 12,
+        "VIT": 12,
+        "WIS": 10
+      },
+      "growthPerLevelJson": {
+        "AGI": 2,
+        "DEX": 2,
+        "INT": 2,
+        "STR": 2,
+        "VIT": 2,
+        "WIS": 2
+      },
+      "skillIdsJson": [],
+      "isActive": true
+    },
+    {
+      "id": 7,
+      "code": "class_7",
+      "mcreworkCharKey": "PC_FEMALE_000006",
+      "nameI18nKey": "class.class_7.name",
+      "descriptionI18nKey": null,
+      "rebornMcreworkCharKey": null,
+      "groundOffsetY": 0,
+      "rebornGroundOffsetY": 0,
+      "raceCode": "HUMAN",
+      "baseAttributesJson": {
+        "AGI": 10,
+        "DEX": 10,
+        "INT": 10,
+        "STR": 12,
+        "VIT": 12,
+        "WIS": 10
+      },
+      "growthPerLevelJson": {
+        "AGI": 2,
+        "DEX": 2,
+        "INT": 2,
+        "STR": 2,
+        "VIT": 2,
+        "WIS": 2
+      },
+      "skillIdsJson": [],
+      "isActive": true
+    },
+    {
+      "id": 8,
+      "code": "class_8",
+      "mcreworkCharKey": "PC_MALE_000001",
+      "nameI18nKey": "class.class_8.name",
+      "descriptionI18nKey": null,
+      "rebornMcreworkCharKey": null,
+      "groundOffsetY": 0,
+      "rebornGroundOffsetY": 0,
+      "raceCode": "HUMAN",
+      "baseAttributesJson": {
+        "AGI": 10,
+        "DEX": 10,
+        "INT": 10,
+        "STR": 12,
+        "VIT": 12,
+        "WIS": 10
+      },
+      "growthPerLevelJson": {
+        "AGI": 2,
+        "DEX": 2,
+        "INT": 2,
+        "STR": 2,
+        "VIT": 2,
+        "WIS": 2
+      },
+      "skillIdsJson": [],
+      "isActive": true
+    },
+    {
+      "id": 9,
+      "code": "class_9",
+      "mcreworkCharKey": "PC_MALE_000002",
+      "nameI18nKey": "class.class_9.name",
+      "descriptionI18nKey": null,
+      "rebornMcreworkCharKey": null,
+      "groundOffsetY": 0,
+      "rebornGroundOffsetY": 0,
+      "raceCode": "HUMAN",
+      "baseAttributesJson": {
+        "AGI": 10,
+        "DEX": 10,
+        "INT": 10,
+        "STR": 12,
+        "VIT": 12,
+        "WIS": 10
+      },
+      "growthPerLevelJson": {
+        "AGI": 2,
+        "DEX": 2,
+        "INT": 2,
+        "STR": 2,
+        "VIT": 2,
+        "WIS": 2
+      },
+      "skillIdsJson": [],
+      "isActive": true
+    },
+    {
+      "id": 10,
+      "code": "class_10",
+      "mcreworkCharKey": "PC_MALE_000003",
+      "nameI18nKey": "class.class_10.name",
+      "descriptionI18nKey": null,
+      "rebornMcreworkCharKey": null,
+      "groundOffsetY": 0,
+      "rebornGroundOffsetY": 0,
+      "raceCode": "HUMAN",
+      "baseAttributesJson": {
+        "AGI": 10,
+        "DEX": 10,
+        "INT": 10,
+        "STR": 12,
+        "VIT": 12,
+        "WIS": 10
+      },
+      "growthPerLevelJson": {
+        "AGI": 2,
+        "DEX": 2,
+        "INT": 2,
+        "STR": 2,
+        "VIT": 2,
+        "WIS": 2
+      },
+      "skillIdsJson": [],
+      "isActive": true
+    },
+    {
+      "id": 11,
+      "code": "class_11",
+      "mcreworkCharKey": "PC_MALE_000005",
+      "nameI18nKey": "class.class_11.name",
+      "descriptionI18nKey": null,
+      "rebornMcreworkCharKey": null,
+      "groundOffsetY": 0,
+      "rebornGroundOffsetY": 0,
+      "raceCode": "HUMAN",
+      "baseAttributesJson": {
+        "AGI": 10,
+        "DEX": 10,
+        "INT": 10,
+        "STR": 12,
+        "VIT": 12,
+        "WIS": 10
+      },
+      "growthPerLevelJson": {
+        "AGI": 2,
+        "DEX": 2,
+        "INT": 2,
+        "STR": 2,
+        "VIT": 2,
+        "WIS": 2
+      },
+      "skillIdsJson": [],
+      "isActive": true
+    },
+    {
+      "id": 12,
+      "code": "class_12",
+      "mcreworkCharKey": "PC_MALE_000006",
+      "nameI18nKey": "class.class_12.name",
+      "descriptionI18nKey": null,
+      "rebornMcreworkCharKey": null,
+      "groundOffsetY": 0,
+      "rebornGroundOffsetY": 0,
       "raceCode": "HUMAN",
       "baseAttributesJson": {
         "AGI": 10,

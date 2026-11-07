@@ -71,6 +71,7 @@ class EtheriaAdminStudio {
     if (window.AdminNpcsTab) window.AdminNpcsTab.attach(this);
     if (window.AdminClassesTab) window.AdminClassesTab.attach(this);
     if (window.AdminCanvasEditor) window.AdminCanvasEditor.attach(this);
+    if (window.AdminLayersDrawer) window.AdminLayersDrawer.attach(this);
 
     this.init();
   }

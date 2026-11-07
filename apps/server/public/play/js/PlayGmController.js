@@ -152,6 +152,27 @@ class PlayGmController {
       const modal = document.getElementById('statsModal');
       if (modal) modal.style.display = 'flex';
     };
+
+    client.toggleCharacterReborn = async function () {
+      if (!this.activeChar) return;
+      try {
+        const updated = await this.api(`/api/play/characters/${this.activeChar.id}/toggle-reborn`, {
+          method: 'POST',
+        });
+        this.activeChar = updated;
+        this.getOrCreateSprite(
+          `char_${this.activeChar.mcreworkCharKey}`,
+          this.activeChar.atlasJsonUrl,
+          this.activeChar.atlasWebpUrl,
+          this.activeChar.thumbUrl
+        ).load();
+        this.updateHudInfo();
+        const status = updated.isReborn ? '✨ Reencarnado (Reborn)' : '👤 Normal / Padrão';
+        alert(`Visual alternado para: ${status}\nOffset do Chão ativo: ${updated.groundOffsetY}px`);
+      } catch (err) {
+        alert(`Erro ao alternar forma reencarnada: ${err.message}`);
+      }
+    };
   }
 }
 
