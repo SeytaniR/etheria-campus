@@ -1,9 +1,12 @@
 /**
  * @file apps/server/src/controllers/AdminQuestsController.ts
  * @module @etheria/server
- * @description Controlador do Estúdio No-Code de Quests (`quest_templates`) e Progresso de Missões (`/play`).
- *   - Suporta as 4 categorias: Principal Linear (`MAIN`), Secundária (`SIDE`), Épica (`EPIC`) e Proficiência (`PROFICIENCY`).
- *   - Permite restringir o NPC de início e o NPC de entrega a um Mapa específico (com indicação de Nível) ou a Todos os Mapas (`null`).
+ * @description Controlador do Estúdio No-Code de Quests (`quest_templates`), Fluxograma por Capítulos/Episódios e Progresso (`/play`).
+ *   - Missões Principais (`MAIN`) seguem progressão estritamente linear por Capítulos e Episódios (`1-1` -> `1-2` -> `1-3` ===> `2-1` -> `2-2`):
+ *     - O Episódio `E` só libera quando o Episódio `E-1` do mesmo Capítulo é concluído.
+ *     - O Capítulo `C` só libera quando TODOS os Episódios do Capítulo `C-1` são concluídos.
+ *   - Todas as categorias (`MAIN`, `SIDE`, `EPIC`, `PROFICIENCY`) possuem Gatilho de Acionamento (`triggerType` + `triggerConfigJson`)
+ *     e Requisitos de Desbloqueio (`requirementsJson`).
  *   - Calcula os indicadores de cabeça dos NPCs no mapa (`/play`):
  *     - `!` em Vermelho (`AVAILABLE`): Missão disponível para aceitar.
  *     - `?` em Cinza (`IN_PROGRESS`): Missão em andamento.
@@ -20,6 +23,21 @@ export interface QuestObjectiveBlockDto {
   mapId?: number | null;
   requiredCount: number;
   labelPtBr?: string;
+}
+
+export interface QuestTriggerConfigDto {
+  triggerMapId?: number | null;
+  triggerMonsterId?: number | null;
+  autoAcceptOnTrigger?: boolean;
+}
+
+export interface QuestRequirementsDto {
+  minLevel?: number;
+  prerequisiteQuestId?: number | null;
+  requiredChapterCompleted?: number | null;
+  requiredElement?: string | null;
+  requiredClassId?: number | null;
+  requireReborn?: boolean;
 }
 
 export interface QuestRewardDto {
@@ -39,9 +57,13 @@ export interface SaveQuestTemplateDto {
   dialogueCompletePtBr?: string;
   questCategory?: 'MAIN' | 'SIDE' | 'EPIC' | 'PROFICIENCY';
   chapterOrder?: number;
+  episodeOrder?: number;
   minLevel?: number;
   prerequisiteQuestId?: number | null;
   repeatType?: 'ONCE' | 'REPEATABLE' | 'DAILY';
+  triggerType?: 'NPC_INTERACT' | 'AUTO_ON_PREV_QUEST' | 'ENTER_MAP' | 'REACH_LEVEL' | 'KILL_MONSTER_TRIGGER';
+  triggerConfigJson?: QuestTriggerConfigDto;
+  requirementsJson?: QuestRequirementsDto;
   giverNpcId?: number | null;
   giverMapId?: number | null;
   turnInNpcId?: number | null;
@@ -61,14 +83,19 @@ export class AdminQuestsController {
   }
 
   /**
-   * Lista todas as Quests enriquecidas com traduções PT-BR e nomes de NPCs/Mapas.
+   * Lista todas as Quests enriquecidas com traduções PT-BR, código de Episódio (`1-1`, `1-2`...),
+   * cadeia linear automática de Capítulos/Episódios, Gatilhos e Requisitos.
    */
   public async getQuestTemplates() {
-    const [translations, quests, npcs, maps] = await Promise.all([
+    const [translations, quests, npcs, maps, monsters, classes] = await Promise.all([
       this.prisma.i18nTranslation.findMany({ where: { locale: 'pt-BR' } }),
-      this.prisma.questTemplate.findMany({ orderBy: [{ questCategory: 'asc' }, { chapterOrder: 'asc' }, { id: 'asc' }] }),
+      this.prisma.questTemplate.findMany({
+        orderBy: [{ chapterOrder: 'asc' }, { episodeOrder: 'asc' }, { id: 'asc' }],
+      }),
       this.prisma.npcTemplate.findMany(),
       this.prisma.gameMap.findMany(),
+      this.prisma.monsterTemplate.findMany(),
+      this.prisma.classTemplate.findMany(),
     ]);
 
     const i18nMap = new Map<string, string>();
@@ -89,12 +116,131 @@ export class AdminQuestsController {
       });
     }
 
+    const mobNameMap = new Map<number, string>();
+    for (const mob of monsters) {
+      mobNameMap.set(mob.id, i18nMap.get(mob.nameI18nKey) ?? mob.code);
+    }
+
+    const classNameMap = new Map<number, string>();
+    for (const cl of classes) {
+      classNameMap.set(cl.id, i18nMap.get(cl.nameI18nKey) ?? cl.code);
+    }
+
+    // Ordena todas as quests MAIN por (chapterOrder, episodeOrder, id) para calcular a cadeia linear
+    const mainQuests = quests
+      .filter((q) => q.questCategory === 'MAIN')
+      .sort(
+        (a, b) =>
+          (a.chapterOrder || 1) - (b.chapterOrder || 1) ||
+          (a.episodeOrder || 1) - (b.episodeOrder || 1) ||
+          a.id - b.id
+      );
+
     return quests.map((q) => {
       const giverMapInfo = q.giverMapId ? mapInfoMap.get(q.giverMapId) : null;
       const turnInMapInfo = q.turnInMapId ? mapInfoMap.get(q.turnInMapId) : null;
+      const chapter = Math.max(1, Number(q.chapterOrder) || 1);
+      const episode = Math.max(1, Number(q.episodeOrder) || 1);
+      const episodeCode = `${chapter}-${episode}`;
+
+      const trigCfg = (q.triggerConfigJson || {}) as QuestTriggerConfigDto;
+      const reqCfg = (q.requirementsJson || {}) as QuestRequirementsDto;
+
+      // Calcula os pré-requisitos lineares automáticos para Quests Principais (MAIN)
+      const autoRequiredQuestIds: number[] = [];
+      let linearLockDescriptionPtBr = '';
+
+      if (q.questCategory === 'MAIN') {
+        const sameChapterPrevEpisodes = mainQuests.filter(
+          (mq) =>
+            mq.id !== q.id &&
+            Number(mq.chapterOrder) === chapter &&
+            (Number(mq.episodeOrder) < episode ||
+              (Number(mq.episodeOrder) === episode && mq.id < q.id))
+        );
+
+        if (sameChapterPrevEpisodes.length > 0) {
+          for (const prev of sameChapterPrevEpisodes) {
+            autoRequiredQuestIds.push(prev.id);
+          }
+          const immediatePrev = sameChapterPrevEpisodes[sameChapterPrevEpisodes.length - 1];
+          linearLockDescriptionPtBr = `🔒 Libera ao concluir Ep. ${immediatePrev.chapterOrder}-${immediatePrev.episodeOrder} (${i18nMap.get(immediatePrev.titleI18nKey) ?? immediatePrev.code})`;
+        } else if (chapter > 1) {
+          // Primeiro episódio de um Capítulo > 1: exige TODOS os episódios do Capítulo anterior (chapter - 1)
+          const prevChapterQuests = mainQuests.filter((mq) => Number(mq.chapterOrder) === chapter - 1);
+          for (const prev of prevChapterQuests) {
+            autoRequiredQuestIds.push(prev.id);
+          }
+          if (prevChapterQuests.length > 0) {
+            linearLockDescriptionPtBr = `🔒 Libera ao concluir todo o Capítulo ${chapter - 1} (${prevChapterQuests.length} episódio(s))`;
+          }
+        } else {
+          linearLockDescriptionPtBr = `🟢 Início da Jornada (Capítulo 1 • Episódio 1-1)`;
+        }
+      } else {
+        // Para SIDE, EPIC e PROFICIENCY, verifica se exige um Capítulo completo ou Quest específica
+        if (reqCfg.requiredChapterCompleted && Number(reqCfg.requiredChapterCompleted) >= 1) {
+          const targetChap = Number(reqCfg.requiredChapterCompleted);
+          const chapQuests = mainQuests.filter((mq) => Number(mq.chapterOrder) === targetChap);
+          for (const cq of chapQuests) {
+            autoRequiredQuestIds.push(cq.id);
+          }
+        }
+      }
+
+      const explicitPrereqId = q.prerequisiteQuestId || reqCfg.prerequisiteQuestId || null;
+      if (explicitPrereqId && !autoRequiredQuestIds.includes(Number(explicitPrereqId))) {
+        autoRequiredQuestIds.push(Number(explicitPrereqId));
+      }
+
+      // Resumo amigável do Gatilho (Trigger)
+      let triggerSummaryPtBr = '';
+      const tType = q.triggerType || 'NPC_INTERACT';
+      if (tType === 'NPC_INTERACT') {
+        const npcName = q.giverNpcId ? (npcNameMap.get(q.giverNpcId) ?? `NPC #${q.giverNpcId}`) : 'NPC';
+        triggerSummaryPtBr = `💬 Falar com ${npcName}`;
+      } else if (tType === 'AUTO_ON_PREV_QUEST') {
+        triggerSummaryPtBr = `⚡ Automático ao concluir episódio anterior`;
+      } else if (tType === 'ENTER_MAP') {
+        const mInfo = trigCfg.triggerMapId ? mapInfoMap.get(Number(trigCfg.triggerMapId)) : giverMapInfo;
+        const mLabel = mInfo ? `${mInfo.namePtBr} (Nv.${mInfo.requiredLevel})` : 'Qualquer Mapa';
+        triggerSummaryPtBr = `🗺️ Ao entrar em ${mLabel}`;
+      } else if (tType === 'REACH_LEVEL') {
+        triggerSummaryPtBr = `⭐ Ao atingir Nível ${q.minLevel || 1}`;
+      } else if (tType === 'KILL_MONSTER_TRIGGER') {
+        const mobName = trigCfg.triggerMonsterId
+          ? (mobNameMap.get(Number(trigCfg.triggerMonsterId)) ?? `Monstro #${trigCfg.triggerMonsterId}`)
+          : 'Qualquer Monstro';
+        triggerSummaryPtBr = `🐉 Ao derrotar ${mobName}`;
+      }
+
+      // Resumo amigável dos Requisitos (Requirements)
+      const reqParts: string[] = [];
+      reqParts.push(`Nv. Mín ${q.minLevel || 1}`);
+      if (q.questCategory === 'MAIN' && linearLockDescriptionPtBr) {
+        reqParts.push(linearLockDescriptionPtBr.replace('🔒 ', '').replace('🟢 ', ''));
+      } else if (explicitPrereqId) {
+        const pq = quests.find((x) => x.id === Number(explicitPrereqId));
+        if (pq) {
+          reqParts.push(`Após Ep. ${pq.chapterOrder}-${pq.episodeOrder} (${i18nMap.get(pq.titleI18nKey) ?? pq.code})`);
+        }
+      }
+      if (reqCfg.requiredChapterCompleted) {
+        reqParts.push(`Cap. ${reqCfg.requiredChapterCompleted} Completo`);
+      }
+      if (reqCfg.requiredClassId) {
+        reqParts.push(`Classe: ${classNameMap.get(Number(reqCfg.requiredClassId)) ?? `#${reqCfg.requiredClassId}`}`);
+      }
+      if (reqCfg.requiredElement) {
+        reqParts.push(`Elem: ${reqCfg.requiredElement}`);
+      }
+      if (reqCfg.requireReborn) {
+        reqParts.push(`Exige Reborn ✨`);
+      }
 
       return {
         ...q,
+        episodeCode,
         titlePtBr: i18nMap.get(q.titleI18nKey) ?? q.code,
         descriptionPtBr: q.descriptionI18nKey ? (i18nMap.get(q.descriptionI18nKey) ?? '') : '',
         dialogueOfferPtBr: q.dialogueOfferI18nKey ? (i18nMap.get(q.dialogueOfferI18nKey) ?? '') : '',
@@ -108,12 +254,17 @@ export class AdminQuestsController {
         turnInMapNamePtBr: turnInMapInfo
           ? `#${q.turnInMapId} ${turnInMapInfo.namePtBr} (Nv.${turnInMapInfo.requiredLevel})`
           : '🌍 Todos os Mapas com este NPC',
+        autoRequiredQuestIds,
+        linearLockDescriptionPtBr,
+        triggerSummaryPtBr,
+        requirementSummaryPtBr: reqParts.join(' • '),
       };
     });
   }
 
   /**
-   * Cria ou atualiza uma Quest no banco PostgreSQL com chaves i18n auto-incrementadas (`quest_N`).
+   * Cria ou atualiza uma Quest no banco PostgreSQL com chaves i18n auto-incrementadas (`quest_N`),
+   * mantendo a numeração de Capítulo (`chapterOrder`) e Episódio (`episodeOrder`) e os gatilhos/requisitos.
    */
   public async saveQuestTemplate(dto: SaveQuestTemplateDto, explicitId: number | null = null) {
     const validCategories = ['MAIN', 'SIDE', 'EPIC', 'PROFICIENCY'];
@@ -122,11 +273,35 @@ export class AdminQuestsController {
       : 'MAIN';
 
     const chapterOrder = Math.max(1, Number(dto.chapterOrder) || 1);
-    const minLevel = Math.max(1, Number(dto.minLevel) || 1);
-    const prerequisiteQuestId = dto.prerequisiteQuestId ? Number(dto.prerequisiteQuestId) : null;
+    const episodeOrder = Math.max(1, Number(dto.episodeOrder) || 1);
+    const minLevel = Math.max(1, Number(dto.minLevel ?? dto.requirementsJson?.minLevel) || 1);
+    let prerequisiteQuestId = dto.prerequisiteQuestId ? Number(dto.prerequisiteQuestId) : null;
+
     const repeatType = ['ONCE', 'REPEATABLE', 'DAILY'].includes(String(dto.repeatType || '').toUpperCase())
       ? String(dto.repeatType).toUpperCase()
       : 'ONCE';
+
+    const validTriggers = ['NPC_INTERACT', 'AUTO_ON_PREV_QUEST', 'ENTER_MAP', 'REACH_LEVEL', 'KILL_MONSTER_TRIGGER'];
+    const triggerType = validTriggers.includes(String(dto.triggerType || '').toUpperCase())
+      ? String(dto.triggerType).toUpperCase()
+      : 'NPC_INTERACT';
+
+    const triggerConfigJson: QuestTriggerConfigDto = {
+      triggerMapId: dto.triggerConfigJson?.triggerMapId ? Number(dto.triggerConfigJson.triggerMapId) : null,
+      triggerMonsterId: dto.triggerConfigJson?.triggerMonsterId ? Number(dto.triggerConfigJson.triggerMonsterId) : null,
+      autoAcceptOnTrigger: Boolean(dto.triggerConfigJson?.autoAcceptOnTrigger),
+    };
+
+    const requirementsJson: QuestRequirementsDto = {
+      minLevel,
+      prerequisiteQuestId,
+      requiredChapterCompleted: dto.requirementsJson?.requiredChapterCompleted
+        ? Number(dto.requirementsJson.requiredChapterCompleted)
+        : null,
+      requiredElement: dto.requirementsJson?.requiredElement || null,
+      requiredClassId: dto.requirementsJson?.requiredClassId ? Number(dto.requirementsJson.requiredClassId) : null,
+      requireReborn: Boolean(dto.requirementsJson?.requireReborn),
+    };
 
     const giverNpcId = dto.giverNpcId ? Number(dto.giverNpcId) : null;
     const giverMapId = dto.giverMapId ? Number(dto.giverMapId) : null;
@@ -134,7 +309,10 @@ export class AdminQuestsController {
     const turnInMapId = dto.turnInMapId ? Number(dto.turnInMapId) : null;
 
     const objectivesJson = Array.isArray(dto.objectivesJson) ? dto.objectivesJson : [];
-    const rewardsJson = dto.rewardsJson && typeof dto.rewardsJson === 'object' ? dto.rewardsJson : { exp: 100, gold: 50, statPoints: 0 };
+    const rewardsJson =
+      dto.rewardsJson && typeof dto.rewardsJson === 'object'
+        ? dto.rewardsJson
+        : { exp: 100, gold: 50, statPoints: 0 };
     const isActive = dto.isActive !== undefined ? Boolean(dto.isActive) : true;
 
     let finalTitle = (dto.titlePtBr ?? '').trim();
@@ -146,6 +324,24 @@ export class AdminQuestsController {
     let saved: any;
 
     await this.prisma.$transaction(async (tx) => {
+      // Se for uma Quest MAIN e não tiver prerequisiteQuestId explícito, vincula automaticamente ao episódio anterior
+      if (questCategory === 'MAIN' && !prerequisiteQuestId) {
+        const allMain = await tx.questTemplate.findMany({
+          where: { questCategory: 'MAIN' },
+          orderBy: [{ chapterOrder: 'asc' }, { episodeOrder: 'asc' }, { id: 'asc' }],
+        });
+        const candidates = allMain.filter((mq) => {
+          if (explicitId && mq.id === explicitId) return false;
+          if (mq.chapterOrder === chapterOrder && mq.episodeOrder < episodeOrder) return true;
+          if (episodeOrder === 1 && chapterOrder > 1 && mq.chapterOrder === chapterOrder - 1) return true;
+          return false;
+        });
+        if (candidates.length > 0) {
+          prerequisiteQuestId = candidates[candidates.length - 1].id;
+          requirementsJson.prerequisiteQuestId = prerequisiteQuestId;
+        }
+      }
+
       let targetId = explicitId;
 
       if (!targetId) {
@@ -156,9 +352,13 @@ export class AdminQuestsController {
             titleI18nKey: `quest.${tempCode}.title`,
             questCategory,
             chapterOrder,
+            episodeOrder,
             minLevel,
             prerequisiteQuestId,
             repeatType,
+            triggerType,
+            triggerConfigJson: triggerConfigJson as any,
+            requirementsJson: requirementsJson as any,
             giverNpcId,
             giverMapId,
             turnInNpcId,
@@ -207,9 +407,13 @@ export class AdminQuestsController {
           dialogueCompleteI18nKey: completeKey,
           questCategory,
           chapterOrder,
+          episodeOrder,
           minLevel,
           prerequisiteQuestId,
           repeatType,
+          triggerType,
+          triggerConfigJson: triggerConfigJson as any,
+          requirementsJson: requirementsJson as any,
           giverNpcId,
           giverMapId,
           turnInNpcId,
@@ -233,7 +437,8 @@ export class AdminQuestsController {
 
   /**
    * Calcula o estado completo de Quests de um Personagem no Mapa Atual (`/play`),
-   * incluindo os indicadores na cabeça de cada NPC (`! vermelho`, `? cinza`, `? vermelho`).
+   * aplicando a trava linear de Episódios (`1-1` -> `1-2` -> `1-3`) e Capítulos (`Cap. 1` -> `Cap. 2`),
+   * além dos Requisitos (`requirementsJson`) e Gatilhos (`triggerType`).
    */
   public async getCharacterQuestState(characterId: number, currentMapId: number | null = null) {
     const [character, allQuests, progressRows] = await Promise.all([
@@ -252,15 +457,18 @@ export class AdminQuestsController {
       progressMap.set(p.questTemplateId, p);
     }
 
-    // Avalia cada Quest ativa para este personagem
     const enrichedQuests = allQuests
       .filter((q) => q.isActive !== false)
       .map((q) => {
         const prog = progressMap.get(q.id);
-        const objectives = Array.isArray(q.objectivesJson) ? (q.objectivesJson as unknown as QuestObjectiveBlockDto[]) : [];
+        const objectives = Array.isArray(q.objectivesJson)
+          ? (q.objectivesJson as unknown as QuestObjectiveBlockDto[])
+          : [];
         const counts: number[] = Array.isArray(prog?.progressJson)
           ? (prog.progressJson as number[])
           : objectives.map(() => 0);
+
+        const reqCfg = (q.requirementsJson || {}) as QuestRequirementsDto;
 
         let playerState: 'LOCKED' | 'AVAILABLE' | 'IN_PROGRESS' | 'TURN_IN_READY' | 'COMPLETED' = 'LOCKED';
 
@@ -273,14 +481,24 @@ export class AdminQuestsController {
             playerState = q.repeatType === 'ONCE' ? 'COMPLETED' : 'AVAILABLE';
           }
         } else {
-          // Verifica nível e pré-requisito
+          // 1. Verifica Nível Mínimo
           const levelOk = (character.level || 1) >= (q.minLevel || 1);
-          let prereqOk = true;
-          if (q.prerequisiteQuestId) {
-            const preProg = progressMap.get(q.prerequisiteQuestId);
-            prereqOk = Boolean(preProg && preProg.status === 'TURNED_IN');
-          }
-          if (levelOk && prereqOk) {
+
+          // 2. Verifica Cadeia Linear de Episódios/Capítulos + Quest Pré-Requisito
+          const allPrereqsOk = (q.autoRequiredQuestIds || []).every((reqQuestId: number) => {
+            const preProg = progressMap.get(Number(reqQuestId));
+            return Boolean(preProg && preProg.status === 'TURNED_IN');
+          });
+
+          // 3. Verifica Classe, Elemento e Reborn nos Requisitos
+          const classOk =
+            !reqCfg.requiredClassId || Number(character.classTemplateId) === Number(reqCfg.requiredClassId);
+          const elementOk =
+            !reqCfg.requiredElement ||
+            String(character.elementCode || '').toUpperCase() === String(reqCfg.requiredElement).toUpperCase();
+          const rebornOk = !reqCfg.requireReborn || Boolean(character.isReborn);
+
+          if (levelOk && allPrereqsOk && classOk && elementOk && rebornOk) {
             playerState = 'AVAILABLE';
           }
         }
@@ -288,13 +506,42 @@ export class AdminQuestsController {
         const giverMapAllowed = !q.giverMapId || !activeMapId || Number(q.giverMapId) === Number(activeMapId);
         const turnInMapAllowed = !q.turnInMapId || !activeMapId || Number(q.turnInMapId) === Number(activeMapId);
 
+        // Formata objetivos com contadores atuais para o cliente /play
+        const formattedObjectives = objectives.map((obj, idx) => {
+          const cur = Number(counts[idx] || 0);
+          const req = Math.max(1, Number(obj.requiredCount) || 1);
+          return {
+            ...obj,
+            currentCount: cur,
+            requiredCount: req,
+            completed: cur >= req,
+            descriptionPtBr: obj.labelPtBr || obj.type,
+          };
+        });
+
+        const rew = (q.rewardsJson || {}) as QuestRewardDto;
+
         return {
           ...q,
+          status:
+            playerState === 'TURN_IN_READY'
+              ? 'READY_TO_TURN_IN'
+              : playerState,
           playerState,
           progressCounts: counts,
+          objectives: formattedObjectives,
+          rewards: {
+            exp: Number(rew.exp) || 0,
+            gold: Number(rew.gold) || 0,
+            freePointsBonus: Number(rew.statPoints) || 0,
+            triggerReborn: Boolean(rew.triggerReborn),
+          },
+          category: q.questCategory,
           completedCount: prog?.completedCount || 0,
           giverMapAllowed,
           turnInMapAllowed,
+          canAcceptOnCurrentMap: giverMapAllowed,
+          canTurnInOnCurrentMap: turnInMapAllowed,
         };
       });
 
@@ -342,13 +589,17 @@ export class AdminQuestsController {
       throw new Error('Missão não encontrada.');
     }
     if (quest.playerState !== 'AVAILABLE') {
-      throw new Error('Esta missão não está disponível para aceitação no momento.');
+      throw new Error(
+        quest.linearLockDescriptionPtBr || 'Esta missão ainda está bloqueada pelos requisitos anteriores.'
+      );
     }
     if (!quest.giverMapAllowed) {
       throw new Error(`Esta missão só pode ser aceita no mapa: ${quest.giverMapNamePtBr}`);
     }
 
-    const objectives = Array.isArray(quest.objectivesJson) ? (quest.objectivesJson as unknown as QuestObjectiveBlockDto[]) : [];
+    const objectives = Array.isArray(quest.objectivesJson)
+      ? (quest.objectivesJson as unknown as QuestObjectiveBlockDto[])
+      : [];
     const initialCounts = objectives.map((obj) => {
       if (obj.type === 'VISIT_MAP' && (!obj.mapId || Number(obj.mapId) === Number(state.currentMapId))) {
         return obj.requiredCount || 1;
@@ -378,7 +629,8 @@ export class AdminQuestsController {
       },
     });
 
-    return this.getCharacterQuestState(characterId, currentMapId);
+    const updatedState = await this.getCharacterQuestState(characterId, currentMapId);
+    return { questState: updatedState };
   }
 
   /**
@@ -389,7 +641,9 @@ export class AdminQuestsController {
     const inProgressQuests = state.quests.filter((q) => q.playerState === 'IN_PROGRESS');
 
     for (const q of inProgressQuests) {
-      const objectives = Array.isArray(q.objectivesJson) ? (q.objectivesJson as unknown as QuestObjectiveBlockDto[]) : [];
+      const objectives = Array.isArray(q.objectivesJson)
+        ? (q.objectivesJson as unknown as QuestObjectiveBlockDto[])
+        : [];
       const counts = [...q.progressCounts];
       let changed = false;
 
@@ -420,7 +674,8 @@ export class AdminQuestsController {
       }
     }
 
-    return this.getCharacterQuestState(characterId, currentMapId);
+    const updatedState = await this.getCharacterQuestState(characterId, currentMapId);
+    return { questState: updatedState };
   }
 
   /**
@@ -436,7 +691,9 @@ export class AdminQuestsController {
     const inProgressQuests = state.quests.filter((q) => q.playerState === 'IN_PROGRESS');
 
     for (const q of inProgressQuests) {
-      const objectives = Array.isArray(q.objectivesJson) ? (q.objectivesJson as unknown as QuestObjectiveBlockDto[]) : [];
+      const objectives = Array.isArray(q.objectivesJson)
+        ? (q.objectivesJson as unknown as QuestObjectiveBlockDto[])
+        : [];
       const counts = [...q.progressCounts];
       let changed = false;
 
@@ -475,6 +732,7 @@ export class AdminQuestsController {
 
   /**
    * Jogador entrega a Quest concluída no NPC (`? vermelho`) e recebe as recompensas.
+   * Se o próximo episódio tiver gatilho `AUTO_ON_PREV_QUEST`, inicia-o automaticamente!
    */
   public async turnInQuest(characterId: number, questTemplateId: number, currentMapId: number | null = null) {
     const state = await this.getCharacterQuestState(characterId, currentMapId);
@@ -494,6 +752,8 @@ export class AdminQuestsController {
     const statPointsGain = Math.max(0, Number(rewards.statPoints) || 0);
     const triggerReborn = Boolean(rewards.triggerReborn);
 
+    let updatedCharSummary: any = null;
+
     await this.prisma.$transaction(async (tx) => {
       const pc = await tx.playerCharacter.findUnique({ where: { id: Number(characterId) } });
       if (!pc) throw new Error('Personagem não encontrado.');
@@ -502,14 +762,13 @@ export class AdminQuestsController {
       let newLevel = pc.level || 1;
       let newStatPoints = (pc.unspentStatPoints || 0) + statPointsGain;
 
-      // Subida de nível automática simples por XP ganho na Quest
       while (newExp >= newLevel * 200) {
         newExp -= newLevel * 200;
         newLevel += 1;
         newStatPoints += 5;
       }
 
-      await tx.playerCharacter.update({
+      const updatedPc = await tx.playerCharacter.update({
         where: { id: pc.id },
         data: {
           experience: BigInt(newExp),
@@ -518,6 +777,14 @@ export class AdminQuestsController {
           isReborn: triggerReborn ? true : pc.isReborn,
         },
       });
+
+      updatedCharSummary = {
+        id: updatedPc.id,
+        level: updatedPc.level,
+        exp: Number(updatedPc.experience),
+        freePoints: updatedPc.unspentStatPoints,
+        isReborn: updatedPc.isReborn,
+      };
 
       await tx.characterQuestProgress.update({
         where: {
@@ -533,35 +800,78 @@ export class AdminQuestsController {
       });
     });
 
-    return this.getCharacterQuestState(characterId, currentMapId);
+    // Verifica se alguma Quest recém-desbloqueada possui gatilho AUTO_ON_PREV_QUEST com autoAcceptOnTrigger
+    const afterState = await this.getCharacterQuestState(characterId, currentMapId);
+    for (const nextQ of afterState.quests) {
+      const trigCfg = (nextQ.triggerConfigJson || {}) as QuestTriggerConfigDto;
+      if (
+        nextQ.playerState === 'AVAILABLE' &&
+        nextQ.triggerType === 'AUTO_ON_PREV_QUEST' &&
+        trigCfg.autoAcceptOnTrigger &&
+        (nextQ.autoRequiredQuestIds || []).includes(quest.id)
+      ) {
+        try {
+          await this.acceptQuest(characterId, nextQ.id, currentMapId);
+        } catch {
+          // Ignora se tiver restrição de mapa diferente do atual
+        }
+      }
+    }
+
+    const finalState = await this.getCharacterQuestState(characterId, currentMapId);
+    return {
+      questState: finalState,
+      character: updatedCharSummary,
+    };
   }
 
   /**
-   * Semeia 5 Quests iniciais (Principal Cap.1 e Cap.2, Secundária, Proficiência e Épica) se o banco estiver vazio.
+   * Semeia e atualiza a árvore inicial de Quests com Capítulos e Episódios (`1-1`, `1-2`, `1-3` -> `2-1`, `2-2`),
+   * além de Secundária, Proficiência e Épica, com Gatilhos e Requisitos preenchidos.
    */
   public async ensureInitialQuests() {
     try {
-      const count = await this.prisma.questTemplate.count();
-      if (count > 0) return;
-
-      console.log('📜 [AdminQuestsController] Semeando Quests iniciais (Principal, Secundária, Proficiência e Épica)...');
+      const existing = await this.prisma.questTemplate.findMany({ orderBy: { id: 'asc' } });
       const npcs = await this.prisma.npcTemplate.findMany({ orderBy: { id: 'asc' } });
       const npc1 = npcs[0]?.id || 1;
       const npc2 = npcs[1]?.id || npc1;
       const npc3 = npcs[2]?.id || npc1;
       const npc4 = npcs[3]?.id || npc2;
 
-      const q1 = await this.saveQuestTemplate({
-        titlePtBr: 'Cap. 1: O Chamado de Izumo',
-        descriptionPtBr: 'Apresente-se ao Sábio de Izumo para iniciar seu treinamento oficial no continente.',
-        dialogueOfferPtBr: 'Bem-vindo a Izumo, jovem aventureiro! O Sábio de Izumo está procurando por você perto da praça central.',
+      // Se já temos menos de 7 quests ou se todas estão com episodeOrder = 1 no Capítulo 1,
+      // organizamos a estrutura completa de Episódios 1-1, 1-2, 1-3 e Capítulo 2 (2-1, 2-2)
+      const mainCap1 = existing.filter((q) => q.questCategory === 'MAIN' && q.chapterOrder === 1);
+      if (existing.length > 0 && mainCap1.length >= 3) {
+        return;
+      }
+
+      console.log(
+        '📜 [AdminQuestsController] Estruturando Quests por Capítulos e Episódios (1-1, 1-2, 1-3 => 2-1, 2-2)...'
+      );
+
+      // Limpa apenas se for o seed inicial antigo de 5 quests para recriar limpo com Episódios 1-1, 1-2, 1-3, 2-1, 2-2
+      if (existing.length <= 5) {
+        await this.prisma.questTemplate.deleteMany({});
+      }
+
+      // CAPÍTULO 1 — EPISÓDIO 1-1
+      const ep1_1 = await this.saveQuestTemplate({
+        titlePtBr: 'O Chamado de Izumo',
+        descriptionPtBr: 'Apresente-se ao Sábio de Izumo para iniciar o Capítulo 1 da sua jornada.',
+        dialogueOfferPtBr:
+          'Bem-vindo a Izumo, jovem aventureiro! O Sábio de Izumo está procurando por você perto da praça central.',
         dialogueActivePtBr: 'O Sábio de Izumo está logo abaixo na vila. Vá conversar com ele!',
-        dialogueCompletePtBr: 'Ah, então você é o novo recruta! Vejo grande potencial elemental em você.',
+        dialogueCompletePtBr:
+          'Ah, então você é o novo recruta! Vejo grande potencial elemental em você. Vamos ao seu primeiro treinamento.',
         questCategory: 'MAIN',
         chapterOrder: 1,
+        episodeOrder: 1,
         minLevel: 1,
         prerequisiteQuestId: null,
         repeatType: 'ONCE',
+        triggerType: 'NPC_INTERACT',
+        triggerConfigJson: { autoAcceptOnTrigger: false },
+        requirementsJson: { minLevel: 1 },
         giverNpcId: npc1,
         giverMapId: null,
         turnInNpcId: npc2,
@@ -572,38 +882,132 @@ export class AdminQuestsController {
         rewardsJson: { exp: 120, gold: 50, statPoints: 2 },
       });
 
-      await this.saveQuestTemplate({
-        titlePtBr: 'Cap. 2: Ameaça nas Estradas',
-        descriptionPtBr: 'Derrote os saqueadores Sa Tặc da Areia que estão rondando os arredores de Izumo.',
-        dialogueOfferPtBr: 'Antes de seguir viagem, precisamos conter os Sa Tặc da Areia. Derrote 2 deles em combate e volte até mim!',
-        dialogueActivePtBr: 'Ainda restam Sa Tặc da Areia para derrotar. Use a Batalha para enfrentá-los!',
-        dialogueCompletePtBr: 'Excelente! As rotas comerciais de Izumo estão seguras graças a você.',
+      // CAPÍTULO 1 — EPISÓDIO 1-2 (Só libera ao terminar 1-1)
+      const ep1_2 = await this.saveQuestTemplate({
+        titlePtBr: 'Forja e Preparação',
+        descriptionPtBr: 'Inspecione o equipamento inicial com o Armeiro John antes de sair para patrulhar.',
+        dialogueOfferPtBr:
+          'Antes de enfrentar os monstros lá fora, vá até o Armeiro John verificar suas lâminas e armadura.',
+        dialogueActivePtBr: 'Procure o Armeiro John aqui na vila para validar seu equipamento!',
+        dialogueCompletePtBr: 'Suas armas estão afiadas! Agora você está pronto para o batismo de fogo.',
         questCategory: 'MAIN',
-        chapterOrder: 2,
+        chapterOrder: 1,
+        episodeOrder: 2,
         minLevel: 1,
-        prerequisiteQuestId: q1.id,
+        prerequisiteQuestId: ep1_1.id,
         repeatType: 'ONCE',
+        triggerType: 'AUTO_ON_PREV_QUEST',
+        triggerConfigJson: { autoAcceptOnTrigger: false },
+        requirementsJson: { minLevel: 1, prerequisiteQuestId: ep1_1.id },
         giverNpcId: npc2,
+        giverMapId: null,
+        turnInNpcId: npc3,
+        turnInMapId: null,
+        objectivesJson: [
+          { type: 'TALK_NPC', npcTemplateId: npc3, mapId: null, requiredCount: 1, labelPtBr: 'Falar com o Armeiro John' },
+        ],
+        rewardsJson: { exp: 180, gold: 80, statPoints: 2 },
+      });
+
+      // CAPÍTULO 1 — EPISÓDIO 1-3 (Final do Capítulo 1 — Só libera ao terminar 1-2)
+      const ep1_3 = await this.saveQuestTemplate({
+        titlePtBr: 'Expurgo nos Arredores de Izumo',
+        descriptionPtBr: 'Derrote os saqueadores Sa Tặc da Areia para concluir o Capítulo 1 e liberar o Capítulo 2.',
+        dialogueOfferPtBr:
+          'Os Sa Tặc da Areia estão bloqueando a estrada! Derrote 2 deles em batalha e reporte ao Sábio de Izumo.',
+        dialogueActivePtBr: 'Ainda restam Sa Tặc da Areia para derrotar. Entre em combate para abatê-los!',
+        dialogueCompletePtBr:
+          'Magnífico! Você concluiu todas as provações do Capítulo 1. As rotas para o Capítulo 2 agora estão abertas!',
+        questCategory: 'MAIN',
+        chapterOrder: 1,
+        episodeOrder: 3,
+        minLevel: 1,
+        prerequisiteQuestId: ep1_2.id,
+        repeatType: 'ONCE',
+        triggerType: 'NPC_INTERACT',
+        triggerConfigJson: { autoAcceptOnTrigger: false },
+        requirementsJson: { minLevel: 1, prerequisiteQuestId: ep1_2.id },
+        giverNpcId: npc3,
         giverMapId: null,
         turnInNpcId: npc2,
         turnInMapId: null,
         objectivesJson: [
           { type: 'KILL_MONSTER', monsterTemplateId: 1, requiredCount: 2, labelPtBr: 'Derrotar 2x Sa Tặc da Areia' },
         ],
-        rewardsJson: { exp: 300, gold: 150, statPoints: 3 },
+        rewardsJson: { exp: 350, gold: 180, statPoints: 3 },
       });
 
+      // CAPÍTULO 2 — EPISÓDIO 2-1 (Só libera ao concluir todo o Capítulo 1: 1-1, 1-2 e 1-3)
+      const ep2_1 = await this.saveQuestTemplate({
+        titlePtBr: 'Rumo às Terras de Dong Xuen',
+        descriptionPtBr: 'Com Izumo segura, inicie a expedição do Capítulo 2 consultando o Joalheiro Pibu.',
+        dialogueOfferPtBr:
+          'Agora que Izumo está em paz, rumores sombrios vêm do leste. Converse com o Joalheiro Pibu sobre os cristais corrompidos.',
+        dialogueActivePtBr: 'Converse com o Joalheiro Pibu para investigar os cristais corrompidos.',
+        dialogueCompletePtBr: 'Estes cristais emanam uma energia antiga... Precisamos testar sua força contra a horda!',
+        questCategory: 'MAIN',
+        chapterOrder: 2,
+        episodeOrder: 1,
+        minLevel: 2,
+        prerequisiteQuestId: ep1_3.id,
+        repeatType: 'ONCE',
+        triggerType: 'NPC_INTERACT',
+        triggerConfigJson: { autoAcceptOnTrigger: false },
+        requirementsJson: { minLevel: 2, requiredChapterCompleted: 1, prerequisiteQuestId: ep1_3.id },
+        giverNpcId: npc2,
+        giverMapId: null,
+        turnInNpcId: npc4,
+        turnInMapId: null,
+        objectivesJson: [
+          { type: 'TALK_NPC', npcTemplateId: npc4, mapId: null, requiredCount: 1, labelPtBr: 'Investigar cristais com o Joalheiro Pibu' },
+        ],
+        rewardsJson: { exp: 420, gold: 220, statPoints: 3 },
+      });
+
+      // CAPÍTULO 2 — EPISÓDIO 2-2 (Só libera ao concluir 2-1)
+      await this.saveQuestTemplate({
+        titlePtBr: 'Contra-Ataque da Fronteira',
+        descriptionPtBr: 'Vença 2 batalhas decisivas para conter o avanço das criaturas corrompidas no Capítulo 2.',
+        dialogueOfferPtBr:
+          'As criaturas estão se multiplicando! Vença 2 batalhas para purificar os fragmentos elementais.',
+        dialogueActivePtBr: 'Vença 2 combates e traga os fragmentos purificados!',
+        dialogueCompletePtBr: 'Incrível! O Capítulo 2 foi concluído com honra!',
+        questCategory: 'MAIN',
+        chapterOrder: 2,
+        episodeOrder: 2,
+        minLevel: 2,
+        prerequisiteQuestId: ep2_1.id,
+        repeatType: 'ONCE',
+        triggerType: 'AUTO_ON_PREV_QUEST',
+        triggerConfigJson: { autoAcceptOnTrigger: false },
+        requirementsJson: { minLevel: 2, prerequisiteQuestId: ep2_1.id },
+        giverNpcId: npc4,
+        giverMapId: null,
+        turnInNpcId: npc2,
+        turnInMapId: null,
+        objectivesJson: [
+          { type: 'WIN_BATTLES', requiredCount: 2, labelPtBr: 'Vencer 2 Batalhas na Fronteira' },
+        ],
+        rewardsJson: { exp: 600, gold: 320, statPoints: 4 },
+      });
+
+      // SECUNDÁRIA (SIDE) — Capítulo 1
       await this.saveQuestTemplate({
         titlePtBr: 'Remessa de Minérios Raros',
         descriptionPtBr: 'Avise o Joalheiro Pibu que a forja do Armeiro John já processou os cristais.',
-        dialogueOfferPtBr: 'Ei! Estou ocupado na bigorna. Pode avisar o Joalheiro Pibu ali ao lado que os engastes dele ficaram prontos?',
+        dialogueOfferPtBr:
+          'Ei! Estou ocupado na bigorna. Pode avisar o Joalheiro Pibu ali ao lado que os engastes dele ficaram prontos?',
         dialogueActivePtBr: 'O Joalheiro Pibu está esperando o recado logo ali à direita!',
         dialogueCompletePtBr: 'Maravilha! Eu estava mesmo aguardando esses engastes do John. Tome estas moedas pelo favor!',
         questCategory: 'SIDE',
         chapterOrder: 1,
+        episodeOrder: 1,
         minLevel: 1,
         prerequisiteQuestId: null,
         repeatType: 'ONCE',
+        triggerType: 'NPC_INTERACT',
+        triggerConfigJson: { autoAcceptOnTrigger: false },
+        requirementsJson: { minLevel: 1 },
         giverNpcId: npc3,
         giverMapId: null,
         turnInNpcId: npc4,
@@ -614,17 +1018,23 @@ export class AdminQuestsController {
         rewardsJson: { exp: 150, gold: 100, statPoints: 1 },
       });
 
+      // PROFICIÊNCIA (PROFICIENCY) — Capítulo 1
       await this.saveQuestTemplate({
         titlePtBr: 'Proficiência: Veterano de Combate',
         descriptionPtBr: 'Prove sua maestria marcial vencendo 3 combates contra criaturas selvagens.',
-        dialogueOfferPtBr: 'Quer aprimorar sua Proficiência de Combate? Vença 3 batalhas contra qualquer monstro e traga seu relatório!',
+        dialogueOfferPtBr:
+          'Quer aprimorar sua Proficiência de Combate? Vença 3 batalhas contra qualquer monstro e traga seu relatório!',
         dialogueActivePtBr: 'Continue treinando! Vença 3 batalhas para completar seu teste de Proficiência.',
         dialogueCompletePtBr: 'Sua postura de batalha evoluiu muito. Receba estes pontos extras de atributo!',
         questCategory: 'PROFICIENCY',
         chapterOrder: 1,
+        episodeOrder: 1,
         minLevel: 1,
         prerequisiteQuestId: null,
         repeatType: 'REPEATABLE',
+        triggerType: 'NPC_INTERACT',
+        triggerConfigJson: { autoAcceptOnTrigger: false },
+        requirementsJson: { minLevel: 1 },
         giverNpcId: npc3,
         giverMapId: null,
         turnInNpcId: npc3,
@@ -635,17 +1045,23 @@ export class AdminQuestsController {
         rewardsJson: { exp: 400, gold: 200, statPoints: 3 },
       });
 
+      // ÉPICA (EPIC) — Capítulo 2 (Exige Capítulo 1 Completo + Nível 3)
       await this.saveQuestTemplate({
         titlePtBr: 'Prova Épica: Despertar Reborn',
-        descriptionPtBr: 'Supere 5 batalhas decisivas para despertar sua linhagem espiritual e alcançar a Reencarnação.',
-        dialogueOfferPtBr: 'Apenas guerreiros de nível 3 ou superior podem tentar o Ritual Épico de Reencarnação. Vença 5 batalhas para provar seu espírito!',
+        descriptionPtBr: 'Supere 5 batalhas decisivas após concluir o Capítulo 1 para alcançar a Reencarnação.',
+        dialogueOfferPtBr:
+          'Apenas guerreiros que concluíram o Capítulo 1 e atingiram o Nível 3 podem tentar o Ritual Épico de Reencarnação!',
         dialogueActivePtBr: 'O caminho Épico exige perseverança. Vença 5 combates e retorne!',
         dialogueCompletePtBr: 'Que poder extraordinário! Sua alma ascendeu ao estado Reencarnado (Reborn)!',
         questCategory: 'EPIC',
-        chapterOrder: 1,
+        chapterOrder: 2,
+        episodeOrder: 1,
         minLevel: 3,
-        prerequisiteQuestId: null,
+        prerequisiteQuestId: ep1_3.id,
         repeatType: 'ONCE',
+        triggerType: 'REACH_LEVEL',
+        triggerConfigJson: { autoAcceptOnTrigger: false },
+        requirementsJson: { minLevel: 3, requiredChapterCompleted: 1, prerequisiteQuestId: ep1_3.id },
         giverNpcId: npc2,
         giverMapId: null,
         turnInNpcId: npc2,

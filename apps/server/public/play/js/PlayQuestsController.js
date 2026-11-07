@@ -95,28 +95,29 @@ const PlayQuestsController = {
       ctx.restore();
     };
 
-    client.getQuestCategoryBadge = function (category, chapterOrder) {
+    client.getQuestCategoryBadge = function (category, chapterOrder, episodeOrder) {
+      const epStr = chapterOrder ? ` • Ep. ${chapterOrder}-${episodeOrder || 1}` : '';
       const map = {
         MAIN: {
-          label: `🟡 Principal${chapterOrder ? ` • Cap. ${chapterOrder}` : ''}`,
+          label: `🟡 Principal${epStr}`,
           bg: 'rgba(250, 204, 21, 0.16)',
           color: '#facc15',
           border: '#eab308',
         },
         SIDE: {
-          label: '🔵 Secundária',
+          label: `🔵 Secundária${epStr}`,
           bg: 'rgba(56, 189, 248, 0.16)',
           color: '#38bdf8',
           border: '#0284c7',
         },
         EPIC: {
-          label: '🟣 Épica',
+          label: `🟣 Épica${epStr}`,
           bg: 'rgba(192, 132, 252, 0.16)',
           color: '#c084fc',
           border: '#9333ea',
         },
         PROFICIENCY: {
-          label: '🟢 Proficiência',
+          label: `🟢 Proficiência${epStr}`,
           bg: 'rgba(74, 222, 128, 0.16)',
           color: '#4ade80',
           border: '#16a34a',
@@ -245,7 +246,7 @@ const PlayQuestsController = {
                 <span style="background:#ef4444; color:#fff; font-weight:900; width:22px; height:22px; display:inline-flex; align-items:center; justify-content:center; border-radius:99px; font-size:0.85rem;">?</span>
                 <strong style="color:#fecdd3; font-size:0.92rem;">${q.titlePtBr}</strong>
               </div>
-              ${this.getQuestCategoryBadge(q.category, q.chapterOrder)}
+              ${this.getQuestCategoryBadge(q.category, q.chapterOrder, q.episodeOrder)}
             </div>
             <p style="font-size:0.82rem; color:#f8fafc; font-style:italic; background:#020617; padding:8px 10px; border-radius:6px; border-left:3px solid #ef4444;">
               "${q.dialogueCompletePtBr || q.descriptionPtBr}"
@@ -273,7 +274,7 @@ const PlayQuestsController = {
                 <span style="background:#ff2e4c; color:#fff; font-weight:900; width:22px; height:22px; display:inline-flex; align-items:center; justify-content:center; border-radius:99px; font-size:0.85rem;">!</span>
                 <strong style="color:#fde047; font-size:0.92rem;">${q.titlePtBr}</strong>
               </div>
-              ${this.getQuestCategoryBadge(q.category, q.chapterOrder)}
+              ${this.getQuestCategoryBadge(q.category, q.chapterOrder, q.episodeOrder)}
             </div>
             <p style="font-size:0.82rem; color:#e2e8f0; font-style:italic; background:#020617; padding:8px 10px; border-radius:6px; border-left:3px solid #ff2e4c;">
               "${q.dialogueOfferPtBr || q.descriptionPtBr}"
@@ -303,7 +304,7 @@ const PlayQuestsController = {
                 <span style="background:#64748b; color:#f8fafc; font-weight:900; width:22px; height:22px; display:inline-flex; align-items:center; justify-content:center; border-radius:99px; font-size:0.85rem;">?</span>
                 <strong style="color:#cbd5e1; font-size:0.9rem;">${q.titlePtBr} (Em Andamento)</strong>
               </div>
-              ${this.getQuestCategoryBadge(q.category, q.chapterOrder)}
+              ${this.getQuestCategoryBadge(q.category, q.chapterOrder, q.episodeOrder)}
             </div>
             <p style="font-size:0.8rem; color:#cbd5e1; font-style:italic; background:#020617; padding:8px 10px; border-radius:6px; border-left:3px solid #64748b;">
               "${q.dialogueActivePtBr || 'Continue cumprindo os objetivos da missão e retorne quando terminar.'}"
@@ -396,6 +397,9 @@ const PlayQuestsController = {
         if (this.questLogFilter === 'AVAILABLE') {
           return q.status === 'AVAILABLE';
         }
+        if (this.questLogFilter === 'LOCKED') {
+          return q.status === 'LOCKED';
+        }
         if (this.questLogFilter === 'COMPLETED') {
           return q.status === 'COMPLETED';
         }
@@ -409,6 +413,9 @@ const PlayQuestsController = {
           </button>
           <button class="${this.questLogFilter === 'AVAILABLE' ? 'btn-primary' : ''}" onclick="PlayApp.openQuestLogModal('AVAILABLE')" style="font-size:0.76rem; padding:5px 10px;">
             ❗ Disponíveis (${allQuests.filter((q) => q.status === 'AVAILABLE').length})
+          </button>
+          <button class="${this.questLogFilter === 'LOCKED' ? 'btn-primary' : ''}" onclick="PlayApp.openQuestLogModal('LOCKED')" style="font-size:0.76rem; padding:5px 10px;">
+            🔒 Próximos Episódios (${allQuests.filter((q) => q.status === 'LOCKED').length})
           </button>
           <button class="${this.questLogFilter === 'COMPLETED' ? 'btn-primary' : ''}" onclick="PlayApp.openQuestLogModal('COMPLETED')" style="font-size:0.76rem; padding:5px 10px;">
             ✅ Concluídas (${allQuests.filter((q) => q.status === 'COMPLETED').length})
@@ -426,10 +433,12 @@ const PlayQuestsController = {
                   ? `<span style="background:#475569; color:#f8fafc; padding:2px 8px; border-radius:99px; font-size:0.7rem; font-weight:700;">? Em Andamento</span>`
                   : q.status === 'AVAILABLE'
                   ? `<span style="background:#ff2e4c; color:#fff; padding:2px 8px; border-radius:99px; font-size:0.7rem; font-weight:700;">! Disponível</span>`
+                  : q.status === 'LOCKED'
+                  ? `<span style="background:#1e293b; color:#fde047; border:1px solid #eab308; padding:2px 8px; border-radius:99px; font-size:0.7rem; font-weight:700;">🔒 Bloqueada</span>`
                   : `<span style="background:rgba(34,197,94,0.2); color:#4ade80; padding:2px 8px; border-radius:99px; font-size:0.7rem; font-weight:700;">✅ Concluída</span>`;
 
               const mapHint = q.giverMapNamePtBr
-                ? `📍 ${q.giverMapNamePtBr} (Nv.${q.giverMapRequiredLevel || 1})`
+                ? `📍 ${q.giverMapNamePtBr}`
                 : `🌍 Qualquer mapa onde ${q.giverNpcNamePtBr} estiver`;
 
               return `
@@ -437,13 +446,16 @@ const PlayQuestsController = {
                   <div style="display:flex; justify-content:space-between; align-items:center; gap:6px; flex-wrap:wrap;">
                     <strong style="color:#fde047; font-size:0.88rem;">${q.titlePtBr}</strong>
                     <div style="display:flex; gap:6px; align-items:center;">
-                      ${this.getQuestCategoryBadge(q.category, q.chapterOrder)}
+                      ${this.getQuestCategoryBadge(q.category, q.chapterOrder, q.episodeOrder)}
                       ${statusBadge}
                     </div>
                   </div>
                   <div style="font-size:0.75rem; color:#94a3b8;">${q.descriptionPtBr}</div>
                   <div style="font-size:0.72rem; color:#38bdf8;">
                     🧙 NPC: <strong>${q.giverNpcNamePtBr}</strong> • ${mapHint}
+                  </div>
+                  <div style="font-size:0.71rem; color:#fde047;">
+                    ⚡ <strong>Gatilho:</strong> ${q.triggerSummaryPtBr || 'Falar com NPC'} &nbsp;|&nbsp; 🔒 <strong>Requisito:</strong> ${q.requirementSummaryPtBr || `Nv. Mín ${q.minLevel || 1}`}
                   </div>
                   <div style="display:flex; flex-direction:column; gap:4px;">
                     ${this.renderObjectivesListHtml(q.objectives)}

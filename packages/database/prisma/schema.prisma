@@ -482,7 +482,7 @@ model ArenaFormation {
 // 8. SISTEMA VISUAL NO-CODE DE MISSÕES / QUESTS (MAIN, SIDE, EPIC, PROFICIENCY)
 // ----------------------------------------------------------------------------
 
-/// Templates de Quests (Principal Linear, Secundária, Épica e Proficiência).
+/// Templates de Quests (Principal Linear por Capítulos/Episódios, Secundária, Épica e Proficiência).
 model QuestTemplate {
   id                      Int                      @id @default(autoincrement())
   code                    String                   @unique /// Ex: quest_1, quest_2...
@@ -493,10 +493,15 @@ model QuestTemplate {
   dialogueCompleteI18nKey String?                  @map("dialogue_complete_i18n_key")
 
   questCategory           String                   @default("MAIN") @map("quest_category") /// MAIN, SIDE, EPIC, PROFICIENCY
-  chapterOrder            Int                      @default(1) @map("chapter_order")
+  chapterOrder            Int                      @default(1) @map("chapter_order") /// Capítulo (1, 2, 3...)
+  episodeOrder            Int                      @default(1) @map("episode_order") /// Episódio dentro do Capítulo (1-1, 1-2, 1-3...)
   minLevel                Int                      @default(1) @map("min_level")
   prerequisiteQuestId     Int?                     @map("prerequisite_quest_id")
   repeatType              String                   @default("ONCE") @map("repeat_type") /// ONCE, REPEATABLE, DAILY
+
+  triggerType             String                   @default("NPC_INTERACT") @map("trigger_type") /// NPC_INTERACT, AUTO_ON_PREV_QUEST, ENTER_MAP, REACH_LEVEL, KILL_MONSTER_TRIGGER
+  triggerConfigJson       Json                     @default("{}") @map("trigger_config_json") /// Configuração do gatilho de acionamento
+  requirementsJson        Json                     @default("{}") @map("requirements_json") /// Requisitos obrigatórios para liberar/acionar a missão
 
   giverNpcId              Int?                     @map("giver_npc_id") /// ID do NpcTemplate que oferece a missão (! vermelho)
   giverMapId              Int?                     @map("giver_map_id") /// null = qualquer mapa com este NPC; ou ID de mapa específico

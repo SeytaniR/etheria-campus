@@ -5,6 +5,29 @@ Qualquer IA trabalhando neste repositório **DEVE** incrementar a versão e regi
 
 ---
 
+## [v0.5.3] - 2026-11-07
+### Adicionado & Aprimorado
+* **Progressão Linear por Capítulos e Episódios (`1-1` ➔ `1-2` ➔ `1-3` ===> `2-1` ➔ `2-2`) (`schema.prisma`, `AdminQuestsController.ts`, `AdminQuestsTab.js`):**
+  * Adicionado o campo `episodeOrder` em `QuestTemplate` (`quest_templates`), compondo os códigos de Episódio (`1-1`, `1-2`, `1-3`, `2-1`, `2-2`...).
+  * **Trava Linear Automática para Missões Principais (`MAIN`):**
+    * O Episódio `E` de um capítulo (`1-2`, `1-3`...) só é desbloqueado quando o Episódio `E-1` (`1-1`, `1-2`...) do mesmo capítulo foi concluído (`TURNED_IN`).
+    * O Capítulo `C` (`2-1`, `3-1`...) só é desbloqueado quando **todos os episódios do Capítulo `C-1`** foram concluídos.
+* **Quadro Visual de Fluxo Estilo Draw.io Agrupado por Capítulos (`AdminQuestsTab.js`):**
+  * Nova visão padrão **`🗺️ Quadro Draw.io (Capítulos)`** na aba `📜 Quests` do `/admin` (com alternância rápida para `📋 Visão em Tabela`).
+  * Agrupa visualmente os cards de missões dentro de containers de **Capítulos (`📘 CAPÍTULO 1`, `📘 CAPÍTULO 2`...)** sobre um canvas estilo Draw.io:
+    * Os Episódios Principais (`1-1`, `1-2`, `1-3`) ficam encadeados horizontalmente com setas conectoras **`🔒 Libera 1-2 ───▶`** e portões visuais entre capítulos (**`🔒 PORTÃO DE CAPÍTULO: Concluir todos os episódios do Capítulo 1 libera o Capítulo 2 ▼`**).
+    * Botões rápidos dentro de cada container de capítulo para criar o próximo episódio (`➕ Novo Episódio Principal (1-4)`) ou criar um novo capítulo (`📘 ➕ Criar Novo Capítulo`).
+* **Gatilho de Acionamento (`triggerType`) e Requisitos (`requirementsJson`) Obrigatórios em Todos os Tipos de Quests (`AdminQuestsController.ts`, `AdminQuestsTab.js`, `PlayQuestsController.js`):**
+  * Adicionado suporte No-Code a **Gatilhos de Acionamento** em todas as categorias (`MAIN`, `SIDE`, `EPIC`, `PROFICIENCY`):
+    * `💬 Interagir / Falar com o NPC de Início` (`NPC_INTERACT`)
+    * `⚡ Automático ao Concluir Episódio Anterior` (`AUTO_ON_PREV_QUEST`, com opção de auto-aceitar imediatamente)
+    * `🗺️ Ao Entrar em um Mapa Específico` (`ENTER_MAP`)
+    * `⭐ Ao Atingir o Nível Mínimo` (`REACH_LEVEL`)
+    * `🐉 Ao Derrotar um Monstro Específico` (`KILL_MONSTER_TRIGGER`)
+  * Adicionado bloco completo de **Requisitos de Desbloqueio**: Nível Mínimo, Episódio/Quest Pré-Requisito, Exigência de Capítulo Completo, Classe, Elemento e Estado `Reborn`.
+
+---
+
 ## [v0.5.2] - 2026-11-07
 ### Adicionado
 * **Estúdio Visual No-Code de Quests (`📜 Quests` — `quest_templates`) (`AdminQuestsController.ts`, `AdminQuestsTab.js`, `schema.prisma`):**

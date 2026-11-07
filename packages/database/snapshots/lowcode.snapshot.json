@@ -1,6 +1,6 @@
 {
   "version": "0.2.0",
-  "exportedAt": "2026-11-07T14:27:17.051Z",
+  "exportedAt": "2026-11-07T16:20:53.755Z",
   "i18nTranslations": [
     {
       "id": 1,
@@ -1120,7 +1120,7 @@
       "key": "map.map_2.name",
       "locale": "pt-BR",
       "text": "Pantanal das Nuvens",
-      "updatedAt": "2026-11-06T05:34:55.829Z"
+      "updatedAt": "2026-11-07T15:15:40.518Z"
     },
     {
       "id": 164,
@@ -1176,7 +1176,7 @@
       "key": "map.map_3.name",
       "locale": "pt-BR",
       "text": "Subúrbio Leste",
-      "updatedAt": "2026-11-06T05:46:06.042Z"
+      "updatedAt": "2026-11-07T15:15:26.789Z"
     },
     {
       "id": 176,
@@ -1821,6 +1821,307 @@
       "locale": "pt-BR",
       "text": "Que poder extraordinário! Sua alma ascendeu ao estado Reencarnado (Reborn)!",
       "updatedAt": "2026-11-07T14:27:02.077Z"
+    },
+    {
+      "id": 299,
+      "key": "map.map_6.name",
+      "locale": "pt-BR",
+      "text": "Ilha do Sol",
+      "updatedAt": "2026-11-07T15:15:01.747Z"
+    },
+    {
+      "id": 302,
+      "key": "npc.npc_33.name",
+      "locale": "pt-BR",
+      "text": "Pescador Anke",
+      "updatedAt": "2026-11-07T15:09:42.306Z"
+    },
+    {
+      "id": 304,
+      "key": "npc.npc_34.name",
+      "locale": "pt-BR",
+      "text": "Cientista Manny",
+      "updatedAt": "2026-11-07T15:13:56.517Z"
+    },
+    {
+      "id": 308,
+      "key": "quest.quest_6.title",
+      "locale": "pt-BR",
+      "text": "O Chamado de Izumo",
+      "updatedAt": "2026-11-07T16:20:27.946Z"
+    },
+    {
+      "id": 309,
+      "key": "quest.quest_6.description",
+      "locale": "pt-BR",
+      "text": "Apresente-se ao Sábio de Izumo para iniciar o Capítulo 1 da sua jornada.",
+      "updatedAt": "2026-11-07T16:20:27.954Z"
+    },
+    {
+      "id": 310,
+      "key": "quest.quest_6.dialogue_offer",
+      "locale": "pt-BR",
+      "text": "Bem-vindo a Izumo, jovem aventureiro! O Sábio de Izumo está procurando por você perto da praça central.",
+      "updatedAt": "2026-11-07T16:20:27.957Z"
+    },
+    {
+      "id": 311,
+      "key": "quest.quest_6.dialogue_active",
+      "locale": "pt-BR",
+      "text": "O Sábio de Izumo está logo abaixo na vila. Vá conversar com ele!",
+      "updatedAt": "2026-11-07T16:20:27.960Z"
+    },
+    {
+      "id": 312,
+      "key": "quest.quest_6.dialogue_complete",
+      "locale": "pt-BR",
+      "text": "Ah, então você é o novo recruta! Vejo grande potencial elemental em você. Vamos ao seu primeiro treinamento.",
+      "updatedAt": "2026-11-07T16:20:27.963Z"
+    },
+    {
+      "id": 313,
+      "key": "quest.quest_7.title",
+      "locale": "pt-BR",
+      "text": "Forja e Preparação",
+      "updatedAt": "2026-11-07T16:20:28.118Z"
+    },
+    {
+      "id": 314,
+      "key": "quest.quest_7.description",
+      "locale": "pt-BR",
+      "text": "Inspecione o equipamento inicial com o Armeiro John antes de sair para patrulhar.",
+      "updatedAt": "2026-11-07T16:20:28.121Z"
+    },
+    {
+      "id": 315,
+      "key": "quest.quest_7.dialogue_offer",
+      "locale": "pt-BR",
+      "text": "Antes de enfrentar os monstros lá fora, vá até o Armeiro John verificar suas lâminas e armadura.",
+      "updatedAt": "2026-11-07T16:20:28.124Z"
+    },
+    {
+      "id": 316,
+      "key": "quest.quest_7.dialogue_active",
+      "locale": "pt-BR",
+      "text": "Procure o Armeiro John aqui na vila para validar seu equipamento!",
+      "updatedAt": "2026-11-07T16:20:28.126Z"
+    },
+    {
+      "id": 317,
+      "key": "quest.quest_7.dialogue_complete",
+      "locale": "pt-BR",
+      "text": "Suas armas estão afiadas! Agora você está pronto para o batismo de fogo.",
+      "updatedAt": "2026-11-07T16:20:28.129Z"
+    },
+    {
+      "id": 318,
+      "key": "quest.quest_8.title",
+      "locale": "pt-BR",
+      "text": "Expurgo nos Arredores de Izumo",
+      "updatedAt": "2026-11-07T16:20:28.238Z"
+    },
+    {
+      "id": 319,
+      "key": "quest.quest_8.description",
+      "locale": "pt-BR",
+      "text": "Derrote os saqueadores Sa Tặc da Areia para concluir o Capítulo 1 e liberar o Capítulo 2.",
+      "updatedAt": "2026-11-07T16:20:28.241Z"
+    },
+    {
+      "id": 320,
+      "key": "quest.quest_8.dialogue_offer",
+      "locale": "pt-BR",
+      "text": "Os Sa Tặc da Areia estão bloqueando a estrada! Derrote 2 deles em batalha e reporte ao Sábio de Izumo.",
+      "updatedAt": "2026-11-07T16:20:28.243Z"
+    },
+    {
+      "id": 321,
+      "key": "quest.quest_8.dialogue_active",
+      "locale": "pt-BR",
+      "text": "Ainda restam Sa Tặc da Areia para derrotar. Entre em combate para abatê-los!",
+      "updatedAt": "2026-11-07T16:20:28.246Z"
+    },
+    {
+      "id": 322,
+      "key": "quest.quest_8.dialogue_complete",
+      "locale": "pt-BR",
+      "text": "Magnífico! Você concluiu todas as provações do Capítulo 1. As rotas para o Capítulo 2 agora estão abertas!",
+      "updatedAt": "2026-11-07T16:20:28.248Z"
+    },
+    {
+      "id": 323,
+      "key": "quest.quest_9.title",
+      "locale": "pt-BR",
+      "text": "Rumo às Terras de Dong Xuen",
+      "updatedAt": "2026-11-07T16:20:28.359Z"
+    },
+    {
+      "id": 324,
+      "key": "quest.quest_9.description",
+      "locale": "pt-BR",
+      "text": "Com Izumo segura, inicie a expedição do Capítulo 2 consultando o Joalheiro Pibu.",
+      "updatedAt": "2026-11-07T16:20:28.362Z"
+    },
+    {
+      "id": 325,
+      "key": "quest.quest_9.dialogue_offer",
+      "locale": "pt-BR",
+      "text": "Agora que Izumo está em paz, rumores sombrios vêm do leste. Converse com o Joalheiro Pibu sobre os cristais corrompidos.",
+      "updatedAt": "2026-11-07T16:20:28.364Z"
+    },
+    {
+      "id": 326,
+      "key": "quest.quest_9.dialogue_active",
+      "locale": "pt-BR",
+      "text": "Converse com o Joalheiro Pibu para investigar os cristais corrompidos.",
+      "updatedAt": "2026-11-07T16:20:28.368Z"
+    },
+    {
+      "id": 327,
+      "key": "quest.quest_9.dialogue_complete",
+      "locale": "pt-BR",
+      "text": "Estes cristais emanam uma energia antiga... Precisamos testar sua força contra a horda!",
+      "updatedAt": "2026-11-07T16:20:28.370Z"
+    },
+    {
+      "id": 328,
+      "key": "quest.quest_10.title",
+      "locale": "pt-BR",
+      "text": "Contra-Ataque da Fronteira",
+      "updatedAt": "2026-11-07T16:20:28.491Z"
+    },
+    {
+      "id": 329,
+      "key": "quest.quest_10.description",
+      "locale": "pt-BR",
+      "text": "Vença 2 batalhas decisivas para conter o avanço das criaturas corrompidas no Capítulo 2.",
+      "updatedAt": "2026-11-07T16:20:28.493Z"
+    },
+    {
+      "id": 330,
+      "key": "quest.quest_10.dialogue_offer",
+      "locale": "pt-BR",
+      "text": "As criaturas estão se multiplicando! Vença 2 batalhas para purificar os fragmentos elementais.",
+      "updatedAt": "2026-11-07T16:20:28.496Z"
+    },
+    {
+      "id": 331,
+      "key": "quest.quest_10.dialogue_active",
+      "locale": "pt-BR",
+      "text": "Vença 2 combates e traga os fragmentos purificados!",
+      "updatedAt": "2026-11-07T16:20:28.499Z"
+    },
+    {
+      "id": 332,
+      "key": "quest.quest_10.dialogue_complete",
+      "locale": "pt-BR",
+      "text": "Incrível! O Capítulo 2 foi concluído com honra!",
+      "updatedAt": "2026-11-07T16:20:28.502Z"
+    },
+    {
+      "id": 333,
+      "key": "quest.quest_11.title",
+      "locale": "pt-BR",
+      "text": "Remessa de Minérios Raros",
+      "updatedAt": "2026-11-07T16:20:28.623Z"
+    },
+    {
+      "id": 334,
+      "key": "quest.quest_11.description",
+      "locale": "pt-BR",
+      "text": "Avise o Joalheiro Pibu que a forja do Armeiro John já processou os cristais.",
+      "updatedAt": "2026-11-07T16:20:28.625Z"
+    },
+    {
+      "id": 335,
+      "key": "quest.quest_11.dialogue_offer",
+      "locale": "pt-BR",
+      "text": "Ei! Estou ocupado na bigorna. Pode avisar o Joalheiro Pibu ali ao lado que os engastes dele ficaram prontos?",
+      "updatedAt": "2026-11-07T16:20:28.628Z"
+    },
+    {
+      "id": 336,
+      "key": "quest.quest_11.dialogue_active",
+      "locale": "pt-BR",
+      "text": "O Joalheiro Pibu está esperando o recado logo ali à direita!",
+      "updatedAt": "2026-11-07T16:20:28.630Z"
+    },
+    {
+      "id": 337,
+      "key": "quest.quest_11.dialogue_complete",
+      "locale": "pt-BR",
+      "text": "Maravilha! Eu estava mesmo aguardando esses engastes do John. Tome estas moedas pelo favor!",
+      "updatedAt": "2026-11-07T16:20:28.633Z"
+    },
+    {
+      "id": 338,
+      "key": "quest.quest_12.title",
+      "locale": "pt-BR",
+      "text": "Proficiência: Veterano de Combate",
+      "updatedAt": "2026-11-07T16:20:28.752Z"
+    },
+    {
+      "id": 339,
+      "key": "quest.quest_12.description",
+      "locale": "pt-BR",
+      "text": "Prove sua maestria marcial vencendo 3 combates contra criaturas selvagens.",
+      "updatedAt": "2026-11-07T16:20:28.754Z"
+    },
+    {
+      "id": 340,
+      "key": "quest.quest_12.dialogue_offer",
+      "locale": "pt-BR",
+      "text": "Quer aprimorar sua Proficiência de Combate? Vença 3 batalhas contra qualquer monstro e traga seu relatório!",
+      "updatedAt": "2026-11-07T16:20:28.757Z"
+    },
+    {
+      "id": 341,
+      "key": "quest.quest_12.dialogue_active",
+      "locale": "pt-BR",
+      "text": "Continue treinando! Vença 3 batalhas para completar seu teste de Proficiência.",
+      "updatedAt": "2026-11-07T16:20:28.759Z"
+    },
+    {
+      "id": 342,
+      "key": "quest.quest_12.dialogue_complete",
+      "locale": "pt-BR",
+      "text": "Sua postura de batalha evoluiu muito. Receba estes pontos extras de atributo!",
+      "updatedAt": "2026-11-07T16:20:28.762Z"
+    },
+    {
+      "id": 343,
+      "key": "quest.quest_13.title",
+      "locale": "pt-BR",
+      "text": "Prova Épica: Despertar Reborn",
+      "updatedAt": "2026-11-07T16:20:28.892Z"
+    },
+    {
+      "id": 344,
+      "key": "quest.quest_13.description",
+      "locale": "pt-BR",
+      "text": "Supere 5 batalhas decisivas após concluir o Capítulo 1 para alcançar a Reencarnação.",
+      "updatedAt": "2026-11-07T16:20:28.895Z"
+    },
+    {
+      "id": 345,
+      "key": "quest.quest_13.dialogue_offer",
+      "locale": "pt-BR",
+      "text": "Apenas guerreiros que concluíram o Capítulo 1 e atingiram o Nível 3 podem tentar o Ritual Épico de Reencarnação!",
+      "updatedAt": "2026-11-07T16:20:28.898Z"
+    },
+    {
+      "id": 346,
+      "key": "quest.quest_13.dialogue_active",
+      "locale": "pt-BR",
+      "text": "O caminho Épico exige perseverança. Vença 5 combates e retorne!",
+      "updatedAt": "2026-11-07T16:20:28.902Z"
+    },
+    {
+      "id": 347,
+      "key": "quest.quest_13.dialogue_complete",
+      "locale": "pt-BR",
+      "text": "Que poder extraordinário! Sua alma ascendeu ao estado Reencarnado (Reborn)!",
+      "updatedAt": "2026-11-07T16:20:28.904Z"
     }
   ],
   "biomes": [
@@ -5366,7 +5667,7 @@
       "overlapOpacity": 0.45,
       "isActive": true,
       "createdAt": "2026-11-05T23:26:00.408Z",
-      "updatedAt": "2026-11-06T05:34:55.836Z"
+      "updatedAt": "2026-11-07T15:15:40.524Z"
     },
     {
       "id": 3,
@@ -6720,7 +7021,7 @@
       "overlapOpacity": 0.45,
       "isActive": true,
       "createdAt": "2026-11-06T02:42:10.676Z",
-      "updatedAt": "2026-11-06T05:46:06.048Z"
+      "updatedAt": "2026-11-07T15:15:26.796Z"
     },
     {
       "id": 4,
@@ -16443,6 +16744,6429 @@
       "isActive": true,
       "createdAt": "2026-11-06T05:45:53.618Z",
       "updatedAt": "2026-11-07T14:24:04.365Z"
+    },
+    {
+      "id": 6,
+      "code": "map_6",
+      "mcreworkMapImage": "https://seytanir.github.io/mcrework/assets/maps/map_15/bg.jpg",
+      "nameI18nKey": "map.map_6.name",
+      "requiredLevel": 50,
+      "levelVarianceMin": -2,
+      "levelVarianceMax": 5,
+      "mapTypeId": 1,
+      "primaryBiomeId": 1,
+      "secondaryBiomeId": 2,
+      "dominatedById": null,
+      "spawnX": 1204,
+      "spawnY": 722,
+      "collisionMeshJson": [
+        {
+          "id": "col_1794061539152_1",
+          "name": "Colisão #1",
+          "points": [
+            {
+              "x": 907,
+              "y": 1339
+            },
+            {
+              "x": 877,
+              "y": 1354
+            },
+            {
+              "x": 901,
+              "y": 1388
+            },
+            {
+              "x": 968,
+              "y": 1408
+            },
+            {
+              "x": 1021,
+              "y": 1456
+            },
+            {
+              "x": 1001,
+              "y": 1489
+            },
+            {
+              "x": 1088,
+              "y": 1500
+            },
+            {
+              "x": 1092,
+              "y": 1566
+            },
+            {
+              "x": 1094,
+              "y": 1612
+            },
+            {
+              "x": 1122,
+              "y": 1634
+            },
+            {
+              "x": 1153,
+              "y": 1636
+            },
+            {
+              "x": 1159,
+              "y": 1589
+            },
+            {
+              "x": 1210,
+              "y": 1594
+            },
+            {
+              "x": 1228,
+              "y": 1570
+            },
+            {
+              "x": 1232,
+              "y": 1524
+            },
+            {
+              "x": 1279,
+              "y": 1513
+            },
+            {
+              "x": 1315,
+              "y": 1504
+            },
+            {
+              "x": 1349,
+              "y": 1493
+            },
+            {
+              "x": 1343,
+              "y": 1512
+            },
+            {
+              "x": 1341,
+              "y": 1541
+            },
+            {
+              "x": 1380,
+              "y": 1541
+            },
+            {
+              "x": 1398,
+              "y": 1522
+            },
+            {
+              "x": 1428,
+              "y": 1544
+            },
+            {
+              "x": 1469,
+              "y": 1542
+            },
+            {
+              "x": 1488,
+              "y": 1496
+            },
+            {
+              "x": 1564,
+              "y": 1468
+            },
+            {
+              "x": 1559,
+              "y": 1450
+            },
+            {
+              "x": 1550,
+              "y": 1416
+            },
+            {
+              "x": 1595,
+              "y": 1429
+            },
+            {
+              "x": 1623,
+              "y": 1424
+            },
+            {
+              "x": 1595,
+              "y": 1389
+            },
+            {
+              "x": 1580,
+              "y": 1365
+            },
+            {
+              "x": 1615,
+              "y": 1328
+            },
+            {
+              "x": 1622,
+              "y": 1290
+            },
+            {
+              "x": 1638,
+              "y": 1262
+            },
+            {
+              "x": 1633,
+              "y": 1215
+            },
+            {
+              "x": 1634,
+              "y": 1199
+            },
+            {
+              "x": 1673,
+              "y": 1185
+            },
+            {
+              "x": 1702,
+              "y": 1201
+            },
+            {
+              "x": 1693,
+              "y": 1245
+            },
+            {
+              "x": 1755,
+              "y": 1258
+            },
+            {
+              "x": 1778,
+              "y": 1241
+            },
+            {
+              "x": 1773,
+              "y": 1207
+            },
+            {
+              "x": 1756,
+              "y": 1182
+            },
+            {
+              "x": 1739,
+              "y": 1139
+            },
+            {
+              "x": 1720,
+              "y": 1103
+            },
+            {
+              "x": 1696,
+              "y": 1102
+            },
+            {
+              "x": 1647,
+              "y": 1099
+            },
+            {
+              "x": 1607,
+              "y": 1108
+            },
+            {
+              "x": 1530,
+              "y": 1096
+            },
+            {
+              "x": 1491,
+              "y": 1083
+            },
+            {
+              "x": 1445,
+              "y": 1070
+            },
+            {
+              "x": 1413,
+              "y": 1048
+            },
+            {
+              "x": 1383,
+              "y": 1055
+            },
+            {
+              "x": 1343,
+              "y": 1037
+            },
+            {
+              "x": 1319,
+              "y": 1027
+            },
+            {
+              "x": 1284,
+              "y": 1048
+            },
+            {
+              "x": 1228,
+              "y": 1042
+            },
+            {
+              "x": 1181,
+              "y": 1044
+            },
+            {
+              "x": 1139,
+              "y": 1055
+            },
+            {
+              "x": 1109,
+              "y": 1082
+            },
+            {
+              "x": 1076,
+              "y": 1100
+            },
+            {
+              "x": 1044,
+              "y": 1110
+            },
+            {
+              "x": 1001,
+              "y": 1105
+            },
+            {
+              "x": 984,
+              "y": 1142
+            },
+            {
+              "x": 988,
+              "y": 1200
+            },
+            {
+              "x": 973,
+              "y": 1265
+            },
+            {
+              "x": 970,
+              "y": 1272
+            },
+            {
+              "x": 932,
+              "y": 1325
+            }
+          ]
+        },
+        {
+          "id": "col_1794061590329_2",
+          "name": "Colisão #2",
+          "points": [
+            {
+              "x": 1685,
+              "y": 1420
+            },
+            {
+              "x": 1689,
+              "y": 1474
+            },
+            {
+              "x": 1691,
+              "y": 1507
+            },
+            {
+              "x": 1725,
+              "y": 1518
+            },
+            {
+              "x": 1773,
+              "y": 1509
+            },
+            {
+              "x": 1771,
+              "y": 1490
+            },
+            {
+              "x": 1727,
+              "y": 1437
+            }
+          ]
+        },
+        {
+          "id": "col_1794061598163_3",
+          "name": "Colisão #3",
+          "points": [
+            {
+              "x": 1791,
+              "y": 1282
+            },
+            {
+              "x": 1807,
+              "y": 1310
+            },
+            {
+              "x": 1853,
+              "y": 1317
+            },
+            {
+              "x": 1870,
+              "y": 1306
+            },
+            {
+              "x": 1834,
+              "y": 1281
+            }
+          ]
+        },
+        {
+          "id": "col_1794061602150_4",
+          "name": "Colisão #4",
+          "points": [
+            {
+              "x": 1891,
+              "y": 1401
+            },
+            {
+              "x": 1899,
+              "y": 1446
+            },
+            {
+              "x": 1968,
+              "y": 1440
+            },
+            {
+              "x": 2003,
+              "y": 1435
+            },
+            {
+              "x": 2012,
+              "y": 1405
+            },
+            {
+              "x": 2041,
+              "y": 1401
+            },
+            {
+              "x": 2048,
+              "y": 1438
+            },
+            {
+              "x": 2106,
+              "y": 1429
+            },
+            {
+              "x": 2101,
+              "y": 1399
+            },
+            {
+              "x": 2094,
+              "y": 1370
+            },
+            {
+              "x": 2158,
+              "y": 1383
+            },
+            {
+              "x": 2176,
+              "y": 1359
+            },
+            {
+              "x": 2204,
+              "y": 1347
+            },
+            {
+              "x": 2243,
+              "y": 1351
+            },
+            {
+              "x": 2277,
+              "y": 1353
+            },
+            {
+              "x": 2244,
+              "y": 1312
+            },
+            {
+              "x": 2219,
+              "y": 1275
+            },
+            {
+              "x": 2236,
+              "y": 1239
+            },
+            {
+              "x": 2315,
+              "y": 1232
+            },
+            {
+              "x": 2381,
+              "y": 1221
+            },
+            {
+              "x": 2420,
+              "y": 1155
+            },
+            {
+              "x": 2403,
+              "y": 1113
+            },
+            {
+              "x": 2389,
+              "y": 1021
+            },
+            {
+              "x": 2384,
+              "y": 974
+            },
+            {
+              "x": 2354,
+              "y": 926
+            },
+            {
+              "x": 2294,
+              "y": 917
+            },
+            {
+              "x": 2247,
+              "y": 913
+            },
+            {
+              "x": 2180,
+              "y": 923
+            },
+            {
+              "x": 2187,
+              "y": 964
+            },
+            {
+              "x": 2211,
+              "y": 996
+            },
+            {
+              "x": 2258,
+              "y": 968
+            },
+            {
+              "x": 2316,
+              "y": 962
+            },
+            {
+              "x": 2341,
+              "y": 977
+            },
+            {
+              "x": 2348,
+              "y": 1015
+            },
+            {
+              "x": 2362,
+              "y": 1064
+            },
+            {
+              "x": 2371,
+              "y": 1111
+            },
+            {
+              "x": 2333,
+              "y": 1146
+            },
+            {
+              "x": 2273,
+              "y": 1156
+            },
+            {
+              "x": 2227,
+              "y": 1157
+            },
+            {
+              "x": 2195,
+              "y": 1162
+            },
+            {
+              "x": 2147,
+              "y": 1184
+            },
+            {
+              "x": 2118,
+              "y": 1177
+            },
+            {
+              "x": 2125,
+              "y": 1225
+            },
+            {
+              "x": 2088,
+              "y": 1273
+            },
+            {
+              "x": 2048,
+              "y": 1315
+            },
+            {
+              "x": 1979,
+              "y": 1368
+            }
+          ]
+        },
+        {
+          "id": "col_1794061629570_5",
+          "name": "Colisão #5",
+          "points": [
+            {
+              "x": 1949,
+              "y": 1240
+            },
+            {
+              "x": 1926,
+              "y": 1196
+            },
+            {
+              "x": 1875,
+              "y": 1136
+            },
+            {
+              "x": 1847,
+              "y": 1079
+            },
+            {
+              "x": 1847,
+              "y": 1024
+            },
+            {
+              "x": 1848,
+              "y": 975
+            },
+            {
+              "x": 1863,
+              "y": 951
+            },
+            {
+              "x": 1902,
+              "y": 989
+            },
+            {
+              "x": 1908,
+              "y": 1017
+            },
+            {
+              "x": 1949,
+              "y": 1023
+            },
+            {
+              "x": 1965,
+              "y": 999
+            },
+            {
+              "x": 1950,
+              "y": 982
+            },
+            {
+              "x": 1937,
+              "y": 957
+            },
+            {
+              "x": 1862,
+              "y": 936
+            },
+            {
+              "x": 1827,
+              "y": 947
+            },
+            {
+              "x": 1795,
+              "y": 1065
+            },
+            {
+              "x": 1818,
+              "y": 1137
+            },
+            {
+              "x": 1852,
+              "y": 1197
+            },
+            {
+              "x": 1908,
+              "y": 1258
+            }
+          ]
+        },
+        {
+          "id": "col_1794061642472_6",
+          "name": "Colisão #6",
+          "points": [
+            {
+              "x": 2439,
+              "y": 990
+            },
+            {
+              "x": 2469,
+              "y": 1028
+            },
+            {
+              "x": 2529,
+              "y": 1004
+            },
+            {
+              "x": 2557,
+              "y": 991
+            },
+            {
+              "x": 2531,
+              "y": 965
+            },
+            {
+              "x": 2493,
+              "y": 960
+            }
+          ]
+        },
+        {
+          "id": "col_1794061651197_7",
+          "name": "Colisão #7",
+          "points": [
+            {
+              "x": 1627,
+              "y": 846
+            },
+            {
+              "x": 1655,
+              "y": 877
+            },
+            {
+              "x": 1702,
+              "y": 873
+            },
+            {
+              "x": 1675,
+              "y": 840
+            }
+          ]
+        },
+        {
+          "id": "col_1794061659633_8",
+          "name": "Colisão #8",
+          "points": [
+            {
+              "x": 1452,
+              "y": 897
+            },
+            {
+              "x": 1448,
+              "y": 960
+            },
+            {
+              "x": 1483,
+              "y": 987
+            },
+            {
+              "x": 1531,
+              "y": 960
+            },
+            {
+              "x": 1554,
+              "y": 943
+            },
+            {
+              "x": 1525,
+              "y": 905
+            },
+            {
+              "x": 1476,
+              "y": 875
+            }
+          ]
+        },
+        {
+          "id": "col_1794061664738_9",
+          "name": "Colisão #9",
+          "points": [
+            {
+              "x": 1432,
+              "y": 673
+            },
+            {
+              "x": 1440,
+              "y": 696
+            },
+            {
+              "x": 1478,
+              "y": 685
+            },
+            {
+              "x": 1517,
+              "y": 668
+            },
+            {
+              "x": 1495,
+              "y": 660
+            },
+            {
+              "x": 1459,
+              "y": 649
+            }
+          ]
+        },
+        {
+          "id": "col_1794061673130_10",
+          "name": "Colisão #10",
+          "points": [
+            {
+              "x": 1515,
+              "y": 585
+            },
+            {
+              "x": 1556,
+              "y": 610
+            },
+            {
+              "x": 1596,
+              "y": 603
+            },
+            {
+              "x": 1622,
+              "y": 608
+            },
+            {
+              "x": 1677,
+              "y": 605
+            },
+            {
+              "x": 1697,
+              "y": 596
+            },
+            {
+              "x": 1682,
+              "y": 572
+            },
+            {
+              "x": 1692,
+              "y": 553
+            },
+            {
+              "x": 1706,
+              "y": 542
+            },
+            {
+              "x": 1745,
+              "y": 548
+            },
+            {
+              "x": 1780,
+              "y": 549
+            },
+            {
+              "x": 1809,
+              "y": 562
+            },
+            {
+              "x": 1826,
+              "y": 578
+            },
+            {
+              "x": 1846,
+              "y": 544
+            },
+            {
+              "x": 1872,
+              "y": 529
+            },
+            {
+              "x": 1888,
+              "y": 529
+            },
+            {
+              "x": 1898,
+              "y": 591
+            },
+            {
+              "x": 1873,
+              "y": 614
+            },
+            {
+              "x": 1912,
+              "y": 628
+            },
+            {
+              "x": 1947,
+              "y": 625
+            },
+            {
+              "x": 1965,
+              "y": 604
+            },
+            {
+              "x": 1954,
+              "y": 582
+            },
+            {
+              "x": 1921,
+              "y": 554
+            },
+            {
+              "x": 1897,
+              "y": 500
+            },
+            {
+              "x": 1885,
+              "y": 465
+            },
+            {
+              "x": 1829,
+              "y": 424
+            },
+            {
+              "x": 1811,
+              "y": 371
+            },
+            {
+              "x": 1811,
+              "y": 361
+            },
+            {
+              "x": 1763,
+              "y": 331
+            },
+            {
+              "x": 1791,
+              "y": 297
+            },
+            {
+              "x": 1806,
+              "y": 275
+            },
+            {
+              "x": 1842,
+              "y": 255
+            },
+            {
+              "x": 1887,
+              "y": 219
+            },
+            {
+              "x": 1905,
+              "y": 215
+            },
+            {
+              "x": 1929,
+              "y": 197
+            },
+            {
+              "x": 1923,
+              "y": 149
+            },
+            {
+              "x": 1922,
+              "y": 121
+            },
+            {
+              "x": 1940,
+              "y": 101
+            },
+            {
+              "x": 1959,
+              "y": 76
+            },
+            {
+              "x": 2009,
+              "y": 99
+            },
+            {
+              "x": 2044,
+              "y": 108
+            },
+            {
+              "x": 2074,
+              "y": 108
+            },
+            {
+              "x": 2091,
+              "y": 63
+            },
+            {
+              "x": 2110,
+              "y": 57
+            },
+            {
+              "x": 2145,
+              "y": 64
+            },
+            {
+              "x": 2175,
+              "y": 120
+            },
+            {
+              "x": 2214,
+              "y": 149
+            },
+            {
+              "x": 2218,
+              "y": 216
+            },
+            {
+              "x": 2207,
+              "y": 255
+            },
+            {
+              "x": 2265,
+              "y": 256
+            },
+            {
+              "x": 2304,
+              "y": 248
+            },
+            {
+              "x": 2315,
+              "y": 214
+            },
+            {
+              "x": 2282,
+              "y": 190
+            },
+            {
+              "x": 2263,
+              "y": 145
+            },
+            {
+              "x": 2245,
+              "y": 86
+            },
+            {
+              "x": 2260,
+              "y": 63
+            },
+            {
+              "x": 2287,
+              "y": 65
+            },
+            {
+              "x": 2318,
+              "y": 77
+            },
+            {
+              "x": 2342,
+              "y": 116
+            },
+            {
+              "x": 2383,
+              "y": 110
+            },
+            {
+              "x": 2407,
+              "y": 89
+            },
+            {
+              "x": 2411,
+              "y": 76
+            },
+            {
+              "x": 2445,
+              "y": 111
+            },
+            {
+              "x": 2428,
+              "y": 149
+            },
+            {
+              "x": 2447,
+              "y": 171
+            },
+            {
+              "x": 2489,
+              "y": 182
+            },
+            {
+              "x": 2505,
+              "y": 213
+            },
+            {
+              "x": 2619,
+              "y": 139
+            },
+            {
+              "x": 2617,
+              "y": 102
+            },
+            {
+              "x": 2689,
+              "y": 53
+            },
+            {
+              "x": 2663,
+              "y": -19
+            },
+            {
+              "x": 2080,
+              "y": -35
+            },
+            {
+              "x": 1653,
+              "y": -24
+            }
+          ]
+        },
+        {
+          "id": "col_1794061724894_11",
+          "name": "Colisão #11",
+          "points": [
+            {
+              "x": 2119,
+              "y": 487
+            },
+            {
+              "x": 2133,
+              "y": 525
+            },
+            {
+              "x": 2187,
+              "y": 517
+            },
+            {
+              "x": 2208,
+              "y": 501
+            },
+            {
+              "x": 2197,
+              "y": 480
+            },
+            {
+              "x": 2156,
+              "y": 463
+            }
+          ]
+        },
+        {
+          "id": "col_1794061732801_12",
+          "name": "Colisão #12",
+          "points": [
+            {
+              "x": 2050,
+              "y": 373
+            },
+            {
+              "x": 2070,
+              "y": 404
+            },
+            {
+              "x": 2121,
+              "y": 395
+            },
+            {
+              "x": 2135,
+              "y": 378
+            },
+            {
+              "x": 2089,
+              "y": 346
+            }
+          ]
+        },
+        {
+          "id": "col_1794061736294_13",
+          "name": "Colisão #13",
+          "points": [
+            {
+              "x": 1413,
+              "y": 553
+            },
+            {
+              "x": 1421,
+              "y": 582
+            },
+            {
+              "x": 1450,
+              "y": 581
+            },
+            {
+              "x": 1547,
+              "y": 558
+            },
+            {
+              "x": 1666,
+              "y": -46
+            },
+            {
+              "x": 1243,
+              "y": -29
+            },
+            {
+              "x": 1248,
+              "y": 63
+            },
+            {
+              "x": 1284,
+              "y": 98
+            },
+            {
+              "x": 1336,
+              "y": 75
+            },
+            {
+              "x": 1394,
+              "y": 119
+            },
+            {
+              "x": 1397,
+              "y": 163
+            },
+            {
+              "x": 1382,
+              "y": 206
+            },
+            {
+              "x": 1407,
+              "y": 215
+            },
+            {
+              "x": 1456,
+              "y": 184
+            },
+            {
+              "x": 1476,
+              "y": 189
+            },
+            {
+              "x": 1522,
+              "y": 190
+            },
+            {
+              "x": 1567,
+              "y": 219
+            },
+            {
+              "x": 1536,
+              "y": 269
+            },
+            {
+              "x": 1503,
+              "y": 262
+            },
+            {
+              "x": 1458,
+              "y": 260
+            },
+            {
+              "x": 1424,
+              "y": 274
+            },
+            {
+              "x": 1405,
+              "y": 282
+            },
+            {
+              "x": 1378,
+              "y": 274
+            },
+            {
+              "x": 1351,
+              "y": 267
+            },
+            {
+              "x": 1336,
+              "y": 257
+            },
+            {
+              "x": 1314,
+              "y": 249
+            },
+            {
+              "x": 1278,
+              "y": 246
+            },
+            {
+              "x": 1246,
+              "y": 266
+            },
+            {
+              "x": 1219,
+              "y": 311
+            },
+            {
+              "x": 1170,
+              "y": 348
+            },
+            {
+              "x": 1156,
+              "y": 370
+            },
+            {
+              "x": 1139,
+              "y": 418
+            },
+            {
+              "x": 1156,
+              "y": 443
+            },
+            {
+              "x": 1178,
+              "y": 474
+            },
+            {
+              "x": 1204,
+              "y": 457
+            },
+            {
+              "x": 1215,
+              "y": 445
+            },
+            {
+              "x": 1252,
+              "y": 428
+            },
+            {
+              "x": 1306,
+              "y": 460
+            },
+            {
+              "x": 1356,
+              "y": 459
+            },
+            {
+              "x": 1390,
+              "y": 508
+            },
+            {
+              "x": 1382,
+              "y": 538
+            }
+          ]
+        },
+        {
+          "id": "col_1794061768974_14",
+          "name": "Colisão #14",
+          "points": [
+            {
+              "x": 1136,
+              "y": 192
+            },
+            {
+              "x": 1249,
+              "y": 234
+            },
+            {
+              "x": 1292,
+              "y": 203
+            },
+            {
+              "x": 1291,
+              "y": 188
+            },
+            {
+              "x": 1174,
+              "y": 138
+            },
+            {
+              "x": 1171,
+              "y": 168
+            },
+            {
+              "x": 1204,
+              "y": 187
+            },
+            {
+              "x": 1143,
+              "y": 185
+            }
+          ]
+        },
+        {
+          "id": "col_1794061777316_15",
+          "name": "Colisão #15",
+          "points": [
+            {
+              "x": 1320,
+              "y": 178
+            },
+            {
+              "x": 1334,
+              "y": 203
+            },
+            {
+              "x": 1362,
+              "y": 190
+            },
+            {
+              "x": 1346,
+              "y": 165
+            }
+          ]
+        },
+        {
+          "id": "col_1794061780356_16",
+          "name": "Colisão #16",
+          "points": [
+            {
+              "x": 546,
+              "y": 410
+            },
+            {
+              "x": 543,
+              "y": 355
+            },
+            {
+              "x": 582,
+              "y": 311
+            },
+            {
+              "x": 612,
+              "y": 291
+            },
+            {
+              "x": 700,
+              "y": 263
+            },
+            {
+              "x": 758,
+              "y": 264
+            },
+            {
+              "x": 783,
+              "y": 275
+            },
+            {
+              "x": 832,
+              "y": 314
+            },
+            {
+              "x": 848,
+              "y": 339
+            },
+            {
+              "x": 919,
+              "y": 332
+            },
+            {
+              "x": 952,
+              "y": 308
+            },
+            {
+              "x": 949,
+              "y": 284
+            },
+            {
+              "x": 947,
+              "y": 274
+            },
+            {
+              "x": 1036,
+              "y": 224
+            },
+            {
+              "x": 1040,
+              "y": 209
+            },
+            {
+              "x": 1053,
+              "y": 194
+            },
+            {
+              "x": 1056,
+              "y": 161
+            },
+            {
+              "x": 1121,
+              "y": 124
+            },
+            {
+              "x": 1178,
+              "y": 77
+            },
+            {
+              "x": 1161,
+              "y": 58
+            },
+            {
+              "x": 1255,
+              "y": 33
+            },
+            {
+              "x": 1253,
+              "y": -44
+            },
+            {
+              "x": -8,
+              "y": -24
+            },
+            {
+              "x": -38,
+              "y": 427
+            }
+          ]
+        },
+        {
+          "id": "col_1794061807999_17",
+          "name": "Colisão #17",
+          "points": [
+            {
+              "x": -27,
+              "y": 415
+            },
+            {
+              "x": 537,
+              "y": 405
+            },
+            {
+              "x": 748,
+              "y": 395
+            },
+            {
+              "x": 808,
+              "y": 412
+            },
+            {
+              "x": 1064,
+              "y": 549
+            },
+            {
+              "x": 1115,
+              "y": 584
+            },
+            {
+              "x": 1101,
+              "y": 617
+            },
+            {
+              "x": 1050,
+              "y": 587
+            },
+            {
+              "x": 995,
+              "y": 594
+            },
+            {
+              "x": 1027,
+              "y": 557
+            },
+            {
+              "x": 955,
+              "y": 559
+            },
+            {
+              "x": 841,
+              "y": 492
+            },
+            {
+              "x": 626,
+              "y": 574
+            },
+            {
+              "x": 521,
+              "y": 634
+            },
+            {
+              "x": 406,
+              "y": 685
+            },
+            {
+              "x": 382,
+              "y": 732
+            },
+            {
+              "x": 476,
+              "y": 790
+            },
+            {
+              "x": 549,
+              "y": 738
+            },
+            {
+              "x": 668,
+              "y": 674
+            },
+            {
+              "x": 740,
+              "y": 763
+            },
+            {
+              "x": 765,
+              "y": 727
+            },
+            {
+              "x": 802,
+              "y": 759
+            },
+            {
+              "x": 828,
+              "y": 796
+            },
+            {
+              "x": 975,
+              "y": 745
+            },
+            {
+              "x": 881,
+              "y": 694
+            },
+            {
+              "x": 885,
+              "y": 685
+            },
+            {
+              "x": 940,
+              "y": 696
+            },
+            {
+              "x": 1003,
+              "y": 734
+            },
+            {
+              "x": 840,
+              "y": 863
+            },
+            {
+              "x": 837,
+              "y": 932
+            },
+            {
+              "x": 745,
+              "y": 967
+            },
+            {
+              "x": 690,
+              "y": 932
+            },
+            {
+              "x": 655,
+              "y": 893
+            },
+            {
+              "x": 118,
+              "y": 656
+            },
+            {
+              "x": 167,
+              "y": 581
+            },
+            {
+              "x": 239,
+              "y": 539
+            },
+            {
+              "x": 309,
+              "y": 503
+            },
+            {
+              "x": 371,
+              "y": 459
+            },
+            {
+              "x": 227,
+              "y": 446
+            },
+            {
+              "x": 65,
+              "y": 527
+            },
+            {
+              "x": 26,
+              "y": 667
+            },
+            {
+              "x": 86,
+              "y": 793
+            },
+            {
+              "x": 148,
+              "y": 809
+            },
+            {
+              "x": 177,
+              "y": 878
+            },
+            {
+              "x": 250,
+              "y": 917
+            },
+            {
+              "x": 314,
+              "y": 924
+            },
+            {
+              "x": 328,
+              "y": 1005
+            },
+            {
+              "x": 326,
+              "y": 1060
+            },
+            {
+              "x": 367,
+              "y": 1027
+            },
+            {
+              "x": 389,
+              "y": 994
+            },
+            {
+              "x": 443,
+              "y": 1040
+            },
+            {
+              "x": 504,
+              "y": 1109
+            },
+            {
+              "x": 557,
+              "y": 1140
+            },
+            {
+              "x": 584,
+              "y": 1150
+            },
+            {
+              "x": 633,
+              "y": 1181
+            },
+            {
+              "x": 588,
+              "y": 1246
+            },
+            {
+              "x": 577,
+              "y": 1252
+            },
+            {
+              "x": 520,
+              "y": 1260
+            },
+            {
+              "x": 515,
+              "y": 1297
+            },
+            {
+              "x": 558,
+              "y": 1343
+            },
+            {
+              "x": 587,
+              "y": 1424
+            },
+            {
+              "x": 529,
+              "y": 1446
+            },
+            {
+              "x": 485,
+              "y": 1433
+            },
+            {
+              "x": 433,
+              "y": 1436
+            },
+            {
+              "x": 404,
+              "y": 1496
+            },
+            {
+              "x": 191,
+              "y": 1600
+            },
+            {
+              "x": -47,
+              "y": 1650
+            }
+          ]
+        },
+        {
+          "id": "col_1794061864926_18",
+          "name": "Colisão #18",
+          "points": [
+            {
+              "x": -65,
+              "y": 1659
+            },
+            {
+              "x": 200,
+              "y": 1583
+            },
+            {
+              "x": 300,
+              "y": 1660
+            },
+            {
+              "x": 474,
+              "y": 1562
+            },
+            {
+              "x": 549,
+              "y": 1554
+            },
+            {
+              "x": 582,
+              "y": 1579
+            },
+            {
+              "x": 637,
+              "y": 1645
+            },
+            {
+              "x": 694,
+              "y": 1645
+            },
+            {
+              "x": 732,
+              "y": 1632
+            },
+            {
+              "x": 808,
+              "y": 1706
+            },
+            {
+              "x": 820,
+              "y": 1746
+            },
+            {
+              "x": 834,
+              "y": 1772
+            },
+            {
+              "x": 897,
+              "y": 1767
+            },
+            {
+              "x": 958,
+              "y": 1796
+            },
+            {
+              "x": 1039,
+              "y": 1802
+            },
+            {
+              "x": 1114,
+              "y": 1883
+            },
+            {
+              "x": 1126,
+              "y": 1907
+            },
+            {
+              "x": 1123,
+              "y": 2035
+            },
+            {
+              "x": -34,
+              "y": 2003
+            }
+          ]
+        },
+        {
+          "id": "col_1794061880406_19",
+          "name": "Colisão #19",
+          "points": [
+            {
+              "x": 1115,
+              "y": 2047
+            },
+            {
+              "x": 1108,
+              "y": 1868
+            },
+            {
+              "x": 1201,
+              "y": 1862
+            },
+            {
+              "x": 1260,
+              "y": 1851
+            },
+            {
+              "x": 1310,
+              "y": 1836
+            },
+            {
+              "x": 1294,
+              "y": 1802
+            },
+            {
+              "x": 1390,
+              "y": 1812
+            },
+            {
+              "x": 1434,
+              "y": 1803
+            },
+            {
+              "x": 1455,
+              "y": 1758
+            },
+            {
+              "x": 1445,
+              "y": 1750
+            },
+            {
+              "x": 1517,
+              "y": 1730
+            },
+            {
+              "x": 1545,
+              "y": 1762
+            },
+            {
+              "x": 1605,
+              "y": 1733
+            },
+            {
+              "x": 1651,
+              "y": 1763
+            },
+            {
+              "x": 1670,
+              "y": 1799
+            },
+            {
+              "x": 1717,
+              "y": 1848
+            },
+            {
+              "x": 1755,
+              "y": 1824
+            },
+            {
+              "x": 1817,
+              "y": 1807
+            },
+            {
+              "x": 1874,
+              "y": 1821
+            },
+            {
+              "x": 1936,
+              "y": 1807
+            },
+            {
+              "x": 1975,
+              "y": 1773
+            },
+            {
+              "x": 2030,
+              "y": 1774
+            },
+            {
+              "x": 2065,
+              "y": 1837
+            },
+            {
+              "x": 2113,
+              "y": 1782
+            },
+            {
+              "x": 2152,
+              "y": 1766
+            },
+            {
+              "x": 2128,
+              "y": 1726
+            },
+            {
+              "x": 2054,
+              "y": 1737
+            },
+            {
+              "x": 2063,
+              "y": 1691
+            },
+            {
+              "x": 2125,
+              "y": 1669
+            },
+            {
+              "x": 2135,
+              "y": 1678
+            },
+            {
+              "x": 2167,
+              "y": 1662
+            },
+            {
+              "x": 2163,
+              "y": 1707
+            },
+            {
+              "x": 2173,
+              "y": 1806
+            },
+            {
+              "x": 2175,
+              "y": 1816
+            },
+            {
+              "x": 2212,
+              "y": 1867
+            },
+            {
+              "x": 2249,
+              "y": 1867
+            },
+            {
+              "x": 2311,
+              "y": 1827
+            },
+            {
+              "x": 2332,
+              "y": 1879
+            },
+            {
+              "x": 2357,
+              "y": 1903
+            },
+            {
+              "x": 2443,
+              "y": 1890
+            },
+            {
+              "x": 2517,
+              "y": 1928
+            },
+            {
+              "x": 2551,
+              "y": 1948
+            },
+            {
+              "x": 2543,
+              "y": 1977
+            },
+            {
+              "x": 2512,
+              "y": 2028
+            }
+          ]
+        },
+        {
+          "id": "col_1794062198077_20",
+          "name": "Colisão #20",
+          "points": [
+            {
+              "x": 3020,
+              "y": 1809
+            },
+            {
+              "x": 2931,
+              "y": 1782
+            },
+            {
+              "x": 2932,
+              "y": 1730
+            },
+            {
+              "x": 3030,
+              "y": 1713
+            }
+          ]
+        },
+        {
+          "id": "col_1794062227267_21",
+          "name": "Colisão #21",
+          "points": [
+            {
+              "x": 3023,
+              "y": 1379
+            },
+            {
+              "x": 2980,
+              "y": 1377
+            },
+            {
+              "x": 2921,
+              "y": 1403
+            },
+            {
+              "x": 2835,
+              "y": 1440
+            },
+            {
+              "x": 2800,
+              "y": 1480
+            },
+            {
+              "x": 2780,
+              "y": 1513
+            },
+            {
+              "x": 2711,
+              "y": 1562
+            },
+            {
+              "x": 2634,
+              "y": 1526
+            },
+            {
+              "x": 2563,
+              "y": 1476
+            },
+            {
+              "x": 2554,
+              "y": 1454
+            },
+            {
+              "x": 2514,
+              "y": 1472
+            },
+            {
+              "x": 2535,
+              "y": 1425
+            },
+            {
+              "x": 2635,
+              "y": 1404
+            },
+            {
+              "x": 2653,
+              "y": 1365
+            },
+            {
+              "x": 2678,
+              "y": 1336
+            },
+            {
+              "x": 2736,
+              "y": 1321
+            },
+            {
+              "x": 2776,
+              "y": 1305
+            },
+            {
+              "x": 2808,
+              "y": 1293
+            },
+            {
+              "x": 2877,
+              "y": 1272
+            },
+            {
+              "x": 2925,
+              "y": 1275
+            },
+            {
+              "x": 2978,
+              "y": 1270
+            },
+            {
+              "x": 3032,
+              "y": 1282
+            }
+          ]
+        },
+        {
+          "id": "col_1794062239749_22",
+          "name": "Colisão #22",
+          "points": [
+            {
+              "x": 3012,
+              "y": 1010
+            },
+            {
+              "x": 2865,
+              "y": 1045
+            },
+            {
+              "x": 2822,
+              "y": 1008
+            },
+            {
+              "x": 2842,
+              "y": 967
+            },
+            {
+              "x": 2922,
+              "y": 938
+            },
+            {
+              "x": 3032,
+              "y": 934
+            }
+          ]
+        },
+        {
+          "id": "col_1794062246182_23",
+          "name": "Colisão #23",
+          "points": [
+            {
+              "x": 3013,
+              "y": 662
+            },
+            {
+              "x": 2933,
+              "y": 686
+            },
+            {
+              "x": 2873,
+              "y": 685
+            },
+            {
+              "x": 2909,
+              "y": 623
+            },
+            {
+              "x": 2864,
+              "y": 594
+            },
+            {
+              "x": 2798,
+              "y": 601
+            },
+            {
+              "x": 2772,
+              "y": 583
+            },
+            {
+              "x": 2819,
+              "y": 526
+            },
+            {
+              "x": 2861,
+              "y": 543
+            },
+            {
+              "x": 2953,
+              "y": 586
+            },
+            {
+              "x": 2960,
+              "y": 651
+            },
+            {
+              "x": 3025,
+              "y": 629
+            }
+          ]
+        },
+        {
+          "id": "col_1794062254206_24",
+          "name": "Colisão #24",
+          "points": [
+            {
+              "x": 3020,
+              "y": 381
+            },
+            {
+              "x": 2953,
+              "y": 344
+            },
+            {
+              "x": 2892,
+              "y": 303
+            },
+            {
+              "x": 2864,
+              "y": 276
+            },
+            {
+              "x": 2840,
+              "y": 269
+            },
+            {
+              "x": 2798,
+              "y": 250
+            },
+            {
+              "x": 2816,
+              "y": 209
+            },
+            {
+              "x": 2853,
+              "y": 139
+            },
+            {
+              "x": 2834,
+              "y": -50
+            },
+            {
+              "x": 3027,
+              "y": -23
+            }
+          ]
+        },
+        {
+          "id": "col_1794062268921_25",
+          "name": "Colisão #25",
+          "points": []
+        },
+        {
+          "id": "col_1794063340058_26",
+          "name": "Colisão #26",
+          "points": []
+        },
+        {
+          "id": "col_1794063621077_27",
+          "name": "Colisão #27",
+          "points": [
+            {
+              "x": 2603,
+              "y": 1647
+            },
+            {
+              "x": 2616,
+              "y": 1679
+            },
+            {
+              "x": 2668,
+              "y": 1682
+            },
+            {
+              "x": 2694,
+              "y": 1653
+            },
+            {
+              "x": 2654,
+              "y": 1634
+            }
+          ]
+        },
+        {
+          "id": "col_1794063638189_28",
+          "name": "Colisão #28",
+          "points": [
+            {
+              "x": 2442,
+              "y": 1598
+            },
+            {
+              "x": 2452,
+              "y": 1619
+            },
+            {
+              "x": 2480,
+              "y": 1620
+            },
+            {
+              "x": 2518,
+              "y": 1608
+            },
+            {
+              "x": 2549,
+              "y": 1617
+            },
+            {
+              "x": 2573,
+              "y": 1611
+            },
+            {
+              "x": 2580,
+              "y": 1602
+            },
+            {
+              "x": 2616,
+              "y": 1589
+            },
+            {
+              "x": 2613,
+              "y": 1575
+            },
+            {
+              "x": 2546,
+              "y": 1583
+            },
+            {
+              "x": 2482,
+              "y": 1590
+            }
+          ]
+        }
+      ],
+      "overlapMeshJson": [
+        {
+          "id": "ovl_1794062203907_1",
+          "name": "Sobreposição #1",
+          "points": [
+            {
+              "x": 900,
+              "y": 1367
+            },
+            {
+              "x": 896,
+              "y": 1402
+            },
+            {
+              "x": 862,
+              "y": 1393
+            },
+            {
+              "x": 878,
+              "y": 1362
+            },
+            {
+              "x": 842,
+              "y": 1372
+            },
+            {
+              "x": 816,
+              "y": 1355
+            },
+            {
+              "x": 849,
+              "y": 1327
+            },
+            {
+              "x": 805,
+              "y": 1309
+            },
+            {
+              "x": 804,
+              "y": 1267
+            },
+            {
+              "x": 830,
+              "y": 1262
+            },
+            {
+              "x": 855,
+              "y": 1299
+            },
+            {
+              "x": 861,
+              "y": 1236
+            },
+            {
+              "x": 841,
+              "y": 1221
+            },
+            {
+              "x": 806,
+              "y": 1215
+            },
+            {
+              "x": 820,
+              "y": 1177
+            },
+            {
+              "x": 787,
+              "y": 1195
+            },
+            {
+              "x": 753,
+              "y": 1185
+            },
+            {
+              "x": 785,
+              "y": 1142
+            },
+            {
+              "x": 752,
+              "y": 1126
+            },
+            {
+              "x": 758,
+              "y": 1090
+            },
+            {
+              "x": 779,
+              "y": 1112
+            },
+            {
+              "x": 787,
+              "y": 1098
+            },
+            {
+              "x": 784,
+              "y": 1068
+            },
+            {
+              "x": 788,
+              "y": 1048
+            },
+            {
+              "x": 799,
+              "y": 1041
+            },
+            {
+              "x": 813,
+              "y": 1067
+            },
+            {
+              "x": 821,
+              "y": 1077
+            },
+            {
+              "x": 824,
+              "y": 1050
+            },
+            {
+              "x": 835,
+              "y": 1028
+            },
+            {
+              "x": 855,
+              "y": 1023
+            },
+            {
+              "x": 864,
+              "y": 1067
+            },
+            {
+              "x": 879,
+              "y": 1068
+            },
+            {
+              "x": 904,
+              "y": 1054
+            },
+            {
+              "x": 906,
+              "y": 1083
+            },
+            {
+              "x": 882,
+              "y": 1111
+            },
+            {
+              "x": 907,
+              "y": 1125
+            },
+            {
+              "x": 939,
+              "y": 1135
+            },
+            {
+              "x": 939,
+              "y": 1153
+            },
+            {
+              "x": 891,
+              "y": 1159
+            },
+            {
+              "x": 897,
+              "y": 1213
+            },
+            {
+              "x": 919,
+              "y": 1213
+            },
+            {
+              "x": 944,
+              "y": 1206
+            },
+            {
+              "x": 949,
+              "y": 1178
+            },
+            {
+              "x": 959,
+              "y": 1159
+            },
+            {
+              "x": 981,
+              "y": 1180
+            },
+            {
+              "x": 980,
+              "y": 1147
+            },
+            {
+              "x": 1029,
+              "y": 1180
+            },
+            {
+              "x": 965,
+              "y": 1337
+            }
+          ]
+        },
+        {
+          "id": "ovl_1794063379134_2",
+          "name": "Sobreposição #2",
+          "points": [
+            {
+              "x": 904,
+              "y": 1066
+            },
+            {
+              "x": 892,
+              "y": 1054
+            },
+            {
+              "x": 912,
+              "y": 1034
+            },
+            {
+              "x": 944,
+              "y": 1018
+            },
+            {
+              "x": 979,
+              "y": 1035
+            },
+            {
+              "x": 1003,
+              "y": 1054
+            },
+            {
+              "x": 1003,
+              "y": 1022
+            },
+            {
+              "x": 999,
+              "y": 998
+            },
+            {
+              "x": 945,
+              "y": 981
+            },
+            {
+              "x": 922,
+              "y": 953
+            },
+            {
+              "x": 915,
+              "y": 935
+            },
+            {
+              "x": 926,
+              "y": 916
+            },
+            {
+              "x": 946,
+              "y": 916
+            },
+            {
+              "x": 960,
+              "y": 901
+            },
+            {
+              "x": 978,
+              "y": 894
+            },
+            {
+              "x": 1045,
+              "y": 915
+            },
+            {
+              "x": 1050,
+              "y": 932
+            },
+            {
+              "x": 1076,
+              "y": 938
+            },
+            {
+              "x": 1096,
+              "y": 940
+            },
+            {
+              "x": 1125,
+              "y": 953
+            },
+            {
+              "x": 1132,
+              "y": 991
+            },
+            {
+              "x": 1136,
+              "y": 1038
+            },
+            {
+              "x": 1129,
+              "y": 1089
+            },
+            {
+              "x": 1080,
+              "y": 1077
+            },
+            {
+              "x": 1048,
+              "y": 1066
+            },
+            {
+              "x": 1044,
+              "y": 1121
+            },
+            {
+              "x": 998,
+              "y": 1144
+            },
+            {
+              "x": 954,
+              "y": 1121
+            },
+            {
+              "x": 958,
+              "y": 1101
+            }
+          ]
+        },
+        {
+          "id": "ovl_1794063400552_3",
+          "name": "Sobreposição #3",
+          "points": [
+            {
+              "x": 1251,
+              "y": 1062
+            },
+            {
+              "x": 1260,
+              "y": 1036
+            },
+            {
+              "x": 1236,
+              "y": 1019
+            },
+            {
+              "x": 1227,
+              "y": 1003
+            },
+            {
+              "x": 1260,
+              "y": 982
+            },
+            {
+              "x": 1276,
+              "y": 966
+            },
+            {
+              "x": 1244,
+              "y": 978
+            },
+            {
+              "x": 1223,
+              "y": 954
+            },
+            {
+              "x": 1203,
+              "y": 918
+            },
+            {
+              "x": 1216,
+              "y": 865
+            },
+            {
+              "x": 1250,
+              "y": 842
+            },
+            {
+              "x": 1234,
+              "y": 824
+            },
+            {
+              "x": 1261,
+              "y": 807
+            },
+            {
+              "x": 1294,
+              "y": 802
+            },
+            {
+              "x": 1317,
+              "y": 809
+            },
+            {
+              "x": 1347,
+              "y": 791
+            },
+            {
+              "x": 1366,
+              "y": 778
+            },
+            {
+              "x": 1387,
+              "y": 757
+            },
+            {
+              "x": 1410,
+              "y": 748
+            },
+            {
+              "x": 1429,
+              "y": 807
+            },
+            {
+              "x": 1440,
+              "y": 826
+            },
+            {
+              "x": 1452,
+              "y": 850
+            },
+            {
+              "x": 1470,
+              "y": 835
+            },
+            {
+              "x": 1496,
+              "y": 855
+            },
+            {
+              "x": 1544,
+              "y": 893
+            },
+            {
+              "x": 1551,
+              "y": 915
+            },
+            {
+              "x": 1564,
+              "y": 944
+            },
+            {
+              "x": 1504,
+              "y": 968
+            },
+            {
+              "x": 1486,
+              "y": 995
+            },
+            {
+              "x": 1454,
+              "y": 1001
+            },
+            {
+              "x": 1423,
+              "y": 984
+            },
+            {
+              "x": 1431,
+              "y": 963
+            },
+            {
+              "x": 1440,
+              "y": 943
+            },
+            {
+              "x": 1397,
+              "y": 965
+            },
+            {
+              "x": 1381,
+              "y": 947
+            },
+            {
+              "x": 1370,
+              "y": 922
+            },
+            {
+              "x": 1362,
+              "y": 910
+            },
+            {
+              "x": 1365,
+              "y": 1018
+            },
+            {
+              "x": 1372,
+              "y": 1067
+            }
+          ]
+        },
+        {
+          "id": "ovl_1794063425997_4",
+          "name": "Sobreposição #4",
+          "points": [
+            {
+              "x": 1211,
+              "y": 1045
+            },
+            {
+              "x": 1216,
+              "y": 1023
+            },
+            {
+              "x": 1205,
+              "y": 1009
+            },
+            {
+              "x": 1173,
+              "y": 1001
+            },
+            {
+              "x": 1161,
+              "y": 995
+            },
+            {
+              "x": 1141,
+              "y": 1002
+            },
+            {
+              "x": 1123,
+              "y": 1019
+            },
+            {
+              "x": 1143,
+              "y": 1065
+            }
+          ]
+        },
+        {
+          "id": "ovl_1794063430068_5",
+          "name": "Sobreposição #5",
+          "points": [
+            {
+              "x": 1546,
+              "y": 1111
+            },
+            {
+              "x": 1553,
+              "y": 1076
+            },
+            {
+              "x": 1581,
+              "y": 1042
+            },
+            {
+              "x": 1601,
+              "y": 1031
+            },
+            {
+              "x": 1550,
+              "y": 1009
+            },
+            {
+              "x": 1508,
+              "y": 1017
+            },
+            {
+              "x": 1504,
+              "y": 995
+            },
+            {
+              "x": 1526,
+              "y": 973
+            },
+            {
+              "x": 1567,
+              "y": 965
+            },
+            {
+              "x": 1599,
+              "y": 966
+            },
+            {
+              "x": 1577,
+              "y": 951
+            },
+            {
+              "x": 1556,
+              "y": 928
+            },
+            {
+              "x": 1548,
+              "y": 906
+            },
+            {
+              "x": 1557,
+              "y": 882
+            },
+            {
+              "x": 1585,
+              "y": 889
+            },
+            {
+              "x": 1637,
+              "y": 910
+            },
+            {
+              "x": 1660,
+              "y": 898
+            },
+            {
+              "x": 1683,
+              "y": 885
+            },
+            {
+              "x": 1716,
+              "y": 902
+            },
+            {
+              "x": 1720,
+              "y": 959
+            },
+            {
+              "x": 1768,
+              "y": 947
+            },
+            {
+              "x": 1815,
+              "y": 971
+            },
+            {
+              "x": 1808,
+              "y": 999
+            },
+            {
+              "x": 1711,
+              "y": 1019
+            },
+            {
+              "x": 1755,
+              "y": 1056
+            },
+            {
+              "x": 1768,
+              "y": 1089
+            },
+            {
+              "x": 1754,
+              "y": 1114
+            },
+            {
+              "x": 1770,
+              "y": 1131
+            },
+            {
+              "x": 1810,
+              "y": 1147
+            },
+            {
+              "x": 1812,
+              "y": 1193
+            },
+            {
+              "x": 1776,
+              "y": 1195
+            },
+            {
+              "x": 1762,
+              "y": 1203
+            },
+            {
+              "x": 1710,
+              "y": 1120
+            },
+            {
+              "x": 1711,
+              "y": 1090
+            },
+            {
+              "x": 1676,
+              "y": 1081
+            },
+            {
+              "x": 1683,
+              "y": 1127
+            }
+          ]
+        },
+        {
+          "id": "ovl_1794063461571_6",
+          "name": "Sobreposição #6",
+          "points": [
+            {
+              "x": 1796,
+              "y": 1294
+            },
+            {
+              "x": 1797,
+              "y": 1268
+            },
+            {
+              "x": 1814,
+              "y": 1254
+            },
+            {
+              "x": 1848,
+              "y": 1255
+            },
+            {
+              "x": 1853,
+              "y": 1295
+            }
+          ]
+        },
+        {
+          "id": "ovl_1794063466246_7",
+          "name": "Sobreposição #7",
+          "points": [
+            {
+              "x": 1764,
+              "y": 1347
+            },
+            {
+              "x": 1748,
+              "y": 1325
+            },
+            {
+              "x": 1762,
+              "y": 1307
+            },
+            {
+              "x": 1771,
+              "y": 1305
+            },
+            {
+              "x": 1803,
+              "y": 1319
+            },
+            {
+              "x": 1800,
+              "y": 1338
+            }
+          ]
+        },
+        {
+          "id": "ovl_1794063469850_8",
+          "name": "Sobreposição #8",
+          "points": [
+            {
+              "x": 1741,
+              "y": 1254
+            },
+            {
+              "x": 1731,
+              "y": 1284
+            },
+            {
+              "x": 1707,
+              "y": 1275
+            },
+            {
+              "x": 1700,
+              "y": 1258
+            },
+            {
+              "x": 1706,
+              "y": 1235
+            }
+          ]
+        },
+        {
+          "id": "ovl_1794063472797_9",
+          "name": "Sobreposição #9",
+          "points": [
+            {
+              "x": 1641,
+              "y": 1191
+            },
+            {
+              "x": 1664,
+              "y": 1210
+            },
+            {
+              "x": 1692,
+              "y": 1216
+            },
+            {
+              "x": 1721,
+              "y": 1197
+            },
+            {
+              "x": 1678,
+              "y": 1179
+            }
+          ]
+        },
+        {
+          "id": "ovl_1794063476945_10",
+          "name": "Sobreposição #10",
+          "points": [
+            {
+              "x": 1581,
+              "y": 1368
+            },
+            {
+              "x": 1632,
+              "y": 1375
+            },
+            {
+              "x": 1662,
+              "y": 1370
+            },
+            {
+              "x": 1660,
+              "y": 1351
+            },
+            {
+              "x": 1601,
+              "y": 1331
+            }
+          ]
+        },
+        {
+          "id": "ovl_1794063480240_11",
+          "name": "Sobreposição #11",
+          "points": [
+            {
+              "x": 1693,
+              "y": 1433
+            },
+            {
+              "x": 1673,
+              "y": 1422
+            },
+            {
+              "x": 1688,
+              "y": 1398
+            },
+            {
+              "x": 1710,
+              "y": 1388
+            },
+            {
+              "x": 1734,
+              "y": 1402
+            },
+            {
+              "x": 1751,
+              "y": 1412
+            },
+            {
+              "x": 1780,
+              "y": 1429
+            },
+            {
+              "x": 1784,
+              "y": 1460
+            },
+            {
+              "x": 1794,
+              "y": 1497
+            },
+            {
+              "x": 1764,
+              "y": 1508
+            }
+          ]
+        },
+        {
+          "id": "ovl_1794063487864_12",
+          "name": "Sobreposição #12",
+          "points": [
+            {
+              "x": 1654,
+              "y": 1769
+            },
+            {
+              "x": 1653,
+              "y": 1630
+            },
+            {
+              "x": 1664,
+              "y": 1620
+            },
+            {
+              "x": 1676,
+              "y": 1658
+            },
+            {
+              "x": 1708,
+              "y": 1653
+            },
+            {
+              "x": 1744,
+              "y": 1627
+            },
+            {
+              "x": 1751,
+              "y": 1594
+            },
+            {
+              "x": 1749,
+              "y": 1583
+            },
+            {
+              "x": 1763,
+              "y": 1567
+            },
+            {
+              "x": 1742,
+              "y": 1545
+            },
+            {
+              "x": 1722,
+              "y": 1523
+            },
+            {
+              "x": 1716,
+              "y": 1489
+            },
+            {
+              "x": 1681,
+              "y": 1444
+            },
+            {
+              "x": 1652,
+              "y": 1479
+            },
+            {
+              "x": 1614,
+              "y": 1505
+            },
+            {
+              "x": 1600,
+              "y": 1515
+            },
+            {
+              "x": 1572,
+              "y": 1499
+            },
+            {
+              "x": 1551,
+              "y": 1498
+            },
+            {
+              "x": 1537,
+              "y": 1515
+            },
+            {
+              "x": 1523,
+              "y": 1526
+            },
+            {
+              "x": 1536,
+              "y": 1544
+            },
+            {
+              "x": 1510,
+              "y": 1559
+            },
+            {
+              "x": 1490,
+              "y": 1557
+            },
+            {
+              "x": 1454,
+              "y": 1537
+            },
+            {
+              "x": 1398,
+              "y": 1544
+            },
+            {
+              "x": 1371,
+              "y": 1571
+            },
+            {
+              "x": 1380,
+              "y": 1600
+            },
+            {
+              "x": 1429,
+              "y": 1630
+            },
+            {
+              "x": 1455,
+              "y": 1635
+            },
+            {
+              "x": 1467,
+              "y": 1670
+            },
+            {
+              "x": 1468,
+              "y": 1748
+            },
+            {
+              "x": 1455,
+              "y": 1692
+            },
+            {
+              "x": 1448,
+              "y": 1677
+            },
+            {
+              "x": 1409,
+              "y": 1662
+            },
+            {
+              "x": 1402,
+              "y": 1661
+            },
+            {
+              "x": 1367,
+              "y": 1660
+            },
+            {
+              "x": 1343,
+              "y": 1687
+            },
+            {
+              "x": 1353,
+              "y": 1722
+            },
+            {
+              "x": 1380,
+              "y": 1739
+            },
+            {
+              "x": 1412,
+              "y": 1726
+            },
+            {
+              "x": 1436,
+              "y": 1732
+            },
+            {
+              "x": 1448,
+              "y": 1795
+            },
+            {
+              "x": 1429,
+              "y": 1763
+            },
+            {
+              "x": 1403,
+              "y": 1771
+            },
+            {
+              "x": 1387,
+              "y": 1794
+            },
+            {
+              "x": 1398,
+              "y": 1821
+            }
+          ]
+        },
+        {
+          "id": "ovl_1794063518269_13",
+          "name": "Sobreposição #13",
+          "points": [
+            {
+              "x": 1347,
+              "y": 1812
+            },
+            {
+              "x": 1354,
+              "y": 1794
+            },
+            {
+              "x": 1335,
+              "y": 1777
+            },
+            {
+              "x": 1316,
+              "y": 1768
+            },
+            {
+              "x": 1282,
+              "y": 1782
+            },
+            {
+              "x": 1284,
+              "y": 1811
+            },
+            {
+              "x": 1316,
+              "y": 1825
+            }
+          ]
+        },
+        {
+          "id": "ovl_1794063521332_14",
+          "name": "Sobreposição #14",
+          "points": [
+            {
+              "x": 1235,
+              "y": 1858
+            },
+            {
+              "x": 1241,
+              "y": 1838
+            },
+            {
+              "x": 1235,
+              "y": 1815
+            },
+            {
+              "x": 1220,
+              "y": 1803
+            },
+            {
+              "x": 1200,
+              "y": 1802
+            },
+            {
+              "x": 1179,
+              "y": 1837
+            },
+            {
+              "x": 1177,
+              "y": 1863
+            },
+            {
+              "x": 1203,
+              "y": 1874
+            }
+          ]
+        },
+        {
+          "id": "ovl_1794063524407_15",
+          "name": "Sobreposição #15",
+          "points": [
+            {
+              "x": 1134,
+              "y": 1874
+            },
+            {
+              "x": 1135,
+              "y": 1846
+            },
+            {
+              "x": 1139,
+              "y": 1816
+            },
+            {
+              "x": 1154,
+              "y": 1812
+            },
+            {
+              "x": 1170,
+              "y": 1790
+            },
+            {
+              "x": 1151,
+              "y": 1781
+            },
+            {
+              "x": 1171,
+              "y": 1757
+            },
+            {
+              "x": 1178,
+              "y": 1730
+            },
+            {
+              "x": 1139,
+              "y": 1734
+            },
+            {
+              "x": 1134,
+              "y": 1742
+            },
+            {
+              "x": 1139,
+              "y": 1703
+            },
+            {
+              "x": 1107,
+              "y": 1718
+            },
+            {
+              "x": 1106,
+              "y": 1735
+            },
+            {
+              "x": 1076,
+              "y": 1708
+            },
+            {
+              "x": 1066,
+              "y": 1732
+            },
+            {
+              "x": 1067,
+              "y": 1749
+            },
+            {
+              "x": 1046,
+              "y": 1756
+            },
+            {
+              "x": 1038,
+              "y": 1772
+            },
+            {
+              "x": 1024,
+              "y": 1756
+            },
+            {
+              "x": 1016,
+              "y": 1724
+            },
+            {
+              "x": 1010,
+              "y": 1706
+            },
+            {
+              "x": 1045,
+              "y": 1708
+            },
+            {
+              "x": 1068,
+              "y": 1688
+            },
+            {
+              "x": 1022,
+              "y": 1656
+            },
+            {
+              "x": 1009,
+              "y": 1659
+            },
+            {
+              "x": 1028,
+              "y": 1631
+            },
+            {
+              "x": 1035,
+              "y": 1602
+            },
+            {
+              "x": 981,
+              "y": 1625
+            },
+            {
+              "x": 973,
+              "y": 1562
+            },
+            {
+              "x": 940,
+              "y": 1618
+            },
+            {
+              "x": 903,
+              "y": 1591
+            },
+            {
+              "x": 911,
+              "y": 1647
+            },
+            {
+              "x": 874,
+              "y": 1671
+            },
+            {
+              "x": 917,
+              "y": 1696
+            },
+            {
+              "x": 890,
+              "y": 1746
+            },
+            {
+              "x": 890,
+              "y": 1713
+            },
+            {
+              "x": 884,
+              "y": 1712
+            },
+            {
+              "x": 866,
+              "y": 1723
+            },
+            {
+              "x": 865,
+              "y": 1725
+            },
+            {
+              "x": 850,
+              "y": 1705
+            },
+            {
+              "x": 850,
+              "y": 1693
+            },
+            {
+              "x": 830,
+              "y": 1683
+            },
+            {
+              "x": 815,
+              "y": 1689
+            },
+            {
+              "x": 808,
+              "y": 1700
+            },
+            {
+              "x": 800,
+              "y": 1614
+            },
+            {
+              "x": 820,
+              "y": 1612
+            },
+            {
+              "x": 831,
+              "y": 1644
+            },
+            {
+              "x": 878,
+              "y": 1630
+            },
+            {
+              "x": 891,
+              "y": 1615
+            },
+            {
+              "x": 903,
+              "y": 1578
+            },
+            {
+              "x": 916,
+              "y": 1558
+            },
+            {
+              "x": 903,
+              "y": 1532
+            },
+            {
+              "x": 869,
+              "y": 1514
+            },
+            {
+              "x": 879,
+              "y": 1485
+            },
+            {
+              "x": 869,
+              "y": 1452
+            },
+            {
+              "x": 854,
+              "y": 1427
+            },
+            {
+              "x": 837,
+              "y": 1437
+            },
+            {
+              "x": 792,
+              "y": 1470
+            },
+            {
+              "x": 761,
+              "y": 1492
+            },
+            {
+              "x": 723,
+              "y": 1485
+            },
+            {
+              "x": 694,
+              "y": 1485
+            },
+            {
+              "x": 667,
+              "y": 1510
+            },
+            {
+              "x": 690,
+              "y": 1529
+            },
+            {
+              "x": 646,
+              "y": 1552
+            },
+            {
+              "x": 639,
+              "y": 1585
+            },
+            {
+              "x": 617,
+              "y": 1586
+            },
+            {
+              "x": 590,
+              "y": 1597
+            },
+            {
+              "x": 590,
+              "y": 1578
+            },
+            {
+              "x": 605,
+              "y": 1560
+            },
+            {
+              "x": 582,
+              "y": 1533
+            },
+            {
+              "x": 556,
+              "y": 1529
+            },
+            {
+              "x": 517,
+              "y": 1515
+            },
+            {
+              "x": 497,
+              "y": 1561
+            },
+            {
+              "x": 539,
+              "y": 1612
+            },
+            {
+              "x": 807,
+              "y": 1764
+            },
+            {
+              "x": 837,
+              "y": 1800
+            },
+            {
+              "x": 972,
+              "y": 1815
+            },
+            {
+              "x": 1039,
+              "y": 1823
+            },
+            {
+              "x": 1106,
+              "y": 1888
+            }
+          ]
+        },
+        {
+          "id": "ovl_1794063567048_16",
+          "name": "Sobreposição #16",
+          "points": [
+            {
+              "x": 1766,
+              "y": 1838
+            },
+            {
+              "x": 1734,
+              "y": 1806
+            },
+            {
+              "x": 1736,
+              "y": 1749
+            },
+            {
+              "x": 1759,
+              "y": 1724
+            },
+            {
+              "x": 1775,
+              "y": 1722
+            },
+            {
+              "x": 1767,
+              "y": 1681
+            },
+            {
+              "x": 1807,
+              "y": 1667
+            },
+            {
+              "x": 1842,
+              "y": 1675
+            },
+            {
+              "x": 1876,
+              "y": 1662
+            },
+            {
+              "x": 1907,
+              "y": 1637
+            },
+            {
+              "x": 1920,
+              "y": 1626
+            },
+            {
+              "x": 1954,
+              "y": 1613
+            },
+            {
+              "x": 1970,
+              "y": 1678
+            },
+            {
+              "x": 1967,
+              "y": 1706
+            },
+            {
+              "x": 2011,
+              "y": 1738
+            },
+            {
+              "x": 1998,
+              "y": 1806
+            },
+            {
+              "x": 1928,
+              "y": 1842
+            }
+          ]
+        },
+        {
+          "id": "ovl_1794063580878_17",
+          "name": "Sobreposição #17",
+          "points": [
+            {
+              "x": 1665,
+              "y": 1720
+            },
+            {
+              "x": 1705,
+              "y": 1730
+            },
+            {
+              "x": 1726,
+              "y": 1727
+            },
+            {
+              "x": 1735,
+              "y": 1708
+            },
+            {
+              "x": 1701,
+              "y": 1692
+            },
+            {
+              "x": 1670,
+              "y": 1694
+            }
+          ]
+        },
+        {
+          "id": "ovl_1794063584857_18",
+          "name": "Sobreposição #18",
+          "points": [
+            {
+              "x": 2065,
+              "y": 1725
+            },
+            {
+              "x": 2019,
+              "y": 1701
+            },
+            {
+              "x": 2008,
+              "y": 1651
+            },
+            {
+              "x": 2011,
+              "y": 1622
+            },
+            {
+              "x": 2029,
+              "y": 1601
+            },
+            {
+              "x": 2051,
+              "y": 1593
+            },
+            {
+              "x": 2029,
+              "y": 1568
+            },
+            {
+              "x": 2061,
+              "y": 1556
+            },
+            {
+              "x": 2090,
+              "y": 1551
+            },
+            {
+              "x": 2120,
+              "y": 1559
+            },
+            {
+              "x": 2155,
+              "y": 1541
+            },
+            {
+              "x": 2174,
+              "y": 1518
+            },
+            {
+              "x": 2201,
+              "y": 1508
+            },
+            {
+              "x": 2226,
+              "y": 1501
+            },
+            {
+              "x": 2241,
+              "y": 1555
+            },
+            {
+              "x": 2233,
+              "y": 1582
+            },
+            {
+              "x": 2276,
+              "y": 1610
+            },
+            {
+              "x": 2271,
+              "y": 1646
+            },
+            {
+              "x": 2304,
+              "y": 1644
+            },
+            {
+              "x": 2319,
+              "y": 1636
+            },
+            {
+              "x": 2339,
+              "y": 1644
+            },
+            {
+              "x": 2349,
+              "y": 1652
+            },
+            {
+              "x": 2364,
+              "y": 1638
+            },
+            {
+              "x": 2387,
+              "y": 1688
+            },
+            {
+              "x": 2387,
+              "y": 1722
+            },
+            {
+              "x": 2414,
+              "y": 1735
+            },
+            {
+              "x": 2417,
+              "y": 1756
+            },
+            {
+              "x": 2420,
+              "y": 1786
+            },
+            {
+              "x": 2409,
+              "y": 1818
+            },
+            {
+              "x": 2436,
+              "y": 1807
+            },
+            {
+              "x": 2457,
+              "y": 1814
+            },
+            {
+              "x": 2487,
+              "y": 1820
+            },
+            {
+              "x": 2516,
+              "y": 1831
+            },
+            {
+              "x": 2533,
+              "y": 1828
+            },
+            {
+              "x": 2554,
+              "y": 1826
+            },
+            {
+              "x": 2592,
+              "y": 1841
+            },
+            {
+              "x": 2625,
+              "y": 1870
+            },
+            {
+              "x": 2623,
+              "y": 1897
+            },
+            {
+              "x": 2579,
+              "y": 1937
+            },
+            {
+              "x": 2587,
+              "y": 1978
+            },
+            {
+              "x": 2552,
+              "y": 2017
+            },
+            {
+              "x": 2506,
+              "y": 1991
+            },
+            {
+              "x": 2465,
+              "y": 1941
+            },
+            {
+              "x": 2371,
+              "y": 1927
+            },
+            {
+              "x": 2309,
+              "y": 1876
+            },
+            {
+              "x": 2306,
+              "y": 1855
+            },
+            {
+              "x": 2200,
+              "y": 1880
+            },
+            {
+              "x": 2153,
+              "y": 1804
+            },
+            {
+              "x": 2150,
+              "y": 1770
+            },
+            {
+              "x": 2102,
+              "y": 1756
+            }
+          ]
+        },
+        {
+          "id": "ovl_1794063616895_19",
+          "name": "Sobreposição #19",
+          "points": []
+        },
+        {
+          "id": "ovl_1794063625079_20",
+          "name": "Sobreposição #20",
+          "points": [
+            {
+              "x": 2625,
+              "y": 1650
+            },
+            {
+              "x": 2621,
+              "y": 1621
+            },
+            {
+              "x": 2639,
+              "y": 1610
+            },
+            {
+              "x": 2663,
+              "y": 1610
+            },
+            {
+              "x": 2677,
+              "y": 1621
+            },
+            {
+              "x": 2672,
+              "y": 1648
+            }
+          ]
+        },
+        {
+          "id": "ovl_1794063635980_21",
+          "name": "Sobreposição #21",
+          "points": []
+        },
+        {
+          "id": "ovl_1794063648464_22",
+          "name": "Sobreposição #22",
+          "points": [
+            {
+              "x": 2447,
+              "y": 1603
+            },
+            {
+              "x": 2436,
+              "y": 1585
+            },
+            {
+              "x": 2439,
+              "y": 1554
+            },
+            {
+              "x": 2447,
+              "y": 1538
+            },
+            {
+              "x": 2465,
+              "y": 1533
+            },
+            {
+              "x": 2489,
+              "y": 1540
+            },
+            {
+              "x": 2506,
+              "y": 1558
+            },
+            {
+              "x": 2522,
+              "y": 1552
+            },
+            {
+              "x": 2547,
+              "y": 1549
+            },
+            {
+              "x": 2558,
+              "y": 1555
+            },
+            {
+              "x": 2583,
+              "y": 1558
+            },
+            {
+              "x": 2610,
+              "y": 1565
+            },
+            {
+              "x": 2612,
+              "y": 1579
+            }
+          ]
+        },
+        {
+          "id": "ovl_1794063656588_23",
+          "name": "Sobreposição #23",
+          "points": [
+            {
+              "x": 2396,
+              "y": 1629
+            },
+            {
+              "x": 2384,
+              "y": 1617
+            },
+            {
+              "x": 2400,
+              "y": 1608
+            },
+            {
+              "x": 2416,
+              "y": 1601
+            },
+            {
+              "x": 2439,
+              "y": 1608
+            },
+            {
+              "x": 2429,
+              "y": 1626
+            }
+          ]
+        },
+        {
+          "id": "ovl_1794063661838_24",
+          "name": "Sobreposição #24",
+          "points": [
+            {
+              "x": 2588,
+              "y": 1490
+            },
+            {
+              "x": 2576,
+              "y": 1517
+            },
+            {
+              "x": 2598,
+              "y": 1532
+            },
+            {
+              "x": 2635,
+              "y": 1544
+            },
+            {
+              "x": 2659,
+              "y": 1550
+            },
+            {
+              "x": 2690,
+              "y": 1537
+            }
+          ]
+        },
+        {
+          "id": "ovl_1794063668096_25",
+          "name": "Sobreposição #25",
+          "points": [
+            {
+              "x": 2575,
+              "y": 1481
+            },
+            {
+              "x": 2554,
+              "y": 1493
+            },
+            {
+              "x": 2526,
+              "y": 1500
+            },
+            {
+              "x": 2503,
+              "y": 1479
+            },
+            {
+              "x": 2499,
+              "y": 1444
+            },
+            {
+              "x": 2500,
+              "y": 1425
+            },
+            {
+              "x": 2464,
+              "y": 1393
+            },
+            {
+              "x": 2443,
+              "y": 1365
+            },
+            {
+              "x": 2430,
+              "y": 1339
+            },
+            {
+              "x": 2451,
+              "y": 1301
+            },
+            {
+              "x": 2466,
+              "y": 1279
+            },
+            {
+              "x": 2471,
+              "y": 1264
+            },
+            {
+              "x": 2494,
+              "y": 1220
+            },
+            {
+              "x": 2520,
+              "y": 1209
+            },
+            {
+              "x": 2519,
+              "y": 1209
+            },
+            {
+              "x": 2522,
+              "y": 1172
+            },
+            {
+              "x": 2548,
+              "y": 1142
+            },
+            {
+              "x": 2577,
+              "y": 1145
+            },
+            {
+              "x": 2613,
+              "y": 1172
+            },
+            {
+              "x": 2609,
+              "y": 1201
+            },
+            {
+              "x": 2627,
+              "y": 1183
+            },
+            {
+              "x": 2653,
+              "y": 1172
+            },
+            {
+              "x": 2679,
+              "y": 1203
+            },
+            {
+              "x": 2697,
+              "y": 1227
+            },
+            {
+              "x": 2715,
+              "y": 1255
+            },
+            {
+              "x": 2704,
+              "y": 1279
+            },
+            {
+              "x": 2732,
+              "y": 1277
+            },
+            {
+              "x": 2761,
+              "y": 1312
+            }
+          ]
+        },
+        {
+          "id": "ovl_1794063683920_26",
+          "name": "Sobreposição #26",
+          "points": [
+            {
+              "x": 2961,
+              "y": 1290
+            },
+            {
+              "x": 2933,
+              "y": 1242
+            },
+            {
+              "x": 2894,
+              "y": 1203
+            },
+            {
+              "x": 2840,
+              "y": 1216
+            },
+            {
+              "x": 2799,
+              "y": 1209
+            },
+            {
+              "x": 2805,
+              "y": 1128
+            },
+            {
+              "x": 2843,
+              "y": 1120
+            },
+            {
+              "x": 2859,
+              "y": 1124
+            },
+            {
+              "x": 2870,
+              "y": 1091
+            },
+            {
+              "x": 2874,
+              "y": 1063
+            },
+            {
+              "x": 2865,
+              "y": 1026
+            },
+            {
+              "x": 2847,
+              "y": 1060
+            },
+            {
+              "x": 2778,
+              "y": 1052
+            },
+            {
+              "x": 2785,
+              "y": 1020
+            },
+            {
+              "x": 2728,
+              "y": 979
+            },
+            {
+              "x": 2711,
+              "y": 934
+            },
+            {
+              "x": 2753,
+              "y": 868
+            },
+            {
+              "x": 2757,
+              "y": 830
+            },
+            {
+              "x": 2762,
+              "y": 784
+            },
+            {
+              "x": 2785,
+              "y": 759
+            },
+            {
+              "x": 2808,
+              "y": 757
+            },
+            {
+              "x": 2843,
+              "y": 718
+            },
+            {
+              "x": 2875,
+              "y": 706
+            },
+            {
+              "x": 2915,
+              "y": 715
+            },
+            {
+              "x": 2947,
+              "y": 670
+            },
+            {
+              "x": 3006,
+              "y": 662
+            },
+            {
+              "x": 3002,
+              "y": 704
+            },
+            {
+              "x": 2975,
+              "y": 735
+            },
+            {
+              "x": 2950,
+              "y": 741
+            },
+            {
+              "x": 2967,
+              "y": 777
+            },
+            {
+              "x": 2990,
+              "y": 832
+            },
+            {
+              "x": 3022,
+              "y": 884
+            },
+            {
+              "x": 3021,
+              "y": 1286
+            }
+          ]
+        },
+        {
+          "id": "ovl_1794063709851_27",
+          "name": "Sobreposição #27",
+          "points": [
+            {
+              "x": 2944,
+              "y": 594
+            },
+            {
+              "x": 2938,
+              "y": 532
+            },
+            {
+              "x": 2992,
+              "y": 561
+            },
+            {
+              "x": 3024,
+              "y": 536
+            },
+            {
+              "x": 3015,
+              "y": 348
+            },
+            {
+              "x": 2796,
+              "y": 215
+            },
+            {
+              "x": 2705,
+              "y": 264
+            },
+            {
+              "x": 2697,
+              "y": 315
+            },
+            {
+              "x": 2694,
+              "y": 357
+            },
+            {
+              "x": 2660,
+              "y": 353
+            },
+            {
+              "x": 2627,
+              "y": 406
+            },
+            {
+              "x": 2631,
+              "y": 441
+            },
+            {
+              "x": 2681,
+              "y": 456
+            },
+            {
+              "x": 2713,
+              "y": 444
+            },
+            {
+              "x": 2740,
+              "y": 458
+            },
+            {
+              "x": 2715,
+              "y": 496
+            },
+            {
+              "x": 2734,
+              "y": 534
+            },
+            {
+              "x": 2780,
+              "y": 542
+            },
+            {
+              "x": 2775,
+              "y": 574
+            },
+            {
+              "x": 2735,
+              "y": 589
+            },
+            {
+              "x": 2750,
+              "y": 609
+            },
+            {
+              "x": 2797,
+              "y": 607
+            }
+          ]
+        },
+        {
+          "id": "ovl_1794063727807_28",
+          "name": "Sobreposição #28",
+          "points": [
+            {
+              "x": 2912,
+              "y": 653
+            },
+            {
+              "x": 2872,
+              "y": 665
+            },
+            {
+              "x": 2858,
+              "y": 684
+            },
+            {
+              "x": 2894,
+              "y": 692
+            }
+          ]
+        },
+        {
+          "id": "ovl_1794063730409_29",
+          "name": "Sobreposição #29",
+          "points": [
+            {
+              "x": 2682,
+              "y": 494
+            },
+            {
+              "x": 2679,
+              "y": 524
+            },
+            {
+              "x": 2695,
+              "y": 524
+            },
+            {
+              "x": 2701,
+              "y": 502
+            }
+          ]
+        },
+        {
+          "id": "ovl_1794063734330_30",
+          "name": "Sobreposição #30",
+          "points": [
+            {
+              "x": 2823,
+              "y": 212
+            },
+            {
+              "x": 2797,
+              "y": 159
+            },
+            {
+              "x": 2809,
+              "y": -16
+            },
+            {
+              "x": 2849,
+              "y": 9
+            },
+            {
+              "x": 2868,
+              "y": 132
+            }
+          ]
+        },
+        {
+          "id": "ovl_1794063740527_31",
+          "name": "Sobreposição #31",
+          "points": [
+            {
+              "x": 2534,
+              "y": 985
+            },
+            {
+              "x": 2546,
+              "y": 927
+            },
+            {
+              "x": 2603,
+              "y": 905
+            },
+            {
+              "x": 2655,
+              "y": 881
+            },
+            {
+              "x": 2636,
+              "y": 852
+            },
+            {
+              "x": 2680,
+              "y": 837
+            },
+            {
+              "x": 2657,
+              "y": 784
+            },
+            {
+              "x": 2625,
+              "y": 772
+            },
+            {
+              "x": 2612,
+              "y": 715
+            },
+            {
+              "x": 2548,
+              "y": 680
+            },
+            {
+              "x": 2497,
+              "y": 656
+            },
+            {
+              "x": 2441,
+              "y": 633
+            },
+            {
+              "x": 2403,
+              "y": 699
+            },
+            {
+              "x": 2361,
+              "y": 747
+            },
+            {
+              "x": 2403,
+              "y": 779
+            },
+            {
+              "x": 2340,
+              "y": 781
+            },
+            {
+              "x": 2310,
+              "y": 810
+            },
+            {
+              "x": 2322,
+              "y": 759
+            },
+            {
+              "x": 2316,
+              "y": 720
+            },
+            {
+              "x": 2276,
+              "y": 671
+            },
+            {
+              "x": 2208,
+              "y": 645
+            },
+            {
+              "x": 2164,
+              "y": 677
+            },
+            {
+              "x": 2104,
+              "y": 734
+            },
+            {
+              "x": 2104,
+              "y": 794
+            },
+            {
+              "x": 2095,
+              "y": 848
+            },
+            {
+              "x": 2063,
+              "y": 895
+            },
+            {
+              "x": 2095,
+              "y": 943
+            },
+            {
+              "x": 2177,
+              "y": 975
+            },
+            {
+              "x": 2191,
+              "y": 1012
+            },
+            {
+              "x": 2234,
+              "y": 1005
+            },
+            {
+              "x": 2271,
+              "y": 969
+            },
+            {
+              "x": 2371,
+              "y": 979
+            },
+            {
+              "x": 2376,
+              "y": 931
+            },
+            {
+              "x": 2417,
+              "y": 966
+            },
+            {
+              "x": 2432,
+              "y": 1021
+            },
+            {
+              "x": 2495,
+              "y": 1034
+            },
+            {
+              "x": 2549,
+              "y": 1060
+            },
+            {
+              "x": 2574,
+              "y": 1040
+            },
+            {
+              "x": 2584,
+              "y": 1004
+            },
+            {
+              "x": 2557,
+              "y": 1002
+            }
+          ]
+        },
+        {
+          "id": "ovl_1794063768007_32",
+          "name": "Sobreposição #32",
+          "points": [
+            {
+              "x": 2139,
+              "y": 481
+            },
+            {
+              "x": 2128,
+              "y": 462
+            },
+            {
+              "x": 2147,
+              "y": 435
+            },
+            {
+              "x": 2174,
+              "y": 430
+            },
+            {
+              "x": 2195,
+              "y": 466
+            },
+            {
+              "x": 2190,
+              "y": 485
+            }
+          ]
+        },
+        {
+          "id": "ovl_1794063773728_33",
+          "name": "Sobreposição #33",
+          "points": [
+            {
+              "x": 2247,
+              "y": 1177
+            },
+            {
+              "x": 2267,
+              "y": 1139
+            },
+            {
+              "x": 2260,
+              "y": 1085
+            },
+            {
+              "x": 2201,
+              "y": 1048
+            },
+            {
+              "x": 2187,
+              "y": 1004
+            },
+            {
+              "x": 2159,
+              "y": 988
+            },
+            {
+              "x": 2138,
+              "y": 959
+            },
+            {
+              "x": 2096,
+              "y": 953
+            },
+            {
+              "x": 2057,
+              "y": 924
+            },
+            {
+              "x": 2038,
+              "y": 921
+            },
+            {
+              "x": 1994,
+              "y": 980
+            },
+            {
+              "x": 1989,
+              "y": 1010
+            },
+            {
+              "x": 1963,
+              "y": 1028
+            },
+            {
+              "x": 1936,
+              "y": 1053
+            },
+            {
+              "x": 1923,
+              "y": 1111
+            },
+            {
+              "x": 1926,
+              "y": 1159
+            },
+            {
+              "x": 1971,
+              "y": 1223
+            },
+            {
+              "x": 2013,
+              "y": 1223
+            },
+            {
+              "x": 1969,
+              "y": 1265
+            },
+            {
+              "x": 1969,
+              "y": 1312
+            },
+            {
+              "x": 1949,
+              "y": 1351
+            },
+            {
+              "x": 1903,
+              "y": 1353
+            },
+            {
+              "x": 1877,
+              "y": 1369
+            },
+            {
+              "x": 1890,
+              "y": 1423
+            },
+            {
+              "x": 1922,
+              "y": 1439
+            },
+            {
+              "x": 1973,
+              "y": 1409
+            },
+            {
+              "x": 2051,
+              "y": 1449
+            },
+            {
+              "x": 2152,
+              "y": 1386
+            },
+            {
+              "x": 2119,
+              "y": 1292
+            },
+            {
+              "x": 2143,
+              "y": 1218
+            },
+            {
+              "x": 2209,
+              "y": 1181
+            }
+          ]
+        },
+        {
+          "id": "ovl_1794063797871_34",
+          "name": "Sobreposição #34",
+          "points": [
+            {
+              "x": 1934,
+              "y": 966
+            },
+            {
+              "x": 1963,
+              "y": 924
+            },
+            {
+              "x": 2018,
+              "y": 916
+            },
+            {
+              "x": 2060,
+              "y": 904
+            },
+            {
+              "x": 2069,
+              "y": 867
+            },
+            {
+              "x": 2096,
+              "y": 839
+            },
+            {
+              "x": 2054,
+              "y": 791
+            },
+            {
+              "x": 2026,
+              "y": 745
+            },
+            {
+              "x": 1983,
+              "y": 703
+            },
+            {
+              "x": 1952,
+              "y": 684
+            },
+            {
+              "x": 1936,
+              "y": 697
+            },
+            {
+              "x": 1917,
+              "y": 665
+            },
+            {
+              "x": 1873,
+              "y": 644
+            },
+            {
+              "x": 1824,
+              "y": 689
+            },
+            {
+              "x": 1828,
+              "y": 716
+            },
+            {
+              "x": 1794,
+              "y": 733
+            },
+            {
+              "x": 1783,
+              "y": 782
+            },
+            {
+              "x": 1756,
+              "y": 812
+            },
+            {
+              "x": 1748,
+              "y": 853
+            },
+            {
+              "x": 1803,
+              "y": 938
+            },
+            {
+              "x": 1826,
+              "y": 960
+            },
+            {
+              "x": 1858,
+              "y": 933
+            },
+            {
+              "x": 1894,
+              "y": 963
+            }
+          ]
+        },
+        {
+          "id": "ovl_1794063813220_35",
+          "name": "Sobreposição #35",
+          "points": [
+            {
+              "x": 1678,
+              "y": 855
+            },
+            {
+              "x": 1698,
+              "y": 832
+            },
+            {
+              "x": 1691,
+              "y": 807
+            },
+            {
+              "x": 1651,
+              "y": 807
+            },
+            {
+              "x": 1625,
+              "y": 816
+            },
+            {
+              "x": 1643,
+              "y": 856
+            }
+          ]
+        },
+        {
+          "id": "ovl_1794063817166_36",
+          "name": "Sobreposição #36",
+          "points": [
+            {
+              "x": 1921,
+              "y": 552
+            },
+            {
+              "x": 1981,
+              "y": 525
+            },
+            {
+              "x": 2042,
+              "y": 517
+            },
+            {
+              "x": 2059,
+              "y": 493
+            },
+            {
+              "x": 2042,
+              "y": 458
+            },
+            {
+              "x": 2091,
+              "y": 451
+            },
+            {
+              "x": 2070,
+              "y": 418
+            },
+            {
+              "x": 2039,
+              "y": 382
+            },
+            {
+              "x": 2018,
+              "y": 367
+            },
+            {
+              "x": 2029,
+              "y": 319
+            },
+            {
+              "x": 2056,
+              "y": 377
+            },
+            {
+              "x": 2113,
+              "y": 362
+            },
+            {
+              "x": 2145,
+              "y": 315
+            },
+            {
+              "x": 2213,
+              "y": 294
+            },
+            {
+              "x": 2222,
+              "y": 278
+            },
+            {
+              "x": 2239,
+              "y": 218
+            },
+            {
+              "x": 2231,
+              "y": 164
+            },
+            {
+              "x": 2196,
+              "y": 110
+            },
+            {
+              "x": 2132,
+              "y": 45
+            },
+            {
+              "x": 2042,
+              "y": 83
+            },
+            {
+              "x": 1935,
+              "y": 62
+            },
+            {
+              "x": 1906,
+              "y": 191
+            },
+            {
+              "x": 1739,
+              "y": 333
+            }
+          ]
+        },
+        {
+          "id": "ovl_1794063834549_37",
+          "name": "Sobreposição #37",
+          "points": [
+            {
+              "x": 2244,
+              "y": 87
+            },
+            {
+              "x": 2277,
+              "y": 99
+            },
+            {
+              "x": 2317,
+              "y": 114
+            },
+            {
+              "x": 2334,
+              "y": 153
+            },
+            {
+              "x": 2380,
+              "y": 153
+            },
+            {
+              "x": 2401,
+              "y": 135
+            },
+            {
+              "x": 2393,
+              "y": 88
+            }
+          ]
+        },
+        {
+          "id": "ovl_1794063844490_38",
+          "name": "Sobreposição #38",
+          "points": [
+            {
+              "x": 2492,
+              "y": 183
+            },
+            {
+              "x": 2466,
+              "y": 206
+            },
+            {
+              "x": 2483,
+              "y": 233
+            },
+            {
+              "x": 2524,
+              "y": 198
+            }
+          ]
+        },
+        {
+          "id": "ovl_1794063848954_39",
+          "name": "Sobreposição #39",
+          "points": [
+            {
+              "x": 2231,
+              "y": 315
+            },
+            {
+              "x": 2233,
+              "y": 338
+            },
+            {
+              "x": 2257,
+              "y": 340
+            },
+            {
+              "x": 2263,
+              "y": 325
+            },
+            {
+              "x": 2254,
+              "y": 311
+            }
+          ]
+        },
+        {
+          "id": "ovl_1794063852904_40",
+          "name": "Sobreposição #40",
+          "points": [
+            {
+              "x": 1590,
+              "y": 605
+            },
+            {
+              "x": 1590,
+              "y": 630
+            },
+            {
+              "x": 1619,
+              "y": 648
+            },
+            {
+              "x": 1652,
+              "y": 639
+            },
+            {
+              "x": 1655,
+              "y": 607
+            },
+            {
+              "x": 1627,
+              "y": 596
+            }
+          ]
+        },
+        {
+          "id": "ovl_1794063858688_41",
+          "name": "Sobreposição #41",
+          "points": [
+            {
+              "x": 1498,
+              "y": 665
+            },
+            {
+              "x": 1520,
+              "y": 651
+            },
+            {
+              "x": 1526,
+              "y": 623
+            },
+            {
+              "x": 1498,
+              "y": 625
+            },
+            {
+              "x": 1482,
+              "y": 635
+            },
+            {
+              "x": 1455,
+              "y": 618
+            },
+            {
+              "x": 1437,
+              "y": 621
+            },
+            {
+              "x": 1435,
+              "y": 637
+            },
+            {
+              "x": 1424,
+              "y": 654
+            },
+            {
+              "x": 1421,
+              "y": 681
+            },
+            {
+              "x": 1431,
+              "y": 696
+            },
+            {
+              "x": 1448,
+              "y": 695
+            }
+          ]
+        },
+        {
+          "id": "ovl_1794063867223_42",
+          "name": "Sobreposição #42",
+          "points": [
+            {
+              "x": 1425,
+              "y": 683
+            },
+            {
+              "x": 1394,
+              "y": 700
+            },
+            {
+              "x": 1400,
+              "y": 728
+            },
+            {
+              "x": 1442,
+              "y": 729
+            },
+            {
+              "x": 1461,
+              "y": 722
+            },
+            {
+              "x": 1466,
+              "y": 708
+            },
+            {
+              "x": 1456,
+              "y": 684
+            }
+          ]
+        },
+        {
+          "id": "ovl_1794063870899_43",
+          "name": "Sobreposição #43",
+          "points": [
+            {
+              "x": 1419,
+              "y": 559
+            },
+            {
+              "x": 1399,
+              "y": 579
+            },
+            {
+              "x": 1409,
+              "y": 602
+            },
+            {
+              "x": 1436,
+              "y": 605
+            },
+            {
+              "x": 1456,
+              "y": 607
+            },
+            {
+              "x": 1465,
+              "y": 574
+            }
+          ]
+        },
+        {
+          "id": "ovl_1794063874391_44",
+          "name": "Sobreposição #44",
+          "points": [
+            {
+              "x": 1394,
+              "y": 534
+            },
+            {
+              "x": 1384,
+              "y": 551
+            },
+            {
+              "x": 1346,
+              "y": 532
+            },
+            {
+              "x": 1315,
+              "y": 526
+            },
+            {
+              "x": 1291,
+              "y": 500
+            },
+            {
+              "x": 1296,
+              "y": 452
+            },
+            {
+              "x": 1367,
+              "y": 448
+            },
+            {
+              "x": 1405,
+              "y": 497
+            }
+          ]
+        },
+        {
+          "id": "ovl_1794063879437_45",
+          "name": "Sobreposição #45",
+          "points": [
+            {
+              "x": 1206,
+              "y": 547
+            },
+            {
+              "x": 1206,
+              "y": 565
+            },
+            {
+              "x": 1240,
+              "y": 581
+            },
+            {
+              "x": 1257,
+              "y": 564
+            },
+            {
+              "x": 1239,
+              "y": 545
+            }
+          ]
+        },
+        {
+          "id": "ovl_1794063884164_46",
+          "name": "Sobreposição #46",
+          "points": [
+            {
+              "x": 1331,
+              "y": 193
+            },
+            {
+              "x": 1313,
+              "y": 182
+            },
+            {
+              "x": 1317,
+              "y": 157
+            },
+            {
+              "x": 1329,
+              "y": 148
+            },
+            {
+              "x": 1333,
+              "y": 130
+            },
+            {
+              "x": 1324,
+              "y": 94
+            },
+            {
+              "x": 1331,
+              "y": 75
+            },
+            {
+              "x": 1352,
+              "y": 72
+            },
+            {
+              "x": 1400,
+              "y": 116
+            },
+            {
+              "x": 1403,
+              "y": 164
+            },
+            {
+              "x": 1386,
+              "y": 206
+            }
+          ]
+        },
+        {
+          "id": "ovl_1794063893990_47",
+          "name": "Sobreposição #47",
+          "points": [
+            {
+              "x": 534,
+              "y": 427
+            },
+            {
+              "x": 529,
+              "y": 362
+            },
+            {
+              "x": 577,
+              "y": 293
+            },
+            {
+              "x": 733,
+              "y": 238
+            },
+            {
+              "x": 786,
+              "y": 264
+            },
+            {
+              "x": 858,
+              "y": 319
+            },
+            {
+              "x": 787,
+              "y": 306
+            },
+            {
+              "x": 826,
+              "y": 389
+            },
+            {
+              "x": 899,
+              "y": 419
+            },
+            {
+              "x": 1052,
+              "y": 483
+            },
+            {
+              "x": 1073,
+              "y": 518
+            },
+            {
+              "x": 1075,
+              "y": 547
+            },
+            {
+              "x": 1113,
+              "y": 543
+            },
+            {
+              "x": 1139,
+              "y": 557
+            },
+            {
+              "x": 1112,
+              "y": 591
+            },
+            {
+              "x": 997,
+              "y": 602
+            },
+            {
+              "x": 981,
+              "y": 570
+            },
+            {
+              "x": 987,
+              "y": 533
+            },
+            {
+              "x": 849,
+              "y": 453
+            },
+            {
+              "x": 778,
+              "y": 364
+            },
+            {
+              "x": 725,
+              "y": 279
+            },
+            {
+              "x": 585,
+              "y": 336
+            }
+          ]
+        },
+        {
+          "id": "ovl_1794063923781_48",
+          "name": "Sobreposição #48",
+          "points": [
+            {
+              "x": 531,
+              "y": 767
+            },
+            {
+              "x": 517,
+              "y": 710
+            },
+            {
+              "x": 560,
+              "y": 644
+            },
+            {
+              "x": 590,
+              "y": 621
+            },
+            {
+              "x": 640,
+              "y": 639
+            },
+            {
+              "x": 673,
+              "y": 597
+            },
+            {
+              "x": 714,
+              "y": 604
+            },
+            {
+              "x": 727,
+              "y": 642
+            },
+            {
+              "x": 771,
+              "y": 615
+            },
+            {
+              "x": 816,
+              "y": 589
+            },
+            {
+              "x": 840,
+              "y": 584
+            },
+            {
+              "x": 875,
+              "y": 636
+            },
+            {
+              "x": 920,
+              "y": 655
+            },
+            {
+              "x": 1018,
+              "y": 706
+            },
+            {
+              "x": 885,
+              "y": 824
+            },
+            {
+              "x": 789,
+              "y": 818
+            },
+            {
+              "x": 655,
+              "y": 740
+            }
+          ]
+        },
+        {
+          "id": "ovl_1794063937400_49",
+          "name": "Sobreposição #49",
+          "points": [
+            {
+              "x": 253,
+              "y": 436
+            },
+            {
+              "x": 231,
+              "y": 561
+            },
+            {
+              "x": 340,
+              "y": 544
+            },
+            {
+              "x": 394,
+              "y": 448
+            }
+          ]
+        },
+        {
+          "id": "ovl_1794063942984_50",
+          "name": "Sobreposição #50",
+          "points": [
+            {
+              "x": 189,
+              "y": 467
+            },
+            {
+              "x": 223,
+              "y": 583
+            },
+            {
+              "x": 147,
+              "y": 650
+            },
+            {
+              "x": 370,
+              "y": 763
+            },
+            {
+              "x": 430,
+              "y": 781
+            },
+            {
+              "x": 462,
+              "y": 798
+            },
+            {
+              "x": 453,
+              "y": 824
+            },
+            {
+              "x": 403,
+              "y": 821
+            },
+            {
+              "x": 383,
+              "y": 906
+            },
+            {
+              "x": 320,
+              "y": 886
+            },
+            {
+              "x": 290,
+              "y": 951
+            },
+            {
+              "x": 138,
+              "y": 882
+            },
+            {
+              "x": 191,
+              "y": 834
+            },
+            {
+              "x": 240,
+              "y": 835
+            },
+            {
+              "x": 248,
+              "y": 810
+            },
+            {
+              "x": 177,
+              "y": 775
+            },
+            {
+              "x": 153,
+              "y": 746
+            },
+            {
+              "x": 138,
+              "y": 701
+            },
+            {
+              "x": 108,
+              "y": 817
+            },
+            {
+              "x": 13,
+              "y": 680
+            },
+            {
+              "x": 61,
+              "y": 517
+            }
+          ]
+        },
+        {
+          "id": "ovl_1794063963292_51",
+          "name": "Sobreposição #51",
+          "points": [
+            {
+              "x": 324,
+              "y": 995
+            },
+            {
+              "x": 366,
+              "y": 964
+            },
+            {
+              "x": 420,
+              "y": 956
+            },
+            {
+              "x": 455,
+              "y": 967
+            },
+            {
+              "x": 471,
+              "y": 953
+            },
+            {
+              "x": 464,
+              "y": 914
+            },
+            {
+              "x": 522,
+              "y": 911
+            },
+            {
+              "x": 552,
+              "y": 914
+            },
+            {
+              "x": 596,
+              "y": 881
+            },
+            {
+              "x": 638,
+              "y": 842
+            },
+            {
+              "x": 659,
+              "y": 885
+            },
+            {
+              "x": 662,
+              "y": 927
+            },
+            {
+              "x": 676,
+              "y": 947
+            },
+            {
+              "x": 704,
+              "y": 929
+            },
+            {
+              "x": 769,
+              "y": 951
+            },
+            {
+              "x": 761,
+              "y": 996
+            },
+            {
+              "x": 702,
+              "y": 1000
+            },
+            {
+              "x": 683,
+              "y": 1034
+            },
+            {
+              "x": 640,
+              "y": 1074
+            },
+            {
+              "x": 592,
+              "y": 1045
+            },
+            {
+              "x": 611,
+              "y": 1135
+            },
+            {
+              "x": 647,
+              "y": 1160
+            },
+            {
+              "x": 618,
+              "y": 1196
+            },
+            {
+              "x": 500,
+              "y": 1110
+            },
+            {
+              "x": 407,
+              "y": 1016
+            },
+            {
+              "x": 327,
+              "y": 1074
+            }
+          ]
+        },
+        {
+          "id": "ovl_1794063989024_52",
+          "name": "Sobreposição #52",
+          "points": [
+            {
+              "x": 2948,
+              "y": 1746
+            },
+            {
+              "x": 2902,
+              "y": 1708
+            },
+            {
+              "x": 2836,
+              "y": 1730
+            },
+            {
+              "x": 2790,
+              "y": 1649
+            },
+            {
+              "x": 2772,
+              "y": 1599
+            },
+            {
+              "x": 2809,
+              "y": 1555
+            },
+            {
+              "x": 2831,
+              "y": 1516
+            },
+            {
+              "x": 2855,
+              "y": 1483
+            },
+            {
+              "x": 2893,
+              "y": 1407
+            },
+            {
+              "x": 2935,
+              "y": 1426
+            },
+            {
+              "x": 2963,
+              "y": 1458
+            },
+            {
+              "x": 3012,
+              "y": 1438
+            },
+            {
+              "x": 3008,
+              "y": 1738
+            }
+          ]
+        },
+        {
+          "id": "ovl_1794064006086_53",
+          "name": "Sobreposição #53",
+          "points": [
+            {
+              "x": 2704,
+              "y": 1824
+            },
+            {
+              "x": 2716,
+              "y": 1841
+            },
+            {
+              "x": 2762,
+              "y": 1843
+            },
+            {
+              "x": 2768,
+              "y": 1831
+            },
+            {
+              "x": 2744,
+              "y": 1823
+            }
+          ]
+        },
+        {
+          "id": "ovl_1794064014036_54",
+          "name": "Sobreposição #54",
+          "points": [
+            {
+              "x": 2751,
+              "y": 1838
+            },
+            {
+              "x": 2743,
+              "y": 1871
+            },
+            {
+              "x": 2770,
+              "y": 1883
+            },
+            {
+              "x": 2782,
+              "y": 1880
+            },
+            {
+              "x": 2786,
+              "y": 1867
+            },
+            {
+              "x": 2771,
+              "y": 1849
+            }
+          ]
+        },
+        {
+          "id": "ovl_1794064017057_55",
+          "name": "Sobreposição #55",
+          "points": [
+            {
+              "x": 2786,
+              "y": 1939
+            },
+            {
+              "x": 2782,
+              "y": 1963
+            },
+            {
+              "x": 2814,
+              "y": 1968
+            },
+            {
+              "x": 2808,
+              "y": 1940
+            }
+          ]
+        },
+        {
+          "id": "ovl_1794064019819_56",
+          "name": "Sobreposição #56",
+          "points": [
+            {
+              "x": 2811,
+              "y": 1910
+            },
+            {
+              "x": 2818,
+              "y": 1927
+            },
+            {
+              "x": 2857,
+              "y": 1927
+            },
+            {
+              "x": 2862,
+              "y": 1911
+            },
+            {
+              "x": 2855,
+              "y": 1898
+            },
+            {
+              "x": 2850,
+              "y": 1878
+            },
+            {
+              "x": 2830,
+              "y": 1870
+            },
+            {
+              "x": 2817,
+              "y": 1890
+            }
+          ]
+        },
+        {
+          "id": "ovl_1794064023405_57",
+          "name": "Sobreposição #57",
+          "points": [
+            {
+              "x": 2895,
+              "y": 1915
+            },
+            {
+              "x": 2892,
+              "y": 1944
+            },
+            {
+              "x": 2923,
+              "y": 1944
+            },
+            {
+              "x": 2959,
+              "y": 1956
+            },
+            {
+              "x": 2971,
+              "y": 1942
+            },
+            {
+              "x": 2967,
+              "y": 1920
+            },
+            {
+              "x": 2967,
+              "y": 1899
+            },
+            {
+              "x": 2964,
+              "y": 1879
+            },
+            {
+              "x": 2933,
+              "y": 1876
+            },
+            {
+              "x": 2931,
+              "y": 1906
+            },
+            {
+              "x": 2929,
+              "y": 1917
+            }
+          ]
+        },
+        {
+          "id": "ovl_1794064028803_58",
+          "name": "Sobreposição #58",
+          "points": [
+            {
+              "x": 2866,
+              "y": 1764
+            },
+            {
+              "x": 2864,
+              "y": 1790
+            },
+            {
+              "x": 2893,
+              "y": 1795
+            },
+            {
+              "x": 2905,
+              "y": 1787
+            },
+            {
+              "x": 2902,
+              "y": 1780
+            },
+            {
+              "x": 2889,
+              "y": 1764
+            }
+          ]
+        },
+        {
+          "id": "ovl_1794064032043_59",
+          "name": "Sobreposição #59",
+          "points": [
+            {
+              "x": 2931,
+              "y": 1779
+            },
+            {
+              "x": 2916,
+              "y": 1796
+            },
+            {
+              "x": 2933,
+              "y": 1808
+            },
+            {
+              "x": 2968,
+              "y": 1808
+            },
+            {
+              "x": 2986,
+              "y": 1792
+            }
+          ]
+        },
+        {
+          "id": "ovl_1794064034603_60",
+          "name": "Sobreposição #60",
+          "points": [
+            {
+              "x": 2594,
+              "y": 1689
+            },
+            {
+              "x": 2594,
+              "y": 1716
+            },
+            {
+              "x": 2629,
+              "y": 1724
+            },
+            {
+              "x": 2630,
+              "y": 1705
+            },
+            {
+              "x": 2621,
+              "y": 1693
+            }
+          ]
+        },
+        {
+          "id": "ovl_1794064038939_61",
+          "name": "Sobreposição #61",
+          "points": [
+            {
+              "x": 2676,
+              "y": 1675
+            },
+            {
+              "x": 2691,
+              "y": 1692
+            },
+            {
+              "x": 2724,
+              "y": 1699
+            },
+            {
+              "x": 2737,
+              "y": 1675
+            },
+            {
+              "x": 2718,
+              "y": 1666
+            },
+            {
+              "x": 2686,
+              "y": 1660
+            }
+          ]
+        },
+        {
+          "id": "ovl_1794064041817_62",
+          "name": "Sobreposição #62",
+          "points": [
+            {
+              "x": 2198,
+              "y": 1399
+            },
+            {
+              "x": 2208,
+              "y": 1412
+            },
+            {
+              "x": 2249,
+              "y": 1419
+            },
+            {
+              "x": 2266,
+              "y": 1415
+            },
+            {
+              "x": 2261,
+              "y": 1398
+            },
+            {
+              "x": 2233,
+              "y": 1392
+            }
+          ]
+        },
+        {
+          "id": "ovl_1794064049501_63",
+          "name": "Sobreposição #63",
+          "points": [
+            {
+              "x": 563,
+              "y": 1375
+            },
+            {
+              "x": 593,
+              "y": 1368
+            },
+            {
+              "x": 619,
+              "y": 1378
+            },
+            {
+              "x": 624,
+              "y": 1359
+            },
+            {
+              "x": 593,
+              "y": 1348
+            },
+            {
+              "x": 566,
+              "y": 1350
+            }
+          ]
+        },
+        {
+          "id": "ovl_1794064057164_64",
+          "name": "Sobreposição #64",
+          "points": [
+            {
+              "x": 1151,
+              "y": 737
+            },
+            {
+              "x": 1161,
+              "y": 765
+            },
+            {
+              "x": 1179,
+              "y": 757
+            },
+            {
+              "x": 1180,
+              "y": 737
+            },
+            {
+              "x": 1165,
+              "y": 730
+            }
+          ]
+        },
+        {
+          "id": "ovl_1794064063974_65",
+          "name": "Sobreposição #65",
+          "points": [
+            {
+              "x": 1201,
+              "y": 734
+            },
+            {
+              "x": 1206,
+              "y": 757
+            },
+            {
+              "x": 1216,
+              "y": 744
+            },
+            {
+              "x": 1206,
+              "y": 731
+            }
+          ]
+        },
+        {
+          "id": "ovl_1794064066362_66",
+          "name": "Sobreposição #66",
+          "points": [
+            {
+              "x": 1219,
+              "y": 714
+            },
+            {
+              "x": 1221,
+              "y": 740
+            },
+            {
+              "x": 1232,
+              "y": 737
+            },
+            {
+              "x": 1234,
+              "y": 722
+            },
+            {
+              "x": 1223,
+              "y": 719
+            }
+          ]
+        },
+        {
+          "id": "ovl_1794064068566_67",
+          "name": "Sobreposição #67",
+          "points": [
+            {
+              "x": 1242,
+              "y": 710
+            },
+            {
+              "x": 1245,
+              "y": 744
+            },
+            {
+              "x": 1256,
+              "y": 733
+            },
+            {
+              "x": 1258,
+              "y": 713
+            },
+            {
+              "x": 1253,
+              "y": 708
+            }
+          ]
+        },
+        {
+          "id": "ovl_1794064070835_68",
+          "name": "Sobreposição #68",
+          "points": [
+            {
+              "x": 961,
+              "y": -986
+            }
+          ]
+        }
+      ],
+      "overlapOpacity": 0.45,
+      "isActive": true,
+      "createdAt": "2026-11-07T14:31:45.083Z",
+      "updatedAt": "2026-11-07T15:15:01.765Z"
     }
   ],
   "mapPortals": [
@@ -16908,33 +23632,25 @@
       "nameI18nKey": "npc.npc_32.name",
       "isDecorationOnly": false,
       "triggersJson": []
+    },
+    {
+      "id": 33,
+      "code": "npc_33",
+      "mcreworkNpcKey": "npc_000002",
+      "nameI18nKey": "npc.npc_33.name",
+      "isDecorationOnly": false,
+      "triggersJson": []
+    },
+    {
+      "id": 34,
+      "code": "npc_34",
+      "mcreworkNpcKey": "npc_000018",
+      "nameI18nKey": "npc.npc_34.name",
+      "isDecorationOnly": false,
+      "triggersJson": []
     }
   ],
   "mapNpcs": [
-    {
-      "id": 14,
-      "mapId": 2,
-      "npcTemplateId": 8,
-      "posX": 394,
-      "posY": 433,
-      "direction": 0
-    },
-    {
-      "id": 15,
-      "mapId": 2,
-      "npcTemplateId": 9,
-      "posX": 1187,
-      "posY": 1046,
-      "direction": 0
-    },
-    {
-      "id": 16,
-      "mapId": 2,
-      "npcTemplateId": 10,
-      "posX": 1759,
-      "posY": 1581,
-      "direction": 0
-    },
     {
       "id": 17,
       "mapId": 4,
@@ -16965,38 +23681,6 @@
       "npcTemplateId": 14,
       "posX": 2346,
       "posY": 436,
-      "direction": 0
-    },
-    {
-      "id": 25,
-      "mapId": 3,
-      "npcTemplateId": 15,
-      "posX": 979,
-      "posY": 170,
-      "direction": 0
-    },
-    {
-      "id": 26,
-      "mapId": 3,
-      "npcTemplateId": 16,
-      "posX": 2181,
-      "posY": 1254,
-      "direction": 0
-    },
-    {
-      "id": 27,
-      "mapId": 3,
-      "npcTemplateId": 17,
-      "posX": 2228,
-      "posY": 371,
-      "direction": 0
-    },
-    {
-      "id": 28,
-      "mapId": 3,
-      "npcTemplateId": 18,
-      "posX": 287,
-      "posY": 965,
       "direction": 0
     },
     {
@@ -17213,6 +23897,54 @@
       "npcTemplateId": 32,
       "posX": 1750,
       "posY": 2319,
+      "direction": 0
+    },
+    {
+      "id": 94,
+      "mapId": 6,
+      "npcTemplateId": 33,
+      "posX": 808,
+      "posY": 526,
+      "direction": 0
+    },
+    {
+      "id": 95,
+      "mapId": 6,
+      "npcTemplateId": 34,
+      "posX": 1725,
+      "posY": 570,
+      "direction": 0
+    },
+    {
+      "id": 96,
+      "mapId": 3,
+      "npcTemplateId": 15,
+      "posX": 979,
+      "posY": 170,
+      "direction": 0
+    },
+    {
+      "id": 97,
+      "mapId": 3,
+      "npcTemplateId": 18,
+      "posX": 287,
+      "posY": 965,
+      "direction": 0
+    },
+    {
+      "id": 98,
+      "mapId": 2,
+      "npcTemplateId": 8,
+      "posX": 394,
+      "posY": 433,
+      "direction": 0
+    },
+    {
+      "id": 99,
+      "mapId": 2,
+      "npcTemplateId": 9,
+      "posX": 1187,
+      "posY": 1046,
       "direction": 0
     }
   ],
@@ -19316,5 +26048,385 @@
       "isActive": true
     }
   ],
-  "itemTemplates": []
+  "itemTemplates": [],
+  "questTemplates": [
+    {
+      "id": 6,
+      "code": "quest_6",
+      "titleI18nKey": "quest.quest_6.title",
+      "descriptionI18nKey": "quest.quest_6.description",
+      "dialogueOfferI18nKey": "quest.quest_6.dialogue_offer",
+      "dialogueActiveI18nKey": "quest.quest_6.dialogue_active",
+      "dialogueCompleteI18nKey": "quest.quest_6.dialogue_complete",
+      "questCategory": "MAIN",
+      "chapterOrder": 1,
+      "episodeOrder": 1,
+      "minLevel": 1,
+      "prerequisiteQuestId": null,
+      "repeatType": "ONCE",
+      "triggerType": "NPC_INTERACT",
+      "triggerConfigJson": {
+        "triggerMapId": null,
+        "triggerMonsterId": null,
+        "autoAcceptOnTrigger": false
+      },
+      "requirementsJson": {
+        "minLevel": 1,
+        "requireReborn": false,
+        "requiredClassId": null,
+        "requiredElement": null,
+        "prerequisiteQuestId": null,
+        "requiredChapterCompleted": null
+      },
+      "giverNpcId": 1,
+      "giverMapId": null,
+      "turnInNpcId": 2,
+      "turnInMapId": null,
+      "objectivesJson": [
+        {
+          "type": "TALK_NPC",
+          "mapId": null,
+          "labelPtBr": "Conversar com o Sábio de Izumo",
+          "npcTemplateId": 2,
+          "requiredCount": 1
+        }
+      ],
+      "rewardsJson": {
+        "exp": 120,
+        "gold": 50,
+        "statPoints": 2
+      },
+      "isActive": true
+    },
+    {
+      "id": 7,
+      "code": "quest_7",
+      "titleI18nKey": "quest.quest_7.title",
+      "descriptionI18nKey": "quest.quest_7.description",
+      "dialogueOfferI18nKey": "quest.quest_7.dialogue_offer",
+      "dialogueActiveI18nKey": "quest.quest_7.dialogue_active",
+      "dialogueCompleteI18nKey": "quest.quest_7.dialogue_complete",
+      "questCategory": "MAIN",
+      "chapterOrder": 1,
+      "episodeOrder": 2,
+      "minLevel": 1,
+      "prerequisiteQuestId": 6,
+      "repeatType": "ONCE",
+      "triggerType": "AUTO_ON_PREV_QUEST",
+      "triggerConfigJson": {
+        "triggerMapId": null,
+        "triggerMonsterId": null,
+        "autoAcceptOnTrigger": false
+      },
+      "requirementsJson": {
+        "minLevel": 1,
+        "requireReborn": false,
+        "requiredClassId": null,
+        "requiredElement": null,
+        "prerequisiteQuestId": 6,
+        "requiredChapterCompleted": null
+      },
+      "giverNpcId": 2,
+      "giverMapId": null,
+      "turnInNpcId": 3,
+      "turnInMapId": null,
+      "objectivesJson": [
+        {
+          "type": "TALK_NPC",
+          "mapId": null,
+          "labelPtBr": "Falar com o Armeiro John",
+          "npcTemplateId": 3,
+          "requiredCount": 1
+        }
+      ],
+      "rewardsJson": {
+        "exp": 180,
+        "gold": 80,
+        "statPoints": 2
+      },
+      "isActive": true
+    },
+    {
+      "id": 8,
+      "code": "quest_8",
+      "titleI18nKey": "quest.quest_8.title",
+      "descriptionI18nKey": "quest.quest_8.description",
+      "dialogueOfferI18nKey": "quest.quest_8.dialogue_offer",
+      "dialogueActiveI18nKey": "quest.quest_8.dialogue_active",
+      "dialogueCompleteI18nKey": "quest.quest_8.dialogue_complete",
+      "questCategory": "MAIN",
+      "chapterOrder": 1,
+      "episodeOrder": 3,
+      "minLevel": 1,
+      "prerequisiteQuestId": 7,
+      "repeatType": "ONCE",
+      "triggerType": "NPC_INTERACT",
+      "triggerConfigJson": {
+        "triggerMapId": null,
+        "triggerMonsterId": null,
+        "autoAcceptOnTrigger": false
+      },
+      "requirementsJson": {
+        "minLevel": 1,
+        "requireReborn": false,
+        "requiredClassId": null,
+        "requiredElement": null,
+        "prerequisiteQuestId": 7,
+        "requiredChapterCompleted": null
+      },
+      "giverNpcId": 3,
+      "giverMapId": null,
+      "turnInNpcId": 2,
+      "turnInMapId": null,
+      "objectivesJson": [
+        {
+          "type": "KILL_MONSTER",
+          "labelPtBr": "Derrotar 2x Sa Tặc da Areia",
+          "requiredCount": 2,
+          "monsterTemplateId": 1
+        }
+      ],
+      "rewardsJson": {
+        "exp": 350,
+        "gold": 180,
+        "statPoints": 3
+      },
+      "isActive": true
+    },
+    {
+      "id": 9,
+      "code": "quest_9",
+      "titleI18nKey": "quest.quest_9.title",
+      "descriptionI18nKey": "quest.quest_9.description",
+      "dialogueOfferI18nKey": "quest.quest_9.dialogue_offer",
+      "dialogueActiveI18nKey": "quest.quest_9.dialogue_active",
+      "dialogueCompleteI18nKey": "quest.quest_9.dialogue_complete",
+      "questCategory": "MAIN",
+      "chapterOrder": 2,
+      "episodeOrder": 1,
+      "minLevel": 2,
+      "prerequisiteQuestId": 8,
+      "repeatType": "ONCE",
+      "triggerType": "NPC_INTERACT",
+      "triggerConfigJson": {
+        "triggerMapId": null,
+        "triggerMonsterId": null,
+        "autoAcceptOnTrigger": false
+      },
+      "requirementsJson": {
+        "minLevel": 2,
+        "requireReborn": false,
+        "requiredClassId": null,
+        "requiredElement": null,
+        "prerequisiteQuestId": 8,
+        "requiredChapterCompleted": 1
+      },
+      "giverNpcId": 2,
+      "giverMapId": null,
+      "turnInNpcId": 4,
+      "turnInMapId": null,
+      "objectivesJson": [
+        {
+          "type": "TALK_NPC",
+          "mapId": null,
+          "labelPtBr": "Investigar cristais com o Joalheiro Pibu",
+          "npcTemplateId": 4,
+          "requiredCount": 1
+        }
+      ],
+      "rewardsJson": {
+        "exp": 420,
+        "gold": 220,
+        "statPoints": 3
+      },
+      "isActive": true
+    },
+    {
+      "id": 10,
+      "code": "quest_10",
+      "titleI18nKey": "quest.quest_10.title",
+      "descriptionI18nKey": "quest.quest_10.description",
+      "dialogueOfferI18nKey": "quest.quest_10.dialogue_offer",
+      "dialogueActiveI18nKey": "quest.quest_10.dialogue_active",
+      "dialogueCompleteI18nKey": "quest.quest_10.dialogue_complete",
+      "questCategory": "MAIN",
+      "chapterOrder": 2,
+      "episodeOrder": 2,
+      "minLevel": 2,
+      "prerequisiteQuestId": 9,
+      "repeatType": "ONCE",
+      "triggerType": "AUTO_ON_PREV_QUEST",
+      "triggerConfigJson": {
+        "triggerMapId": null,
+        "triggerMonsterId": null,
+        "autoAcceptOnTrigger": false
+      },
+      "requirementsJson": {
+        "minLevel": 2,
+        "requireReborn": false,
+        "requiredClassId": null,
+        "requiredElement": null,
+        "prerequisiteQuestId": 9,
+        "requiredChapterCompleted": null
+      },
+      "giverNpcId": 4,
+      "giverMapId": null,
+      "turnInNpcId": 2,
+      "turnInMapId": null,
+      "objectivesJson": [
+        {
+          "type": "WIN_BATTLES",
+          "labelPtBr": "Vencer 2 Batalhas na Fronteira",
+          "requiredCount": 2
+        }
+      ],
+      "rewardsJson": {
+        "exp": 600,
+        "gold": 320,
+        "statPoints": 4
+      },
+      "isActive": true
+    },
+    {
+      "id": 11,
+      "code": "quest_11",
+      "titleI18nKey": "quest.quest_11.title",
+      "descriptionI18nKey": "quest.quest_11.description",
+      "dialogueOfferI18nKey": "quest.quest_11.dialogue_offer",
+      "dialogueActiveI18nKey": "quest.quest_11.dialogue_active",
+      "dialogueCompleteI18nKey": "quest.quest_11.dialogue_complete",
+      "questCategory": "SIDE",
+      "chapterOrder": 1,
+      "episodeOrder": 1,
+      "minLevel": 1,
+      "prerequisiteQuestId": null,
+      "repeatType": "ONCE",
+      "triggerType": "NPC_INTERACT",
+      "triggerConfigJson": {
+        "triggerMapId": null,
+        "triggerMonsterId": null,
+        "autoAcceptOnTrigger": false
+      },
+      "requirementsJson": {
+        "minLevel": 1,
+        "requireReborn": false,
+        "requiredClassId": null,
+        "requiredElement": null,
+        "prerequisiteQuestId": null,
+        "requiredChapterCompleted": null
+      },
+      "giverNpcId": 3,
+      "giverMapId": null,
+      "turnInNpcId": 4,
+      "turnInMapId": null,
+      "objectivesJson": [
+        {
+          "type": "TALK_NPC",
+          "mapId": null,
+          "labelPtBr": "Entregar recado ao Joalheiro Pibu",
+          "npcTemplateId": 4,
+          "requiredCount": 1
+        }
+      ],
+      "rewardsJson": {
+        "exp": 150,
+        "gold": 100,
+        "statPoints": 1
+      },
+      "isActive": true
+    },
+    {
+      "id": 12,
+      "code": "quest_12",
+      "titleI18nKey": "quest.quest_12.title",
+      "descriptionI18nKey": "quest.quest_12.description",
+      "dialogueOfferI18nKey": "quest.quest_12.dialogue_offer",
+      "dialogueActiveI18nKey": "quest.quest_12.dialogue_active",
+      "dialogueCompleteI18nKey": "quest.quest_12.dialogue_complete",
+      "questCategory": "PROFICIENCY",
+      "chapterOrder": 1,
+      "episodeOrder": 1,
+      "minLevel": 1,
+      "prerequisiteQuestId": null,
+      "repeatType": "REPEATABLE",
+      "triggerType": "NPC_INTERACT",
+      "triggerConfigJson": {
+        "triggerMapId": null,
+        "triggerMonsterId": null,
+        "autoAcceptOnTrigger": false
+      },
+      "requirementsJson": {
+        "minLevel": 1,
+        "requireReborn": false,
+        "requiredClassId": null,
+        "requiredElement": null,
+        "prerequisiteQuestId": null,
+        "requiredChapterCompleted": null
+      },
+      "giverNpcId": 3,
+      "giverMapId": null,
+      "turnInNpcId": 3,
+      "turnInMapId": null,
+      "objectivesJson": [
+        {
+          "type": "WIN_BATTLES",
+          "labelPtBr": "Vencer 3 Batalhas contra Monstros",
+          "requiredCount": 3
+        }
+      ],
+      "rewardsJson": {
+        "exp": 400,
+        "gold": 200,
+        "statPoints": 3
+      },
+      "isActive": true
+    },
+    {
+      "id": 13,
+      "code": "quest_13",
+      "titleI18nKey": "quest.quest_13.title",
+      "descriptionI18nKey": "quest.quest_13.description",
+      "dialogueOfferI18nKey": "quest.quest_13.dialogue_offer",
+      "dialogueActiveI18nKey": "quest.quest_13.dialogue_active",
+      "dialogueCompleteI18nKey": "quest.quest_13.dialogue_complete",
+      "questCategory": "EPIC",
+      "chapterOrder": 2,
+      "episodeOrder": 1,
+      "minLevel": 3,
+      "prerequisiteQuestId": 8,
+      "repeatType": "ONCE",
+      "triggerType": "REACH_LEVEL",
+      "triggerConfigJson": {
+        "triggerMapId": null,
+        "triggerMonsterId": null,
+        "autoAcceptOnTrigger": false
+      },
+      "requirementsJson": {
+        "minLevel": 3,
+        "requireReborn": false,
+        "requiredClassId": null,
+        "requiredElement": null,
+        "prerequisiteQuestId": 8,
+        "requiredChapterCompleted": 1
+      },
+      "giverNpcId": 2,
+      "giverMapId": null,
+      "turnInNpcId": 2,
+      "turnInMapId": null,
+      "objectivesJson": [
+        {
+          "type": "WIN_BATTLES",
+          "labelPtBr": "Vencer 5 Batalhas para o Ritual Épico",
+          "requiredCount": 5
+        }
+      ],
+      "rewardsJson": {
+        "exp": 1000,
+        "gold": 500,
+        "statPoints": 5,
+        "triggerReborn": true
+      },
+      "isActive": true
+    }
+  ]
 }
