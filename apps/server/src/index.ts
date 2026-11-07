@@ -14,13 +14,14 @@ import * as fsSync from 'node:fs';
 import * as path from 'node:path';
 import { spawn } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
-import { PrismaClient } from '@etheria/database';
+import { PrismaClient, SnapshotManager } from '@etheria/database';
 import { AdminAuthService } from './security/AdminAuthService.js';
 import { AdminUsersController } from './controllers/AdminUsersController.js';
 import { AdminMapsController } from './controllers/AdminMapsController.js';
 import { GamePlayController } from './controllers/GamePlayController.js';
 import { AdminMonstersController } from './controllers/AdminMonstersController.js';
 import { AdminSkillsController } from './controllers/AdminSkillsController.js';
+import { AdminQuestsController } from './controllers/AdminQuestsController.js';
 import { TemporaryCombatController } from './controllers/TemporaryCombatController.js';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -59,18 +60,21 @@ export class EtheriaServerApp {
   private readonly playController: GamePlayController;
   private readonly monstersController: AdminMonstersController;
   private readonly skillsController: AdminSkillsController;
+  private readonly questsController: AdminQuestsController;
   private readonly combatController: TemporaryCombatController;
   private readonly publicDir: string;
   private readonly mapImageCache = new Map<number, { buffer: Buffer; contentType: string }>();
 
   constructor() {
     this.prisma = new PrismaClient();
+    const snapshotManager = new SnapshotManager(this.prisma);
     this.authService = new AdminAuthService(this.prisma);
     this.usersController = new AdminUsersController(this.prisma);
     this.mapsController = new AdminMapsController(this.prisma);
     this.playController = new GamePlayController(this.prisma);
     this.monstersController = new AdminMonstersController(this.prisma);
     this.skillsController = new AdminSkillsController(this.prisma);
+    this.questsController = new AdminQuestsController(this.prisma, snapshotManager);
     this.combatController = new TemporaryCombatController(this.prisma);
     this.publicDir = path.resolve(__dirname, '../public');
   }
@@ -484,6 +488,29 @@ export class EtheriaServerApp {
           return;
         }
 
+        // --- Rotas do Estúdio Visual No-Code de Quests (`quest_templates`) ---
+        if (pathname === '/api/admin/quest-templates' && method === 'GET') {
+          this.sendJson(res, 200, await this.questsController.getQuestTemplates());
+          return;
+        }
+        if (pathname === '/api/admin/quest-templates' && method === 'POST') {
+          const dto = await this.readJsonBody(req);
+          this.sendJson(res, 201, await this.questsController.saveQuestTemplate(dto, null));
+          return;
+        }
+        const questMatch = pathname.match(/^\/api\/admin\/quest-templates\/(\d+)$/);
+        if (questMatch && method === 'PUT') {
+          const id = Number(questMatch[1]);
+          const dto = await this.readJsonBody(req);
+          this.sendJson(res, 200, await this.questsController.saveQuestTemplate(dto, id));
+          return;
+        }
+        if (questMatch && method === 'DELETE') {
+          const id = Number(questMatch[1]);
+          this.sendJson(res, 200, await this.questsController.deleteQuestTemplate(id));
+          return;
+        }
+
         this.sendJson(res, 404, { error: 'Rota da API Admin não encontrada.' });
         return;
       }
@@ -626,6 +653,48 @@ export class EtheriaServerApp {
           return;
         }
 
+        // 📜 Rotas de Quests / Missões do Jogador e Indicadores de Cabeça dos NPCs (! vermelho, ? cinza, ? vermelho)
+        const charQuestsMatch = pathname.match(/^\/api\/play\/characters\/(\d+)\/quests$/);
+        if (charQuestsMatch && method === 'GET') {
+          const charId = Number(charQuestsMatch[1]);
+          const mapId = urlObj.searchParams.get('mapId') ? Number(urlObj.searchParams.get('mapId')) : null;
+          this.sendJson(res, 200, await this.questsController.getCharacterQuestState(charId, mapId));
+          return;
+        }
+        const acceptQuestMatch = pathname.match(/^\/api\/play\/characters\/(\d+)\/quests\/accept$/);
+        if (acceptQuestMatch && method === 'POST') {
+          const charId = Number(acceptQuestMatch[1]);
+          const body = await this.readJsonBody<{ questTemplateId: number; mapId?: number | null }>(req);
+          this.sendJson(
+            res,
+            200,
+            await this.questsController.acceptQuest(charId, Number(body.questTemplateId), body.mapId ?? null)
+          );
+          return;
+        }
+        const interactNpcQuestMatch = pathname.match(/^\/api\/play\/characters\/(\d+)\/quests\/interact-npc$/);
+        if (interactNpcQuestMatch && method === 'POST') {
+          const charId = Number(interactNpcQuestMatch[1]);
+          const body = await this.readJsonBody<{ npcTemplateId: number; mapId?: number | null }>(req);
+          this.sendJson(
+            res,
+            200,
+            await this.questsController.interactNpcForQuest(charId, Number(body.npcTemplateId), body.mapId ?? null)
+          );
+          return;
+        }
+        const turnInQuestMatch = pathname.match(/^\/api\/play\/characters\/(\d+)\/quests\/turn-in$/);
+        if (turnInQuestMatch && method === 'POST') {
+          const charId = Number(turnInQuestMatch[1]);
+          const body = await this.readJsonBody<{ questTemplateId: number; mapId?: number | null }>(req);
+          this.sendJson(
+            res,
+            200,
+            await this.questsController.turnInQuest(charId, Number(body.questTemplateId), body.mapId ?? null)
+          );
+          return;
+        }
+
         // ⚔️ Rotas da Arena Temporária de Combate GM (Módulo Isolado e Descartável)
         if (pathname === '/api/play/temporary-combat/monsters' && method === 'GET') {
           this.sendJson(res, 200, await this.combatController.getAvailableMonsters());
@@ -658,12 +727,28 @@ export class EtheriaServerApp {
             body.actionType || 'ATTACK',
             Number(body.targetMonsterIndex) || 0
           );
+          if (state.isFinished && state.winner === 'PLAYER' && !state.victoryRecorded) {
+            state.victoryRecorded = true;
+            await this.questsController.recordBattleVictoryProgress(
+              state.characterId || 1,
+              state.monsterTemplateId || 1,
+              state.monsters.length
+            );
+          }
           this.sendJson(res, 200, state);
           return;
         }
         if (pathname === '/api/play/temporary-combat/auto-resolve' && method === 'POST') {
           const body = await this.readJsonBody<{ battleId: string }>(req);
           const state = this.combatController.autoResolve(body.battleId);
+          if (state.isFinished && state.winner === 'PLAYER' && !state.victoryRecorded) {
+            state.victoryRecorded = true;
+            await this.questsController.recordBattleVictoryProgress(
+              state.characterId || 1,
+              state.monsterTemplateId || 1,
+              state.monsters.length
+            );
+          }
           this.sendJson(res, 200, state);
           return;
         }
@@ -704,6 +789,7 @@ export class EtheriaServerApp {
       void this.prewarmMapImages();
       void this.monstersController.ensureInitialMonsters();
       void this.skillsController.ensureInitialSkillsAndBuffs();
+      void this.questsController.ensureInitialQuests();
     });
     return server;
   }

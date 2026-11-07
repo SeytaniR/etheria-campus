@@ -94,6 +94,8 @@ class AdminAuth {
     app.switchTab = function (tab) {
       document.getElementById('tabMaps').style.display = tab === 'maps' ? 'grid' : 'none';
       document.getElementById('tabNpcs').style.display = tab === 'npcs' ? 'flex' : 'none';
+      const tabQuests = document.getElementById('tabQuests');
+      if (tabQuests) tabQuests.style.display = tab === 'quests' ? 'flex' : 'none';
       document.getElementById('tabClasses').style.display = tab === 'classes' ? 'flex' : 'none';
       const tabMonsters = document.getElementById('tabMonsters');
       if (tabMonsters) tabMonsters.style.display = tab === 'monsters' ? 'flex' : 'none';
@@ -105,6 +107,8 @@ class AdminAuth {
 
       document.getElementById('tabBtnMaps').className = tab === 'maps' ? 'btn-primary' : '';
       document.getElementById('tabBtnNpcs').className = tab === 'npcs' ? 'btn-primary' : '';
+      const btnQuests = document.getElementById('tabBtnQuests');
+      if (btnQuests) btnQuests.className = tab === 'quests' ? 'btn-primary' : '';
       document.getElementById('tabBtnClasses').className = tab === 'classes' ? 'btn-primary' : '';
       const btnMonsters = document.getElementById('tabBtnMonsters');
       if (btnMonsters) btnMonsters.className = tab === 'monsters' ? 'btn-primary' : '';
@@ -116,6 +120,9 @@ class AdminAuth {
 
       if (tab === 'npcs') {
         this.renderNpcsCrudTable();
+      }
+      if (tab === 'quests' && typeof this.renderQuestsCrudTable === 'function') {
+        this.renderQuestsCrudTable();
       }
       if (tab === 'classes') {
         this.renderClassesCrudTable();

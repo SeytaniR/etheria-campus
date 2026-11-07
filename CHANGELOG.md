@@ -5,6 +5,31 @@ Qualquer IA trabalhando neste repositório **DEVE** incrementar a versão e regi
 
 ---
 
+## [v0.5.2] - 2026-11-07
+### Adicionado
+* **Estúdio Visual No-Code de Quests (`📜 Quests` — `quest_templates`) (`AdminQuestsController.ts`, `AdminQuestsTab.js`, `schema.prisma`):**
+  * Nova aba `📜 Quests` no Studio `/admin` com suporte às 4 categorias de missão:
+    * `🟡 Principal (MAIN)`: Linear, acompanhando o progresso do jogador com Ordem do Capítulo (`chapterOrder`) e encadeamento automático de Quest Pré-requisito (`prerequisiteQuestId`).
+    * `🔵 Secundária (SIDE)`: Missões paralelas e regionais.
+    * `🟣 Épica (EPIC)`: Grandes marcos da jornada (incluindo gatilho opcional de Despertar `Reborn`).
+    * `🟢 Proficiência (PROFICIENCY)`: Categoria única de Proficiência (estilo secundárias).
+  * **Seletor Inteligente de NPC + Restrição de Mapa com Nível Recomendado (`giverMapId` / `turnInMapId`):**
+    * Como um mesmo NPC pode estar posicionado em mais de um mapa (ex.: *Izumo* e *Dong Xuen*), o Admin pode escolher se o jogador pega ou entrega a missão **em qualquer mapa onde esse NPC estiver (`null`)** ou **somente em um mapa específico**.
+    * Todos os seletores de mapas na criação/edição da Quest exibem o **Nível Recomendado do Mapa (`Nv. X`)** e destacam visualmente em quais mapas o NPC selecionado está posicionado (`📍 #1 Vila Izumo (Nv.1) — ⭐ [NPC posicionado neste mapa]`).
+  * **Construtor Visual de Objetivos (`objectivesJson`) & Recompensas (`rewardsJson`):**
+    * Blocos visuais para `👹 Derrotar Monstro Específico`, `⚔️ Vencer Batalhas (Qualquer Monstro)`, `💬 Conversar com NPC` e `🗺️ Visitar Mapa`, cada um com filtro opcional de mapa exibindo o nível do mapa.
+    * Recompensas configuráveis de EXP, Ouro, Pontos de Atributo Livres e Despertar `Reborn`.
+  * Semeadas 5 Quests iniciais cobrindo `MAIN` (Cap. 1 e Cap. 2 encadeados), `SIDE`, `PROFICIENCY` e `EPIC`.
+* **Indicadores Visuais de Missão na Cabeça dos NPCs e Diário de Quests no `/play` (`PlayQuestsController.js`, `play.js`, `TemporaryCombatArena.js`):**
+  * Renderização em tempo real no `<canvas>` 2.5D dos indicadores acima da cabeça dos NPCs conforme o estado do jogador no mapa atual:
+    * **`!` colorido em Vermelho (`#ff2e4c`)**: Para missões disponíveis para o jogador aceitar naquele NPC.
+    * **`?` colorido em Cinza (`#94a3b8`)**: Para missões em andamento.
+    * **`?` colorido em Vermelho (`#ff2e4c`)**: Para missões concluídas aguardando o jogador concluir/entregar no NPC.
+  * Modal interativo de Diálogo e Missões ao interagir/tocar no NPC (`openNpcQuestModal`), avançando automaticamente objetivos de conversa (`TALK_NPC`) e permitindo aceitar ou concluir missões com entrega imediata de EXP, Ouro, Level-Up e Reborn.
+  * Integração automática com a Arena 2.5D (`recordBattleVictoryProgress`) para contabilizar abates de monstros nas missões ativas do personagem.
+
+---
+
 ## [v0.5.1] - 2026-11-07
 ### Alterado & Simplificado
 * **Simplificação da Tabela e Criação de NPCs (`AdminNpcsTab.js`, `admin/index.html`):**

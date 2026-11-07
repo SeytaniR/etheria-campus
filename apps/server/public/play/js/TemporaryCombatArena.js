@@ -56,38 +56,25 @@ class TemporaryCombatArena {
 
   injectModalDom() {
     if (document.getElementById('temporaryCombatModal')) return;
-
     const modal = document.createElement('div');
     modal.id = 'temporaryCombatModal';
     modal.className = 'arena-backdrop';
     modal.innerHTML = `
-      <!-- Cabeçalho da Arena -->
       <div style="display:flex; justify-content:space-between; align-items:center; background:#0f172a; border:1px solid #334155; padding:7px 12px; border-radius:8px; flex-shrink:0;">
         <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
           <span style="font-size:1.1rem;">⚔️</span>
           <strong style="color:#f43f5e; font-size:0.9rem;">Arena Tática 2.5D (Simulador GM)</strong>
-          <span id="arenaTurnStatusText" style="font-size:0.75rem; color:#fde047; background:rgba(253,224,71,0.12); border:1px solid rgba(253,224,71,0.4); padding:2px 8px; border-radius:99px; font-weight:700;">
-            🎯 Sua Vez — Escolha uma Ação
-          </span>
+          <span id="arenaTurnStatusText" style="font-size:0.75rem; color:#fde047; background:rgba(253,224,71,0.12); border:1px solid rgba(253,224,71,0.4); padding:2px 8px; border-radius:99px; font-weight:700;">🎯 Sua Vez — Escolha uma Ação</span>
         </div>
         <div style="display:flex; align-items:center; gap:8px;">
-          <span id="arenaRoundBadge" style="background:#1e1b4b; color:#c084fc; font-weight:700; padding:3px 10px; border-radius:99px; font-size:0.78rem; border:1px solid #c084fc;">
-            Rodada 1
-          </span>
-          <button class="btn-danger" onclick="PlayApp.combatArena.closeArena()" style="padding:4px 10px; font-size:0.78rem;">
-            ✕ Sair
-          </button>
+          <span id="arenaRoundBadge" style="background:#1e1b4b; color:#c084fc; font-weight:700; padding:3px 10px; border-radius:99px; font-size:0.78rem; border:1px solid #c084fc;">Rodada 1</span>
+          <button class="btn-danger" onclick="PlayApp.combatArena.closeArena()" style="padding:4px 10px; font-size:0.78rem;">✕ Sair</button>
         </div>
       </div>
-
-      <!-- Palco de Batalha Canvas 2.5D Real -->
       <div class="arena-canvas-wrapper" id="arenaCanvasWrapper">
         <canvas id="arenaBattleCanvas"></canvas>
-        <!-- Barra Rápida de Seleção de Alvo -->
         <div id="arenaTargetPillsBar" class="arena-target-bar"></div>
       </div>
-
-      <!-- Painel Inferior: Comandos de Batalha & Log Tático -->
       <div class="arena-bottom-panel">
         <div style="display:flex; flex-direction:column; gap:6px; background:#0f172a; border:1px solid #334155; padding:8px 10px; border-radius:8px;">
           <div style="display:flex; justify-content:space-between; align-items:center;">
@@ -95,39 +82,21 @@ class TemporaryCombatArena {
             <span style="font-size:0.7rem; color:#fde047;">Toque em um monstro na arena para mirar</span>
           </div>
           <div style="display:grid; grid-template-columns:repeat(4, 1fr); gap:6px; flex:1;">
-            <button id="btnArenaAttack" class="btn-primary" onclick="PlayApp.combatArena.performAction('ATTACK')" style="display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px; font-weight:700; font-size:0.78rem; padding:6px 4px;">
-              <span style="font-size:1.05rem;">🗡️</span>
-              <span>Ataque</span>
-            </button>
-            <button id="btnArenaSkill" onclick="PlayApp.combatArena.performAction('SKILL')" style="display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px; font-weight:700; font-size:0.78rem; padding:6px 4px; background:linear-gradient(135deg, #7c3aed, #9333ea); border-color:#a855f7; color:#fff;">
-              <span style="font-size:1.05rem;">🔥</span>
-              <span>Skill (15 MP)</span>
-            </button>
-            <button id="btnArenaDefend" onclick="PlayApp.combatArena.performAction('DEFEND')" style="display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px; font-weight:700; font-size:0.78rem; padding:6px 4px; background:#334155; color:#e2e8f0;">
-              <span style="font-size:1.05rem;">🛡️</span>
-              <span>Defender</span>
-            </button>
-            <button id="btnArenaAuto" onclick="PlayApp.combatArena.autoResolveBattle()" style="display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px; font-weight:700; font-size:0.78rem; padding:6px 4px; background:linear-gradient(135deg, #059669, #10b981); border-color:#34d399; color:#fff;">
-              <span style="font-size:1.05rem;">⏩</span>
-              <span>Auto-Luta</span>
-            </button>
+            <button id="btnArenaAttack" class="btn-primary" onclick="PlayApp.combatArena.performAction('ATTACK')" style="display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px; font-weight:700; font-size:0.78rem; padding:6px 4px;"><span style="font-size:1.05rem;">🗡️</span><span>Ataque</span></button>
+            <button id="btnArenaSkill" onclick="PlayApp.combatArena.performAction('SKILL')" style="display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px; font-weight:700; font-size:0.78rem; padding:6px 4px; background:linear-gradient(135deg, #7c3aed, #9333ea); border-color:#a855f7; color:#fff;"><span style="font-size:1.05rem;">🔥</span><span>Skill (15 MP)</span></button>
+            <button id="btnArenaDefend" onclick="PlayApp.combatArena.performAction('DEFEND')" style="display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px; font-weight:700; font-size:0.78rem; padding:6px 4px; background:#334155; color:#e2e8f0;"><span style="font-size:1.05rem;">🛡️</span><span>Defender</span></button>
+            <button id="btnArenaAuto" onclick="PlayApp.combatArena.autoResolveBattle()" style="display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px; font-weight:700; font-size:0.78rem; padding:6px 4px; background:linear-gradient(135deg, #059669, #10b981); border-color:#34d399; color:#fff;"><span style="font-size:1.05rem;">⏩</span><span>Auto-Luta</span></button>
           </div>
         </div>
-
-        <!-- Registro de Combate -->
         <div style="display:flex; flex-direction:column; background:#020617; border:1px solid #1e293b; padding:7px 10px; border-radius:8px; overflow:hidden; max-height:125px;">
           <strong style="font-size:0.73rem; color:#94a3b8; margin-bottom:3px;">📜 Log de Batalha:</strong>
           <div id="arenaCombatLog" style="flex:1; overflow-y:auto; display:flex; flex-direction:column; gap:3px; font-size:0.71rem; line-height:1.35; color:#cbd5e1; font-family:monospace;"></div>
         </div>
       </div>
     `;
-
     document.body.appendChild(modal);
-
     const canvas = document.getElementById('arenaBattleCanvas');
-    if (canvas) {
-      canvas.addEventListener('pointerdown', (ev) => this.handleCanvasClick(ev));
-    }
+    if (canvas) canvas.addEventListener('pointerdown', (ev) => this.handleCanvasClick(ev));
   }
 
   getOrCreateSpriteSheet(unit) {
@@ -165,6 +134,9 @@ class TemporaryCombatArena {
     if (this.animFrameId) {
       cancelAnimationFrame(this.animFrameId);
       this.animFrameId = null;
+    }
+    if (this.client && typeof this.client.loadCharacterQuests === 'function') {
+      void this.client.loadCharacterQuests();
     }
   }
 
@@ -1005,50 +977,24 @@ class TemporaryCombatArena {
   }
 
   showBattleResult(b) {
+    if (this.client && typeof this.client.loadCharacterQuests === 'function') {
+      void this.client.loadCharacterQuests();
+    }
     const old = document.getElementById('arenaResultOverlayBanner');
     if (old) old.remove();
-
     const isWin = b.winner === 'PLAYER';
     const rewardExp = b.rewards?.exp || 0;
     const rewardGold = b.rewards?.gold || 0;
-
     const banner = document.createElement('div');
     banner.id = 'arenaResultOverlayBanner';
-    banner.style.cssText = `
-      position: absolute;
-      inset: 0;
-      z-index: 200;
-      background: rgba(2, 6, 23, 0.88);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 14px;
-      padding: 20px;
-      text-align: center;
-    `;
-
+    banner.style.cssText = 'position:absolute; inset:0; z-index:200; background:rgba(2,6,23,0.88); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:14px; padding:20px; text-align:center;';
     banner.innerHTML = `
       <div style="font-size:3.4rem;">${isWin ? '🏆' : '💀'}</div>
-      <h2 style="color:${isWin ? '#fde047' : '#ef4444'}; margin:0; font-size:1.75rem; text-shadow:0 0 20px ${isWin ? 'rgba(253,224,71,0.5)' : 'rgba(239,68,68,0.5)'};">
-        ${isWin ? 'VITÓRIA NA BATALHA!' : 'DERROTA NO COMBATE!'}
-      </h2>
-      <p style="color:#94a3b8; max-width:400px; margin:0; font-size:0.86rem;">
-        ${isWin ? `Todos os monstros foram derrotados em ${b.round} rodada(s)!` : 'Seu personagem tombou em combate.'}
-      </p>
-      ${
-        isWin
-          ? `<div style="display:flex; gap:16px; background:#0f172a; padding:10px 20px; border-radius:8px; border:1px solid #334155;">
-               <span style="color:#86efac; font-weight:700;">✨ +${rewardExp} EXP</span>
-               <span style="color:#fde047; font-weight:700;">🪙 +${rewardGold} Ouro</span>
-             </div>`
-          : ''
-      }
-      <button class="btn-primary" onclick="this.parentElement.remove(); PlayApp.combatArena.closeArena();" style="padding:10px 24px; font-weight:700; font-size:0.92rem; border-radius:999px;">
-        ✅ Voltar ao Mapa
-      </button>
+      <h2 style="color:${isWin ? '#fde047' : '#ef4444'}; margin:0; font-size:1.75rem;">${isWin ? 'VITÓRIA NA BATALHA!' : 'DERROTA NO COMBATE!'}</h2>
+      <p style="color:#94a3b8; max-width:400px; margin:0; font-size:0.86rem;">${isWin ? `Todos os monstros foram derrotados em ${b.round} rodada(s)!` : 'Seu personagem tombou em combate.'}</p>
+      ${isWin ? `<div style="display:flex; gap:16px; background:#0f172a; padding:10px 20px; border-radius:8px; border:1px solid #334155;"><span style="color:#86efac; font-weight:700;">✨ +${rewardExp} EXP</span><span style="color:#fde047; font-weight:700;">🪙 +${rewardGold} Ouro</span></div>` : ''}
+      <button class="btn-primary" onclick="this.parentElement.remove(); PlayApp.combatArena.closeArena();" style="padding:10px 24px; font-weight:700; font-size:0.92rem; border-radius:999px;">✅ Voltar ao Mapa</button>
     `;
-
     document.getElementById('temporaryCombatModal').appendChild(banner);
   }
 }

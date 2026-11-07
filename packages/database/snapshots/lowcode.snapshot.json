@@ -1,6 +1,6 @@
 {
   "version": "0.2.0",
-  "exportedAt": "2026-11-07T09:32:06.058Z",
+  "exportedAt": "2026-11-07T14:27:17.051Z",
   "i18nTranslations": [
     {
       "id": 1,
@@ -1267,7 +1267,7 @@
       "key": "map.map_5.name",
       "locale": "pt-BR",
       "text": "Dong Xuen",
-      "updatedAt": "2026-11-07T09:25:44.021Z"
+      "updatedAt": "2026-11-07T14:24:04.350Z"
     },
     {
       "id": 200,
@@ -1611,6 +1611,216 @@
       "locale": "pt-BR",
       "text": "Restaura 18% do HP Máximo e ativa o buff Fúria de Batalha (+30% ATK) por 3 turnos.",
       "updatedAt": "2026-11-07T09:31:16.778Z"
+    },
+    {
+      "id": 268,
+      "key": "npc.npc_28.name",
+      "locale": "pt-BR",
+      "text": "Banqueiro Platan",
+      "updatedAt": "2026-11-07T14:21:02.777Z"
+    },
+    {
+      "id": 269,
+      "key": "npc.npc_29.name",
+      "locale": "pt-BR",
+      "text": "Domadora Pitty",
+      "updatedAt": "2026-11-07T14:21:52.828Z"
+    },
+    {
+      "id": 270,
+      "key": "npc.npc_30.name",
+      "locale": "pt-BR",
+      "text": "Mestre Skitch",
+      "updatedAt": "2026-11-07T14:22:19.597Z"
+    },
+    {
+      "id": 271,
+      "key": "npc.npc_31.name",
+      "locale": "pt-BR",
+      "text": "Explorador Noch",
+      "updatedAt": "2026-11-07T14:23:14.539Z"
+    },
+    {
+      "id": 272,
+      "key": "npc.npc_32.name",
+      "locale": "pt-BR",
+      "text": "Pequena Alice",
+      "updatedAt": "2026-11-07T14:23:56.637Z"
+    },
+    {
+      "id": 274,
+      "key": "quest.quest_1.title",
+      "locale": "pt-BR",
+      "text": "Cap. 1: O Chamado de Izumo",
+      "updatedAt": "2026-11-07T14:27:01.185Z"
+    },
+    {
+      "id": 275,
+      "key": "quest.quest_1.description",
+      "locale": "pt-BR",
+      "text": "Apresente-se ao Sábio de Izumo para iniciar seu treinamento oficial no continente.",
+      "updatedAt": "2026-11-07T14:27:01.207Z"
+    },
+    {
+      "id": 276,
+      "key": "quest.quest_1.dialogue_offer",
+      "locale": "pt-BR",
+      "text": "Bem-vindo a Izumo, jovem aventureiro! O Sábio de Izumo está procurando por você perto da praça central.",
+      "updatedAt": "2026-11-07T14:27:01.234Z"
+    },
+    {
+      "id": 277,
+      "key": "quest.quest_1.dialogue_active",
+      "locale": "pt-BR",
+      "text": "O Sábio de Izumo está logo abaixo na vila. Vá conversar com ele!",
+      "updatedAt": "2026-11-07T14:27:01.238Z"
+    },
+    {
+      "id": 278,
+      "key": "quest.quest_1.dialogue_complete",
+      "locale": "pt-BR",
+      "text": "Ah, então você é o novo recruta! Vejo grande potencial elemental em você.",
+      "updatedAt": "2026-11-07T14:27:01.242Z"
+    },
+    {
+      "id": 279,
+      "key": "quest.quest_2.title",
+      "locale": "pt-BR",
+      "text": "Cap. 2: Ameaça nas Estradas",
+      "updatedAt": "2026-11-07T14:27:01.524Z"
+    },
+    {
+      "id": 280,
+      "key": "quest.quest_2.description",
+      "locale": "pt-BR",
+      "text": "Derrote os saqueadores Sa Tặc da Areia que estão rondando os arredores de Izumo.",
+      "updatedAt": "2026-11-07T14:27:01.540Z"
+    },
+    {
+      "id": 281,
+      "key": "quest.quest_2.dialogue_offer",
+      "locale": "pt-BR",
+      "text": "Antes de seguir viagem, precisamos conter os Sa Tặc da Areia. Derrote 2 deles em combate e volte até mim!",
+      "updatedAt": "2026-11-07T14:27:01.544Z"
+    },
+    {
+      "id": 282,
+      "key": "quest.quest_2.dialogue_active",
+      "locale": "pt-BR",
+      "text": "Ainda restam Sa Tặc da Areia para derrotar. Use a Batalha para enfrentá-los!",
+      "updatedAt": "2026-11-07T14:27:01.561Z"
+    },
+    {
+      "id": 283,
+      "key": "quest.quest_2.dialogue_complete",
+      "locale": "pt-BR",
+      "text": "Excelente! As rotas comerciais de Izumo estão seguras graças a você.",
+      "updatedAt": "2026-11-07T14:27:01.565Z"
+    },
+    {
+      "id": 284,
+      "key": "quest.quest_3.title",
+      "locale": "pt-BR",
+      "text": "Remessa de Minérios Raros",
+      "updatedAt": "2026-11-07T14:27:01.723Z"
+    },
+    {
+      "id": 285,
+      "key": "quest.quest_3.description",
+      "locale": "pt-BR",
+      "text": "Avise o Joalheiro Pibu que a forja do Armeiro John já processou os cristais.",
+      "updatedAt": "2026-11-07T14:27:01.727Z"
+    },
+    {
+      "id": 286,
+      "key": "quest.quest_3.dialogue_offer",
+      "locale": "pt-BR",
+      "text": "Ei! Estou ocupado na bigorna. Pode avisar o Joalheiro Pibu ali ao lado que os engastes dele ficaram prontos?",
+      "updatedAt": "2026-11-07T14:27:01.735Z"
+    },
+    {
+      "id": 287,
+      "key": "quest.quest_3.dialogue_active",
+      "locale": "pt-BR",
+      "text": "O Joalheiro Pibu está esperando o recado logo ali à direita!",
+      "updatedAt": "2026-11-07T14:27:01.742Z"
+    },
+    {
+      "id": 288,
+      "key": "quest.quest_3.dialogue_complete",
+      "locale": "pt-BR",
+      "text": "Maravilha! Eu estava mesmo aguardando esses engastes do John. Tome estas moedas pelo favor!",
+      "updatedAt": "2026-11-07T14:27:01.746Z"
+    },
+    {
+      "id": 289,
+      "key": "quest.quest_4.title",
+      "locale": "pt-BR",
+      "text": "Proficiência: Veterano de Combate",
+      "updatedAt": "2026-11-07T14:27:01.889Z"
+    },
+    {
+      "id": 290,
+      "key": "quest.quest_4.description",
+      "locale": "pt-BR",
+      "text": "Prove sua maestria marcial vencendo 3 combates contra criaturas selvagens.",
+      "updatedAt": "2026-11-07T14:27:01.892Z"
+    },
+    {
+      "id": 291,
+      "key": "quest.quest_4.dialogue_offer",
+      "locale": "pt-BR",
+      "text": "Quer aprimorar sua Proficiência de Combate? Vença 3 batalhas contra qualquer monstro e traga seu relatório!",
+      "updatedAt": "2026-11-07T14:27:01.895Z"
+    },
+    {
+      "id": 292,
+      "key": "quest.quest_4.dialogue_active",
+      "locale": "pt-BR",
+      "text": "Continue treinando! Vença 3 batalhas para completar seu teste de Proficiência.",
+      "updatedAt": "2026-11-07T14:27:01.902Z"
+    },
+    {
+      "id": 293,
+      "key": "quest.quest_4.dialogue_complete",
+      "locale": "pt-BR",
+      "text": "Sua postura de batalha evoluiu muito. Receba estes pontos extras de atributo!",
+      "updatedAt": "2026-11-07T14:27:01.905Z"
+    },
+    {
+      "id": 294,
+      "key": "quest.quest_5.title",
+      "locale": "pt-BR",
+      "text": "Prova Épica: Despertar Reborn",
+      "updatedAt": "2026-11-07T14:27:02.063Z"
+    },
+    {
+      "id": 295,
+      "key": "quest.quest_5.description",
+      "locale": "pt-BR",
+      "text": "Supere 5 batalhas decisivas para despertar sua linhagem espiritual e alcançar a Reencarnação.",
+      "updatedAt": "2026-11-07T14:27:02.067Z"
+    },
+    {
+      "id": 296,
+      "key": "quest.quest_5.dialogue_offer",
+      "locale": "pt-BR",
+      "text": "Apenas guerreiros de nível 3 ou superior podem tentar o Ritual Épico de Reencarnação. Vença 5 batalhas para provar seu espírito!",
+      "updatedAt": "2026-11-07T14:27:02.070Z"
+    },
+    {
+      "id": 297,
+      "key": "quest.quest_5.dialogue_active",
+      "locale": "pt-BR",
+      "text": "O caminho Épico exige perseverança. Vença 5 combates e retorne!",
+      "updatedAt": "2026-11-07T14:27:02.074Z"
+    },
+    {
+      "id": 298,
+      "key": "quest.quest_5.dialogue_complete",
+      "locale": "pt-BR",
+      "text": "Que poder extraordinário! Sua alma ascendeu ao estado Reencarnado (Reborn)!",
+      "updatedAt": "2026-11-07T14:27:02.077Z"
     }
   ],
   "biomes": [
@@ -16232,7 +16442,7 @@
       "overlapOpacity": 0.45,
       "isActive": true,
       "createdAt": "2026-11-06T05:45:53.618Z",
-      "updatedAt": "2026-11-07T09:25:44.034Z"
+      "updatedAt": "2026-11-07T14:24:04.365Z"
     }
   ],
   "mapPortals": [
@@ -16658,6 +16868,46 @@
           "type": "QUEST"
         }
       ]
+    },
+    {
+      "id": 28,
+      "code": "npc_28",
+      "mcreworkNpcKey": "npc_000079",
+      "nameI18nKey": "npc.npc_28.name",
+      "isDecorationOnly": false,
+      "triggersJson": []
+    },
+    {
+      "id": 29,
+      "code": "npc_29",
+      "mcreworkNpcKey": "npc_000069",
+      "nameI18nKey": "npc.npc_29.name",
+      "isDecorationOnly": false,
+      "triggersJson": []
+    },
+    {
+      "id": 30,
+      "code": "npc_30",
+      "mcreworkNpcKey": "npc_000070",
+      "nameI18nKey": "npc.npc_30.name",
+      "isDecorationOnly": false,
+      "triggersJson": []
+    },
+    {
+      "id": 31,
+      "code": "npc_31",
+      "mcreworkNpcKey": "npc_000029",
+      "nameI18nKey": "npc.npc_31.name",
+      "isDecorationOnly": false,
+      "triggersJson": []
+    },
+    {
+      "id": 32,
+      "code": "npc_32",
+      "mcreworkNpcKey": "npc_000016",
+      "nameI18nKey": "npc.npc_32.name",
+      "isDecorationOnly": false,
+      "triggersJson": []
     }
   ],
   "mapNpcs": [
@@ -16806,7 +17056,7 @@
       "direction": 0
     },
     {
-      "id": 58,
+      "id": 73,
       "mapId": 5,
       "npcTemplateId": 19,
       "posX": 2939,
@@ -16814,7 +17064,7 @@
       "direction": 0
     },
     {
-      "id": 59,
+      "id": 74,
       "mapId": 5,
       "npcTemplateId": 20,
       "posX": 1772,
@@ -16822,7 +17072,7 @@
       "direction": 0
     },
     {
-      "id": 60,
+      "id": 75,
       "mapId": 5,
       "npcTemplateId": 21,
       "posX": 1729,
@@ -16830,7 +17080,7 @@
       "direction": 0
     },
     {
-      "id": 61,
+      "id": 76,
       "mapId": 5,
       "npcTemplateId": 21,
       "posX": 1858,
@@ -16838,7 +17088,7 @@
       "direction": 0
     },
     {
-      "id": 62,
+      "id": 77,
       "mapId": 5,
       "npcTemplateId": 22,
       "posX": 3224,
@@ -16846,7 +17096,7 @@
       "direction": 0
     },
     {
-      "id": 63,
+      "id": 78,
       "mapId": 5,
       "npcTemplateId": 21,
       "posX": 3081,
@@ -16854,7 +17104,7 @@
       "direction": 0
     },
     {
-      "id": 64,
+      "id": 79,
       "mapId": 5,
       "npcTemplateId": 21,
       "posX": 3267,
@@ -16862,7 +17112,7 @@
       "direction": 0
     },
     {
-      "id": 65,
+      "id": 80,
       "mapId": 5,
       "npcTemplateId": 21,
       "posX": 2970,
@@ -16870,7 +17120,7 @@
       "direction": 0
     },
     {
-      "id": 66,
+      "id": 81,
       "mapId": 5,
       "npcTemplateId": 21,
       "posX": 3162,
@@ -16878,7 +17128,7 @@
       "direction": 0
     },
     {
-      "id": 67,
+      "id": 82,
       "mapId": 5,
       "npcTemplateId": 23,
       "posX": 3037,
@@ -16886,7 +17136,7 @@
       "direction": 0
     },
     {
-      "id": 68,
+      "id": 83,
       "mapId": 5,
       "npcTemplateId": 24,
       "posX": 2131,
@@ -16894,7 +17144,7 @@
       "direction": 0
     },
     {
-      "id": 69,
+      "id": 84,
       "mapId": 5,
       "npcTemplateId": 25,
       "posX": 887,
@@ -16902,7 +17152,7 @@
       "direction": 0
     },
     {
-      "id": 70,
+      "id": 85,
       "mapId": 5,
       "npcTemplateId": 26,
       "posX": 2309,
@@ -16910,7 +17160,7 @@
       "direction": 0
     },
     {
-      "id": 71,
+      "id": 86,
       "mapId": 5,
       "npcTemplateId": 9,
       "posX": 306,
@@ -16918,11 +17168,51 @@
       "direction": 0
     },
     {
-      "id": 72,
+      "id": 87,
       "mapId": 5,
       "npcTemplateId": 27,
       "posX": 3105,
       "posY": 2523,
+      "direction": 0
+    },
+    {
+      "id": 88,
+      "mapId": 5,
+      "npcTemplateId": 28,
+      "posX": 3526,
+      "posY": 1246,
+      "direction": 0
+    },
+    {
+      "id": 89,
+      "mapId": 5,
+      "npcTemplateId": 29,
+      "posX": 1393,
+      "posY": 689,
+      "direction": 0
+    },
+    {
+      "id": 90,
+      "mapId": 5,
+      "npcTemplateId": 30,
+      "posX": 711,
+      "posY": 784,
+      "direction": 0
+    },
+    {
+      "id": 91,
+      "mapId": 5,
+      "npcTemplateId": 31,
+      "posX": 2294,
+      "posY": 2075,
+      "direction": 0
+    },
+    {
+      "id": 92,
+      "mapId": 5,
+      "npcTemplateId": 32,
+      "posX": 1750,
+      "posY": 2319,
       "direction": 0
     }
   ],

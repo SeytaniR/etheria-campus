@@ -60,6 +60,9 @@ export interface FloatingCombatNumber {
 
 export interface TemporaryBattleState {
   battleId: string;
+  characterId?: number;
+  monsterTemplateId?: number;
+  victoryRecorded?: boolean;
   round: number;
   player: CombatUnit;
   monsters: CombatUnit[];
@@ -254,6 +257,9 @@ export class TemporaryCombatController {
     const battleId = randomUUID();
     const state: TemporaryBattleState = {
       battleId,
+      characterId: Number(characterId) || 1,
+      monsterTemplateId: Number(mobTemplate.id),
+      victoryRecorded: false,
       round: 1,
       player: playerUnit,
       monsters: monsterUnits,

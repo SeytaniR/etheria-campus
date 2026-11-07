@@ -59,9 +59,12 @@ class EtheriaPlayClient {
     this.gmNoClip = false;
     this.gmSpeedMultiplier = 1;
 
-    // Vincula módulos externos (Painel GM e Ficha Procedural)
+    // Vincula módulos externos (Painel GM, Ficha Procedural e Sistema de Quests)
     if (window.PlayGmController) {
       window.PlayGmController.attach(this);
+    }
+    if (window.PlayQuestsController) {
+      window.PlayQuestsController.attach(this);
     }
 
     this.lastFrameTime = performance.now();
@@ -370,6 +373,9 @@ class EtheriaPlayClient {
       if (typeof this.renderGmTeleportList === 'function') {
         this.renderGmTeleportList();
       }
+      if (typeof this.loadCharacterQuests === 'function') {
+        await this.loadCharacterQuests();
+      }
     } catch (err) {
       alert(`Erro ao carregar mapa #${mapId}: ${err.message}`);
     }
@@ -492,6 +498,17 @@ class EtheriaPlayClient {
       const sx = e.clientX - rect.left;
       const sy = e.clientY - rect.top;
       const worldPt = this.screenToWorld(sx, sy);
+
+      // Se o jogador tocar diretamente sobre um NPC e já estiver próximo, abre o modal de Quest/Diálogo
+      for (const npc of this.currentMap.npcs || []) {
+        const clickDist = Math.hypot(worldPt.x - npc.posX, worldPt.y - (npc.posY - 28));
+        const playerDist = Math.hypot(this.playerX - npc.posX, this.playerY - npc.posY);
+        if (clickDist <= 42 && playerDist <= 95 && typeof this.openNpcQuestModal === 'function') {
+          void this.openNpcQuestModal(npc);
+          return;
+        }
+      }
+
       this.moveTargetX = worldPt.x;
       this.moveTargetY = worldPt.y;
     });
@@ -657,17 +674,26 @@ class EtheriaPlayClient {
       }
     }
 
-    // 2. Verifica proximidade de NPCs Interativos
+    // 2. Verifica proximidade de NPCs Interativos e Indicadores de Quest
     for (const n of this.currentMap.npcs || []) {
       const dist = Math.hypot(this.playerX - n.posX, this.playerY - n.posY);
       if (dist <= 68) {
         prompt.style.display = 'flex';
-        const trig = Array.isArray(n.triggersJson) && n.triggersJson[0]?.type;
-        const trigLabel = n.isDecorationOnly ? 'Enfeite' : trig || 'Interagir';
+        const qInd = this.questState?.npcHeadIndicators?.[n.npcTemplateId];
+        let btnLabel = '💬 Conversar';
+        if (qInd?.state === 'TURN_IN_READY') {
+          btnLabel = '❓ Entregar Missão';
+        } else if (qInd?.state === 'AVAILABLE') {
+          btnLabel = '❗ Nova Missão';
+        } else if (qInd?.state === 'IN_PROGRESS') {
+          btnLabel = '❓ Missão em Andamento';
+        }
         textEl.textContent = `🧙 ${n.namePtBr}`;
-        btnEl.textContent = `💬 ${trigLabel}`;
+        btnEl.textContent = btnLabel;
         btnEl.onclick = () => {
-          alert(`🧙 ${n.namePtBr} (${n.code})\nFunção configurada: ${trigLabel}`);
+          if (typeof this.openNpcQuestModal === 'function') {
+            void this.openNpcQuestModal(n);
+          }
         };
         return;
       }
@@ -873,6 +899,11 @@ class EtheriaPlayClient {
         ctx.textAlign = 'center';
         // Altura do nome calibrada com a redução de 30% do sprite (offset -62)
         ctx.fillText(npc.namePtBr, npc.posX, npc.posY - 62);
+
+        // Desenha o indicador de Quest na cabeça do NPC (! Vermelho, ? Cinza ou ? Vermelho)
+        if (typeof this.drawNpcQuestHeadIcon === 'function') {
+          this.drawNpcQuestHeadIcon(ctx, npc, now);
+        }
       } else {
         const char = item.data;
         const sprite = this.getOrCreateSprite(

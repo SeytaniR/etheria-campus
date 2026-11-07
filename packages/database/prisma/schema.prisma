@@ -444,6 +444,7 @@ model PlayerCharacter {
   classTemplate       ClassTemplate    @relation(fields: [classTemplateId], references: [id])
   pets                CharacterPet[]
   formation           ArenaFormation?
+  questProgress       CharacterQuestProgress[]
 
   @@map("player_characters")
 }
@@ -475,4 +476,55 @@ model ArenaFormation {
   character   PlayerCharacter @relation(fields: [characterId], references: [id], onDelete: Cascade)
 
   @@map("arena_formations")
+}
+
+// ----------------------------------------------------------------------------
+// 8. SISTEMA VISUAL NO-CODE DE MISSÕES / QUESTS (MAIN, SIDE, EPIC, PROFICIENCY)
+// ----------------------------------------------------------------------------
+
+/// Templates de Quests (Principal Linear, Secundária, Épica e Proficiência).
+model QuestTemplate {
+  id                      Int                      @id @default(autoincrement())
+  code                    String                   @unique /// Ex: quest_1, quest_2...
+  titleI18nKey            String                   @map("title_i18n_key")
+  descriptionI18nKey      String?                  @map("description_i18n_key")
+  dialogueOfferI18nKey    String?                  @map("dialogue_offer_i18n_key")
+  dialogueActiveI18nKey   String?                  @map("dialogue_active_i18n_key")
+  dialogueCompleteI18nKey String?                  @map("dialogue_complete_i18n_key")
+
+  questCategory           String                   @default("MAIN") @map("quest_category") /// MAIN, SIDE, EPIC, PROFICIENCY
+  chapterOrder            Int                      @default(1) @map("chapter_order")
+  minLevel                Int                      @default(1) @map("min_level")
+  prerequisiteQuestId     Int?                     @map("prerequisite_quest_id")
+  repeatType              String                   @default("ONCE") @map("repeat_type") /// ONCE, REPEATABLE, DAILY
+
+  giverNpcId              Int?                     @map("giver_npc_id") /// ID do NpcTemplate que oferece a missão (! vermelho)
+  giverMapId              Int?                     @map("giver_map_id") /// null = qualquer mapa com este NPC; ou ID de mapa específico
+  turnInNpcId             Int?                     @map("turn_in_npc_id") /// ID do NpcTemplate que conclui a missão (? cinza / ? vermelho)
+  turnInMapId             Int?                     @map("turn_in_map_id") /// null = qualquer mapa com este NPC; ou ID de mapa específico
+
+  objectivesJson          Json                     @default("[]") @map("objectives_json") /// Blocos visuais de objetivos
+  rewardsJson             Json                     @default("{}") @map("rewards_json") /// Blocos visuais de recompensas
+  isActive                Boolean                  @default(true) @map("is_active")
+
+  progressList            CharacterQuestProgress[]
+
+  @@map("quest_templates")
+}
+
+/// Progresso de Quests por Personagem de Jogador.
+model CharacterQuestProgress {
+  id              Int             @id @default(autoincrement())
+  characterId     Int             @map("character_id")
+  questTemplateId Int             @map("quest_template_id")
+  status          String          @default("IN_PROGRESS") /// IN_PROGRESS, COMPLETED_PENDING_TURNIN, TURNED_IN
+  progressJson    Json            @default("[]") @map("progress_json") /// Contadores atuais de cada objetivo
+  completedCount  Int             @default(0) @map("completed_count")
+  updatedAt       DateTime        @updatedAt @map("updated_at")
+
+  character       PlayerCharacter @relation(fields: [characterId], references: [id], onDelete: Cascade)
+  questTemplate   QuestTemplate   @relation(fields: [questTemplateId], references: [id], onDelete: Cascade)
+
+  @@unique([characterId, questTemplateId])
+  @@map("character_quest_progress")
 }
