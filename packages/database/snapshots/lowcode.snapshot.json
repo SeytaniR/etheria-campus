@@ -1,6 +1,6 @@
 {
   "version": "0.2.0",
-  "exportedAt": "2026-11-07T05:30:51.028Z",
+  "exportedAt": "2026-11-07T07:33:56.268Z",
   "i18nTranslations": [
     {
       "id": 1,
@@ -1357,15 +1357,15 @@
       "id": 217,
       "key": "monster.monster_1.name",
       "locale": "pt-BR",
-      "text": "Sa Tặc da Areia",
-      "updatedAt": "2026-11-07T05:30:50.325Z"
+      "text": "Duende Ladrão",
+      "updatedAt": "2026-11-07T07:33:56.254Z"
     },
     {
       "id": 218,
       "key": "monster.monster_1.description",
       "locale": "pt-BR",
       "text": "Bandido nômade que ronda as dunas e desfiladeiros áridos atacando caravanas.",
-      "updatedAt": "2026-11-07T05:30:50.350Z"
+      "updatedAt": "2026-11-07T07:33:56.257Z"
     },
     {
       "id": 219,

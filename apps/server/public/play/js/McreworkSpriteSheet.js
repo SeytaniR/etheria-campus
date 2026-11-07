@@ -113,13 +113,24 @@ class McreworkSpriteSheet {
     ctx.restore();
   }
 
-  draw(ctx, worldX, worldY, action, direction, elapsedMs, meshOrAlpha = null, groundOffsetY = 0) {
+  draw(
+    ctx,
+    worldX,
+    worldY,
+    action,
+    direction,
+    elapsedMs,
+    meshOrAlpha = null,
+    groundOffsetY = 0,
+    customScale = 0.70,
+    clampLastFrame = false
+  ) {
     this.load();
 
     ctx.save();
 
-    // Escala calibrada: redução de 30% nos modelos para proporção anatômica ideal no cenário 2.5D
-    const scale = 0.70;
+    // Escala calibrada: padrão 0.70 no mundo aberto (-30% do bruto) ou customScale na Arena/Preview
+    const scale = Number(customScale) > 0 ? Number(customScale) : 0.70;
     const gOffY = Math.round((Number(groundOffsetY) || 0) * scale);
 
     // Sombra elíptica proporcional nos pés da entidade (sempre no nível do chão fixo)
@@ -134,7 +145,7 @@ class McreworkSpriteSheet {
       const dir = ((direction % 8) + 8) % 8;
 
       // No mcrework, a chave da animação é `${dir}-${action}`
-      // Ações: 0 = Parado (Stand), 1 = Caminhada (Walk), 2 = Corrida (Run), 3 = Golpe (Atk)...
+      // Ações: 0 = Parado (Stand), 1 = Caminhada (Walk), 2 = Postura (Combat), 3 = Golpe (Atk), 4 = Defesa, 5 = Dano (Hit), 6 = Morte, 7 = Skill/Magia
       const primaryKey = `${dir}-${action}`;
       let seq =
         anims[primaryKey] ||
@@ -150,7 +161,10 @@ class McreworkSpriteSheet {
 
       if (seq.length > 0) {
         // No mcrework oficial, cada frame tem 80ms (12.5 FPS) com repetições calibradas no atlas
-        const frameIdx = Math.floor((elapsedMs / 80) % seq.length);
+        const rawFrameIdx = Math.floor(Math.max(0, elapsedMs) / 80);
+        const frameIdx = clampLastFrame
+          ? Math.min(seq.length - 1, rawFrameIdx)
+          : rawFrameIdx % seq.length;
         const frameKey = seq[frameIdx];
         const fObj = frames[frameKey];
 

@@ -221,6 +221,11 @@ export class AdminMapsController {
       namePtBr: i18nMap.get(e.nameI18nKey) ?? e.code,
     }));
 
+    const monsterRarities = (await this.prisma.monsterRarity.findMany({ orderBy: { id: 'asc' } })).map((mr) => ({
+      ...mr,
+      namePtBr: i18nMap.get(mr.nameI18nKey) ?? mr.code,
+    }));
+
     const classTemplates = (
       await this.prisma.classTemplate.findMany({
         orderBy: { id: 'asc' },
@@ -293,6 +298,7 @@ export class AdminMapsController {
       mapTypes,
       races,
       elements,
+      monsterRarities,
       classTemplates,
       npcTemplates,
       maps,

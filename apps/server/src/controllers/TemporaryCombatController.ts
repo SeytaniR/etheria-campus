@@ -22,7 +22,13 @@ export interface CombatUnit {
   atk: number;
   def: number;
   speed: number;
+  spriteKey: string;
+  atlasJsonUrl: string;
+  atlasWebpUrl: string;
+  groundOffsetY: number;
   thumbUrl: string;
+  elementCode?: string;
+  raceCode?: string;
   isAlive: boolean;
 }
 
@@ -32,6 +38,7 @@ export interface FloatingCombatNumber {
   targetType: 'player' | 'monster';
   targetIndex?: number;
   type: 'DAMAGE' | 'HEAL' | 'CRIT' | 'MISS' | 'DEFEND';
+  animAction?: number;
   amount: number;
   isCrit?: boolean;
   hpRemaining: number;
@@ -127,7 +134,9 @@ export class TemporaryCombatController {
     // Carrega dados do personagem do jogador
     let charName = 'Heroi';
     let charLevel = 1;
-    let charThumb = `${this.mcreworkPagesBaseUrl}/assets/characters/char1_a/thumb.webp`;
+    let charSpriteKey = 'char1_a';
+    let charGroundOffsetY = 0;
+    let charElementCode = 'NEUTRAL';
     let charBaseStats = { VIT: 15, STR: 14, INT: 10, WIS: 10, AGI: 12, DEX: 12 };
 
     if (characterId) {
@@ -138,10 +147,12 @@ export class TemporaryCombatController {
       if (pc) {
         charName = pc.name;
         charLevel = pc.level || 1;
+        charElementCode = pc.elementCode || 'NEUTRAL';
         const ct = pc.classTemplate;
         if (ct) {
-          const charKey = pc.isReborn && ct.rebornMcreworkCharKey ? ct.rebornMcreworkCharKey : ct.mcreworkCharKey;
-          charThumb = `${this.mcreworkPagesBaseUrl}/assets/characters/${charKey}/thumb.webp`;
+          const isRebornActive = Boolean(pc.isReborn && ct.rebornMcreworkCharKey);
+          charSpriteKey = isRebornActive ? ct.rebornMcreworkCharKey! : ct.mcreworkCharKey;
+          charGroundOffsetY = isRebornActive ? (ct.rebornGroundOffsetY || 0) : (ct.groundOffsetY || 0);
           const b = (ct.baseAttributesJson as any) || {};
           charBaseStats = {
             VIT: b.VIT ?? 12,
@@ -154,6 +165,10 @@ export class TemporaryCombatController {
         }
       }
     }
+
+    const charThumb = `${this.mcreworkPagesBaseUrl}/assets/characters/${charSpriteKey}/thumb.webp`;
+    const charAtlasJson = `${this.mcreworkPagesBaseUrl}/assets/characters/${charSpriteKey}/atlas.json`;
+    const charAtlasWebp = `${this.mcreworkPagesBaseUrl}/assets/characters/${charSpriteKey}/atlas.webp`;
 
     // Calcula Atributos do Personagem
     const playerMaxHp = charBaseStats.VIT * 25 + charLevel * 20;
@@ -174,7 +189,13 @@ export class TemporaryCombatController {
       atk: playerAtk,
       def: playerDef,
       speed: playerSpeed,
+      spriteKey: charSpriteKey,
+      atlasJsonUrl: charAtlasJson,
+      atlasWebpUrl: charAtlasWebp,
+      groundOffsetY: charGroundOffsetY,
       thumbUrl: charThumb,
+      elementCode: charElementCode,
+      raceCode: 'HUMAN',
       isAlive: true,
     };
 
@@ -187,7 +208,10 @@ export class TemporaryCombatController {
     const mobAtk = Math.round((mobStats.STR * 2.6 + lvl * 3.2) * rarityMult);
     const mobDef = Math.round((mobStats.VIT * 1.4 + lvl * 2.0) * rarityMult);
     const mobSpeed = Math.round((mobStats.AGI * 1.8 + lvl) * rarityMult);
-    const mobThumb = `${this.mcreworkPagesBaseUrl}/assets/monsters/${mobTemplate.mcreworkMonsterKey}/thumb.webp`;
+    const mobKey = mobTemplate.mcreworkMonsterKey;
+    const mobThumb = `${this.mcreworkPagesBaseUrl}/assets/monsters/${mobKey}/thumb.webp`;
+    const mobAtlasJson = `${this.mcreworkPagesBaseUrl}/assets/monsters/${mobKey}/atlas.json`;
+    const mobAtlasWebp = `${this.mcreworkPagesBaseUrl}/assets/monsters/${mobKey}/atlas.webp`;
 
     const monsterUnits: CombatUnit[] = [];
     for (let i = 0; i < qty; i++) {
@@ -203,7 +227,13 @@ export class TemporaryCombatController {
         atk: mobAtk,
         def: mobDef,
         speed: mobSpeed,
+        spriteKey: mobKey,
+        atlasJsonUrl: mobAtlasJson,
+        atlasWebpUrl: mobAtlasWebp,
+        groundOffsetY: mobTemplate.groundOffsetY || 0,
         thumbUrl: mobThumb,
+        elementCode: mobTemplate.fixedElementCode || 'NEUTRAL',
+        raceCode: mobTemplate.raceCode || 'BEAST',
         isAlive: true,
       });
     }
@@ -282,6 +312,7 @@ export class TemporaryCombatController {
         targetType: 'monster',
         targetIndex: targetMob.index,
         type: isCrit ? 'CRIT' : 'DAMAGE',
+        animAction: 3,
         amount: dmg,
         isCrit,
         hpRemaining: targetMob.hp,
@@ -314,6 +345,7 @@ export class TemporaryCombatController {
         targetType: 'monster',
         targetIndex: targetMob.index,
         type: 'CRIT',
+        animAction: 7,
         amount: dmg,
         isCrit: true,
         hpRemaining: targetMob.hp,
@@ -338,6 +370,7 @@ export class TemporaryCombatController {
         actor: 'player',
         targetType: 'player',
         type: 'HEAL',
+        animAction: 4,
         amount: healAmount,
         hpRemaining: player.hp,
         message: `${player.name} assumiu Postura Defensiva (+50% Defesa, +${healAmount} HP, +${mpHeal} MP)!`,
@@ -379,6 +412,7 @@ export class TemporaryCombatController {
         actorIndex: mob.index,
         targetType: 'player',
         type: isCrit ? 'CRIT' : 'DAMAGE',
+        animAction: 3,
         amount: dmg,
         isCrit,
         hpRemaining: player.hp,

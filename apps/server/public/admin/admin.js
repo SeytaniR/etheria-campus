@@ -101,6 +101,7 @@ class EtheriaAdminStudio {
     this.mapTypes = data.mapTypes || [];
     this.races = data.races || [];
     this.elements = data.elements || [];
+    this.monsterRarities = data.monsterRarities || [];
     this.classTemplates = data.classTemplates || [];
     this.npcTemplates = data.npcTemplates || [];
     this.savedMaps = data.maps || [];

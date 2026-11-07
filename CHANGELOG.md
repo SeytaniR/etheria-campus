@@ -5,6 +5,23 @@ Qualquer IA trabalhando neste repositório **DEVE** incrementar a versão e regi
 
 ---
 
+## [v0.4.9] - 2026-11-07
+### Corrigido & Aprimorado
+* **Revisão Completa do Modal e Tabela de Monstros no `/admin` (`AdminMonstersTab.js`, `AdminMonstersController.ts`, `AdminMapsController.ts`):**
+  * **Causa Raiz Corrigida:** Removida a divisão em abas escondidas (`display: none`) dentro de `#monsterModal` (cuja barra de abas sofria colapso vertical `height: 0px` no Flexbox quando a galeria expandia), passando a exibir **TODOS os campos de edição diretamente visíveis na tela** em 5 blocos claros e roláveis:
+    1. `1️⃣ Identidade, Raça, Elemento & Classificação`: Nome em PT-BR, **Raça** (11 raças do banco + fallback), **Elemento Fixo** (5 elementos + fallback), **Raridade Padrão** (6 raridades vindas de `monsterRarities` no bootstrap), **Domável como Pet** (Sim/Não) e **Status** (Ativo/Inativo).
+    2. `2️⃣ Descrição / Lore em Português (PT-BR)`: Campo `<textarea>` sempre visível com exibição da chave i18n auto-gerada (`monster.monster_X.description`).
+    3. `3️⃣ Atributos Base no Nível 1`: `VIT`, `STR`, `INT`, `WIS`, `AGI` e `DEX` lado a lado.
+    4. `4️⃣ Biomas de Spawn Natural`: Checklist visível dos 40 biomas com busca rápida (`🔍 Filtrar bioma...`), contador de selecionados e botões `✅ Todos` / `⬜ Limpar`.
+    5. `5️⃣ Modelo 2.5D Animado, Calibração de Solo & Catálogo do mcrework`: Palco `<canvas>` 2.5D renderizando o modelo real com `McreworkSpriteSheet`, botões para testar animações ao vivo (`🧍 Idle`, `🏃 Andar`, `🗡️ Ataque`, `💥 Dano`, `💀 Morte`, `🔥 Skill`, `↻ Girar`), calibragem de altura dos pés no solo e galeria dos 532 modelos com filtro (`Todos`, `🐾 Pets`, `👾 Mobs`).
+* **Arena Temporária 2.5D em `<canvas>` com Animações Reais de Batalha (`TemporaryCombatArena.js`, `TemporaryCombatController.ts`, `McreworkSpriteSheet.js`):**
+  * Substituídos os cards HTML de imagens estáticas por um **Motor de Batalha 2.5D em `<canvas>` a 60 FPS** instanciando `McreworkSpriteSheet` tanto para o Herói quanto para os 1..5 Monstros.
+  * **Coreografia Completa de Turno com Animações do Atlas (`${dir}-${action}`):**
+    * Estado de espera em respiração (`action = 0`), avanço até o oponente (`action = 1`), **Ataque Físico (`action = 3`)**, **Postura de Defesa (`action = 4`)** com escudo energético, **Reação de Dano/Hit (`action = 5`)**, **Morte/Nocaute no chão (`action = 6` com `clampLastFrame = true`)** e **Conjuração de Habilidade Especial (`action = 7`)**.
+  * **Depth Sorting 2.5D & Seleção de Alvo Interativa:** Ordenação em Y por profundidade isométrica, plataformas táticas pulsantes sob os pés das unidades, seleção de alvo clicando/tocando diretamente no monstro no Canvas 2.5D (ou nas pílulas rápidas) e números flutuantes de dano/crítico/cura renderizados no Canvas.
+
+---
+
 ## [v0.4.8] - 2026-11-07
 ### Adicionado
 * **Tabela e Estúdio Completo de Monstros no `/admin` (`AdminMonstersTab.js` & `AdminMonstersController.ts`):**

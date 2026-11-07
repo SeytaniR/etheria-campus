@@ -22,6 +22,7 @@ export interface MonsterTemplateDto {
   fixedElementCode: string;
   defaultRarityId: number;
   isTamableAsPet: boolean;
+  isActive?: boolean;
   biomeIds?: number[];
   baseAttributesJson: {
     VIT: number;
@@ -77,6 +78,7 @@ export class AdminMonstersController {
         anchor: Array.isArray(m.anchor) ? m.anchor : [0.5, 0.95],
         thumbUrl: `${this.mcreworkPagesBaseUrl}/${m.thumb}`,
         atlasJsonUrl: `${this.mcreworkPagesBaseUrl}/${m.path}`,
+        atlasWebpUrl: `${this.mcreworkPagesBaseUrl}/assets/monsters/${m.id}/atlas.webp`,
       });
     }
 
@@ -120,6 +122,7 @@ export class AdminMonstersController {
       rarityNamePtBr: mt.defaultRarity ? (i18nMap.get(mt.defaultRarity.nameI18nKey) ?? mt.defaultRarity.code) : String(mt.defaultRarityId),
       thumbUrl: `${this.mcreworkPagesBaseUrl}/assets/monsters/${mt.mcreworkMonsterKey}/thumb.webp`,
       atlasJsonUrl: `${this.mcreworkPagesBaseUrl}/assets/monsters/${mt.mcreworkMonsterKey}/atlas.json`,
+      atlasWebpUrl: `${this.mcreworkPagesBaseUrl}/assets/monsters/${mt.mcreworkMonsterKey}/atlas.webp`,
       biomesList: (mt.biomes ?? []).map((b) => ({
         biomeId: b.biomeId,
         code: b.biome.code,
@@ -174,6 +177,7 @@ export class AdminMonstersController {
         fixedElementCode: dto.fixedElementCode || 'NEUTRAL',
         defaultRarityId: Number(dto.defaultRarityId) || 1,
         isTamableAsPet: dto.isTamableAsPet !== false,
+        isActive: dto.isActive !== false,
         baseAttributesJson: dto.baseAttributesJson ?? {
           VIT: 12,
           STR: 12,
@@ -239,6 +243,7 @@ export class AdminMonstersController {
         fixedElementCode: dto.fixedElementCode || existing.fixedElementCode,
         defaultRarityId: dto.defaultRarityId ? Number(dto.defaultRarityId) : existing.defaultRarityId,
         isTamableAsPet: dto.isTamableAsPet !== undefined ? !!dto.isTamableAsPet : existing.isTamableAsPet,
+        isActive: dto.isActive !== undefined ? !!dto.isActive : existing.isActive,
         baseAttributesJson: dto.baseAttributesJson ?? (existing.baseAttributesJson as any),
       },
     });
