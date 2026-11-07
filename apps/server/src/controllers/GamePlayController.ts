@@ -658,4 +658,47 @@ export class GamePlayController {
     const i18nMap = new Map<string, string>(translations.map((t) => [t.key, t.text]));
     return this.serializeCharacter(updated, i18nMap);
   }
+
+  /**
+   * Calibra e salva a distância dos pés ao chão (`ground_offset_y`) diretamente na classe do personagem.
+   * Se o personagem estiver no modo Reborn, salva em `reborn_ground_offset_y`.
+   */
+  public async updateClassGroundOffset(userAccountId: number, role: string, characterId: number, offset: number) {
+    const char = await this.prisma.playerCharacter.findUnique({
+      where: { id: characterId },
+      include: { classTemplate: true },
+    });
+
+    if (!char || !char.classTemplate) {
+      throw new Error('Personagem ou classe não encontrado.');
+    }
+
+    if (char.userAccountId !== userAccountId && !['ADMIN', 'GM'].includes(role)) {
+      throw new Error('Não autorizado a alterar este personagem.');
+    }
+
+    const clampedOffset = Math.max(-60, Math.min(60, Math.round(Number(offset) || 0)));
+    const isReborn = Boolean(char.isReborn);
+
+    if (isReborn) {
+      await this.prisma.classTemplate.update({
+        where: { id: char.classTemplateId },
+        data: { rebornGroundOffsetY: clampedOffset },
+      });
+    } else {
+      await this.prisma.classTemplate.update({
+        where: { id: char.classTemplateId },
+        data: { groundOffsetY: clampedOffset },
+      });
+    }
+
+    const updatedChar = await this.prisma.playerCharacter.findUnique({
+      where: { id: characterId },
+      include: { classTemplate: true },
+    });
+
+    const translations = await this.prisma.i18nTranslation.findMany({ where: { locale: 'pt-BR' } });
+    const i18nMap = new Map<string, string>(translations.map((t) => [t.key, t.text]));
+    return this.serializeCharacter(updatedChar, i18nMap);
+  }
 }

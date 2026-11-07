@@ -16,22 +16,27 @@ class AdminClassesTab {
       this.classModalActiveTab = tab;
       const isVisual = tab === 'visual';
       const isReborn = tab === 'reborn';
+      const isDesc = tab === 'desc';
       const isStats = tab === 'stats';
 
       const tabVisualEl = document.getElementById('classTabVisual');
       const tabRebornEl = document.getElementById('classTabReborn');
+      const tabDescEl = document.getElementById('classTabDesc');
       const tabStatsEl = document.getElementById('classTabStats');
 
       if (tabVisualEl) tabVisualEl.style.display = isVisual ? 'flex' : 'none';
       if (tabRebornEl) tabRebornEl.style.display = isReborn ? 'flex' : 'none';
+      if (tabDescEl) tabDescEl.style.display = isDesc ? 'flex' : 'none';
       if (tabStatsEl) tabStatsEl.style.display = isStats ? 'flex' : 'none';
 
       const btnVisual = document.getElementById('btnClassTabVisual');
       const btnReborn = document.getElementById('btnClassTabReborn');
+      const btnDesc = document.getElementById('btnClassTabDesc');
       const btnStats = document.getElementById('btnClassTabStats');
 
       if (btnVisual) btnVisual.className = isVisual ? 'btn-primary' : '';
       if (btnReborn) btnReborn.className = isReborn ? 'btn-primary' : '';
+      if (btnDesc) btnDesc.className = isDesc ? 'btn-primary' : '';
       if (btnStats) btnStats.className = isStats ? 'btn-primary' : '';
 
       this.updateGroundOffsetPreview();
@@ -66,6 +71,12 @@ class AdminClassesTab {
       this.updateGroundOffsetPreview();
     };
 
+    app.resetGroundOffset = function () {
+      const input = document.getElementById('classGroundOffsetYInput');
+      if (input) input.value = '0';
+      this.updateGroundOffsetPreview();
+    };
+
     app.adjustRebornGroundOffset = function (delta) {
       const input = document.getElementById('classRebornGroundOffsetYInput');
       if (!input) return;
@@ -75,19 +86,51 @@ class AdminClassesTab {
       this.updateGroundOffsetPreview();
     };
 
+    app.resetRebornGroundOffset = function () {
+      const input = document.getElementById('classRebornGroundOffsetYInput');
+      if (input) input.value = '0';
+      this.updateGroundOffsetPreview();
+    };
+
     app.updateGroundOffsetPreview = function () {
       const heroImg = document.getElementById('classHeroImg');
       const offsetInput = document.getElementById('classGroundOffsetYInput');
+      const statusBadge = document.getElementById('classGroundStatusBadge');
       if (heroImg && offsetInput) {
         const offsetY = Number(offsetInput.value) || 0;
         heroImg.style.transform = `translateY(${offsetY}px)`;
+        if (statusBadge) {
+          if (offsetY === 0) {
+            statusBadge.textContent = '🟢 Pés no solo (0px)';
+            statusBadge.style.color = '#86efac';
+          } else if (offsetY > 0) {
+            statusBadge.textContent = `🔵 Afundado +${offsetY}px no chão`;
+            statusBadge.style.color = '#38bdf8';
+          } else {
+            statusBadge.textContent = `🟡 Flutuando ${Math.abs(offsetY)}px acima do solo`;
+            statusBadge.style.color = '#fde047';
+          }
+        }
       }
 
       const rebornHeroImg = document.getElementById('classRebornHeroImg');
       const rebornOffsetInput = document.getElementById('classRebornGroundOffsetYInput');
+      const rebornStatusBadge = document.getElementById('classRebornGroundStatusBadge');
       if (rebornHeroImg && rebornOffsetInput) {
         const rOffsetY = Number(rebornOffsetInput.value) || 0;
         rebornHeroImg.style.transform = `translateY(${rOffsetY}px)`;
+        if (rebornStatusBadge) {
+          if (rOffsetY === 0) {
+            rebornStatusBadge.textContent = '🟢 Pés no solo (0px)';
+            rebornStatusBadge.style.color = '#86efac';
+          } else if (rOffsetY > 0) {
+            rebornStatusBadge.textContent = `🔵 Afundado +${rOffsetY}px no chão`;
+            rebornStatusBadge.style.color = '#38bdf8';
+          } else {
+            rebornStatusBadge.textContent = `✨ Flutuando ${Math.abs(rOffsetY)}px acima do solo`;
+            rebornStatusBadge.style.color = '#c084fc';
+          }
+        }
       }
     };
 

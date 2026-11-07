@@ -5,6 +5,31 @@ Qualquer IA trabalhando neste repositório **DEVE** incrementar a versão e regi
 
 ---
 
+## [v0.4.7] - 2026-11-07
+### Corrigido
+* **Reversão Estrita das Animações de Movimentação (`apps/server/public/play/js/McreworkSpriteSheet.js`):**
+  * Revertida a ordem das chaves de interpolação para a convenção validada pelo usuário: `${dir}-${action}` com fallbacks `${dir}-1`, `${dir}-0`, `0-${action}` e `0-0`.
+  * Restabelecida a animação de caminhada e repouso dos personagens com perfeita fluidez e sincronização.
+* **Previews de Modelos Descomprimidos no Celular (`apps/server/public/admin/index.html`):**
+  * Resolvido o problema dos previews que ficavam espremidos/deprimidos verticalmente na tela do celular.
+  * Otimizado o grid mobile com `@media (max-width: 600px)` definindo 2 colunas amplas (`repeat(2, 1fr)`) e imagens de 115px com altura visual adequada.
+  * O modal de Personagens / Classes foi reestruturado em 4 abas limpas e com scroll nativo suave (`overflow-y: auto; -webkit-overflow-scrolling: touch;`), garantindo área útil generosa para navegar pelos 46 modelos tanto no modo Padrão quanto no modo Reborn.
+
+### Adicionado
+* **Palcos 2.5D de Calibração de Chão "Na Prática Durante as Edições" (`/admin`):**
+  * Integrado palco de calibração 2.5D no preview do personagem com solo isométrico de grama, baseline dourada (0px) e a sombra elíptica real nos pés (`44x13px rgba(0,0,0,0.55)`).
+  * Steppers rápidos `[-5] [-1] [0px] [+1] [+5] ↩0` com translação em tempo real do modelo em relação ao chão e badge dinâmico de status (*"🟢 Pés no solo (0px)"*, *"🔵 Afundado +Xpx no chão"*, *"🟡 Flutuando Xpx acima do solo"*).
+  * Suporte independente para o visual Padrão e o visual Reencarnado (Reborn).
+* **Calibração de Chão In-Game via Painel GM com Persistência Imediata (`/play`):**
+  * Adicionado painel de ajuste fino in-game diretamente no `gmDrawer`, permitindo que o GM ou desenvolvedor ajuste a altura dos pés pisando no chão do mapa real com os botões `[-5] [-1] [0] [+1] [+5]`.
+  * Criado o endpoint autoritário `POST /api/play/characters/:id/ground-offset` (`GamePlayController.ts`) e botão `💾 Salvar Altura na Classe`, persistindo o offset diretamente no PostgreSQL no banco de dados.
+
+### Refatorado
+* **Cumprimento Estrito da Regra #7 (Limite de 1.000 Linhas de Código):**
+  * Todos os arquivos do projeto auditados e confirmados abaixo de 1.000 linhas (`index.html` com 967 linhas, `AdminClassesTab.js` com 515 linhas, `GamePlayController.ts` com 704 linhas).
+
+---
+
 ## [v0.4.6] - 2026-11-06
 ### Corrigido
 * **Correção da Ordem das Animações 8-Direções (`apps/server/public/play/js/McreworkSpriteSheet.js`):**

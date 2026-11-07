@@ -529,6 +529,18 @@ export class EtheriaServerApp {
           return;
         }
 
+        const groundOffsetMatch = pathname.match(/^\/api\/play\/characters\/(\d+)\/ground-offset$/);
+        if (groundOffsetMatch && method === 'POST') {
+          const charId = Number(groundOffsetMatch[1]);
+          const body = await this.readJsonBody<{ offset?: number }>(req);
+          this.sendJson(
+            res,
+            200,
+            await this.playController.updateClassGroundOffset(userAccountId, session.role, charId, Number(body.offset) || 0)
+          );
+          return;
+        }
+
         this.sendJson(res, 404, { error: 'Rota da API Play não encontrada.' });
         return;
       }

@@ -133,15 +133,14 @@ class McreworkSpriteSheet {
       const frames = this.atlasData.frames || {};
       const dir = ((direction % 8) + 8) % 8;
 
-      // No mcrework, a chave da animação é `${action}-${dir}`
+      // No mcrework, a chave da animação é `${dir}-${action}`
       // Ações: 0 = Parado (Stand), 1 = Caminhada (Walk), 2 = Corrida (Run), 3 = Golpe (Atk)...
-      // Direções: 0 = Sul (Frente), 1 = Sudeste, 2 = Leste, 3 = Nordeste, 4 = Norte (Costas), 5 = Noroeste, 6 = Oeste, 7 = Sudoeste
-      const primaryKey = `${action}-${dir}`;
+      const primaryKey = `${dir}-${action}`;
       let seq =
         anims[primaryKey] ||
-        (action !== 0 ? anims[`1-${dir}`] : null) ||
-        anims[`0-${dir}`] ||
-        anims[`${action}-0`] ||
+        (action !== 0 ? anims[`${dir}-1`] : null) ||
+        anims[`${dir}-0`] ||
+        anims[`0-${action}`] ||
         anims['0-0'] ||
         Object.values(anims)[0];
 

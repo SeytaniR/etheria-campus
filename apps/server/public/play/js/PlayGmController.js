@@ -29,7 +29,48 @@ class PlayGmController {
 
     client.toggleGmDrawer = function () {
       const drawer = document.getElementById('gmDrawer');
-      if (drawer) drawer.classList.toggle('open');
+      if (drawer) {
+        drawer.classList.toggle('open');
+        if (typeof this.updateGmGroundDisplay === 'function') {
+          this.updateGmGroundDisplay();
+        }
+      }
+    };
+
+    client.updateGmGroundDisplay = function () {
+      const disp = document.getElementById('gmGroundOffsetDisplay');
+      if (disp && this.activeChar) {
+        const off = this.activeChar.groundOffsetY || 0;
+        disp.textContent = `${off > 0 ? '+' : ''}${off} px`;
+      }
+    };
+
+    client.adjustGmGroundOffset = function (delta) {
+      if (!this.activeChar) return;
+      if (delta === 0) {
+        this.activeChar.groundOffsetY = 0;
+      } else {
+        const cur = Number(this.activeChar.groundOffsetY) || 0;
+        this.activeChar.groundOffsetY = Math.max(-60, Math.min(60, cur + delta));
+      }
+      this.updateGmGroundDisplay();
+    };
+
+    client.saveGmGroundOffset = async function () {
+      if (!this.activeChar) return;
+      try {
+        const offset = Number(this.activeChar.groundOffsetY) || 0;
+        const updated = await this.api(`/api/play/characters/${this.activeChar.id}/ground-offset`, {
+          method: 'POST',
+          body: JSON.stringify({ offset }),
+        });
+        this.activeChar = updated;
+        this.updateGmGroundDisplay();
+        const mode = updated.isReborn ? '✨ Reborn' : 'Padrão';
+        alert(`✅ Altura do chão (${offset}px) salva com sucesso no banco para o visual ${mode} da classe ${updated.classNamePtBr}!`);
+      } catch (err) {
+        alert(`Erro ao salvar altura dos pés: ${err.message}`);
+      }
     };
 
     client.renderGmTeleportList = function () {
@@ -167,6 +208,7 @@ class PlayGmController {
           this.activeChar.thumbUrl
         ).load();
         this.updateHudInfo();
+        this.updateGmGroundDisplay();
         const status = updated.isReborn ? '✨ Reencarnado (Reborn)' : '👤 Normal / Padrão';
         alert(`Visual alternado para: ${status}\nOffset do Chão ativo: ${updated.groundOffsetY}px`);
       } catch (err) {

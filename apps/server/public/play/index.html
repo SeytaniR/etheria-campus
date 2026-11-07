@@ -514,6 +514,26 @@
         </button>
       </div>
 
+      <!-- Calibração Fina em Tempo Real no Chão do Mapa -->
+      <div style="display:flex; flex-direction:column; gap:6px; border-top:1px solid var(--border); padding-top:8px;">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <label style="font-size:0.75rem; color:#fde047; font-weight:700;">
+            📏 Altura dos Pés no Chão:
+          </label>
+          <span id="gmGroundOffsetDisplay" style="font-family:monospace; font-weight:700; color:var(--accent); font-size:0.78rem;">0 px</span>
+        </div>
+        <div style="display:grid; grid-template-columns:repeat(5, 1fr); gap:4px;">
+          <button onclick="PlayApp.adjustGmGroundOffset(-5)">-5</button>
+          <button onclick="PlayApp.adjustGmGroundOffset(-1)">-1</button>
+          <button onclick="PlayApp.adjustGmGroundOffset(0)" title="Zerar Offset">0</button>
+          <button onclick="PlayApp.adjustGmGroundOffset(1)">+1</button>
+          <button onclick="PlayApp.adjustGmGroundOffset(5)">+5</button>
+        </div>
+        <button class="btn-success" onclick="PlayApp.saveGmGroundOffset()" style="padding:6px; font-weight:700; font-size:0.76rem;">
+          💾 Salvar Altura na Classe
+        </button>
+      </div>
+
       <div style="display:flex; flex-direction:column; gap:6px; border-top:1px solid var(--border); padding-top:8px;">
         <label style="font-size:0.75rem; color:var(--text-muted); font-weight:700;">
           ⚡ Velocidade de Movimento GM:
