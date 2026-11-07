@@ -23,6 +23,118 @@ class AdminClassesTab {
 
     AdminClassesTab.injectModalDom();
 
+    app.setClassSimLevel = function (lvl) {
+      const input = document.getElementById('classSimLevelInput');
+      if (input) {
+        input.value = String(lvl);
+        this.updateClassCombatStatsPreview();
+      }
+    };
+
+    /**
+     * Calcula e renderiza os Atributos de Combate Derivados em Tempo Real
+     * na aba 📊 Atributos & Combate do modal de Personagens.
+     */
+    app.updateClassCombatStatsPreview = function () {
+      const container = document.getElementById('classCombatStatsPreviewContainer');
+      if (!container) return;
+
+      const baseVIT = Number(document.getElementById('classBaseVIT')?.value) || 0;
+      const baseSTR = Number(document.getElementById('classBaseSTR')?.value) || 0;
+      const baseINT = Number(document.getElementById('classBaseINT')?.value) || 0;
+      const baseWIS = Number(document.getElementById('classBaseWIS')?.value) || 0;
+      const baseAGI = Number(document.getElementById('classBaseAGI')?.value) || 0;
+      const baseDEX = Number(document.getElementById('classBaseDEX')?.value) || 0;
+
+      const growVIT = Number(document.getElementById('classGrowVIT')?.value) || 0;
+      const growSTR = Number(document.getElementById('classGrowSTR')?.value) || 0;
+      const growINT = Number(document.getElementById('classGrowINT')?.value) || 0;
+      const growWIS = Number(document.getElementById('classGrowWIS')?.value) || 0;
+      const growAGI = Number(document.getElementById('classGrowAGI')?.value) || 0;
+      const growDEX = Number(document.getElementById('classGrowDEX')?.value) || 0;
+
+      const simLevel = Math.max(1, Number(document.getElementById('classSimLevelInput')?.value) || 1);
+      const levelMult = simLevel - 1;
+
+      const effAttrs = {
+        VIT: baseVIT + levelMult * growVIT,
+        STR: baseSTR + levelMult * growSTR,
+        INT: baseINT + levelMult * growINT,
+        WIS: baseWIS + levelMult * growWIS,
+        AGI: baseAGI + levelMult * growAGI,
+        DEX: baseDEX + levelMult * growDEX,
+      };
+
+      const totalBaseLv1 = baseVIT + baseSTR + baseINT + baseWIS + baseAGI + baseDEX;
+      const totalEff = effAttrs.VIT + effAttrs.STR + effAttrs.INT + effAttrs.WIS + effAttrs.AGI + effAttrs.DEX;
+      const pointsBadge = document.getElementById('classTotalBasePointsBadge');
+      if (pointsBadge) {
+        pointsBadge.innerHTML = `Nv.1: <strong>${totalBaseLv1} pts</strong> ${simLevel > 1 ? `➔ Nv.${simLevel}: <strong>${totalEff} pts</strong>` : ''}`;
+      }
+
+      const combatMap = typeof this.calculateCombatAttributes === 'function'
+        ? this.calculateCombatAttributes(effAttrs)
+        : {};
+
+      const families = [
+        { id: 'vitais', title: '💚 Recursos Vitais & Suporte', borderColor: '#22c55e', bgColor: 'rgba(34,197,94,0.06)', stats: ['MAX_HP', 'MAX_MP', 'HEAL_POWER', 'MP_REGEN'] },
+        { id: 'combate', title: '🗡️ Poder Físico & Mágico', borderColor: '#ef4444', bgColor: 'rgba(239,68,68,0.06)', stats: ['PHYS_ATK', 'MAG_ATK', 'PHYS_DEF', 'MAG_DEF', 'PHYS_PEN', 'MAG_PEN'] },
+        { id: 'iniciativa', title: '⚡ Iniciativa & Crítico', borderColor: '#f59e0b', bgColor: 'rgba(245,158,11,0.06)', stats: ['SPEED', 'CRIT_RATE', 'CRIT_DMG'] },
+        { id: 'acerto_desvio', title: '🎯 Acerto & Desvio Convencional', borderColor: '#38bdf8', bgColor: 'rgba(56,189,248,0.06)', stats: ['PHYS_ACCURACY', 'PHYS_EVASION', 'MAG_ACCURACY', 'MAG_EVASION'] },
+        { id: 'controle', title: '💫 Família de Controle (Hard CC)', subtitle: 'Paralisia, Sono, Confusão, Silêncio, Congelamento', borderColor: '#c084fc', bgColor: 'rgba(192,132,252,0.08)', stats: ['CONTROL_HIT', 'CONTROL_RESIST'] },
+        { id: 'anomalias', title: '🧪 Família de Anomalias & DoT', subtitle: 'Veneno, Queimadura, Sangramento, Cegueira', borderColor: '#f43f5e', bgColor: 'rgba(244,63,94,0.08)', stats: ['ANOMALY_HIT', 'ANOMALY_RESIST'] },
+      ];
+
+      container.innerHTML = families
+        .map((fam) => {
+          const statsCards = fam.stats
+            .map((code) => {
+              const item = combatMap[code];
+              if (!item) return '';
+
+              const isPct = Boolean(item.isPercentage);
+              const valFormatted = isPct
+                ? `${(item.value * 100).toFixed(1)}%`
+                : `${Math.round(item.value * 10) / 10}`;
+
+              const baseFormatted = isPct
+                ? `${(item.baseDefault * 100).toFixed(1)}%`
+                : `${item.baseDefault}`;
+
+              const bonusFormatted = isPct
+                ? `+${(item.bonusFromAttrs * 100).toFixed(2)}%`
+                : `+${Math.round(item.bonusFromAttrs * 10) / 10}`;
+
+              return `
+              <div style="background:rgba(15,23,42,0.9); border:1px solid var(--border); border-radius:6px; padding:6px 8px; display:flex; flex-direction:column; justify-content:space-between; gap:2px;">
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                  <span style="font-size:0.73rem; color:#f1f5f9; font-weight:600;">${item.namePtBr}</span>
+                  <code style="font-size:0.65rem; color:var(--text-muted);">${item.code}</code>
+                </div>
+                <div style="display:flex; align-items:baseline; justify-content:space-between; margin-top:2px;">
+                  <span style="font-size:0.95rem; font-weight:800; color:#fde047;">${valFormatted}</span>
+                  <span style="font-size:0.67rem; color:var(--text-muted);" title="Base padrão + bônus derivado dos atributos base">
+                    Base: ${baseFormatted} <span style="color:#86efac; font-weight:700;">(${bonusFormatted})</span>
+                  </span>
+                </div>
+              </div>`;
+            })
+            .join('');
+
+          return `
+          <div style="background:${fam.bgColor}; border:1px solid ${fam.borderColor}; border-radius:8px; padding:8px 10px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+              <span style="font-size:0.78rem; font-weight:700; color:#f8fafc;">${fam.title}</span>
+              ${fam.subtitle ? `<span style="font-size:0.68rem; color:var(--text-muted);">${fam.subtitle}</span>` : ''}
+            </div>
+            <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:6px;">
+              ${statsCards}
+            </div>
+          </div>`;
+        })
+        .join('');
+    };
+
     app.ensureClassPreviewMapLoaded = function () {
       const map1 = (this.mapsList || []).find((m) => Number(m.id) === 1) || (this.mapsList || [])[0];
       if (map1) {
@@ -256,6 +368,9 @@ class AdminClassesTab {
       if (btnSkills) btnSkills.className = isSkills ? 'btn-primary' : '';
 
       this.updateGroundOffsetPreview();
+      if (isStats && typeof this.updateClassCombatStatsPreview === 'function') {
+        this.updateClassCombatStatsPreview();
+      }
     };
 
     app.setClassGenderFilter = function (filter) {
@@ -586,6 +701,10 @@ class AdminClassesTab {
         document.getElementById('classGrowDEX').value = '2';
       }
 
+      if (typeof this.updateClassCombatStatsPreview === 'function') {
+        this.updateClassCombatStatsPreview();
+      }
+
       if ((!this.skillTemplates || this.skillTemplates.length === 0) && typeof this.loadSkillsAndBuffsData === 'function') {
         await this.loadSkillsAndBuffsData();
       }
@@ -744,6 +863,28 @@ class AdminClassesTab {
           const g = ct.growthPerLevelJson || {};
           const baseStr = `VIT:${b.VIT ?? 10} | STR:${b.STR ?? 10} | INT:${b.INT ?? 10} | WIS:${b.WIS ?? 10} | AGI:${b.AGI ?? 10} | DEX:${b.DEX ?? 10}`;
           const growStr = `+${g.VIT ?? 2} / +${g.STR ?? 2} / +${g.INT ?? 2} / +${g.WIS ?? 2} / +${g.AGI ?? 2} / +${g.DEX ?? 2}`;
+
+          const combatMap = typeof this.calculateCombatAttributes === 'function' ? this.calculateCombatAttributes(b) : null;
+          const combatSummaryHtml = combatMap && combatMap.MAX_HP
+            ? `<div style="display:flex; flex-wrap:wrap; gap:4px; margin-top:4px;">
+                <span style="font-size:0.67rem; color:#86efac; background:rgba(34,197,94,0.12); border:1px solid #22c55e; border-radius:4px; padding:1px 5px;" title="HP / MP Máximo Nv.1">
+                  ❤️ ${Math.round(combatMap.MAX_HP.value)} | 💧 ${Math.round(combatMap.MAX_MP.value)}
+                </span>
+                <span style="font-size:0.67rem; color:#fca5a5; background:rgba(239,68,68,0.12); border:1px solid #ef4444; border-radius:4px; padding:1px 5px;" title="Ataque Físico / Mágico Nv.1">
+                  ⚔️ ${Math.round(combatMap.PHYS_ATK.value)} / 🔮 ${Math.round(combatMap.MAG_ATK.value)}
+                </span>
+                <span style="font-size:0.67rem; color:#7dd3fc; background:rgba(56,189,248,0.12); border:1px solid #38bdf8; border-radius:4px; padding:1px 5px;" title="Precisão Física / Mágica Nv.1">
+                  🎯 ${(Number(combatMap.PHYS_ACCURACY?.value || 1) * 100).toFixed(1)}% / ${(Number(combatMap.MAG_ACCURACY?.value || 1) * 100).toFixed(1)}%
+                </span>
+                <span style="font-size:0.67rem; color:#d8b4fe; background:rgba(192,132,252,0.12); border:1px solid #c084fc; border-radius:4px; padding:1px 5px;" title="Hard CC (Acerto / Resistência) Nv.1">
+                  💫 CC: +${(Number(combatMap.CONTROL_HIT?.value || 0) * 100).toFixed(1)}% / +${(Number(combatMap.CONTROL_RESIST?.value || 0) * 100).toFixed(1)}%
+                </span>
+                <span style="font-size:0.67rem; color:#fda4af; background:rgba(244,63,94,0.12); border:1px solid #f43f5e; border-radius:4px; padding:1px 5px;" title="Anomalias & DoT (Acerto / Resistência) Nv.1">
+                  🧪 DoT: +${(Number(combatMap.ANOMALY_HIT?.value || 0) * 100).toFixed(1)}% / +${(Number(combatMap.ANOMALY_RESIST?.value || 0) * 100).toFixed(1)}%
+                </span>
+               </div>`
+            : '';
+
           const gOffYStr = ct.groundOffsetY ? ` [↧ ${ct.groundOffsetY > 0 ? '+' : ''}${ct.groundOffsetY}px]` : '';
           const sOffStr =
             ct.shadowOffsetX || ct.shadowOffsetY
@@ -789,7 +930,10 @@ class AdminClassesTab {
             ${classSkillsBadges ? `<div style="display:flex; flex-wrap:wrap; gap:4px; margin-top:4px;">${classSkillsBadges}</div>` : ''}
           </td>
           <td><span style="padding:2px 8px; border-radius:99px; background:rgba(56,189,248,0.14); color:var(--accent); font-size:0.75rem;">${ct.raceNamePtBr || ct.raceCode}</span></td>
-          <td><span style="font-family:monospace; font-size:0.76rem;">${baseStr}</span></td>
+          <td>
+            <span style="font-family:monospace; font-size:0.76rem;">${baseStr}</span>
+            ${combatSummaryHtml}
+          </td>
           <td><span style="font-family:monospace; font-size:0.75rem; color:#86efac;">${growStr}</span></td>
           <td><strong>${ct.characterCount ?? 0}</strong> char(s)</td>
           <td>
@@ -815,237 +959,9 @@ class AdminClassesTab {
   }
 
   static injectModalDom() {
-    if (document.getElementById('classModal')) return;
-
-    const modalDiv = document.createElement('div');
-    modalDiv.id = 'classModal';
-    modalDiv.className = 'modal-backdrop';
-    modalDiv.style.display = 'none';
-    modalDiv.innerHTML = `
-    <div class="modal-box" style="max-width:860px; max-height:94dvh; display:flex; flex-direction:column; overflow-y:auto; -webkit-overflow-scrolling:touch; gap:8px;">
-      <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border); padding-bottom:6px;">
-        <h3 id="classModalTitle" style="font-size:0.95rem;">🦸 Cadastrar / Editar Personagem</h3>
-        <button class="btn-danger" onclick="AdminApp.closeModal('classModal')">✕ Fechar</button>
-      </div>
-      <input type="hidden" id="classEditIdInput" value="" />
-      <input type="hidden" id="classCodeInput" value="" />
-      <input type="hidden" id="classAssetKeyInput" value="" />
-      <input type="hidden" id="classRebornAssetKeyInput" value="" />
-
-      <div style="display:grid; grid-template-columns:1fr 1fr; gap:6px;">
-        <input type="text" id="classNameInput" placeholder="Nome da Classe / Personagem" style="padding:6px 8px; font-size:0.84rem;" />
-        <select id="classRaceSelect" style="padding:6px 8px; font-size:0.84rem;"></select>
-      </div>
-
-      <!-- 5 ABAS DO MODAL (Incluindo ⚡ Habilidades) -->
-      <div style="display:flex; gap:4px; overflow-x:auto;">
-        <button id="btnClassTabVisual" class="btn-primary" onclick="AdminApp.switchClassModalTab('visual')" style="flex:1; padding:6px 4px; font-size:0.75rem; white-space:nowrap;">
-          🎨 Padrão (<span id="classCountBadge">46</span>)
-        </button>
-        <button id="btnClassTabReborn" onclick="AdminApp.switchClassModalTab('reborn')" style="flex:1; padding:6px 4px; font-size:0.75rem; white-space:nowrap;">
-          ✨ Reborn
-        </button>
-        <button id="btnClassTabDesc" onclick="AdminApp.switchClassModalTab('desc')" style="flex:1; padding:6px 4px; font-size:0.75rem; white-space:nowrap;">
-          📜 Lore / i18n
-        </button>
-        <button id="btnClassTabStats" onclick="AdminApp.switchClassModalTab('stats')" style="flex:1; padding:6px 4px; font-size:0.75rem; white-space:nowrap;">
-          📊 Atributos
-        </button>
-        <button id="btnClassTabSkills" onclick="AdminApp.switchClassModalTab('skills')" style="flex:1; padding:6px 4px; font-size:0.75rem; white-space:nowrap;">
-          ⚡ Habilidades
-        </button>
-      </div>
-
-      <!-- ABA 1: VISUAL PADRÃO COM PALCO DO MAPA #1 REAL E CALIBRAÇÃO DE SOMBRA -->
-      <div id="classTabVisual" style="display:flex; flex-direction:column; gap:8px;">
-        <div id="classHeroCard" style="display:flex; flex-wrap:wrap; align-items:stretch; gap:10px; background:rgba(15,23,42,0.85); border:1.5px solid var(--accent); border-radius:10px; padding:8px 10px;">
-          <div style="display:flex; flex-direction:column; gap:4px; align-items:center;">
-            <canvas id="classMap1PreviewCanvas" width="320" height="170" style="width:320px; height:170px; max-width:100%; border-radius:8px; border:1px solid #38bdf8; cursor:grab; background:#020617;"></canvas>
-            <div style="display:flex; gap:4px; flex-wrap:wrap; justify-content:center;">
-              <button type="button" id="btnClassAct0" class="btn-primary" onclick="AdminApp.setClassPreviewAction(0)" style="padding:2px 7px; font-size:0.7rem;">🧍 Parado</button>
-              <button type="button" id="btnClassAct1" onclick="AdminApp.setClassPreviewAction(1)" style="padding:2px 7px; font-size:0.7rem;">🏃 Andar</button>
-              <button type="button" id="btnClassAct3" onclick="AdminApp.setClassPreviewAction(3)" style="padding:2px 7px; font-size:0.7rem;">🗡️ Golpe</button>
-              <button type="button" onclick="AdminApp.rotateClassPreviewDir()" style="padding:2px 7px; font-size:0.7rem;">🔄 Girar</button>
-              <button type="button" onclick="AdminApp.resetClassPreviewPan()" title="Centralizar no Spawn do Mapa #1" style="padding:2px 6px; font-size:0.7rem;">🎯 Spawn</button>
-            </div>
-          </div>
-
-          <div style="flex:1; min-width:230px; display:flex; flex-direction:column; justify-content:space-between; gap:5px;">
-            <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
-              <strong id="classHeroLabel" style="font-size:0.88rem; color:#fde047;">Selecione um Modelo</strong>
-              <span id="classHeroBadge" style="font-size:0.7rem; padding:1px 6px; border-radius:99px; background:rgba(56,189,248,0.2); color:var(--accent); font-weight:700;"></span>
-            </div>
-
-            <!-- Calibragem de Distância do Modelo em relação ao Chão -->
-            <div style="background:rgba(2,6,23,0.65); border:1px solid var(--border); border-radius:6px; padding:5px 7px;">
-              <span style="font-size:0.7rem; color:#fde047; font-weight:700; display:block; margin-bottom:3px;">📏 Posição do Modelo ao Chão (Ground Offset Y):</span>
-              <div style="display:flex; align-items:center; gap:3px; flex-wrap:wrap;">
-                <button type="button" onclick="AdminApp.adjustGroundOffset(-5)" style="padding:2px 6px; font-size:0.72rem;">⬆ -5</button>
-                <button type="button" onclick="AdminApp.adjustGroundOffset(-1)" style="padding:2px 6px; font-size:0.72rem;">⬆ -1</button>
-                <input type="number" id="classGroundOffsetYInput" value="0" min="-80" max="80" oninput="AdminApp.updateGroundOffsetPreview()" style="width:52px; text-align:center; padding:2px; font-size:0.78rem;" />
-                <button type="button" onclick="AdminApp.adjustGroundOffset(1)" style="padding:2px 6px; font-size:0.72rem;">+1 ⬇</button>
-                <button type="button" onclick="AdminApp.adjustGroundOffset(5)" style="padding:2px 6px; font-size:0.72rem;">+5 ⬇</button>
-                <button type="button" onclick="AdminApp.resetGroundOffset()" title="Zerar" style="padding:2px 5px; font-size:0.7rem;">↩0</button>
-              </div>
-            </div>
-
-            <!-- Calibragem de Posição da Sombra (X e Y) -->
-            <div style="background:rgba(2,6,23,0.65); border:1px solid var(--border); border-radius:6px; padding:5px 7px; display:flex; flex-direction:column; gap:4px;">
-              <div style="display:flex; justify-content:space-between; align-items:center;">
-                <span style="font-size:0.7rem; color:#38bdf8; font-weight:700;">🌑 Alinhamento da Sombra (X / Y):</span>
-                <button type="button" onclick="AdminApp.resetShadowOffset()" style="padding:1px 6px; font-size:0.66rem;">↩ Zerar Sombra</button>
-              </div>
-              <div style="display:flex; align-items:center; gap:3px; flex-wrap:wrap;">
-                <span style="font-size:0.68rem; color:var(--text-muted); width:40px;">Eixo X:</span>
-                <button type="button" onclick="AdminApp.adjustShadowOffset('X', -5)" style="padding:2px 5px; font-size:0.7rem;">⬅-5</button>
-                <button type="button" onclick="AdminApp.adjustShadowOffset('X', -1)" style="padding:2px 5px; font-size:0.7rem;">⬅-1</button>
-                <input type="number" id="classShadowOffsetXInput" value="0" min="-80" max="80" oninput="AdminApp.updateGroundOffsetPreview()" style="width:46px; text-align:center; padding:2px; font-size:0.75rem;" />
-                <button type="button" onclick="AdminApp.adjustShadowOffset('X', 1)" style="padding:2px 5px; font-size:0.7rem;">+1➡</button>
-                <button type="button" onclick="AdminApp.adjustShadowOffset('X', 5)" style="padding:2px 5px; font-size:0.7rem;">+5➡</button>
-              </div>
-              <div style="display:flex; align-items:center; gap:3px; flex-wrap:wrap;">
-                <span style="font-size:0.68rem; color:var(--text-muted); width:40px;">Eixo Y:</span>
-                <button type="button" onclick="AdminApp.adjustShadowOffset('Y', -5)" style="padding:2px 5px; font-size:0.7rem;">⬆-5</button>
-                <button type="button" onclick="AdminApp.adjustShadowOffset('Y', -1)" style="padding:2px 5px; font-size:0.7rem;">⬆-1</button>
-                <input type="number" id="classShadowOffsetYInput" value="0" min="-80" max="80" oninput="AdminApp.updateGroundOffsetPreview()" style="width:46px; text-align:center; padding:2px; font-size:0.75rem;" />
-                <button type="button" onclick="AdminApp.adjustShadowOffset('Y', 1)" style="padding:2px 5px; font-size:0.7rem;">+1⬇</button>
-                <button type="button" onclick="AdminApp.adjustShadowOffset('Y', 5)" style="padding:2px 5px; font-size:0.7rem;">+5⬇</button>
-              </div>
-            </div>
-
-            <span id="classGroundStatusBadge" style="font-size:0.7rem; color:#86efac; font-weight:600;">🟢 Pés no solo (0px)</span>
-          </div>
-        </div>
-
-        <div style="display:flex; gap:6px; flex-wrap:wrap; align-items:center;">
-          <input type="text" id="classSearchInput" placeholder="🔍 Buscar modelo padrão..." oninput="AdminApp.filterClassGallery()" style="flex:1; min-width:140px; padding:6px 8px; font-size:0.8rem;" />
-          <div style="display:flex; gap:3px;">
-            <button id="btnClassFilterAll" class="active-tool" onclick="AdminApp.setClassGenderFilter('ALL')" style="padding:4px 6px; font-size:0.74rem;">Todos (46)</button>
-            <button id="btnClassFilterMale" onclick="AdminApp.setClassGenderFilter('MALE')" style="padding:4px 6px; font-size:0.74rem;">👨 Masc</button>
-            <button id="btnClassFilterFemale" onclick="AdminApp.setClassGenderFilter('FEMALE')" style="padding:4px 6px; font-size:0.74rem;">👩 Fem</button>
-          </div>
-        </div>
-        <div id="mcreworkCharsGrid" class="gallery-grid" style="max-height:42vh; min-height:200px;"></div>
-      </div>
-
-      <!-- ABA 2: VISUAL REENCARNADO COM PALCO DO MAPA #1 REAL E CALIBRAÇÃO DE SOMBRA -->
-      <div id="classTabReborn" style="display:none; flex-direction:column; gap:8px;">
-        <div style="display:flex; flex-wrap:wrap; align-items:stretch; gap:10px; background:rgba(15,23,42,0.85); border:1.5px solid #c084fc; border-radius:10px; padding:8px 10px;">
-          <div style="display:flex; flex-direction:column; gap:4px; align-items:center;">
-            <canvas id="classRebornMap1PreviewCanvas" width="320" height="170" style="width:320px; height:170px; max-width:100%; border-radius:8px; border:1px solid #c084fc; cursor:grab; background:#020617;"></canvas>
-            <div style="display:flex; gap:4px; flex-wrap:wrap; justify-content:center;">
-              <button type="button" onclick="AdminApp.setClassPreviewAction(0)" style="padding:2px 7px; font-size:0.7rem;">🧍 Parado</button>
-              <button type="button" onclick="AdminApp.setClassPreviewAction(1)" style="padding:2px 7px; font-size:0.7rem;">🏃 Andar</button>
-              <button type="button" onclick="AdminApp.setClassPreviewAction(3)" style="padding:2px 7px; font-size:0.7rem;">🗡️ Golpe</button>
-              <button type="button" onclick="AdminApp.rotateClassPreviewDir()" style="padding:2px 7px; font-size:0.7rem;">🔄 Girar</button>
-              <button type="button" onclick="AdminApp.resetClassPreviewPan()" style="padding:2px 6px; font-size:0.7rem;">🎯 Spawn</button>
-            </div>
-          </div>
-
-          <div style="flex:1; min-width:230px; display:flex; flex-direction:column; justify-content:space-between; gap:5px;">
-            <div style="display:flex; align-items:center; justify-content:space-between; gap:4px;">
-              <strong id="classRebornHeroLabel" style="font-size:0.86rem; color:#e9d5ff;">Sem Visual Reborn</strong>
-              <button type="button" class="btn-danger" onclick="AdminApp.clearRebornVisual()" style="padding:2px 6px; font-size:0.7rem;">✕ Limpar</button>
-            </div>
-            <div id="classRebornHeroBadge" style="font-size:0.68rem; color:var(--text-muted);">Toque em um modelo abaixo para vincular</div>
-
-            <!-- Calibragem de Distância Reborn ao Chão -->
-            <div style="background:rgba(2,6,23,0.65); border:1px solid var(--border); border-radius:6px; padding:5px 7px;">
-              <span style="font-size:0.7rem; color:#e9d5ff; font-weight:700; display:block; margin-bottom:3px;">📏 Posição Reborn ao Chão (Offset Y):</span>
-              <div style="display:flex; align-items:center; gap:3px; flex-wrap:wrap;">
-                <button type="button" onclick="AdminApp.adjustRebornGroundOffset(-5)" style="padding:2px 6px; font-size:0.72rem;">⬆ -5</button>
-                <button type="button" onclick="AdminApp.adjustRebornGroundOffset(-1)" style="padding:2px 6px; font-size:0.72rem;">⬆ -1</button>
-                <input type="number" id="classRebornGroundOffsetYInput" value="0" min="-80" max="80" oninput="AdminApp.updateGroundOffsetPreview()" style="width:52px; text-align:center; padding:2px; font-size:0.78rem;" />
-                <button type="button" onclick="AdminApp.adjustRebornGroundOffset(1)" style="padding:2px 6px; font-size:0.72rem;">+1 ⬇</button>
-                <button type="button" onclick="AdminApp.adjustRebornGroundOffset(5)" style="padding:2px 6px; font-size:0.72rem;">+5 ⬇</button>
-                <button type="button" onclick="AdminApp.resetRebornGroundOffset()" title="Zerar" style="padding:2px 5px; font-size:0.7rem;">↩0</button>
-              </div>
-            </div>
-
-            <!-- Calibragem de Sombra Reborn (X e Y) -->
-            <div style="background:rgba(2,6,23,0.65); border:1px solid var(--border); border-radius:6px; padding:5px 7px; display:flex; flex-direction:column; gap:4px;">
-              <div style="display:flex; justify-content:space-between; align-items:center;">
-                <span style="font-size:0.7rem; color:#c084fc; font-weight:700;">🌑 Sombra Reborn (X / Y):</span>
-                <button type="button" onclick="AdminApp.resetRebornShadowOffset()" style="padding:1px 6px; font-size:0.66rem;">↩ Zerar Sombra</button>
-              </div>
-              <div style="display:flex; align-items:center; gap:3px; flex-wrap:wrap;">
-                <span style="font-size:0.68rem; color:var(--text-muted); width:40px;">Eixo X:</span>
-                <button type="button" onclick="AdminApp.adjustRebornShadowOffset('X', -5)" style="padding:2px 5px; font-size:0.7rem;">⬅-5</button>
-                <button type="button" onclick="AdminApp.adjustRebornShadowOffset('X', -1)" style="padding:2px 5px; font-size:0.7rem;">⬅-1</button>
-                <input type="number" id="classRebornShadowOffsetXInput" value="0" min="-80" max="80" oninput="AdminApp.updateGroundOffsetPreview()" style="width:46px; text-align:center; padding:2px; font-size:0.75rem;" />
-                <button type="button" onclick="AdminApp.adjustRebornShadowOffset('X', 1)" style="padding:2px 5px; font-size:0.7rem;">+1➡</button>
-                <button type="button" onclick="AdminApp.adjustRebornShadowOffset('X', 5)" style="padding:2px 5px; font-size:0.7rem;">+5➡</button>
-              </div>
-              <div style="display:flex; align-items:center; gap:3px; flex-wrap:wrap;">
-                <span style="font-size:0.68rem; color:var(--text-muted); width:40px;">Eixo Y:</span>
-                <button type="button" onclick="AdminApp.adjustRebornShadowOffset('Y', -5)" style="padding:2px 5px; font-size:0.7rem;">⬆-5</button>
-                <button type="button" onclick="AdminApp.adjustRebornShadowOffset('Y', -1)" style="padding:2px 5px; font-size:0.7rem;">⬆-1</button>
-                <input type="number" id="classRebornShadowOffsetYInput" value="0" min="-80" max="80" oninput="AdminApp.updateGroundOffsetPreview()" style="width:46px; text-align:center; padding:2px; font-size:0.75rem;" />
-                <button type="button" onclick="AdminApp.adjustRebornShadowOffset('Y', 1)" style="padding:2px 5px; font-size:0.7rem;">+1⬇</button>
-                <button type="button" onclick="AdminApp.adjustRebornShadowOffset('Y', 5)" style="padding:2px 5px; font-size:0.7rem;">+5⬇</button>
-              </div>
-            </div>
-
-            <span id="classRebornGroundStatusBadge" style="font-size:0.7rem; color:#c084fc; font-weight:600;">🟢 Pés no solo (0px)</span>
-          </div>
-        </div>
-        <div style="display:flex; gap:6px; flex-wrap:wrap; align-items:center;">
-          <input type="text" id="classRebornSearchInput" placeholder="🔍 Buscar modelo para reencarnação..." oninput="AdminApp.filterClassRebornGallery()" style="flex:1; min-width:180px; padding:6px 10px; font-size:0.82rem;" />
-        </div>
-        <div id="mcreworkCharsRebornGrid" class="gallery-grid" style="max-height:42vh; min-height:200px;"></div>
-      </div>
-
-      <!-- ABA 3: DESCRIÇÃO & LORE -->
-      <div id="classTabDesc" style="display:none; flex-direction:column; gap:8px;">
-        <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.76rem;">
-          <label style="color:var(--text-muted); font-weight:600;">📜 Descrição do Personagem (PT-BR):</label>
-          <span id="classDescI18nDisplay" style="color:var(--accent); font-family:monospace; font-size:0.72rem;">class.class_X.description</span>
-        </div>
-        <textarea id="classDescriptionInput" rows="5" placeholder="Digite uma descrição ou história sobre a classe/personagem..." style="width:100%; padding:8px; font-size:0.84rem; resize:vertical;"></textarea>
-      </div>
-
-      <!-- ABA 4: CONFIGURAÇÃO DE ATRIBUTOS -->
-      <div id="classTabStats" style="display:none; flex-direction:column; gap:10px; padding:4px;">
-        <div class="field">
-          <label>Atributos Base Iniciais Nv.1 (VIT / STR / INT / WIS / AGI / DEX)</label>
-          <div style="display:grid; grid-template-columns:repeat(6, 1fr); gap:6px;">
-            <div><label style="font-size:0.7rem; color:var(--text-muted);">VIT</label><input type="number" id="classBaseVIT" value="12" min="1" /></div>
-            <div><label style="font-size:0.7rem; color:var(--text-muted);">STR</label><input type="number" id="classBaseSTR" value="12" min="1" /></div>
-            <div><label style="font-size:0.7rem; color:var(--text-muted);">INT</label><input type="number" id="classBaseINT" value="10" min="1" /></div>
-            <div><label style="font-size:0.7rem; color:var(--text-muted);">WIS</label><input type="number" id="classBaseWIS" value="10" min="1" /></div>
-            <div><label style="font-size:0.7rem; color:var(--text-muted);">AGI</label><input type="number" id="classBaseAGI" value="10" min="1" /></div>
-            <div><label style="font-size:0.7rem; color:var(--text-muted);">DEX</label><input type="number" id="classBaseDEX" value="10" min="1" /></div>
-          </div>
-        </div>
-        <div class="field">
-          <label>Crescimento Automático Concedido a Cada Nível Ganho</label>
-          <div style="display:grid; grid-template-columns:repeat(6, 1fr); gap:6px;">
-            <div><label style="font-size:0.7rem; color:#86efac;">+VIT/Nv</label><input type="number" id="classGrowVIT" value="2" min="0" /></div>
-            <div><label style="font-size:0.7rem; color:#86efac;">+STR/Nv</label><input type="number" id="classGrowSTR" value="2" min="0" /></div>
-            <div><label style="font-size:0.7rem; color:#86efac;">+INT/Nv</label><input type="number" id="classGrowINT" value="2" min="0" /></div>
-            <div><label style="font-size:0.7rem; color:#86efac;">+WIS/Nv</label><input type="number" id="classGrowWIS" value="2" min="0" /></div>
-            <div><label style="font-size:0.7rem; color:#86efac;">+AGI/Nv</label><input type="number" id="classGrowAGI" value="2" min="0" /></div>
-            <div><label style="font-size:0.7rem; color:#86efac;">+DEX/Nv</label><input type="number" id="classGrowDEX" value="2" min="0" /></div>
-          </div>
-        </div>
-      </div>
-
-      <!-- ABA 5: HABILIDADES DESTE PERSONAGEM (VÍNCULO DA TABELA DE HABILIDADES) -->
-      <div id="classTabSkills" style="display:none; flex-direction:column; gap:10px; padding:4px;">
-        <div style="font-size:0.78rem; color:#fde047; font-weight:700;">
-          ⚡ Selecione quais Habilidades da Tabela de Habilidades este Personagem possui:
-        </div>
-        <div id="classSkillsChecklist" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(210px, 1fr)); gap:6px; max-height:280px; overflow-y:auto; padding:8px; background:#020617; border:1px solid var(--border); border-radius:8px;"></div>
-      </div>
-
-      <div style="border-top:1px solid var(--border); padding-top:8px;">
-        <button class="btn-success" style="width:100%; padding:11px; font-weight:700;" onclick="AdminApp.saveClassTemplate()">
-          💾 Salvar Personagem / Classe na Tabela
-        </button>
-      </div>
-    </div>`;
-
-    document.body.appendChild(modalDiv);
+    if (window.AdminClassModalTemplate && typeof window.AdminClassModalTemplate.injectModalDom === 'function') {
+      window.AdminClassModalTemplate.injectModalDom();
+    }
   }
 }
 

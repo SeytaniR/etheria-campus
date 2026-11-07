@@ -69,6 +69,7 @@ class EtheriaAdminStudio {
     if (window.AdminAuth) window.AdminAuth.attach(this);
     if (window.AdminUsersTab) window.AdminUsersTab.attach(this);
     if (window.AdminNpcsTab) window.AdminNpcsTab.attach(this);
+    if (window.AdminAttributesTab) window.AdminAttributesTab.attach(this);
     if (window.AdminClassesTab) window.AdminClassesTab.attach(this);
     if (window.AdminMonstersTab) window.AdminMonstersTab.attach(this);
     if (window.AdminSkillsAndBuffsTab) window.AdminSkillsAndBuffsTab.attach(this);
@@ -110,6 +111,7 @@ class EtheriaAdminStudio {
 
     this.renderSelectOptions();
     this.renderSavedMapsList();
+    if (typeof this.loadAttributesData === 'function') await this.loadAttributesData();
     if (typeof this.renderNpcsCrudTable === 'function') this.renderNpcsCrudTable();
     if (typeof this.renderClassesCrudTable === 'function') this.renderClassesCrudTable();
     if (typeof this.loadSkillsAndBuffsData === 'function') await this.loadSkillsAndBuffsData();

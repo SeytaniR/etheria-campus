@@ -222,16 +222,16 @@ export function buildRaceMatchups(): Array<{ attackerRaceCode: string; defenderR
  * Os 6 Atributos Base.
  */
 export const INITIAL_BASE_ATTRIBUTES = [
-  { code: 'VIT', namePtBr: 'Vitalidade', descriptionPtBr: 'Aumenta o HP Máximo, a Defesa Física e a Resistência a efeitos contínuos.' },
-  { code: 'STR', namePtBr: 'Força', descriptionPtBr: 'Aumenta o Ataque Físico, a Penetração Física e o Dano Crítico.' },
-  { code: 'INT', namePtBr: 'Inteligência', descriptionPtBr: 'Aumenta o Ataque Mágico, o MP Máximo e a Penetração Mágica.' },
-  { code: 'WIS', namePtBr: 'Sabedoria', descriptionPtBr: 'Aumenta o Poder de Cura/Escudo, a Defesa Mágica e a Regeneração de MP.' },
-  { code: 'AGI', namePtBr: 'Agilidade', descriptionPtBr: 'Aumenta a Velocidade de Iniciativa no Turno, a Esquiva e o Ataque Físico Leve.' },
-  { code: 'DEX', namePtBr: 'Destreza', descriptionPtBr: 'Aumenta a Chance Crítica, a Precisão e a Chance de Aplicar Debuffs.' },
+  { code: 'VIT', namePtBr: 'Vitalidade', descriptionPtBr: 'Aumenta o HP Máximo, a Defesa Física, a Resistência a Controle e a Resistência a Anomalias/DoT.' },
+  { code: 'STR', namePtBr: 'Força', descriptionPtBr: 'Aumenta o Ataque Físico, a Penetração Física, o Dano Crítico e a Potência de Anomalias Físicas.' },
+  { code: 'INT', namePtBr: 'Inteligência', descriptionPtBr: 'Aumenta o Ataque Mágico, o MP Máximo, a Penetração Mágica e o Acerto de Controle/Anomalias Mágicas.' },
+  { code: 'WIS', namePtBr: 'Sabedoria', descriptionPtBr: 'Aumenta o Poder de Cura/Escudo, a Defesa Mágica, a Regeneração de MP, o Desvio Mágico e a Resistência a Controle.' },
+  { code: 'AGI', namePtBr: 'Agilidade', descriptionPtBr: 'Aumenta a Velocidade de Iniciativa no Turno, a Esquiva Física, o Desvio Mágico e o Ataque Físico Leve.' },
+  { code: 'DEX', namePtBr: 'Destreza', descriptionPtBr: 'Aumenta a Chance Crítica, a Precisão Física/Mágica, o Acerto de Controle e o Acerto de Anomalias.' },
 ];
 
 /**
- * Os 16 Atributos Derivados de Combate.
+ * Os 21 Atributos Derivados de Combate (incluindo Famílias de Acerto/Desvio, Controle e Anomalias).
  */
 export const INITIAL_COMBAT_ATTRIBUTES = [
   { code: 'MAX_HP', namePtBr: 'HP Máximo', baseDefault: 120, isPercentage: false },
@@ -245,41 +245,60 @@ export const INITIAL_COMBAT_ATTRIBUTES = [
   { code: 'HEAL_POWER', namePtBr: 'Poder de Cura e Escudo', baseDefault: 10, isPercentage: false },
   { code: 'MP_REGEN', namePtBr: 'Regeneração de MP', baseDefault: 5, isPercentage: false },
   { code: 'SPEED', namePtBr: 'Velocidade de Iniciativa', baseDefault: 100, isPercentage: false },
-  { code: 'EVASION', namePtBr: 'Taxa de Esquiva', baseDefault: 0.02, isPercentage: true },
-  { code: 'ACCURACY', namePtBr: 'Taxa de Precisão', baseDefault: 1.0, isPercentage: true },
+  { code: 'PHYS_ACCURACY', namePtBr: 'Precisão Física', baseDefault: 1.0, isPercentage: true },
+  { code: 'PHYS_EVASION', namePtBr: 'Esquiva Física', baseDefault: 0.02, isPercentage: true },
+  { code: 'MAG_ACCURACY', namePtBr: 'Precisão Mágica', baseDefault: 1.0, isPercentage: true },
+  { code: 'MAG_EVASION', namePtBr: 'Desvio Mágico', baseDefault: 0.02, isPercentage: true },
   { code: 'CRIT_RATE', namePtBr: 'Chance Crítica', baseDefault: 0.05, isPercentage: true },
   { code: 'CRIT_DMG', namePtBr: 'Multiplicador de Dano Crítico', baseDefault: 1.5, isPercentage: true },
-  { code: 'STATUS_HIT_RATE', namePtBr: 'Taxa de Aplicação de Efeitos', baseDefault: 0.0, isPercentage: true },
-  { code: 'DOT_RESIST', namePtBr: 'Resistência a Dano Contínuo', baseDefault: 0.0, isPercentage: true },
+  { code: 'CONTROL_HIT', namePtBr: 'Acerto de Controle (Hard CC)', baseDefault: 0.0, isPercentage: true },
+  { code: 'CONTROL_RESIST', namePtBr: 'Resistência a Controle', baseDefault: 0.0, isPercentage: true },
+  { code: 'ANOMALY_HIT', namePtBr: 'Acerto de Anomalias & DoT', baseDefault: 0.0, isPercentage: true },
+  { code: 'ANOMALY_RESIST', namePtBr: 'Resistência a Anomalias & DoT', baseDefault: 0.0, isPercentage: true },
 ];
 
 /**
- * Matriz inicial de conversão (1 ponto de Atributo Base -> X pontos em Atributo de Combate).
+ * Matriz inicial de conversão procedural (1 ponto de Atributo Base -> X pontos em Atributo de Combate).
  */
 export const INITIAL_ATTRIBUTE_CONVERSIONS = [
+  // VIT -> Vida, Defesa e Resistências
   { baseAttributeCode: 'VIT', combatAttributeCode: 'MAX_HP', ratioPerPoint: 20.0 },
   { baseAttributeCode: 'VIT', combatAttributeCode: 'PHYS_DEF', ratioPerPoint: 1.5 },
-  { baseAttributeCode: 'VIT', combatAttributeCode: 'DOT_RESIST', ratioPerPoint: 0.002 },
+  { baseAttributeCode: 'VIT', combatAttributeCode: 'CONTROL_RESIST', ratioPerPoint: 0.0015 },
+  { baseAttributeCode: 'VIT', combatAttributeCode: 'ANOMALY_RESIST', ratioPerPoint: 0.0025 },
 
+  // STR -> Ataque Físico, Penetração, Dano Crítico e Anomalias Físicas (Sangramento/Ferimento)
   { baseAttributeCode: 'STR', combatAttributeCode: 'PHYS_ATK', ratioPerPoint: 2.5 },
   { baseAttributeCode: 'STR', combatAttributeCode: 'PHYS_PEN', ratioPerPoint: 0.8 },
   { baseAttributeCode: 'STR', combatAttributeCode: 'CRIT_DMG', ratioPerPoint: 0.003 },
+  { baseAttributeCode: 'STR', combatAttributeCode: 'ANOMALY_HIT', ratioPerPoint: 0.0015 },
 
+  // INT -> Ataque Mágico, MP, Penetração e Acerto de Controle/Anomalias
   { baseAttributeCode: 'INT', combatAttributeCode: 'MAG_ATK', ratioPerPoint: 2.5 },
   { baseAttributeCode: 'INT', combatAttributeCode: 'MAX_MP', ratioPerPoint: 12.0 },
   { baseAttributeCode: 'INT', combatAttributeCode: 'MAG_PEN', ratioPerPoint: 0.8 },
+  { baseAttributeCode: 'INT', combatAttributeCode: 'CONTROL_HIT', ratioPerPoint: 0.0015 },
+  { baseAttributeCode: 'INT', combatAttributeCode: 'ANOMALY_HIT', ratioPerPoint: 0.0015 },
 
+  // WIS -> Cura/Escudo, Defesa Mágica, Regen MP, Desvio Mágico e Resistência a Controle
   { baseAttributeCode: 'WIS', combatAttributeCode: 'HEAL_POWER', ratioPerPoint: 2.2 },
   { baseAttributeCode: 'WIS', combatAttributeCode: 'MAG_DEF', ratioPerPoint: 1.8 },
   { baseAttributeCode: 'WIS', combatAttributeCode: 'MP_REGEN', ratioPerPoint: 0.6 },
+  { baseAttributeCode: 'WIS', combatAttributeCode: 'MAG_EVASION', ratioPerPoint: 0.0015 },
+  { baseAttributeCode: 'WIS', combatAttributeCode: 'CONTROL_RESIST', ratioPerPoint: 0.002 },
 
+  // AGI -> Iniciativa, Esquiva Física, Desvio Mágico e Ataque Físico Leve
   { baseAttributeCode: 'AGI', combatAttributeCode: 'SPEED', ratioPerPoint: 1.5 },
-  { baseAttributeCode: 'AGI', combatAttributeCode: 'EVASION', ratioPerPoint: 0.0015 },
-  { baseAttributeCode: 'AGI', combatAttributeCode: 'PHYS_ATK', ratioPerPoint: 0.8 },
+  { baseAttributeCode: 'AGI', combatAttributeCode: 'PHYS_EVASION', ratioPerPoint: 0.002 },
+  { baseAttributeCode: 'AGI', combatAttributeCode: 'MAG_EVASION', ratioPerPoint: 0.001 },
+  { baseAttributeCode: 'AGI', combatAttributeCode: 'PHYS_ATK', ratioPerPoint: 0.5 },
 
+  // DEX -> Crítico, Precisão Física/Mágica e Acerto de Controle/Anomalias
   { baseAttributeCode: 'DEX', combatAttributeCode: 'CRIT_RATE', ratioPerPoint: 0.002 },
-  { baseAttributeCode: 'DEX', combatAttributeCode: 'ACCURACY', ratioPerPoint: 0.002 },
-  { baseAttributeCode: 'DEX', combatAttributeCode: 'STATUS_HIT_RATE', ratioPerPoint: 0.0025 },
+  { baseAttributeCode: 'DEX', combatAttributeCode: 'PHYS_ACCURACY', ratioPerPoint: 0.002 },
+  { baseAttributeCode: 'DEX', combatAttributeCode: 'MAG_ACCURACY', ratioPerPoint: 0.002 },
+  { baseAttributeCode: 'DEX', combatAttributeCode: 'CONTROL_HIT', ratioPerPoint: 0.002 },
+  { baseAttributeCode: 'DEX', combatAttributeCode: 'ANOMALY_HIT', ratioPerPoint: 0.002 },
 ];
 
 /**

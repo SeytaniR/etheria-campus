@@ -179,6 +179,24 @@ export async function runDatabaseSeed(): Promise<void> {
     });
   }
 
+  // Remove conversões antigas que não existem mais
+  const validPairs = new Set(INITIAL_ATTRIBUTE_CONVERSIONS.map((c) => `${c.baseAttributeCode}_${c.combatAttributeCode}`));
+  const existingConvs = await prisma.attributeConversion.findMany();
+  for (const ec of existingConvs) {
+    if (!validPairs.has(`${ec.baseAttributeCode}_${ec.combatAttributeCode}`)) {
+      await prisma.attributeConversion.delete({ where: { id: ec.id } });
+    }
+  }
+
+  // Remove atributos de combate antigos não mais utilizados
+  const validCombatCodes = new Set(INITIAL_COMBAT_ATTRIBUTES.map((ca) => ca.code));
+  const existingCombatAttrs = await prisma.combatAttribute.findMany();
+  for (const eca of existingCombatAttrs) {
+    if (!validCombatCodes.has(eca.code)) {
+      await prisma.combatAttribute.delete({ where: { code: eca.code } });
+    }
+  }
+
   for (const conv of INITIAL_ATTRIBUTE_CONVERSIONS) {
     await prisma.attributeConversion.upsert({
       where: {

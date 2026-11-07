@@ -1,874 +1,874 @@
 {
   "version": "0.2.0",
-  "exportedAt": "2026-11-07T17:04:56.578Z",
+  "exportedAt": "2026-11-07T17:42:11.169Z",
   "i18nTranslations": [
     {
       "id": 1,
       "key": "biome.verdant_plains.name",
       "locale": "pt-BR",
       "text": "Planície Verdejante",
-      "updatedAt": "2026-11-05T11:29:12.443Z"
+      "updatedAt": "2026-11-07T17:42:08.594Z"
     },
     {
       "id": 2,
       "key": "biome.verdant_plains.desc",
       "locale": "pt-BR",
       "text": "Campos abertos de grama baixa, vento leve e clima ameno.",
-      "updatedAt": "2026-11-05T11:29:12.516Z"
+      "updatedAt": "2026-11-07T17:42:08.605Z"
     },
     {
       "id": 3,
       "key": "biome.temperate_woods.name",
       "locale": "pt-BR",
       "text": "Bosque Temperado",
-      "updatedAt": "2026-11-05T11:29:12.533Z"
+      "updatedAt": "2026-11-07T17:42:08.616Z"
     },
     {
       "id": 4,
       "key": "biome.temperate_woods.desc",
       "locale": "pt-BR",
       "text": "Árvores espaçadas com luz solar filtrada, trilhas claras e fauna silvestre.",
-      "updatedAt": "2026-11-05T11:29:12.536Z"
+      "updatedAt": "2026-11-07T17:42:08.620Z"
     },
     {
       "id": 5,
       "key": "biome.dense_forest.name",
       "locale": "pt-BR",
       "text": "Floresta Densa",
-      "updatedAt": "2026-11-05T11:29:12.553Z"
+      "updatedAt": "2026-11-07T17:42:08.629Z"
     },
     {
       "id": 6,
       "key": "biome.dense_forest.desc",
       "locale": "pt-BR",
       "text": "Vegetação fechada de árvores antigas e copas altas, lar de predadores e espíritos.",
-      "updatedAt": "2026-11-05T11:29:12.559Z"
+      "updatedAt": "2026-11-07T17:42:08.652Z"
     },
     {
       "id": 7,
       "key": "biome.tropical_jungle.name",
       "locale": "pt-BR",
       "text": "Selva Tropical",
-      "updatedAt": "2026-11-05T11:29:12.568Z"
+      "updatedAt": "2026-11-07T17:42:08.659Z"
     },
     {
       "id": 8,
       "key": "biome.tropical_jungle.desc",
       "locale": "pt-BR",
       "text": "Mata úmida, cipós, plantas carnívoras gigantes e répteis tropicais.",
-      "updatedAt": "2026-11-05T11:29:12.594Z"
+      "updatedAt": "2026-11-07T17:42:08.665Z"
     },
     {
       "id": 9,
       "key": "biome.bamboo_grove.name",
       "locale": "pt-BR",
       "text": "Floresta de Bambu",
-      "updatedAt": "2026-11-05T11:29:12.601Z"
+      "updatedAt": "2026-11-07T17:42:08.730Z"
     },
     {
       "id": 10,
       "key": "biome.bamboo_grove.desc",
       "locale": "pt-BR",
       "text": "Bosques orientais altos e silenciosos, lar de feras ágeis e mestres marciais.",
-      "updatedAt": "2026-11-05T11:29:12.605Z"
+      "updatedAt": "2026-11-07T17:42:08.734Z"
     },
     {
       "id": 11,
       "key": "biome.fairy_garden.name",
       "locale": "pt-BR",
       "text": "Jardim Feérico",
-      "updatedAt": "2026-11-05T11:29:12.614Z"
+      "updatedAt": "2026-11-07T17:42:08.741Z"
     },
     {
       "id": 12,
       "key": "biome.fairy_garden.desc",
       "locale": "pt-BR",
       "text": "Floresta encantada com flores gigantes luminescentes e criaturas fadas.",
-      "updatedAt": "2026-11-05T11:29:12.617Z"
+      "updatedAt": "2026-11-07T17:42:08.746Z"
     },
     {
       "id": 13,
       "key": "biome.autumn_woods.name",
       "locale": "pt-BR",
       "text": "Bosque Outonal",
-      "updatedAt": "2026-11-05T11:29:12.627Z"
+      "updatedAt": "2026-11-07T17:42:08.753Z"
     },
     {
       "id": 14,
       "key": "biome.autumn_woods.desc",
       "locale": "pt-BR",
       "text": "Floresta de folhas douradas e vermelhas em queda constante.",
-      "updatedAt": "2026-11-05T11:29:12.631Z"
+      "updatedAt": "2026-11-07T17:42:08.757Z"
     },
     {
       "id": 15,
       "key": "biome.giant_roots.name",
       "locale": "pt-BR",
       "text": "Raízes Gigantes",
-      "updatedAt": "2026-11-05T11:29:12.639Z"
+      "updatedAt": "2026-11-07T17:42:08.785Z"
     },
     {
       "id": 16,
       "key": "biome.giant_roots.desc",
       "locale": "pt-BR",
       "text": "Sub-bosque formado pelas raízes colossais de uma Árvore do Mundo.",
-      "updatedAt": "2026-11-05T11:29:12.644Z"
+      "updatedAt": "2026-11-07T17:42:08.788Z"
     },
     {
       "id": 17,
       "key": "biome.dry_steppes.name",
       "locale": "pt-BR",
       "text": "Estepes Secas",
-      "updatedAt": "2026-11-05T11:29:12.651Z"
+      "updatedAt": "2026-11-07T17:42:08.797Z"
     },
     {
       "id": 18,
       "key": "biome.dry_steppes.desc",
       "locale": "pt-BR",
       "text": "Terras áridas de vegetação rasteira amarelada e ventos fortes.",
-      "updatedAt": "2026-11-05T11:29:12.677Z"
+      "updatedAt": "2026-11-07T17:42:08.800Z"
     },
     {
       "id": 19,
       "key": "biome.sand_dunes.name",
       "locale": "pt-BR",
       "text": "Deserto de Dunas",
-      "updatedAt": "2026-11-05T11:29:12.704Z"
+      "updatedAt": "2026-11-07T17:42:08.807Z"
     },
     {
       "id": 20,
       "key": "biome.sand_dunes.desc",
       "locale": "pt-BR",
       "text": "Mar de areia escaldante com tempestades solares e feras do deserto.",
-      "updatedAt": "2026-11-05T11:29:12.709Z"
+      "updatedAt": "2026-11-07T17:42:08.812Z"
     },
     {
       "id": 21,
       "key": "biome.hidden_oasis.name",
       "locale": "pt-BR",
       "text": "Oásis Escondido",
-      "updatedAt": "2026-11-05T11:29:12.716Z"
+      "updatedAt": "2026-11-07T17:42:08.819Z"
     },
     {
       "id": 22,
       "key": "biome.hidden_oasis.desc",
       "locale": "pt-BR",
       "text": "Refúgio fértil de água cristalina e palmeiras no meio do deserto.",
-      "updatedAt": "2026-11-05T11:29:12.719Z"
+      "updatedAt": "2026-11-07T17:42:08.823Z"
     },
     {
       "id": 23,
       "key": "biome.rocky_canyon.name",
       "locale": "pt-BR",
       "text": "Cânion Rochoso",
-      "updatedAt": "2026-11-05T11:29:12.728Z"
+      "updatedAt": "2026-11-07T17:42:08.831Z"
     },
     {
       "id": 24,
       "key": "biome.rocky_canyon.desc",
       "locale": "pt-BR",
       "text": "Desfiladeiros estreitos de pedra avermelhada e pontes suspensas.",
-      "updatedAt": "2026-11-05T11:29:12.732Z"
+      "updatedAt": "2026-11-07T17:42:08.834Z"
     },
     {
       "id": 25,
       "key": "biome.alpine_highlands.name",
       "locale": "pt-BR",
       "text": "Cordilheira Alpina",
-      "updatedAt": "2026-11-05T11:29:12.740Z"
+      "updatedAt": "2026-11-07T17:42:08.841Z"
     },
     {
       "id": 26,
       "key": "biome.alpine_highlands.desc",
       "locale": "pt-BR",
       "text": "Montanhas altas de pedra fria, ar rarefeito e feras aladas.",
-      "updatedAt": "2026-11-05T11:29:12.744Z"
+      "updatedAt": "2026-11-07T17:42:08.864Z"
     },
     {
       "id": 27,
       "key": "biome.deep_cavern.name",
       "locale": "pt-BR",
       "text": "Caverna Subterrânea",
-      "updatedAt": "2026-11-05T11:29:12.752Z"
+      "updatedAt": "2026-11-07T17:42:08.871Z"
     },
     {
       "id": 28,
       "key": "biome.deep_cavern.desc",
       "locale": "pt-BR",
       "text": "Túneis escuros de pedra úmida, estalactites e criaturas subterrâneas.",
-      "updatedAt": "2026-11-05T11:29:12.756Z"
+      "updatedAt": "2026-11-07T17:42:08.875Z"
     },
     {
       "id": 29,
       "key": "biome.crystal_mine.name",
       "locale": "pt-BR",
       "text": "Mina de Cristais",
-      "updatedAt": "2026-11-05T11:29:12.787Z"
+      "updatedAt": "2026-11-07T17:42:08.883Z"
     },
     {
       "id": 30,
       "key": "biome.crystal_mine.desc",
       "locale": "pt-BR",
       "text": "Grutas iluminadas por veios de minérios raros e cristais mágicos.",
-      "updatedAt": "2026-11-05T11:29:12.792Z"
+      "updatedAt": "2026-11-07T17:42:08.887Z"
     },
     {
       "id": 31,
       "key": "biome.badlands.name",
       "locale": "pt-BR",
       "text": "Terras Devastadas",
-      "updatedAt": "2026-11-05T11:29:12.800Z"
+      "updatedAt": "2026-11-07T17:42:08.895Z"
     },
     {
       "id": 32,
       "key": "biome.badlands.desc",
       "locale": "pt-BR",
       "text": "Solo rachado, seco e hostil, sem vegetação.",
-      "updatedAt": "2026-11-05T11:29:12.803Z"
+      "updatedAt": "2026-11-07T17:42:08.899Z"
     },
     {
       "id": 33,
       "key": "biome.tropical_coast.name",
       "locale": "pt-BR",
       "text": "Costa Tropical",
-      "updatedAt": "2026-11-05T11:29:12.812Z"
+      "updatedAt": "2026-11-07T17:42:08.926Z"
     },
     {
       "id": 34,
       "key": "biome.tropical_coast.desc",
       "locale": "pt-BR",
       "text": "Praias de areia clara, recifes rasos e criaturas costeiras.",
-      "updatedAt": "2026-11-05T11:29:12.815Z"
+      "updatedAt": "2026-11-07T17:42:08.931Z"
     },
     {
       "id": 35,
       "key": "biome.sea_cliffs.name",
       "locale": "pt-BR",
       "text": "Penhasco Marítimo",
-      "updatedAt": "2026-11-05T11:29:12.823Z"
+      "updatedAt": "2026-11-07T17:42:08.938Z"
     },
     {
       "id": 36,
       "key": "biome.sea_cliffs.desc",
       "locale": "pt-BR",
       "text": "Rochas costeiras açoitadas por ondas violentas e tempestades marinhas.",
-      "updatedAt": "2026-11-05T11:29:12.828Z"
+      "updatedAt": "2026-11-07T17:42:08.941Z"
     },
     {
       "id": 37,
       "key": "biome.misty_swamp.name",
       "locale": "pt-BR",
       "text": "Pântano Nebuloso",
-      "updatedAt": "2026-11-05T11:29:12.834Z"
+      "updatedAt": "2026-11-07T17:42:08.950Z"
     },
     {
       "id": 38,
       "key": "biome.misty_swamp.desc",
       "locale": "pt-BR",
       "text": "Águas paradas e lamacentas cobertas por neblina densa.",
-      "updatedAt": "2026-11-05T11:29:12.839Z"
+      "updatedAt": "2026-11-07T17:42:08.953Z"
     },
     {
       "id": 39,
       "key": "biome.poison_mangrove.name",
       "locale": "pt-BR",
       "text": "Manguezal Venenoso",
-      "updatedAt": "2026-11-05T11:29:12.868Z"
+      "updatedAt": "2026-11-07T17:42:08.960Z"
     },
     {
       "id": 40,
       "key": "biome.poison_mangrove.desc",
       "locale": "pt-BR",
       "text": "Charco tóxico de águas esverdeadas, esporos venenosos e plantas putrefatas.",
-      "updatedAt": "2026-11-05T11:29:12.872Z"
+      "updatedAt": "2026-11-07T17:42:08.965Z"
     },
     {
       "id": 41,
       "key": "biome.mirror_lake.name",
       "locale": "pt-BR",
       "text": "Lago Espelhado",
-      "updatedAt": "2026-11-05T11:29:12.881Z"
+      "updatedAt": "2026-11-07T17:42:08.972Z"
     },
     {
       "id": 42,
       "key": "biome.mirror_lake.desc",
       "locale": "pt-BR",
       "text": "Margens de grandes lagos serenos e mágicos.",
-      "updatedAt": "2026-11-05T11:29:12.885Z"
+      "updatedAt": "2026-11-07T17:42:08.976Z"
     },
     {
       "id": 43,
       "key": "biome.coral_reef.name",
       "locale": "pt-BR",
       "text": "Recife de Corais",
-      "updatedAt": "2026-11-05T11:29:12.895Z"
+      "updatedAt": "2026-11-07T17:42:08.984Z"
     },
     {
       "id": 44,
       "key": "biome.coral_reef.desc",
       "locale": "pt-BR",
       "text": "Ambiente repleto de corais coloridos e criaturas marinhas exóticas.",
-      "updatedAt": "2026-11-05T11:29:12.898Z"
+      "updatedAt": "2026-11-07T17:42:09.006Z"
     },
     {
       "id": 45,
       "key": "biome.abyssal_trench.name",
       "locale": "pt-BR",
       "text": "Fenda Abissal",
-      "updatedAt": "2026-11-05T11:29:12.906Z"
+      "updatedAt": "2026-11-07T17:42:09.014Z"
     },
     {
       "id": 46,
       "key": "biome.abyssal_trench.desc",
       "locale": "pt-BR",
       "text": "Profundezas oceânicas escuras sob imensa pressão.",
-      "updatedAt": "2026-11-05T11:29:12.911Z"
+      "updatedAt": "2026-11-07T17:42:09.018Z"
     },
     {
       "id": 47,
       "key": "biome.frozen_tundra.name",
       "locale": "pt-BR",
       "text": "Tundra Congelada",
-      "updatedAt": "2026-11-05T11:29:12.917Z"
+      "updatedAt": "2026-11-07T17:42:09.025Z"
     },
     {
       "id": 48,
       "key": "biome.frozen_tundra.desc",
       "locale": "pt-BR",
       "text": "Planícies cobertas de geada, neve rasa e ventos cortantes.",
-      "updatedAt": "2026-11-05T11:29:12.921Z"
+      "updatedAt": "2026-11-07T17:42:09.029Z"
     },
     {
       "id": 49,
       "key": "biome.snowy_taiga.name",
       "locale": "pt-BR",
       "text": "Floresta Boreal Nevada",
-      "updatedAt": "2026-11-05T11:29:12.952Z"
+      "updatedAt": "2026-11-07T17:42:09.037Z"
     },
     {
       "id": 50,
       "key": "biome.snowy_taiga.desc",
       "locale": "pt-BR",
       "text": "Pinheiros cobertos de neve pesada e predadores glaciais.",
-      "updatedAt": "2026-11-05T11:29:12.956Z"
+      "updatedAt": "2026-11-07T17:42:09.040Z"
     },
     {
       "id": 51,
       "key": "biome.eternal_glacier.name",
       "locale": "pt-BR",
       "text": "Geleira Eterna",
-      "updatedAt": "2026-11-05T11:29:12.963Z"
+      "updatedAt": "2026-11-07T17:42:09.049Z"
     },
     {
       "id": 52,
       "key": "biome.eternal_glacier.desc",
       "locale": "pt-BR",
       "text": "Paredes e pontes de gelo puro e translúcido.",
-      "updatedAt": "2026-11-05T11:29:12.966Z"
+      "updatedAt": "2026-11-07T17:42:09.052Z"
     },
     {
       "id": 53,
       "key": "biome.blizzard_peak.name",
       "locale": "pt-BR",
       "text": "Pico da Nevasca",
-      "updatedAt": "2026-11-05T11:29:12.973Z"
+      "updatedAt": "2026-11-07T17:42:09.059Z"
     },
     {
       "id": 54,
       "key": "biome.blizzard_peak.desc",
       "locale": "pt-BR",
       "text": "Topo de montanha sob tempestade de neve perpétua.",
-      "updatedAt": "2026-11-05T11:29:12.977Z"
+      "updatedAt": "2026-11-07T17:42:09.084Z"
     },
     {
       "id": 55,
       "key": "biome.ashlands.name",
       "locale": "pt-BR",
       "text": "Campos de Cinzas",
-      "updatedAt": "2026-11-05T11:29:12.984Z"
+      "updatedAt": "2026-11-07T17:42:09.091Z"
     },
     {
       "id": 56,
       "key": "biome.ashlands.desc",
       "locale": "pt-BR",
       "text": "Terra coberta por fuligem vulcânica cinzenta e fumaça sulfúrica.",
-      "updatedAt": "2026-11-05T11:29:12.987Z"
+      "updatedAt": "2026-11-07T17:42:09.095Z"
     },
     {
       "id": 57,
       "key": "biome.lava_caldera.name",
       "locale": "pt-BR",
       "text": "Caldeira de Lava",
-      "updatedAt": "2026-11-05T11:29:12.996Z"
+      "updatedAt": "2026-11-07T17:42:09.103Z"
     },
     {
       "id": 58,
       "key": "biome.lava_caldera.desc",
       "locale": "pt-BR",
       "text": "Rios de magma incandescente e rocha derretida.",
-      "updatedAt": "2026-11-05T11:29:13.000Z"
+      "updatedAt": "2026-11-07T17:42:09.106Z"
     },
     {
       "id": 59,
       "key": "biome.storm_plateau.name",
       "locale": "pt-BR",
       "text": "Platô das Tempestades",
-      "updatedAt": "2026-11-05T11:29:13.010Z"
+      "updatedAt": "2026-11-07T17:42:09.115Z"
     },
     {
       "id": 60,
       "key": "biome.storm_plateau.desc",
       "locale": "pt-BR",
       "text": "Região elevada constantemente atingida por raios e ventos.",
-      "updatedAt": "2026-11-05T11:29:13.035Z"
+      "updatedAt": "2026-11-07T17:42:09.119Z"
     },
     {
       "id": 61,
       "key": "biome.floating_islands.name",
       "locale": "pt-BR",
       "text": "Ilhas Flutuantes",
-      "updatedAt": "2026-11-05T11:29:13.126Z"
+      "updatedAt": "2026-11-07T17:42:09.126Z"
     },
     {
       "id": 62,
       "key": "biome.floating_islands.desc",
       "locale": "pt-BR",
       "text": "Fragmentos de terra suspensos no céu por magia gravitacional.",
-      "updatedAt": "2026-11-05T11:29:13.129Z"
+      "updatedAt": "2026-11-07T17:42:09.130Z"
     },
     {
       "id": 63,
       "key": "biome.deadwood.name",
       "locale": "pt-BR",
       "text": "Floresta Morta",
-      "updatedAt": "2026-11-05T11:29:13.136Z"
+      "updatedAt": "2026-11-07T17:42:09.159Z"
     },
     {
       "id": 64,
       "key": "biome.deadwood.desc",
       "locale": "pt-BR",
       "text": "Árvores secas e retorcidas sob noite eterna.",
-      "updatedAt": "2026-11-05T11:29:13.141Z"
+      "updatedAt": "2026-11-07T17:42:09.165Z"
     },
     {
       "id": 65,
       "key": "biome.ancient_necropolis.name",
       "locale": "pt-BR",
       "text": "Necrópole Antiga",
-      "updatedAt": "2026-11-05T11:29:13.148Z"
+      "updatedAt": "2026-11-07T17:42:09.172Z"
     },
     {
       "id": 66,
       "key": "biome.ancient_necropolis.desc",
       "locale": "pt-BR",
       "text": "Cemitérios monumentais, mausoléus e espíritos antigos.",
-      "updatedAt": "2026-11-05T11:29:13.152Z"
+      "updatedAt": "2026-11-07T17:42:09.177Z"
     },
     {
       "id": 67,
       "key": "biome.blighted_lands.name",
       "locale": "pt-BR",
       "text": "Terras Corrompidas",
-      "updatedAt": "2026-11-05T11:29:13.160Z"
+      "updatedAt": "2026-11-07T17:42:09.186Z"
     },
     {
       "id": 68,
       "key": "biome.blighted_lands.desc",
       "locale": "pt-BR",
       "text": "Solo contaminado por miasma e criaturas corrompidas.",
-      "updatedAt": "2026-11-05T11:29:13.163Z"
+      "updatedAt": "2026-11-07T17:42:09.190Z"
     },
     {
       "id": 69,
       "key": "biome.demonic_rift.name",
       "locale": "pt-BR",
       "text": "Fenda Demoníaca",
-      "updatedAt": "2026-11-05T11:29:13.188Z"
+      "updatedAt": "2026-11-07T17:42:09.198Z"
     },
     {
       "id": 70,
       "key": "biome.demonic_rift.desc",
       "locale": "pt-BR",
       "text": "Território dimensional rasgado pelo submundo.",
-      "updatedAt": "2026-11-05T11:29:13.192Z"
+      "updatedAt": "2026-11-07T17:42:09.202Z"
     },
     {
       "id": 71,
       "key": "biome.academy_grounds.name",
       "locale": "pt-BR",
       "text": "Jardins da Academia",
-      "updatedAt": "2026-11-05T11:29:13.199Z"
+      "updatedAt": "2026-11-07T17:42:09.210Z"
     },
     {
       "id": 72,
       "key": "biome.academy_grounds.desc",
       "locale": "pt-BR",
       "text": "Pátios pavimentados, fontes mágicas e arquitetura clássica do Campus.",
-      "updatedAt": "2026-11-05T11:29:13.202Z"
+      "updatedAt": "2026-11-07T17:42:09.215Z"
     },
     {
       "id": 73,
       "key": "biome.ancient_ruins.name",
       "locale": "pt-BR",
       "text": "Ruínas Ancestrais",
-      "updatedAt": "2026-11-05T11:29:13.211Z"
+      "updatedAt": "2026-11-07T17:42:09.245Z"
     },
     {
       "id": 74,
       "key": "biome.ancient_ruins.desc",
       "locale": "pt-BR",
       "text": "Templos de pedra cobertos de musgo de uma civilização perdida.",
-      "updatedAt": "2026-11-05T11:29:13.215Z"
+      "updatedAt": "2026-11-07T17:42:09.250Z"
     },
     {
       "id": 75,
       "key": "biome.astral_sanctuary.name",
       "locale": "pt-BR",
       "text": "Santuário Astral",
-      "updatedAt": "2026-11-05T11:29:13.223Z"
+      "updatedAt": "2026-11-07T17:42:09.258Z"
     },
     {
       "id": 76,
       "key": "biome.astral_sanctuary.desc",
       "locale": "pt-BR",
       "text": "Dimensão etérea com céu estrelado e energia cósmica.",
-      "updatedAt": "2026-11-05T11:29:13.226Z"
+      "updatedAt": "2026-11-07T17:42:09.263Z"
     },
     {
       "id": 77,
       "key": "biome.clockwork_forge.name",
       "locale": "pt-BR",
       "text": "Forja Mecânica",
-      "updatedAt": "2026-11-05T11:29:13.233Z"
+      "updatedAt": "2026-11-07T17:42:09.271Z"
     },
     {
       "id": 78,
       "key": "biome.clockwork_forge.desc",
       "locale": "pt-BR",
       "text": "Complexo de engrenagens a vapor e magia tecno-arcana.",
-      "updatedAt": "2026-11-05T11:29:13.236Z"
+      "updatedAt": "2026-11-07T17:42:09.275Z"
     },
     {
       "id": 79,
       "key": "biome.celestial_palace.name",
       "locale": "pt-BR",
       "text": "Palácio Celestial",
-      "updatedAt": "2026-11-05T11:29:13.263Z"
+      "updatedAt": "2026-11-07T17:42:09.284Z"
     },
     {
       "id": 80,
       "key": "biome.celestial_palace.desc",
       "locale": "pt-BR",
       "text": "Salões de mármore branco e ouro acima das nuvens.",
-      "updatedAt": "2026-11-05T11:29:13.267Z"
+      "updatedAt": "2026-11-07T17:42:09.287Z"
     },
     {
       "id": 81,
       "key": "map_type.city.name",
       "locale": "pt-BR",
       "text": "Cidade",
-      "updatedAt": "2026-11-05T11:29:13.276Z"
+      "updatedAt": "2026-11-07T17:42:09.296Z"
     },
     {
       "id": 82,
       "key": "map_type.village.name",
       "locale": "pt-BR",
       "text": "Vila",
-      "updatedAt": "2026-11-05T11:29:13.290Z"
+      "updatedAt": "2026-11-07T17:42:09.306Z"
     },
     {
       "id": 83,
       "key": "map_type.suburb.name",
       "locale": "pt-BR",
       "text": "Subúrbio",
-      "updatedAt": "2026-11-05T11:29:13.299Z"
+      "updatedAt": "2026-11-07T17:42:09.334Z"
     },
     {
       "id": 84,
       "key": "map_type.hostile_zone.name",
       "locale": "pt-BR",
       "text": "Zona Hostil",
-      "updatedAt": "2026-11-05T11:29:13.307Z"
+      "updatedAt": "2026-11-07T17:42:09.341Z"
     },
     {
       "id": 85,
       "key": "map_type.conflict_zone.name",
       "locale": "pt-BR",
       "text": "Zona de Conflito",
-      "updatedAt": "2026-11-05T11:29:13.315Z"
+      "updatedAt": "2026-11-07T17:42:09.350Z"
     },
     {
       "id": 86,
       "key": "element.fire.name",
       "locale": "pt-BR",
       "text": "Fogo",
-      "updatedAt": "2026-11-05T11:29:13.324Z"
+      "updatedAt": "2026-11-07T17:42:09.356Z"
     },
     {
       "id": 87,
       "key": "element.earth.name",
       "locale": "pt-BR",
       "text": "Terra",
-      "updatedAt": "2026-11-05T11:29:13.359Z"
+      "updatedAt": "2026-11-07T17:42:09.366Z"
     },
     {
       "id": 88,
       "key": "element.air.name",
       "locale": "pt-BR",
       "text": "Ar",
-      "updatedAt": "2026-11-05T11:29:13.368Z"
+      "updatedAt": "2026-11-07T17:42:09.373Z"
     },
     {
       "id": 89,
       "key": "element.water.name",
       "locale": "pt-BR",
       "text": "Água",
-      "updatedAt": "2026-11-05T11:29:13.377Z"
+      "updatedAt": "2026-11-07T17:42:09.400Z"
     },
     {
       "id": 90,
       "key": "element.neutral.name",
       "locale": "pt-BR",
       "text": "Neutro",
-      "updatedAt": "2026-11-05T11:29:13.385Z"
+      "updatedAt": "2026-11-07T17:42:09.406Z"
     },
     {
       "id": 91,
       "key": "race.human.name",
       "locale": "pt-BR",
       "text": "Humano",
-      "updatedAt": "2026-11-05T11:29:13.567Z"
+      "updatedAt": "2026-11-07T17:42:09.535Z"
     },
     {
       "id": 92,
       "key": "race.plant.name",
       "locale": "pt-BR",
       "text": "Planta",
-      "updatedAt": "2026-11-05T11:29:13.579Z"
+      "updatedAt": "2026-11-07T17:42:09.564Z"
     },
     {
       "id": 93,
       "key": "race.dragon.name",
       "locale": "pt-BR",
       "text": "Dragão",
-      "updatedAt": "2026-11-05T11:29:13.589Z"
+      "updatedAt": "2026-11-07T17:42:09.570Z"
     },
     {
       "id": 94,
       "key": "race.reptilian.name",
       "locale": "pt-BR",
       "text": "Reptiliano",
-      "updatedAt": "2026-11-05T11:29:13.619Z"
+      "updatedAt": "2026-11-07T17:42:09.578Z"
     },
     {
       "id": 95,
       "key": "race.aquatic.name",
       "locale": "pt-BR",
       "text": "Aquático",
-      "updatedAt": "2026-11-05T11:29:13.628Z"
+      "updatedAt": "2026-11-07T17:42:09.585Z"
     },
     {
       "id": 96,
       "key": "race.robotic.name",
       "locale": "pt-BR",
       "text": "Robótico",
-      "updatedAt": "2026-11-05T11:29:13.638Z"
+      "updatedAt": "2026-11-07T17:42:09.592Z"
     },
     {
       "id": 97,
       "key": "race.celestial.name",
       "locale": "pt-BR",
       "text": "Celestial",
-      "updatedAt": "2026-11-05T11:29:13.647Z"
+      "updatedAt": "2026-11-07T17:42:09.600Z"
     },
     {
       "id": 98,
       "key": "race.demon.name",
       "locale": "pt-BR",
       "text": "Demônio",
-      "updatedAt": "2026-11-05T11:29:13.655Z"
+      "updatedAt": "2026-11-07T17:42:09.607Z"
     },
     {
       "id": 99,
       "key": "race.fairy.name",
       "locale": "pt-BR",
       "text": "Fada",
-      "updatedAt": "2026-11-05T11:29:13.662Z"
+      "updatedAt": "2026-11-07T17:42:09.633Z"
     },
     {
       "id": 100,
       "key": "race.spirit.name",
       "locale": "pt-BR",
       "text": "Espírito",
-      "updatedAt": "2026-11-05T11:29:13.670Z"
+      "updatedAt": "2026-11-07T17:42:09.639Z"
     },
     {
       "id": 101,
       "key": "race.beast.name",
       "locale": "pt-BR",
       "text": "Selvagem",
-      "updatedAt": "2026-11-05T11:29:13.680Z"
+      "updatedAt": "2026-11-07T17:42:09.647Z"
     },
     {
       "id": 102,
       "key": "attr.base.vit.name",
       "locale": "pt-BR",
       "text": "Vitalidade",
-      "updatedAt": "2026-11-05T11:29:14.435Z"
+      "updatedAt": "2026-11-07T17:42:10.307Z"
     },
     {
       "id": 103,
       "key": "attr.base.vit.desc",
       "locale": "pt-BR",
-      "text": "Aumenta o HP Máximo, a Defesa Física e a Resistência a efeitos contínuos.",
-      "updatedAt": "2026-11-05T11:29:14.441Z"
+      "text": "Aumenta o HP Máximo, a Defesa Física, a Resistência a Controle e a Resistência a Anomalias/DoT.",
+      "updatedAt": "2026-11-07T17:42:10.312Z"
     },
     {
       "id": 104,
       "key": "attr.base.str.name",
       "locale": "pt-BR",
       "text": "Força",
-      "updatedAt": "2026-11-05T11:29:14.451Z"
+      "updatedAt": "2026-11-07T17:42:10.321Z"
     },
     {
       "id": 105,
       "key": "attr.base.str.desc",
       "locale": "pt-BR",
-      "text": "Aumenta o Ataque Físico, a Penetração Física e o Dano Crítico.",
-      "updatedAt": "2026-11-05T11:29:14.457Z"
+      "text": "Aumenta o Ataque Físico, a Penetração Física, o Dano Crítico e a Potência de Anomalias Físicas.",
+      "updatedAt": "2026-11-07T17:42:10.325Z"
     },
     {
       "id": 106,
       "key": "attr.base.int.name",
       "locale": "pt-BR",
       "text": "Inteligência",
-      "updatedAt": "2026-11-05T11:29:14.465Z"
+      "updatedAt": "2026-11-07T17:42:10.333Z"
     },
     {
       "id": 107,
       "key": "attr.base.int.desc",
       "locale": "pt-BR",
-      "text": "Aumenta o Ataque Mágico, o MP Máximo e a Penetração Mágica.",
-      "updatedAt": "2026-11-05T11:29:14.468Z"
+      "text": "Aumenta o Ataque Mágico, o MP Máximo, a Penetração Mágica e o Acerto de Controle/Anomalias Mágicas.",
+      "updatedAt": "2026-11-07T17:42:10.338Z"
     },
     {
       "id": 108,
       "key": "attr.base.wis.name",
       "locale": "pt-BR",
       "text": "Sabedoria",
-      "updatedAt": "2026-11-05T11:29:14.477Z"
+      "updatedAt": "2026-11-07T17:42:10.365Z"
     },
     {
       "id": 109,
       "key": "attr.base.wis.desc",
       "locale": "pt-BR",
-      "text": "Aumenta o Poder de Cura/Escudo, a Defesa Mágica e a Regeneração de MP.",
-      "updatedAt": "2026-11-05T11:29:14.481Z"
+      "text": "Aumenta o Poder de Cura/Escudo, a Defesa Mágica, a Regeneração de MP, o Desvio Mágico e a Resistência a Controle.",
+      "updatedAt": "2026-11-07T17:42:10.368Z"
     },
     {
       "id": 110,
       "key": "attr.base.agi.name",
       "locale": "pt-BR",
       "text": "Agilidade",
-      "updatedAt": "2026-11-05T11:29:14.489Z"
+      "updatedAt": "2026-11-07T17:42:10.374Z"
     },
     {
       "id": 111,
       "key": "attr.base.agi.desc",
       "locale": "pt-BR",
-      "text": "Aumenta a Velocidade de Iniciativa no Turno, a Esquiva e o Ataque Físico Leve.",
-      "updatedAt": "2026-11-05T11:29:14.493Z"
+      "text": "Aumenta a Velocidade de Iniciativa no Turno, a Esquiva Física, o Desvio Mágico e o Ataque Físico Leve.",
+      "updatedAt": "2026-11-07T17:42:10.379Z"
     },
     {
       "id": 112,
       "key": "attr.base.dex.name",
       "locale": "pt-BR",
       "text": "Destreza",
-      "updatedAt": "2026-11-05T11:29:14.517Z"
+      "updatedAt": "2026-11-07T17:42:10.386Z"
     },
     {
       "id": 113,
       "key": "attr.base.dex.desc",
       "locale": "pt-BR",
-      "text": "Aumenta a Chance Crítica, a Precisão e a Chance de Aplicar Debuffs.",
-      "updatedAt": "2026-11-05T11:29:14.522Z"
+      "text": "Aumenta a Chance Crítica, a Precisão Física/Mágica, o Acerto de Controle e o Acerto de Anomalias.",
+      "updatedAt": "2026-11-07T17:42:10.389Z"
     },
     {
       "id": 114,
       "key": "attr.combat.max_hp.name",
       "locale": "pt-BR",
       "text": "HP Máximo",
-      "updatedAt": "2026-11-05T11:29:14.530Z"
+      "updatedAt": "2026-11-07T17:42:10.397Z"
     },
     {
       "id": 115,
       "key": "attr.combat.max_mp.name",
       "locale": "pt-BR",
       "text": "MP Máximo",
-      "updatedAt": "2026-11-05T11:29:14.543Z"
+      "updatedAt": "2026-11-07T17:42:10.406Z"
     },
     {
       "id": 116,
       "key": "attr.combat.phys_atk.name",
       "locale": "pt-BR",
       "text": "Ataque Físico",
-      "updatedAt": "2026-11-05T11:29:14.551Z"
+      "updatedAt": "2026-11-07T17:42:10.414Z"
     },
     {
       "id": 117,
       "key": "attr.combat.mag_atk.name",
       "locale": "pt-BR",
       "text": "Ataque Mágico",
-      "updatedAt": "2026-11-05T11:29:14.559Z"
+      "updatedAt": "2026-11-07T17:42:10.421Z"
     },
     {
       "id": 118,
       "key": "attr.combat.phys_def.name",
       "locale": "pt-BR",
       "text": "Defesa Física",
-      "updatedAt": "2026-11-05T11:29:14.566Z"
+      "updatedAt": "2026-11-07T17:42:10.449Z"
     },
     {
       "id": 119,
       "key": "attr.combat.mag_def.name",
       "locale": "pt-BR",
       "text": "Defesa Mágica",
-      "updatedAt": "2026-11-05T11:29:14.575Z"
+      "updatedAt": "2026-11-07T17:42:10.456Z"
     },
     {
       "id": 120,
       "key": "attr.combat.phys_pen.name",
       "locale": "pt-BR",
       "text": "Penetração Física",
-      "updatedAt": "2026-11-05T11:29:14.599Z"
+      "updatedAt": "2026-11-07T17:42:10.464Z"
     },
     {
       "id": 121,
       "key": "attr.combat.mag_pen.name",
       "locale": "pt-BR",
       "text": "Penetração Mágica",
-      "updatedAt": "2026-11-05T11:29:14.609Z"
+      "updatedAt": "2026-11-07T17:42:10.471Z"
     },
     {
       "id": 122,
       "key": "attr.combat.heal_power.name",
       "locale": "pt-BR",
       "text": "Poder de Cura e Escudo",
-      "updatedAt": "2026-11-05T11:29:14.618Z"
+      "updatedAt": "2026-11-07T17:42:10.481Z"
     },
     {
       "id": 123,
       "key": "attr.combat.mp_regen.name",
       "locale": "pt-BR",
       "text": "Regeneração de MP",
-      "updatedAt": "2026-11-05T11:29:14.628Z"
+      "updatedAt": "2026-11-07T17:42:10.488Z"
     },
     {
       "id": 124,
       "key": "attr.combat.speed.name",
       "locale": "pt-BR",
       "text": "Velocidade de Iniciativa",
-      "updatedAt": "2026-11-05T11:29:14.638Z"
+      "updatedAt": "2026-11-07T17:42:10.496Z"
     },
     {
       "id": 125,
@@ -889,14 +889,14 @@
       "key": "attr.combat.crit_rate.name",
       "locale": "pt-BR",
       "text": "Chance Crítica",
-      "updatedAt": "2026-11-05T11:29:14.681Z"
+      "updatedAt": "2026-11-07T17:42:10.557Z"
     },
     {
       "id": 128,
       "key": "attr.combat.crit_dmg.name",
       "locale": "pt-BR",
       "text": "Multiplicador de Dano Crítico",
-      "updatedAt": "2026-11-05T11:29:14.689Z"
+      "updatedAt": "2026-11-07T17:42:10.568Z"
     },
     {
       "id": 129,
@@ -917,203 +917,203 @@
       "key": "equip_slot.shoulder.name",
       "locale": "pt-BR",
       "text": "Ombro",
-      "updatedAt": "2026-11-05T11:29:14.816Z"
+      "updatedAt": "2026-11-07T17:42:10.869Z"
     },
     {
       "id": 132,
       "key": "equip_slot.head.name",
       "locale": "pt-BR",
       "text": "Cabeça",
-      "updatedAt": "2026-11-05T11:29:14.827Z"
+      "updatedAt": "2026-11-07T17:42:10.879Z"
     },
     {
       "id": 133,
       "key": "equip_slot.chest.name",
       "locale": "pt-BR",
       "text": "Peito",
-      "updatedAt": "2026-11-05T11:29:14.834Z"
+      "updatedAt": "2026-11-07T17:42:10.887Z"
     },
     {
       "id": 134,
       "key": "equip_slot.belt.name",
       "locale": "pt-BR",
       "text": "Cinto",
-      "updatedAt": "2026-11-05T11:29:14.861Z"
+      "updatedAt": "2026-11-07T17:42:10.896Z"
     },
     {
       "id": 135,
       "key": "equip_slot.legs.name",
       "locale": "pt-BR",
       "text": "Pernas",
-      "updatedAt": "2026-11-05T11:29:14.868Z"
+      "updatedAt": "2026-11-07T17:42:10.904Z"
     },
     {
       "id": 136,
       "key": "equip_slot.feet.name",
       "locale": "pt-BR",
       "text": "Pés",
-      "updatedAt": "2026-11-05T11:29:14.877Z"
+      "updatedAt": "2026-11-07T17:42:10.912Z"
     },
     {
       "id": 137,
       "key": "equip_slot.ornament_1.name",
       "locale": "pt-BR",
       "text": "Adorno 1",
-      "updatedAt": "2026-11-05T11:29:14.884Z"
+      "updatedAt": "2026-11-07T17:42:10.919Z"
     },
     {
       "id": 138,
       "key": "equip_slot.ornament_2.name",
       "locale": "pt-BR",
       "text": "Adorno 2",
-      "updatedAt": "2026-11-05T11:29:14.892Z"
+      "updatedAt": "2026-11-07T17:42:10.949Z"
     },
     {
       "id": 139,
       "key": "equip_slot.ring.name",
       "locale": "pt-BR",
       "text": "Anel",
-      "updatedAt": "2026-11-05T11:29:14.899Z"
+      "updatedAt": "2026-11-07T17:42:10.955Z"
     },
     {
       "id": 140,
       "key": "equip_slot.necklace.name",
       "locale": "pt-BR",
       "text": "Colar",
-      "updatedAt": "2026-11-05T11:29:14.929Z"
+      "updatedAt": "2026-11-07T17:42:10.963Z"
     },
     {
       "id": 141,
       "key": "equip_slot.weapon_1.name",
       "locale": "pt-BR",
       "text": "Arma 1",
-      "updatedAt": "2026-11-05T11:29:14.936Z"
+      "updatedAt": "2026-11-07T17:42:10.970Z"
     },
     {
       "id": 142,
       "key": "equip_slot.weapon_2.name",
       "locale": "pt-BR",
       "text": "Arma 2",
-      "updatedAt": "2026-11-05T11:29:14.943Z"
+      "updatedAt": "2026-11-07T17:42:10.979Z"
     },
     {
       "id": 143,
       "key": "equip_slot.fishing_rod.name",
       "locale": "pt-BR",
       "text": "Vara de Pesca",
-      "updatedAt": "2026-11-05T11:29:14.950Z"
+      "updatedAt": "2026-11-07T17:42:10.986Z"
     },
     {
       "id": 144,
       "key": "equip_slot.flying_mount.name",
       "locale": "pt-BR",
       "text": "Montaria Voadora",
-      "updatedAt": "2026-11-05T11:29:14.957Z"
+      "updatedAt": "2026-11-07T17:42:10.994Z"
     },
     {
       "id": 145,
       "key": "equip_slot.wings.name",
       "locale": "pt-BR",
       "text": "Asas",
-      "updatedAt": "2026-11-05T11:29:14.964Z"
+      "updatedAt": "2026-11-07T17:42:11.001Z"
     },
     {
       "id": 146,
       "key": "equip_slot.fashion.name",
       "locale": "pt-BR",
       "text": "Moda",
-      "updatedAt": "2026-11-05T11:29:14.973Z"
+      "updatedAt": "2026-11-07T17:42:11.027Z"
     },
     {
       "id": 147,
       "key": "equip_slot.pet_equip_1.name",
       "locale": "pt-BR",
       "text": "Equipamento 1",
-      "updatedAt": "2026-11-05T11:29:14.980Z"
+      "updatedAt": "2026-11-07T17:42:11.034Z"
     },
     {
       "id": 148,
       "key": "equip_slot.pet_equip_2.name",
       "locale": "pt-BR",
       "text": "Equipamento 2",
-      "updatedAt": "2026-11-05T11:29:15.010Z"
+      "updatedAt": "2026-11-07T17:42:11.041Z"
     },
     {
       "id": 149,
       "key": "equip_slot.pet_equip_3.name",
       "locale": "pt-BR",
       "text": "Equipamento 3",
-      "updatedAt": "2026-11-05T11:29:15.016Z"
+      "updatedAt": "2026-11-07T17:42:11.050Z"
     },
     {
       "id": 150,
       "key": "equip_slot.pet_equip_4.name",
       "locale": "pt-BR",
       "text": "Equipamento 4",
-      "updatedAt": "2026-11-05T11:29:15.024Z"
+      "updatedAt": "2026-11-07T17:42:11.057Z"
     },
     {
       "id": 151,
       "key": "equip_slot.pet_equip_5.name",
       "locale": "pt-BR",
       "text": "Equipamento 5",
-      "updatedAt": "2026-11-05T11:29:15.031Z"
+      "updatedAt": "2026-11-07T17:42:11.065Z"
     },
     {
       "id": 152,
       "key": "equip_slot.pet_equip_6.name",
       "locale": "pt-BR",
       "text": "Equipamento 6",
-      "updatedAt": "2026-11-05T11:29:15.038Z"
+      "updatedAt": "2026-11-07T17:42:11.072Z"
     },
     {
       "id": 153,
       "key": "rarity.common.name",
       "locale": "pt-BR",
       "text": "Comum",
-      "updatedAt": "2026-11-05T11:29:15.046Z"
+      "updatedAt": "2026-11-07T17:42:11.100Z"
     },
     {
       "id": 154,
       "key": "rarity.uncommon.name",
       "locale": "pt-BR",
       "text": "Incomum",
-      "updatedAt": "2026-11-05T11:29:15.058Z"
+      "updatedAt": "2026-11-07T17:42:11.110Z"
     },
     {
       "id": 155,
       "key": "rarity.elite.name",
       "locale": "pt-BR",
       "text": "Elite",
-      "updatedAt": "2026-11-05T11:29:15.065Z"
+      "updatedAt": "2026-11-07T17:42:11.117Z"
     },
     {
       "id": 156,
       "key": "rarity.rare.name",
       "locale": "pt-BR",
       "text": "Raro",
-      "updatedAt": "2026-11-05T11:29:15.095Z"
+      "updatedAt": "2026-11-07T17:42:11.126Z"
     },
     {
       "id": 157,
       "key": "rarity.miniboss.name",
       "locale": "pt-BR",
       "text": "Subchefe",
-      "updatedAt": "2026-11-05T11:29:15.104Z"
+      "updatedAt": "2026-11-07T17:42:11.134Z"
     },
     {
       "id": 158,
       "key": "rarity.boss.name",
       "locale": "pt-BR",
       "text": "Chefe",
-      "updatedAt": "2026-11-05T11:29:15.112Z"
+      "updatedAt": "2026-11-07T17:42:11.142Z"
     },
     {
       "id": 159,
       "key": "map.map_1.name",
       "locale": "pt-BR",
       "text": "Vila Izumo",
-      "updatedAt": "2026-11-07T08:33:13.774Z"
+      "updatedAt": "2026-11-07T17:20:06.976Z"
     },
     {
       "id": 162,
@@ -2122,6 +2122,62 @@
       "locale": "pt-BR",
       "text": "Que poder extraordinário! Sua alma ascendeu ao estado Reencarnado (Reborn)!",
       "updatedAt": "2026-11-07T16:20:28.904Z"
+    },
+    {
+      "id": 490,
+      "key": "attr.combat.phys_accuracy.name",
+      "locale": "pt-BR",
+      "text": "Precisão Física",
+      "updatedAt": "2026-11-07T17:42:10.523Z"
+    },
+    {
+      "id": 491,
+      "key": "attr.combat.phys_evasion.name",
+      "locale": "pt-BR",
+      "text": "Esquiva Física",
+      "updatedAt": "2026-11-07T17:42:10.534Z"
+    },
+    {
+      "id": 492,
+      "key": "attr.combat.mag_accuracy.name",
+      "locale": "pt-BR",
+      "text": "Precisão Mágica",
+      "updatedAt": "2026-11-07T17:42:10.541Z"
+    },
+    {
+      "id": 493,
+      "key": "attr.combat.mag_evasion.name",
+      "locale": "pt-BR",
+      "text": "Desvio Mágico",
+      "updatedAt": "2026-11-07T17:42:10.550Z"
+    },
+    {
+      "id": 496,
+      "key": "attr.combat.control_hit.name",
+      "locale": "pt-BR",
+      "text": "Acerto de Controle (Hard CC)",
+      "updatedAt": "2026-11-07T17:42:10.576Z"
+    },
+    {
+      "id": 497,
+      "key": "attr.combat.control_resist.name",
+      "locale": "pt-BR",
+      "text": "Resistência a Controle",
+      "updatedAt": "2026-11-07T17:42:10.584Z"
+    },
+    {
+      "id": 498,
+      "key": "attr.combat.anomaly_hit.name",
+      "locale": "pt-BR",
+      "text": "Acerto de Anomalias & DoT",
+      "updatedAt": "2026-11-07T17:42:10.611Z"
+    },
+    {
+      "id": 499,
+      "key": "attr.combat.anomaly_resist.name",
+      "locale": "pt-BR",
+      "text": "Resistência a Anomalias & DoT",
+      "updatedAt": "2026-11-07T17:42:10.619Z"
     }
   ],
   "biomes": [
@@ -4097,7 +4153,7 @@
       "overlapOpacity": 0.45,
       "isActive": true,
       "createdAt": "2026-11-05T23:26:00.408Z",
-      "updatedAt": "2026-11-07T08:33:13.785Z"
+      "updatedAt": "2026-11-07T17:20:06.990Z"
     },
     {
       "id": 2,
@@ -23684,62 +23740,6 @@
       "direction": 0
     },
     {
-      "id": 29,
-      "mapId": 1,
-      "npcTemplateId": 1,
-      "posX": 286,
-      "posY": 1135,
-      "direction": 0
-    },
-    {
-      "id": 30,
-      "mapId": 1,
-      "npcTemplateId": 2,
-      "posX": 403,
-      "posY": 883,
-      "direction": 0
-    },
-    {
-      "id": 31,
-      "mapId": 1,
-      "npcTemplateId": 3,
-      "posX": 434,
-      "posY": 550,
-      "direction": 0
-    },
-    {
-      "id": 32,
-      "mapId": 1,
-      "npcTemplateId": 4,
-      "posX": 834,
-      "posY": 380,
-      "direction": 0
-    },
-    {
-      "id": 33,
-      "mapId": 1,
-      "npcTemplateId": 5,
-      "posX": 638,
-      "posY": 494,
-      "direction": 0
-    },
-    {
-      "id": 34,
-      "mapId": 1,
-      "npcTemplateId": 6,
-      "posX": 1206,
-      "posY": 487,
-      "direction": 0
-    },
-    {
-      "id": 35,
-      "mapId": 1,
-      "npcTemplateId": 7,
-      "posX": 1602,
-      "posY": 1034,
-      "direction": 0
-    },
-    {
       "id": 73,
       "mapId": 5,
       "npcTemplateId": 19,
@@ -23946,6 +23946,62 @@
       "posX": 1187,
       "posY": 1046,
       "direction": 0
+    },
+    {
+      "id": 100,
+      "mapId": 1,
+      "npcTemplateId": 1,
+      "posX": 286,
+      "posY": 1135,
+      "direction": 0
+    },
+    {
+      "id": 101,
+      "mapId": 1,
+      "npcTemplateId": 2,
+      "posX": 403,
+      "posY": 883,
+      "direction": 0
+    },
+    {
+      "id": 102,
+      "mapId": 1,
+      "npcTemplateId": 3,
+      "posX": 434,
+      "posY": 550,
+      "direction": 0
+    },
+    {
+      "id": 103,
+      "mapId": 1,
+      "npcTemplateId": 4,
+      "posX": 834,
+      "posY": 380,
+      "direction": 0
+    },
+    {
+      "id": 104,
+      "mapId": 1,
+      "npcTemplateId": 5,
+      "posX": 638,
+      "posY": 494,
+      "direction": 0
+    },
+    {
+      "id": 105,
+      "mapId": 1,
+      "npcTemplateId": 6,
+      "posX": 1206,
+      "posY": 487,
+      "direction": 0
+    },
+    {
+      "id": 106,
+      "mapId": 1,
+      "npcTemplateId": 7,
+      "posX": 1602,
+      "posY": 1034,
+      "direction": 1
     }
   ],
   "elements": [
@@ -24935,9 +24991,27 @@
   ],
   "combatAttributes": [
     {
-      "code": "ACCURACY",
-      "nameI18nKey": "attr.combat.accuracy.name",
-      "baseDefault": 1,
+      "code": "ANOMALY_HIT",
+      "nameI18nKey": "attr.combat.anomaly_hit.name",
+      "baseDefault": 0,
+      "isPercentage": true
+    },
+    {
+      "code": "ANOMALY_RESIST",
+      "nameI18nKey": "attr.combat.anomaly_resist.name",
+      "baseDefault": 0,
+      "isPercentage": true
+    },
+    {
+      "code": "CONTROL_HIT",
+      "nameI18nKey": "attr.combat.control_hit.name",
+      "baseDefault": 0,
+      "isPercentage": true
+    },
+    {
+      "code": "CONTROL_RESIST",
+      "nameI18nKey": "attr.combat.control_resist.name",
+      "baseDefault": 0,
       "isPercentage": true
     },
     {
@@ -24953,22 +25027,16 @@
       "isPercentage": true
     },
     {
-      "code": "DOT_RESIST",
-      "nameI18nKey": "attr.combat.dot_resist.name",
-      "baseDefault": 0,
-      "isPercentage": true
-    },
-    {
-      "code": "EVASION",
-      "nameI18nKey": "attr.combat.evasion.name",
-      "baseDefault": 0.02,
-      "isPercentage": true
-    },
-    {
       "code": "HEAL_POWER",
       "nameI18nKey": "attr.combat.heal_power.name",
       "baseDefault": 10,
       "isPercentage": false
+    },
+    {
+      "code": "MAG_ACCURACY",
+      "nameI18nKey": "attr.combat.mag_accuracy.name",
+      "baseDefault": 1,
+      "isPercentage": true
     },
     {
       "code": "MAG_ATK",
@@ -24981,6 +25049,12 @@
       "nameI18nKey": "attr.combat.mag_def.name",
       "baseDefault": 10,
       "isPercentage": false
+    },
+    {
+      "code": "MAG_EVASION",
+      "nameI18nKey": "attr.combat.mag_evasion.name",
+      "baseDefault": 0.02,
+      "isPercentage": true
     },
     {
       "code": "MAG_PEN",
@@ -25007,6 +25081,12 @@
       "isPercentage": false
     },
     {
+      "code": "PHYS_ACCURACY",
+      "nameI18nKey": "attr.combat.phys_accuracy.name",
+      "baseDefault": 1,
+      "isPercentage": true
+    },
+    {
       "code": "PHYS_ATK",
       "nameI18nKey": "attr.combat.phys_atk.name",
       "baseDefault": 15,
@@ -25019,6 +25099,12 @@
       "isPercentage": false
     },
     {
+      "code": "PHYS_EVASION",
+      "nameI18nKey": "attr.combat.phys_evasion.name",
+      "baseDefault": 0.02,
+      "isPercentage": true
+    },
+    {
       "code": "PHYS_PEN",
       "nameI18nKey": "attr.combat.phys_pen.name",
       "baseDefault": 0,
@@ -25029,12 +25115,6 @@
       "nameI18nKey": "attr.combat.speed.name",
       "baseDefault": 100,
       "isPercentage": false
-    },
-    {
-      "code": "STATUS_HIT_RATE",
-      "nameI18nKey": "attr.combat.status_hit_rate.name",
-      "baseDefault": 0,
-      "isPercentage": true
     }
   ],
   "attributeConversions": [
@@ -25049,12 +25129,6 @@
       "baseAttributeCode": "VIT",
       "combatAttributeCode": "PHYS_DEF",
       "ratioPerPoint": 1.5
-    },
-    {
-      "id": 3,
-      "baseAttributeCode": "VIT",
-      "combatAttributeCode": "DOT_RESIST",
-      "ratioPerPoint": 0.002
     },
     {
       "id": 4,
@@ -25117,16 +25191,10 @@
       "ratioPerPoint": 1.5
     },
     {
-      "id": 14,
-      "baseAttributeCode": "AGI",
-      "combatAttributeCode": "EVASION",
-      "ratioPerPoint": 0.0015
-    },
-    {
       "id": 15,
       "baseAttributeCode": "AGI",
       "combatAttributeCode": "PHYS_ATK",
-      "ratioPerPoint": 0.8
+      "ratioPerPoint": 0.5
     },
     {
       "id": 16,
@@ -25135,16 +25203,82 @@
       "ratioPerPoint": 0.002
     },
     {
-      "id": 17,
-      "baseAttributeCode": "DEX",
-      "combatAttributeCode": "ACCURACY",
+      "id": 21,
+      "baseAttributeCode": "VIT",
+      "combatAttributeCode": "CONTROL_RESIST",
+      "ratioPerPoint": 0.0015
+    },
+    {
+      "id": 22,
+      "baseAttributeCode": "VIT",
+      "combatAttributeCode": "ANOMALY_RESIST",
+      "ratioPerPoint": 0.0025
+    },
+    {
+      "id": 26,
+      "baseAttributeCode": "STR",
+      "combatAttributeCode": "ANOMALY_HIT",
+      "ratioPerPoint": 0.0015
+    },
+    {
+      "id": 30,
+      "baseAttributeCode": "INT",
+      "combatAttributeCode": "CONTROL_HIT",
+      "ratioPerPoint": 0.0015
+    },
+    {
+      "id": 31,
+      "baseAttributeCode": "INT",
+      "combatAttributeCode": "ANOMALY_HIT",
+      "ratioPerPoint": 0.0015
+    },
+    {
+      "id": 35,
+      "baseAttributeCode": "WIS",
+      "combatAttributeCode": "MAG_EVASION",
+      "ratioPerPoint": 0.0015
+    },
+    {
+      "id": 36,
+      "baseAttributeCode": "WIS",
+      "combatAttributeCode": "CONTROL_RESIST",
       "ratioPerPoint": 0.002
     },
     {
-      "id": 18,
+      "id": 38,
+      "baseAttributeCode": "AGI",
+      "combatAttributeCode": "PHYS_EVASION",
+      "ratioPerPoint": 0.002
+    },
+    {
+      "id": 39,
+      "baseAttributeCode": "AGI",
+      "combatAttributeCode": "MAG_EVASION",
+      "ratioPerPoint": 0.001
+    },
+    {
+      "id": 42,
       "baseAttributeCode": "DEX",
-      "combatAttributeCode": "STATUS_HIT_RATE",
-      "ratioPerPoint": 0.0025
+      "combatAttributeCode": "PHYS_ACCURACY",
+      "ratioPerPoint": 0.002
+    },
+    {
+      "id": 43,
+      "baseAttributeCode": "DEX",
+      "combatAttributeCode": "MAG_ACCURACY",
+      "ratioPerPoint": 0.002
+    },
+    {
+      "id": 44,
+      "baseAttributeCode": "DEX",
+      "combatAttributeCode": "CONTROL_HIT",
+      "ratioPerPoint": 0.002
+    },
+    {
+      "id": 45,
+      "baseAttributeCode": "DEX",
+      "combatAttributeCode": "ANOMALY_HIT",
+      "ratioPerPoint": 0.002
     }
   ],
   "equipmentSlots": [

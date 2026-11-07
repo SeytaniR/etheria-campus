@@ -22,6 +22,7 @@ import { GamePlayController } from './controllers/GamePlayController.js';
 import { AdminMonstersController } from './controllers/AdminMonstersController.js';
 import { AdminSkillsController } from './controllers/AdminSkillsController.js';
 import { AdminQuestsController } from './controllers/AdminQuestsController.js';
+import { AdminAttributesController } from './controllers/AdminAttributesController.js';
 import { TemporaryCombatController } from './controllers/TemporaryCombatController.js';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -61,6 +62,7 @@ export class EtheriaServerApp {
   private readonly monstersController: AdminMonstersController;
   private readonly skillsController: AdminSkillsController;
   private readonly questsController: AdminQuestsController;
+  private readonly attributesController: AdminAttributesController;
   private readonly combatController: TemporaryCombatController;
   private readonly publicDir: string;
   private readonly mapImageCache = new Map<number, { buffer: Buffer; contentType: string }>();
@@ -75,6 +77,7 @@ export class EtheriaServerApp {
     this.monstersController = new AdminMonstersController(this.prisma);
     this.skillsController = new AdminSkillsController(this.prisma);
     this.questsController = new AdminQuestsController(this.prisma, snapshotManager);
+    this.attributesController = new AdminAttributesController(this.prisma);
     this.combatController = new TemporaryCombatController(this.prisma);
     this.publicDir = path.resolve(__dirname, '../public');
   }
@@ -514,6 +517,29 @@ export class EtheriaServerApp {
         if (questMatch && method === 'DELETE') {
           const id = Number(questMatch[1]);
           this.sendJson(res, 200, await this.questsController.deleteQuestTemplate(id));
+          return;
+        }
+
+        // --- Rotas de Atributos Base, Combate & Matriz de Conversão Procedural ---
+        if (pathname === '/api/admin/attributes' && method === 'GET') {
+          this.sendJson(res, 200, await this.attributesController.getAttributesData());
+          return;
+        }
+        if (pathname === '/api/admin/attributes/conversions' && method === 'PUT') {
+          const items = await this.readJsonBody(req);
+          this.sendJson(res, 200, await this.attributesController.batchUpdateConversions(items));
+          return;
+        }
+        if (pathname === '/api/admin/attributes/conversions/single' && method === 'PUT') {
+          const dto = await this.readJsonBody(req);
+          this.sendJson(res, 200, await this.attributesController.updateConversion(dto));
+          return;
+        }
+        const combatAttrMatch = pathname.match(/^\/api\/admin\/attributes\/combat\/([a-zA-Z0-9_]+)$/);
+        if (combatAttrMatch && method === 'PUT') {
+          const code = combatAttrMatch[1];
+          const dto = await this.readJsonBody(req);
+          this.sendJson(res, 200, await this.attributesController.updateCombatAttribute(code, dto));
           return;
         }
 

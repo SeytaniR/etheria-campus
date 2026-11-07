@@ -5,6 +5,30 @@ Qualquer IA trabalhando neste repositório **DEVE** incrementar a versão e regi
 
 ---
 
+## [v0.5.6] - 2026-11-07
+### Adicionado & Aprimorado
+* **Atributos de Combate Derivados por Famílias — Acerto/Desvio, Hard CC e Anomalias/DoT (`seedData.ts`, `seed.ts`, `AdminAttributesController.ts`, `AdminAttributesTab.js`):**
+  * Implementação da **Opção 1 (Por Famílias)** para o balanceamento de acerto e resistência a feitiços e efeitos de controle:
+    * 🎯 **Acerto & Desvio Convencional:** `PHYS_ACCURACY` (Precisão Física) vs. `PHYS_EVASION` (Esquiva Física) e `MAG_ACCURACY` (Precisão Mágica) vs. `MAG_EVASION` (Desvio Mágico).
+    * 💫 **Família de Controle (Hard CC):** `CONTROL_HIT` (Acerto de Controle) vs. `CONTROL_RESIST` (Resistência a Controle), cobrindo efeitos incapacitantes como Paralisia, Sono, Confusão, Silêncio e Congelamento.
+    * 🧪 **Família de Anomalias & DoT:** `ANOMALY_HIT` (Acerto de Anomalias) vs. `ANOMALY_RESIST` (Resistência a Anomalias), cobrindo efeitos graduais e debuffs como Veneno, Queimadura, Sangramento e Cegueira.
+    * 💚 **Recursos Vitais:** `MAX_HP`, `MAX_MP`, `HEAL_POWER`, `MP_REGEN`.
+    * 🗡️ **Combate Físico & Mágico:** `PHYS_ATK`, `MAG_ATK`, `PHYS_DEF`, `MAG_DEF`, `PHYS_PEN`, `MAG_PEN`.
+    * ⚡ **Iniciativa & Crítico:** `SPEED`, `CRIT_RATE`, `CRIT_DMG`.
+* **Nova Aba `📊 Atributos & Conversões` no Estúdio Low-Code `/admin` (`AdminAttributesTab.js`, `AdminAttributesController.ts`):**
+  * Nova tela dedicada no `/admin` para visualização e edição interativa dos **6 Atributos Base**, dos **21 Atributos de Combate** e da **Matriz Procedural de Conversões** (`attribute_conversions`).
+  * Suporte a adição, remoção e edição de taxas de conversão (`ratioPerPoint`) com persistência no PostgreSQL e exportação automática de snapshot JSON para o Git.
+* **Ficha de Combate Derivada em Tempo Real na Criação e Edição de Personagens (`AdminClassesTab.js`, `AdminClassModalTemplate.js`):**
+  * Na aba **`📊 Atributos & Combate`** do modal `#classModal`, a ficha de combate derivada é calculada dinamicamente via `AdminApp.calculateCombatAttributes(baseAttrs)` à medida que o usuário edita `VIT`, `STR`, `INT`, `WIS`, `AGI` ou `DEX`.
+  * Exibição detalhada de cada atributo com valor total e detalhamento da contribuição (`Base Padrão + Bônus`).
+  * Ferramenta de **Simulação de Níveis (`Nv 1`, `Nv 10`, `Nv 50`, `Nv 100`)** que projeta o crescimento por nível (`+Atributo/Nv`) para facilitar o balanceamento das 12 classes jogáveis.
+* **Visualização da Ficha de Combate na Tabela de Personagens (`AdminClassesTab.js`):**
+  * A tabela de Personagens agora exibe diretamente na linha de cada classe um resumo visual com badges coloridos de seus atributos derivados de nível 1 (HP/MP, ATK/M.ATK, Precisão/Desvio, Hard CC Hit/Resist, DoT Hit/Resist).
+* **Modularização Arquitetural e Conformidade com a Regra #7:**
+  * Criação do módulo `AdminClassModalTemplate.js` (276 linhas), reduzindo `AdminClassesTab.js` para 968 linhas (mantendo-o estritamente abaixo do limite de 1.000 linhas).
+
+---
+
 ## [v0.5.5] - 2026-11-07
 ### Corrigido & Aprimorado
 * **Giro / Espelhamento Horizontal Real de NPCs Já Posicionados e Direto nas Tabelas sem Recriar (`McreworkSpriteSheet.js`, `AdminMapsController.ts`, `AdminNpcsTab.js`, `AdminCanvasEditor.js`, `AdminLayersDrawer.js`):**
