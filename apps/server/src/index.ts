@@ -19,6 +19,8 @@ import { AdminAuthService } from './security/AdminAuthService.js';
 import { AdminUsersController } from './controllers/AdminUsersController.js';
 import { AdminMapsController } from './controllers/AdminMapsController.js';
 import { GamePlayController } from './controllers/GamePlayController.js';
+import { AdminMonstersController } from './controllers/AdminMonstersController.js';
+import { TemporaryCombatController } from './controllers/TemporaryCombatController.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -54,6 +56,8 @@ export class EtheriaServerApp {
   private readonly usersController: AdminUsersController;
   private readonly mapsController: AdminMapsController;
   private readonly playController: GamePlayController;
+  private readonly monstersController: AdminMonstersController;
+  private readonly combatController: TemporaryCombatController;
   private readonly publicDir: string;
   private readonly mapImageCache = new Map<number, { buffer: Buffer; contentType: string }>();
 
@@ -63,6 +67,8 @@ export class EtheriaServerApp {
     this.usersController = new AdminUsersController(this.prisma);
     this.mapsController = new AdminMapsController(this.prisma);
     this.playController = new GamePlayController(this.prisma);
+    this.monstersController = new AdminMonstersController(this.prisma);
+    this.combatController = new TemporaryCombatController(this.prisma);
     this.publicDir = path.resolve(__dirname, '../public');
   }
 
@@ -399,6 +405,33 @@ export class EtheriaServerApp {
           return;
         }
 
+        // Templates de Monstros / Mobs (mcrework & PostgreSQL)
+        if (pathname === '/api/admin/mcrework/monsters' && method === 'GET') {
+          this.sendJson(res, 200, await this.monstersController.getMcreworkMonsterGallery());
+          return;
+        }
+        if (pathname === '/api/admin/monster-templates' && method === 'GET') {
+          this.sendJson(res, 200, await this.monstersController.getMonsterTemplates());
+          return;
+        }
+        if (pathname === '/api/admin/monster-templates' && method === 'POST') {
+          const dto = await this.readJsonBody(req);
+          this.sendJson(res, 201, await this.monstersController.createMonsterTemplate(dto));
+          return;
+        }
+        const monsterMatch = pathname.match(/^\/api\/admin\/monster-templates\/(\d+)$/);
+        if (monsterMatch && method === 'PUT') {
+          const id = Number(monsterMatch[1]);
+          const dto = await this.readJsonBody(req);
+          this.sendJson(res, 200, await this.monstersController.updateMonsterTemplate(id, dto));
+          return;
+        }
+        if (monsterMatch && method === 'DELETE') {
+          const id = Number(monsterMatch[1]);
+          this.sendJson(res, 200, await this.monstersController.deleteMonsterTemplate(id));
+          return;
+        }
+
         this.sendJson(res, 404, { error: 'Rota da API Admin não encontrada.' });
         return;
       }
@@ -541,6 +574,48 @@ export class EtheriaServerApp {
           return;
         }
 
+        // ⚔️ Rotas da Arena Temporária de Combate GM (Módulo Isolado e Descartável)
+        if (pathname === '/api/play/temporary-combat/monsters' && method === 'GET') {
+          this.sendJson(res, 200, await this.combatController.getAvailableMonsters());
+          return;
+        }
+        if (pathname === '/api/play/temporary-combat/start' && method === 'POST') {
+          const body = await this.readJsonBody<{
+            characterId?: number;
+            monsterTemplateId: number;
+            quantity?: number;
+            monsterLevel?: number;
+          }>(req);
+          const state = await this.combatController.startBattle(
+            Number(body.characterId) || 0,
+            Number(body.monsterTemplateId),
+            Number(body.quantity) || 1,
+            Number(body.monsterLevel) || 1
+          );
+          this.sendJson(res, 200, state);
+          return;
+        }
+        if (pathname === '/api/play/temporary-combat/action' && method === 'POST') {
+          const body = await this.readJsonBody<{
+            battleId: string;
+            actionType: 'ATTACK' | 'SKILL' | 'DEFEND';
+            targetMonsterIndex?: number;
+          }>(req);
+          const state = this.combatController.executeAction(
+            body.battleId,
+            body.actionType || 'ATTACK',
+            Number(body.targetMonsterIndex) || 0
+          );
+          this.sendJson(res, 200, state);
+          return;
+        }
+        if (pathname === '/api/play/temporary-combat/auto-resolve' && method === 'POST') {
+          const body = await this.readJsonBody<{ battleId: string }>(req);
+          const state = this.combatController.autoResolve(body.battleId);
+          this.sendJson(res, 200, state);
+          return;
+        }
+
         this.sendJson(res, 404, { error: 'Rota da API Play não encontrada.' });
         return;
       }
@@ -575,6 +650,7 @@ export class EtheriaServerApp {
     server.listen(port, '0.0.0.0', () => {
       console.log(`🚀 [Etheria Campus Server] Rodando em http://localhost:${port}/admin`);
       void this.prewarmMapImages();
+      void this.monstersController.ensureInitialMonsters();
     });
     return server;
   }

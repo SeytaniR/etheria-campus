@@ -95,11 +95,15 @@ class AdminAuth {
       document.getElementById('tabMaps').style.display = tab === 'maps' ? 'grid' : 'none';
       document.getElementById('tabNpcs').style.display = tab === 'npcs' ? 'flex' : 'none';
       document.getElementById('tabClasses').style.display = tab === 'classes' ? 'flex' : 'none';
+      const tabMonsters = document.getElementById('tabMonsters');
+      if (tabMonsters) tabMonsters.style.display = tab === 'monsters' ? 'flex' : 'none';
       document.getElementById('tabUsers').style.display = tab === 'users' ? 'flex' : 'none';
 
       document.getElementById('tabBtnMaps').className = tab === 'maps' ? 'btn-primary' : '';
       document.getElementById('tabBtnNpcs').className = tab === 'npcs' ? 'btn-primary' : '';
       document.getElementById('tabBtnClasses').className = tab === 'classes' ? 'btn-primary' : '';
+      const btnMonsters = document.getElementById('tabBtnMonsters');
+      if (btnMonsters) btnMonsters.className = tab === 'monsters' ? 'btn-primary' : '';
       document.getElementById('tabBtnUsers').className = tab === 'users' ? 'btn-primary' : '';
 
       if (tab === 'npcs') {
@@ -107,6 +111,9 @@ class AdminAuth {
       }
       if (tab === 'classes') {
         this.renderClassesCrudTable();
+      }
+      if (tab === 'monsters' && typeof this.renderMonstersCrudTable === 'function') {
+        this.renderMonstersCrudTable();
       }
     };
   }

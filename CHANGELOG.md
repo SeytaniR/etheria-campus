@@ -5,6 +5,33 @@ Qualquer IA trabalhando neste repositório **DEVE** incrementar a versão e regi
 
 ---
 
+## [v0.4.8] - 2026-11-07
+### Adicionado
+* **Tabela e Estúdio Completo de Monstros no `/admin` (`AdminMonstersTab.js` & `AdminMonstersController.ts`):**
+  * Nova aba `🐉 Monstros` na barra de navegação do Studio `/admin`.
+  * Tabela CRUD completa conectada ao PostgreSQL (`monster_templates`) com miniaturas de 532 criaturas do catálogo do repositório `mcrework`, nomes e descrições em PT-BR com chave i18n auto-incremental (`monster.monster_X.name`, `monster.monster_X.description`).
+  * Modal modular com 4 abas estruturadas:
+    1. `🎨 Visual & Solo`: Palco 2.5D com solo isométrico de grama, sombra elíptica real nos pés (`44x13px`) e steppers rápidos `[-5] [-1] [0px] [+1] [+5] ↩0` para calibração de altura (`groundOffsetY`).
+    2. `📜 Lore / i18n`: Nome e descrição traduzidos em PT-BR.
+    3. `🧬 Raça & Elemento`: Seleção entre 11 Raças, 5 Elementos, 6 Raridades, biomas de spawn natural e checkbox de domesticabilidade como Pet.
+    4. `📊 Atributos`: Pesos de VIT, STR, INT, WIS, AGI e DEX no Nv. 1.
+  * Injeção dinâmica do DOM do modal para manter `index.html` estritamente abaixo do limite de 1.000 linhas.
+  * Semeamento automático de 5 monstros icônicos iniciais (`Sa Tặc da Areia`, `Peru Selvagem da Sorte`, `Cacto Venenoso`, `Guardião Arbóreo`, `Polvo Esmeralda`).
+* **Ferramenta GM de Início Rápido de Batalha (`/play` & `PlayGmController.js`):**
+  * Adicionada seção dedicada no Painel GM (`gmDrawer`) com dropdown dinâmico de monstros cadastrados, seletor de quantidade (1 a 5 monstros) com botões rápidos `[1] [2] [3] [5]`, seletor de nível dos monstros e botão em destaque `⚔️ Entrar em Batalha GM`.
+* **Arena Temporária e Combate Simulado com Floating Numbers (`TemporaryCombatArena.js` & `TemporaryCombatController.ts`):**
+  * Módulo 100% isolado e descartável/substituível para testes imediatos sem acoplamento à arquitetura final.
+  * Campo de batalha 2.5D exibindo o Herói no lado esquerdo (com avatar, nível e barras dinâmicas de HP e MP) e até 5 monstros no lado direito em formação tática, com barras de HP individuais, mira de seleção de alvo (`🎯 ALVO`) e indicador de derrota (`💀 DERROTADO`).
+  * Ações do jogador: `🗡️ Ataque Físico`, `🔥 Golpe Especial` (1.8x dano + crítico, gasta 15 MP), `🛡️ Defender` (+50% defesa + cura de HP/MP) e `⏩ Auto-Batalha` (simulação instantânea de turnos).
+  * Números flutuantes de combate (*Floating Combat Text*) animados com tremor das unidades: dano físico normal (`-145`), dano crítico (`💥 CRÍTICO! -320`), cura (`💚 +X`) e registro de combate tático rolável em tempo real.
+  * Banner de encerramento de batalha com resumo de turnos, EXP ganho simulado, Ouro e botão de retorno ao mapa.
+
+### Refatorado
+* **Cumprimento Estrito da Regra #7 (Limite de 1.000 Linhas de Código):**
+  * Todos os arquivos continuam rigorosamente abaixo de 1.000 linhas (`AdminMonstersTab.js`: 412 linhas, `TemporaryCombatArena.js`: 355 linhas, `AdminMonstersController.ts`: 355 linhas, `TemporaryCombatController.ts`: 370 linhas, `admin/index.html`: 992 linhas, `play.js`: 906 linhas).
+
+---
+
 ## [v0.4.7] - 2026-11-07
 ### Corrigido
 * **Reversão Estrita das Animações de Movimentação (`apps/server/public/play/js/McreworkSpriteSheet.js`):**

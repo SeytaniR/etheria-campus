@@ -34,6 +34,9 @@ class PlayGmController {
         if (typeof this.updateGmGroundDisplay === 'function') {
           this.updateGmGroundDisplay();
         }
+        if (drawer.classList.contains('open') && typeof this.loadGmBattleMonsters === 'function') {
+          this.loadGmBattleMonsters();
+        }
       }
     };
 
@@ -213,6 +216,76 @@ class PlayGmController {
         alert(`Visual alternado para: ${status}\nOffset do Chão ativo: ${updated.groundOffsetY}px`);
       } catch (err) {
         alert(`Erro ao alternar forma reencarnada: ${err.message}`);
+      }
+    };
+
+    client.gmBattleQty = 1;
+    client.availableMonsters = [];
+    if (window.TemporaryCombatArena) {
+      client.combatArena = new TemporaryCombatArena(client);
+    }
+
+    client.setGmBattleQty = function (qty) {
+      this.gmBattleQty = Math.max(1, Math.min(5, Number(qty) || 1));
+      [1, 2, 3, 5].forEach((n) => {
+        const btn = document.getElementById(`btnGmBattleQty_${n}`);
+        if (btn) btn.className = n === this.gmBattleQty ? 'btn-primary' : '';
+      });
+    };
+
+    client.loadGmBattleMonsters = async function () {
+      const select = document.getElementById('gmBattleMonsterSelect');
+      if (!select) return;
+      try {
+        this.availableMonsters = await this.api('/api/play/temporary-combat/monsters');
+        if (this.availableMonsters.length === 0) {
+          select.innerHTML = '<option value="">Nenhum monstro cadastrado</option>';
+          return;
+        }
+        select.innerHTML = this.availableMonsters
+          .map(
+            (m) =>
+              `<option value="${m.id}">#${m.id} ${m.namePtBr} (${m.raceCode} • ${m.elementCode})</option>`
+          )
+          .join('');
+      } catch (err) {
+        console.error('Falha ao carregar monstros para GM:', err);
+      }
+    };
+
+    client.startGmBattle = async function () {
+      if (!this.activeChar) {
+        alert('Selecione primeiro um personagem.');
+        return;
+      }
+      const select = document.getElementById('gmBattleMonsterSelect');
+      const mobId = select ? select.value : '';
+      if (!mobId) {
+        alert('Nenhum monstro selecionado.');
+        return;
+      }
+      const lvlInput = document.getElementById('gmBattleMobLevel');
+      const mobLvl = lvlInput ? Number(lvlInput.value) || 1 : 1;
+
+      try {
+        const battleState = await this.api('/api/play/temporary-combat/start', {
+          method: 'POST',
+          body: JSON.stringify({
+            characterId: this.activeChar.id,
+            monsterTemplateId: Number(mobId),
+            quantity: this.gmBattleQty || 1,
+            monsterLevel: mobLvl,
+          }),
+        });
+
+        if (!this.combatArena && window.TemporaryCombatArena) {
+          this.combatArena = new TemporaryCombatArena(this);
+        }
+        if (this.combatArena) {
+          this.combatArena.openArena(battleState);
+        }
+      } catch (err) {
+        alert(`Erro ao iniciar batalha GM: ${err.message}`);
       }
     };
   }

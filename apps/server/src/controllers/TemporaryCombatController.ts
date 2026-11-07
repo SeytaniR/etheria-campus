@@ -1,0 +1,433 @@
+/**
+ * @file apps/server/src/controllers/TemporaryCombatController.ts
+ * @module @etheria/server
+ * @description MÓDULO TEMPORÁRIO DE COMBATE E SIMULAÇÃO DE BATALHA GM.
+ *   AVISO: Este módulo foi estruturado de forma 100% isolada e modular para que possa
+ *   ser facilmente substituído ou excluído quando a arena tática definitiva e o sistema
+ *   de combate por turnos final forem implementados.
+ */
+
+import { PrismaClient } from '@prisma/client';
+import { randomUUID } from 'node:crypto';
+
+export interface CombatUnit {
+  id: string;
+  index: number;
+  name: string;
+  level: number;
+  hp: number;
+  maxHp: number;
+  mp: number;
+  maxMp: number;
+  atk: number;
+  def: number;
+  speed: number;
+  thumbUrl: string;
+  isAlive: boolean;
+}
+
+export interface FloatingCombatNumber {
+  actor: 'player' | 'monster';
+  actorIndex?: number;
+  targetType: 'player' | 'monster';
+  targetIndex?: number;
+  type: 'DAMAGE' | 'HEAL' | 'CRIT' | 'MISS' | 'DEFEND';
+  amount: number;
+  isCrit?: boolean;
+  hpRemaining: number;
+  message: string;
+}
+
+export interface TemporaryBattleState {
+  battleId: string;
+  round: number;
+  player: CombatUnit;
+  monsters: CombatUnit[];
+  combatLog: string[];
+  isFinished: boolean;
+  winner: 'PLAYER' | 'MONSTERS' | null;
+  rewards?: {
+    exp: number;
+    gold: number;
+  };
+  lastEvents?: FloatingCombatNumber[];
+}
+
+export class TemporaryCombatController {
+  private readonly prisma: PrismaClient;
+  private readonly mcreworkPagesBaseUrl = 'https://seytanir.github.io/mcrework';
+  private readonly activeBattles: Map<string, TemporaryBattleState> = new Map();
+
+  constructor(prisma: PrismaClient) {
+    this.prisma = prisma;
+  }
+
+  /**
+   * Retorna os monstros disponíveis no banco para preencher o seletor do Painel GM.
+   */
+  public async getAvailableMonsters() {
+    const translations = await this.prisma.i18nTranslation.findMany({
+      where: { locale: 'pt-BR' },
+    });
+    const i18nMap = new Map<string, string>();
+    for (const t of translations) {
+      i18nMap.set(t.key, t.text);
+    }
+
+    const monsters = await this.prisma.monsterTemplate.findMany({
+      where: { isActive: true },
+      orderBy: { id: 'asc' },
+      include: {
+        race: true,
+        fixedElement: true,
+        defaultRarity: true,
+      },
+    });
+
+    return monsters.map((m) => ({
+      id: m.id,
+      code: m.code,
+      mcreworkMonsterKey: m.mcreworkMonsterKey,
+      namePtBr: i18nMap.get(m.nameI18nKey) ?? m.code,
+      raceCode: m.raceCode,
+      elementCode: m.fixedElementCode,
+      rarityCode: m.defaultRarity?.code || 'COMMON',
+      thumbUrl: `${this.mcreworkPagesBaseUrl}/assets/monsters/${m.mcreworkMonsterKey}/thumb.webp`,
+    }));
+  }
+
+  /**
+   * Inicia uma nova batalha temporária simulada com o monstro e quantidade escolhidos pelo GM.
+   */
+  public async startBattle(
+    characterId: number,
+    monsterTemplateId: number,
+    quantity: number = 1,
+    monsterLevel: number = 1
+  ): Promise<TemporaryBattleState> {
+    const qty = Math.max(1, Math.min(5, Number(quantity) || 1));
+    const lvl = Math.max(1, Math.min(100, Number(monsterLevel) || 1));
+
+    // Carrega dados do monstro
+    const mobTemplate = await this.prisma.monsterTemplate.findUnique({
+      where: { id: Number(monsterTemplateId) },
+      include: { defaultRarity: true },
+    });
+
+    if (!mobTemplate) {
+      throw new Error(`Monstro #${monsterTemplateId} não encontrado.`);
+    }
+
+    // Busca nome traduzido
+    const nameTrans = await this.prisma.i18nTranslation.findUnique({
+      where: { key_locale: { key: mobTemplate.nameI18nKey, locale: 'pt-BR' } },
+    });
+    const mobBaseName = nameTrans?.text || mobTemplate.code;
+
+    // Carrega dados do personagem do jogador
+    let charName = 'Heroi';
+    let charLevel = 1;
+    let charThumb = `${this.mcreworkPagesBaseUrl}/assets/characters/char1_a/thumb.webp`;
+    let charBaseStats = { VIT: 15, STR: 14, INT: 10, WIS: 10, AGI: 12, DEX: 12 };
+
+    if (characterId) {
+      const pc = await this.prisma.playerCharacter.findUnique({
+        where: { id: Number(characterId) },
+        include: { classTemplate: true },
+      });
+      if (pc) {
+        charName = pc.name;
+        charLevel = pc.level || 1;
+        const ct = pc.classTemplate;
+        if (ct) {
+          const charKey = pc.isReborn && ct.rebornMcreworkCharKey ? ct.rebornMcreworkCharKey : ct.mcreworkCharKey;
+          charThumb = `${this.mcreworkPagesBaseUrl}/assets/characters/${charKey}/thumb.webp`;
+          const b = (ct.baseAttributesJson as any) || {};
+          charBaseStats = {
+            VIT: b.VIT ?? 12,
+            STR: b.STR ?? 12,
+            INT: b.INT ?? 10,
+            WIS: b.WIS ?? 10,
+            AGI: b.AGI ?? 10,
+            DEX: b.DEX ?? 10,
+          };
+        }
+      }
+    }
+
+    // Calcula Atributos do Personagem
+    const playerMaxHp = charBaseStats.VIT * 25 + charLevel * 20;
+    const playerMaxMp = charBaseStats.INT * 15 + charLevel * 10;
+    const playerAtk = Math.round(charBaseStats.STR * 3.2 + charLevel * 4);
+    const playerDef = Math.round(charBaseStats.VIT * 1.8 + charLevel * 2.5);
+    const playerSpeed = charBaseStats.AGI * 2 + charLevel;
+
+    const playerUnit: CombatUnit = {
+      id: `player_${characterId || 1}`,
+      index: 0,
+      name: charName,
+      level: charLevel,
+      hp: playerMaxHp,
+      maxHp: playerMaxHp,
+      mp: playerMaxMp,
+      maxMp: playerMaxMp,
+      atk: playerAtk,
+      def: playerDef,
+      speed: playerSpeed,
+      thumbUrl: charThumb,
+      isAlive: true,
+    };
+
+    // Calcula Atributos do Monstro (escalonados por nível e raridade)
+    const mobStats = (mobTemplate.baseAttributesJson as any) || { VIT: 12, STR: 12, INT: 10, WIS: 10, AGI: 10, DEX: 10 };
+    const rarityMult = mobTemplate.defaultRarity?.statMultiplier || 1.0;
+
+    const mobMaxHp = Math.round((mobStats.VIT * 20 + lvl * 18) * rarityMult);
+    const mobMaxMp = Math.round((mobStats.INT * 10 + lvl * 8) * rarityMult);
+    const mobAtk = Math.round((mobStats.STR * 2.6 + lvl * 3.2) * rarityMult);
+    const mobDef = Math.round((mobStats.VIT * 1.4 + lvl * 2.0) * rarityMult);
+    const mobSpeed = Math.round((mobStats.AGI * 1.8 + lvl) * rarityMult);
+    const mobThumb = `${this.mcreworkPagesBaseUrl}/assets/monsters/${mobTemplate.mcreworkMonsterKey}/thumb.webp`;
+
+    const monsterUnits: CombatUnit[] = [];
+    for (let i = 0; i < qty; i++) {
+      monsterUnits.push({
+        id: `mob_${mobTemplate.id}_${i}`,
+        index: i,
+        name: qty > 1 ? `${mobBaseName} #${i + 1}` : mobBaseName,
+        level: lvl,
+        hp: mobMaxHp,
+        maxHp: mobMaxHp,
+        mp: mobMaxMp,
+        maxMp: mobMaxMp,
+        atk: mobAtk,
+        def: mobDef,
+        speed: mobSpeed,
+        thumbUrl: mobThumb,
+        isAlive: true,
+      });
+    }
+
+    const battleId = randomUUID();
+    const state: TemporaryBattleState = {
+      battleId,
+      round: 1,
+      player: playerUnit,
+      monsters: monsterUnits,
+      combatLog: [
+        `⚔️ Batalha iniciada! [${charName}] (Nv.${charLevel}) entrou em combate contra ${qty}x [${mobBaseName}] (Nv.${lvl})!`,
+      ],
+      isFinished: false,
+      winner: null,
+      lastEvents: [],
+    };
+
+    this.activeBattles.set(battleId, state);
+
+    // Limpeza de batalhas antigas após 1 hora para economizar memória
+    setTimeout(() => {
+      this.activeBattles.delete(battleId);
+    }, 60 * 60 * 1000);
+
+    return state;
+  }
+
+  /**
+   * Executa uma ação de combate escolhida pelo jogador no turno atual.
+   */
+  public executeAction(
+    battleId: string,
+    actionType: 'ATTACK' | 'SKILL' | 'DEFEND',
+    targetMonsterIndex: number = 0
+  ): TemporaryBattleState {
+    const battle = this.activeBattles.get(battleId);
+    if (!battle) {
+      throw new Error(`Batalha #${battleId} não encontrada ou expirada.`);
+    }
+
+    if (battle.isFinished) {
+      return battle;
+    }
+
+    const events: FloatingCombatNumber[] = [];
+    const player = battle.player;
+    let targetMob = battle.monsters.find((m) => m.index === Number(targetMonsterIndex) && m.isAlive);
+
+    // Se o alvo selecionado já estiver morto, mira no primeiro vivo
+    if (!targetMob) {
+      targetMob = battle.monsters.find((m) => m.isAlive);
+    }
+
+    if (!targetMob) {
+      battle.isFinished = true;
+      battle.winner = 'PLAYER';
+      return battle;
+    }
+
+    let isDefending = false;
+
+    // 1. AÇÃO DO JOGADOR
+    if (actionType === 'ATTACK') {
+      const isCrit = Math.random() < 0.2; // 20% crit rate
+      const variance = 0.9 + Math.random() * 0.2;
+      let rawDmg = Math.round(player.atk * variance - targetMob.def * 0.4);
+      if (isCrit) rawDmg = Math.round(rawDmg * 1.6);
+      const dmg = Math.max(5, rawDmg);
+
+      targetMob.hp = Math.max(0, targetMob.hp - dmg);
+      if (targetMob.hp === 0) targetMob.isAlive = false;
+
+      events.push({
+        actor: 'player',
+        targetType: 'monster',
+        targetIndex: targetMob.index,
+        type: isCrit ? 'CRIT' : 'DAMAGE',
+        amount: dmg,
+        isCrit,
+        hpRemaining: targetMob.hp,
+        message: `${player.name} desferiu um Golpe ${isCrit ? 'CRÍTICO ' : ''}em ${targetMob.name} causando ${dmg} de Dano!`,
+      });
+
+      battle.combatLog.unshift(
+        `🗡️ [${player.name}] atacou [${targetMob.name}] causando ${dmg} de dano${isCrit ? ' (💥 CRÍTICO!)' : ''}!`
+      );
+
+      if (!targetMob.isAlive) {
+        battle.combatLog.unshift(`💀 [${targetMob.name}] foi derrotado!`);
+      }
+    } else if (actionType === 'SKILL') {
+      const mpCost = 15;
+      if (player.mp >= mpCost) {
+        player.mp -= mpCost;
+      }
+      const isCrit = Math.random() < 0.3; // 30% crit rate na skill
+      const variance = 1.0 + Math.random() * 0.3;
+      let rawDmg = Math.round(player.atk * 1.8 * variance - targetMob.def * 0.2);
+      if (isCrit) rawDmg = Math.round(rawDmg * 1.5);
+      const dmg = Math.max(15, rawDmg);
+
+      targetMob.hp = Math.max(0, targetMob.hp - dmg);
+      if (targetMob.hp === 0) targetMob.isAlive = false;
+
+      events.push({
+        actor: 'player',
+        targetType: 'monster',
+        targetIndex: targetMob.index,
+        type: 'CRIT',
+        amount: dmg,
+        isCrit: true,
+        hpRemaining: targetMob.hp,
+        message: `${player.name} conjurou Habilidade Especial em ${targetMob.name} causando ${dmg} de Dano Elemental!`,
+      });
+
+      battle.combatLog.unshift(
+        `🔥 [${player.name}] lançou Golpe Especial em [${targetMob.name}] causando ${dmg} de dano devastador!`
+      );
+
+      if (!targetMob.isAlive) {
+        battle.combatLog.unshift(`💀 [${targetMob.name}] foi destruído pelo golpe especial!`);
+      }
+    } else if (actionType === 'DEFEND') {
+      isDefending = true;
+      const healAmount = Math.round(player.maxHp * 0.08);
+      const mpHeal = 15;
+      player.hp = Math.min(player.maxHp, player.hp + healAmount);
+      player.mp = Math.min(player.maxMp, player.mp + mpHeal);
+
+      events.push({
+        actor: 'player',
+        targetType: 'player',
+        type: 'HEAL',
+        amount: healAmount,
+        hpRemaining: player.hp,
+        message: `${player.name} assumiu Postura Defensiva (+50% Defesa, +${healAmount} HP, +${mpHeal} MP)!`,
+      });
+
+      battle.combatLog.unshift(
+        `🛡️ [${player.name}] assumiu Postura Defensiva, recuperando ${healAmount} HP e aumentando sua guarda!`
+      );
+    }
+
+    // 2. VERIFICA SE TODOS OS MONSTROS FORAM DERROTADOS
+    const aliveMonsters = battle.monsters.filter((m) => m.isAlive);
+    if (aliveMonsters.length === 0) {
+      battle.isFinished = true;
+      battle.winner = 'PLAYER';
+      const totalExp = battle.monsters.reduce((acc, m) => acc + m.level * 45, 0);
+      const totalGold = battle.monsters.reduce((acc, m) => acc + m.level * 18, 0);
+      battle.rewards = { exp: totalExp, gold: totalGold };
+      battle.combatLog.unshift(`🏆 VITÓRIA! Todos os monstros foram derrotados! (+${totalExp} EXP, +${totalGold} Ouro simulados)`);
+      battle.lastEvents = events;
+      return battle;
+    }
+
+    // 3. RETALIAÇÃO DOS MONSTROS VIVOS
+    const playerEffectiveDef = isDefending ? Math.round(player.def * 1.5) : player.def;
+
+    for (const mob of aliveMonsters) {
+      const isCrit = Math.random() < 0.12;
+      const variance = 0.85 + Math.random() * 0.3;
+      let rawDmg = Math.round(mob.atk * variance - playerEffectiveDef * 0.35);
+      if (isCrit) rawDmg = Math.round(rawDmg * 1.4);
+      const dmg = Math.max(2, rawDmg);
+
+      player.hp = Math.max(0, player.hp - dmg);
+      if (player.hp === 0) player.isAlive = false;
+
+      events.push({
+        actor: 'monster',
+        actorIndex: mob.index,
+        targetType: 'player',
+        type: isCrit ? 'CRIT' : 'DAMAGE',
+        amount: dmg,
+        isCrit,
+        hpRemaining: player.hp,
+        message: `${mob.name} atacou ${player.name} causando ${dmg} de dano!`,
+      });
+
+      battle.combatLog.unshift(
+        `💥 [${mob.name}] atacou [${player.name}] causando ${dmg} de dano${isCrit ? ' (💥 CRÍTICO!)' : ''}!`
+      );
+
+      if (!player.isAlive) {
+        battle.isFinished = true;
+        battle.winner = 'MONSTERS';
+        battle.combatLog.unshift(`💀 [${player.name}] foi derrotado em combate!`);
+        break;
+      }
+    }
+
+    battle.round += 1;
+    battle.lastEvents = events;
+    return battle;
+  }
+
+  /**
+   * Simula automaticamente toda a batalha até o fim (Auto-Resolve).
+   */
+  public autoResolve(battleId: string): TemporaryBattleState {
+    const battle = this.activeBattles.get(battleId);
+    if (!battle) {
+      throw new Error(`Batalha #${battleId} não encontrada ou expirada.`);
+    }
+
+    let iterations = 0;
+    while (!battle.isFinished && iterations < 40) {
+      iterations++;
+      const aliveMobs = battle.monsters.filter((m) => m.isAlive);
+      if (aliveMobs.length === 0) break;
+      const target = aliveMobs[0];
+      const useSkill = battle.player.mp >= 15 && Math.random() < 0.4;
+      this.executeAction(battleId, useSkill ? 'SKILL' : 'ATTACK', target.index);
+    }
+
+    return battle;
+  }
+
+  /**
+   * Finaliza ou cancela uma batalha.
+   */
+  public endBattle(battleId: string): boolean {
+    return this.activeBattles.delete(battleId);
+  }
+}

@@ -294,6 +294,8 @@ model MonsterTemplate {
   code               String         @unique
   mcreworkMonsterKey String         @map("mcrework_monster_key")
   nameI18nKey        String         @map("name_i18n_key")
+  descriptionI18nKey String?        @map("description_i18n_key")
+  groundOffsetY      Int            @default(0) @map("ground_offset_y")
   raceCode           String         @map("race_code")
   fixedElementCode   String         @map("fixed_element_code") /// Elemento fixo quando atua como monstro inimigo
   defaultRarityId    Int            @map("default_rarity_id")

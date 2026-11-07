@@ -438,6 +438,7 @@
         <button id="tabBtnMaps" class="btn-primary" onclick="AdminApp.switchTab('maps')">🗺️ Mapas</button>
         <button id="tabBtnNpcs" onclick="AdminApp.switchTab('npcs')">🧙 Tabela de NPCs</button>
         <button id="tabBtnClasses" onclick="AdminApp.switchTab('classes')">🦸 Personagens</button>
+        <button id="tabBtnMonsters" onclick="AdminApp.switchTab('monsters')">🐉 Monstros</button>
         <button id="tabBtnUsers" onclick="AdminApp.switchTab('users')">🔐 Contas</button>
         <button class="btn-success" onclick="window.open('/play', '_blank')">🎮 Testar no Jogo (/play)</button>
         <button class="btn-danger" onclick="AdminApp.logout()">Sair</button>
@@ -604,6 +605,37 @@
         </div>
       </div>
     </div>
+    <!-- ABA: CRUD DE MONSTROS / MOBS -->
+    <div id="tabMonsters" style="display:none; padding:16px; max-width:1200px; margin:0 auto; width:100%; gap:16px; flex-direction:column;">
+      <div class="panel">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
+          <div>
+            <h3>🐉 Tabela de Monstros & Pets (Templates no PostgreSQL)</h3>
+            <p style="font-size:0.8rem; color:var(--text-muted); margin:0;">
+              Gerencie criaturas, atributos base, biomas de spawn, calibração de solo e domesticabilidade como Pet.
+            </p>
+          </div>
+          <button class="btn-primary" onclick="AdminApp.openMonsterTemplateModal()">➕ Novo Monstro do mcrework</button>
+        </div>
+        <div style="overflow-x:auto; margin-top:12px;">
+          <table class="crud-table">
+            <thead>
+              <tr>
+                <th>ID / Código</th>
+                <th>Visual (mcrework)</th>
+                <th>Nome & Descrição (PT-BR)</th>
+                <th>Raça / Elemento</th>
+                <th>Raridade & Pet</th>
+                <th>Atributos Base</th>
+                <th>Biomas</th>
+                <th>Ações</th>
+              </tr>
+            </thead>
+            <tbody id="monstersTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
     <!-- ABA 4: CRUD DE CONTAS DE USUÁRIOS (ACESSO FORA DO LOCALHOST) -->
     <div id="tabUsers" style="display:none; padding:16px; max-width:1100px; margin:0 auto; width:100%; gap:16px; flex-direction:column;">
       <div class="panel">
@@ -613,18 +645,9 @@
         </p>
         <input type="hidden" id="editUserId" value="" />
         <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:10px; align-items:end;">
-          <div class="field">
-            <label>Username (Login)</label>
-            <input type="text" id="userUsername" placeholder="Ex: dev" />
-          </div>
-          <div class="field">
-            <label>E-mail</label>
-            <input type="email" id="userEmail" placeholder="Ex: dev@etheria.com" />
-          </div>
-          <div class="field">
-            <label>Senha (mín. 4 caracteres)</label>
-            <input type="password" id="userPassword" placeholder="Senha de acesso" />
-          </div>
+          <div class="field"><label>Username (Login)</label><input type="text" id="userUsername" placeholder="Ex: dev" /></div>
+          <div class="field"><label>E-mail</label><input type="email" id="userEmail" placeholder="Ex: dev@etheria.com" /></div>
+          <div class="field"><label>Senha (mín. 4 caracteres)</label><input type="password" id="userPassword" placeholder="Senha de acesso" /></div>
           <div class="field">
             <label>Cargo (Role)</label>
             <select id="userRole">
@@ -960,6 +983,7 @@
   <script src="/admin/js/AdminUsersTab.js"></script>
   <script src="/admin/js/AdminNpcsTab.js"></script>
   <script src="/admin/js/AdminClassesTab.js"></script>
+  <script src="/admin/js/AdminMonstersTab.js"></script>
   <script src="/admin/js/AdminCanvasEditor.js"></script>
   <script src="/admin/js/AdminLayersDrawer.js"></script>
   <script src="/admin/admin.js"></script>

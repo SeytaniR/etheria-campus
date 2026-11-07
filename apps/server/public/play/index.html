@@ -534,6 +534,35 @@
         </button>
       </div>
 
+      <!-- ⚔️ Simular Batalha / Arena Temporária GM -->
+      <div style="display:flex; flex-direction:column; gap:6px; border-top:1px solid var(--border); padding-top:8px;">
+        <label style="font-size:0.75rem; color:#f43f5e; font-weight:700;">
+          ⚔️ Simulação de Batalha GM (Arena Temporária):
+        </label>
+        <div style="display:flex; flex-direction:column; gap:4px;">
+          <label style="font-size:0.7rem; color:var(--text-muted);">Monstro:</label>
+          <select id="gmBattleMonsterSelect" style="padding:4px 6px; font-size:0.76rem; background:#020617; border:1px solid var(--border); color:#f8fafc; border-radius:4px;"></select>
+        </div>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:6px;">
+          <div>
+            <label style="font-size:0.7rem; color:var(--text-muted);">Quantidade (1-5):</label>
+            <div style="display:flex; gap:3px;">
+              <button id="btnGmBattleQty_1" class="btn-primary" onclick="PlayApp.setGmBattleQty(1)" style="flex:1; padding:3px 2px; font-size:0.72rem;">1</button>
+              <button id="btnGmBattleQty_2" onclick="PlayApp.setGmBattleQty(2)" style="flex:1; padding:3px 2px; font-size:0.72rem;">2</button>
+              <button id="btnGmBattleQty_3" onclick="PlayApp.setGmBattleQty(3)" style="flex:1; padding:3px 2px; font-size:0.72rem;">3</button>
+              <button id="btnGmBattleQty_5" onclick="PlayApp.setGmBattleQty(5)" style="flex:1; padding:3px 2px; font-size:0.72rem;">5</button>
+            </div>
+          </div>
+          <div>
+            <label style="font-size:0.7rem; color:var(--text-muted);">Nível do Mob:</label>
+            <input type="number" id="gmBattleMobLevel" value="1" min="1" max="100" style="width:100%; padding:3px 5px; font-size:0.78rem;" />
+          </div>
+        </div>
+        <button class="btn-primary" onclick="PlayApp.startGmBattle()" style="padding:7px; font-weight:700; font-size:0.78rem; background:linear-gradient(135deg, #e11d48, #be123c); border-color:#f43f5e; margin-top:2px;">
+          ⚔️ Entrar em Batalha GM
+        </button>
+      </div>
+
       <div style="display:flex; flex-direction:column; gap:6px; border-top:1px solid var(--border); padding-top:8px;">
         <label style="font-size:0.75rem; color:var(--text-muted); font-weight:700;">
           ⚡ Velocidade de Movimento GM:
@@ -561,6 +590,7 @@
 
   <script src="/play/js/ClientPolygonMesh.js"></script>
   <script src="/play/js/McreworkSpriteSheet.js"></script>
+  <script src="/play/js/TemporaryCombatArena.js"></script>
   <script src="/play/js/PlayGmController.js"></script>
   <script src="/play/play.js"></script>
 </body>

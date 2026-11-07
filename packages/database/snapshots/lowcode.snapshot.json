@@ -1,6 +1,6 @@
 {
   "version": "0.2.0",
-  "exportedAt": "2026-11-07T03:04:02.915Z",
+  "exportedAt": "2026-11-07T05:30:51.028Z",
   "i18nTranslations": [
     {
       "id": 1,
@@ -1281,7 +1281,7 @@
       "key": "class.class_2.name",
       "locale": "pt-BR",
       "text": "Ladina",
-      "updatedAt": "2026-11-07T02:19:12.731Z"
+      "updatedAt": "2026-11-07T05:08:35.732Z"
     },
     {
       "id": 203,
@@ -1352,6 +1352,76 @@
       "locale": "pt-BR",
       "text": "Necromante",
       "updatedAt": "2026-11-07T02:28:36.520Z"
+    },
+    {
+      "id": 217,
+      "key": "monster.monster_1.name",
+      "locale": "pt-BR",
+      "text": "Sa Tặc da Areia",
+      "updatedAt": "2026-11-07T05:30:50.325Z"
+    },
+    {
+      "id": 218,
+      "key": "monster.monster_1.description",
+      "locale": "pt-BR",
+      "text": "Bandido nômade que ronda as dunas e desfiladeiros áridos atacando caravanas.",
+      "updatedAt": "2026-11-07T05:30:50.350Z"
+    },
+    {
+      "id": 219,
+      "key": "monster.monster_2.name",
+      "locale": "pt-BR",
+      "text": "Peru Selvagem da Sorte",
+      "updatedAt": "2026-11-07T05:30:50.572Z"
+    },
+    {
+      "id": 220,
+      "key": "monster.monster_2.description",
+      "locale": "pt-BR",
+      "text": "Criatura veloz e espalhafatosa das pradarias. Dizem que traz sorte a quem a doma.",
+      "updatedAt": "2026-11-07T05:30:50.576Z"
+    },
+    {
+      "id": 221,
+      "key": "monster.monster_3.name",
+      "locale": "pt-BR",
+      "text": "Cacto Venenoso",
+      "updatedAt": "2026-11-07T05:30:50.677Z"
+    },
+    {
+      "id": 222,
+      "key": "monster.monster_3.description",
+      "locale": "pt-BR",
+      "text": "Vegetal animado e agressivo capaz de disparar espinhos com toxina paralisante.",
+      "updatedAt": "2026-11-07T05:30:50.681Z"
+    },
+    {
+      "id": 223,
+      "key": "monster.monster_4.name",
+      "locale": "pt-BR",
+      "text": "Guardião Arbóreo",
+      "updatedAt": "2026-11-07T05:30:50.817Z"
+    },
+    {
+      "id": 224,
+      "key": "monster.monster_4.description",
+      "locale": "pt-BR",
+      "text": "Espírito ancestral da floresta mística em forma de árvore frondosa.",
+      "updatedAt": "2026-11-07T05:30:50.863Z"
+    },
+    {
+      "id": 225,
+      "key": "monster.monster_5.name",
+      "locale": "pt-BR",
+      "text": "Polvo Esmeralda",
+      "updatedAt": "2026-11-07T05:30:50.986Z"
+    },
+    {
+      "id": 226,
+      "key": "monster.monster_5.description",
+      "locale": "pt-BR",
+      "text": "Criatura anfíbia curiosa com tentáculos elásticos e pele verde fluorescente.",
+      "updatedAt": "2026-11-07T05:30:51.001Z"
     }
   ],
   "biomes": [
@@ -17308,9 +17378,9 @@
       "code": "class_2",
       "mcreworkCharKey": "PC_FEMALE_000004",
       "nameI18nKey": "class.class_2.name",
-      "descriptionI18nKey": null,
+      "descriptionI18nKey": "class.class_2.description",
       "rebornMcreworkCharKey": null,
-      "groundOffsetY": 0,
+      "groundOffsetY": 40,
       "rebornGroundOffsetY": 0,
       "raceCode": "HUMAN",
       "baseAttributesJson": {
@@ -17685,7 +17755,123 @@
       "spawnWeight": 3
     }
   ],
-  "monsterTemplates": [],
+  "monsterTemplates": [
+    {
+      "id": 1,
+      "code": "monster_1",
+      "mcreworkMonsterKey": "creature_000001",
+      "nameI18nKey": "monster.monster_1.name",
+      "descriptionI18nKey": "monster.monster_1.description",
+      "groundOffsetY": 0,
+      "raceCode": "BEAST",
+      "fixedElementCode": "AIR",
+      "defaultRarityId": 1,
+      "isTamableAsPet": true,
+      "baseAttributesJson": {
+        "AGI": 12,
+        "DEX": 11,
+        "INT": 8,
+        "STR": 13,
+        "VIT": 14,
+        "WIS": 9
+      },
+      "skillIdsJson": [],
+      "lootTableJson": [],
+      "isActive": true
+    },
+    {
+      "id": 2,
+      "code": "monster_2",
+      "mcreworkMonsterKey": "creature_000002",
+      "nameI18nKey": "monster.monster_2.name",
+      "descriptionI18nKey": "monster.monster_2.description",
+      "groundOffsetY": 0,
+      "raceCode": "BEAST",
+      "fixedElementCode": "NEUTRAL",
+      "defaultRarityId": 1,
+      "isTamableAsPet": true,
+      "baseAttributesJson": {
+        "AGI": 15,
+        "DEX": 14,
+        "INT": 10,
+        "STR": 10,
+        "VIT": 12,
+        "WIS": 10
+      },
+      "skillIdsJson": [],
+      "lootTableJson": [],
+      "isActive": true
+    },
+    {
+      "id": 3,
+      "code": "monster_3",
+      "mcreworkMonsterKey": "creature_000003",
+      "nameI18nKey": "monster.monster_3.name",
+      "descriptionI18nKey": "monster.monster_3.description",
+      "groundOffsetY": 0,
+      "raceCode": "PLANT",
+      "fixedElementCode": "EARTH",
+      "defaultRarityId": 1,
+      "isTamableAsPet": true,
+      "baseAttributesJson": {
+        "AGI": 8,
+        "DEX": 10,
+        "INT": 12,
+        "STR": 11,
+        "VIT": 16,
+        "WIS": 11
+      },
+      "skillIdsJson": [],
+      "lootTableJson": [],
+      "isActive": true
+    },
+    {
+      "id": 4,
+      "code": "monster_4",
+      "mcreworkMonsterKey": "creature_000004",
+      "nameI18nKey": "monster.monster_4.name",
+      "descriptionI18nKey": "monster.monster_4.description",
+      "groundOffsetY": 0,
+      "raceCode": "PLANT",
+      "fixedElementCode": "WATER",
+      "defaultRarityId": 1,
+      "isTamableAsPet": true,
+      "baseAttributesJson": {
+        "AGI": 7,
+        "DEX": 9,
+        "INT": 11,
+        "STR": 14,
+        "VIT": 18,
+        "WIS": 12
+      },
+      "skillIdsJson": [],
+      "lootTableJson": [],
+      "isActive": true
+    },
+    {
+      "id": 5,
+      "code": "monster_5",
+      "mcreworkMonsterKey": "creature_000006",
+      "nameI18nKey": "monster.monster_5.name",
+      "descriptionI18nKey": "monster.monster_5.description",
+      "groundOffsetY": 0,
+      "raceCode": "AQUATIC",
+      "fixedElementCode": "WATER",
+      "defaultRarityId": 1,
+      "isTamableAsPet": true,
+      "baseAttributesJson": {
+        "AGI": 12,
+        "DEX": 13,
+        "INT": 14,
+        "STR": 11,
+        "VIT": 13,
+        "WIS": 13
+      },
+      "skillIdsJson": [],
+      "lootTableJson": [],
+      "isActive": true
+    }
+  ],
   "monsterBiomes": [],
   "skillTemplates": [],
   "statusEffectTemplates": [],
