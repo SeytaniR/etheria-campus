@@ -161,7 +161,8 @@ class McreworkSpriteSheet {
     ctx.fillStyle = 'rgba(0, 0, 0, 0.45)';
     ctx.fill();
 
-    const dir = (((Number(direction) || 0) % 8) + 8) % 8;
+    const rawDir = (((Number(direction) || 0) % 8) + 8) % 8;
+    const isMonster = Boolean(this.atlasJsonUrl && this.atlasJsonUrl.includes('/monsters/'));
     const isNpcSingleAngle =
       Boolean(this.atlasJsonUrl && this.atlasJsonUrl.includes('/npcs/')) ||
       Boolean(
@@ -169,25 +170,62 @@ class McreworkSpriteSheet {
           this.atlasData.animations['0-0']?.[0] &&
           this.atlasData.animations['0-0']?.[0] === this.atlasData.animations['4-0']?.[0]
       );
-    const flipX = isNpcSingleAngle && dir > 0;
+
+    let effectiveDir = rawDir;
+    let flipX = false;
+
+    if (isNpcSingleAngle) {
+      flipX = rawDir > 0;
+    } else if (isMonster) {
+      // Monstros possuem 2 ângulos mestres: SE (dir 1) e NW (dir 5).
+      // Ao espelhar horizontalmente (flipX), habilitamos todos os 4 quadrantes isométricos:
+      // - SE (dir 1, 2, 0): nativo SE (olhando Sudeste / Direita-Baixo)
+      // - SW (dir 7, 6): SE espelhado (olhando Sudoeste / Esquerda-Baixo)
+      // - NW (dir 5, 4): nativo NW (olhando Noroeste / Esquerda-Cima)
+      // - NE (dir 3): NW espelhado (olhando Nordeste / Direita-Cima)
+      if (rawDir === 7 || rawDir === 6) {
+        effectiveDir = 1;
+        flipX = true;
+      } else if (rawDir === 3) {
+        effectiveDir = 5;
+        flipX = true;
+      } else if (rawDir === 4 || rawDir === 5) {
+        effectiveDir = 5;
+        flipX = false;
+      } else {
+        effectiveDir = 1;
+        flipX = false;
+      }
+    }
 
     if (this.ready && this.atlasData && this.image) {
       const anims = this.atlasData.animations || {};
       const frames = this.atlasData.frames || {};
 
-      // No mcrework, a chave da animação é `${dir}-${action}`
-      // Ações: 0 = Parado (Stand), 1 = Caminhada (Walk), 2 = Postura (Combat), 3 = Golpe (Atk), 4 = Defesa, 5 = Dano (Hit), 6 = Morte, 7 = Skill/Magia
-      const primaryKey = `${dir}-${action}`;
-      let seq =
-        anims[primaryKey] ||
-        (action !== 0 ? anims[`${dir}-1`] : null) ||
-        anims[`${dir}-0`] ||
-        anims[`0-${action}`] ||
-        anims['0-0'] ||
-        Object.values(anims)[0];
+      // No mcrework, a chave da animação é `${effectiveDir}-${action}`
+      // Ações: 0 = Parado, 1 = Caminhada/Corrida, 2 = Postura, 3 = Ataque, 4 = Defesa, 5 = Dano, 6 = Morte, 7 = Magia
+      const primaryKey = `${effectiveDir}-${action}`;
+      let seq = anims[primaryKey];
 
-      if (!Array.isArray(seq) || seq.length === 0) {
-        seq = Object.keys(frames);
+      // Se a criatura estiver correndo (action = 1) e o atlas do monstro tiver apenas 1 frame estático de walk,
+      // faz fallback para o ciclo animado de Stand (action = 0), que possui os frames de respiração/flutuação
+      if (action === 1 && Array.isArray(seq)) {
+        const uniqueFrames = new Set(seq).size;
+        if (uniqueFrames <= 1 && anims[`${effectiveDir}-0`]) {
+          const idleSeq = anims[`${effectiveDir}-0`];
+          if (Array.isArray(idleSeq) && new Set(idleSeq).size > 1) {
+            seq = idleSeq;
+          }
+        }
+      }
+
+      if (!seq || !Array.isArray(seq) || seq.length === 0) {
+        seq =
+          (action !== 0 ? anims[`${effectiveDir}-1`] : null) ||
+          anims[`${effectiveDir}-0`] ||
+          anims[`0-${action}`] ||
+          anims['0-0'] ||
+          Object.values(anims)[0];
       }
 
       if (seq.length > 0) {
@@ -212,12 +250,13 @@ class McreworkSpriteSheet {
           const drawW = Math.round(sw * scale);
           const drawH = Math.round(sh * scale);
 
-          // Ancoragem nos pés (0.5 no X, 0.92 no Y) + suporte a espelhamento horizontal (flipX) para girar NPCs
+          // Ancoragem nos pés (0.5 no X, 0.92 no Y) + suporte a espelhamento horizontal (flipX)
           const anchorX = 0.5;
           const anchorY = 0.92;
           const effectiveOffX = flipX ? origW - offX - drawW : offX;
+          const stepBob = (action === 1 && isMonster) ? Math.sin((elapsedMs / 1000) * 12) * (3.5 * scale) : 0;
           const drawX = Math.round(worldX - origW * anchorX + effectiveOffX);
-          const drawY = Math.round(worldY - origH * anchorY + offY + gOffY);
+          const drawY = Math.round(worldY - origH * anchorY + offY + gOffY + stepBob);
 
           this.renderSpriteWithOverlapClipping(
             ctx,

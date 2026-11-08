@@ -194,7 +194,7 @@ class ActionCombatArena {
         name: m.name || `Monstro #${idx + 1}`,
         x: cw * 0.68 + Math.cos(angle) * (cw * 0.12),
         y: ch * 0.50 + Math.sin(angle) * (ch * 0.22),
-        dir: 2, // Olhando para o jogador
+        dir: this.compute8Direction(this.player.x - (cw * 0.68), this.player.y - (ch * 0.50)),
         action: 0,
         isAlive: true,
         hp: m.hp || 300,
@@ -456,10 +456,9 @@ class ActionCombatArena {
   }
 
   compute8Direction(dx, dy) {
-    const rad = Math.atan2(dy, dx);
-    let deg = (rad * 180) / Math.PI;
-    if (deg < 0) deg += 360;
-    return Math.floor((deg + 22.5) / 45) % 8;
+    const angle = Math.atan2(dy, dx) * (180 / Math.PI);
+    const sector = Math.round((90 - angle) / 45);
+    return ((sector % 8) + 8) % 8;
   }
 
   loop(now) {
@@ -572,6 +571,7 @@ class ActionCombatArena {
         mob.action = 1; // Correndo
       } else {
         mob.action = 0;
+        mob.dir = this.compute8Direction(mdx, mdy);
         if (now >= mob.nextAttackTime) {
           mob.nextAttackTime = now + 1800 + Math.random() * 800;
           mob.attackTimer = 0.40;
