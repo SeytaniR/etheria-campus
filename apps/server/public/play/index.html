@@ -354,6 +354,191 @@
       flex-direction: column;
       gap: 12px;
     }
+
+    /* ==========================================================================
+       5. ARENA INSTANCIADA DE COMBATE LIVRE (ACTION RPG MOBILE-FIRST)
+       ========================================================================== */
+    .action-arena-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 120;
+      background: #020617;
+      display: none;
+      flex-direction: column;
+      user-select: none;
+      -webkit-user-select: none;
+      touch-action: none;
+      overflow: hidden;
+    }
+    .action-arena-canvas-container {
+      flex: 1;
+      position: relative;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+    }
+    #actionBattleCanvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+    .action-hud-top {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      right: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      pointer-events: none;
+      z-index: 10;
+      gap: 8px;
+    }
+    .action-player-bars {
+      pointer-events: auto;
+      background: rgba(15, 23, 42, 0.88);
+      border: 1px solid rgba(56, 189, 248, 0.4);
+      border-radius: 8px;
+      padding: 6px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      min-width: 170px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.6);
+    }
+    .action-bar-track {
+      width: 100%;
+      height: 10px;
+      background: #1e293b;
+      border-radius: 999px;
+      overflow: hidden;
+      border: 1px solid #334155;
+    }
+    .action-bar-fill-hp {
+      height: 100%;
+      background: linear-gradient(90deg, #ef4444, #f87171);
+      transition: width 0.15s ease;
+    }
+    .action-bar-fill-mp {
+      height: 100%;
+      background: linear-gradient(90deg, #3b82f6, #60a5fa);
+      transition: width 0.15s ease;
+    }
+    .action-top-actions {
+      pointer-events: auto;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .action-btn-flee {
+      background: rgba(239, 68, 68, 0.85);
+      color: #fff;
+      border: 1px solid #f87171;
+      padding: 6px 12px;
+      border-radius: 999px;
+      font-size: 0.76rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .action-joystick-zone {
+      position: absolute;
+      bottom: 16px;
+      left: 16px;
+      width: 130px;
+      height: 130px;
+      border-radius: 50%;
+      background: rgba(15, 23, 42, 0.45);
+      border: 1.5px dashed rgba(56, 189, 248, 0.35);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 10;
+      touch-action: none;
+    }
+    .action-joystick-thumb {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: radial-gradient(circle, #38bdf8 0%, #0284c7 100%);
+      box-shadow: 0 0 12px rgba(56, 189, 248, 0.6);
+      pointer-events: none;
+      transition: transform 0.05s ease;
+    }
+    .action-buttons-cluster {
+      position: absolute;
+      bottom: 16px;
+      right: 16px;
+      display: grid;
+      grid-template-columns: repeat(2, 60px);
+      gap: 10px;
+      z-index: 10;
+    }
+    .action-circle-btn {
+      width: 58px;
+      height: 58px;
+      border-radius: 50%;
+      border: 2px solid rgba(255, 255, 255, 0.25);
+      background: rgba(15, 23, 42, 0.85);
+      color: #fff;
+      font-size: 0.8rem;
+      font-weight: 700;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+      position: relative;
+      touch-action: manipulation;
+    }
+    .action-circle-btn:active { transform: scale(0.92); }
+    .action-btn-attack {
+      width: 68px;
+      height: 68px;
+      background: radial-gradient(circle, #ef4444 0%, #991b1b 100%);
+      border-color: #fca5a5;
+      grid-column: 2;
+      grid-row: 2;
+      font-size: 1.2rem;
+    }
+    .action-btn-dash {
+      background: radial-gradient(circle, #0284c7 0%, #075985 100%);
+      border-color: #7dd3fc;
+    }
+    .action-btn-skill {
+      background: radial-gradient(circle, #8b5cf6 0%, #5b21b6 100%);
+      border-color: #c4b5fd;
+    }
+    .action-cooldown-overlay {
+      position: absolute;
+      inset: 0;
+      border-radius: 50%;
+      background: rgba(0, 0, 0, 0.65);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.75rem;
+      color: #fde047;
+      font-weight: 700;
+    }
+    .action-result-banner {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: rgba(15, 23, 42, 0.95);
+      border: 2px solid #38bdf8;
+      border-radius: 14px;
+      padding: 20px 28px;
+      text-align: center;
+      box-shadow: 0 0 40px rgba(0,0,0,0.9), 0 0 20px rgba(56, 189, 248, 0.4);
+      z-index: 25;
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      max-width: 90vw;
+    }
   </style>
 </head>
 <body>
@@ -589,9 +774,72 @@
     </div>
   </div>
 
+  <!-- ARENA INSTANCIADA DE COMBATE LIVRE (ACTION RPG) -->
+  <div id="actionCombatModal" class="action-arena-backdrop">
+    <div class="action-hud-top">
+      <div class="action-player-bars">
+        <div style="display:flex; justify-content:space-between; font-size:0.75rem; font-weight:700;">
+          <span id="actHudPlayerName" style="color:#7dd3fc;">Herói</span>
+          <span id="actHudPlayerHpText" style="color:#fca5a5;">100 / 100</span>
+        </div>
+        <div class="action-bar-track">
+          <div id="actHudPlayerHpBar" class="action-bar-fill-hp" style="width:100%;"></div>
+        </div>
+        <div class="action-bar-track">
+          <div id="actHudPlayerMpBar" class="action-bar-fill-mp" style="width:100%;"></div>
+        </div>
+      </div>
+
+      <div class="action-top-actions">
+        <div style="background:rgba(15,23,42,0.85); border:1px solid #334155; padding:6px 12px; border-radius:999px; font-size:0.75rem; color:#86efac; font-weight:700;">
+          👾 <span id="actHudMonstersAlive">0</span> Restante(s)
+        </div>
+        <button type="button" class="action-btn-flee" onclick="PlayApp.actionArena.fleeBattle()">🏃 Fugir</button>
+      </div>
+    </div>
+
+    <div class="action-arena-canvas-container" id="actionCanvasWrapper">
+      <canvas id="actionBattleCanvas"></canvas>
+    </div>
+
+    <!-- Joystick Virtual (Mobile) -->
+    <div id="actionJoystickZone" class="action-joystick-zone">
+      <div id="actionJoystickThumb" class="action-joystick-thumb"></div>
+    </div>
+
+    <!-- Botões de Ação Mobile (Ataque, Skills, Dash) -->
+    <div class="action-buttons-cluster">
+      <button type="button" class="action-circle-btn action-btn-skill" id="btnActSkill1" onclick="PlayApp.actionArena.triggerSkill(1)" title="Turbilhão Arcana">
+        🌪️
+        <div class="action-cooldown-overlay" id="cdOverlaySkill1"></div>
+      </button>
+      <button type="button" class="action-circle-btn action-btn-skill" id="btnActSkill2" onclick="PlayApp.actionArena.triggerSkill(2)" title="Raio Perfurante">
+        ⚡
+        <div class="action-cooldown-overlay" id="cdOverlaySkill2"></div>
+      </button>
+      <button type="button" class="action-circle-btn action-btn-dash" id="btnActDash" onclick="PlayApp.actionArena.triggerDash()" title="Esquiva / Dash">
+        💨
+        <div class="action-cooldown-overlay" id="cdOverlayDash"></div>
+      </button>
+      <button type="button" class="action-circle-btn action-btn-attack" id="btnActAttack" onclick="PlayApp.actionArena.triggerAttack()" title="Ataque">
+        ⚔️
+      </button>
+    </div>
+
+    <!-- Banner de Resultado (Vitória / Derrota) -->
+    <div id="actionResultBanner" class="action-result-banner">
+      <h2 id="actionResultTitle" style="margin:0; font-size:1.5rem; color:#fde047;">🏆 VITÓRIA!</h2>
+      <div id="actionResultRewards" style="font-size:0.86rem; color:#e2e8f0; line-height:1.4;"></div>
+      <button type="button" class="btn-primary" id="btnActionCloseResult" onclick="PlayApp.actionArena.closeArena()" style="padding:10px 24px; border-radius:999px; font-weight:700;">
+        ✅ Continuar Aventura
+      </button>
+    </div>
+  </div>
+
   <script src="/play/js/ClientPolygonMesh.js"></script>
   <script src="/play/js/McreworkSpriteSheet.js"></script>
-  <script src="/play/js/TemporaryCombatArena.js"></script>
+  <script src="/play/js/ActionCombatArena.js"></script>
+  <script src="/play/js/PlayLobbyController.js"></script>
   <script src="/play/js/PlayGmController.js"></script>
   <script src="/play/js/PlayQuestsController.js"></script>
   <script src="/play/play.js"></script>

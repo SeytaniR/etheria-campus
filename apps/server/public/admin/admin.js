@@ -296,6 +296,7 @@ class EtheriaAdminStudio {
     document.getElementById('primaryBiomeSelect').value = String(m.primaryBiomeId);
     document.getElementById('secondaryBiomeSelect').value = String(m.secondaryBiomeId);
     document.getElementById('mapOverlapOpacity').value = String(m.overlapOpacity ?? 0.45);
+    document.getElementById('mapEncounterRatePct').value = String(m.encounterRatePct ?? (m.id === 1 ? 0 : 8));
     document.getElementById('mapDominatedBy').value = m.dominatedById || '';
     document.getElementById('mapIsActiveSelect').value = m.isActive ? 'true' : 'false';
 
@@ -370,6 +371,7 @@ class EtheriaAdminStudio {
         spawnX: Number(document.getElementById('mapSpawnX').value) || 500,
         spawnY: Number(document.getElementById('mapSpawnY').value) || 500,
         overlapOpacity: Number(document.getElementById('mapOverlapOpacity').value) || 0.45,
+        encounterRatePct: Number(document.getElementById('mapEncounterRatePct')?.value ?? 8),
         dominatedById: document.getElementById('mapDominatedBy').value.trim() || null,
         isActive: document.getElementById('mapIsActiveSelect').value === 'true',
         collisionMeshJson: this.collisionPolygons,

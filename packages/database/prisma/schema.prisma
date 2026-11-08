@@ -83,6 +83,7 @@ model GameMap {
   mapTypeId         Int         @map("map_type_id")
   primaryBiomeId    Int         @map("primary_biome_id")
   secondaryBiomeId  Int         @map("secondary_biome_id")
+  encounterRatePct  Float       @default(8.0) @map("encounter_rate_pct") /// Taxa base de encontro com monstros por passo (%)
   dominatedById     String?     @map("dominated_by_id") /// ID da Aliança ou Facção dominante (sistema de domínio/guerra)
   spawnX            Float       @default(500) @map("spawn_x") /// Ponto de Spawn padrão (Novatos no Mapa 1, Itens de Teleporte, Respawn em Cidade/Vila e Destravar Personagem)
   spawnY            Float       @default(500) @map("spawn_y") /// Coordenada Y do Ponto de Spawn padrão do mapa

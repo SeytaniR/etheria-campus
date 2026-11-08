@@ -282,6 +282,61 @@ export class TemporaryCombatController {
   }
 
   /**
+   * Sorteia um encontro de monstros aleatório baseado nos biomas e nível do mapa atual.
+   */
+  public async startEncounterByMap(characterId: number, mapId: number): Promise<TemporaryBattleState> {
+    const map = await this.prisma.gameMap.findUnique({
+      where: { id: Number(mapId) },
+    });
+
+    if (!map) {
+      throw new Error(`Mapa #${mapId} não encontrado.`);
+    }
+
+    if (map.encounterRatePct <= 0) {
+      throw new Error(`Este mapa possui taxa de encontro zero (zona segura).`);
+    }
+
+    // Busca templates de monstros vinculados aos biomas primário e secundário do mapa
+    const biomeIds = [map.primaryBiomeId, map.secondaryBiomeId].filter(Boolean);
+    const monsterBiomes = await this.prisma.monsterBiome.findMany({
+      where: { biomeId: { in: biomeIds } },
+      include: { monsterTemplate: true },
+    });
+
+    let candidateTemplates = monsterBiomes
+      .map((mb) => mb.monsterTemplate)
+      .filter((m) => m && m.isActive);
+
+    // Se nenhum monstro estiver especificamente associado ao bioma, busca qualquer monstro ativo
+    if (candidateTemplates.length === 0) {
+      candidateTemplates = await this.prisma.monsterTemplate.findMany({
+        where: { isActive: true },
+      });
+    }
+
+    if (candidateTemplates.length === 0) {
+      throw new Error(`Nenhum monstro cadastrado no sistema para encontros.`);
+    }
+
+    // Sorteia um template aleatório
+    const selectedTemplate = candidateTemplates[Math.floor(Math.random() * candidateTemplates.length)];
+
+    // Sorteia quantidade (1 mob: 60%, 2 mobs: 30%, 3 mobs: 10%)
+    const rollQty = Math.random();
+    const quantity = rollQty < 0.60 ? 1 : rollQty < 0.90 ? 2 : 3;
+
+    // Calcula nível do monstro baseado no nível do mapa e variação
+    const minVar = map.levelVarianceMin ?? -2;
+    const maxVar = map.levelVarianceMax ?? 5;
+    const varRange = Math.max(0, maxVar - minVar);
+    const variance = minVar + Math.floor(Math.random() * (varRange + 1));
+    const monsterLevel = Math.max(1, Math.min(100, (map.requiredLevel || 1) + variance));
+
+    return this.startBattle(characterId, selectedTemplate.id, quantity, monsterLevel);
+  }
+
+  /**
    * Executa uma ação de combate escolhida pelo jogador no turno atual.
    */
   public executeAction(

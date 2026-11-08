@@ -59,13 +59,17 @@ class EtheriaPlayClient {
     this.gmNoClip = false;
     this.gmSpeedMultiplier = 1;
 
-    // Vincula módulos externos (Painel GM, Ficha Procedural e Sistema de Quests)
-    if (window.PlayGmController) {
-      window.PlayGmController.attach(this);
-    }
-    if (window.PlayQuestsController) {
-      window.PlayQuestsController.attach(this);
-    }
+    // Arena Instanciada com Combate Livre em Tempo Real e Encontros no Mapa
+    this.stepDistanceAccumulator = 0;
+    this.encounterCooldownUntil = 0;
+    this.isEncounterLoading = false;
+    this.actionCombatArena = null;
+    this.actionArena = null;
+
+    // Vincula módulos externos (Lobby, Painel GM, Ficha Procedural e Sistema de Quests)
+    if (window.PlayLobbyController) window.PlayLobbyController.attach(this);
+    if (window.PlayGmController) window.PlayGmController.attach(this);
+    if (window.PlayQuestsController) window.PlayQuestsController.attach(this);
 
     this.lastFrameTime = performance.now();
     this.init();
@@ -73,6 +77,10 @@ class EtheriaPlayClient {
 
   async init() {
     this.setupWorldEvents();
+    if (window.ActionCombatArena) {
+      this.actionCombatArena = new ActionCombatArena(this);
+      this.actionArena = this.actionCombatArena;
+    }
     requestAnimationFrame((t) => this.gameLoop(t));
 
     if (this.token) {
@@ -169,155 +177,6 @@ class EtheriaPlayClient {
       NEUTRAL: { icon: '⚪', color: '#cbd5e1', bg: 'rgba(148, 163, 184, 0.2)' },
     };
     return styles[elementCode] || styles.NEUTRAL;
-  }
-
-  renderLobby() {
-    if (this.session) {
-      document.getElementById('lobbyUserBadge').textContent = `👤 ${this.session.username} (${this.session.role})`;
-    }
-
-    const myCharsContainer = document.getElementById('myCharactersList');
-    if (this.myCharacters.length === 0) {
-      myCharsContainer.innerHTML = `
-        <div style="color:var(--text-muted); font-size:0.84rem; padding:12px; border:1px dashed var(--border); border-radius:8px;">
-          Você ainda não possui nenhum personagem criado. Crie seu primeiro personagem no painel ao lado!
-        </div>`;
-    } else {
-      myCharsContainer.innerHTML = this.myCharacters
-        .map((c) => {
-          const el = this.getElementStyle(c.elementCode);
-          return `
-        <div class="char-card">
-          <div style="display:flex; align-items:center; gap:12px;">
-            <img src="${c.thumbUrl}" alt="${c.name}" style="width:56px; height:56px; object-fit:contain; background:#020617; border-radius:8px; border:1px solid var(--border);" />
-            <div>
-              <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
-                <strong style="font-size:0.95rem; color:#fde047;">${c.name}</strong>
-                <span style="font-size:0.74rem; padding:2px 7px; border-radius:99px; background:${el.bg}; color:${el.color}; font-weight:700;">
-                  ${el.icon} ${c.elementNamePtBr}
-                </span>
-              </div>
-              <div style="font-size:0.78rem; color:var(--text-muted); margin-top:2px;">
-                Nv.${c.level} &bull; ${c.classNamePtBr} (${c.classCode})
-              </div>
-              <div style="font-size:0.74rem; color:#86efac; margin-top:2px;">
-                📍 ${c.currentMapNamePtBr} (${Math.round(c.posX)}, ${Math.round(c.posY)})
-              </div>
-            </div>
-          </div>
-          <div style="display:flex; gap:6px;">
-            <button class="btn-primary" onclick="PlayApp.enterWorldWithCharacter(${c.id})">▶️ Jogar</button>
-            <button class="btn-danger" onclick="PlayApp.deleteCharacter(${c.id})" title="Excluir Personagem">🗑️</button>
-          </div>
-        </div>`;
-        })
-        .join('');
-    }
-
-    const classesGrid = document.getElementById('lobbyClassesGrid');
-    if (this.classTemplates.length === 0) {
-      classesGrid.innerHTML = `
-        <div style="grid-column: 1 / -1; color:#fde68a; font-size:0.82rem; padding:12px; background:rgba(245,158,11,0.12); border:1px solid var(--accent-amber); border-radius:8px;">
-          ⚠️ <strong>Nenhuma Classe cadastrada na tabela <code>class_templates</code> ainda!</strong><br/>
-          Abra a aba <strong>"🦸 Personagens"</strong> na rota <code>/admin</code> para cadastrar seu primeiro personagem do <code>mcrework</code>!
-          <div style="margin-top:8px;">
-            <button class="btn-amber" onclick="window.location.href='/admin'">🛠️ Ir para /admin (Aba 🦸 Personagens)</button>
-          </div>
-        </div>`;
-    } else {
-      classesGrid.innerHTML = this.classTemplates
-        .map((ct) => {
-          const isSel = ct.id === this.selectedClassIdForCreation ? 'selected' : '';
-          return `
-        <div class="class-card ${isSel}" onclick="PlayApp.selectClassForCreation(${ct.id})">
-          <img src="${ct.thumbUrl}" alt="${ct.namePtBr}" />
-          <strong style="font-size:0.8rem;">${ct.namePtBr}</strong>
-          <span style="font-size:0.7rem; color:var(--accent);">${ct.code} &bull; ${ct.raceNamePtBr}</span>
-        </div>`;
-        })
-        .join('');
-    }
-  }
-
-  selectClassForCreation(classId) {
-    this.selectedClassIdForCreation = Number(classId);
-    this.renderLobby();
-  }
-
-  async createCharacter() {
-    const name = document.getElementById('newCharName').value.trim();
-    if (!name) {
-      alert('Digite o nome do seu personagem.');
-      return;
-    }
-    if (!this.selectedClassIdForCreation) {
-      alert('Cadastre e selecione primeiro uma Classe/Personagem da tabela class_templates.');
-      return;
-    }
-
-    try {
-      const created = await this.api('/api/play/characters', {
-        method: 'POST',
-        body: JSON.stringify({
-          name,
-          classTemplateId: this.selectedClassIdForCreation,
-        }),
-      });
-      document.getElementById('newCharName').value = '';
-      await this.loadPlayBootstrap();
-      const el = this.getElementStyle(created.elementCode);
-      alert(
-        `🎉 Personagem "${created.name}" criado com sucesso!\n\n🎲 Elemento Inicial Sorteado: ${el.icon} ${created.elementNamePtBr}\n📍 Posicionado no Spawn Inicial: (${created.posX}, ${created.posY})`
-      );
-      await this.enterWorldWithCharacter(created.id);
-    } catch (err) {
-      alert(`Erro ao criar personagem: ${err.message}`);
-    }
-  }
-
-  async deleteCharacter(charId) {
-    if (!confirm('Tem certeza que deseja excluir este personagem?')) return;
-    try {
-      await this.api(`/api/play/characters/${charId}`, { method: 'DELETE' });
-      await this.loadPlayBootstrap();
-    } catch (err) {
-      alert(`Erro ao excluir personagem: ${err.message}`);
-    }
-  }
-
-  // ==========================================================================
-  // ENTRADA NO MUNDO 2.5D E CARREGAMENTO DE MAPAS
-  // ==========================================================================
-
-  async enterWorldWithCharacter(charId) {
-    const found = this.myCharacters.find((c) => c.id === Number(charId));
-    if (!found) return;
-
-    this.activeChar = found;
-    this.playerX = Number(found.posX) || 500;
-    this.playerY = Number(found.posY) || 500;
-    this.moveTargetX = null;
-    this.moveTargetY = null;
-
-    document.getElementById('lobbyScreen').style.display = 'none';
-    document.getElementById('worldScreen').style.display = 'block';
-
-    // Exibe botão do Painel GM para contas ADMIN ou GM
-    const isGmOrAdmin = this.session && (this.session.role === 'ADMIN' || this.session.role === 'GM');
-    document.getElementById('btnToggleGm').style.display = isGmOrAdmin ? 'inline-block' : 'none';
-    if (isGmOrAdmin && window.location.pathname.startsWith('/gm')) {
-      const gmDrawer = document.getElementById('gmDrawer');
-      if (gmDrawer) gmDrawer.classList.add('open');
-    }
-
-    this.resizeCanvas();
-    await this.loadMapIntoWorld(found.currentMapId || 1, this.playerX, this.playerY);
-  }
-
-  backToLobby() {
-    this.activeChar = null;
-    document.getElementById('worldScreen').style.display = 'none';
-    this.loadPlayBootstrap().then(() => this.showLobby());
   }
 
   getOrCreateSprite(key, atlasJsonUrl, atlasWebpUrl, thumbUrl) {
@@ -574,7 +433,9 @@ class EtheriaPlayClient {
     this.lastFrameTime = now;
 
     if (this.activeChar && this.currentMap) {
-      this.updatePhysics(dt, now);
+      if (!this.actionCombatArena?.isActive) {
+        this.updatePhysics(dt, now);
+      }
       this.renderWorld(now);
     }
 
@@ -613,6 +474,8 @@ class EtheriaPlayClient {
       const speed = this.baseMoveSpeed * this.gmSpeedMultiplier;
       const nextX = this.playerX + vx * speed * dt;
       const nextY = this.playerY + vy * speed * dt;
+      const prevX = this.playerX;
+      const prevY = this.playerY;
 
       if (this.gmNoClip || !this.mesh) {
         this.playerX = nextX;
@@ -627,9 +490,18 @@ class EtheriaPlayClient {
         } else if (!this.mesh.isPointBlocked(this.playerX, nextY)) {
           this.playerY = nextY;
         } else {
-          // Bateu em parede frontal durante movimento por clique
           this.moveTargetX = null;
           this.moveTargetY = null;
+        }
+      }
+
+      // Acumula passos (~50px cada) para sortear encontro com monstros
+      const stepDist = Math.hypot(this.playerX - prevX, this.playerY - prevY);
+      if (stepDist > 0 && !this.gmNoClip) {
+        this.stepDistanceAccumulator += stepDist;
+        if (this.stepDistanceAccumulator >= 50) {
+          this.stepDistanceAccumulator -= 50;
+          this.checkRandomEncounter(now);
         }
       }
 
@@ -640,6 +512,56 @@ class EtheriaPlayClient {
 
     this.checkPortalsAndNpcs(now);
     this.syncPositionPeriodically(now);
+  }
+
+  checkRandomEncounter(now) {
+    if (
+      this.actionCombatArena?.isActive ||
+      this.isEncounterLoading ||
+      !this.currentMap ||
+      !this.activeChar ||
+      now < this.encounterCooldownUntil
+    ) {
+      return;
+    }
+    const rate = Number(this.currentMap.encounterRatePct) || 0;
+    if (rate > 0 && Math.random() * 100 < rate) {
+      void this.triggerMapEncounter();
+    }
+  }
+
+  async triggerMapEncounter() {
+    if (this.isEncounterLoading || !this.activeChar || !this.currentMap) return;
+    this.isEncounterLoading = true;
+    this.moveTargetX = null;
+    this.moveTargetY = null;
+    this.isMoving = false;
+    this.dpadDx = 0;
+    this.dpadDy = 0;
+    this.keysDown.clear();
+
+    try {
+      const battleState = await this.api('/api/play/combat/encounter', {
+        method: 'POST',
+        body: JSON.stringify({
+          characterId: this.activeChar.id,
+          mapId: this.currentMap.id,
+        }),
+      });
+
+      if (!this.actionCombatArena && window.ActionCombatArena) {
+        this.actionCombatArena = new ActionCombatArena(this);
+        this.actionArena = this.actionCombatArena;
+      }
+      if (this.actionCombatArena) {
+        this.actionCombatArena.openArena(battleState);
+      }
+    } catch (err) {
+      console.warn('Encontro cancelado:', err.message);
+      this.encounterCooldownUntil = performance.now() + 4000;
+    } finally {
+      this.isEncounterLoading = false;
+    }
   }
 
   checkPortalsAndNpcs(now) {

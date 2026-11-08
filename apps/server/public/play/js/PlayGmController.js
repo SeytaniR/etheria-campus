@@ -221,9 +221,6 @@ class PlayGmController {
 
     client.gmBattleQty = 1;
     client.availableMonsters = [];
-    if (window.TemporaryCombatArena) {
-      client.combatArena = new TemporaryCombatArena(client);
-    }
 
     client.setGmBattleQty = function (qty) {
       this.gmBattleQty = Math.max(1, Math.min(5, Number(qty) || 1));
@@ -278,11 +275,12 @@ class PlayGmController {
           }),
         });
 
-        if (!this.combatArena && window.TemporaryCombatArena) {
-          this.combatArena = new TemporaryCombatArena(this);
+        if (!this.actionCombatArena && window.ActionCombatArena) {
+          this.actionCombatArena = new ActionCombatArena(this);
+          window.PlayApp.actionArena = this.actionCombatArena;
         }
-        if (this.combatArena) {
-          this.combatArena.openArena(battleState);
+        if (this.actionCombatArena) {
+          this.actionCombatArena.openArena(battleState);
         }
       } catch (err) {
         alert(`Erro ao iniciar batalha GM: ${err.message}`);

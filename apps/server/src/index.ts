@@ -830,7 +830,16 @@ export class EtheriaServerApp {
           return;
         }
 
-        // ⚔️ Rotas da Arena Temporária de Combate GM (Módulo Isolado e Descartável)
+        // ⚔️ Rotas da Arena de Combate em Tempo Real e Encontros no Mapa
+        if (pathname === '/api/play/combat/encounter' && method === 'POST') {
+          const body = await this.readJsonBody<{ characterId?: number; mapId: number }>(req);
+          const state = await this.combatController.startEncounterByMap(
+            Number(body.characterId) || 1,
+            Number(body.mapId)
+          );
+          this.sendJson(res, 200, state);
+          return;
+        }
         if (pathname === '/api/play/temporary-combat/monsters' && method === 'GET') {
           this.sendJson(res, 200, await this.combatController.getAvailableMonsters());
           return;

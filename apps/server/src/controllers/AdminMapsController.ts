@@ -25,6 +25,7 @@ export interface SaveMapDto {
   mapTypeId: number;
   primaryBiomeId: number;
   secondaryBiomeId: number;
+  encounterRatePct?: number;
   dominatedById?: string | null;
   spawnX?: number;
   spawnY?: number;
@@ -607,6 +608,9 @@ export class AdminMapsController {
       mapTypeId: Number(dto.mapTypeId),
       primaryBiomeId: Number(dto.primaryBiomeId),
       secondaryBiomeId: Number(dto.secondaryBiomeId),
+      encounterRatePct: dto.encounterRatePct !== undefined
+        ? Math.max(0, Math.min(100, Number(dto.encounterRatePct)))
+        : (Number(dto.mapTypeId) === 1 && (Number(dto.requiredLevel) <= 1) ? 0.0 : 8.0),
       dominatedById: dto.dominatedById || null,
       spawnX: Number(dto.spawnX ?? 500),
       spawnY: Number(dto.spawnY ?? 500),
