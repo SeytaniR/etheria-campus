@@ -206,26 +206,22 @@ class McreworkSpriteSheet {
       // Ações: 0 = Parado, 1 = Caminhada/Corrida, 2 = Postura, 3 = Ataque, 4 = Defesa, 5 = Dano, 6 = Morte, 7 = Magia
       const primaryKey = `${effectiveDir}-${action}`;
       let seq = anims[primaryKey];
-      let isSynthesizedRun = false;
 
-      // Se a criatura estiver correndo (action = 1) e for um monstro:
-      // 1. Monstros com ciclo nativo de caminhada (uniqueFrames >= 3, ex: creature_000004) usam seu walk nativo.
-      // 2. Monstros de batalha clássicos com walk estático (uniqueFrames <= 2, ex: creature_000001):
-      //    Utilizamos os frames de corrida/investida da batalha, intercalando a passada firme (stride)
-      //    com a pose de avanço/investida do ataque (action 3), criando um galope de combate agressivo e orgânico!
+      // HÍBRIDO INTELIGENTE PARA MOVIMENTAÇÃO (action = 1):
+      // Caso 1: Se a criatura possuir animação nativa completa de caminhada/corrida (uniqueWalk >= 3, ex: creature_000004),
+      //         executa a sequência nativa perfeitamente animada frame a frame.
+      // Caso 2: Se for um monstro de batalha clássico estático de 20 frames (uniqueWalk <= 2, ex: creature_000001, 000002, 000003, 000006),
+      //         mantém a pose oficial de Stride/Avanço (Action 1) 100% nítida e estável,
+      //         sem alternar frames de ataque (eliminando qualquer flicker/borrão) e sem rotação angular de tela.
       if (action === 1 && isMonster) {
         const uniqueWalk = Array.isArray(seq) ? new Set(seq).size : 0;
         if (uniqueWalk <= 2) {
-          const strideFrame = (Array.isArray(seq) && seq[0]) || anims[`${effectiveDir}-0`]?.[0];
-          const atkSeq = anims[`${effectiveDir}-3`] || anims[`1-3`] || anims[`0-3`];
-          const chargeFrame = Array.isArray(atkSeq) && atkSeq[0] ? atkSeq[0] : null;
-
-          if (chargeFrame && strideFrame && chargeFrame !== strideFrame) {
-            // Ciclo de corrida: 160ms na passada firme (stride) + 160ms na investida aérea (charge)
-            seq = [strideFrame, strideFrame, chargeFrame, chargeFrame];
-            isSynthesizedRun = true;
-          } else if (anims[`${effectiveDir}-0`]) {
-            seq = anims[`${effectiveDir}-0`];
+          const strideFrame =
+            (Array.isArray(seq) && seq[0]) ||
+            anims[`${effectiveDir}-1`]?.[0] ||
+            anims[`${effectiveDir}-0`]?.[0];
+          if (strideFrame) {
+            seq = [strideFrame];
           }
         }
       }
@@ -266,32 +262,17 @@ class McreworkSpriteSheet {
           const anchorY = 0.92;
           const effectiveOffX = flipX ? origW - offX - drawW : offX;
 
-          // Física de passo e galope:
+          // Física de passo sutil e limpa (sem tremor, sem borrão de rotação)
           let stepBob = 0;
           if (action === 1 && isMonster) {
-            if (isSynthesizedRun) {
-              const phase = rawFrameIdx % 4;
-              stepBob = phase >= 2 ? Math.round(-3.5 * scale) : Math.round(1.0 * scale);
+            const uniqueWalk = Array.isArray(anims[primaryKey]) ? new Set(anims[primaryKey]).size : 0;
+            if (uniqueWalk >= 3) {
+              // Criatura com caminhada nativa completa: cadência suave de 1.2px a 60fps
+              stepBob = Math.round(Math.sin((elapsedMs / 1000) * 10) * (1.2 * scale));
             } else {
-              stepBob = Math.round(Math.sin((elapsedMs / 1000) * 12) * (2.0 * scale));
+              // Monstro estático em avanço: respiração de marcha suave (1.5px), sem saltos bruscos
+              stepBob = Math.round(Math.sin((elapsedMs / 1000) * 8) * (1.5 * scale));
             }
-          }
-
-          // Inclinação corporal (tilt) na direção da corrida para dinamismo visual de investida
-          let runTilt = 0;
-          if (action === 1 && isMonster) {
-            const baseAngle = 0.085; // ~4.9 graus
-            if (effectiveDir === 5) {
-              runTilt = flipX ? baseAngle : -baseAngle;
-            } else {
-              runTilt = flipX ? -baseAngle : baseAngle;
-            }
-          }
-
-          if (runTilt !== 0) {
-            ctx.translate(worldX, worldY);
-            ctx.rotate(runTilt);
-            ctx.translate(-worldX, -worldY);
           }
 
           const drawX = Math.round(worldX - origW * anchorX + effectiveOffX);
