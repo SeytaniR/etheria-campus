@@ -201,18 +201,18 @@ class ClientPolygonMesh {
   }
 
   /**
-   * Verifica se o segmento de reta entre dois pontos está 100% desobstruído.
+   * Verifica se o segmento de reta entre dois pontos está 100% desobstruído com raio de folga (clearance).
    */
-  isSegmentClear(x1, y1, x2, y2, step = 14) {
+  isSegmentClear(x1, y1, x2, y2, step = 12, clearance = 8) {
     const dx = x2 - x1;
     const dy = y2 - y1;
     const dist = Math.hypot(dx, dy);
     if (dist <= 1) return !this.isPointBlocked(x2, y2);
 
-    const segMinX = Math.min(x1, x2);
-    const segMaxX = Math.max(x1, x2);
-    const segMinY = Math.min(y1, y2);
-    const segMaxY = Math.max(y1, y2);
+    const segMinX = Math.min(x1, x2) - clearance;
+    const segMaxX = Math.max(x1, x2) + clearance;
+    const segMinY = Math.min(y1, y2) - clearance;
+    const segMaxY = Math.max(y1, y2) + clearance;
 
     let hasOverlappingPoly = false;
     for (let i = 0; i < this.collisionPolygons.length; i++) {
@@ -227,11 +227,19 @@ class ClientPolygonMesh {
     const steps = Math.ceil(dist / step);
     const stepX = dx / steps;
     const stepY = dy / steps;
+    const perpX = (-dy / dist) * clearance;
+    const perpY = (dx / dist) * clearance;
 
     for (let i = 1; i <= steps; i++) {
       const curX = i === steps ? x2 : x1 + stepX * i;
       const curY = i === steps ? y2 : y1 + stepY * i;
-      if (this.isPointBlocked(curX, curY)) return false;
+      if (
+        this.isPointBlocked(curX, curY) ||
+        this.isPointBlocked(curX + perpX, curY + perpY) ||
+        this.isPointBlocked(curX - perpX, curY - perpY)
+      ) {
+        return false;
+      }
     }
     return true;
   }
@@ -374,7 +382,7 @@ class ClientPolygonMesh {
     return smoothed;
   }
 
-  findClosestWalkableCell(c, r, maxRad = 6) {
+  findClosestWalkableCell(c, r, maxRad = 16) {
     let closest = null;
     let minDistSq = Infinity;
     for (let rad = 1; rad <= maxRad; rad++) {

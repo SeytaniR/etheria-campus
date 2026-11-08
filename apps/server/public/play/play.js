@@ -39,6 +39,9 @@ class EtheriaPlayClient {
     this.isMoving = false;
     this.moveTargetX = null;
     this.moveTargetY = null;
+    this.targetDestX = null;
+    this.targetDestY = null;
+    this.lastRepathTime = 0;
     this.currentPath = null;
     this.keysDown = new Set();
     this.dpadDx = 0;
@@ -321,9 +324,7 @@ class EtheriaPlayClient {
     this.dpadDx = dx;
     this.dpadDy = dy;
     if (dx !== 0 || dy !== 0) {
-      this.currentPath = null;
-      this.moveTargetX = null;
-      this.moveTargetY = null;
+      this.currentPath = null; this.moveTargetX = null; this.moveTargetY = null; this.targetDestX = null; this.targetDestY = null;
     }
   }
 
@@ -343,15 +344,11 @@ class EtheriaPlayClient {
       const k = e.key.toLowerCase();
       if (['w', 'a', 's', 'd', 'arrowup', 'arrowdown', 'arrowleft', 'arrowright'].includes(k)) {
         this.keysDown.add(k);
-        this.currentPath = null;
-        this.moveTargetX = null;
-        this.moveTargetY = null;
+        this.currentPath = null; this.moveTargetX = null; this.moveTargetY = null; this.targetDestX = null; this.targetDestY = null;
       }
     });
 
-    window.addEventListener('keyup', (e) => {
-      this.keysDown.delete(e.key.toLowerCase());
-    });
+    window.addEventListener('keyup', (e) => { this.keysDown.delete(e.key.toLowerCase()); });
 
     const canvas = document.getElementById('gameCanvas');
 
@@ -372,6 +369,10 @@ class EtheriaPlayClient {
           return;
         }
       }
+
+      this.targetDestX = worldPt.x;
+      this.targetDestY = worldPt.y;
+      this.lastRepathTime = 0;
 
       if (this.mesh && !this.gmNoClip) {
         const path = this.mesh.findPath(this.playerX, this.playerY, worldPt.x, worldPt.y);
@@ -481,7 +482,7 @@ class EtheriaPlayClient {
       const dy = wp.y - this.playerY;
       const dist = Math.hypot(dx, dy);
 
-      if (dist <= 12) {
+      if (dist <= 14) {
         this.currentPath.shift();
         if (this.currentPath.length > 0) {
           this.moveTargetX = this.currentPath[0].x;
@@ -490,6 +491,8 @@ class EtheriaPlayClient {
           this.currentPath = null;
           this.moveTargetX = null;
           this.moveTargetY = null;
+          this.targetDestX = null;
+          this.targetDestY = null;
         }
       } else {
         vx = dx / dist;
@@ -499,9 +502,11 @@ class EtheriaPlayClient {
       const dx = this.moveTargetX - this.playerX;
       const dy = this.moveTargetY - this.playerY;
       const dist = Math.hypot(dx, dy);
-      if (dist <= 6) {
+      if (dist <= 8) {
         this.moveTargetX = null;
         this.moveTargetY = null;
+        this.targetDestX = null;
+        this.targetDestY = null;
       } else {
         vx = dx / dist;
         vy = dy / dist;
@@ -534,7 +539,22 @@ class EtheriaPlayClient {
         } else if (!this.mesh.isPointBlocked(this.playerX, nextY)) {
           this.playerY = nextY;
         } else {
-          if (this.currentPath && this.currentPath.length > 1) {
+          // Bloqueio frontal! Se estiver indo para um destino, recalcula rota contornando obstáculo
+          if (this.targetDestX !== null && this.targetDestY !== null && (now - this.lastRepathTime > 220)) {
+            this.lastRepathTime = now;
+            const repath = this.mesh.findPath(this.playerX, this.playerY, this.targetDestX, this.targetDestY);
+            if (repath && repath.length > 0) {
+              this.currentPath = repath;
+              this.moveTargetX = repath[0].x;
+              this.moveTargetY = repath[0].y;
+            } else {
+              this.currentPath = null;
+              this.moveTargetX = null;
+              this.moveTargetY = null;
+              this.targetDestX = null;
+              this.targetDestY = null;
+            }
+          } else if (this.currentPath && this.currentPath.length > 1) {
             this.currentPath.shift();
             this.moveTargetX = this.currentPath[0].x;
             this.moveTargetY = this.currentPath[0].y;
@@ -542,6 +562,8 @@ class EtheriaPlayClient {
             this.currentPath = null;
             this.moveTargetX = null;
             this.moveTargetY = null;
+            this.targetDestX = null;
+            this.targetDestY = null;
           }
         }
       }
@@ -586,6 +608,8 @@ class EtheriaPlayClient {
     this.isEncounterLoading = true;
     this.moveTargetX = null;
     this.moveTargetY = null;
+    this.targetDestX = null;
+    this.targetDestY = null;
     this.currentPath = null;
     this.isMoving = false;
     this.dpadDx = 0;
@@ -778,12 +802,8 @@ class EtheriaPlayClient {
     }
 
     // 4. Indicador de destino do clique no chão
-    const destX = (this.currentPath && this.currentPath.length > 0)
-      ? this.currentPath[this.currentPath.length - 1].x
-      : this.moveTargetX;
-    const destY = (this.currentPath && this.currentPath.length > 0)
-      ? this.currentPath[this.currentPath.length - 1].y
-      : this.moveTargetY;
+    const destX = this.targetDestX !== null ? this.targetDestX : ((this.currentPath && this.currentPath.length > 0) ? this.currentPath[this.currentPath.length - 1].x : this.moveTargetX);
+    const destY = this.targetDestY !== null ? this.targetDestY : ((this.currentPath && this.currentPath.length > 0) ? this.currentPath[this.currentPath.length - 1].y : this.moveTargetY);
 
     if (destX !== null && destY !== null) {
       ctx.beginPath();
@@ -822,24 +842,11 @@ class EtheriaPlayClient {
     for (const item of renderQueue) {
       if (item.type === 'NPC') {
         const npc = item.data;
-        const sprite = this.getOrCreateSprite(
-          `npc_${npc.mcreworkNpcKey}`,
-          npc.atlasJsonUrl,
-          npc.atlasWebpUrl,
-          npc.thumbUrl
-        );
+        const sprite = this.getOrCreateSprite(`npc_${npc.mcreworkNpcKey}`, npc.atlasJsonUrl, npc.atlasWebpUrl, npc.thumbUrl);
         sprite.draw(ctx, npc.posX, npc.posY, 0, npc.direction || 0, now, this.mesh);
-
-        ctx.fillStyle = '#86efac';
-        ctx.font = 'bold 12px sans-serif';
-        ctx.textAlign = 'center';
-        // Altura do nome calibrada com a redução de 30% do sprite (offset -62)
+        ctx.fillStyle = '#86efac'; ctx.font = 'bold 12px sans-serif'; ctx.textAlign = 'center';
         ctx.fillText(npc.namePtBr, npc.posX, npc.posY - 62);
-
-        // Desenha o indicador de Quest na cabeça do NPC (! Vermelho, ? Cinza ou ? Vermelho)
-        if (typeof this.drawNpcQuestHeadIcon === 'function') {
-          this.drawNpcQuestHeadIcon(ctx, npc, now);
-        }
+        if (typeof this.drawNpcQuestHeadIcon === 'function') this.drawNpcQuestHeadIcon(ctx, npc, now);
       } else if (item.type === 'PLAYER') {
         const char = item.data;
         const sprite = this.getOrCreateSprite(`char_${char.mcreworkCharKey}`, char.atlasJsonUrl, char.atlasWebpUrl, char.thumbUrl);
