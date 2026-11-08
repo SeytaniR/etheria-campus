@@ -285,6 +285,7 @@ class ActionCombatArena {
 
     this.player.isAttacking = true;
     this.player.attackTimer = 0.32;
+    this.player.actionStartTime = now;
     this.player.action = 3; // Ataque Físico
 
     const hitRadius = 75;
@@ -303,6 +304,7 @@ class ActionCombatArena {
 
         mob.hp = Math.max(0, mob.hp - dmg);
         mob.hitTimer = 0.22;
+        mob.actionStartTime = now;
         mob.action = 5; // Hit
         if (dist > 0) {
           mob.x += (dx / dist) * 20;
@@ -319,6 +321,7 @@ class ActionCombatArena {
 
         if (mob.hp === 0) {
           mob.isAlive = false;
+          mob.actionStartTime = now;
           mob.action = 6; // Morte
         }
       }
@@ -336,6 +339,7 @@ class ActionCombatArena {
       if (now < this.skillCooldowns.skill1 || this.player.mp < 20) return;
       this.skillCooldowns.skill1 = now + 4000;
       this.player.mp = Math.max(0, this.player.mp - 20);
+      this.player.actionStartTime = now;
       this.player.action = 7; // Cast / Skill
       this.player.attackTimer = 0.40;
 
@@ -347,6 +351,7 @@ class ActionCombatArena {
           const dmg = Math.round(this.player.atk * 1.9);
           mob.hp = Math.max(0, mob.hp - dmg);
           mob.hitTimer = 0.3;
+          mob.actionStartTime = now;
           mob.action = 5;
           this.floatingTexts.push({
             x: mob.x,
@@ -357,6 +362,7 @@ class ActionCombatArena {
           });
           if (mob.hp === 0) {
             mob.isAlive = false;
+            mob.actionStartTime = now;
             mob.action = 6;
           }
         }
@@ -368,6 +374,7 @@ class ActionCombatArena {
       if (now < this.skillCooldowns.skill2 || this.player.mp < 35) return;
       this.skillCooldowns.skill2 = now + 6000;
       this.player.mp = Math.max(0, this.player.mp - 35);
+      this.player.actionStartTime = now;
       this.player.action = 7;
       this.player.attackTimer = 0.45;
 
@@ -378,6 +385,7 @@ class ActionCombatArena {
           const dmg = Math.round(this.player.atk * 2.35);
           mob.hp = Math.max(0, mob.hp - dmg);
           mob.hitTimer = 0.35;
+          mob.actionStartTime = now;
           mob.action = 5;
           this.floatingTexts.push({
             x: mob.x,
@@ -388,6 +396,7 @@ class ActionCombatArena {
           });
           if (mob.hp === 0) {
             mob.isAlive = false;
+            mob.actionStartTime = now;
             mob.action = 6;
           }
         }
@@ -553,10 +562,16 @@ class ActionCombatArena {
 
       if (mob.hitTimer > 0) {
         mob.hitTimer -= dt;
+        if (mob.hitTimer <= 0) {
+          mob.action = 0;
+        }
         continue;
       }
       if (mob.attackTimer > 0) {
         mob.attackTimer -= dt;
+        if (mob.attackTimer <= 0) {
+          mob.action = 0;
+        }
         continue;
       }
 
@@ -575,12 +590,14 @@ class ActionCombatArena {
         if (now >= mob.nextAttackTime) {
           mob.nextAttackTime = now + 1800 + Math.random() * 800;
           mob.attackTimer = 0.40;
+          mob.actionStartTime = now;
           mob.action = 3; // Ataque
 
           if (!this.player.isDashing) {
             const dmg = Math.max(5, Math.round(mob.atk * (100 / (100 + this.player.def * 0.5))));
             this.player.hp = Math.max(0, this.player.hp - dmg);
             this.player.hitTimer = 0.22;
+            this.player.actionStartTime = now;
             this.player.action = 5; // Hit
 
             this.floatingTexts.push({
@@ -593,6 +610,7 @@ class ActionCombatArena {
 
             if (this.player.hp === 0) {
               this.player.isAlive = false;
+              this.player.actionStartTime = now;
               this.player.action = 6; // Morte
               this.showResult(false, 'Você foi derrotado pelos monstros na arena.');
               break;
@@ -668,6 +686,7 @@ class ActionCombatArena {
         y: this.player.y,
         dir: this.player.dir,
         action: this.player.action,
+        actionStartTime: this.player.actionStartTime || 0,
         sprite: this.player.sprite,
         groundOffsetY: this.player.groundOffsetY,
         alpha: 1.0,
@@ -682,6 +701,7 @@ class ActionCombatArena {
         y: mob.y,
         dir: mob.dir,
         action: mob.action,
+        actionStartTime: mob.actionStartTime || 0,
         sprite: mob.sprite,
         groundOffsetY: mob.groundOffsetY,
         alpha: mob.fadeAlpha,
@@ -702,7 +722,10 @@ class ActionCombatArena {
       ctx.fill();
 
       if (u.sprite) {
-        u.sprite.draw(ctx, u.x, u.y, u.action, u.dir, now, null, u.groundOffsetY, 0.70);
+        const isTransientAction = (u.action === 3 || u.action === 5 || u.action === 6 || u.action === 7);
+        const animElapsed = (isTransientAction && u.actionStartTime) ? (now - u.actionStartTime) : now;
+        const clampLast = (u.action === 6);
+        u.sprite.draw(ctx, u.x, u.y, u.action, u.dir, animElapsed, null, u.groundOffsetY, 0.70, clampLast);
       } else {
         ctx.beginPath();
         ctx.arc(u.x, u.y - 20, 18, 0, Math.PI * 2);
