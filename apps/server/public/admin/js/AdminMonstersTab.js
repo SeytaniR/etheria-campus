@@ -63,11 +63,24 @@ class AdminMonstersTab {
     };
 
     app.updateMonsterBiomesCounter = function () {
-      const count = document.querySelectorAll('input[name="monsterBiome"]:checked').length;
+      const checkedBoxes = document.querySelectorAll('input[name="monsterBiome"]:checked');
+      const count = checkedBoxes.length;
       const badge = document.getElementById('monsterBiomesSelectedCount');
       if (badge) {
         badge.textContent = count === 0 ? '0 marcados (Todos os Biomas por padrão)' : `${count} bioma(s) selecionado(s)`;
       }
+      document.querySelectorAll('.monster-biome-item').forEach((item) => {
+        const chk = item.querySelector('input[name="monsterBiome"]');
+        if (chk && chk.checked) {
+          item.style.borderColor = '#38bdf8';
+          item.style.backgroundColor = 'rgba(56, 189, 248, 0.12)';
+          item.style.boxShadow = '0 0 8px rgba(56, 189, 248, 0.20)';
+        } else {
+          item.style.borderColor = 'var(--border)';
+          item.style.backgroundColor = 'rgba(15, 23, 42, 0.85)';
+          item.style.boxShadow = 'none';
+        }
+      });
     };
 
     app.adjustMonsterGroundOffset = function (delta) {
@@ -301,6 +314,19 @@ class AdminMonstersTab {
           .join('');
       }
 
+      const getBiomeCategoryStyle = (cat) => {
+        switch (cat) {
+          case 'FOREST': return { bg: 'rgba(34,197,94,0.15)', text: '#86efac', border: '#22c55e', icon: '🌲' };
+          case 'ARID': return { bg: 'rgba(245,158,11,0.15)', text: '#fde047', border: '#eab308', icon: '🏜️' };
+          case 'AQUATIC': return { bg: 'rgba(6,182,212,0.15)', text: '#67e8f9', border: '#06b6d4', icon: '🌊' };
+          case 'GLACIAL': return { bg: 'rgba(56,189,248,0.15)', text: '#7dd3fc', border: '#38bdf8', icon: '❄️' };
+          case 'VOLCANIC': return { bg: 'rgba(239,68,68,0.15)', text: '#fca5a5', border: '#ef4444', icon: '🌋' };
+          case 'UNDEAD': return { bg: 'rgba(168,85,247,0.15)', text: '#d8b4fe', border: '#a855f7', icon: '💀' };
+          case 'ARCANE': return { bg: 'rgba(236,72,153,0.15)', text: '#f472b6', border: '#ec4899', icon: '🔮' };
+          default: return { bg: 'rgba(100,116,139,0.15)', text: '#cbd5e1', border: '#64748b', icon: '🌍' };
+        }
+      };
+
       const biomesBox = document.getElementById('monsterBiomesChecklist');
       if (biomesBox) {
         const biomesList = Array.isArray(this.biomes) ? this.biomes : [];
@@ -309,11 +335,24 @@ class AdminMonstersTab {
         } else {
           biomesBox.innerHTML = biomesList
             .map((b) => {
+              const catStyle = getBiomeCategoryStyle(b.category);
               const label = `#${b.id} ${b.namePtBr || b.code}`;
+              const desc = b.descriptionPtBr || 'Sem descrição cadastrada.';
+              const searchStr = `${label} ${b.category} ${desc}`.toLowerCase().replace(/"/g, '&quot;');
               return `
-              <label class="monster-biome-item" data-biome-name="${label.replace(/"/g, '&quot;')}" style="display:flex; align-items:center; gap:6px; font-size:0.75rem; background:rgba(15,23,42,0.75); padding:5px 8px; border-radius:6px; border:1px solid var(--border); cursor:pointer;">
-                <input type="checkbox" name="monsterBiome" value="${b.id}" onchange="AdminApp.updateMonsterBiomesCounter()" />
-                <span style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${label}</span>
+              <label class="monster-biome-item" data-biome-name="${searchStr}" style="display:flex; flex-direction:column; gap:4px; font-size:0.75rem; background:rgba(15,23,42,0.85); padding:8px 10px; border-radius:8px; border:1px solid var(--border); cursor:pointer; transition:all 0.15s ease;">
+                <div style="display:flex; align-items:center; justify-content:space-between; gap:6px;">
+                  <div style="display:flex; align-items:center; gap:8px; min-width:0;">
+                    <input type="checkbox" name="monsterBiome" value="${b.id}" onchange="AdminApp.updateMonsterBiomesCounter()" style="width:16px; height:16px; cursor:pointer; flex-shrink:0;" />
+                    <span style="font-weight:700; color:#f8fafc; font-size:0.78rem; word-break:break-word;">${label}</span>
+                  </div>
+                  <span style="font-size:0.65rem; font-weight:700; padding:1px 6px; border-radius:4px; background:${catStyle.bg}; color:${catStyle.text}; border:1px solid ${catStyle.border}; white-space:nowrap; flex-shrink:0;">
+                    ${catStyle.icon} ${b.category}
+                  </span>
+                </div>
+                <div style="font-size:0.70rem; color:#94a3b8; line-height:1.25; margin-left:24px;">
+                  ${desc}
+                </div>
               </label>`;
             })
             .join('');
@@ -705,7 +744,7 @@ class AdminMonstersTab {
             <button type="button" onclick="AdminApp.toggleAllMonsterBiomes(false)" style="padding:4px 8px; font-size:0.72rem;">⬜ Limpar</button>
           </div>
         </div>
-        <div id="monsterBiomesChecklist" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(165px, 1fr)); gap:6px; max-height:155px; overflow-y:auto; padding:8px; background:#020617; border:1px solid var(--border); border-radius:8px;"></div>
+        <div id="monsterBiomesChecklist" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(260px, 1fr)); gap:8px; max-height:230px; overflow-y:auto; padding:8px; background:#020617; border:1px solid var(--border); border-radius:8px;"></div>
       </div>
 
       <!-- BLOCO 4.5: HABILIDADES VINCULADAS A ESTE MONSTRO (SEMPRE VISÍVEL) -->

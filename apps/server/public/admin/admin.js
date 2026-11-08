@@ -135,8 +135,21 @@ class EtheriaAdminStudio {
       this.updateMapTypeRuleBadge();
     }
 
+    const biomeCategoryIcons = {
+      FOREST: '🌲',
+      ARID: '🏜️',
+      AQUATIC: '🌊',
+      GLACIAL: '❄️',
+      VOLCANIC: '🌋',
+      UNDEAD: '💀',
+      ARCANE: '🔮',
+    };
     const biomeOptions = this.biomes
-      .map((b, idx) => `<option value="${b.id}">#${idx + 1} - ${b.namePtBr} [${b.category}]</option>`)
+      .map((b) => {
+        const icon = biomeCategoryIcons[b.category] || '🌍';
+        const descPreview = b.descriptionPtBr ? ` — ${b.descriptionPtBr}` : '';
+        return `<option value="${b.id}" title="${b.descriptionPtBr || ''}">${icon} #${b.id} ${b.namePtBr} [${b.category}]${descPreview}</option>`;
+      })
       .join('');
     const pb = document.getElementById('primaryBiomeSelect');
     const sb = document.getElementById('secondaryBiomeSelect');
@@ -196,9 +209,42 @@ class EtheriaAdminStudio {
     const b2Id = Number(sb.value);
     const b1 = this.biomes.find((x) => x.id === b1Id);
     const b2 = this.biomes.find((x) => x.id === b2Id);
-    box.innerHTML =
-      (b1 ? `<strong>1. ${b1.namePtBr}:</strong> ${b1.descriptionPtBr}<br>` : '') +
-      (b2 ? `<strong>2. ${b2.namePtBr}:</strong> ${b2.descriptionPtBr}` : '');
+
+    const getBadgeStyle = (cat) => {
+      switch (cat) {
+        case 'FOREST': return { bg: 'rgba(34,197,94,0.15)', text: '#86efac', border: '#22c55e', icon: '🌲' };
+        case 'ARID': return { bg: 'rgba(245,158,11,0.15)', text: '#fde047', border: '#eab308', icon: '🏜️' };
+        case 'AQUATIC': return { bg: 'rgba(6,182,212,0.15)', text: '#67e8f9', border: '#06b6d4', icon: '🌊' };
+        case 'GLACIAL': return { bg: 'rgba(56,189,248,0.15)', text: '#7dd3fc', border: '#38bdf8', icon: '❄️' };
+        case 'VOLCANIC': return { bg: 'rgba(239,68,68,0.15)', text: '#fca5a5', border: '#ef4444', icon: '🌋' };
+        case 'UNDEAD': return { bg: 'rgba(168,85,247,0.15)', text: '#d8b4fe', border: '#a855f7', icon: '💀' };
+        case 'ARCANE': return { bg: 'rgba(236,72,153,0.15)', text: '#f472b6', border: '#ec4899', icon: '🔮' };
+        default: return { bg: 'rgba(100,116,139,0.15)', text: '#cbd5e1', border: '#64748b', icon: '🌍' };
+      }
+    };
+
+    const renderCard = (label, biome, color) => {
+      if (!biome) return '';
+      const bStyle = getBadgeStyle(biome.category);
+      return `
+        <div style="flex:1; min-width:210px; background:rgba(15,23,42,0.85); border:1px solid ${bStyle.border}; border-radius:8px; padding:8px 10px; display:flex; flex-direction:column; gap:4px;">
+          <div style="display:flex; justify-content:space-between; align-items:center; gap:6px;">
+            <span style="font-size:0.74rem; font-weight:800; color:${color};">${label}: #${biome.id} ${biome.namePtBr}</span>
+            <span style="font-size:0.65rem; font-weight:700; padding:1px 6px; border-radius:4px; background:${bStyle.bg}; color:${bStyle.text}; border:1px solid ${bStyle.border}; white-space:nowrap;">
+              ${bStyle.icon} ${biome.category}
+            </span>
+          </div>
+          <div style="font-size:0.71rem; color:#94a3b8; line-height:1.3;">
+            ${biome.descriptionPtBr || 'Sem descrição cadastrada.'}
+          </div>
+        </div>`;
+    };
+
+    box.innerHTML = `
+      <div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:4px; margin-bottom:8px;">
+        ${renderCard('1️⃣ Primário', b1, '#fde047')}
+        ${renderCard('2️⃣ Secundário', b2, '#38bdf8')}
+      </div>`;
   }
 
   renderSavedMapsList() {
