@@ -567,12 +567,17 @@
       padding: 20px 28px;
       text-align: center;
       box-shadow: 0 0 40px rgba(0,0,0,0.9), 0 0 20px rgba(56, 189, 248, 0.4);
-      z-index: 25;
+      z-index: 120;
+      pointer-events: auto;
       display: none;
       flex-direction: column;
       align-items: center;
       gap: 12px;
       max-width: 90vw;
+    }
+    .action-result-banner button {
+      pointer-events: auto;
+      cursor: pointer;
     }
   </style>
 </head>
@@ -879,7 +884,7 @@
     <div id="actionResultBanner" class="action-result-banner">
       <h2 id="actionResultTitle" style="margin:0; font-size:1.5rem; color:#fde047;">🏆 VITÓRIA!</h2>
       <div id="actionResultRewards" style="font-size:0.86rem; color:#e2e8f0; line-height:1.4;"></div>
-      <button type="button" class="btn-primary" id="btnActionCloseResult" onclick="PlayApp.actionArena.closeArena()" style="padding:10px 24px; border-radius:999px; font-weight:700;">
+      <button type="button" class="btn-primary" id="btnActionCloseResult" onclick="if(window.PlayApp && window.PlayApp.actionArena) { window.PlayApp.actionArena.closeArena(); }" style="padding:10px 24px; border-radius:999px; font-weight:700; cursor:pointer; pointer-events:auto;">
         ✅ Continuar Aventura
       </button>
     </div>

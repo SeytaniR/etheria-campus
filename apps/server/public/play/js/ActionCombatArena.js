@@ -87,45 +87,66 @@ class ActionCombatArena {
       this.keysDown.delete(e.key.toLowerCase());
     });
 
-    // Touch Joystick Virtual Mobile
+    // Joystick Virtual (Suporte Unificado Touch + Mouse via Pointer Events)
     const zone = document.getElementById('actionJoystickZone');
-    if (!zone) return;
+    if (zone) {
+      const startJoystick = (clientX, clientY, id) => {
+        this.joystickActive = true;
+        this.joystickTouchId = id;
+        const rect = zone.getBoundingClientRect();
+        this.joystickOrigin = { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 };
+        this.handleJoystickMove(clientX, clientY);
+      };
 
-    zone.addEventListener('touchstart', (e) => {
-      e.preventDefault();
-      const touch = e.changedTouches[0];
-      this.joystickActive = true;
-      this.joystickTouchId = touch.identifier;
-      const rect = zone.getBoundingClientRect();
-      this.joystickOrigin = { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 };
-      this.handleJoystickMove(touch.clientX, touch.clientY);
-    }, { passive: false });
+      const moveJoystick = (clientX, clientY, id) => {
+        if (!this.joystickActive || this.joystickTouchId !== id) return;
+        this.handleJoystickMove(clientX, clientY);
+      };
 
-    zone.addEventListener('touchmove', (e) => {
-      e.preventDefault();
-      for (let i = 0; i < e.changedTouches.length; i++) {
-        const touch = e.changedTouches[i];
-        if (touch.identifier === this.joystickTouchId) {
-          this.handleJoystickMove(touch.clientX, touch.clientY);
-          break;
-        }
-      }
-    }, { passive: false });
-
-    const endTouch = (e) => {
-      for (let i = 0; i < e.changedTouches.length; i++) {
-        if (e.changedTouches[i].identifier === this.joystickTouchId) {
+      const stopJoystick = (id) => {
+        if (this.joystickTouchId === id || id === undefined) {
           this.joystickActive = false;
           this.joystickTouchId = null;
           this.joystickVector = { x: 0, y: 0 };
           const thumb = document.getElementById('actionJoystickThumb');
           if (thumb) thumb.style.transform = 'translate(0px, 0px)';
-          break;
         }
-      }
-    };
-    zone.addEventListener('touchend', endTouch);
-    zone.addEventListener('touchcancel', endTouch);
+      };
+
+      zone.addEventListener('pointerdown', (e) => {
+        e.preventDefault();
+        try { zone.setPointerCapture(e.pointerId); } catch (_) {}
+        startJoystick(e.clientX, e.clientY, e.pointerId);
+      });
+
+      zone.addEventListener('pointermove', (e) => {
+        if (!this.joystickActive) return;
+        e.preventDefault();
+        moveJoystick(e.clientX, e.clientY, e.pointerId);
+      });
+
+      const endPointer = (e) => {
+        try { zone.releasePointerCapture(e.pointerId); } catch (_) {}
+        stopJoystick(e.pointerId);
+      };
+      zone.addEventListener('pointerup', endPointer);
+      zone.addEventListener('pointercancel', endPointer);
+    }
+
+    // Botão de Continuar / Fechar Resultado da Batalha
+    const closeBtn = document.getElementById('btnActionCloseResult');
+    if (closeBtn) {
+      closeBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        this.closeArena();
+      });
+      closeBtn.addEventListener('pointerdown', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        this.closeArena();
+      });
+    }
   }
 
   handleJoystickMove(clientX, clientY) {
@@ -404,12 +425,21 @@ class ActionCombatArena {
     const prepBanner = document.getElementById('actionPrepBanner');
     if (prepBanner) prepBanner.style.display = 'none';
 
+    const resultBanner = document.getElementById('actionResultBanner');
+    if (resultBanner) resultBanner.style.display = 'none';
+
     // Trégua de 5 segundos no mapa após combate para evitar re-encontros imediatos
     if (this.client) {
       this.client.encounterCooldownUntil = performance.now() + 5000;
+      this.client.moveTargetX = null;
+      this.client.moveTargetY = null;
+      this.client.dpadDx = 0;
+      this.client.dpadDy = 0;
+      this.client.isMoving = false;
       if (this.player) {
         this.client.playerX = this.player.x;
         this.client.playerY = this.player.y;
+        this.client.playerDir = this.player.dir;
       }
     }
   }
@@ -457,6 +487,19 @@ class ActionCombatArena {
     }
   }
 
+  dealDamageToMob(mob, dmg, text, color, now) {
+    mob.hp = Math.max(0, mob.hp - dmg);
+    mob.hitTimer = 0.28;
+    mob.actionStartTime = now;
+    mob.action = 5;
+    this.floatingTexts.push({ x: mob.x, y: mob.y - 48, text, color, life: 1.1 });
+    if (mob.hp === 0) {
+      mob.isAlive = false;
+      mob.actionStartTime = now;
+      mob.action = 6;
+    }
+  }
+
   triggerAttack() {
     if (!this.isActive || this.combatState !== 'FIGHTING' || !this.player || !this.player.isAlive || this.player.isAttacking) {
       return;
@@ -484,12 +527,6 @@ class ActionCombatArena {
         if (isCrit) rawDmg = Math.round(rawDmg * 1.55);
         const dmg = Math.max(8, rawDmg);
 
-        mob.hp = Math.max(0, mob.hp - dmg);
-        mob.hitTimer = 0.22;
-        mob.actionStartTime = now;
-        mob.action = 5; // Hit
-
-        // Empurrão físico suave
         if (dist > 0) {
           const pushX = mob.x + (dx / dist) * 20;
           const pushY = mob.y + (dy / dist) * 20;
@@ -498,20 +535,7 @@ class ActionCombatArena {
             mob.y = pushY;
           }
         }
-
-        this.floatingTexts.push({
-          x: mob.x,
-          y: mob.y - 45,
-          text: isCrit ? `💥 CRÍTICO! -${dmg}` : `-${dmg}`,
-          color: isCrit ? '#fde047' : '#f87171',
-          life: 1.0,
-        });
-
-        if (mob.hp === 0) {
-          mob.isAlive = false;
-          mob.actionStartTime = now;
-          mob.action = 6; // Morte
-        }
+        this.dealDamageToMob(mob, dmg, isCrit ? `💥 CRÍTICO! -${dmg}` : `-${dmg}`, isCrit ? '#fde047' : '#f87171', now);
       }
     }
     this.updateHud();
@@ -533,28 +557,11 @@ class ActionCombatArena {
       this.player.action = 7;
       this.player.attackTimer = 0.40;
 
-      const aoeRadius = 140;
       for (const mob of this.monsters) {
         if (!mob.isAlive) continue;
-        const dist = Math.hypot(mob.x - this.player.x, mob.y - this.player.y);
-        if (dist <= aoeRadius) {
+        if (Math.hypot(mob.x - this.player.x, mob.y - this.player.y) <= 140) {
           const dmg = Math.round(this.player.atk * 1.9);
-          mob.hp = Math.max(0, mob.hp - dmg);
-          mob.hitTimer = 0.3;
-          mob.actionStartTime = now;
-          mob.action = 5;
-          this.floatingTexts.push({
-            x: mob.x,
-            y: mob.y - 50,
-            text: `🌪️ -${dmg}`,
-            color: '#a78bfa',
-            life: 1.2,
-          });
-          if (mob.hp === 0) {
-            mob.isAlive = false;
-            mob.actionStartTime = now;
-            mob.action = 6;
-          }
+          this.dealDamageToMob(mob, dmg, `🌪️ -${dmg}`, '#a78bfa', now);
         }
       }
       this.updateHud();
@@ -570,25 +577,9 @@ class ActionCombatArena {
 
       for (const mob of this.monsters) {
         if (!mob.isAlive) continue;
-        const dist = Math.hypot(mob.x - this.player.x, mob.y - this.player.y);
-        if (dist <= 180) {
+        if (Math.hypot(mob.x - this.player.x, mob.y - this.player.y) <= 180) {
           const dmg = Math.round(this.player.atk * 2.35);
-          mob.hp = Math.max(0, mob.hp - dmg);
-          mob.hitTimer = 0.35;
-          mob.actionStartTime = now;
-          mob.action = 5;
-          this.floatingTexts.push({
-            x: mob.x,
-            y: mob.y - 50,
-            text: `⚡ -${dmg}`,
-            color: '#38bdf8',
-            life: 1.2,
-          });
-          if (mob.hp === 0) {
-            mob.isAlive = false;
-            mob.actionStartTime = now;
-            mob.action = 6;
-          }
+          this.dealDamageToMob(mob, dmg, `⚡ -${dmg}`, '#38bdf8', now);
         }
       }
       this.updateHud();
@@ -637,6 +628,12 @@ class ActionCombatArena {
 
   showResult(isVictory, messageHtml, isFled = false) {
     this.combatState = 'RESULT';
+    const modal = document.getElementById('actionCombatModal');
+    if (modal) modal.style.display = 'flex';
+
+    const prepBanner = document.getElementById('actionPrepBanner');
+    if (prepBanner) prepBanner.style.display = 'none';
+
     const banner = document.getElementById('actionResultBanner');
     const title = document.getElementById('actionResultTitle');
     const rewards = document.getElementById('actionResultRewards');
@@ -685,18 +682,48 @@ class ActionCombatArena {
     let vx = 0;
     let vy = 0;
 
-    if (this.keysDown.has('w') || this.keysDown.has('arrowup')) vy -= 1;
-    if (this.keysDown.has('s') || this.keysDown.has('arrowdown')) vy += 1;
-    if (this.keysDown.has('a') || this.keysDown.has('arrowleft')) vx -= 1;
-    if (this.keysDown.has('d') || this.keysDown.has('arrowright')) vx += 1;
+    // A. Teclado (WASD / Setas) checado no Set local e do cliente
+    const keys = this.keysDown;
+    const clientKeys = this.client?.keysDown;
+    const isDown = (k) => keys.has(k) || (clientKeys && clientKeys.has(k));
 
+    if (isDown('w') || isDown('arrowup')) vy -= 1;
+    if (isDown('s') || isDown('arrowdown')) vy += 1;
+    if (isDown('a') || isDown('arrowleft')) vx -= 1;
+    if (isDown('d') || isDown('arrowright')) vx += 1;
+
+    // B. D-Pad Virtual Touch do Cliente
+    if (vx === 0 && vy === 0 && this.client && (this.client.dpadDx !== 0 || this.client.dpadDy !== 0)) {
+      vx = this.client.dpadDx;
+      vy = this.client.dpadDy;
+    }
+
+    // C. Joystick Virtual (Touch / Mouse)
     if (this.joystickActive && (this.joystickVector.x !== 0 || this.joystickVector.y !== 0)) {
       vx = this.joystickVector.x;
       vy = this.joystickVector.y;
-    } else if (vx !== 0 || vy !== 0) {
+    }
+
+    if (vx !== 0 || vy !== 0) {
       const len = Math.hypot(vx, vy);
       vx /= len;
       vy /= len;
+      if (this.client) {
+        this.client.moveTargetX = null;
+        this.client.moveTargetY = null;
+      }
+    } else if (this.client && this.client.moveTargetX !== null && this.client.moveTargetY !== null) {
+      // D. Movimentação por Clique / Toque no Mapa (Click-to-Move)
+      const dx = this.client.moveTargetX - this.player.x;
+      const dy = this.client.moveTargetY - this.player.y;
+      const dist = Math.hypot(dx, dy);
+      if (dist <= 8) {
+        this.client.moveTargetX = null;
+        this.client.moveTargetY = null;
+      } else {
+        vx = dx / dist;
+        vy = dy / dist;
+      }
     }
 
     let curSpeed = this.player.speed;
@@ -734,10 +761,18 @@ class ActionCombatArena {
         targetY = this.arenaCenterY + (targetY - this.arenaCenterY) * scale;
       }
 
-      // Validação de Malha de Colisão do Mapa Real
+      // Validação de Malha de Colisão do Mapa Real com deslizamento em quinas
       if (!this.isBlocked(targetX, targetY)) {
         this.player.x = targetX;
         this.player.y = targetY;
+      } else if (!this.isBlocked(targetX, this.player.y)) {
+        this.player.x = targetX;
+      } else if (!this.isBlocked(this.player.x, targetY)) {
+        this.player.y = targetY;
+      } else if (this.client && (this.client.moveTargetX !== null || this.client.moveTargetY !== null)) {
+        this.client.moveTargetX = null;
+        this.client.moveTargetY = null;
+      }
       } else if (!this.isBlocked(targetX, this.player.y)) {
         this.player.x = targetX;
       } else if (!this.isBlocked(this.player.x, targetY)) {
