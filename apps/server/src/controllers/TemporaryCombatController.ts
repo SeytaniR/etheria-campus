@@ -63,6 +63,7 @@ export interface TemporaryBattleState {
   characterId?: number;
   monsterTemplateId?: number;
   victoryRecorded?: boolean;
+  totalRealPlayers?: number;
   round: number;
   player: CombatUnit;
   monsters: CombatUnit[];
@@ -260,6 +261,7 @@ export class TemporaryCombatController {
       characterId: Number(characterId) || 1,
       monsterTemplateId: Number(mobTemplate.id),
       victoryRecorded: false,
+      totalRealPlayers: 1,
       round: 1,
       player: playerUnit,
       monsters: monsterUnits,

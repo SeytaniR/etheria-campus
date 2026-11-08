@@ -1,6 +1,6 @@
 {
   "version": "0.2.0",
-  "exportedAt": "2026-11-08T19:57:17.179Z",
+  "exportedAt": "2026-11-08T19:59:36.588Z",
   "i18nTranslations": [
     {
       "id": 1,
@@ -2205,7 +2205,7 @@
       "key": "map.map_10.name",
       "locale": "pt-BR",
       "text": "Tian-Shu",
-      "updatedAt": "2026-11-08T19:57:17.154Z"
+      "updatedAt": "2026-11-08T19:57:51.924Z"
     }
   ],
   "biomes": [
@@ -38408,7 +38408,7 @@
       "overlapOpacity": 0.45,
       "isActive": true,
       "createdAt": "2026-11-08T19:57:17.146Z",
-      "updatedAt": "2026-11-08T19:57:17.160Z"
+      "updatedAt": "2026-11-08T19:57:51.930Z"
     }
   ],
   "mapPortals": [
@@ -38614,10 +38614,23 @@
       "sourceX": 2932,
       "sourceY": 84,
       "triggerRadius": 48,
-      "linkedPortalId": null,
-      "targetMapId": null,
-      "targetX": 500,
-      "targetY": 500,
+      "linkedPortalId": 20,
+      "targetMapId": 10,
+      "targetX": 70,
+      "targetY": 1315,
+      "portalVfxKey": null
+    },
+    {
+      "id": 20,
+      "label": "Portal #1",
+      "sourceMapId": 10,
+      "sourceX": 70,
+      "sourceY": 1315,
+      "triggerRadius": 48,
+      "linkedPortalId": 18,
+      "targetMapId": 9,
+      "targetX": 2932,
+      "targetY": 84,
       "portalVfxKey": null
     }
   ],

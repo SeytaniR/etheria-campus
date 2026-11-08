@@ -420,8 +420,10 @@ class EtheriaPlayClient {
 
   screenToWorld(sx, sy) {
     const canvas = document.getElementById('gameCanvas');
-    const camX = canvas.width / 2 - this.playerX * this.zoom;
-    const camY = canvas.height / 2 - this.playerY * this.zoom;
+    const focusX = this.actionCombatArena?.isActive ? this.actionCombatArena.getCamFocusX() : this.playerX;
+    const focusY = this.actionCombatArena?.isActive ? this.actionCombatArena.getCamFocusY() : this.playerY;
+    const camX = canvas.width / 2 - focusX * this.zoom;
+    const camY = canvas.height / 2 - focusY * this.zoom;
     return {
       x: Math.round((sx - camX) / this.zoom),
       y: Math.round((sy - camY) / this.zoom),
@@ -433,7 +435,10 @@ class EtheriaPlayClient {
     this.lastFrameTime = now;
 
     if (this.activeChar && this.currentMap) {
-      if (!this.actionCombatArena?.isActive) {
+      if (this.actionCombatArena?.isActive) {
+        this.actionCombatArena.updatePhysics(dt, now);
+        this.actionCombatArena.updateHud();
+      } else {
         this.updatePhysics(dt, now);
       }
       this.renderWorld(now);
@@ -667,8 +672,10 @@ class EtheriaPlayClient {
     const ctx = canvas.getContext('2d');
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    const camX = Math.round(canvas.width / 2 - this.playerX * this.zoom);
-    const camY = Math.round(canvas.height / 2 - this.playerY * this.zoom);
+    const focusX = this.actionCombatArena?.isActive ? this.actionCombatArena.getCamFocusX() : this.playerX;
+    const focusY = this.actionCombatArena?.isActive ? this.actionCombatArena.getCamFocusY() : this.playerY;
+    const camX = Math.round(canvas.width / 2 - focusX * this.zoom);
+    const camY = Math.round(canvas.height / 2 - focusY * this.zoom);
 
     ctx.save();
     ctx.translate(camX, camY);
@@ -702,6 +709,11 @@ class EtheriaPlayClient {
       ctx.font = 'bold 16px sans-serif';
       ctx.textAlign = 'center';
       ctx.fillText('🗺️ Carregando imagem do mapa...', this.playerX, this.playerY - 40);
+    }
+
+    // 1.1 Barreira Rúnica da Arena no Chão do Mapa Real
+    if (this.actionCombatArena?.isActive) {
+      this.actionCombatArena.drawArenaRingOnFloor(ctx, now, this.zoom);
     }
 
     // 2. Se o Modo Raio-X GM estiver ligado, desenha Malhas de Colisão, Sobreposição e Spawn
@@ -784,23 +796,28 @@ class EtheriaPlayClient {
       ctx.stroke();
     }
 
-    // 5. Ordenação de Profundidade 2.5D (Y-Sorting entre Personagem do Jogador e NPCs)
+    // 5. Ordenação de Profundidade 2.5D (Y-Sorting)
     const renderQueue = [];
 
-    for (const npc of this.currentMap.npcs || []) {
-      renderQueue.push({
-        type: 'NPC',
-        y: npc.posY,
-        data: npc,
-      });
-    }
+    if (this.actionCombatArena?.isActive) {
+      // Arena Instanciada: NPCs e outros jogadores são omitidos da tela para isolamento visual total
+      this.actionCombatArena.populateRenderQueue(renderQueue, now);
+    } else {
+      for (const npc of this.currentMap.npcs || []) {
+        renderQueue.push({
+          type: 'NPC',
+          y: npc.posY,
+          data: npc,
+        });
+      }
 
-    if (this.activeChar) {
-      renderQueue.push({
-        type: 'PLAYER',
-        y: this.playerY,
-        data: this.activeChar,
-      });
+      if (this.activeChar) {
+        renderQueue.push({
+          type: 'PLAYER',
+          y: this.playerY,
+          data: this.activeChar,
+        });
+      }
     }
 
     renderQueue.sort((a, b) => a.y - b.y);
@@ -826,7 +843,7 @@ class EtheriaPlayClient {
         if (typeof this.drawNpcQuestHeadIcon === 'function') {
           this.drawNpcQuestHeadIcon(ctx, npc, now);
         }
-      } else {
+      } else if (item.type === 'PLAYER') {
         const char = item.data;
         const sprite = this.getOrCreateSprite(
           `char_${char.mcreworkCharKey}`,
@@ -863,7 +880,78 @@ class EtheriaPlayClient {
           this.playerX,
           nameY
         );
+      } else if (item.type === 'COMBAT_PLAYER') {
+        const p = item.data;
+        if (p.sprite) {
+          const isTransient = (p.action === 3 || p.action === 5 || p.action === 6 || p.action === 7);
+          const elapsed = (isTransient && p.actionStartTime) ? (now - p.actionStartTime) : now;
+          p.sprite.draw(
+            ctx,
+            p.x,
+            p.y,
+            p.action,
+            p.dir,
+            elapsed,
+            this.mesh,
+            p.groundOffsetY || 0,
+            0.70,
+            false,
+            p.shadowOffsetX || 0,
+            p.shadowOffsetY || 0
+          );
+        }
+        ctx.fillStyle = '#fde047';
+        ctx.font = 'bold 13px sans-serif';
+        ctx.textAlign = 'center';
+        const nameY = p.y - 66 + Math.round((p.groundOffsetY || 0) * 0.70);
+        ctx.fillText(p.name, p.x, nameY);
+      } else if (item.type === 'COMBAT_MONSTER') {
+        const mob = item.data;
+        ctx.save();
+        ctx.globalAlpha = mob.fadeAlpha;
+        if (mob.sprite) {
+          const isTransient = (mob.action === 3 || mob.action === 5 || mob.action === 6 || mob.action === 7);
+          const elapsed = (isTransient && mob.actionStartTime) ? (now - mob.actionStartTime) : now;
+          mob.sprite.draw(
+            ctx,
+            mob.x,
+            mob.y,
+            mob.action,
+            mob.dir,
+            elapsed,
+            this.mesh,
+            mob.groundOffsetY || 0,
+            0.70,
+            mob.action === 6,
+            mob.shadowOffsetX || 0,
+            mob.shadowOffsetY || 0
+          );
+        }
+
+        if (mob.isAlive) {
+          const bw = 50;
+          const bh = 5;
+          const bx = mob.x - bw / 2;
+          const by = mob.y - 68;
+          const hpFrac = Math.max(0, Math.min(1, mob.hp / mob.maxHp));
+
+          ctx.fillStyle = 'rgba(2, 6, 23, 0.85)';
+          ctx.fillRect(bx - 1, by - 1, bw + 2, bh + 2);
+          ctx.fillStyle = '#ef4444';
+          ctx.fillRect(bx, by, bw * hpFrac, bh);
+
+          ctx.font = 'bold 11px sans-serif';
+          ctx.textAlign = 'center';
+          ctx.fillStyle = '#f8fafc';
+          ctx.fillText(mob.name, mob.x, by - 4);
+        }
+        ctx.restore();
       }
+    }
+
+    // 6. Textos Flutuantes da Arena de Combate
+    if (this.actionCombatArena?.isActive) {
+      this.actionCombatArena.renderFloatingTexts(ctx);
     }
 
     ctx.restore();
