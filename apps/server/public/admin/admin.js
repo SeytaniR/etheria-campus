@@ -227,14 +227,14 @@ class EtheriaAdminStudio {
       if (!biome) return '';
       const bStyle = getBadgeStyle(biome.category);
       return `
-        <div style="flex:1; min-width:210px; background:rgba(15,23,42,0.85); border:1px solid ${bStyle.border}; border-radius:8px; padding:8px 10px; display:flex; flex-direction:column; gap:4px;">
-          <div style="display:flex; justify-content:space-between; align-items:center; gap:6px;">
-            <span style="font-size:0.74rem; font-weight:800; color:${color};">${label}: #${biome.id} ${biome.namePtBr}</span>
-            <span style="font-size:0.65rem; font-weight:700; padding:1px 6px; border-radius:4px; background:${bStyle.bg}; color:${bStyle.text}; border:1px solid ${bStyle.border}; white-space:nowrap;">
+        <div style="flex:1; min-width:min(100%, 200px); background:rgba(15,23,42,0.85); border:1px solid ${bStyle.border}; border-radius:8px; padding:8px 10px; display:flex; flex-direction:column; gap:4px; box-sizing:border-box;">
+          <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:6px;">
+            <span style="font-size:0.74rem; font-weight:800; color:${color}; word-break:break-word; flex:1 1 120px;">${label}: #${biome.id} ${biome.namePtBr}</span>
+            <span style="font-size:0.65rem; font-weight:700; padding:1px 6px; border-radius:4px; background:${bStyle.bg}; color:${bStyle.text}; border:1px solid ${bStyle.border}; white-space:nowrap; flex-shrink:0;">
               ${bStyle.icon} ${biome.category}
             </span>
           </div>
-          <div style="font-size:0.71rem; color:#94a3b8; line-height:1.3;">
+          <div style="font-size:0.71rem; color:#94a3b8; line-height:1.3; word-break:break-word;">
             ${biome.descriptionPtBr || 'Sem descrição cadastrada.'}
           </div>
         </div>`;

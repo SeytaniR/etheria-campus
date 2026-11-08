@@ -269,7 +269,7 @@ class AdminClassModalTemplate {
             <button type="button" onclick="AdminApp.selectDefaultClassSkills()" style="padding:3px 8px; font-size:0.72rem; color:#fde047; font-weight:700;">⚡ Iniciais (1, 2, 4)</button>
           </div>
         </div>
-        <div id="classSkillsChecklist" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(210px, 1fr)); gap:6px; max-height:300px; overflow-y:auto; padding:8px; background:#020617; border:1px solid var(--border); border-radius:8px;"></div>
+        <div id="classSkillsChecklist" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(min(100%, 200px), 1fr)); gap:6px; max-height:300px; overflow-y:auto; overflow-x:hidden; padding:8px; background:#020617; border:1px solid var(--border); border-radius:8px; box-sizing:border-box;"></div>
       </div>
 
       <div style="border-top:1px solid var(--border); padding-top:8px;">

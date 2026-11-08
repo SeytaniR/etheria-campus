@@ -340,17 +340,17 @@ class AdminMonstersTab {
               const desc = b.descriptionPtBr || 'Sem descrição cadastrada.';
               const searchStr = `${label} ${b.category} ${desc}`.toLowerCase().replace(/"/g, '&quot;');
               return `
-              <label class="monster-biome-item" data-biome-name="${searchStr}" style="display:flex; flex-direction:column; gap:4px; font-size:0.75rem; background:rgba(15,23,42,0.85); padding:8px 10px; border-radius:8px; border:1px solid var(--border); cursor:pointer; transition:all 0.15s ease;">
-                <div style="display:flex; align-items:center; justify-content:space-between; gap:6px;">
-                  <div style="display:flex; align-items:center; gap:8px; min-width:0;">
-                    <input type="checkbox" name="monsterBiome" value="${b.id}" onchange="AdminApp.updateMonsterBiomesCounter()" style="width:16px; height:16px; cursor:pointer; flex-shrink:0;" />
-                    <span style="font-weight:700; color:#f8fafc; font-size:0.78rem; word-break:break-word;">${label}</span>
+              <label class="monster-biome-item" data-biome-name="${searchStr}" style="display:flex; flex-direction:column; gap:5px; font-size:0.75rem; background:rgba(15,23,42,0.85); padding:8px 10px; border-radius:8px; border:1px solid var(--border); cursor:pointer; transition:all 0.15s ease; box-sizing:border-box; width:100%;">
+                <div style="display:flex; align-items:flex-start; justify-content:space-between; flex-wrap:wrap; gap:4px;">
+                  <div style="display:flex; align-items:flex-start; gap:8px; min-width:0; flex:1 1 140px;">
+                    <input type="checkbox" name="monsterBiome" value="${b.id}" onchange="AdminApp.updateMonsterBiomesCounter()" style="width:16px; height:16px; cursor:pointer; flex-shrink:0; margin-top:2px;" />
+                    <span style="font-weight:700; color:#f8fafc; font-size:0.78rem; word-break:break-word; white-space:normal; line-height:1.25;">${label}</span>
                   </div>
-                  <span style="font-size:0.65rem; font-weight:700; padding:1px 6px; border-radius:4px; background:${catStyle.bg}; color:${catStyle.text}; border:1px solid ${catStyle.border}; white-space:nowrap; flex-shrink:0;">
+                  <span style="font-size:0.65rem; font-weight:700; padding:2px 6px; border-radius:4px; background:${catStyle.bg}; color:${catStyle.text}; border:1px solid ${catStyle.border}; white-space:nowrap; flex-shrink:0; align-self:flex-start;">
                     ${catStyle.icon} ${b.category}
                   </span>
                 </div>
-                <div style="font-size:0.70rem; color:#94a3b8; line-height:1.25; margin-left:24px;">
+                <div style="font-size:0.71rem; color:#94a3b8; line-height:1.3; padding-left:24px; box-sizing:border-box; word-break:break-word; white-space:normal;">
                   ${desc}
                 </div>
               </label>`;
@@ -732,28 +732,28 @@ class AdminMonstersTab {
       </div>
 
       <!-- BLOCO 4: BIOMAS DE SPAWN NATURAL (SEMPRE VISÍVEL) -->
-      <div style="background:rgba(15,23,42,0.75); border:1px solid #334155; border-radius:10px; padding:12px; margin-bottom:12px;">
+      <div style="background:rgba(15,23,42,0.75); border:1px solid #334155; border-radius:10px; padding:10px; margin-bottom:12px; box-sizing:border-box;">
         <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; margin-bottom:8px;">
-          <div>
+          <div style="display:flex; align-items:center; flex-wrap:wrap; gap:6px;">
             <span style="font-size:0.8rem; font-weight:700; color:#fde047;">4️⃣ 🌍 Biomas de Spawn Natural</span>
-            <span id="monsterBiomesSelectedCount" style="font-size:0.72rem; color:#86efac; margin-left:8px; font-weight:600;">0 marcados</span>
+            <span id="monsterBiomesSelectedCount" style="font-size:0.72rem; color:#86efac; font-weight:600;">0 marcados</span>
           </div>
-          <div style="display:flex; gap:6px; align-items:center; flex-wrap:wrap;">
-            <input type="text" id="monsterBiomeFilterInput" placeholder="🔍 Filtrar bioma..." oninput="AdminApp.filterMonsterBiomesChecklist()" style="padding:4px 8px; font-size:0.75rem; width:150px;" />
-            <button type="button" onclick="AdminApp.toggleAllMonsterBiomes(true)" style="padding:4px 8px; font-size:0.72rem;">✅ Todos</button>
-            <button type="button" onclick="AdminApp.toggleAllMonsterBiomes(false)" style="padding:4px 8px; font-size:0.72rem;">⬜ Limpar</button>
+          <div style="display:flex; gap:6px; align-items:center; flex-wrap:wrap; width:100%; sm:width:auto;">
+            <input type="text" id="monsterBiomeFilterInput" placeholder="🔍 Filtrar bioma..." oninput="AdminApp.filterMonsterBiomesChecklist()" style="padding:4px 8px; font-size:0.75rem; flex:1; min-width:110px;" />
+            <button type="button" onclick="AdminApp.toggleAllMonsterBiomes(true)" style="padding:4px 8px; font-size:0.72rem; white-space:nowrap;">✅ Todos</button>
+            <button type="button" onclick="AdminApp.toggleAllMonsterBiomes(false)" style="padding:4px 8px; font-size:0.72rem; white-space:nowrap;">⬜ Limpar</button>
           </div>
         </div>
-        <div id="monsterBiomesChecklist" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(260px, 1fr)); gap:8px; max-height:230px; overflow-y:auto; padding:8px; background:#020617; border:1px solid var(--border); border-radius:8px;"></div>
+        <div id="monsterBiomesChecklist" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(min(100%, 250px), 1fr)); gap:8px; max-height:240px; overflow-y:auto; overflow-x:hidden; padding:8px; background:#020617; border:1px solid var(--border); border-radius:8px; box-sizing:border-box;"></div>
       </div>
 
       <!-- BLOCO 4.5: HABILIDADES VINCULADAS A ESTE MONSTRO (SEMPRE VISÍVEL) -->
-      <div style="background:rgba(15,23,42,0.75); border:1px solid #38bdf8; border-radius:10px; padding:12px; margin-bottom:12px;">
+      <div style="background:rgba(15,23,42,0.75); border:1px solid #38bdf8; border-radius:10px; padding:10px; margin-bottom:12px; box-sizing:border-box;">
         <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:6px; margin-bottom:8px;">
           <span style="font-size:0.8rem; font-weight:700; color:#fde047;">⚡ Habilidades deste Monstro (Da Tabela de Habilidades)</span>
-          <span style="font-size:0.72rem; color:#7dd3fc;">Marque quais habilidades ativas/passivas este monstro possui em batalha</span>
+          <span style="font-size:0.72rem; color:#7dd3fc; line-height:1.3;">Marque quais habilidades ativas/passivas este monstro possui em batalha</span>
         </div>
-        <div id="monsterSkillsChecklist" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(210px, 1fr)); gap:6px; max-height:175px; overflow-y:auto; padding:8px; background:#020617; border:1px solid var(--border); border-radius:8px;"></div>
+        <div id="monsterSkillsChecklist" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(min(100%, 200px), 1fr)); gap:6px; max-height:185px; overflow-y:auto; overflow-x:hidden; padding:8px; background:#020617; border:1px solid var(--border); border-radius:8px; box-sizing:border-box;"></div>
       </div>
 
       <!-- BLOCO 5: PALCO 2.5D ANIMADO & GALERIA DE MODELOS DO MCREWORK -->

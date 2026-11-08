@@ -126,12 +126,12 @@ class AdminSkillsAndBuffsTab {
           const isChecked = selSet.has(Number(sk.id));
           const typeBadge = sk.skillType === 'PASSIVE' ? '♾️ Passiva' : `⚡ Ativa (${sk.mpCost || 0} MP)`;
           return `
-          <label style="display:flex; align-items:center; gap:8px; padding:6px 8px; background:rgba(15,23,42,0.85); border:1px solid ${isChecked ? '#38bdf8' : 'var(--border)'}; border-radius:8px; cursor:pointer; font-size:0.76rem;">
-            <input type="checkbox" class="entity-skill-checkbox" data-container="${containerId}" value="${sk.id}" ${isChecked ? 'checked' : ''} />
-            <img src="${sk.iconUrl}" alt="${sk.namePtBr}" style="width:28px; height:28px; border-radius:4px; border:1px solid #475569; object-fit:contain; background:#020617;" />
+          <label style="display:flex; align-items:flex-start; gap:8px; padding:6px 8px; background:rgba(15,23,42,0.85); border:1px solid ${isChecked ? '#38bdf8' : 'var(--border)'}; border-radius:8px; cursor:pointer; font-size:0.76rem; min-width:0; box-sizing:border-box; word-break:break-word;">
+            <input type="checkbox" class="entity-skill-checkbox" data-container="${containerId}" value="${sk.id}" ${isChecked ? 'checked' : ''} style="margin-top:3px; flex-shrink:0;" />
+            <img src="${sk.iconUrl}" alt="${sk.namePtBr}" style="width:28px; height:28px; border-radius:4px; border:1px solid #475569; object-fit:contain; background:#020617; flex-shrink:0;" />
             <div style="flex:1; min-width:0;">
-              <div style="font-weight:700; color:#f8fafc; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">#${sk.id} ${sk.namePtBr}</div>
-              <div style="font-size:0.68rem; color:#38bdf8;">${typeBadge}</div>
+              <div style="font-weight:700; color:#f8fafc; font-size:0.78rem; word-break:break-word; white-space:normal; line-height:1.25;">#${sk.id} ${sk.namePtBr}</div>
+              <div style="font-size:0.68rem; color:#38bdf8; margin-top:2px; word-break:break-word; white-space:normal;">${typeBadge}</div>
             </div>
           </label>`;
         })
