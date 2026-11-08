@@ -27,6 +27,9 @@ class AdminSkillsAndBuffsTab {
     if (window.AdminArenaPreview) {
       window.AdminArenaPreview.attach(app);
     }
+    if (window.AdminSkillsAutoLink) {
+      window.AdminSkillsAutoLink.attach(app);
+    }
 
     AdminSkillsAndBuffsTab.injectTabsAndModalsDom();
 
@@ -117,25 +120,48 @@ class AdminSkillsAndBuffsTab {
       const selSet = new Set((selectedIds || []).map((n) => Number(n)));
 
       if (!this.skillTemplates || this.skillTemplates.length === 0) {
-        box.innerHTML = `<div style="color:var(--text-muted); font-size:0.75rem; padding:6px;">Nenhuma habilidade cadastrada ainda. Crie habilidades na aba <strong>⚡ Habilidades</strong>.</div>`;
+        box.innerHTML = `<div style="color:var(--text-muted); font-size:0.75rem; padding:8px;">Nenhuma habilidade cadastrada ainda. Crie habilidades na aba <strong>⚡ Habilidades</strong>.</div>`;
         return;
       }
 
       box.innerHTML = this.skillTemplates
         .map((sk) => {
           const isChecked = selSet.has(Number(sk.id));
-          const typeBadge = sk.skillType === 'PASSIVE' ? '♾️ Passiva' : `⚡ Ativa (${sk.mpCost || 0} MP)`;
+          const elem = typeof this.getSkillDetectedElement === 'function' ? this.getSkillDetectedElement(sk) : 'NEUTRAL';
+          const elemBadge = typeof this.getElementBadge === 'function' ? this.getElementBadge(elem) : { label: 'Neutro', icon: '⚪', bg: 'rgba(148,163,184,0.2)', text: '#cbd5e1', border: '#64748b' };
+          const scopeLabel = typeof this.getScopeLabel === 'function' ? this.getScopeLabel(sk.targetScope) : (sk.targetScope || '🎯 Melee');
+          const isPassive = sk.skillType === 'PASSIVE';
+          const blocksSummary = this.formatSkillBlocksSummary(sk.effectBlocksJson);
+          const desc = sk.descriptionPtBr ? `📜 ${sk.descriptionPtBr}` : (blocksSummary || 'Sem descrição cadastrada.');
+          const searchStr = `${sk.id} ${sk.code} ${sk.namePtBr} ${elemBadge.label} ${sk.targetScope} ${sk.descriptionPtBr || ''}`.toLowerCase().replace(/"/g, '&quot;');
+
           return `
-          <label style="display:flex; align-items:flex-start; gap:8px; padding:6px 8px; background:rgba(15,23,42,0.85); border:1px solid ${isChecked ? '#38bdf8' : 'var(--border)'}; border-radius:8px; cursor:pointer; font-size:0.76rem; min-width:0; box-sizing:border-box; word-break:break-word;">
-            <input type="checkbox" class="entity-skill-checkbox" data-container="${containerId}" value="${sk.id}" ${isChecked ? 'checked' : ''} style="margin-top:3px; flex-shrink:0;" />
-            <img src="${sk.iconUrl}" alt="${sk.namePtBr}" style="width:28px; height:28px; border-radius:4px; border:1px solid #475569; object-fit:contain; background:#020617; flex-shrink:0;" />
-            <div style="flex:1; min-width:0;">
-              <div style="font-weight:700; color:#f8fafc; font-size:0.78rem; word-break:break-word; white-space:normal; line-height:1.25;">#${sk.id} ${sk.namePtBr}</div>
-              <div style="font-size:0.68rem; color:#38bdf8; margin-top:2px; word-break:break-word; white-space:normal;">${typeBadge}</div>
+          <label class="entity-skill-card" data-skill-search="${searchStr}" data-skill-element="${elem}" style="display:flex; flex-direction:column; gap:6px; padding:8px 10px; background:${isChecked ? 'rgba(56,189,248,0.16)' : 'rgba(15,23,42,0.85)'}; border:${isChecked ? '1.5px solid #38bdf8' : '1px solid var(--border)'}; border-radius:8px; cursor:pointer; transition:all 0.15s ease; box-sizing:border-box;">
+            <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:8px;">
+              <div style="display:flex; align-items:flex-start; gap:8px; min-width:0; flex:1;">
+                <input type="checkbox" class="entity-skill-checkbox" data-container="${containerId}" value="${sk.id}" ${isChecked ? 'checked' : ''} onchange="AdminApp.onEntitySkillToggle('${containerId}')" style="width:18px; height:18px; cursor:pointer; flex-shrink:0; margin-top:2px;" />
+                <img src="${sk.iconUrl}" alt="${sk.namePtBr}" style="width:36px; height:36px; border-radius:6px; border:1px solid ${isChecked ? '#38bdf8' : '#475569'}; object-fit:contain; background:#020617; flex-shrink:0;" />
+                <div style="min-width:0; flex:1;">
+                  <div class="skill-card-title" style="font-weight:700; color:${isChecked ? '#38bdf8' : '#f8fafc'}; font-size:0.80rem; word-break:break-word; line-height:1.25;">#${sk.id} ${sk.namePtBr}</div>
+                  <div style="display:flex; align-items:center; gap:4px; flex-wrap:wrap; margin-top:3px;">
+                    <span style="font-size:0.65rem; padding:1px 5px; border-radius:4px; background:${elemBadge.bg}; color:${elemBadge.text}; border:1px solid ${elemBadge.border}; font-weight:700;">${elemBadge.icon} ${elemBadge.label}</span>
+                    <span style="font-size:0.65rem; padding:1px 5px; border-radius:4px; background:rgba(15,23,42,0.9); color:#94a3b8; border:1px solid #334155;">${scopeLabel}</span>
+                    ${isPassive ? '<span style="font-size:0.65rem; color:#d8b4fe; font-weight:700;">♾️ Passiva</span>' : `<span style="font-size:0.65rem; color:#38bdf8; font-weight:700;">💧 ${sk.mpCost || 0} MP</span>`}
+                    ${sk.cooldownTurns > 0 ? `<span style="font-size:0.65rem; color:#fde047;">⏳ CD: ${sk.cooldownTurns}t</span>` : ''}
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div style="font-size:0.70rem; color:#cbd5e1; line-height:1.25; background:rgba(2,6,23,0.6); padding:4px 6px; border-radius:4px; border:1px solid rgba(255,255,255,0.06); word-break:break-word;">
+              ${desc}
             </div>
           </label>`;
         })
         .join('');
+
+      if (typeof this.onEntitySkillToggle === 'function') {
+        this.onEntitySkillToggle(containerId);
+      }
     };
 
     app.getSelectedEntitySkillIds = function (containerId) {
@@ -205,15 +231,16 @@ class AdminSkillsAndBuffsTab {
             </td>
             <td>
               <div style="font-size:0.74rem; font-weight:600;">🎯 ${sk.targetScope} (${sk.hitCount || 1} hit)</div>
-              <div style="font-size:0.7rem; color:#7dd3fc;">💧 ${sk.mpCost || 0} MP &bull; ⚡ ${sk.apCost || 0} AP &bull; ⏳ CD: ${sk.cooldownTurns || 0}t</div>
+              <div style="font-size:0.7rem; color:#7dd3fc;">💧 ${sk.mpCost || 0} MP &bull; ⏳ CD: ${sk.cooldownTurns || 0}t</div>
             </td>
             <td>
               <div style="font-size:0.73rem; line-height:1.35;">${this.formatSkillBlocksSummary(sk.effectBlocksJson)}</div>
             </td>
             <td>
-              <div style="display:flex; gap:6px;">
-                <button class="btn-primary" onclick="AdminApp.openSkillTemplateModal(${sk.id})">✏️ Editar</button>
-                <button class="btn-danger" onclick="AdminApp.deleteSkillTemplate(${sk.id})">🗑️</button>
+              <div style="display:flex; flex-direction:column; gap:4px;">
+                <button class="btn-primary" onclick="AdminApp.openSkillTemplateModal(${sk.id})" style="padding:3px 8px; font-size:0.72rem;">✏️ Editar</button>
+                <button type="button" class="btn-primary" onclick="AdminApp.openAutoLinkModal(${sk.id})" style="padding:3px 8px; font-size:0.71rem; background:#0284c7; border-color:#38bdf8;" title="Auto-vincular a todos os monstros de um elemento">🔗 Auto-Vincular</button>
+                <button class="btn-danger" onclick="AdminApp.deleteSkillTemplate(${sk.id})" style="padding:3px 8px; font-size:0.72rem;">🗑️ Excluir</button>
               </div>
             </td>
           </tr>`;
@@ -234,14 +261,20 @@ class AdminSkillsAndBuffsTab {
         document.getElementById('skillNameInput').value = existing.namePtBr || '';
         document.getElementById('skillDescInput').value = existing.descriptionPtBr || '';
         document.getElementById('skillTypeSelect').value = existing.skillType || 'ACTIVE';
-        document.getElementById('skillTriggerSelect').value = existing.triggerType || 'MANUAL_AP';
+        document.getElementById('skillTriggerSelect').value = existing.triggerType || 'ACTIVE';
         document.getElementById('skillTargetScopeSelect').value = existing.targetScope || 'MELEE_FRONTLINE';
         document.getElementById('skillHitCountInput').value = String(existing.hitCount || 1);
         document.getElementById('skillMpCostInput').value = String(existing.mpCost ?? 10);
-        document.getElementById('skillApCostInput').value = String(existing.apCost ?? 2);
         document.getElementById('skillCooldownInput').value = String(existing.cooldownTurns ?? 0);
         document.getElementById('skillCastMovementSelect').value = existing.castMovement || 'MELEE_ADVANCE';
         document.getElementById('skillCastActionSelect').value = String(existing.castActionId || 3);
+
+        const autoCheck = document.getElementById('skillAutoLinkOnSaveCheck');
+        if (autoCheck) autoCheck.checked = false;
+        const autoElemSel = document.getElementById('skillAutoLinkOnSaveElementSelect');
+        if (autoElemSel && typeof this.getSkillDetectedElement === 'function') {
+          autoElemSel.value = this.getSkillDetectedElement(existing);
+        }
 
         this.selectedSkillIconKey = existing.mcreworkIconKey || 'assets/skills/icons/100156.png';
         this.selectedSkillVfxKey = existing.mcreworkVfxKey || '10008';
@@ -257,14 +290,16 @@ class AdminSkillsAndBuffsTab {
         document.getElementById('skillNameInput').value = '';
         document.getElementById('skillDescInput').value = '';
         document.getElementById('skillTypeSelect').value = 'ACTIVE';
-        document.getElementById('skillTriggerSelect').value = 'MANUAL_AP';
+        document.getElementById('skillTriggerSelect').value = 'ACTIVE';
         document.getElementById('skillTargetScopeSelect').value = 'MELEE_FRONTLINE';
         document.getElementById('skillHitCountInput').value = '1';
         document.getElementById('skillMpCostInput').value = '12';
-        document.getElementById('skillApCostInput').value = '2';
         document.getElementById('skillCooldownInput').value = '0';
         document.getElementById('skillCastMovementSelect').value = 'MELEE_ADVANCE';
         document.getElementById('skillCastActionSelect').value = '3';
+
+        const autoCheck = document.getElementById('skillAutoLinkOnSaveCheck');
+        if (autoCheck) autoCheck.checked = false;
 
         this.selectedSkillIconKey = 'assets/skills/icons/100156.png';
         this.selectedSkillVfxKey = '10008';
@@ -582,11 +617,10 @@ class AdminSkillsAndBuffsTab {
         const namePtBr = document.getElementById('skillNameInput').value.trim();
         const descriptionPtBr = document.getElementById('skillDescInput').value.trim();
         const skillType = document.getElementById('skillTypeSelect').value || 'ACTIVE';
-        const triggerType = document.getElementById('skillTriggerSelect').value || 'MANUAL_AP';
+        const triggerType = document.getElementById('skillTriggerSelect').value || 'ACTIVE';
         const targetScope = document.getElementById('skillTargetScopeSelect').value || 'MELEE_FRONTLINE';
         const hitCount = Number(document.getElementById('skillHitCountInput').value) || 1;
         const mpCost = Number(document.getElementById('skillMpCostInput').value) || 0;
-        const apCost = Number(document.getElementById('skillApCostInput').value) || 0;
         const cooldownTurns = Number(document.getElementById('skillCooldownInput').value) || 0;
         const castMovement = document.getElementById('skillCastMovementSelect').value || 'MELEE_ADVANCE';
         const castActionId = Number(document.getElementById('skillCastActionSelect').value) || 3;
@@ -608,14 +642,31 @@ class AdminSkillsAndBuffsTab {
           targetScope,
           hitCount,
           mpCost,
-          apCost,
+          apCost: 0,
           cooldownTurns,
           effectBlocksJson: this.editingSkillBlocks,
         };
 
         const path = editId ? `/api/admin/skill-templates/${editId}` : '/api/admin/skill-templates';
         const method = editId ? 'PUT' : 'POST';
-        await this.api(path, { method, body: JSON.stringify(dto) });
+        const res = await this.api(path, { method, body: JSON.stringify(dto) });
+
+        const savedId = editId ? Number(editId) : res?.id;
+        const autoCheck = document.getElementById('skillAutoLinkOnSaveCheck');
+        if (autoCheck && autoCheck.checked && savedId) {
+          const autoElem = document.getElementById('skillAutoLinkOnSaveElementSelect')?.value || 'ALL';
+          try {
+            await this.api(`/api/admin/skill-templates/${savedId}/auto-link-monsters`, {
+              method: 'POST',
+              body: JSON.stringify({ elementCode: autoElem }),
+            });
+            if (typeof this.loadMonstersData === 'function') {
+              await this.loadMonstersData();
+            }
+          } catch (autoErr) {
+            console.warn('Aviso no auto-vínculo ao salvar:', autoErr);
+          }
+        }
 
         this.closeModal('skillTemplateModal');
         await this.loadSkillsAndBuffsData();
@@ -751,14 +802,14 @@ class AdminSkillsAndBuffsTab {
             <div class="field">
               <label style="color:#38bdf8; font-weight:700;">Categoria da Skill</label>
               <select id="skillTypeSelect">
-                <option value="ACTIVE">⚡ ATIVA (Usada no Turno)</option>
+                <option value="ACTIVE">⚡ ATIVA (Usada no Combate)</option>
                 <option value="PASSIVE">♾️ PASSIVA / REATIVA</option>
               </select>
             </div>
             <div class="field">
               <label style="color:#fde047; font-weight:700;">Gatilho de Ativação</label>
               <select id="skillTriggerSelect">
-                <option value="MANUAL_AP">🎯 Uso Manual no Turno</option>
+                <option value="ACTIVE">🎯 Uso Manual / Combate Livre</option>
                 <option value="PASSIVE_ALWAYS">♾️ Passiva Permanente</option>
                 <option value="ON_TURN_START">🌅 No Início do Turno</option>
                 <option value="ON_HIT">🗡️ Ao Acertar um Golpe</option>
@@ -781,8 +832,21 @@ class AdminSkillsAndBuffsTab {
             </div>
             <div class="field"><label>Nº de Golpes (Hits)</label><input type="number" id="skillHitCountInput" value="1" min="1" max="10" /></div>
             <div class="field"><label>💧 Custo de MP</label><input type="number" id="skillMpCostInput" value="12" min="0" /></div>
-            <div class="field"><label>⚡ Custo de AP</label><input type="number" id="skillApCostInput" value="2" min="0" /></div>
             <div class="field"><label>⏳ Cooldown (Turnos)</label><input type="number" id="skillCooldownInput" value="0" min="0" /></div>
+          </div>
+          <div style="display:flex; align-items:center; gap:8px; margin-top:10px; padding:6px 10px; background:rgba(2,6,23,0.8); border:1px solid #0284c7; border-radius:6px; flex-wrap:wrap;">
+            <label style="display:flex; align-items:center; gap:6px; font-size:0.75rem; color:#fde047; font-weight:700; cursor:pointer; margin:0;">
+              <input type="checkbox" id="skillAutoLinkOnSaveCheck" style="width:16px; height:16px; cursor:pointer;" />
+              🔗 Auto-vincular ao salvar a todos os monstros do elemento:
+            </label>
+            <select id="skillAutoLinkOnSaveElementSelect" style="padding:3px 8px; font-size:0.74rem;">
+              <option value="WATER">💧 Água (WATER)</option>
+              <option value="FIRE">🔥 Fogo (FIRE)</option>
+              <option value="EARTH">🪨 Terra (EARTH)</option>
+              <option value="AIR">🌪️ Ar / Vento (AIR)</option>
+              <option value="NEUTRAL">⚪ Neutro (NEUTRAL)</option>
+              <option value="ALL">🌍 Todos os Monstros</option>
+            </select>
           </div>
           <div class="field" style="margin-top:8px;">
             <label>Descrição em Português (PT-BR)</label>

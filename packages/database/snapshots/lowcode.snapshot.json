@@ -1,6 +1,6 @@
 {
   "version": "0.2.0",
-  "exportedAt": "2026-11-08T19:09:47.659Z",
+  "exportedAt": "2026-11-08T19:57:17.179Z",
   "i18nTranslations": [
     {
       "id": 1,
@@ -1358,70 +1358,70 @@
       "key": "monster.monster_1.name",
       "locale": "pt-BR",
       "text": "Duende Ladrão",
-      "updatedAt": "2026-11-07T07:33:56.254Z"
+      "updatedAt": "2026-11-08T19:32:11.263Z"
     },
     {
       "id": 218,
       "key": "monster.monster_1.description",
       "locale": "pt-BR",
       "text": "Bandido nômade que ronda as dunas e desfiladeiros áridos atacando caravanas.",
-      "updatedAt": "2026-11-07T07:33:56.257Z"
+      "updatedAt": "2026-11-08T19:32:11.267Z"
     },
     {
       "id": 219,
       "key": "monster.monster_2.name",
       "locale": "pt-BR",
       "text": "Galinha Colorida",
-      "updatedAt": "2026-11-07T08:53:24.910Z"
+      "updatedAt": "2026-11-08T19:32:40.018Z"
     },
     {
       "id": 220,
       "key": "monster.monster_2.description",
       "locale": "pt-BR",
       "text": "Criatura veloz e espalhafatosa das pradarias. Dizem que traz sorte a quem a doma.",
-      "updatedAt": "2026-11-07T08:53:24.947Z"
+      "updatedAt": "2026-11-08T19:32:40.022Z"
     },
     {
       "id": 221,
       "key": "monster.monster_3.name",
       "locale": "pt-BR",
       "text": "Cacto Venenoso",
-      "updatedAt": "2026-11-07T08:53:46.753Z"
+      "updatedAt": "2026-11-08T19:33:10.312Z"
     },
     {
       "id": 222,
       "key": "monster.monster_3.description",
       "locale": "pt-BR",
       "text": "Vegetal animado e agressivo capaz de disparar espinhos com toxina paralisante.",
-      "updatedAt": "2026-11-07T08:53:46.758Z"
+      "updatedAt": "2026-11-08T19:33:10.317Z"
     },
     {
       "id": 223,
       "key": "monster.monster_4.name",
       "locale": "pt-BR",
       "text": "Estrela Demônio",
-      "updatedAt": "2026-11-08T19:09:47.625Z"
+      "updatedAt": "2026-11-08T19:30:40.698Z"
     },
     {
       "id": 224,
       "key": "monster.monster_4.description",
       "locale": "pt-BR",
       "text": "Uma estrela do Mar demoníaca.",
-      "updatedAt": "2026-11-08T19:09:47.630Z"
+      "updatedAt": "2026-11-08T19:30:40.705Z"
     },
     {
       "id": 225,
       "key": "monster.monster_5.name",
       "locale": "pt-BR",
       "text": "Polvo Esmeralda",
-      "updatedAt": "2026-11-07T08:54:21.216Z"
+      "updatedAt": "2026-11-08T19:33:31.144Z"
     },
     {
       "id": 226,
       "key": "monster.monster_5.description",
       "locale": "pt-BR",
       "text": "Criatura anfíbia curiosa com tentáculos elásticos e pele verde fluorescente.",
-      "updatedAt": "2026-11-07T08:54:21.219Z"
+      "updatedAt": "2026-11-08T19:33:31.149Z"
     },
     {
       "id": 238,
@@ -1560,15 +1560,15 @@
       "id": 260,
       "key": "skill.skill_1.name",
       "locale": "pt-BR",
-      "text": "Corte Fulminante",
-      "updatedAt": "2026-11-07T09:31:16.472Z"
+      "text": "Ataque de Água",
+      "updatedAt": "2026-11-08T19:39:03.532Z"
     },
     {
       "id": 261,
       "key": "skill.skill_1.description",
       "locale": "pt-BR",
-      "text": "Avança contra o inimigo desferindo um golpe físico poderoso (150% do Ataque + 15).",
-      "updatedAt": "2026-11-07T09:31:16.476Z"
+      "text": "Um ataque básico de água que causa dano mágico ao contato.",
+      "updatedAt": "2026-11-08T19:39:03.540Z"
     },
     {
       "id": 262,
@@ -2199,6 +2199,13 @@
       "locale": "pt-BR",
       "text": "Oasis do Céu",
       "updatedAt": "2026-11-08T19:07:41.796Z"
+    },
+    {
+      "id": 569,
+      "key": "map.map_10.name",
+      "locale": "pt-BR",
+      "text": "Tian-Shu",
+      "updatedAt": "2026-11-08T19:57:17.154Z"
     }
   ],
   "biomes": [
@@ -38380,6 +38387,28 @@
       "isActive": false,
       "createdAt": "2026-11-07T20:47:58.569Z",
       "updatedAt": "2026-11-08T19:07:41.816Z"
+    },
+    {
+      "id": 10,
+      "code": "map_10",
+      "mcreworkMapImage": "https://seytanir.github.io/mcrework/assets/maps/map_39/bg.jpg",
+      "nameI18nKey": "map.map_10.name",
+      "requiredLevel": 50,
+      "levelVarianceMin": -2,
+      "levelVarianceMax": 5,
+      "mapTypeId": 1,
+      "primaryBiomeId": 9,
+      "secondaryBiomeId": 16,
+      "encounterRatePct": 0,
+      "dominatedById": null,
+      "spawnX": 1050,
+      "spawnY": 750,
+      "collisionMeshJson": [],
+      "overlapMeshJson": [],
+      "overlapOpacity": 0.45,
+      "isActive": true,
+      "createdAt": "2026-11-08T19:57:17.146Z",
+      "updatedAt": "2026-11-08T19:57:17.160Z"
     }
   ],
   "mapPortals": [
@@ -41228,7 +41257,9 @@
         "VIT": 14,
         "WIS": 9
       },
-      "skillIdsJson": [],
+      "skillIdsJson": [
+        1
+      ],
       "lootTableJson": [],
       "isActive": true
     },
@@ -41251,7 +41282,9 @@
         "VIT": 12,
         "WIS": 10
       },
-      "skillIdsJson": [],
+      "skillIdsJson": [
+        1
+      ],
       "lootTableJson": [],
       "isActive": true
     },
@@ -41274,7 +41307,9 @@
         "VIT": 16,
         "WIS": 11
       },
-      "skillIdsJson": [],
+      "skillIdsJson": [
+        1
+      ],
       "lootTableJson": [],
       "isActive": true
     },
@@ -41297,7 +41332,10 @@
         "VIT": 13,
         "WIS": 13
       },
-      "skillIdsJson": [],
+      "skillIdsJson": [
+        1,
+        5
+      ],
       "lootTableJson": [],
       "isActive": true
     },
@@ -41320,153 +41358,287 @@
         "VIT": 18,
         "WIS": 12
       },
-      "skillIdsJson": [],
+      "skillIdsJson": [
+        5
+      ],
       "lootTableJson": [],
       "isActive": true
     }
   ],
   "monsterBiomes": [
     {
-      "id": 1,
+      "id": 2,
       "monsterTemplateId": 6,
+      "biomeId": 17
+    },
+    {
+      "id": 3,
+      "monsterTemplateId": 6,
+      "biomeId": 18
+    },
+    {
+      "id": 4,
+      "monsterTemplateId": 6,
+      "biomeId": 19
+    },
+    {
+      "id": 5,
+      "monsterTemplateId": 6,
+      "biomeId": 20
+    },
+    {
+      "id": 6,
+      "monsterTemplateId": 6,
+      "biomeId": 21
+    },
+    {
+      "id": 7,
+      "monsterTemplateId": 6,
+      "biomeId": 22
+    },
+    {
+      "id": 8,
+      "monsterTemplateId": 6,
+      "biomeId": 23
+    },
+    {
+      "id": 9,
+      "monsterTemplateId": 6,
+      "biomeId": 24
+    },
+    {
+      "id": 10,
+      "monsterTemplateId": 6,
+      "biomeId": 25
+    },
+    {
+      "id": 11,
+      "monsterTemplateId": 6,
+      "biomeId": 26
+    },
+    {
+      "id": 12,
+      "monsterTemplateId": 6,
+      "biomeId": 27
+    },
+    {
+      "id": 13,
+      "monsterTemplateId": 6,
+      "biomeId": 35
+    },
+    {
+      "id": 14,
+      "monsterTemplateId": 1,
+      "biomeId": 9
+    },
+    {
+      "id": 15,
+      "monsterTemplateId": 1,
+      "biomeId": 10
+    },
+    {
+      "id": 16,
+      "monsterTemplateId": 1,
+      "biomeId": 11
+    },
+    {
+      "id": 17,
+      "monsterTemplateId": 1,
+      "biomeId": 12
+    },
+    {
+      "id": 18,
+      "monsterTemplateId": 1,
+      "biomeId": 13
+    },
+    {
+      "id": 19,
+      "monsterTemplateId": 1,
+      "biomeId": 14
+    },
+    {
+      "id": 20,
+      "monsterTemplateId": 1,
+      "biomeId": 15
+    },
+    {
+      "id": 21,
+      "monsterTemplateId": 1,
       "biomeId": 16
+    },
+    {
+      "id": 22,
+      "monsterTemplateId": 1,
+      "biomeId": 28
+    },
+    {
+      "id": 23,
+      "monsterTemplateId": 1,
+      "biomeId": 29
+    },
+    {
+      "id": 24,
+      "monsterTemplateId": 1,
+      "biomeId": 30
+    },
+    {
+      "id": 25,
+      "monsterTemplateId": 1,
+      "biomeId": 31
+    },
+    {
+      "id": 26,
+      "monsterTemplateId": 2,
+      "biomeId": 1
+    },
+    {
+      "id": 27,
+      "monsterTemplateId": 2,
+      "biomeId": 2
+    },
+    {
+      "id": 28,
+      "monsterTemplateId": 2,
+      "biomeId": 3
+    },
+    {
+      "id": 29,
+      "monsterTemplateId": 2,
+      "biomeId": 4
+    },
+    {
+      "id": 30,
+      "monsterTemplateId": 2,
+      "biomeId": 5
+    },
+    {
+      "id": 31,
+      "monsterTemplateId": 2,
+      "biomeId": 6
+    },
+    {
+      "id": 32,
+      "monsterTemplateId": 2,
+      "biomeId": 7
+    },
+    {
+      "id": 33,
+      "monsterTemplateId": 2,
+      "biomeId": 8
+    },
+    {
+      "id": 34,
+      "monsterTemplateId": 3,
+      "biomeId": 1
+    },
+    {
+      "id": 35,
+      "monsterTemplateId": 3,
+      "biomeId": 2
+    },
+    {
+      "id": 36,
+      "monsterTemplateId": 3,
+      "biomeId": 3
+    },
+    {
+      "id": 37,
+      "monsterTemplateId": 3,
+      "biomeId": 4
+    },
+    {
+      "id": 38,
+      "monsterTemplateId": 3,
+      "biomeId": 5
+    },
+    {
+      "id": 39,
+      "monsterTemplateId": 3,
+      "biomeId": 6
+    },
+    {
+      "id": 40,
+      "monsterTemplateId": 3,
+      "biomeId": 7
+    },
+    {
+      "id": 41,
+      "monsterTemplateId": 3,
+      "biomeId": 8
+    },
+    {
+      "id": 42,
+      "monsterTemplateId": 5,
+      "biomeId": 17
+    },
+    {
+      "id": 43,
+      "monsterTemplateId": 5,
+      "biomeId": 18
+    },
+    {
+      "id": 44,
+      "monsterTemplateId": 5,
+      "biomeId": 19
+    },
+    {
+      "id": 45,
+      "monsterTemplateId": 5,
+      "biomeId": 20
+    },
+    {
+      "id": 46,
+      "monsterTemplateId": 5,
+      "biomeId": 21
+    },
+    {
+      "id": 47,
+      "monsterTemplateId": 5,
+      "biomeId": 22
+    },
+    {
+      "id": 48,
+      "monsterTemplateId": 5,
+      "biomeId": 23
+    },
+    {
+      "id": 49,
+      "monsterTemplateId": 5,
+      "biomeId": 24
+    },
+    {
+      "id": 50,
+      "monsterTemplateId": 5,
+      "biomeId": 25
     }
   ],
   "skillTemplates": [
     {
-      "id": 1,
+      "id": 5,
       "code": "skill_1",
       "nameI18nKey": "skill.skill_1.name",
       "descriptionI18nKey": "skill.skill_1.description",
-      "mcreworkIconKey": "assets/skills/icons/100156.png",
-      "castActionId": 3,
-      "castMovement": "MELEE_ADVANCE",
-      "mcreworkVfxKey": "10008",
-      "skillType": "ACTIVE",
-      "triggerType": "MANUAL_AP",
-      "mpCost": 10,
-      "apCost": 2,
-      "cooldownTurns": 0,
-      "targetScope": "MELEE_FRONTLINE",
-      "hitCount": 1,
-      "effectBlocksJson": [
-        {
-          "scalePct": 150,
-          "blockType": "DAMAGE",
-          "scaleStat": "ATK",
-          "damageType": "PHYSICAL",
-          "flatAmount": 15,
-          "elementCode": "INHERIT",
-          "critBonusPct": 15,
-          "lifestealPct": 0
-        }
-      ],
-      "isActive": true
-    },
-    {
-      "id": 2,
-      "code": "skill_2",
-      "nameI18nKey": "skill.skill_2.name",
-      "descriptionI18nKey": "skill.skill_2.description",
-      "mcreworkIconKey": "assets/skills/icons/100157.png",
+      "mcreworkIconKey": "assets/skills/icons/100484.png",
       "castActionId": 7,
       "castMovement": "STAND_IN_PLACE",
-      "mcreworkVfxKey": "10002",
+      "mcreworkVfxKey": "10009",
       "skillType": "ACTIVE",
       "triggerType": "MANUAL_AP",
-      "mpCost": 18,
-      "apCost": 3,
-      "cooldownTurns": 1,
+      "mpCost": 12,
+      "apCost": 0,
+      "cooldownTurns": 0,
       "targetScope": "RANGED_ANY",
       "hitCount": 1,
       "effectBlocksJson": [
         {
-          "scalePct": 170,
+          "scalePct": 140,
           "blockType": "DAMAGE",
           "scaleStat": "ATK",
           "damageType": "MAGICAL",
-          "flatAmount": 20,
-          "elementCode": "FIRE",
-          "critBonusPct": 20,
-          "lifestealPct": 0
-        },
-        {
-          "blockType": "STATUS",
-          "targetSelf": false,
-          "durationTurns": 3,
-          "applyChancePct": 100,
-          "statusEffectId": 1
-        }
-      ],
-      "isActive": true
-    },
-    {
-      "id": 3,
-      "code": "skill_3",
-      "nameI18nKey": "skill.skill_3.name",
-      "descriptionI18nKey": "skill.skill_3.description",
-      "mcreworkIconKey": "assets/skills/icons/100158.png",
-      "castActionId": 7,
-      "castMovement": "STAND_IN_PLACE",
-      "mcreworkVfxKey": "10004",
-      "skillType": "ACTIVE",
-      "triggerType": "MANUAL_AP",
-      "mpCost": 14,
-      "apCost": 2,
-      "cooldownTurns": 1,
-      "targetScope": "RANGED_ANY",
-      "hitCount": 1,
-      "effectBlocksJson": [
-        {
-          "scalePct": 130,
-          "blockType": "DAMAGE",
-          "scaleStat": "ATK",
-          "damageType": "PHYSICAL",
-          "flatAmount": 12,
-          "elementCode": "EARTH",
+          "flatAmount": 15,
+          "elementCode": "WATER",
           "critBonusPct": 10,
           "lifestealPct": 0
-        },
-        {
-          "blockType": "STATUS",
-          "targetSelf": false,
-          "durationTurns": 3,
-          "applyChancePct": 100,
-          "statusEffectId": 2
-        }
-      ],
-      "isActive": true
-    },
-    {
-      "id": 4,
-      "code": "skill_4",
-      "nameI18nKey": "skill.skill_4.name",
-      "descriptionI18nKey": "skill.skill_4.description",
-      "mcreworkIconKey": "assets/skills/icons/100159.png",
-      "castActionId": 7,
-      "castMovement": "STAND_IN_PLACE",
-      "mcreworkVfxKey": "10001",
-      "skillType": "ACTIVE",
-      "triggerType": "MANUAL_AP",
-      "mpCost": 15,
-      "apCost": 2,
-      "cooldownTurns": 2,
-      "targetScope": "SELF",
-      "hitCount": 1,
-      "effectBlocksJson": [
-        {
-          "scalePct": 18,
-          "blockType": "HEAL",
-          "scaleStat": "MAX_HP",
-          "flatAmount": 20,
-          "targetSelf": true
-        },
-        {
-          "blockType": "STATUS",
-          "targetSelf": true,
-          "durationTurns": 3,
-          "applyChancePct": 100,
-          "statusEffectId": 3
         }
       ],
       "isActive": true

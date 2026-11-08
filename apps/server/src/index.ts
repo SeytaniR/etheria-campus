@@ -591,6 +591,14 @@ export class EtheriaServerApp {
           this.sendJson(res, 200, await this.skillsController.deleteSkillTemplate(id));
           return;
         }
+        const autoLinkMatch = pathname.match(/^\/api\/admin\/skill-templates\/(\d+)\/auto-link-monsters$/);
+        if (autoLinkMatch && method === 'POST') {
+          if (!this.enforceTablePermission(res, session, 'SKILLS', 'READ_WRITE')) return;
+          const id = Number(autoLinkMatch[1]);
+          const dto = await this.readJsonBody(req);
+          this.sendJson(res, 200, await this.skillsController.autoLinkSkillToMonsters(id, dto?.elementCode));
+          return;
+        }
 
         // --- Rotas do Estúdio Visual No-Code de Quests (`quest_templates`) ---
         if (pathname === '/api/admin/quest-templates' && method === 'GET') {

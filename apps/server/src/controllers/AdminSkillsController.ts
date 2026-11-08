@@ -334,9 +334,9 @@ export class AdminSkillsController {
         castMovement: dto.castMovement || 'MELEE_ADVANCE',
         mcreworkVfxKey: dto.mcreworkVfxKey || null,
         skillType: dto.skillType || 'ACTIVE',
-        triggerType: dto.triggerType || 'MANUAL_AP',
+        triggerType: dto.triggerType || 'ACTIVE',
         mpCost: Math.max(0, Number(dto.mpCost) ?? 10),
-        apCost: Math.max(0, Number(dto.apCost) ?? 2),
+        apCost: 0,
         cooldownTurns: Math.max(0, Number(dto.cooldownTurns) ?? 0),
         targetScope: dto.targetScope || 'MELEE_FRONTLINE',
         hitCount: Math.max(1, Number(dto.hitCount) || 1),
@@ -383,9 +383,9 @@ export class AdminSkillsController {
         castMovement: dto.castMovement || existing.castMovement,
         mcreworkVfxKey: dto.mcreworkVfxKey !== undefined ? (dto.mcreworkVfxKey || null) : existing.mcreworkVfxKey,
         skillType: dto.skillType || existing.skillType,
-        triggerType: dto.triggerType || existing.triggerType,
+        triggerType: dto.triggerType || existing.triggerType || 'ACTIVE',
         mpCost: dto.mpCost !== undefined ? Math.max(0, Number(dto.mpCost)) : existing.mpCost,
-        apCost: dto.apCost !== undefined ? Math.max(0, Number(dto.apCost)) : existing.apCost,
+        apCost: 0,
         cooldownTurns:
           dto.cooldownTurns !== undefined ? Math.max(0, Number(dto.cooldownTurns)) : existing.cooldownTurns,
         targetScope: dto.targetScope || existing.targetScope,
@@ -405,6 +405,63 @@ export class AdminSkillsController {
     const deleted = await this.prisma.skillTemplate.delete({ where: { id } });
     await this.snapshotManager.exportToDisk();
     return deleted;
+  }
+
+  /**
+   * Auto-vincula uma Habilidade a todos os monstros que possuem determinado Elemento Fixo.
+   * Se elementCode for 'ALL' ou vazio, vincula a todos os monstros cadastrados.
+   */
+  public async autoLinkSkillToMonsters(skillId: number, elementCode?: string) {
+    const skill = await this.prisma.skillTemplate.findUnique({ where: { id: skillId } });
+    if (!skill) {
+      throw new Error(`Habilidade #${skillId} não encontrada.`);
+    }
+
+    const whereClause: any = {};
+    if (elementCode && elementCode !== 'ALL') {
+      whereClause.fixedElementCode = elementCode;
+    }
+
+    const monsters = await this.prisma.monsterTemplate.findMany({
+      where: whereClause,
+      select: { id: true, code: true, nameI18nKey: true, fixedElementCode: true, skillIdsJson: true },
+      orderBy: { id: 'asc' },
+    });
+
+    const i18n = await this.prisma.i18nTranslation.findMany({
+      where: { locale: 'pt-BR' },
+    });
+    const i18nMap = new Map(i18n.map((t) => [t.key, t.text]));
+
+    const updatedMonsterNames: string[] = [];
+
+    for (const mob of monsters) {
+      const currentSkills: number[] = Array.isArray(mob.skillIdsJson)
+        ? (mob.skillIdsJson as any[]).map(Number).filter((n) => !isNaN(n))
+        : [];
+
+      if (!currentSkills.includes(skillId)) {
+        currentSkills.push(skillId);
+        await this.prisma.monsterTemplate.update({
+          where: { id: mob.id },
+          data: { skillIdsJson: currentSkills },
+        });
+        const mobName = i18nMap.get(mob.nameI18nKey) || mob.code;
+        updatedMonsterNames.push(mobName);
+      }
+    }
+
+    await this.snapshotManager.exportToDisk();
+
+    return {
+      success: true,
+      skillId,
+      skillName: i18nMap.get(skill.nameI18nKey) || skill.code,
+      elementCode: elementCode || 'ALL',
+      totalMonstersFound: monsters.length,
+      linkedCount: updatedMonsterNames.length,
+      monsterNames: updatedMonsterNames,
+    };
   }
 
   /**
@@ -501,9 +558,9 @@ export class AdminSkillsController {
             castMovement: 'MELEE_ADVANCE',
             mcreworkVfxKey: '10008',
             skillType: 'ACTIVE',
-            triggerType: 'MANUAL_AP',
+            triggerType: 'ACTIVE',
             mpCost: 10,
-            apCost: 2,
+            apCost: 0,
             cooldownTurns: 0,
             targetScope: 'MELEE_FRONTLINE',
             hitCount: 1,
@@ -528,9 +585,9 @@ export class AdminSkillsController {
             castMovement: 'STAND_IN_PLACE',
             mcreworkVfxKey: '10002',
             skillType: 'ACTIVE',
-            triggerType: 'MANUAL_AP',
+            triggerType: 'ACTIVE',
             mpCost: 18,
-            apCost: 3,
+            apCost: 0,
             cooldownTurns: 1,
             targetScope: 'RANGED_ANY',
             hitCount: 1,
@@ -562,9 +619,9 @@ export class AdminSkillsController {
             castMovement: 'STAND_IN_PLACE',
             mcreworkVfxKey: '10004',
             skillType: 'ACTIVE',
-            triggerType: 'MANUAL_AP',
+            triggerType: 'ACTIVE',
             mpCost: 14,
-            apCost: 2,
+            apCost: 0,
             cooldownTurns: 1,
             targetScope: 'RANGED_ANY',
             hitCount: 1,
@@ -596,9 +653,9 @@ export class AdminSkillsController {
             castMovement: 'STAND_IN_PLACE',
             mcreworkVfxKey: '10001',
             skillType: 'ACTIVE',
-            triggerType: 'MANUAL_AP',
+            triggerType: 'ACTIVE',
             mpCost: 15,
-            apCost: 2,
+            apCost: 0,
             cooldownTurns: 2,
             targetScope: 'SELF',
             hitCount: 1,

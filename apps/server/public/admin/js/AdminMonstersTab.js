@@ -748,12 +748,27 @@ class AdminMonstersTab {
       </div>
 
       <!-- BLOCO 4.5: HABILIDADES VINCULADAS A ESTE MONSTRO (SEMPRE VISÍVEL) -->
-      <div style="background:rgba(15,23,42,0.75); border:1px solid #38bdf8; border-radius:10px; padding:10px; margin-bottom:12px; box-sizing:border-box;">
-        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:6px; margin-bottom:8px;">
-          <span style="font-size:0.8rem; font-weight:700; color:#fde047;">⚡ Habilidades deste Monstro (Da Tabela de Habilidades)</span>
-          <span style="font-size:0.72rem; color:#7dd3fc; line-height:1.3;">Marque quais habilidades ativas/passivas este monstro possui em batalha</span>
+      <div style="background:rgba(15,23,42,0.75); border:1.5px solid #38bdf8; border-radius:10px; padding:12px; margin-bottom:12px; box-sizing:border-box;">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; margin-bottom:8px;">
+          <div style="display:flex; align-items:center; flex-wrap:wrap; gap:8px;">
+            <span style="font-size:0.82rem; font-weight:700; color:#fde047;">⚡ Habilidades deste Monstro</span>
+            <span id="monsterSkillsSelectedCount" style="font-size:0.72rem; color:#38bdf8; font-weight:700; background:rgba(56,189,248,0.15); padding:2px 8px; border-radius:6px; border:1px solid #0284c7;">0 marcadas</span>
+          </div>
+          <div style="display:flex; gap:6px; align-items:center; flex-wrap:wrap; flex:1; justify-content:flex-end;">
+            <input type="text" id="monsterSkillFilterInput" placeholder="🔍 Filtrar habilidade por nome ou elemento..." oninput="AdminApp.filterEntitySkillsChecklist('monsterSkillsChecklist', this.value)" style="padding:4px 8px; font-size:0.75rem; min-width:140px; flex:1; max-width:260px;" />
+            <button type="button" onclick="AdminApp.clearEntitySkills('monsterSkillsChecklist')" style="padding:4px 8px; font-size:0.72rem; white-space:nowrap;">⬜ Desmarcar Todas</button>
+          </div>
         </div>
-        <div id="monsterSkillsChecklist" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(min(100%, 200px), 1fr)); gap:6px; max-height:185px; overflow-y:auto; overflow-x:hidden; padding:8px; background:#020617; border:1px solid var(--border); border-radius:8px; box-sizing:border-box;"></div>
+        <!-- Filtros rápidos por elemento -->
+        <div class="skill-filter-chips-container" style="display:flex; gap:4px; flex-wrap:wrap; margin-bottom:8px;">
+          <button type="button" class="skill-filter-chip btn-primary" onclick="AdminApp.filterEntitySkillsByElement('monsterSkillsChecklist', 'ALL', this)" style="padding:2px 8px; font-size:0.70rem;">Todos</button>
+          <button type="button" class="skill-filter-chip" onclick="AdminApp.filterEntitySkillsByElement('monsterSkillsChecklist', 'WATER', this)" style="padding:2px 8px; font-size:0.70rem; color:#67e8f9;">💧 Água</button>
+          <button type="button" class="skill-filter-chip" onclick="AdminApp.filterEntitySkillsByElement('monsterSkillsChecklist', 'FIRE', this)" style="padding:2px 8px; font-size:0.70rem; color:#fca5a5;">🔥 Fogo</button>
+          <button type="button" class="skill-filter-chip" onclick="AdminApp.filterEntitySkillsByElement('monsterSkillsChecklist', 'EARTH', this)" style="padding:2px 8px; font-size:0.70rem; color:#fde047;">🪨 Terra</button>
+          <button type="button" class="skill-filter-chip" onclick="AdminApp.filterEntitySkillsByElement('monsterSkillsChecklist', 'AIR', this)" style="padding:2px 8px; font-size:0.70rem; color:#d8b4fe;">🌪️ Ar</button>
+          <button type="button" class="skill-filter-chip" onclick="AdminApp.filterEntitySkillsByElement('monsterSkillsChecklist', 'NEUTRAL', this)" style="padding:2px 8px; font-size:0.70rem; color:#cbd5e1;">⚪ Neutro</button>
+        </div>
+        <div id="monsterSkillsChecklist" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(min(100%, 250px), 1fr)); gap:8px; max-height:240px; overflow-y:auto; overflow-x:hidden; padding:8px; background:#020617; border:1px solid var(--border); border-radius:8px; box-sizing:border-box;"></div>
       </div>
 
       <!-- BLOCO 5: PALCO 2.5D ANIMADO & GALERIA DE MODELOS DO MCREWORK -->

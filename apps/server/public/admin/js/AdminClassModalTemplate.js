@@ -258,7 +258,10 @@ class AdminClassModalTemplate {
       <div id="classTabSkills" style="display:none; flex-direction:column; gap:10px; padding:4px;">
         <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:6px; background:rgba(15,23,42,0.85); padding:8px 10px; border-radius:8px; border:1px solid var(--border);">
           <div>
-            <strong style="font-size:0.85rem; color:#fde047;">⚡ Habilidades do Personagem:</strong>
+            <div style="display:flex; align-items:center; gap:8px;">
+              <strong style="font-size:0.85rem; color:#fde047;">⚡ Habilidades do Personagem:</strong>
+              <span id="classSkillsSelectedCount" style="font-size:0.72rem; color:#38bdf8; font-weight:700; background:rgba(56,189,248,0.15); padding:1px 6px; border-radius:4px; border:1px solid #0284c7;">0 marcadas</span>
+            </div>
             <div style="font-size:0.72rem; color:var(--text-muted); margin-top:2px;">
               Marque as habilidades que esta classe pode usar em batalha.
             </div>
@@ -269,7 +272,7 @@ class AdminClassModalTemplate {
             <button type="button" onclick="AdminApp.selectDefaultClassSkills()" style="padding:3px 8px; font-size:0.72rem; color:#fde047; font-weight:700;">⚡ Iniciais (1, 2, 4)</button>
           </div>
         </div>
-        <div id="classSkillsChecklist" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(min(100%, 200px), 1fr)); gap:6px; max-height:300px; overflow-y:auto; overflow-x:hidden; padding:8px; background:#020617; border:1px solid var(--border); border-radius:8px; box-sizing:border-box;"></div>
+        <div id="classSkillsChecklist" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(min(100%, 250px), 1fr)); gap:8px; max-height:300px; overflow-y:auto; overflow-x:hidden; padding:8px; background:#020617; border:1px solid var(--border); border-radius:8px; box-sizing:border-box;"></div>
       </div>
 
       <div style="border-top:1px solid var(--border); padding-top:8px;">
