@@ -207,21 +207,40 @@ class McreworkSpriteSheet {
       const primaryKey = `${effectiveDir}-${action}`;
       let seq = anims[primaryKey];
 
-      // HÍBRIDO INTELIGENTE PARA MOVIMENTAÇÃO (action = 1):
-      // Caso 1: Se a criatura possuir animação nativa completa de caminhada/corrida (uniqueWalk >= 3, ex: creature_000004),
-      //         executa a sequência nativa perfeitamente animada frame a frame.
-      // Caso 2: Se for um monstro de batalha clássico estático de 20 frames (uniqueWalk <= 2, ex: creature_000001, 000002, 000003, 000006),
-      //         mantém a pose oficial de Stride/Avanço (Action 1) 100% nítida e estável,
-      //         sem alternar frames de ataque (eliminando qualquer flicker/borrão) e sem rotação angular de tela.
+      // MOVIMENTAÇÃO DE MONSTROS (action = 1):
+      // 1. Criaturas com ciclo de corrida nativo (uniqueWalk >= 3, ex: creature_000004):
+      //    Executam a sequência nativa completa frame a frame com fluidez.
+      // 2. Monstros de batalha clássicos (uniqueWalk <= 2, ex: creature_000001, 000002, 000003, 000006):
+      //    Ficam em modo idle dando pequenos saltinhos rítmicos e alternando entre os frames de idle (postura/respiração),
+      //    mantendo os sprites 100% nítidos, sem borrão e sem qualquer flicker.
+      let isHoppingIdle = false;
+      let hoppingFrameKey = null;
+
       if (action === 1 && isMonster) {
         const uniqueWalk = Array.isArray(seq) ? new Set(seq).size : 0;
         if (uniqueWalk <= 2) {
-          const strideFrame =
-            (Array.isArray(seq) && seq[0]) ||
-            anims[`${effectiveDir}-1`]?.[0] ||
-            anims[`${effectiveDir}-0`]?.[0];
-          if (strideFrame) {
-            seq = [strideFrame];
+          isHoppingIdle = true;
+          const idleList = anims[`${effectiveDir}-0`] || anims['1-0'] || anims['0-0'] || [];
+          const uniqueIdle = Array.from(new Set(idleList));
+
+          // Duração de cada saltinho (~320ms por pulo)
+          const hopDuration = 320;
+          const hopTime = Math.max(0, elapsedMs);
+          const hopIndex = Math.floor(hopTime / hopDuration);
+          const hopProgress = (hopTime % hopDuration) / hopDuration;
+          const hopArc = Math.sin(hopProgress * Math.PI);
+
+          if (uniqueIdle.length > 0) {
+            if (hopArc < 0.35) {
+              // No solo: frame base de repouso (firme no chão)
+              hoppingFrameKey = uniqueIdle[0];
+            } else {
+              // No ar: alterna entre o frame de elevação (1) e o frame de pico (2)
+              hoppingFrameKey =
+                hopIndex % 2 === 0
+                  ? (uniqueIdle[1] || uniqueIdle[0])
+                  : (uniqueIdle[2] || uniqueIdle[1] || uniqueIdle[0]);
+            }
           }
         }
       }
@@ -241,7 +260,7 @@ class McreworkSpriteSheet {
         const frameIdx = clampLastFrame
           ? Math.min(seq.length - 1, rawFrameIdx)
           : rawFrameIdx % seq.length;
-        const frameKey = seq[frameIdx];
+        const frameKey = isHoppingIdle && hoppingFrameKey ? hoppingFrameKey : seq[frameIdx];
         const fObj = frames[frameKey];
 
         if (fObj && fObj.frame) {
@@ -262,16 +281,16 @@ class McreworkSpriteSheet {
           const anchorY = 0.92;
           const effectiveOffX = flipX ? origW - offX - drawW : offX;
 
-          // Física de passo sutil e limpa (sem tremor, sem borrão de rotação)
+          // Física de passo e saltinhos de idle
           let stepBob = 0;
           if (action === 1 && isMonster) {
-            const uniqueWalk = Array.isArray(anims[primaryKey]) ? new Set(anims[primaryKey]).size : 0;
-            if (uniqueWalk >= 3) {
-              // Criatura com caminhada nativa completa: cadência suave de 1.2px a 60fps
-              stepBob = Math.round(Math.sin((elapsedMs / 1000) * 10) * (1.2 * scale));
+            if (isHoppingIdle) {
+              const hopDuration = 320;
+              const hopProgress = (Math.max(0, elapsedMs) % hopDuration) / hopDuration;
+              const hopArc = Math.sin(hopProgress * Math.PI);
+              stepBob = -Math.round(hopArc * (7.0 * scale));
             } else {
-              // Monstro estático em avanço: respiração de marcha suave (1.5px), sem saltos bruscos
-              stepBob = Math.round(Math.sin((elapsedMs / 1000) * 8) * (1.5 * scale));
+              stepBob = Math.round(Math.sin((elapsedMs / 1000) * 10) * (1.2 * scale));
             }
           }
 
