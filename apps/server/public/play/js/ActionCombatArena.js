@@ -22,11 +22,11 @@ class ActionCombatArena {
     this.readyPlayerIds = new Set();
     this.isLocalPlayerReady = false;
 
-    // Coordenadas Centrais e Raio da Arena no Mapa Real
+    // Coordenadas Centrais e Raio da Arena no Mapa Real (+30% de área de combate)
     this.arenaCenterX = 0;
     this.arenaCenterY = 0;
-    this.arenaRadiusX = 360;
-    this.arenaRadiusY = 260; // Proporção isométrica ~0.72
+    this.arenaRadiusX = 468;
+    this.arenaRadiusY = 338; // Proporção isométrica ~0.72
 
     // Entidades na arena
     this.player = null;
@@ -183,10 +183,10 @@ class ActionCombatArena {
 
   /**
    * Encontra posições justas e livres de colisão para jogador e monstros.
-   * Testa eixos diagonais isométricos e cardeais garantindo ~280px de separação.
+   * Testa eixos diagonais isométricos e cardeais garantindo separação tática (~364px com arena +30%).
    */
   findFairSpawnPositions(cx, cy) {
-    const testDistances = [280, 240, 200, 160, 120];
+    const testDistances = [364, 320, 280, 240, 200, 160];
     const angles = [
       -Math.PI / 4,      // NW - SE
       (-3 * Math.PI) / 4, // SW - NE
@@ -216,7 +216,7 @@ class ActionCombatArena {
     }
 
     // Fallback seguro caso toda a vizinhança imediata tenha colisão densa
-    return { px: cx - 60, py: cy, mx: cx + 60, my: cy };
+    return { px: cx - 80, py: cy, mx: cx + 80, my: cy };
   }
 
   /**
@@ -231,11 +231,11 @@ class ActionCombatArena {
     this.readyPlayerIds = new Set();
     this.totalRealPlayers = Number(battleState.totalRealPlayers) || 1;
 
-    // Centro da arena é a localização atual do jogador no mapa
+    // Centro da arena é a localização atual do jogador no mapa (+30% de área de combate)
     this.arenaCenterX = Math.round(this.client?.playerX || 400);
     this.arenaCenterY = Math.round(this.client?.playerY || 300);
-    this.arenaRadiusX = 360;
-    this.arenaRadiusY = 260;
+    this.arenaRadiusX = 468;
+    this.arenaRadiusY = 338;
 
     // Encontra distância justa em terreno desobstruído
     const spawns = this.findFairSpawnPositions(this.arenaCenterX, this.arenaCenterY);
@@ -347,7 +347,7 @@ class ActionCombatArena {
     if (statusEl) {
       statusEl.textContent = this.totalRealPlayers > 1
         ? `👥 Aguardando: 0/${this.totalRealPlayers} jogadores prontos`
-        : 'Posicione-se ou clique em Pronto';
+        : 'Trace sua estratégia ou clique em Pronto';
     }
 
     this.floatingTexts.push({
@@ -675,10 +675,27 @@ class ActionCombatArena {
       }
       if (this.prepTimeRemaining <= 0) {
         this.startFightNow();
+        return;
       }
+
+      // Durante a preparação ninguém faz nada (tempo para sincronização e estratégia rápida)
+      this.player.action = 0; // Postura parado
+      if (this.client) {
+        this.client.moveTargetX = null;
+        this.client.moveTargetY = null;
+        this.client.dpadDx = 0;
+        this.client.dpadDy = 0;
+        this.client.isMoving = false;
+      }
+      for (const mob of this.monsters) {
+        if (!mob.isAlive) continue;
+        mob.action = 0; // Postura parado
+        mob.dir = this.compute8Direction(this.player.x - mob.x, this.player.y - mob.y);
+      }
+      return;
     }
 
-    // 1. Movimentação do Jogador (permitida tanto em PREPARATION quanto em FIGHTING)
+    // 1. Movimentação do Jogador em Combate Ativo (FIGHTING)
     let vx = 0;
     let vy = 0;
 
