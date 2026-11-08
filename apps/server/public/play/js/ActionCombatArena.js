@@ -150,11 +150,21 @@ class ActionCombatArena {
   }
 
   /**
+   * Helper seguro de validação de colisão da malha poligonal do mapa.
+   */
+  isBlocked(x, y) {
+    const mesh = this.client?.mesh;
+    if (!mesh) return false;
+    if (typeof mesh.isPointBlocked === 'function') return mesh.isPointBlocked(x, y);
+    if (typeof mesh.isPointInCollision === 'function') return mesh.isPointInCollision(x, y);
+    return false;
+  }
+
+  /**
    * Encontra posições justas e livres de colisão para jogador e monstros.
    * Testa eixos diagonais isométricos e cardeais garantindo ~280px de separação.
    */
   findFairSpawnPositions(cx, cy) {
-    const mesh = this.client?.mesh;
     const testDistances = [280, 240, 200, 160, 120];
     const angles = [
       -Math.PI / 4,      // NW - SE
@@ -175,8 +185,8 @@ class ActionCombatArena {
         const mx = Math.round(cx + Math.cos(ang) * half);
         const my = Math.round(cy + Math.sin(ang) * (half * 0.72));
 
-        const pCol = mesh ? mesh.isPointInCollision(px, py) : false;
-        const mCol = mesh ? mesh.isPointInCollision(mx, my) : false;
+        const pCol = this.isBlocked(px, py);
+        const mCol = this.isBlocked(mx, my);
 
         if (!pCol && !mCol) {
           return { px, py, mx, my };
@@ -258,7 +268,7 @@ class ActionCombatArena {
       let mx = spawns.mx;
       let my = spawns.my + offsetPerp;
 
-      if (this.client?.mesh && this.client.mesh.isPointInCollision(mx, my)) {
+      if (this.isBlocked(mx, my)) {
         mx = spawns.mx;
         my = spawns.my;
       }
@@ -480,10 +490,10 @@ class ActionCombatArena {
         mob.action = 5; // Hit
 
         // Empurrão físico suave
-        if (dist > 0 && this.client?.mesh) {
+        if (dist > 0) {
           const pushX = mob.x + (dx / dist) * 20;
           const pushY = mob.y + (dy / dist) * 20;
-          if (!this.client.mesh.isPointInCollision(pushX, pushY)) {
+          if (!this.isBlocked(pushX, pushY)) {
             mob.x = pushX;
             mob.y = pushY;
           }
@@ -725,18 +735,12 @@ class ActionCombatArena {
       }
 
       // Validação de Malha de Colisão do Mapa Real
-      const mesh = this.client?.mesh;
-      if (mesh) {
-        if (!mesh.isPointInCollision(targetX, targetY)) {
-          this.player.x = targetX;
-          this.player.y = targetY;
-        } else if (!mesh.isPointInCollision(targetX, this.player.y)) {
-          this.player.x = targetX;
-        } else if (!mesh.isPointInCollision(this.player.x, targetY)) {
-          this.player.y = targetY;
-        }
-      } else {
+      if (!this.isBlocked(targetX, targetY)) {
         this.player.x = targetX;
+        this.player.y = targetY;
+      } else if (!this.isBlocked(targetX, this.player.y)) {
+        this.player.x = targetX;
+      } else if (!this.isBlocked(this.player.x, targetY)) {
         this.player.y = targetY;
       }
 
@@ -799,18 +803,12 @@ class ActionCombatArena {
         }
 
         // Validação de Colisão do Monstro com o Mapa
-        const mesh = this.client?.mesh;
-        if (mesh) {
-          if (!mesh.isPointInCollision(nMx, nMy)) {
-            mob.x = nMx;
-            mob.y = nMy;
-          } else if (!mesh.isPointInCollision(nMx, mob.y)) {
-            mob.x = nMx;
-          } else if (!mesh.isPointInCollision(mob.x, nMy)) {
-            mob.y = nMy;
-          }
-        } else {
+        if (!this.isBlocked(nMx, nMy)) {
           mob.x = nMx;
+          mob.y = nMy;
+        } else if (!this.isBlocked(nMx, mob.y)) {
+          mob.x = nMx;
+        } else if (!this.isBlocked(mob.x, nMy)) {
           mob.y = nMy;
         }
 
@@ -891,24 +889,14 @@ class ActionCombatArena {
 
     ctx.save();
 
-    // 1. Área interna com gradiente místico sutil
-    const grad = ctx.createRadialGradient(cx, cy, rx * 0.15, cx, cy, rx);
-    grad.addColorStop(0, 'rgba(56, 189, 248, 0.02)');
-    grad.addColorStop(0.7, 'rgba(56, 189, 248, 0.05)');
-    grad.addColorStop(0.95, 'rgba(99, 102, 241, 0.14)');
-    grad.addColorStop(1, 'rgba(99, 102, 241, 0.30)');
-
+    // 1. Apenas contorno místico pulsante sem qualquer preenchimento colorido sobre o mapa
+    const pulse = 0.85 + 0.15 * Math.sin(now / 260);
     ctx.beginPath();
     ctx.ellipse(cx, cy, rx, ry, 0, 0, Math.PI * 2);
-    ctx.fillStyle = grad;
-    ctx.fill();
-
-    // 2. Borda pulsante com brilho místico
-    const pulse = 0.85 + 0.15 * Math.sin(now / 260);
-    ctx.strokeStyle = `rgba(56, 189, 248, ${0.45 * pulse})`;
-    ctx.lineWidth = 3 / zoom;
+    ctx.strokeStyle = `rgba(56, 189, 248, ${0.50 * pulse})`;
+    ctx.lineWidth = 2.5 / zoom;
     ctx.shadowColor = '#38bdf8';
-    ctx.shadowBlur = 10;
+    ctx.shadowBlur = 8;
     ctx.stroke();
 
     // 3. Glifos rúnicos nos 8 eixos da arena

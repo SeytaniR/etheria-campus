@@ -574,8 +574,8 @@ class EtheriaPlayClient {
     const textEl = document.getElementById('interactionText');
     const btnEl = document.getElementById('interactionBtn');
 
-    if (!this.currentMap) {
-      prompt.style.display = 'none';
+    if (!this.currentMap || this.actionCombatArena?.isActive) {
+      if (prompt) prompt.style.display = 'none';
       return;
     }
 
@@ -763,28 +763,30 @@ class EtheriaPlayClient {
       );
     }
 
-    // 3. Desenha Portais Pareados (`map_portals`) com anel energético pulsante
-    const pulse = 0.85 + 0.15 * Math.sin(now / 220);
-    for (const p of this.currentMap.portals || []) {
-      const r = (Number(p.triggerRadius) || 48) * pulse;
-      const isLinked = Boolean(p.targetMapId);
+    // 3. Desenha Portais Pareados (`map_portals`) com anel energético pulsante (ocultos na arena de combate)
+    if (!this.actionCombatArena?.isActive) {
+      const pulse = 0.85 + 0.15 * Math.sin(now / 220);
+      for (const p of this.currentMap.portals || []) {
+        const r = (Number(p.triggerRadius) || 48) * pulse;
+        const isLinked = Boolean(p.targetMapId);
 
-      ctx.beginPath();
-      ctx.ellipse(p.sourceX, p.sourceY, r, r * 0.65, 0, 0, Math.PI * 2);
-      ctx.fillStyle = isLinked ? 'rgba(168, 85, 247, 0.32)' : 'rgba(148, 163, 184, 0.25)';
-      ctx.fill();
-      ctx.lineWidth = 3 / this.zoom;
-      ctx.strokeStyle = isLinked ? '#c084fc' : '#94a3b8';
-      ctx.stroke();
+        ctx.beginPath();
+        ctx.ellipse(p.sourceX, p.sourceY, r, r * 0.65, 0, 0, Math.PI * 2);
+        ctx.fillStyle = isLinked ? 'rgba(168, 85, 247, 0.32)' : 'rgba(148, 163, 184, 0.25)';
+        ctx.fill();
+        ctx.lineWidth = 3 / this.zoom;
+        ctx.strokeStyle = isLinked ? '#c084fc' : '#94a3b8';
+        ctx.stroke();
 
-      ctx.fillStyle = '#f3e8ff';
-      ctx.font = 'bold 12px sans-serif';
-      ctx.textAlign = 'center';
-      ctx.fillText(
-        `🌀 ${p.label}${p.targetMapNamePtBr ? ` ➔ ${p.targetMapNamePtBr}` : ''}`,
-        p.sourceX,
-        p.sourceY - r * 0.65 - 8
-      );
+        ctx.fillStyle = '#f3e8ff';
+        ctx.font = 'bold 12px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText(
+          `🌀 ${p.label}${p.targetMapNamePtBr ? ` ➔ ${p.targetMapNamePtBr}` : ''}`,
+          p.sourceX,
+          p.sourceY - r * 0.65 - 8
+        );
+      }
     }
 
     // 4. Indicador de destino do clique no chão

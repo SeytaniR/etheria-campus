@@ -67,6 +67,10 @@ class ClientPolygonMesh {
     return false;
   }
 
+  isPointInCollision(x, y) {
+    return this.isPointBlocked(x, y);
+  }
+
   getCharacterOpacityAt(x, y) {
     for (let i = 0; i < this.overlapPolygons.length; i++) {
       if (ClientPolygonMesh.isPointInCompiledPolygon(x, y, this.overlapPolygons[i])) {

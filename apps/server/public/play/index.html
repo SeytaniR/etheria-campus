@@ -378,16 +378,22 @@
       display: none;
     }
     .action-prep-banner {
+      position: absolute;
+      top: 12px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 100;
       pointer-events: auto;
-      background: rgba(15, 23, 42, 0.94);
+      background: rgba(15, 23, 42, 0.95);
       border: 1.5px solid #eab308;
-      box-shadow: 0 4px 24px rgba(234, 179, 8, 0.35);
+      box-shadow: 0 4px 24px rgba(234, 179, 8, 0.45);
       border-radius: 12px;
-      padding: 6px 14px;
+      padding: 6px 16px;
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 14px;
       transition: all 0.2s ease;
+      white-space: nowrap;
     }
     .action-btn-ready {
       background: linear-gradient(135deg, #eab308 0%, #ca8a04 100%);
@@ -819,26 +825,26 @@
         </div>
       </div>
 
-      <!-- Banner Central de Preparação de 20s e Pronto -->
-      <div id="actionPrepBanner" class="action-prep-banner">
-        <div style="display:flex; align-items:center; gap:10px;">
-          <div id="actPrepTimer" style="font-size:1.6rem; font-weight:900; color:#fde047; font-family:monospace; min-width:55px; text-shadow:0 0 10px rgba(253,224,71,0.5);">20s</div>
-          <div style="display:flex; flex-direction:column; gap:2px;">
-            <strong style="font-size:0.80rem; color:#f8fafc;">⚔️ Preparação de Combate</strong>
-            <span id="actPrepStatusText" style="font-size:0.68rem; color:#94a3b8;">Posicione-se ou clique em Pronto</span>
-          </div>
-        </div>
-        <button type="button" id="btnActReady" class="action-btn-ready" onclick="PlayApp.actionArena.toggleReady()">
-          ⚡ PRONTO!
-        </button>
-      </div>
-
       <div class="action-top-actions">
         <div style="background:rgba(15,23,42,0.85); border:1px solid #334155; padding:6px 12px; border-radius:999px; font-size:0.75rem; color:#86efac; font-weight:700;">
           👾 <span id="actHudMonstersAlive">0</span> Restante(s)
         </div>
         <button type="button" class="action-btn-flee" onclick="PlayApp.actionArena.fleeBattle()">🏃 Fugir</button>
       </div>
+    </div>
+
+    <!-- Banner Central de Preparação de 20s e Pronto -->
+    <div id="actionPrepBanner" class="action-prep-banner">
+      <div style="display:flex; align-items:center; gap:10px;">
+        <div id="actPrepTimer" style="font-size:1.6rem; font-weight:900; color:#fde047; font-family:monospace; min-width:55px; text-shadow:0 0 10px rgba(253,224,71,0.5);">20s</div>
+        <div style="display:flex; flex-direction:column; gap:2px;">
+          <strong style="font-size:0.80rem; color:#f8fafc;">⚔️ Preparação de Combate</strong>
+          <span id="actPrepStatusText" style="font-size:0.68rem; color:#94a3b8;">Posicione-se ou clique em Pronto</span>
+        </div>
+      </div>
+      <button type="button" id="btnActReady" class="action-btn-ready" onclick="PlayApp.actionArena.toggleReady()">
+        ⚡ PRONTO!
+      </button>
     </div>
 
     <div class="action-arena-canvas-container" id="actionCanvasWrapper">
