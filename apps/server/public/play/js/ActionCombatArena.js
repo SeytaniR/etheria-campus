@@ -773,11 +773,6 @@ class ActionCombatArena {
         this.client.moveTargetX = null;
         this.client.moveTargetY = null;
       }
-      } else if (!this.isBlocked(targetX, this.player.y)) {
-        this.player.x = targetX;
-      } else if (!this.isBlocked(this.player.x, targetY)) {
-        this.player.y = targetY;
-      }
 
       this.player.dir = this.compute8Direction(vx, vy);
       if (!this.player.isAttacking) {

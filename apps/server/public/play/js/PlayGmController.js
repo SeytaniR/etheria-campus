@@ -281,6 +281,8 @@ class PlayGmController {
         }
         if (this.actionCombatArena) {
           this.actionCombatArena.openArena(battleState);
+        } else {
+          alert('Erro: ActionCombatArena não pôde ser instanciada.');
         }
       } catch (err) {
         alert(`Erro ao iniciar batalha GM: ${err.message}`);
