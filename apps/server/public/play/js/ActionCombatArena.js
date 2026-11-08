@@ -1,12 +1,7 @@
 /**
  * @file apps/server/public/play/js/ActionCombatArena.js
  * @module @etheria/server
- * @description Arena Instanciada no Mapa Real com Combate Livre em Tempo Real (Action RPG / Mobile First).
- *   - Instanciação visual na região atual do mapa aberta pelo client.
- *   - Isolamento visual: NPCs e outros jogadores que não participam da batalha somem da tela.
- *   - Validação de colisão (mesh.isPointInCollision) e sobreposição anatômica (mesh.isPointInOverlap).
- *   - Posicionamento com Distância Justa (~280px) em piso desobstruído com ângulo tático.
- *   - Contagem regressiva de 20s com botão "⚡ PRONTO!" para início acelerado se todos confirmarem.
+ * @description Arena Instanciada no Mapa Real com Combate Livre em Tempo Real e Pathfinding de Monstros.
  */
 
 class ActionCombatArena {
@@ -22,11 +17,11 @@ class ActionCombatArena {
     this.readyPlayerIds = new Set();
     this.isLocalPlayerReady = false;
 
-    // Coordenadas Centrais e Raio da Arena no Mapa Real (+30% de área de combate)
+    // Dimensões da Arena no Mapa Real (+30% de área de combate)
     this.arenaCenterX = 0;
     this.arenaCenterY = 0;
     this.arenaRadiusX = 468;
-    this.arenaRadiusY = 338; // Proporção isométrica ~0.72
+    this.arenaRadiusY = 338;
 
     // Entidades na arena
     this.player = null;
@@ -43,12 +38,12 @@ class ActionCombatArena {
     // Cooldowns das Habilidades do Jogador (ms)
     this.skillCooldowns = {
       attack: 0,
-      skill1: 0, // Turbilhão Arcana (AoE)
-      skill2: 0, // Raio Elemental Perfurante
-      dash: 0,   // Esquiva
+      skill1: 0,
+      skill2: 0,
+      dash: 0,
     };
 
-    // Cache de spritesheets das criaturas e herói
+    // Cache de spritesheets
     this.spriteCache = new Map();
 
     this.setupGlobalEvents();
@@ -69,17 +64,11 @@ class ActionCombatArena {
     window.addEventListener('keydown', (e) => {
       if (!this.isActive) return;
       this.keysDown.add(e.key.toLowerCase());
-      if (e.key === ' ' || e.key.toLowerCase() === 'j') {
-        this.triggerAttack();
-      } else if (e.key === '1') {
-        this.triggerSkill(1);
-      } else if (e.key === '2') {
-        this.triggerSkill(2);
-      } else if (e.key.toLowerCase() === 'k' || e.key === 'Shift') {
-        this.triggerDash();
-      } else if (e.key === 'Escape') {
-        this.fleeBattle();
-      }
+      if (e.key === ' ' || e.key.toLowerCase() === 'j') this.triggerAttack();
+      else if (e.key === '1') this.triggerSkill(1);
+      else if (e.key === '2') this.triggerSkill(2);
+      else if (e.key.toLowerCase() === 'k' || e.key === 'Shift') this.triggerDash();
+      else if (e.key === 'Escape') this.fleeBattle();
     });
 
     window.addEventListener('keyup', (e) => {
@@ -87,7 +76,7 @@ class ActionCombatArena {
       this.keysDown.delete(e.key.toLowerCase());
     });
 
-    // Joystick Virtual (Suporte Unificado Touch + Mouse via Pointer Events)
+    // Joystick Virtual (Pointer Events)
     const zone = document.getElementById('actionJoystickZone');
     if (zone) {
       const startJoystick = (clientX, clientY, id) => {
@@ -95,11 +84,6 @@ class ActionCombatArena {
         this.joystickTouchId = id;
         const rect = zone.getBoundingClientRect();
         this.joystickOrigin = { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 };
-        this.handleJoystickMove(clientX, clientY);
-      };
-
-      const moveJoystick = (clientX, clientY, id) => {
-        if (!this.joystickActive || this.joystickTouchId !== id) return;
         this.handleJoystickMove(clientX, clientY);
       };
 
@@ -120,9 +104,9 @@ class ActionCombatArena {
       });
 
       zone.addEventListener('pointermove', (e) => {
-        if (!this.joystickActive) return;
+        if (!this.joystickActive || this.joystickTouchId !== e.pointerId) return;
         e.preventDefault();
-        moveJoystick(e.clientX, e.clientY, e.pointerId);
+        this.handleJoystickMove(e.clientX, e.clientY);
       });
 
       const endPointer = (e) => {
@@ -133,15 +117,9 @@ class ActionCombatArena {
       zone.addEventListener('pointercancel', endPointer);
     }
 
-    // Botão de Continuar / Fechar Resultado da Batalha
     const closeBtn = document.getElementById('btnActionCloseResult');
     if (closeBtn) {
       closeBtn.addEventListener('click', (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        this.closeArena();
-      });
-      closeBtn.addEventListener('pointerdown', (e) => {
         e.preventDefault();
         e.stopPropagation();
         this.closeArena();
@@ -170,9 +148,6 @@ class ActionCombatArena {
     }
   }
 
-  /**
-   * Helper seguro de validação de colisão da malha poligonal do mapa.
-   */
   isBlocked(x, y) {
     const mesh = this.client?.mesh;
     if (!mesh) return false;
@@ -181,23 +156,9 @@ class ActionCombatArena {
     return false;
   }
 
-  /**
-   * Encontra posições justas e livres de colisão para jogador e monstros.
-   * Testa eixos diagonais isométricos e cardeais garantindo separação tática (~364px com arena +30%).
-   */
   findFairSpawnPositions(cx, cy) {
     const testDistances = [364, 320, 280, 240, 200, 160];
-    const angles = [
-      -Math.PI / 4,      // NW - SE
-      (-3 * Math.PI) / 4, // SW - NE
-      0,                 // W - E
-      Math.PI / 2,       // N - S
-      Math.PI / 4,
-      (3 * Math.PI) / 4,
-      Math.PI,
-      -Math.PI / 2,
-    ];
-
+    const angles = [-Math.PI / 4, (-3 * Math.PI) / 4, 0, Math.PI / 2, Math.PI / 4, (3 * Math.PI) / 4, Math.PI, -Math.PI / 2];
     for (const dist of testDistances) {
       const half = dist / 2;
       for (const ang of angles) {
@@ -205,23 +166,12 @@ class ActionCombatArena {
         const py = Math.round(cy - Math.sin(ang) * (half * 0.72));
         const mx = Math.round(cx + Math.cos(ang) * half);
         const my = Math.round(cy + Math.sin(ang) * (half * 0.72));
-
-        const pCol = this.isBlocked(px, py);
-        const mCol = this.isBlocked(mx, my);
-
-        if (!pCol && !mCol) {
-          return { px, py, mx, my };
-        }
+        if (!this.isBlocked(px, py) && !this.isBlocked(mx, my)) return { px, py, mx, my };
       }
     }
-
-    // Fallback seguro caso toda a vizinhança imediata tenha colisão densa
     return { px: cx - 80, py: cy, mx: cx + 80, my: cy };
   }
 
-  /**
-   * Abre a Arena de Ação Livre instanciada no mapa real.
-   */
   openArena(battleState) {
     this.currentBattle = battleState;
     this.isActive = true;
@@ -231,33 +181,19 @@ class ActionCombatArena {
     this.readyPlayerIds = new Set();
     this.totalRealPlayers = Number(battleState.totalRealPlayers) || 1;
 
-    // Centro da arena é a localização atual do jogador no mapa (+30% de área de combate)
     this.arenaCenterX = Math.round(this.client?.playerX || 400);
     this.arenaCenterY = Math.round(this.client?.playerY || 300);
     this.arenaRadiusX = 468;
     this.arenaRadiusY = 338;
 
-    // Encontra distância justa em terreno desobstruído
     const spawns = this.findFairSpawnPositions(this.arenaCenterX, this.arenaCenterY);
-
-    // Configura o Jogador na arena
     const pState = battleState.player || {};
     const pDir = this.compute8Direction(spawns.mx - spawns.px, spawns.my - spawns.py);
 
     this.player = {
-      x: spawns.px,
-      y: spawns.py,
-      speed: 215,
-      dir: pDir,
-      action: 0,
-      isAlive: true,
-      hp: pState.hp || 500,
-      maxHp: pState.maxHp || 500,
-      mp: pState.mp || 200,
-      maxMp: pState.maxMp || 200,
-      atk: pState.atk || 75,
-      def: pState.def || 40,
-      name: pState.name || this.client?.activeChar?.name || 'Herói',
+      x: spawns.px, y: spawns.py, speed: 215, dir: pDir, action: 0, isAlive: true,
+      hp: pState.hp || 500, maxHp: pState.maxHp || 500, mp: pState.mp || 200, maxMp: pState.maxMp || 200,
+      atk: pState.atk || 75, def: pState.def || 40, name: pState.name || this.client?.activeChar?.name || 'Herói',
       sprite: this.getSprite(pState.atlasJsonUrl, pState.atlasWebpUrl, pState.thumbUrl) ||
               (this.client?.activeChar ? this.client.getOrCreateSprite(
                 `char_${this.client.activeChar.mcreworkCharKey}`,
@@ -268,69 +204,48 @@ class ActionCombatArena {
       groundOffsetY: pState.groundOffsetY || this.client?.activeChar?.groundOffsetY || 0,
       shadowOffsetX: pState.shadowOffsetX || this.client?.activeChar?.shadowOffsetX || 0,
       shadowOffsetY: pState.shadowOffsetY || this.client?.activeChar?.shadowOffsetY || 0,
-      isAttacking: false,
-      attackTimer: 0,
-      isDashing: false,
-      dashTimer: 0,
-      hitTimer: 0,
+      isAttacking: false, attackTimer: 0, isDashing: false, dashTimer: 0, hitTimer: 0,
     };
 
-    // Sincroniza posição do cliente no mapa
     if (this.client) {
       this.client.playerX = spawns.px;
       this.client.playerY = spawns.py;
       this.client.playerDir = pDir;
+      this.client.currentPath = null;
+      this.client.moveTargetX = null;
+      this.client.moveTargetY = null;
     }
 
-    // Configura Monstros a partir da distância justa
     const mStates = Array.isArray(battleState.monsters) ? battleState.monsters : [];
     this.monsters = mStates.map((m, idx) => {
       const offsetPerp = (idx - (mStates.length - 1) / 2) * 50;
       let mx = spawns.mx;
       let my = spawns.my + offsetPerp;
-
       if (this.isBlocked(mx, my)) {
         mx = spawns.mx;
         my = spawns.my;
       }
-
       const mDir = this.compute8Direction(spawns.px - mx, spawns.py - my);
       return {
-        id: m.id || `mob_${idx}`,
-        templateId: battleState.monsterTemplateId,
-        name: m.name || `Monstro #${idx + 1}`,
-        x: mx,
-        y: my,
-        dir: mDir,
-        action: 0,
-        isAlive: true,
-        hp: m.hp || 300,
-        maxHp: m.maxHp || 300,
-        atk: m.atk || 45,
-        def: m.def || 25,
-        speed: 110 + idx * 10,
-        attackRange: 52,
-        nextAttackTime: performance.now() + 1000 + idx * 400,
-        hitTimer: 0,
-        attackTimer: 0,
-        fadeAlpha: 1.0,
+        id: m.id || `mob_${idx}`, templateId: battleState.monsterTemplateId,
+        name: m.name || `Monstro #${idx + 1}`, x: mx, y: my, dir: mDir, action: 0, isAlive: true,
+        hp: m.hp || 300, maxHp: m.maxHp || 300, atk: m.atk || 45, def: m.def || 25,
+        speed: 110 + idx * 10, attackRange: 52, nextAttackTime: performance.now() + 1000 + idx * 400,
+        hitTimer: 0, attackTimer: 0, fadeAlpha: 1.0,
         sprite: this.getSprite(m.atlasJsonUrl, m.atlasWebpUrl, m.thumbUrl),
-        groundOffsetY: m.groundOffsetY || 0,
-        shadowOffsetX: m.shadowOffsetX || 0,
-        shadowOffsetY: m.shadowOffsetY || 0,
+        groundOffsetY: m.groundOffsetY || 0, shadowOffsetX: m.shadowOffsetX || 0, shadowOffsetY: m.shadowOffsetY || 0,
+        path: null, nextRepathTime: 0,
       };
     });
 
     this.floatingTexts = [];
 
-    // Interface HUD
     const modal = document.getElementById('actionCombatModal');
     if (modal) modal.style.display = 'flex';
 
     const resultBanner = document.getElementById('actionResultBanner');
     if (resultBanner) resultBanner.style.display = 'none';
 
-    // Banner de Preparação e Contagem de 20s
     const prepBanner = document.getElementById('actionPrepBanner');
     if (prepBanner) prepBanner.style.display = 'flex';
 
@@ -361,16 +276,10 @@ class ActionCombatArena {
     this.updateHud();
   }
 
-  /**
-   * Alterna estado de "Pronto" do jogador local.
-   * Se todos os jogadores reais estiverem prontos, a luta inicia imediatamente.
-   */
   toggleReady() {
     if (!this.isActive || this.combatState !== 'PREPARATION') return;
-
     this.isLocalPlayerReady = !this.isLocalPlayerReady;
     const localId = this.client?.activeChar?.id || 'p1';
-
     const btnReady = document.getElementById('btnActReady');
     const statusEl = document.getElementById('actPrepStatusText');
 
@@ -388,7 +297,6 @@ class ActionCombatArena {
       }
     }
 
-    // Se todos derem pronto, acelera e inicia agora
     if (this.readyPlayerIds.size >= this.totalRealPlayers) {
       this.startFightNow();
     } else if (statusEl) {
@@ -396,12 +304,8 @@ class ActionCombatArena {
     }
   }
 
-  /**
-   * Inicia o combate ativo após término da contagem ou confirmação de todos.
-   */
   startFightNow() {
     if (!this.isActive || this.combatState !== 'PREPARATION') return;
-
     this.combatState = 'FIGHTING';
     const prepBanner = document.getElementById('actionPrepBanner');
     if (prepBanner) prepBanner.style.display = 'none';
@@ -421,18 +325,16 @@ class ActionCombatArena {
 
     const modal = document.getElementById('actionCombatModal');
     if (modal) modal.style.display = 'none';
-
     const prepBanner = document.getElementById('actionPrepBanner');
     if (prepBanner) prepBanner.style.display = 'none';
-
     const resultBanner = document.getElementById('actionResultBanner');
     if (resultBanner) resultBanner.style.display = 'none';
 
-    // Trégua de 5 segundos no mapa após combate para evitar re-encontros imediatos
     if (this.client) {
       this.client.encounterCooldownUntil = performance.now() + 5000;
       this.client.moveTargetX = null;
       this.client.moveTargetY = null;
+      this.client.currentPath = null;
       this.client.dpadDx = 0;
       this.client.dpadDy = 0;
       this.client.isMoving = false;
@@ -461,7 +363,6 @@ class ActionCombatArena {
 
     const hpText = document.getElementById('actHudPlayerHpText');
     if (hpText) hpText.textContent = `${Math.ceil(this.player.hp)} / ${this.player.maxHp}`;
-
     const pName = document.getElementById('actHudPlayerName');
     if (pName) pName.textContent = this.player.name;
 
@@ -479,8 +380,7 @@ class ActionCombatArena {
     const el = document.getElementById(elemId);
     if (!el) return;
     if (expireTime > now) {
-      const remainingSec = ((expireTime - now) / 1000).toFixed(1);
-      el.textContent = `${remainingSec}s`;
+      el.textContent = `${((expireTime - now) / 1000).toFixed(1)}s`;
       el.style.display = 'flex';
     } else {
       el.style.display = 'none';
@@ -511,7 +411,7 @@ class ActionCombatArena {
     this.player.isAttacking = true;
     this.player.attackTimer = 0.32;
     this.player.actionStartTime = now;
-    this.player.action = 3; // Ataque Físico
+    this.player.action = 3;
 
     const hitRadius = 75;
     for (const mob of this.monsters) {
@@ -543,48 +443,32 @@ class ActionCombatArena {
   }
 
   triggerSkill(skillNum) {
-    if (!this.isActive || this.combatState !== 'FIGHTING' || !this.player || !this.player.isAlive) {
-      return;
-    }
+    if (!this.isActive || this.combatState !== 'FIGHTING' || !this.player || !this.player.isAlive) return;
     const now = performance.now();
-
     if (skillNum === 1) {
-      // Turbilhão Arcana (AoE)
-      if (now < this.skillCooldowns.skill1 || this.player.mp < 20) return;
-      this.skillCooldowns.skill1 = now + 4000;
-      this.player.mp = Math.max(0, this.player.mp - 20);
-      this.player.actionStartTime = now;
-      this.player.action = 7;
-      this.player.attackTimer = 0.40;
-
-      for (const mob of this.monsters) {
-        if (!mob.isAlive) continue;
-        if (Math.hypot(mob.x - this.player.x, mob.y - this.player.y) <= 140) {
-          const dmg = Math.round(this.player.atk * 1.9);
-          this.dealDamageToMob(mob, dmg, `🌪️ -${dmg}`, '#a78bfa', now);
-        }
-      }
-      this.updateHud();
-      this.checkVictoryCondition();
+      this.executeSkillAoE(20, 4000, 140, 1.9, '🌪️', '#a78bfa', now, 'skill1');
     } else if (skillNum === 2) {
-      // Raio Elemental Perfurante
-      if (now < this.skillCooldowns.skill2 || this.player.mp < 35) return;
-      this.skillCooldowns.skill2 = now + 6000;
-      this.player.mp = Math.max(0, this.player.mp - 35);
-      this.player.actionStartTime = now;
-      this.player.action = 7;
-      this.player.attackTimer = 0.45;
-
-      for (const mob of this.monsters) {
-        if (!mob.isAlive) continue;
-        if (Math.hypot(mob.x - this.player.x, mob.y - this.player.y) <= 180) {
-          const dmg = Math.round(this.player.atk * 2.35);
-          this.dealDamageToMob(mob, dmg, `⚡ -${dmg}`, '#38bdf8', now);
-        }
-      }
-      this.updateHud();
-      this.checkVictoryCondition();
+      this.executeSkillAoE(35, 6000, 180, 2.35, '⚡', '#38bdf8', now, 'skill2');
     }
+  }
+
+  executeSkillAoE(mpCost, cdMs, radius, dmgMultiplier, emoji, color, now, cdKey) {
+    if (now < this.skillCooldowns[cdKey] || this.player.mp < mpCost) return;
+    this.skillCooldowns[cdKey] = now + cdMs;
+    this.player.mp = Math.max(0, this.player.mp - mpCost);
+    this.player.actionStartTime = now;
+    this.player.action = 7;
+    this.player.attackTimer = 0.42;
+
+    for (const mob of this.monsters) {
+      if (!mob.isAlive) continue;
+      if (Math.hypot(mob.x - this.player.x, mob.y - this.player.y) <= radius) {
+        const dmg = Math.round(this.player.atk * dmgMultiplier);
+        this.dealDamageToMob(mob, dmg, `${emoji} -${dmg}`, color, now);
+      }
+    }
+    this.updateHud();
+    this.checkVictoryCondition();
   }
 
   triggerDash() {
@@ -594,7 +478,6 @@ class ActionCombatArena {
     const now = performance.now();
     if (now < this.skillCooldowns.dash) return;
     this.skillCooldowns.dash = now + 1800;
-
     this.player.isDashing = true;
     this.player.dashTimer = 0.22;
   }
@@ -630,7 +513,6 @@ class ActionCombatArena {
     this.combatState = 'RESULT';
     const modal = document.getElementById('actionCombatModal');
     if (modal) modal.style.display = 'flex';
-
     const prepBanner = document.getElementById('actionPrepBanner');
     if (prepBanner) prepBanner.style.display = 'none';
 
@@ -639,17 +521,8 @@ class ActionCombatArena {
     const rewards = document.getElementById('actionResultRewards');
     if (!banner || !title || !rewards) return;
 
-    if (isFled) {
-      title.textContent = '🏃 Fuga da Batalha';
-      title.style.color = '#7dd3fc';
-    } else if (isVictory) {
-      title.textContent = '🏆 VITÓRIA!';
-      title.style.color = '#fde047';
-    } else {
-      title.textContent = '💀 VOCÊ FOI DERROTADO!';
-      title.style.color = '#f87171';
-    }
-
+    title.textContent = isFled ? '🏃 Fuga da Batalha' : (isVictory ? '🏆 VITÓRIA!' : '💀 VOCÊ FOI DERROTADO!');
+    title.style.color = isFled ? '#7dd3fc' : (isVictory ? '#fde047' : '#f87171');
     rewards.innerHTML = messageHtml;
     banner.style.display = 'flex';
   }
@@ -660,9 +533,6 @@ class ActionCombatArena {
     return ((sector % 8) + 8) % 8;
   }
 
-  /**
-   * Atualização de física a 60 FPS executada pelo gameLoop do cliente.
-   */
   updatePhysics(dt, now) {
     if (!this.isActive || !this.player || !this.player.isAlive) return;
 
@@ -670,17 +540,15 @@ class ActionCombatArena {
     if (this.combatState === 'PREPARATION') {
       this.prepTimeRemaining = Math.max(0, this.prepTimeRemaining - dt);
       const timerEl = document.getElementById('actPrepTimer');
-      if (timerEl) {
-        timerEl.textContent = `${Math.ceil(this.prepTimeRemaining)}s`;
-      }
+      if (timerEl) timerEl.textContent = `${Math.ceil(this.prepTimeRemaining)}s`;
       if (this.prepTimeRemaining <= 0) {
         this.startFightNow();
         return;
       }
 
-      // Durante a preparação ninguém faz nada (tempo para sincronização e estratégia rápida)
-      this.player.action = 0; // Postura parado
+      this.player.action = 0;
       if (this.client) {
+        this.client.currentPath = null;
         this.client.moveTargetX = null;
         this.client.moveTargetY = null;
         this.client.dpadDx = 0;
@@ -689,7 +557,7 @@ class ActionCombatArena {
       }
       for (const mob of this.monsters) {
         if (!mob.isAlive) continue;
-        mob.action = 0; // Postura parado
+        mob.action = 0;
         mob.dir = this.compute8Direction(this.player.x - mob.x, this.player.y - mob.y);
       }
       return;
@@ -699,7 +567,6 @@ class ActionCombatArena {
     let vx = 0;
     let vy = 0;
 
-    // A. Teclado (WASD / Setas) checado no Set local e do cliente
     const keys = this.keysDown;
     const clientKeys = this.client?.keysDown;
     const isDown = (k) => keys.has(k) || (clientKeys && clientKeys.has(k));
@@ -709,13 +576,11 @@ class ActionCombatArena {
     if (isDown('a') || isDown('arrowleft')) vx -= 1;
     if (isDown('d') || isDown('arrowright')) vx += 1;
 
-    // B. D-Pad Virtual Touch do Cliente
     if (vx === 0 && vy === 0 && this.client && (this.client.dpadDx !== 0 || this.client.dpadDy !== 0)) {
       vx = this.client.dpadDx;
       vy = this.client.dpadDy;
     }
 
-    // C. Joystick Virtual (Touch / Mouse)
     if (this.joystickActive && (this.joystickVector.x !== 0 || this.joystickVector.y !== 0)) {
       vx = this.joystickVector.x;
       vy = this.joystickVector.y;
@@ -726,11 +591,32 @@ class ActionCombatArena {
       vx /= len;
       vy /= len;
       if (this.client) {
+        this.client.currentPath = null;
         this.client.moveTargetX = null;
         this.client.moveTargetY = null;
       }
+    } else if (this.client && this.client.currentPath && this.client.currentPath.length > 0) {
+      // Movimentação por Waypoints com Desvio de Obstáculos
+      const wp = this.client.currentPath[0];
+      const dx = wp.x - this.player.x;
+      const dy = wp.y - this.player.y;
+      const dist = Math.hypot(dx, dy);
+
+      if (dist <= 12) {
+        this.client.currentPath.shift();
+        if (this.client.currentPath.length > 0) {
+          this.client.moveTargetX = this.client.currentPath[0].x;
+          this.client.moveTargetY = this.client.currentPath[0].y;
+        } else {
+          this.client.currentPath = null;
+          this.client.moveTargetX = null;
+          this.client.moveTargetY = null;
+        }
+      } else {
+        vx = dx / dist;
+        vy = dy / dist;
+      }
     } else if (this.client && this.client.moveTargetX !== null && this.client.moveTargetY !== null) {
-      // D. Movimentação por Clique / Toque no Mapa (Click-to-Move)
       const dx = this.client.moveTargetX - this.player.x;
       const dy = this.client.moveTargetY - this.player.y;
       const dist = Math.hypot(dx, dy);
@@ -768,7 +654,6 @@ class ActionCombatArena {
       let targetX = this.player.x + vx * curSpeed * dt;
       let targetY = this.player.y + vy * curSpeed * dt;
 
-      // Clamping elíptico na barreira da arena
       const normX = (targetX - this.arenaCenterX) / this.arenaRadiusX;
       const normY = (targetY - this.arenaCenterY) / this.arenaRadiusY;
       const distSq = normX * normX + normY * normY;
@@ -778,7 +663,6 @@ class ActionCombatArena {
         targetY = this.arenaCenterY + (targetY - this.arenaCenterY) * scale;
       }
 
-      // Validação de Malha de Colisão do Mapa Real com deslizamento em quinas
       if (!this.isBlocked(targetX, targetY)) {
         this.player.x = targetX;
         this.player.y = targetY;
@@ -789,34 +673,27 @@ class ActionCombatArena {
       } else if (this.client && (this.client.moveTargetX !== null || this.client.moveTargetY !== null)) {
         this.client.moveTargetX = null;
         this.client.moveTargetY = null;
+        this.client.currentPath = null;
       }
 
       this.player.dir = this.compute8Direction(vx, vy);
       if (!this.player.isAttacking) {
-        this.player.action = 1; // Correndo
+        this.player.action = 1;
       }
 
-      // Sincroniza posição contínua no mapa aberto
       if (this.client) {
         this.client.playerX = this.player.x;
         this.client.playerY = this.player.y;
         this.client.playerDir = this.player.dir;
       }
     } else if (!this.player.isAttacking && this.player.hitTimer <= 0) {
-      this.player.action = 0; // Parado
+      this.player.action = 0;
     }
 
-    // 2. IA dos Monstros
+    // 2. IA dos Monstros com Desvio Dinâmico de Obstáculos (Pathfinding)
     for (const mob of this.monsters) {
       if (!mob.isAlive) {
         mob.fadeAlpha = Math.max(0, mob.fadeAlpha - dt * 1.5);
-        continue;
-      }
-
-      // Em PREPARATION, monstros mantêm postura idle olhando para o jogador
-      if (this.combatState === 'PREPARATION') {
-        mob.action = 0;
-        mob.dir = this.compute8Direction(this.player.x - mob.x, this.player.y - mob.y);
         continue;
       }
 
@@ -836,10 +713,43 @@ class ActionCombatArena {
       const mDist = Math.hypot(mdx, mdy);
 
       if (mDist > mob.attackRange) {
-        let nMx = mob.x + (mdx / mDist) * mob.speed * dt;
-        let nMy = mob.y + (mdy / mDist) * mob.speed * dt;
+        let steerX = mdx;
+        let steerY = mdy;
 
-        // Clamping elíptico na arena
+        // Verifica se a linha reta até o jogador está livre de obstáculos
+        const mesh = this.client?.mesh;
+        const isDirectClear = mesh ? mesh.isSegmentClear(mob.x, mob.y, this.player.x, this.player.y, 16) : true;
+
+        if (isDirectClear) {
+          mob.path = null;
+        } else {
+          // Desvio inteligente via A* e String Pulling
+          if (!mob.path || mob.path.length === 0 || now >= (mob.nextRepathTime || 0)) {
+            mob.path = mesh ? mesh.findPath(mob.x, mob.y, this.player.x, this.player.y) : null;
+            mob.nextRepathTime = now + 350 + Math.random() * 150;
+          }
+
+          if (mob.path && mob.path.length > 0) {
+            const wp = mob.path[0];
+            const wpDist = Math.hypot(wp.x - mob.x, wp.y - mob.y);
+            if (wpDist <= 14) {
+              mob.path.shift();
+            }
+            if (mob.path.length > 0) {
+              steerX = mob.path[0].x - mob.x;
+              steerY = mob.path[0].y - mob.y;
+            }
+          }
+        }
+
+        const steerLen = Math.hypot(steerX, steerY);
+        let nMx = mob.x;
+        let nMy = mob.y;
+        if (steerLen > 0) {
+          nMx += (steerX / steerLen) * mob.speed * dt;
+          nMy += (steerY / steerLen) * mob.speed * dt;
+        }
+
         const mNormX = (nMx - this.arenaCenterX) / this.arenaRadiusX;
         const mNormY = (nMy - this.arenaCenterY) / this.arenaRadiusY;
         const mDistSq = mNormX * mNormX + mNormY * mNormY;
@@ -849,7 +759,6 @@ class ActionCombatArena {
           nMy = this.arenaCenterY + (nMy - this.arenaCenterY) * scale;
         }
 
-        // Validação de Colisão do Monstro com o Mapa
         if (!this.isBlocked(nMx, nMy)) {
           mob.x = nMx;
           mob.y = nMy;
@@ -859,8 +768,8 @@ class ActionCombatArena {
           mob.y = nMy;
         }
 
-        mob.dir = this.compute8Direction(mdx, mdy);
-        mob.action = 1; // Correndo / Saltitando suavemente
+        mob.dir = this.compute8Direction(steerX, steerY);
+        mob.action = 1;
       } else {
         mob.action = 0;
         mob.dir = this.compute8Direction(mdx, mdy);
@@ -869,7 +778,7 @@ class ActionCombatArena {
           mob.nextAttackTime = now + 1800 + Math.random() * 800;
           mob.attackTimer = 0.40;
           mob.actionStartTime = now;
-          mob.action = 3; // Ataque
+          mob.action = 3;
 
           if (!this.player.isDashing) {
             const dmg = Math.max(5, Math.round(mob.atk * (100 / (100 + this.player.def * 0.5))));
@@ -907,9 +816,6 @@ class ActionCombatArena {
     }
   }
 
-  /**
-   * Ponto focal da câmera para enquadramento equilibrado entre o jogador e seu oponente.
-   */
   getCamFocusX() {
     if (!this.player) return this.client?.playerX || 0;
     const livingMob = this.monsters.find((m) => m.isAlive);
@@ -924,9 +830,6 @@ class ActionCombatArena {
     return Math.round(this.player.y * 0.65 + livingMob.y * 0.35);
   }
 
-  /**
-   * Desenha o anel místico no chão do mapa real sob as entidades.
-   */
   drawArenaRingOnFloor(ctx, now, zoom) {
     if (!this.isActive) return;
     const cx = this.arenaCenterX;
@@ -935,8 +838,6 @@ class ActionCombatArena {
     const ry = this.arenaRadiusY;
 
     ctx.save();
-
-    // 1. Apenas contorno místico pulsante sem qualquer preenchimento colorido sobre o mapa
     const pulse = 0.85 + 0.15 * Math.sin(now / 260);
     ctx.beginPath();
     ctx.ellipse(cx, cy, rx, ry, 0, 0, Math.PI * 2);
@@ -946,7 +847,6 @@ class ActionCombatArena {
     ctx.shadowBlur = 8;
     ctx.stroke();
 
-    // 3. Glifos rúnicos nos 8 eixos da arena
     for (let i = 0; i < 8; i++) {
       const ang = (i * Math.PI) / 4;
       const gx = cx + Math.cos(ang) * rx;
@@ -956,14 +856,9 @@ class ActionCombatArena {
       ctx.fillStyle = '#38bdf8';
       ctx.fill();
     }
-
     ctx.restore();
   }
 
-  /**
-   * Popula a fila de renderização (Y-Sorting) com os participantes da arena.
-   * NPCs e jogadores alheios são excluídos para isolamento visual completo.
-   */
   populateRenderQueue(renderQueue, now) {
     if (!this.isActive) return;
 
@@ -985,9 +880,6 @@ class ActionCombatArena {
     }
   }
 
-  /**
-   * Renderiza os textos flutuantes de dano e notificações no espaço de mundo.
-   */
   renderFloatingTexts(ctx) {
     for (const f of this.floatingTexts) {
       ctx.save();

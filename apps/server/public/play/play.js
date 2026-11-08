@@ -39,6 +39,7 @@ class EtheriaPlayClient {
     this.isMoving = false;
     this.moveTargetX = null;
     this.moveTargetY = null;
+    this.currentPath = null;
     this.keysDown = new Set();
     this.dpadDx = 0;
     this.dpadDy = 0;
@@ -250,6 +251,7 @@ class EtheriaPlayClient {
       img.onload = () => {
         if (this.currentMap && Number(this.currentMap.id) === Number(mapId)) {
           this.mapBgImage = img;
+          this.mesh?.initNavGrid(img.naturalWidth, img.naturalHeight);
         }
       };
       img.onerror = (err) => {
@@ -266,6 +268,7 @@ class EtheriaPlayClient {
       if (img.complete && img.naturalWidth > 0) {
         if (this.currentMap && Number(this.currentMap.id) === Number(mapId)) {
           this.mapBgImage = img;
+          this.mesh?.initNavGrid(img.naturalWidth, img.naturalHeight);
         }
       }
     };
@@ -318,6 +321,7 @@ class EtheriaPlayClient {
     this.dpadDx = dx;
     this.dpadDy = dy;
     if (dx !== 0 || dy !== 0) {
+      this.currentPath = null;
       this.moveTargetX = null;
       this.moveTargetY = null;
     }
@@ -339,6 +343,7 @@ class EtheriaPlayClient {
       const k = e.key.toLowerCase();
       if (['w', 'a', 's', 'd', 'arrowup', 'arrowdown', 'arrowleft', 'arrowright'].includes(k)) {
         this.keysDown.add(k);
+        this.currentPath = null;
         this.moveTargetX = null;
         this.moveTargetY = null;
       }
@@ -368,8 +373,22 @@ class EtheriaPlayClient {
         }
       }
 
-      this.moveTargetX = worldPt.x;
-      this.moveTargetY = worldPt.y;
+      if (this.mesh && !this.gmNoClip) {
+        const path = this.mesh.findPath(this.playerX, this.playerY, worldPt.x, worldPt.y);
+        if (path && path.length > 0) {
+          this.currentPath = path;
+          this.moveTargetX = path[0].x;
+          this.moveTargetY = path[0].y;
+        } else {
+          this.currentPath = null;
+          this.moveTargetX = worldPt.x;
+          this.moveTargetY = worldPt.y;
+        }
+      } else {
+        this.currentPath = null;
+        this.moveTargetX = worldPt.x;
+        this.moveTargetY = worldPt.y;
+      }
     });
 
     canvas.addEventListener(
@@ -456,7 +475,27 @@ class EtheriaPlayClient {
     if (this.keysDown.has('a') || this.keysDown.has('arrowleft')) vx -= 1;
     if (this.keysDown.has('d') || this.keysDown.has('arrowright')) vx += 1;
 
-    if (vx === 0 && vy === 0 && this.moveTargetX !== null && this.moveTargetY !== null) {
+    if (vx === 0 && vy === 0 && this.currentPath && this.currentPath.length > 0) {
+      const wp = this.currentPath[0];
+      const dx = wp.x - this.playerX;
+      const dy = wp.y - this.playerY;
+      const dist = Math.hypot(dx, dy);
+
+      if (dist <= 12) {
+        this.currentPath.shift();
+        if (this.currentPath.length > 0) {
+          this.moveTargetX = this.currentPath[0].x;
+          this.moveTargetY = this.currentPath[0].y;
+        } else {
+          this.currentPath = null;
+          this.moveTargetX = null;
+          this.moveTargetY = null;
+        }
+      } else {
+        vx = dx / dist;
+        vy = dy / dist;
+      }
+    } else if (vx === 0 && vy === 0 && this.moveTargetX !== null && this.moveTargetY !== null) {
       const dx = this.moveTargetX - this.playerX;
       const dy = this.moveTargetY - this.playerY;
       const dist = Math.hypot(dx, dy);
@@ -495,8 +534,15 @@ class EtheriaPlayClient {
         } else if (!this.mesh.isPointBlocked(this.playerX, nextY)) {
           this.playerY = nextY;
         } else {
-          this.moveTargetX = null;
-          this.moveTargetY = null;
+          if (this.currentPath && this.currentPath.length > 1) {
+            this.currentPath.shift();
+            this.moveTargetX = this.currentPath[0].x;
+            this.moveTargetY = this.currentPath[0].y;
+          } else {
+            this.currentPath = null;
+            this.moveTargetX = null;
+            this.moveTargetY = null;
+          }
         }
       }
 
@@ -540,6 +586,7 @@ class EtheriaPlayClient {
     this.isEncounterLoading = true;
     this.moveTargetX = null;
     this.moveTargetY = null;
+    this.currentPath = null;
     this.isMoving = false;
     this.dpadDx = 0;
     this.dpadDy = 0;
@@ -585,11 +632,8 @@ class EtheriaPlayClient {
       const radius = Number(p.triggerRadius) || 48;
       if (dist <= radius + 14) {
         prompt.style.display = 'flex';
-        const destLabel = p.targetMapNamePtBr
-          ? `Ir para ${p.targetMapNamePtBr} (${p.targetX}, ${p.targetY})`
-          : 'Sem portal par vinculado ainda';
         textEl.textContent = `🌀 ${p.label}`;
-        btnEl.textContent = destLabel;
+        btnEl.textContent = p.targetMapNamePtBr ? `Ir para ${p.targetMapNamePtBr} (${p.targetX}, ${p.targetY})` : 'Sem portal par vinculado ainda';
         btnEl.onclick = () => this.traversePortal(p.id);
 
         // Travessia automática ao pisar no núcleo do portal (se já passou o cooldown de saída)
@@ -607,21 +651,10 @@ class EtheriaPlayClient {
       if (dist <= 68) {
         prompt.style.display = 'flex';
         const qInd = this.questState?.npcHeadIndicators?.[n.npcTemplateId];
-        let btnLabel = '💬 Conversar';
-        if (qInd?.state === 'TURN_IN_READY') {
-          btnLabel = '❓ Entregar Missão';
-        } else if (qInd?.state === 'AVAILABLE') {
-          btnLabel = '❗ Nova Missão';
-        } else if (qInd?.state === 'IN_PROGRESS') {
-          btnLabel = '❓ Missão em Andamento';
-        }
+        const stateLabels = { TURN_IN_READY: '❓ Entregar Missão', AVAILABLE: '❗ Nova Missão', IN_PROGRESS: '❓ Missão em Andamento' };
         textEl.textContent = `🧙 ${n.namePtBr}`;
-        btnEl.textContent = btnLabel;
-        btnEl.onclick = () => {
-          if (typeof this.openNpcQuestModal === 'function') {
-            void this.openNpcQuestModal(n);
-          }
-        };
+        btnEl.textContent = stateLabels[qInd?.state] || '💬 Conversar';
+        btnEl.onclick = () => { if (typeof this.openNpcQuestModal === 'function') void this.openNpcQuestModal(n); };
         return;
       }
     }
@@ -685,29 +718,11 @@ class EtheriaPlayClient {
     if (this.mapBgImage) {
       ctx.drawImage(this.mapBgImage, 0, 0);
     } else {
-      ctx.fillStyle = '#0b1120';
-      ctx.fillRect(0, 0, 2000, 1500);
-
-      // Grade sutil isométrica do chão para feedback espacial imediato
-      ctx.strokeStyle = 'rgba(56, 189, 248, 0.08)';
-      ctx.lineWidth = 1 / this.zoom;
-      const step = 64;
-      for (let x = 0; x <= 2000; x += step) {
-        ctx.beginPath();
-        ctx.moveTo(x, 0);
-        ctx.lineTo(x, 1500);
-        ctx.stroke();
-      }
-      for (let y = 0; y <= 1500; y += step) {
-        ctx.beginPath();
-        ctx.moveTo(0, y);
-        ctx.lineTo(2000, y);
-        ctx.stroke();
-      }
-
-      ctx.fillStyle = '#38bdf8';
-      ctx.font = 'bold 16px sans-serif';
-      ctx.textAlign = 'center';
+      ctx.fillStyle = '#0b1120'; ctx.fillRect(0, 0, 2000, 1500);
+      ctx.strokeStyle = 'rgba(56, 189, 248, 0.08)'; ctx.lineWidth = 1 / this.zoom;
+      for (let x = 0; x <= 2000; x += 64) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, 1500); ctx.stroke(); }
+      for (let y = 0; y <= 1500; y += 64) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(2000, y); ctx.stroke(); }
+      ctx.fillStyle = '#38bdf8'; ctx.font = 'bold 16px sans-serif'; ctx.textAlign = 'center';
       ctx.fillText('🗺️ Carregando imagem do mapa...', this.playerX, this.playerY - 40);
     }
 
@@ -718,49 +733,30 @@ class EtheriaPlayClient {
 
     // 2. Se o Modo Raio-X GM estiver ligado, desenha Malhas de Colisão, Sobreposição e Spawn
     if (this.gmXray && this.currentMap) {
-      for (const poly of this.currentMap.collisionMeshJson || []) {
-        const pts = poly.points || [];
-        if (pts.length < 3) continue;
-        ctx.beginPath();
-        ctx.moveTo(pts[0].x, pts[0].y);
-        for (let i = 1; i < pts.length; i++) ctx.lineTo(pts[i].x, pts[i].y);
-        ctx.closePath();
-        ctx.fillStyle = 'rgba(239, 68, 68, 0.30)';
-        ctx.fill();
-        ctx.lineWidth = 2 / this.zoom;
-        ctx.strokeStyle = '#ef4444';
-        ctx.stroke();
-      }
+      const drawPolyMesh = (list, fill, stroke) => {
+        for (const poly of list || []) {
+          const pts = poly.points || [];
+          if (pts.length < 3) continue;
+          ctx.beginPath();
+          ctx.moveTo(pts[0].x, pts[0].y);
+          for (let i = 1; i < pts.length; i++) ctx.lineTo(pts[i].x, pts[i].y);
+          ctx.closePath();
+          ctx.fillStyle = fill;
+          ctx.fill();
+          ctx.lineWidth = 2 / this.zoom;
+          ctx.strokeStyle = stroke;
+          ctx.stroke();
+        }
+      };
+      drawPolyMesh(this.currentMap.collisionMeshJson, 'rgba(239, 68, 68, 0.30)', '#ef4444');
+      drawPolyMesh(this.currentMap.overlapMeshJson, 'rgba(56, 189, 248, 0.28)', '#38bdf8');
 
-      for (const poly of this.currentMap.overlapMeshJson || []) {
-        const pts = poly.points || [];
-        if (pts.length < 3) continue;
-        ctx.beginPath();
-        ctx.moveTo(pts[0].x, pts[0].y);
-        for (let i = 1; i < pts.length; i++) ctx.lineTo(pts[i].x, pts[i].y);
-        ctx.closePath();
-        ctx.fillStyle = 'rgba(56, 189, 248, 0.28)';
-        ctx.fill();
-        ctx.lineWidth = 2 / this.zoom;
-        ctx.strokeStyle = '#38bdf8';
-        ctx.stroke();
-      }
-
-      // Marcador do Ponto de Spawn do Mapa
       ctx.beginPath();
       ctx.arc(this.currentMap.spawnX, this.currentMap.spawnY, 32, 0, Math.PI * 2);
-      ctx.fillStyle = 'rgba(245, 158, 11, 0.35)';
-      ctx.fill();
-      ctx.strokeStyle = '#fbbf24';
-      ctx.lineWidth = 2.5 / this.zoom;
-      ctx.stroke();
-      ctx.fillStyle = '#fef08a';
-      ctx.font = 'bold 13px sans-serif';
-      ctx.fillText(
-        `⭐ SPAWN (${this.currentMap.spawnX}, ${this.currentMap.spawnY})`,
-        this.currentMap.spawnX - 50,
-        this.currentMap.spawnY - 38
-      );
+      ctx.fillStyle = 'rgba(245, 158, 11, 0.35)'; ctx.fill();
+      ctx.strokeStyle = '#fbbf24'; ctx.lineWidth = 2.5 / this.zoom; ctx.stroke();
+      ctx.fillStyle = '#fef08a'; ctx.font = 'bold 13px sans-serif';
+      ctx.fillText(`⭐ SPAWN (${this.currentMap.spawnX}, ${this.currentMap.spawnY})`, this.currentMap.spawnX - 50, this.currentMap.spawnY - 38);
     }
 
     // 3. Desenha Portais Pareados (`map_portals`) com anel energético pulsante (ocultos na arena de combate)
@@ -769,7 +765,6 @@ class EtheriaPlayClient {
       for (const p of this.currentMap.portals || []) {
         const r = (Number(p.triggerRadius) || 48) * pulse;
         const isLinked = Boolean(p.targetMapId);
-
         ctx.beginPath();
         ctx.ellipse(p.sourceX, p.sourceY, r, r * 0.65, 0, 0, Math.PI * 2);
         ctx.fillStyle = isLinked ? 'rgba(168, 85, 247, 0.32)' : 'rgba(148, 163, 184, 0.25)';
@@ -777,22 +772,22 @@ class EtheriaPlayClient {
         ctx.lineWidth = 3 / this.zoom;
         ctx.strokeStyle = isLinked ? '#c084fc' : '#94a3b8';
         ctx.stroke();
-
-        ctx.fillStyle = '#f3e8ff';
-        ctx.font = 'bold 12px sans-serif';
-        ctx.textAlign = 'center';
-        ctx.fillText(
-          `🌀 ${p.label}${p.targetMapNamePtBr ? ` ➔ ${p.targetMapNamePtBr}` : ''}`,
-          p.sourceX,
-          p.sourceY - r * 0.65 - 8
-        );
+        ctx.fillStyle = '#f3e8ff'; ctx.font = 'bold 12px sans-serif'; ctx.textAlign = 'center';
+        ctx.fillText(`🌀 ${p.label}${p.targetMapNamePtBr ? ` ➔ ${p.targetMapNamePtBr}` : ''}`, p.sourceX, p.sourceY - r * 0.65 - 8);
       }
     }
 
     // 4. Indicador de destino do clique no chão
-    if (this.moveTargetX !== null && this.moveTargetY !== null) {
+    const destX = (this.currentPath && this.currentPath.length > 0)
+      ? this.currentPath[this.currentPath.length - 1].x
+      : this.moveTargetX;
+    const destY = (this.currentPath && this.currentPath.length > 0)
+      ? this.currentPath[this.currentPath.length - 1].y
+      : this.moveTargetY;
+
+    if (destX !== null && destY !== null) {
       ctx.beginPath();
-      ctx.arc(this.moveTargetX, this.moveTargetY, 10, 0, Math.PI * 2);
+      ctx.arc(destX, destY, 10, 0, Math.PI * 2);
       ctx.strokeStyle = '#38bdf8';
       ctx.lineWidth = 2.5 / this.zoom;
       ctx.stroke();
@@ -847,66 +842,20 @@ class EtheriaPlayClient {
         }
       } else if (item.type === 'PLAYER') {
         const char = item.data;
-        const sprite = this.getOrCreateSprite(
-          `char_${char.mcreworkCharKey}`,
-          char.atlasJsonUrl,
-          char.atlasWebpUrl,
-          char.thumbUrl
-        );
-        const action = this.isMoving ? 1 : 0;
+        const sprite = this.getOrCreateSprite(`char_${char.mcreworkCharKey}`, char.atlasJsonUrl, char.atlasWebpUrl, char.thumbUrl);
         const groundOffsetY = char.groundOffsetY || 0;
-        const shadowOffsetX = char.shadowOffsetX || 0;
-        const shadowOffsetY = char.shadowOffsetY || 0;
-        sprite.draw(
-          ctx,
-          this.playerX,
-          this.playerY,
-          action,
-          this.playerDir,
-          now,
-          this.mesh,
-          groundOffsetY,
-          0.70,
-          false,
-          shadowOffsetX,
-          shadowOffsetY
-        );
-
-        ctx.fillStyle = '#fde047';
-        ctx.font = 'bold 13px sans-serif';
-        ctx.textAlign = 'center';
-        // Altura do nome calibrada com a redução de 30% do sprite (offset -66) acompanhando o ajuste dos pés ao chão
-        const nameY = this.playerY - 66 + Math.round(groundOffsetY * 0.70);
-        ctx.fillText(
-          `${char.name}${char.isReborn ? ' ✨' : ''}${this.gmNoClip ? ' [NO-CLIP]' : ''}`,
-          this.playerX,
-          nameY
-        );
+        sprite.draw(ctx, this.playerX, this.playerY, this.isMoving ? 1 : 0, this.playerDir, now, this.mesh, groundOffsetY, 0.70, false, char.shadowOffsetX || 0, char.shadowOffsetY || 0);
+        ctx.fillStyle = '#fde047'; ctx.font = 'bold 13px sans-serif'; ctx.textAlign = 'center';
+        ctx.fillText(`${char.name}${char.isReborn ? ' ✨' : ''}${this.gmNoClip ? ' [NO-CLIP]' : ''}`, this.playerX, this.playerY - 66 + Math.round(groundOffsetY * 0.70));
       } else if (item.type === 'COMBAT_PLAYER') {
         const p = item.data;
         if (p.sprite) {
           const isTransient = (p.action === 3 || p.action === 5 || p.action === 6 || p.action === 7);
           const elapsed = (isTransient && p.actionStartTime) ? (now - p.actionStartTime) : now;
-          p.sprite.draw(
-            ctx,
-            p.x,
-            p.y,
-            p.action,
-            p.dir,
-            elapsed,
-            this.mesh,
-            p.groundOffsetY || 0,
-            0.70,
-            false,
-            p.shadowOffsetX || 0,
-            p.shadowOffsetY || 0
-          );
+          p.sprite.draw(ctx, p.x, p.y, p.action, p.dir, elapsed, this.mesh, p.groundOffsetY || 0, 0.70, false, p.shadowOffsetX || 0, p.shadowOffsetY || 0);
         }
-        ctx.fillStyle = '#fde047';
-        ctx.font = 'bold 13px sans-serif';
-        ctx.textAlign = 'center';
-        const nameY = p.y - 66 + Math.round((p.groundOffsetY || 0) * 0.70);
-        ctx.fillText(p.name, p.x, nameY);
+        ctx.fillStyle = '#fde047'; ctx.font = 'bold 13px sans-serif'; ctx.textAlign = 'center';
+        ctx.fillText(p.name, p.x, p.y - 66 + Math.round((p.groundOffsetY || 0) * 0.70));
       } else if (item.type === 'COMBAT_MONSTER') {
         const mob = item.data;
         ctx.save();
@@ -914,37 +863,13 @@ class EtheriaPlayClient {
         if (mob.sprite) {
           const isTransient = (mob.action === 3 || mob.action === 5 || mob.action === 6 || mob.action === 7);
           const elapsed = (isTransient && mob.actionStartTime) ? (now - mob.actionStartTime) : now;
-          mob.sprite.draw(
-            ctx,
-            mob.x,
-            mob.y,
-            mob.action,
-            mob.dir,
-            elapsed,
-            this.mesh,
-            mob.groundOffsetY || 0,
-            0.70,
-            mob.action === 6,
-            mob.shadowOffsetX || 0,
-            mob.shadowOffsetY || 0
-          );
+          mob.sprite.draw(ctx, mob.x, mob.y, mob.action, mob.dir, elapsed, this.mesh, mob.groundOffsetY || 0, 0.70, mob.action === 6, mob.shadowOffsetX || 0, mob.shadowOffsetY || 0);
         }
-
         if (mob.isAlive) {
-          const bw = 50;
-          const bh = 5;
-          const bx = mob.x - bw / 2;
-          const by = mob.y - 68;
-          const hpFrac = Math.max(0, Math.min(1, mob.hp / mob.maxHp));
-
-          ctx.fillStyle = 'rgba(2, 6, 23, 0.85)';
-          ctx.fillRect(bx - 1, by - 1, bw + 2, bh + 2);
-          ctx.fillStyle = '#ef4444';
-          ctx.fillRect(bx, by, bw * hpFrac, bh);
-
-          ctx.font = 'bold 11px sans-serif';
-          ctx.textAlign = 'center';
-          ctx.fillStyle = '#f8fafc';
+          const bw = 50, bh = 5, bx = mob.x - bw / 2, by = mob.y - 68;
+          ctx.fillStyle = 'rgba(2, 6, 23, 0.85)'; ctx.fillRect(bx - 1, by - 1, bw + 2, bh + 2);
+          ctx.fillStyle = '#ef4444'; ctx.fillRect(bx, by, bw * Math.max(0, Math.min(1, mob.hp / mob.maxHp)), bh);
+          ctx.font = 'bold 11px sans-serif'; ctx.textAlign = 'center'; ctx.fillStyle = '#f8fafc';
           ctx.fillText(mob.name, mob.x, by - 4);
         }
         ctx.restore();
