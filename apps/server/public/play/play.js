@@ -360,6 +360,12 @@ class EtheriaPlayClient {
       const sy = e.clientY - rect.top;
       const worldPt = this.screenToWorld(sx, sy);
 
+      // Em batalha na arena: clique sobre monstro seleciona alvo de ataque teleguiado
+      if (this.actionCombatArena?.isActive) {
+        const mob = (this.actionCombatArena.monsters || []).find((m) => m.isAlive && Math.hypot(m.x - worldPt.x, m.y - 20 - worldPt.y) <= 45);
+        if (mob) { this.actionCombatArena.selectedTargetMob = mob; return; }
+      }
+
       // Se o jogador tocar diretamente sobre um NPC e já estiver próximo, abre o modal de Quest/Diálogo
       for (const npc of this.currentMap.npcs || []) {
         const clickDist = Math.hypot(worldPt.x - npc.posX, worldPt.y - (npc.posY - 28));
@@ -791,11 +797,8 @@ class EtheriaPlayClient {
         const isLinked = Boolean(p.targetMapId);
         ctx.beginPath();
         ctx.ellipse(p.sourceX, p.sourceY, r, r * 0.65, 0, 0, Math.PI * 2);
-        ctx.fillStyle = isLinked ? 'rgba(168, 85, 247, 0.32)' : 'rgba(148, 163, 184, 0.25)';
-        ctx.fill();
-        ctx.lineWidth = 3 / this.zoom;
-        ctx.strokeStyle = isLinked ? '#c084fc' : '#94a3b8';
-        ctx.stroke();
+        ctx.fillStyle = isLinked ? 'rgba(168, 85, 247, 0.32)' : 'rgba(148, 163, 184, 0.25)'; ctx.fill();
+        ctx.lineWidth = 3 / this.zoom; ctx.strokeStyle = isLinked ? '#c084fc' : '#94a3b8'; ctx.stroke();
         ctx.fillStyle = '#f3e8ff'; ctx.font = 'bold 12px sans-serif'; ctx.textAlign = 'center';
         ctx.fillText(`🌀 ${p.label}${p.targetMapNamePtBr ? ` ➔ ${p.targetMapNamePtBr}` : ''}`, p.sourceX, p.sourceY - r * 0.65 - 8);
       }
@@ -806,11 +809,8 @@ class EtheriaPlayClient {
     const destY = this.targetDestY !== null ? this.targetDestY : ((this.currentPath && this.currentPath.length > 0) ? this.currentPath[this.currentPath.length - 1].y : this.moveTargetY);
 
     if (destX !== null && destY !== null) {
-      ctx.beginPath();
-      ctx.arc(destX, destY, 10, 0, Math.PI * 2);
-      ctx.strokeStyle = '#38bdf8';
-      ctx.lineWidth = 2.5 / this.zoom;
-      ctx.stroke();
+      ctx.beginPath(); ctx.arc(destX, destY, 10, 0, Math.PI * 2);
+      ctx.strokeStyle = '#38bdf8'; ctx.lineWidth = 2.5 / this.zoom; ctx.stroke();
     }
 
     // 5. Ordenação de Profundidade 2.5D (Y-Sorting)
@@ -863,21 +863,22 @@ class EtheriaPlayClient {
         }
         ctx.fillStyle = '#fde047'; ctx.font = 'bold 13px sans-serif'; ctx.textAlign = 'center';
         ctx.fillText(p.name, p.x, p.y - 66 + Math.round((p.groundOffsetY || 0) * 0.70));
-      } else if (item.type === 'COMBAT_MONSTER') {
-        const mob = item.data;
+      } else if (item.type === 'COMBAT_MONSTER' || item.type === 'COMBAT_PET') {
+        const ent = item.data;
+        const isPet = item.type === 'COMBAT_PET';
         ctx.save();
-        ctx.globalAlpha = mob.fadeAlpha;
-        if (mob.sprite) {
-          const isTransient = (mob.action === 3 || mob.action === 5 || mob.action === 6 || mob.action === 7);
-          const elapsed = (isTransient && mob.actionStartTime) ? (now - mob.actionStartTime) : now;
-          mob.sprite.draw(ctx, mob.x, mob.y, mob.action, mob.dir, elapsed, this.mesh, mob.groundOffsetY || 0, 0.70, mob.action === 6, mob.shadowOffsetX || 0, mob.shadowOffsetY || 0);
+        ctx.globalAlpha = ent.fadeAlpha;
+        if (ent.sprite) {
+          const isTransient = (ent.action === 3 || ent.action === 5 || ent.action === 6 || ent.action === 7);
+          const elapsed = (isTransient && ent.actionStartTime) ? (now - ent.actionStartTime) : now;
+          ent.sprite.draw(ctx, ent.x, ent.y, ent.action, ent.dir, elapsed, this.mesh, ent.groundOffsetY || 0, isPet ? 0.62 : 0.70, ent.action === 6, ent.shadowOffsetX || 0, ent.shadowOffsetY || 0);
         }
-        if (mob.isAlive) {
-          const bw = 50, bh = 5, bx = mob.x - bw / 2, by = mob.y - 68;
+        if (ent.isAlive) {
+          const bw = isPet ? 46 : 50, bh = 5, bx = ent.x - bw / 2, by = ent.y - (isPet ? 60 : 68);
           ctx.fillStyle = 'rgba(2, 6, 23, 0.85)'; ctx.fillRect(bx - 1, by - 1, bw + 2, bh + 2);
-          ctx.fillStyle = '#ef4444'; ctx.fillRect(bx, by, bw * Math.max(0, Math.min(1, mob.hp / mob.maxHp)), bh);
-          ctx.font = 'bold 11px sans-serif'; ctx.textAlign = 'center'; ctx.fillStyle = '#f8fafc';
-          ctx.fillText(mob.name, mob.x, by - 4);
+          ctx.fillStyle = isPet ? '#38bdf8' : '#ef4444'; ctx.fillRect(bx, by, bw * Math.max(0, Math.min(1, ent.hp / ent.maxHp)), bh);
+          ctx.font = 'bold 11px sans-serif'; ctx.textAlign = 'center'; ctx.fillStyle = isPet ? '#bae6fd' : '#f8fafc';
+          ctx.fillText(isPet ? `🐾 ${ent.name}` : ent.name, ent.x, by - 4);
         }
         ctx.restore();
       }

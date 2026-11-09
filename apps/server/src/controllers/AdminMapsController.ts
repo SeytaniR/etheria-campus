@@ -93,6 +93,7 @@ export interface SaveClassTemplateDto {
   raceCode?: string;
   skillIdsJson?: number[];
   isActive?: boolean;
+  baseCombatAttributesJson?: Record<string, number>;
   baseAttributesJson?: {
     VIT: number;
     STR: number;
@@ -410,6 +411,7 @@ export class AdminMapsController {
             raceCode,
             baseAttributesJson: baseAttrs as any,
             growthPerLevelJson: growthAttrs as any,
+            ...(dto.baseCombatAttributesJson !== undefined ? { baseCombatAttributesJson: dto.baseCombatAttributesJson as any } : {}),
             ...(skillIdsJson !== undefined ? { skillIdsJson: skillIdsJson as any } : {}),
             isActive,
           },
@@ -432,6 +434,7 @@ export class AdminMapsController {
             raceCode,
             baseAttributesJson: baseAttrs as any,
             growthPerLevelJson: growthAttrs as any,
+            baseCombatAttributesJson: (dto.baseCombatAttributesJson ?? {}) as any,
             skillIdsJson: (skillIdsJson ?? [1, 2, 4]) as any,
             isActive,
           },

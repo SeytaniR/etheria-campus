@@ -548,20 +548,19 @@ class AdminClassesTab {
         this.selectedMcreworkRebornCharKey = existingClass.rebornMcreworkCharKey || '';
 
         const base = existingClass.baseAttributesJson || {};
-        document.getElementById('classBaseVIT').value = String(base.VIT ?? 12);
-        document.getElementById('classBaseSTR').value = String(base.STR ?? 12);
-        document.getElementById('classBaseINT').value = String(base.INT ?? 10);
-        document.getElementById('classBaseWIS').value = String(base.WIS ?? 10);
-        document.getElementById('classBaseAGI').value = String(base.AGI ?? 10);
-        document.getElementById('classBaseDEX').value = String(base.DEX ?? 10);
-
+        ['VIT','STR','INT','WIS','AGI','DEX'].forEach((k) => { const el = document.getElementById(`classBase${k}`); if (el) el.value = String(base[k] ?? 10); });
         const grow = existingClass.growthPerLevelJson || {};
-        document.getElementById('classGrowVIT').value = String(grow.VIT ?? 2);
-        document.getElementById('classGrowSTR').value = String(grow.STR ?? 2);
-        document.getElementById('classGrowINT').value = String(grow.INT ?? 2);
-        document.getElementById('classGrowWIS').value = String(grow.WIS ?? 2);
-        document.getElementById('classGrowAGI').value = String(grow.AGI ?? 2);
-        document.getElementById('classGrowDEX').value = String(grow.DEX ?? 2);
+        ['VIT','STR','INT','WIS','AGI','DEX'].forEach((k) => { const el = document.getElementById(`classGrow${k}`); if (el) el.value = String(grow[k] ?? 2); });
+
+        const bComb = existingClass.baseCombatAttributesJson || {};
+        document.getElementById('classBaseCombatMoveSpeed').value = String(bComb.BATTLE_MOVE_SPEED ?? 180);
+        document.getElementById('classBaseCombatAttackSpeed').value = String(bComb.ATTACK_SPEED ?? 1.0);
+        document.getElementById('classBaseCombatPhysAcc').value = String(bComb.PHYS_ACCURACY ?? 100);
+        document.getElementById('classBaseCombatPhysEva').value = String(bComb.PHYS_EVASION ?? 10);
+        document.getElementById('classBaseCombatMagAcc').value = String(bComb.MAG_ACCURACY ?? 100);
+        document.getElementById('classBaseCombatMagEva').value = String(bComb.MAG_EVASION ?? 10);
+        document.getElementById('classBaseCombatCritRate').value = String(bComb.CRIT_RATE ?? 5);
+        document.getElementById('classBaseCombatCritDmg').value = String(bComb.CRIT_DMG ?? 150);
       } else {
         const maxClassId = this.classTemplates.reduce((acc, c) => Math.max(acc, Number(c.id) || 0), 0);
         const nextClassId = maxClassId + 1;
@@ -586,19 +585,16 @@ class AdminClassesTab {
         this.selectedMcreworkCharKey = '';
         this.selectedMcreworkRebornCharKey = '';
 
-        document.getElementById('classBaseVIT').value = '12';
-        document.getElementById('classBaseSTR').value = '12';
-        document.getElementById('classBaseINT').value = '10';
-        document.getElementById('classBaseWIS').value = '10';
-        document.getElementById('classBaseAGI').value = '10';
-        document.getElementById('classBaseDEX').value = '10';
-
-        document.getElementById('classGrowVIT').value = '2';
-        document.getElementById('classGrowSTR').value = '2';
-        document.getElementById('classGrowINT').value = '2';
-        document.getElementById('classGrowWIS').value = '2';
-        document.getElementById('classGrowAGI').value = '2';
-        document.getElementById('classGrowDEX').value = '2';
+        ['VIT','STR','INT','WIS','AGI','DEX'].forEach((k) => { const el = document.getElementById(`classBase${k}`); if (el) el.value = '10'; });
+        ['VIT','STR','INT','WIS','AGI','DEX'].forEach((k) => { const el = document.getElementById(`classGrow${k}`); if (el) el.value = '2'; });
+        document.getElementById('classBaseCombatMoveSpeed').value = '180';
+        document.getElementById('classBaseCombatAttackSpeed').value = '1.0';
+        document.getElementById('classBaseCombatPhysAcc').value = '100';
+        document.getElementById('classBaseCombatPhysEva').value = '10';
+        document.getElementById('classBaseCombatMagAcc').value = '100';
+        document.getElementById('classBaseCombatMagEva').value = '10';
+        document.getElementById('classBaseCombatCritRate').value = '5';
+        document.getElementById('classBaseCombatCritDmg').value = '150';
       }
 
       if (typeof this.updateClassCombatStatsPreview === 'function') {
@@ -731,22 +727,18 @@ class AdminClassesTab {
           rebornShadowOffsetX,
           rebornShadowOffsetY,
           skillIdsJson,
-          baseAttributesJson: {
-            VIT: Number(document.getElementById('classBaseVIT').value) || 10,
-            STR: Number(document.getElementById('classBaseSTR').value) || 10,
-            INT: Number(document.getElementById('classBaseINT').value) || 10,
-            WIS: Number(document.getElementById('classBaseWIS').value) || 10,
-            AGI: Number(document.getElementById('classBaseAGI').value) || 10,
-            DEX: Number(document.getElementById('classBaseDEX').value) || 10,
+          baseCombatAttributesJson: {
+            BATTLE_MOVE_SPEED: Number(document.getElementById('classBaseCombatMoveSpeed')?.value) || 180,
+            ATTACK_SPEED: Number(document.getElementById('classBaseCombatAttackSpeed')?.value) || 1.0,
+            PHYS_ACCURACY: Number(document.getElementById('classBaseCombatPhysAcc')?.value) || 100,
+            PHYS_EVASION: Number(document.getElementById('classBaseCombatPhysEva')?.value) || 10,
+            MAG_ACCURACY: Number(document.getElementById('classBaseCombatMagAcc')?.value) || 100,
+            MAG_EVASION: Number(document.getElementById('classBaseCombatMagEva')?.value) || 10,
+            CRIT_RATE: Number(document.getElementById('classBaseCombatCritRate')?.value) || 5,
+            CRIT_DMG: Number(document.getElementById('classBaseCombatCritDmg')?.value) || 150,
           },
-          growthPerLevelJson: {
-            VIT: Number(document.getElementById('classGrowVIT').value) || 0,
-            STR: Number(document.getElementById('classGrowSTR').value) || 0,
-            INT: Number(document.getElementById('classGrowINT').value) || 0,
-            WIS: Number(document.getElementById('classGrowWIS').value) || 0,
-            AGI: Number(document.getElementById('classGrowAGI').value) || 0,
-            DEX: Number(document.getElementById('classGrowDEX').value) || 0,
-          },
+          baseAttributesJson: ['VIT','STR','INT','WIS','AGI','DEX'].reduce((acc, k) => (acc[k] = Number(document.getElementById(`classBase${k}`)?.value) || 10, acc), {}),
+          growthPerLevelJson: ['VIT','STR','INT','WIS','AGI','DEX'].reduce((acc, k) => (acc[k] = Number(document.getElementById(`classGrow${k}`)?.value) || 0, acc), {}),
         };
 
         const path = editId ? `/api/admin/class-templates/${editId}` : '/api/admin/class-templates';

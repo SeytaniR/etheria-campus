@@ -227,6 +227,24 @@ class AdminClassModalTemplate {
           </div>
         </div>
 
+        <!-- Bloco 2.5: Atributos de Combate Iniciais da Classe (Piso Não-Derivado) -->
+        <div class="field" style="background:rgba(15,23,42,0.65); padding:10px; border-radius:8px; border:1px solid #38bdf8;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+            <label style="color:#38bdf8; font-weight:700; margin:0;">⚙️ Atributos Base de Combate da Classe (Piso Fixo Não-Derivado)</label>
+            <span style="font-size:0.7rem; color:#94a3b8;">Teto máx. de velocidade em arena: +40%</span>
+          </div>
+          <div style="display:grid; grid-template-columns:repeat(4, 1fr); gap:6px;">
+            <div><label style="font-size:0.7rem; color:#38bdf8;">🏃 Vel. Batalha (px/s)</label><input type="number" id="classBaseCombatMoveSpeed" value="180" min="100" max="300" oninput="AdminApp.updateClassCombatStatsPreview()" /></div>
+            <div><label style="font-size:0.7rem; color:#38bdf8;">⚔️ Vel. Ataque (atks/s)</label><input type="number" id="classBaseCombatAttackSpeed" value="1.0" step="0.1" min="0.5" max="3.0" oninput="AdminApp.updateClassCombatStatsPreview()" /></div>
+            <div><label style="font-size:0.7rem; color:#38bdf8;">🎯 Precisão Física</label><input type="number" id="classBaseCombatPhysAcc" value="100" min="0" oninput="AdminApp.updateClassCombatStatsPreview()" /></div>
+            <div><label style="font-size:0.7rem; color:#38bdf8;">💨 Desvio Físico</label><input type="number" id="classBaseCombatPhysEva" value="10" min="0" oninput="AdminApp.updateClassCombatStatsPreview()" /></div>
+            <div><label style="font-size:0.7rem; color:#38bdf8;">🔮 Precisão Mágica</label><input type="number" id="classBaseCombatMagAcc" value="100" min="0" oninput="AdminApp.updateClassCombatStatsPreview()" /></div>
+            <div><label style="font-size:0.7rem; color:#38bdf8;">✨ Desvio Mágico</label><input type="number" id="classBaseCombatMagEva" value="10" min="0" oninput="AdminApp.updateClassCombatStatsPreview()" /></div>
+            <div><label style="font-size:0.7rem; color:#38bdf8;">💥 Taxa Crítica (%)</label><input type="number" id="classBaseCombatCritRate" value="5" min="0" max="100" oninput="AdminApp.updateClassCombatStatsPreview()" /></div>
+            <div><label style="font-size:0.7rem; color:#38bdf8;">⚡ Dano Crítico (%)</label><input type="number" id="classBaseCombatCritDmg" value="150" min="100" oninput="AdminApp.updateClassCombatStatsPreview()" /></div>
+          </div>
+        </div>
+
         <!-- Bloco 3: Painel de Atributos Derivados em Tempo Real -->
         <div style="background:rgba(2,6,23,0.85); border:1.5px solid #38bdf8; border-radius:10px; padding:12px; display:flex; flex-direction:column; gap:10px;">
           <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; border-bottom:1px solid var(--border); padding-bottom:8px;">
@@ -335,14 +353,25 @@ class AdminClassModalTemplate {
         pointsBadge.innerHTML = `Nv.1: <strong>${totalBaseLv1} pts</strong> ${simLevel > 1 ? `➔ Nv.${simLevel}: <strong>${totalEff} pts</strong>` : ''}`;
       }
 
+      const customCombatBases = {
+        BATTLE_MOVE_SPEED: Number(document.getElementById('classBaseCombatMoveSpeed')?.value) || 180,
+        ATTACK_SPEED: Number(document.getElementById('classBaseCombatAttackSpeed')?.value) || 1.0,
+        PHYS_ACCURACY: Number(document.getElementById('classBaseCombatPhysAcc')?.value) || 100,
+        PHYS_EVASION: Number(document.getElementById('classBaseCombatPhysEva')?.value) || 10,
+        MAG_ACCURACY: Number(document.getElementById('classBaseCombatMagAcc')?.value) || 100,
+        MAG_EVASION: Number(document.getElementById('classBaseCombatMagEva')?.value) || 10,
+        CRIT_RATE: (Number(document.getElementById('classBaseCombatCritRate')?.value) || 5) / 100,
+        CRIT_DMG: (Number(document.getElementById('classBaseCombatCritDmg')?.value) || 150) / 100,
+      };
+
       const combatMap = typeof this.calculateCombatAttributes === 'function'
-        ? this.calculateCombatAttributes(effAttrs)
+        ? this.calculateCombatAttributes(effAttrs, customCombatBases)
         : {};
 
       const families = [
         { id: 'vitais', title: '💚 Recursos Vitais & Suporte', borderColor: '#22c55e', bgColor: 'rgba(34,197,94,0.06)', stats: ['MAX_HP', 'MAX_MP', 'HEAL_POWER', 'MP_REGEN'] },
         { id: 'combate', title: '🗡️ Poder Físico & Mágico', borderColor: '#ef4444', bgColor: 'rgba(239,68,68,0.06)', stats: ['PHYS_ATK', 'MAG_ATK', 'PHYS_DEF', 'MAG_DEF', 'PHYS_PEN', 'MAG_PEN'] },
-        { id: 'iniciativa', title: '⚡ Iniciativa & Crítico', borderColor: '#f59e0b', bgColor: 'rgba(245,158,11,0.06)', stats: ['SPEED', 'CRIT_RATE', 'CRIT_DMG'] },
+        { id: 'iniciativa', title: '⚡ Velocidade & Crítico Action', borderColor: '#f59e0b', bgColor: 'rgba(245,158,11,0.06)', stats: ['BATTLE_MOVE_SPEED', 'ATTACK_SPEED', 'CRIT_RATE', 'CRIT_DMG'] },
         { id: 'acerto_desvio', title: '🎯 Acerto & Desvio Convencional', borderColor: '#38bdf8', bgColor: 'rgba(56,189,248,0.06)', stats: ['PHYS_ACCURACY', 'PHYS_EVASION', 'MAG_ACCURACY', 'MAG_EVASION'] },
         { id: 'controle', title: '💫 Família de Controle (Hard CC)', subtitle: 'Paralisia, Sono, Confusão, Silêncio, Congelamento', borderColor: '#c084fc', bgColor: 'rgba(192,132,252,0.08)', stats: ['CONTROL_HIT', 'CONTROL_RESIST'] },
         { id: 'anomalias', title: '🧪 Família de Anomalias & DoT', subtitle: 'Veneno, Queimadura, Sangramento, Cegueira', borderColor: '#f43f5e', bgColor: 'rgba(244,63,94,0.08)', stats: ['ANOMALY_HIT', 'ANOMALY_RESIST'] },

@@ -231,6 +231,7 @@ export class GamePlayController {
         AGI: 10,
         DEX: 10,
       },
+      baseCombatAttributesJson: (c.classTemplate as any)?.baseCombatAttributesJson ?? {},
       growthPerLevelJson: c.classTemplate?.growthPerLevelJson ?? {
         VIT: 2,
         STR: 2,

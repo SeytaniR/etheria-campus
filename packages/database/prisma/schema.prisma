@@ -268,9 +268,10 @@ model ClassTemplate {
   rebornShadowOffsetX   Int               @default(0) @map("reborn_shadow_offset_x")
   rebornShadowOffsetY   Int               @default(0) @map("reborn_shadow_offset_y")
   raceCode              String            @default("HUMAN") @map("race_code")
-  baseAttributesJson    Json              @map("base_attributes_json") /// Ex: {"VIT":10,"STR":10,"INT":10,"WIS":10,"AGI":10,"DEX":10}
-  growthPerLevelJson    Json              @map("growth_per_level_json")
-  skillIdsJson          Json              @default("[]") @map("skill_ids_json")
+  baseAttributesJson       Json              @map("base_attributes_json") /// Ex: {"VIT":10,"STR":10,"INT":10,"WIS":10,"AGI":10,"DEX":10}
+  growthPerLevelJson       Json              @map("growth_per_level_json")
+  baseCombatAttributesJson Json?             @default("{}") @map("base_combat_attributes_json") /// Atributos de combate base não-derivados (ex: BATTLE_MOVE_SPEED: 180, ATTACK_SPEED: 1.0)
+  skillIdsJson             Json              @default("[]") @map("skill_ids_json")
   isActive              Boolean           @default(true) @map("is_active")
 
   race                  Race              @relation(fields: [raceCode], references: [code])

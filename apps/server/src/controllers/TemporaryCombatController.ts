@@ -67,6 +67,7 @@ export interface TemporaryBattleState {
   round: number;
   player: CombatUnit;
   monsters: CombatUnit[];
+  pets?: CombatUnit[];
   combatLog: string[];
   isFinished: boolean;
   winner: 'PLAYER' | 'MONSTERS' | null;
@@ -154,10 +155,11 @@ export class TemporaryCombatController {
     let charElementCode = 'NEUTRAL';
     let charBaseStats = { VIT: 15, STR: 14, INT: 10, WIS: 10, AGI: 12, DEX: 12 };
 
+    let pc: any = null;
     if (characterId) {
-      const pc = await this.prisma.playerCharacter.findUnique({
+      pc = await this.prisma.playerCharacter.findUnique({
         where: { id: Number(characterId) },
-        include: { classTemplate: true },
+        include: { classTemplate: true, pets: { take: 3, include: { monsterTemplate: true } } },
       });
       if (pc) {
         charName = pc.name;
@@ -215,6 +217,66 @@ export class TemporaryCombatController {
       activeStatuses: [],
     };
 
+    // Pets que acompanham o jogador em combate (2 a 3 pets)
+    const petUnits: CombatUnit[] = [];
+    if (pc && pc.pets && pc.pets.length > 0) {
+      pc.pets.slice(0, 3).forEach((cp: any, idx: number) => {
+        const mt = cp.monsterTemplate;
+        const petKey = mt?.mcreworkMonsterKey || 'creature_000001';
+        petUnits.push({
+          id: `pet_${cp.id}_${idx}`,
+          index: idx,
+          name: cp.nickname || `Pet #${idx + 1}`,
+          level: cp.level || charLevel,
+          hp: Math.round(playerMaxHp * 0.65),
+          maxHp: Math.round(playerMaxHp * 0.65),
+          mp: Math.round(playerMaxMp * 0.50),
+          maxMp: Math.round(playerMaxMp * 0.50),
+          atk: Math.round(playerAtk * 0.60),
+          def: Math.round(playerDef * 0.65),
+          speed: Math.round(playerSpeed * 0.95),
+          spriteKey: petKey,
+          atlasJsonUrl: `${this.mcreworkPagesBaseUrl}/assets/monsters/${petKey}/atlas.json`,
+          atlasWebpUrl: `${this.mcreworkPagesBaseUrl}/assets/monsters/${petKey}/atlas.webp`,
+          groundOffsetY: mt?.groundOffsetY || 0,
+          thumbUrl: `${this.mcreworkPagesBaseUrl}/assets/monsters/${petKey}/thumb.webp`,
+          elementCode: cp.elementCode || 'NEUTRAL',
+          raceCode: 'BEAST',
+          isAlive: true,
+          activeStatuses: [],
+        });
+      });
+    } else {
+      const defaultCompanions = [
+        { key: 'creature_000001', name: 'Lobo Guardião (Pet)' },
+        { key: 'creature_000002', name: 'Grifo Protetor (Pet)' }
+      ];
+      defaultCompanions.forEach((comp, idx) => {
+        petUnits.push({
+          id: `pet_comp_${idx}`,
+          index: idx,
+          name: comp.name,
+          level: charLevel,
+          hp: Math.round(playerMaxHp * 0.65),
+          maxHp: Math.round(playerMaxHp * 0.65),
+          mp: Math.round(playerMaxMp * 0.50),
+          maxMp: Math.round(playerMaxMp * 0.50),
+          atk: Math.round(playerAtk * 0.60),
+          def: Math.round(playerDef * 0.65),
+          speed: Math.round(playerSpeed * 0.95),
+          spriteKey: comp.key,
+          atlasJsonUrl: `${this.mcreworkPagesBaseUrl}/assets/monsters/${comp.key}/atlas.json`,
+          atlasWebpUrl: `${this.mcreworkPagesBaseUrl}/assets/monsters/${comp.key}/atlas.webp`,
+          groundOffsetY: 0,
+          thumbUrl: `${this.mcreworkPagesBaseUrl}/assets/monsters/${comp.key}/thumb.webp`,
+          elementCode: 'NEUTRAL',
+          raceCode: 'BEAST',
+          isAlive: true,
+          activeStatuses: [],
+        });
+      });
+    }
+
     // Calcula Atributos do Monstro (escalonados por nível; o Rank SS..F é mantido apenas como registro por ora)
     const mobStats = (mobTemplate.baseAttributesJson as any) || { VIT: 12, STR: 12, INT: 10, WIS: 10, AGI: 10, DEX: 10 };
     const rarityMult = 1.0;
@@ -264,6 +326,7 @@ export class TemporaryCombatController {
       totalRealPlayers: 1,
       round: 1,
       player: playerUnit,
+      pets: petUnits,
       monsters: monsterUnits,
       combatLog: [
         `⚔️ Batalha iniciada! [${charName}] (Nv.${charLevel}) entrou em combate contra ${qty}x [${mobBaseName}] (Nv.${lvl})!`,

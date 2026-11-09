@@ -36,13 +36,15 @@ class AdminAttributesTab {
      * Calcula a ficha de Atributos de Combate a partir dos 6 Atributos Base
      * utilizando a base padrão (`baseDefault`) e a matriz de conversão ativa (`attributeConversions`).
      */
-    app.calculateCombatAttributes = function (baseAttrs = {}) {
+    app.calculateCombatAttributes = function (baseAttrs = {}, customCombatBases = {}) {
       const combatAttrs = this.attributesData?.combatAttributes || [];
       const conversions = this.attributesData?.attributeConversions || [];
 
       const result = {};
       for (const ca of combatAttrs) {
-        const baseDef = Number(ca.baseDefault) || 0;
+        const baseDef = (customCombatBases && customCombatBases[ca.code] !== undefined)
+          ? Number(customCombatBases[ca.code])
+          : (Number(ca.baseDefault) || 0);
         let bonus = 0;
         for (const conv of conversions) {
           if (conv.combatAttributeCode === ca.code) {
@@ -50,13 +52,18 @@ class AdminAttributesTab {
             bonus += baseVal * (Number(conv.ratioPerPoint) || 0);
           }
         }
+        let finalVal = baseDef + bonus;
+        if (ca.code === 'BATTLE_MOVE_SPEED') {
+          const cap = baseDef * 1.40; // Teto rigoroso de 40% de aumento na velocidade de batalha
+          if (finalVal > cap) finalVal = cap;
+        }
         result[ca.code] = {
           code: ca.code,
           namePtBr: ca.namePtBr,
           baseDefault: baseDef,
           bonusFromAttrs: bonus,
           isPercentage: Boolean(ca.isPercentage),
-          value: baseDef + bonus,
+          value: finalVal,
         };
       }
       return result;
