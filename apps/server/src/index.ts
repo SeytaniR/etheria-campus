@@ -27,6 +27,7 @@ import { AdminFlyingMountsController } from './controllers/AdminFlyingMountsCont
 import { AdminSkillsController } from './controllers/AdminSkillsController.js';
 import { AdminQuestsController } from './controllers/AdminQuestsController.js';
 import { AdminAttributesController } from './controllers/AdminAttributesController.js';
+import { AdminExperienceController } from './controllers/AdminExperienceController.js';
 import { TemporaryCombatController } from './controllers/TemporaryCombatController.js';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -71,6 +72,7 @@ export class EtheriaServerApp {
   private readonly skillsController: AdminSkillsController;
   private readonly questsController: AdminQuestsController;
   private readonly attributesController: AdminAttributesController;
+  private readonly experienceController: AdminExperienceController;
   private readonly combatController: TemporaryCombatController;
   private readonly publicDir: string;
   private readonly mapImageCache = new Map<number, { buffer: Buffer; contentType: string }>();
@@ -90,6 +92,7 @@ export class EtheriaServerApp {
     this.skillsController = new AdminSkillsController(this.prisma);
     this.questsController = new AdminQuestsController(this.prisma, snapshotManager);
     this.attributesController = new AdminAttributesController(this.prisma);
+    this.experienceController = new AdminExperienceController(this.prisma);
     this.combatController = new TemporaryCombatController(this.prisma);
     this.publicDir = path.resolve(__dirname, '../public');
   }
@@ -698,6 +701,27 @@ export class EtheriaServerApp {
           return;
         }
 
+        // --- Níveis e Progressão de Experiência (XP) Procedural & Brackets ---
+        if (pathname === '/api/admin/experience' && method === 'GET') {
+          const bracket = urlObj.searchParams.get('bracket');
+          if (this.enforceTablePermission(res, session, 'ATTRIBUTES', 'READ')) this.sendJson(res, 200, await this.experienceController.getLevelExperienceTemplates(bracket ? Number(bracket) : undefined));
+          return;
+        }
+        if (pathname === '/api/admin/experience/procedural' && method === 'POST') {
+          if (this.enforceTablePermission(res, session, 'ATTRIBUTES', 'READ_WRITE')) this.sendJson(res, 200, await this.experienceController.generateProceduralCurve(await this.readJsonBody(req)));
+          return;
+        }
+        const bracketMatch = pathname.match(/^\/api\/admin\/experience\/bracket\/(\d+)$/);
+        if (bracketMatch && method === 'PUT') {
+          if (this.enforceTablePermission(res, session, 'ATTRIBUTES', 'READ_WRITE')) this.sendJson(res, 200, await this.experienceController.updateBracketGroup(Number(bracketMatch[1]), await this.readJsonBody(req)));
+          return;
+        }
+        const levelMatch = pathname.match(/^\/api\/admin\/experience\/(\d+)$/);
+        if (levelMatch && method === 'PUT') {
+          if (this.enforceTablePermission(res, session, 'ATTRIBUTES', 'READ_WRITE')) this.sendJson(res, 200, await this.experienceController.updateSingleLevel(Number(levelMatch[1]), await this.readJsonBody(req)));
+          return;
+        }
+
         this.sendJson(res, 404, { error: 'Rota da API Admin não encontrada.' });
         return;
       }
@@ -991,6 +1015,7 @@ export class EtheriaServerApp {
       void this.equipmentsController.seedInitialEquipmentsIfEmpty();
       void this.itemsController.seedInitialItemsIfEmpty();
       void this.mountsController.seedInitialFlyingMountsIfEmpty();
+      void this.experienceController.seedInitialLevelExperienceIfEmpty();
     });
     return server;
   }

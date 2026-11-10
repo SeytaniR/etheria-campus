@@ -46,6 +46,7 @@ export interface LowCodeDatabaseSnapshot {
   questTemplates?: any[];
   petTemplates?: any[];
   flyingMountTemplates?: any[];
+  levelExperienceTemplates?: any[];
 }
 
 /**
@@ -101,6 +102,11 @@ export class SnapshotManager {
       questTemplates: await this.prisma.questTemplate.findMany({ orderBy: { id: 'asc' } }),
       petTemplates: await this.prisma.petTemplate.findMany({ orderBy: { id: 'asc' } }),
       flyingMountTemplates: await this.prisma.flyingMountTemplate.findMany({ orderBy: { id: 'asc' } }),
+      levelExperienceTemplates: (await this.prisma.levelExperienceTemplate.findMany({ orderBy: { level: 'asc' } })).map((l) => ({
+        ...l,
+        experienceToNext: l.experienceToNext.toString(),
+        totalExperience: l.totalExperience.toString(),
+      })),
     };
 
     await fs.writeFile(this.snapshotFilePath, JSON.stringify(snapshot, null, 2), 'utf-8');

@@ -610,3 +610,22 @@ model CharacterQuestProgress {
   @@unique([characterId, questTemplateId])
   @@map("character_quest_progress")
 }
+
+// ----------------------------------------------------------------------------
+// 9. PROGRESSÃO DE NÍVEIS, EXPERIÊNCIA (XP) PROCEDURAL & BRACKETS DE 10 EM 10
+// ----------------------------------------------------------------------------
+
+/// Tabela de Progressão de Níveis e Experiência (XP) dos Personagens e Pets.
+model LevelExperienceTemplate {
+  level              Int      @id /// Nível (1, 2, 3... 100)
+  experienceToNext   BigInt   @map("experience_to_next") /// XP necessária para o próximo nível
+  totalExperience    BigInt   @map("total_experience") /// XP acumulada total desde o nível 1
+  statPointsReward   Int      @default(5) @map("stat_points_reward") /// Pontos de status concedidos ao atingir o nível
+  skillPointsReward  Int      @default(1) @map("skill_points_reward") /// Pontos de habilidade concedidos
+  hpBonus            Int      @default(20) @map("hp_bonus") /// Bônus base de HP do nível
+  mpBonus            Int      @default(10) @map("mp_bonus") /// Bônus base de MP do nível
+  bracketTier        Int      @default(1) @map("bracket_tier") /// Faixa de 10 níveis (1: 1-10, 2: 11-20, etc.)
+  updatedAt          DateTime @default(now()) @updatedAt @map("updated_at")
+
+  @@map("level_experience_templates")
+}

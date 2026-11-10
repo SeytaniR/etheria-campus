@@ -120,6 +120,7 @@ class AdminAuth {
         equipments: 'MONSTERS',
         items: 'MONSTERS',
         mounts: 'MONSTERS',
+        experience: 'ATTRIBUTES',
         attributes: 'ATTRIBUTES',
         skills: 'SKILLS',
         'status-effects': 'STATUS_EFFECTS',
@@ -136,6 +137,7 @@ class AdminAuth {
         equipments: document.getElementById('tabBtnEquipments'),
         items: document.getElementById('tabBtnItems'),
         mounts: document.getElementById('tabBtnFlyingMounts'),
+        experience: document.getElementById('tabBtnExperience'),
         attributes: document.getElementById('tabBtnAttributes'),
         skills: document.getElementById('tabBtnSkills'),
         'status-effects': document.getElementById('tabBtnStatusEffects'),
@@ -190,6 +192,7 @@ class AdminAuth {
         { id: 'tabEquipments', btn: 'tabBtnEquipments', key: 'equipments', code: 'MONSTERS' },
         { id: 'tabItems', btn: 'tabBtnItems', key: 'items', code: 'MONSTERS' },
         { id: 'tabFlyingMounts', btn: 'tabBtnFlyingMounts', key: 'mounts', code: 'MONSTERS' },
+        { id: 'tabExperience', btn: 'tabBtnExperience', key: 'experience', code: 'ATTRIBUTES' },
         { id: 'tabSkills', btn: 'tabBtnSkills', key: 'skills', code: 'SKILLS' },
         { id: 'tabStatusEffects', btn: 'tabBtnStatusEffects', key: 'status-effects', code: 'STATUS_EFFECTS' },
         { id: 'tabAttributes', btn: 'tabBtnAttributes', key: 'attributes', code: 'ATTRIBUTES' },
@@ -235,6 +238,10 @@ class AdminAuth {
       if (tab === 'mounts' && typeof this.renderFlyingMountsCrudTable === 'function') {
         this.renderFlyingMountsCrudTable();
       }
+      if (tab === 'experience' && typeof this.renderExperienceCrudTable === 'function') {
+        this.renderExperienceCrudTable();
+        if (typeof this.renderXpCurveCanvas === 'function') this.renderXpCurveCanvas();
+      }
       if (tab === 'skills' && typeof this.renderSkillsCrudTable === 'function') {
         this.renderSkillsCrudTable();
       }
@@ -267,6 +274,7 @@ class AdminAuth {
         equipments: 'MONSTERS',
         items: 'MONSTERS',
         mounts: 'MONSTERS',
+        experience: 'ATTRIBUTES',
         attributes: 'ATTRIBUTES',
         skills: 'SKILLS',
         'status-effects': 'STATUS_EFFECTS',
