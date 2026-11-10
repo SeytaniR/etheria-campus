@@ -49,6 +49,90 @@ class AdminSkillsAutoLink {
       }
     };
 
+    app.getSkillTriggerLabel = function (triggerType) {
+      switch (triggerType) {
+        case 'ACTIVE': return '🎯 Uso Manual / Combate Livre';
+        case 'PASSIVE_ALWAYS': return '♾️ Passiva Permanente';
+        case 'ON_TURN_START': return '🌅 No Início do Turno';
+        case 'ON_HIT': return '🗡️ Ao Acertar um Golpe';
+        case 'ON_CRIT': return '💥 Ao Causar Dano Crítico';
+        case 'ON_DAMAGE_TAKEN': return '🛡️ Ao Receber Dano';
+        case 'ON_KILL': return '💀 Ao Derrotar um Inimigo';
+        case 'ON_DEBUFF_RECEIVED': return '✨ Ao Receber Debuff (Limpar Debuffs)';
+        case 'ON_TURN_START_CLEANSE': return '🧹 No Início do Turno com Debuff (Limpar Debuffs)';
+        default: return triggerType || '🎯 Uso Manual';
+      }
+    };
+
+    app.onSkillTriggerChanged = function (triggerVal) {
+      if (triggerVal === 'ON_DEBUFF_RECEIVED' || triggerVal === 'ON_TURN_START_CLEANSE') {
+        const typeSel = document.getElementById('skillTypeSelect');
+        if (typeSel && triggerVal !== 'ACTIVE') {
+          typeSel.value = 'PASSIVE';
+        }
+        const hasCleanse = (this.editingSkillBlocks || []).some(
+          (b) => b.blockType === 'CLEANSE_DISPEL' || b.blockType === 'CLEANSE'
+        );
+        if (!hasCleanse && typeof this.addVisualSkillBlock === 'function') {
+          this.addVisualSkillBlock('CLEANSE_DISPEL');
+        }
+      }
+      if (typeof this.triggerArenaPreviewNow === 'function') {
+        this.triggerArenaPreviewNow();
+      }
+    };
+
+    app.renderCleanseSkillBlockCard = function (blk, i) {
+      const targetMode = blk.cleanseTarget || (blk.targetSelf === false ? 'TARGET' : 'SELF');
+      const maxDebuffs = Number(blk.maxDebuffs) || 0;
+      const chancePct = blk.cleanseChancePct ?? 100;
+      const healPct = Number(blk.healPerDebuffPct) || 0;
+      const targetDesc =
+        targetMode === 'ALL_ALLIES'
+          ? 'Todos os Aliados'
+          : targetMode === 'TARGET'
+          ? 'Alvo da Habilidade'
+          : 'Próprio Conjurador';
+
+      return `
+      <div style="background:#020617; border:1px solid #14b8a6; border-radius:8px; padding:10px; display:flex; flex-direction:column; gap:8px;">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <strong style="color:#2dd4bf; font-size:0.82rem;">✨ Bloco #${i + 1}: Limpar Debuffs / Purificar (CLEANSE_DISPEL)</strong>
+          <button type="button" class="btn-danger" onclick="AdminApp.removeVisualSkillBlock(${i})" style="padding:2px 8px; font-size:0.72rem;">🗑️ Remover</button>
+        </div>
+        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(145px, 1fr)); gap:8px;">
+          <div>
+            <label style="font-size:0.7rem;">Quem Tem os Debuffs Limpos?</label>
+            <select onchange="AdminApp.updateVisualSkillBlockField(${i}, 'cleanseTarget', this.value); AdminApp.updateVisualSkillBlockField(${i}, 'targetSelf', this.value !== 'TARGET', false, true);">
+              <option value="SELF" ${targetMode === 'SELF' ? 'selected' : ''}>🙋 Próprio Conjurador</option>
+              <option value="TARGET" ${targetMode === 'TARGET' ? 'selected' : ''}>🎯 Alvo da Habilidade</option>
+              <option value="ALL_ALLIES" ${targetMode === 'ALL_ALLIES' ? 'selected' : ''}>✨ Todos os Aliados</option>
+            </select>
+          </div>
+          <div>
+            <label style="font-size:0.7rem;">Qtd. de Debuffs Removidos</label>
+            <select onchange="AdminApp.updateVisualSkillBlockField(${i}, 'maxDebuffs', this.value, true)">
+              <option value="0" ${maxDebuffs === 0 ? 'selected' : ''}>🧹 Todos os Debuffs Ativos</option>
+              <option value="1" ${maxDebuffs === 1 ? 'selected' : ''}>1 Debuff</option>
+              <option value="2" ${maxDebuffs === 2 ? 'selected' : ''}>Até 2 Debuffs</option>
+              <option value="3" ${maxDebuffs === 3 ? 'selected' : ''}>Até 3 Debuffs</option>
+            </select>
+          </div>
+          <div>
+            <label style="font-size:0.7rem;">Chance de Limpar (%)</label>
+            <input type="number" min="1" max="100" value="${chancePct}" onchange="AdminApp.updateVisualSkillBlockField(${i}, 'cleanseChancePct', this.value, true)" />
+          </div>
+          <div>
+            <label style="font-size:0.7rem;">💚 Cura Bônus / Debuff (% HP)</label>
+            <input type="number" min="0" max="100" value="${healPct}" onchange="AdminApp.updateVisualSkillBlockField(${i}, 'healPerDebuffPct', this.value, true)" />
+          </div>
+        </div>
+        <div style="font-size:0.74rem; color:#5eead4; background:rgba(20,184,166,0.1); padding:4px 8px; border-radius:4px;">
+          📐 <strong>Resumo Visual:</strong> Remove <strong>${maxDebuffs > 0 ? `até ${maxDebuffs} debuff(s)` : 'TODOS os debuffs ativos'}</strong> (${chancePct}% de chance) em <strong>${targetDesc}</strong>${healPct > 0 ? ` + restaura <strong>${healPct}% MAX_HP</strong> por debuff removido` : ''}
+        </div>
+      </div>`;
+    };
+
     app.filterEntitySkillsChecklist = function (containerId, query) {
       const q = (query || '').toLowerCase().trim();
       const box = document.getElementById(containerId);

@@ -8,9 +8,9 @@
 ---
 
 ## 📌 Status Atual do Projeto
-* **Versão Atual:** `v0.6.0`
+* **Versão Atual:** `v0.6.2`
 * **Última Atualização:** `2026-11-10`
-* **Fase Atual:** **Etapa 2 (Combate e Criação Melee/Ranged) Concluída (`v0.6.0`) — Configuração de estilo de combate (Melee vs Ranged) e alcance dinâmico de ataque em Personagens, Pets e Monstros com alternância inteligente no Studio Low-Code e execução em combate.**
+* **Fase Atual:** **Gatilhos e Bloco Visual de Limpeza de Debuffs (`CLEANSE_DISPEL`) Concluídos (`v0.6.2`) — Adicionados gatilhos `ON_DEBUFF_RECEIVED` e `ON_TURN_START_CLEANSE` e bloco visual `CLEANSE_DISPEL` no Studio Low-Code (`/admin`), preview 2.5D e motor de combate, respeitando 100% a Cláusula 0.2 (zero mutação nas tabelas existentes) e Regra #7 (< 1.000 linhas por arquivo).**
 * **Repositório Oficial:** `https://github.com/SeytaniR/etheria-campus`
 * **Fonte Bruta de Assets:** `https://github.com/SeytaniR/mcrework` (`https://seytanir.github.io/mcrework/`)
 

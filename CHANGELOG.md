@@ -5,6 +5,28 @@ Qualquer IA trabalhando neste repositório **DEVE** incrementar a versão e regi
 
 ---
 
+## [v0.6.2] - 2026-11-10
+### Habilidades & Combate — Gatilho e Bloco Visual de Limpeza de Debuffs (`CLEANSE_DISPEL`)
+* **Gatilho de Limpeza de Debuffs para Habilidades (`AdminSkillsAndBuffsTab.js`, `AdminSkillsAutoLink.js`):**
+  * Adicionados ao seletor de gatilhos (`#skillTriggerSelect`) os gatilhos dedicados:
+    * `ON_DEBUFF_RECEIVED` (*"✨ Ao Receber Debuff (Limpar Debuffs)"*)
+    * `ON_TURN_START_CLEANSE` (*"🧹 No Início do Turno com Debuff (Limpar Debuffs)"*)
+  * Quando o usuário seleciona um gatilho de limpeza de debuffs, o modo da habilidade ajusta-se para Passiva/Reativa e adiciona automaticamente o bloco visual `CLEANSE_DISPEL` caso ainda não exista na lista.
+  * Exibição de rótulos amigáveis em português (`getSkillTriggerLabel`) na tabela administrativa de habilidades.
+* **Bloco Visual No-Code `CLEANSE_DISPEL` (Limpar Debuffs / Purificar):**
+  * Adicionado botão **`➕ ✨ Limpar Debuffs`** no Construtor Visual de Blocos de Habilidade (`#skillVisualBlocksContainer`).
+  * Configuração parametrizada sem hardcode:
+    * **Alvo da Limpeza (`cleanseTarget`):** Próprio Conjurador (`SELF`), Alvo da Habilidade (`TARGET`) ou Todos os Aliados (`ALL_ALLIES`).
+    * **Quantidade de Debuffs Removidos (`maxDebuffs`):** Todos os debuffs ativos (`0`) ou até `1`, `2` ou `3` debuffs.
+    * **Chance de Limpar (`cleanseChancePct`):** `1%` a `100%`.
+    * **Cura Bônus por Debuff Limpo (`healPerDebuffPct`):** Percentual opcional de `MAX_HP` restaurado por cada debuff removido.
+* **Simulador de Arena 2.5D (`AdminArenaPreview.js`) & Motor de Combate (`TemporaryCombatController.ts`, `ActionCombatArena.js`):**
+  * Na Arena 2.5D ao vivo do `/admin`, habilidades com gatilho/bloco de limpeza de debuffs exibem o ícone de debuff acima da cabeça da unidade antes do impacto e demonstram a remoção visual no momento do disparo com texto flutuante `✨ Purificado`.
+  * Implementado `cleanseUnitDebuffs` em `TemporaryCombatController.ts` e `ActionCombatArena.js` para remover efeitos negativos (`isBuff === false`) e aplicar cura proporcional por debuff purificado.
+  * **Conformidade Estrita com a Cláusula 0.2 e Regra #7:** Zero registros alterados nas tabelas do banco de dados ou no snapshot; todos os arquivos mantidos estritamente abaixo do limite de 1.000 linhas.
+
+---
+
 ## [v0.6.1] - 2026-11-10
 ### Infraestrutura, Nuvem 24/7 & Governança de Equipe Multi-IA
 * **Deploy em Produção na VPS Azure (Independente do PC Local):**

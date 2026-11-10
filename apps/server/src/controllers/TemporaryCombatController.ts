@@ -669,6 +669,13 @@ export class TemporaryCombatController {
       player.activeStatuses = (player.activeStatuses || []).filter((s) => s.code !== 'status_regen_blessing');
       player.activeStatuses.push(regenBuff);
 
+      // Gatilho de Limpeza de Debuffs (ON_DEBUFF_RECEIVED / CLEANSE_DISPEL)
+      const cleanseResult = this.cleanseUnitDebuffs(player, 0, 5, 100);
+      const cleanseMsgSuffix =
+        cleanseResult.removedCount > 0
+          ? ` e limpou ${cleanseResult.removedCount} debuff(s) (${cleanseResult.removedNames.join(', ')})`
+          : '';
+
       events.push({
         actor: 'player',
         targetType: 'player',
@@ -676,13 +683,13 @@ export class TemporaryCombatController {
         animAction: 4,
         vfxKey: '10004',
         statusApplied: regenBuff,
-        amount: healAmount,
+        amount: healAmount + cleanseResult.healedHp,
         hpRemaining: player.hp,
-        message: `${player.name} assumiu Postura Defensiva (+50% Defesa, +${healAmount} HP, +${mpHeal} MP e Buff Bênção Regenerativa)!`,
+        message: `${player.name} assumiu Postura Defensiva (+50% Defesa, +${healAmount + cleanseResult.healedHp} HP, +${mpHeal} MP, Buff Bênção Regenerativa${cleanseMsgSuffix})!`,
       });
 
       battle.combatLog.unshift(
-        `🛡️ [${player.name}] assumiu Postura Defensiva, recuperando ${healAmount} HP e ativando 🟢 [Bênção Regenerativa]!`
+        `🛡️ [${player.name}] assumiu Postura Defensiva, recuperando ${healAmount + cleanseResult.healedHp} HP e ativando 🟢 [Bênção Regenerativa]${cleanseMsgSuffix}!`
       );
     }
 
@@ -802,6 +809,52 @@ export class TemporaryCombatController {
     }
 
     return battle;
+  }
+
+  /**
+   * Processador procedural de Limpeza de Debuffs (`CLEANSE_DISPEL` / gatilhos `ON_DEBUFF_RECEIVED` e `ON_TURN_START_CLEANSE`).
+   * Remove até `maxDebuffs` (0 = todos) efeitos negativos (`isBuff === false`) da unidade alvo.
+   */
+  public cleanseUnitDebuffs(
+    unit: CombatUnit,
+    maxDebuffs: number = 0,
+    healPerDebuffPct: number = 0,
+    cleanseChancePct: number = 100
+  ): { removedCount: number; removedNames: string[]; healedHp: number } {
+    if (!unit || !unit.isAlive || !Array.isArray(unit.activeStatuses) || unit.activeStatuses.length === 0) {
+      return { removedCount: 0, removedNames: [], healedHp: 0 };
+    }
+    const chance = Math.max(0, Math.min(100, Number(cleanseChancePct) || 100));
+    if (Math.random() * 100 > chance) {
+      return { removedCount: 0, removedNames: [], healedHp: 0 };
+    }
+
+    const limit = Number(maxDebuffs) > 0 ? Number(maxDebuffs) : Infinity;
+    const removedNames: string[] = [];
+    const remaining: ActiveStatusInstance[] = [];
+
+    for (const st of unit.activeStatuses) {
+      if (!st.isBuff && removedNames.length < limit) {
+        removedNames.push(st.name || st.code);
+      } else {
+        remaining.push(st);
+      }
+    }
+
+    unit.activeStatuses = remaining;
+
+    let healedHp = 0;
+    const healPct = Math.max(0, Number(healPerDebuffPct) || 0);
+    if (removedNames.length > 0 && healPct > 0) {
+      healedHp = Math.round(unit.maxHp * (healPct / 100) * removedNames.length);
+      unit.hp = Math.min(unit.maxHp, unit.hp + healedHp);
+    }
+
+    return {
+      removedCount: removedNames.length,
+      removedNames,
+      healedHp,
+    };
   }
 
   /**

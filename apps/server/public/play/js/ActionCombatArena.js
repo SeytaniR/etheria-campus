@@ -333,6 +333,36 @@ class ActionCombatArena {
     if (mob.hp === 0) { mob.isAlive = false; mob.actionStartTime = now; mob.action = 6; }
   }
 
+  cleanseUnitDebuffs(unit, maxDebuffs = 0, healPerDebuffPct = 0, cleanseChancePct = 100) {
+    if (!unit || !unit.isAlive) return 0;
+    if (Math.random() * 100 > (Number(cleanseChancePct) || 100)) return 0;
+    const statuses = Array.isArray(unit.activeStatuses) ? unit.activeStatuses : [];
+    const limit = Number(maxDebuffs) > 0 ? Number(maxDebuffs) : Infinity;
+    let removed = 0;
+    unit.activeStatuses = statuses.filter((st) => {
+      if (!st.isBuff && removed < limit) {
+        removed += 1;
+        return false;
+      }
+      return true;
+    });
+    if (removed > 0) {
+      const healPct = Math.max(0, Number(healPerDebuffPct) || 0);
+      if (healPct > 0) {
+        const healAmt = Math.round(unit.maxHp * (healPct / 100) * removed);
+        unit.hp = Math.min(unit.maxHp, unit.hp + healAmt);
+      }
+      this.floatingTexts.push({
+        x: unit.x,
+        y: unit.y - 54,
+        text: `✨ PURIFICADO! (-${removed} Debuff)`,
+        color: '#2dd4bf',
+        life: 1.25,
+      });
+    }
+    return removed;
+  }
+
   getLockedTarget() {
     if (this.selectedTargetMob && this.selectedTargetMob.isAlive) return this.selectedTargetMob;
     let nearest = null;

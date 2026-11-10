@@ -323,14 +323,21 @@ class AdminArenaPreview {
         let isSelfTarget = false;
         let isAoETarget = false;
         let appliedStatusIcons = [];
+        let preImpactDebuffIcons = [];
         let floatingTexts = [];
 
         if (isSkillModal) {
           castMovement = document.getElementById('skillCastMovementSelect')?.value || 'MELEE_ADVANCE';
           castActionId = Number(document.getElementById('skillCastActionSelect')?.value) || 3;
           targetScope = document.getElementById('skillTargetScopeSelect')?.value || 'MELEE_FRONTLINE';
+          const triggerVal = document.getElementById('skillTriggerSelect')?.value || 'ACTIVE';
           bannerTitle = document.getElementById('skillNameInput')?.value.trim() || 'Habilidade em Teste';
-          isSelfTarget = targetScope === 'SELF' || targetScope === 'ALLY_SINGLE' || targetScope === 'ALLY_ALL';
+          isSelfTarget =
+            targetScope === 'SELF' ||
+            targetScope === 'ALLY_SINGLE' ||
+            targetScope === 'ALLY_ALL' ||
+            triggerVal === 'ON_DEBUFF_RECEIVED' ||
+            triggerVal === 'ON_TURN_START_CLEANSE';
           isAoETarget = targetScope === 'ALL_ENEMIES' || targetScope === 'ROW_FRONT';
 
           for (const blk of this.editingSkillBlocks || []) {
@@ -342,6 +349,20 @@ class AdminArenaPreview {
               floatingTexts.push({ text: `💚 +${healEst}`, color: '#4ade80', onSelf: Boolean(blk.targetSelf || isSelfTarget) });
             } else if (blk.blockType === 'SHIELD') {
               floatingTexts.push({ text: `🛡️ +Escudo`, color: '#38bdf8', onSelf: true });
+            } else if (blk.blockType === 'CLEANSE_DISPEL' || blk.blockType === 'CLEANSE') {
+              const cleanseOnSelf = (blk.cleanseTarget || 'SELF') !== 'TARGET' || isSelfTarget;
+              const sampleDebuff = (this.statusEffectTemplates || []).find((s) => !s.isBuff);
+              preImpactDebuffIcons.push({
+                iconUrl: sampleDebuff?.iconUrl || 'https://seytanir.github.io/mcrework/assets/skills/icons/100180.png',
+                isBuff: false,
+                onSelf: cleanseOnSelf,
+                namePtBr: sampleDebuff?.namePtBr || 'Debuff',
+              });
+              const qtyLabel = Number(blk.maxDebuffs) > 0 ? `-${blk.maxDebuffs} Debuff` : '✨ Debuffs Limpos!';
+              floatingTexts.push({ text: `✨ Purificado (${qtyLabel})`, color: '#2dd4bf', onSelf: cleanseOnSelf });
+              if (Number(blk.healPerDebuffPct) > 0) {
+                floatingTexts.push({ text: `💚 +${blk.healPerDebuffPct}% HP`, color: '#4ade80', onSelf: cleanseOnSelf });
+              }
             } else if (blk.blockType === 'STATUS') {
               const st = (this.statusEffectTemplates || []).find((s) => Number(s.id) === Number(blk.statusEffectId));
               if (st) {
@@ -513,7 +534,7 @@ class AdminArenaPreview {
               : []
             : isPostImpactWindow
             ? appliedStatusIcons.filter((st) => (u.role === 'CASTER' ? st.onSelf : !st.onSelf && u.isTargeted))
-            : [];
+            : preImpactDebuffIcons.filter((st) => (u.role === 'CASTER' ? st.onSelf : !st.onSelf && u.isTargeted));
 
           const hpRatio =
             u.role === 'TARGET' && u.isTargeted && isPostImpactWindow && floatingTexts.some((f) => f.text.includes('-'))

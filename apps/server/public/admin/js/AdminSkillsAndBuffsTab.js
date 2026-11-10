@@ -187,6 +187,11 @@ class AdminSkillsAndBuffsTab {
           if (b.blockType === 'SHIELD') {
             return `🛡️ Escudo: ${b.scalePct || 15}% ${b.scaleStat || 'MAX_HP'} (${b.durationTurns || 2}t)`;
           }
+          if (b.blockType === 'CLEANSE_DISPEL' || b.blockType === 'CLEANSE') {
+            const qtyTxt = Number(b.maxDebuffs) > 0 ? `até ${b.maxDebuffs}` : 'Todos';
+            const healTxt = Number(b.healPerDebuffPct) > 0 ? `, +${b.healPerDebuffPct}% HP/debuff` : '';
+            return `✨ Limpar Debuffs (${qtyTxt}, ${b.cleanseChancePct ?? 100}%${healTxt})`;
+          }
           return b.blockType;
         })
         .join('<br/>');
@@ -227,7 +232,7 @@ class AdminSkillsAndBuffsTab {
               <span style="padding:3px 9px; border-radius:99px; background:${isPassive ? 'rgba(192,132,252,0.18)' : 'rgba(56,189,248,0.18)'}; color:${isPassive ? '#d8b4fe' : '#7dd3fc'}; font-size:0.74rem; font-weight:800;">
                 ${isPassive ? '♾️ PASSIVA' : '⚡ ATIVA'}
               </span>
-              <div style="font-size:0.7rem; color:#fde047; margin-top:3px;">Gatilho: ${sk.triggerType}</div>
+              <div style="font-size:0.7rem; color:#fde047; margin-top:3px;">Gatilho: ${typeof this.getSkillTriggerLabel === 'function' ? this.getSkillTriggerLabel(sk.triggerType) : sk.triggerType}</div>
             </td>
             <td>
               <div style="font-size:0.74rem; font-weight:600;">🎯 ${sk.targetScope} (${sk.hitCount || 1} hit)</div>
@@ -362,6 +367,15 @@ class AdminSkillsAndBuffsTab {
           scalePct: 20,
           flatAmount: 30,
           durationTurns: 2,
+        });
+      } else if (blockType === 'CLEANSE_DISPEL') {
+        this.editingSkillBlocks.push({
+          blockType: 'CLEANSE_DISPEL',
+          cleanseTarget: 'SELF',
+          targetSelf: true,
+          maxDebuffs: 0,
+          cleanseChancePct: 100,
+          healPerDebuffPct: 0,
         });
       }
       this.renderVisualSkillBlocks();
@@ -523,6 +537,12 @@ class AdminSkillsAndBuffsTab {
                 </div>
               </div>
             </div>`;
+          }
+
+          if (blk.blockType === 'CLEANSE_DISPEL' || blk.blockType === 'CLEANSE') {
+            return typeof this.renderCleanseSkillBlockCard === 'function'
+              ? this.renderCleanseSkillBlockCard(blk, i)
+              : '';
           }
 
           return `
@@ -808,7 +828,7 @@ class AdminSkillsAndBuffsTab {
             </div>
             <div class="field">
               <label style="color:#fde047; font-weight:700;">Gatilho de Ativação</label>
-              <select id="skillTriggerSelect">
+              <select id="skillTriggerSelect" onchange="AdminApp.onSkillTriggerChanged && AdminApp.onSkillTriggerChanged(this.value)">
                 <option value="ACTIVE">🎯 Uso Manual / Combate Livre</option>
                 <option value="PASSIVE_ALWAYS">♾️ Passiva Permanente</option>
                 <option value="ON_TURN_START">🌅 No Início do Turno</option>
@@ -816,6 +836,8 @@ class AdminSkillsAndBuffsTab {
                 <option value="ON_CRIT">💥 Ao Causar Dano Crítico</option>
                 <option value="ON_DAMAGE_TAKEN">🛡️ Ao Receber Dano</option>
                 <option value="ON_KILL">💀 Ao Derrotar um Inimigo</option>
+                <option value="ON_DEBUFF_RECEIVED">✨ Ao Receber Debuff (Limpar Debuffs)</option>
+                <option value="ON_TURN_START_CLEANSE">🧹 No Início do Turno com Debuff (Limpar Debuffs)</option>
               </select>
             </div>
             <div class="field">
@@ -862,6 +884,7 @@ class AdminSkillsAndBuffsTab {
               <button type="button" onclick="AdminApp.addVisualSkillBlock('HEAL')" style="padding:4px 9px; font-size:0.74rem; background:#15803d; color:#fff;">➕ 💚 Cura</button>
               <button type="button" onclick="AdminApp.addVisualSkillBlock('STATUS')" style="padding:4px 9px; font-size:0.74rem; background:#6b21a8; color:#fff;">➕ 🧪 Aplicar Buff/Debuff</button>
               <button type="button" onclick="AdminApp.addVisualSkillBlock('SHIELD')" style="padding:4px 9px; font-size:0.74rem; background:#0369a1; color:#fff;">➕ 🛡️ Escudo</button>
+              <button type="button" onclick="AdminApp.addVisualSkillBlock('CLEANSE_DISPEL')" style="padding:4px 9px; font-size:0.74rem; background:#0d9488; color:#fff;">➕ ✨ Limpar Debuffs</button>
             </div>
           </div>
           <div id="skillVisualBlocksContainer" style="display:flex; flex-direction:column; gap:8px;"></div>
