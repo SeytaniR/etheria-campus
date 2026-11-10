@@ -89,6 +89,8 @@ class AdminPetsTab {
       document.getElementById('petCatchRateInput').value = '25.0';
       document.getElementById('petActiveSelect').value = 'true';
       document.getElementById('petGroundOffsetYInput').value = '0';
+      const sEl = document.getElementById('petCombatStyleSelect'); if (sEl) sEl.value = 'MELEE';
+      const rEl = document.getElementById('petAttackRangeInput'); if (rEl) rEl.value = '60';
 
       ['VIT', 'STR', 'INT', 'WIS', 'AGI', 'DEX'].forEach((attr) => {
         const inp = document.getElementById(`petBase${attr}Input`);
@@ -127,6 +129,9 @@ class AdminPetsTab {
       document.getElementById('petCatchRateInput').value = String(pet.catchRatePct ?? 25.0);
       document.getElementById('petActiveSelect').value = pet.isActive ? 'true' : 'false';
       document.getElementById('petGroundOffsetYInput').value = String(pet.groundOffsetY || 0);
+      const pStyle = pet.combatStyle || 'MELEE';
+      const sEl = document.getElementById('petCombatStyleSelect'); if (sEl) sEl.value = pStyle;
+      const rEl = document.getElementById('petAttackRangeInput'); if (rEl) rEl.value = String(pet.attackRange || (pStyle === 'RANGED' ? 220 : 60));
 
       const b = pet.baseAttributesJson || {};
       ['VIT', 'STR', 'INT', 'WIS', 'AGI', 'DEX'].forEach((attr) => {
@@ -277,6 +282,8 @@ class AdminPetsTab {
         const recommendedElementCode = document.getElementById('petElementSelect').value || 'NEUTRAL';
         const rarityTier = document.getElementById('petRaritySelect').value || 'COMMON';
         const role = document.getElementById('petRoleSelect').value || 'BALANCED';
+        const combatStyle = document.getElementById('petCombatStyleSelect')?.value || 'MELEE';
+        const attackRange = Number(document.getElementById('petAttackRangeInput')?.value) || (combatStyle === 'RANGED' ? 220 : 60);
         const catchRatePct = Number(document.getElementById('petCatchRateInput').value) || 25.0;
         const isActive = document.getElementById('petActiveSelect').value === 'true';
         const groundOffsetY = Number(document.getElementById('petGroundOffsetYInput').value) || 0;
@@ -312,6 +319,8 @@ class AdminPetsTab {
           recommendedElementCode,
           rarityTier,
           role,
+          combatStyle,
+          attackRange,
           catchRatePct,
           isActive,
           groundOffsetY,
@@ -430,6 +439,9 @@ class AdminPetsTab {
                   </td>
                   <td style="padding:8px 10px;">
                     ${roleBadges[p.role] || roleBadges.BALANCED}
+                    <div style="margin-top:3px; font-size:0.71rem;">
+                      ${p.combatStyle === 'RANGED' ? `<span style="color:#38bdf8; font-weight:700;">🏹 Ranged (${p.attackRange || 220}px)</span>` : `<span style="color:#fbbf24; font-weight:700;">⚔️ Melee (${p.attackRange || 60}px)</span>`}
+                    </div>
                   </td>
                   <td style="padding:8px 10px; font-size:0.75rem; color:#cbd5e1; font-family:monospace;">
                     VIT:${b.VIT ?? 10} STR:${b.STR ?? 10} INT:${b.INT ?? 10}<br/>WIS:${b.WIS ?? 10} AGI:${b.AGI ?? 10} DEX:${b.DEX ?? 10}
@@ -535,6 +547,17 @@ class AdminPetsTab {
                 <option value="HEALER">💚 Curandeiro / Suporte</option>
                 <option value="SUPPORT">🌀 Suporte / Controle</option>
               </select>
+            </div>
+            <div class="field">
+              <label style="color:#fde047; font-weight:700;">⚔️ Estilo de Combate</label>
+              <select id="petCombatStyleSelect" onchange="AdminApp.onCombatStyleChange('pet')">
+                <option value="MELEE">⚔️ Melee (Corpo a Corpo)</option>
+                <option value="RANGED">🏹 Ranged (À Distância)</option>
+              </select>
+            </div>
+            <div class="field">
+              <label style="color:#fde047; font-weight:700;">🎯 Alcance Padrão (px)</label>
+              <input type="number" id="petAttackRangeInput" min="20" max="600" value="60" title="Distância padrão de alcance do ataque em pixels" />
             </div>
             <div class="field">
               <label>Taxa de Captura (%)</label>

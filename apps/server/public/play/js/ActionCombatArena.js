@@ -188,6 +188,7 @@ class ActionCombatArena {
       groundOffsetY: pState.groundOffsetY || this.client?.activeChar?.groundOffsetY || 0,
       shadowOffsetX: pState.shadowOffsetX || this.client?.activeChar?.shadowOffsetX || 0,
       shadowOffsetY: pState.shadowOffsetY || this.client?.activeChar?.shadowOffsetY || 0,
+      combatStyle: pState.combatStyle || 'MELEE', attackRange: pState.attackRange || (pState.combatStyle === 'RANGED' ? 220 : 60),
       isAttacking: false, attackTimer: 0, isDashing: false, dashTimer: 0, hitTimer: 0,
     };
 
@@ -206,8 +207,8 @@ class ActionCombatArena {
         id: m.id || `mob_${idx}`, templateId: battleState.monsterTemplateId,
         name: m.name || `Monstro #${idx + 1}`, x: mx, y: my, dir: mDir, action: 0, isAlive: true,
         hp: m.hp || 300, maxHp: m.maxHp || 300, atk: m.atk || 45, def: m.def || 25,
-        speed: 110 + idx * 10, attackRange: 52, nextAttackTime: performance.now() + 1000 + idx * 400,
-        hitTimer: 0, attackTimer: 0, fadeAlpha: 1.0,
+        speed: 110 + idx * 10, combatStyle: m.combatStyle || 'MELEE', attackRange: m.attackRange || (m.combatStyle === 'RANGED' ? 220 : 52),
+        nextAttackTime: performance.now() + 1000 + idx * 400, hitTimer: 0, attackTimer: 0, fadeAlpha: 1.0,
         sprite: this.getSprite(m.atlasJsonUrl, m.atlasWebpUrl, m.thumbUrl),
         groundOffsetY: m.groundOffsetY || 0, shadowOffsetX: m.shadowOffsetX || 0, shadowOffsetY: m.shadowOffsetY || 0,
         path: null, nextRepathTime: 0,
@@ -224,8 +225,8 @@ class ActionCombatArena {
         id: p.id || `pet_${idx}`, name: p.name || `Pet #${idx + 1}`,
         x: px, y: py, dir: pDir, action: 0, isAlive: true,
         hp: p.hp || 320, maxHp: p.maxHp || 320, atk: p.atk || 42, def: p.def || 28,
-        speed: Math.min(battleSpeed * 0.92, 175), attackRange: 55, nextAttackTime: performance.now() + 1000 + idx * 450,
-        hitTimer: 0, attackTimer: 0, fadeAlpha: 1.0,
+        speed: Math.min(battleSpeed * 0.92, 175), combatStyle: p.combatStyle || 'MELEE', attackRange: p.attackRange || (p.combatStyle === 'RANGED' ? 220 : 55),
+        nextAttackTime: performance.now() + 1000 + idx * 450, hitTimer: 0, attackTimer: 0, fadeAlpha: 1.0,
         sprite: this.getSprite(p.atlasJsonUrl, p.atlasWebpUrl, p.thumbUrl),
         groundOffsetY: p.groundOffsetY || 0, shadowOffsetX: p.shadowOffsetX || 0, shadowOffsetY: p.shadowOffsetY || 0,
         path: null, targetMob: null,
@@ -238,16 +239,9 @@ class ActionCombatArena {
     const resultBanner = document.getElementById('actionResultBanner'); if (resultBanner) resultBanner.style.display = 'none';
     const prepBanner = document.getElementById('actionPrepBanner'); if (prepBanner) prepBanner.style.display = 'flex';
     const timerEl = document.getElementById('actPrepTimer'); if (timerEl) timerEl.textContent = '20s';
-
-    const btnReady = document.getElementById('btnActReady');
-    if (btnReady) { btnReady.classList.remove('ready'); btnReady.textContent = '⚡ PRONTO!'; }
-
+    const btnReady = document.getElementById('btnActReady'); if (btnReady) { btnReady.classList.remove('ready'); btnReady.textContent = '⚡ PRONTO!'; }
     const statusEl = document.getElementById('actPrepStatusText');
-    if (statusEl) {
-      statusEl.textContent = this.totalRealPlayers > 1
-        ? `👥 Aguardando: 0/${this.totalRealPlayers} jogadores prontos`
-        : 'Trace sua estratégia ou clique em Pronto';
-    }
+    if (statusEl) statusEl.textContent = this.totalRealPlayers > 1 ? `👥 Aguardando: 0/${this.totalRealPlayers} jogadores prontos` : 'Trace sua estratégia ou clique em Pronto';
 
     this.floatingTexts.push({
       x: spawns.px,
@@ -373,7 +367,8 @@ class ActionCombatArena {
       this.player.dir = this.compute8Direction(target.x - this.player.x, target.y - this.player.y);
       const isCrit = Math.random() < (this.player.critRate || 0.15);
       const rawDmg = Math.max(12, Math.round(this.player.atk * (100 / (100 + target.def * 0.4))));
-      this.spawnHomingProjectile(target, 'SINGLE', 0, rawDmg, isCrit, '⚔️', '#fde047', false);
+      const isRanged = this.player.combatStyle === 'RANGED';
+      this.spawnHomingProjectile(target, 'SINGLE', 0, rawDmg, isCrit, isRanged ? '🏹' : '⚔️', '#fde047', false);
     }
     this.updateHud();
   }

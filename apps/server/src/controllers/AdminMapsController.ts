@@ -89,6 +89,8 @@ export interface SaveClassTemplateDto {
   rebornShadowOffsetX?: number;
   rebornShadowOffsetY?: number;
   raceCode?: string;
+  combatStyle?: string;
+  attackRange?: number;
   skillIdsJson?: number[];
   isActive?: boolean;
   baseCombatAttributesJson?: Record<string, number>;
@@ -348,6 +350,8 @@ export class AdminMapsController {
     const rebornShadowOffsetX = Math.round(Number(dto.rebornShadowOffsetX) || 0);
     const rebornShadowOffsetY = Math.round(Number(dto.rebornShadowOffsetY) || 0);
     const rebornMcreworkCharKey = dto.rebornMcreworkCharKey ? dto.rebornMcreworkCharKey.trim() : null;
+    const combatStyle = dto.combatStyle === 'RANGED' ? 'RANGED' : 'MELEE';
+    const attackRange = Math.max(10, Math.min(1000, Number(dto.attackRange) || (combatStyle === 'RANGED' ? 220 : 60)));
     const skillIdsJson = Array.isArray(dto.skillIdsJson) ? dto.skillIdsJson.map((n) => Number(n)).filter((n) => n > 0) : undefined;
 
     const b = dto.baseAttributesJson || {};
@@ -395,6 +399,8 @@ export class AdminMapsController {
             rebornShadowOffsetX,
             rebornShadowOffsetY,
             raceCode,
+            combatStyle,
+            attackRange,
             baseAttributesJson: baseAttrs as any,
             growthPerLevelJson: growthAttrs as any,
             ...(dto.baseCombatAttributesJson !== undefined ? { baseCombatAttributesJson: dto.baseCombatAttributesJson as any } : {}),
@@ -418,6 +424,8 @@ export class AdminMapsController {
             rebornShadowOffsetX,
             rebornShadowOffsetY,
             raceCode,
+            combatStyle,
+            attackRange,
             baseAttributesJson: baseAttrs as any,
             growthPerLevelJson: growthAttrs as any,
             baseCombatAttributesJson: (dto.baseCombatAttributesJson ?? {}) as any,

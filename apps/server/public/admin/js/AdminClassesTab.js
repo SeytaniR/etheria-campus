@@ -543,6 +543,9 @@ class AdminClassesTab {
         document.getElementById('classRebornGroundOffsetYInput').value = String(existingClass.rebornGroundOffsetY || 0);
         document.getElementById('classRebornShadowOffsetXInput').value = String(existingClass.rebornShadowOffsetX || 0);
         document.getElementById('classRebornShadowOffsetYInput').value = String(existingClass.rebornShadowOffsetY || 0);
+        const cStyle = existingClass.combatStyle || 'MELEE';
+        const sEl = document.getElementById('classCombatStyleSelect'); if (sEl) sEl.value = cStyle;
+        const rEl = document.getElementById('classAttackRangeInput'); if (rEl) rEl.value = String(existingClass.attackRange || (cStyle === 'RANGED' ? 220 : 60));
 
         this.selectedMcreworkCharKey = existingClass.mcreworkCharKey || '';
         this.selectedMcreworkRebornCharKey = existingClass.rebornMcreworkCharKey || '';
@@ -553,14 +556,8 @@ class AdminClassesTab {
         ['VIT','STR','INT','WIS','AGI','DEX'].forEach((k) => { const el = document.getElementById(`classGrow${k}`); if (el) el.value = String(grow[k] ?? 2); });
 
         const bComb = existingClass.baseCombatAttributesJson || {};
-        document.getElementById('classBaseCombatMoveSpeed').value = String(bComb.BATTLE_MOVE_SPEED ?? 180);
-        document.getElementById('classBaseCombatAttackSpeed').value = String(bComb.ATTACK_SPEED ?? 1.0);
-        document.getElementById('classBaseCombatPhysAcc').value = String(bComb.PHYS_ACCURACY ?? 100);
-        document.getElementById('classBaseCombatPhysEva').value = String(bComb.PHYS_EVASION ?? 10);
-        document.getElementById('classBaseCombatMagAcc').value = String(bComb.MAG_ACCURACY ?? 100);
-        document.getElementById('classBaseCombatMagEva').value = String(bComb.MAG_EVASION ?? 10);
-        document.getElementById('classBaseCombatCritRate').value = String(bComb.CRIT_RATE ?? 5);
-        document.getElementById('classBaseCombatCritDmg').value = String(bComb.CRIT_DMG ?? 150);
+        const cMap = { MoveSpeed: bComb.BATTLE_MOVE_SPEED ?? 180, AttackSpeed: bComb.ATTACK_SPEED ?? 1.0, PhysAcc: bComb.PHYS_ACCURACY ?? 100, PhysEva: bComb.PHYS_EVASION ?? 10, MagAcc: bComb.MAG_ACCURACY ?? 100, MagEva: bComb.MAG_EVASION ?? 10, CritRate: bComb.CRIT_RATE ?? 5, CritDmg: bComb.CRIT_DMG ?? 150 };
+        Object.entries(cMap).forEach(([k, v]) => { const el = document.getElementById(`classBaseCombat${k}`); if (el) el.value = String(v); });
       } else {
         const maxClassId = this.classTemplates.reduce((acc, c) => Math.max(acc, Number(c.id) || 0), 0);
         const nextClassId = maxClassId + 1;
@@ -581,6 +578,8 @@ class AdminClassesTab {
         document.getElementById('classRebornGroundOffsetYInput').value = '0';
         document.getElementById('classRebornShadowOffsetXInput').value = '0';
         document.getElementById('classRebornShadowOffsetYInput').value = '0';
+        const sEl = document.getElementById('classCombatStyleSelect'); if (sEl) sEl.value = 'MELEE';
+        const rEl = document.getElementById('classAttackRangeInput'); if (rEl) rEl.value = '60';
 
         this.selectedMcreworkCharKey = '';
         this.selectedMcreworkRebornCharKey = '';
@@ -717,6 +716,8 @@ class AdminClassesTab {
         const dto = {
           namePtBr,
           raceCode,
+          combatStyle: document.getElementById('classCombatStyleSelect')?.value || 'MELEE',
+          attackRange: Number(document.getElementById('classAttackRangeInput')?.value) || 60,
           mcreworkCharKey,
           rebornMcreworkCharKey,
           descriptionPtBr,
@@ -843,7 +844,10 @@ class AdminClassesTab {
               </button>
             </div>
           </td>
-          <td><span style="padding:2px 8px; border-radius:99px; background:rgba(56,189,248,0.14); color:var(--accent); font-size:0.75rem;">${ct.raceNamePtBr || ct.raceCode}</span></td>
+          <td>
+            <span style="padding:2px 8px; border-radius:99px; background:rgba(56,189,248,0.14); color:var(--accent); font-size:0.75rem;">${ct.raceNamePtBr || ct.raceCode}</span>
+            <div style="margin-top:3px; font-size:0.71rem;">${ct.combatStyle === 'RANGED' ? `<span style="color:#38bdf8; font-weight:700;">🏹 Ranged (${ct.attackRange || 220}px)</span>` : `<span style="color:#fbbf24; font-weight:700;">⚔️ Melee (${ct.attackRange || 60}px)</span>`}</div>
+          </td>
           <td>
             <div style="cursor:pointer;" onclick="AdminApp.openClassTemplateModal(${ct.id}, 'stats')" title="Clique para editar Atributos Base e Crescimento">
               <span style="font-family:monospace; font-size:0.76rem;">${baseStr}</span>

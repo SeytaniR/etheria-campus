@@ -5,6 +5,27 @@ Qualquer IA trabalhando neste repositório **DEVE** incrementar a versão e regi
 
 ---
 
+## [v0.6.0] - 2026-11-10
+### Combate, Criação & Customização (Personagens, Pets e Monstros)
+* **Estilo de Combate Melee vs Ranged e Distância de Alcance Configurável:**
+  * **Schema Prisma (`schema.prisma`):**
+    * Adicionados os campos `combatStyle` (string default `"MELEE"`, mapeado para `combat_style`) e `attackRange` (int default `60`, mapeado para `attack_range`) nos modelos `ClassTemplate`, `PetTemplate` e `MonsterTemplate`.
+    * Migração aplicada com sucesso no PostgreSQL via `prisma db push` e cliente regenerado.
+  * **Controllers & APIs Autoritárias:**
+    * Atualizados `AdminMapsController` (classes/personagens), `AdminPetsController` (pets) e `AdminMonstersController` (monstros) para receber, validar e persistir `combatStyle` (`MELEE` ou `RANGED`) e `attackRange`.
+  * **Interface Admin (Studio Low-Code):**
+    * Adicionado seletor de estilo de combate (`⚔️ Corpo a Corpo (Melee)` / `🏹 Longo Alcance (Ranged)`) e campo de distância de alcance (px) nas telas de criação e edição de:
+      * **Classes / Personagens:** `AdminClassModalTemplate.js` e `AdminClassesTab.js`.
+      * **Monstros:** `AdminMonstersTab.js`.
+      * **Pets:** `AdminPetsTab.js`.
+    * **Alternância Automática Inteligente (`AdminApp.onCombatStyleChange`):** Ao alternar entre Melee e Ranged no seletor, o campo de distância sugere automaticamente os padrões do sistema (`60px` para Melee, `220px` para Ranged), permitindo customização livre caso o admin queira definir valores diferentes.
+    * **Badges Visuais:** Exibição clara nas tabelas administrativas com indicação de estilo e alcance (`⚔️ Melee (60px)` ou `🏹 Ranged (220px)`).
+  * **Engine de Combate & Arena Action (`TemporaryCombatController.ts`, `ActionCombatArena.js`):**
+    * Propagação das propriedades `combatStyle` e `attackRange` para jogadores, pets e monstros gerados nas batalhas.
+    * Arena action respeita o raio de aproximação e renderiza projéteis de longo alcance teleguiados (`🏹`) para rangeds ou golpes diretos (`⚔️`) para melees.
+
+---
+
 ## [v0.5.9] - 2026-11-10
 ### Segurança & Governança de IA
 * **Nova Regra Mandatória para Agentes de IA — Cláusula 0.2 (`AGENTS.md`, `.gemini/rules/AGENTS.md`, `docs/HANDOFF.md`):**

@@ -1,6 +1,6 @@
 {
   "version": "0.2.0",
-  "exportedAt": "2026-11-10T18:12:00.809Z",
+  "exportedAt": "2026-11-10T18:20:42.543Z",
   "i18nTranslations": [
     {
       "id": 1,
@@ -2654,6 +2654,118 @@
       "locale": "pt-BR",
       "text": "A montaria mítica definitiva, forjada com luz estelar infinita e asas reluzentes.",
       "updatedAt": "2026-11-10T03:39:08.401Z"
+    },
+    {
+      "id": 655,
+      "key": "monster.monster_7.name",
+      "locale": "pt-BR",
+      "text": "Polvo Gigante",
+      "updatedAt": "2026-11-10T18:14:13.277Z"
+    },
+    {
+      "id": 656,
+      "key": "monster.monster_7.description",
+      "locale": "pt-BR",
+      "text": "Um polvo maior que o normal, fica a beira de lagos aterrorizando pessoas.",
+      "updatedAt": "2026-11-10T18:14:13.282Z"
+    },
+    {
+      "id": 657,
+      "key": "monster.monster_8.name",
+      "locale": "pt-BR",
+      "text": "Caracol Tridente",
+      "updatedAt": "2026-11-10T18:15:29.948Z"
+    },
+    {
+      "id": 658,
+      "key": "monster.monster_8.description",
+      "locale": "pt-BR",
+      "text": "Um caracol selvagem humanoide, carrega um tridente como arma.",
+      "updatedAt": "2026-11-10T18:15:29.953Z"
+    },
+    {
+      "id": 659,
+      "key": "monster.monster_9.name",
+      "locale": "pt-BR",
+      "text": "Guarda Caravol",
+      "updatedAt": "2026-11-10T18:16:18.023Z"
+    },
+    {
+      "id": 660,
+      "key": "monster.monster_9.description",
+      "locale": "pt-BR",
+      "text": "Um guarda caracol que ataca a distância, seu foco é proteger seus aliados caracóis.",
+      "updatedAt": "2026-11-10T18:16:18.027Z"
+    },
+    {
+      "id": 661,
+      "key": "monster.monster_10.name",
+      "locale": "pt-BR",
+      "text": "Cogumelo Tóxico",
+      "updatedAt": "2026-11-10T18:17:04.793Z"
+    },
+    {
+      "id": 662,
+      "key": "monster.monster_10.description",
+      "locale": "pt-BR",
+      "text": "Um cogumelo Tóxico capaz de envenenar duas vítimas.",
+      "updatedAt": "2026-11-10T18:17:04.801Z"
+    },
+    {
+      "id": 663,
+      "key": "monster.monster_11.name",
+      "locale": "pt-BR",
+      "text": "Olho D'água",
+      "updatedAt": "2026-11-10T18:18:07.840Z"
+    },
+    {
+      "id": 664,
+      "key": "monster.monster_11.description",
+      "locale": "pt-BR",
+      "text": "Um demônio de água muito astuto e perverso.",
+      "updatedAt": "2026-11-10T18:18:07.844Z"
+    },
+    {
+      "id": 665,
+      "key": "monster.monster_12.name",
+      "locale": "pt-BR",
+      "text": "Troll da Montanha",
+      "updatedAt": "2026-11-10T18:19:09.774Z"
+    },
+    {
+      "id": 666,
+      "key": "monster.monster_12.description",
+      "locale": "pt-BR",
+      "text": "Uma pequena criatura que espreita e assalta acampamentos a noite.",
+      "updatedAt": "2026-11-10T18:19:09.779Z"
+    },
+    {
+      "id": 667,
+      "key": "monster.monster_13.name",
+      "locale": "pt-BR",
+      "text": "Ovelha-Tigre",
+      "updatedAt": "2026-11-10T18:19:54.624Z"
+    },
+    {
+      "id": 668,
+      "key": "monster.monster_13.description",
+      "locale": "pt-BR",
+      "text": "Todos sabem que é uma ovelha, mas sua força realmente é de um tigre.",
+      "updatedAt": "2026-11-10T18:19:54.628Z"
+    },
+    {
+      "id": 669,
+      "key": "monster.monster_14.name",
+      "locale": "pt-BR",
+      "text": "Lobo Ancião",
+      "updatedAt": "2026-11-10T18:20:42.529Z"
+    },
+    {
+      "id": 670,
+      "key": "monster.monster_14.description",
+      "locale": "pt-BR",
+      "text": "Um lobo velho, mas com garras afiadas",
+      "updatedAt": "2026-11-10T18:20:42.534Z"
     }
   ],
   "biomes": [
@@ -41876,6 +41988,194 @@
       "skillIdsJson": [
         5
       ],
+      "lootTableJson": [],
+      "isActive": true
+    },
+    {
+      "id": 7,
+      "code": "monster_7",
+      "mcreworkMonsterKey": "creature_000009",
+      "nameI18nKey": "monster.monster_7.name",
+      "descriptionI18nKey": "monster.monster_7.description",
+      "groundOffsetY": 0,
+      "raceCode": "AQUATIC",
+      "fixedElementCode": "WATER",
+      "rarityTier": "D",
+      "isTamableAsPet": true,
+      "baseAttributesJson": {
+        "AGI": 10,
+        "DEX": 10,
+        "INT": 10,
+        "STR": 12,
+        "VIT": 14,
+        "WIS": 10
+      },
+      "skillIdsJson": [
+        5
+      ],
+      "lootTableJson": [],
+      "isActive": true
+    },
+    {
+      "id": 8,
+      "code": "monster_8",
+      "mcreworkMonsterKey": "creature_000011",
+      "nameI18nKey": "monster.monster_8.name",
+      "descriptionI18nKey": "monster.monster_8.description",
+      "groundOffsetY": 0,
+      "raceCode": "BEAST",
+      "fixedElementCode": "NEUTRAL",
+      "rarityTier": "F",
+      "isTamableAsPet": true,
+      "baseAttributesJson": {
+        "AGI": 10,
+        "DEX": 10,
+        "INT": 10,
+        "STR": 12,
+        "VIT": 14,
+        "WIS": 10
+      },
+      "skillIdsJson": [],
+      "lootTableJson": [],
+      "isActive": true
+    },
+    {
+      "id": 9,
+      "code": "monster_9",
+      "mcreworkMonsterKey": "creature_000013",
+      "nameI18nKey": "monster.monster_9.name",
+      "descriptionI18nKey": "monster.monster_9.description",
+      "groundOffsetY": 0,
+      "raceCode": "BEAST",
+      "fixedElementCode": "FIRE",
+      "rarityTier": "D",
+      "isTamableAsPet": true,
+      "baseAttributesJson": {
+        "AGI": 10,
+        "DEX": 10,
+        "INT": 10,
+        "STR": 12,
+        "VIT": 14,
+        "WIS": 10
+      },
+      "skillIdsJson": [],
+      "lootTableJson": [],
+      "isActive": true
+    },
+    {
+      "id": 10,
+      "code": "monster_10",
+      "mcreworkMonsterKey": "creature_000015",
+      "nameI18nKey": "monster.monster_10.name",
+      "descriptionI18nKey": "monster.monster_10.description",
+      "groundOffsetY": 0,
+      "raceCode": "PLANT",
+      "fixedElementCode": "EARTH",
+      "rarityTier": "F",
+      "isTamableAsPet": true,
+      "baseAttributesJson": {
+        "AGI": 10,
+        "DEX": 10,
+        "INT": 10,
+        "STR": 12,
+        "VIT": 14,
+        "WIS": 10
+      },
+      "skillIdsJson": [],
+      "lootTableJson": [],
+      "isActive": true
+    },
+    {
+      "id": 11,
+      "code": "monster_11",
+      "mcreworkMonsterKey": "creature_000017",
+      "nameI18nKey": "monster.monster_11.name",
+      "descriptionI18nKey": "monster.monster_11.description",
+      "groundOffsetY": 0,
+      "raceCode": "DEMON",
+      "fixedElementCode": "WATER",
+      "rarityTier": "F",
+      "isTamableAsPet": true,
+      "baseAttributesJson": {
+        "AGI": 10,
+        "DEX": 10,
+        "INT": 10,
+        "STR": 12,
+        "VIT": 14,
+        "WIS": 10
+      },
+      "skillIdsJson": [
+        5
+      ],
+      "lootTableJson": [],
+      "isActive": true
+    },
+    {
+      "id": 12,
+      "code": "monster_12",
+      "mcreworkMonsterKey": "creature_000019",
+      "nameI18nKey": "monster.monster_12.name",
+      "descriptionI18nKey": "monster.monster_12.description",
+      "groundOffsetY": 0,
+      "raceCode": "BEAST",
+      "fixedElementCode": "EARTH",
+      "rarityTier": "D",
+      "isTamableAsPet": true,
+      "baseAttributesJson": {
+        "AGI": 10,
+        "DEX": 10,
+        "INT": 10,
+        "STR": 12,
+        "VIT": 14,
+        "WIS": 10
+      },
+      "skillIdsJson": [],
+      "lootTableJson": [],
+      "isActive": true
+    },
+    {
+      "id": 13,
+      "code": "monster_13",
+      "mcreworkMonsterKey": "creature_000021",
+      "nameI18nKey": "monster.monster_13.name",
+      "descriptionI18nKey": "monster.monster_13.description",
+      "groundOffsetY": 0,
+      "raceCode": "BEAST",
+      "fixedElementCode": "FIRE",
+      "rarityTier": "C",
+      "isTamableAsPet": true,
+      "baseAttributesJson": {
+        "AGI": 10,
+        "DEX": 10,
+        "INT": 10,
+        "STR": 12,
+        "VIT": 14,
+        "WIS": 10
+      },
+      "skillIdsJson": [],
+      "lootTableJson": [],
+      "isActive": true
+    },
+    {
+      "id": 14,
+      "code": "monster_14",
+      "mcreworkMonsterKey": "creature_000023",
+      "nameI18nKey": "monster.monster_14.name",
+      "descriptionI18nKey": "monster.monster_14.description",
+      "groundOffsetY": 0,
+      "raceCode": "BEAST",
+      "fixedElementCode": "EARTH",
+      "rarityTier": "D",
+      "isTamableAsPet": true,
+      "baseAttributesJson": {
+        "AGI": 10,
+        "DEX": 10,
+        "INT": 10,
+        "STR": 12,
+        "VIT": 14,
+        "WIS": 10
+      },
+      "skillIdsJson": [],
       "lootTableJson": [],
       "isActive": true
     }

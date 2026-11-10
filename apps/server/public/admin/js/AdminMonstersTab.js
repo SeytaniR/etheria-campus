@@ -310,6 +310,9 @@ class AdminMonstersTab {
         document.getElementById('monsterDescriptionInput').value = existingMonster.descriptionPtBr || '';
         document.getElementById('monsterDescI18nDisplay').textContent = `Chave i18n: monster.${existingMonster.code}.description`;
         document.getElementById('monsterGroundOffsetYInput').value = String(existingMonster.groundOffsetY || 0);
+        const mStyle = existingMonster.combatStyle || 'MELEE';
+        const sEl = document.getElementById('monsterCombatStyleSelect'); if (sEl) sEl.value = mStyle;
+        const rEl = document.getElementById('monsterAttackRangeInput'); if (rEl) rEl.value = String(existingMonster.attackRange || (mStyle === 'RANGED' ? 220 : 60));
 
         this.selectedMcreworkMonsterKey = existingMonster.mcreworkMonsterKey || '';
 
@@ -336,6 +339,8 @@ class AdminMonstersTab {
         document.getElementById('monsterDescriptionInput').value = '';
         document.getElementById('monsterDescI18nDisplay').textContent = `Chave i18n: monster.monster_${nextId}.description (Auto-gerada)`;
         document.getElementById('monsterGroundOffsetYInput').value = '0';
+        const sEl = document.getElementById('monsterCombatStyleSelect'); if (sEl) sEl.value = 'MELEE';
+        const rEl = document.getElementById('monsterAttackRangeInput'); if (rEl) rEl.value = '60';
 
         this.selectedMcreworkMonsterKey = '';
 
@@ -391,6 +396,8 @@ class AdminMonstersTab {
         const raceCode = document.getElementById('monsterRaceSelect').value || 'BEAST';
         const fixedElementCode = document.getElementById('monsterElementSelect').value || 'NEUTRAL';
         const rarityTier = document.getElementById('monsterRaritySelect').value || 'F';
+        const combatStyle = document.getElementById('monsterCombatStyleSelect')?.value || 'MELEE';
+        const attackRange = Number(document.getElementById('monsterAttackRangeInput')?.value) || (combatStyle === 'RANGED' ? 220 : 60);
         const isTamableAsPet = document.getElementById('monsterTamableSelect').value === 'true';
         const isActive = document.getElementById('monsterActiveSelect').value === 'true';
         const groundOffsetY = Number(document.getElementById('monsterGroundOffsetYInput').value) || 0;
@@ -413,6 +420,8 @@ class AdminMonstersTab {
           raceCode,
           fixedElementCode,
           rarityTier,
+          combatStyle,
+          attackRange,
           isTamableAsPet,
           isActive,
           skillIdsJson,
@@ -517,6 +526,7 @@ class AdminMonstersTab {
           </td>
           <td>
             <span style="padding:3px 10px; border-radius:99px; background:${tc.bg}; color:${tc.text}; border:1px solid ${tc.border}; font-size:0.78rem; font-weight:800;">Rank ${tier}</span>
+            <div style="margin-top:4px; font-size:0.71rem;">${m.combatStyle === 'RANGED' ? `<span style="color:#38bdf8; font-weight:700;">🏹 Ranged (${m.attackRange || 220}px)</span>` : `<span style="color:#fbbf24; font-weight:700;">⚔️ Melee (${m.attackRange || 60}px)</span>`}</div>
           </td>
           <td><span style="font-family:monospace; font-size:0.75rem;">${statsStr}</span></td>
           <td>
@@ -584,6 +594,17 @@ class AdminMonstersTab {
           <div class="field">
             <label style="color:#c084fc; font-weight:700;">💎 Raridade Padrão</label>
             <select id="monsterRaritySelect"></select>
+          </div>
+          <div class="field">
+            <label style="color:#fde047; font-weight:700;">⚔️ Estilo de Combate</label>
+            <select id="monsterCombatStyleSelect" onchange="AdminApp.onCombatStyleChange('monster')" title="Estilo de Combate do Monstro">
+              <option value="MELEE">⚔️ Melee (Corpo a Corpo)</option>
+              <option value="RANGED">🏹 Ranged (À Distância)</option>
+            </select>
+          </div>
+          <div class="field">
+            <label style="color:#fde047; font-weight:700;">🎯 Alcance Padrão (px)</label>
+            <input type="number" id="monsterAttackRangeInput" min="20" max="600" value="60" title="Distância padrão de alcance do ataque em pixels" />
           </div>
           <div class="field">
             <label style="color:#86efac; font-weight:700;">🐾 Domável como Pet?</label>

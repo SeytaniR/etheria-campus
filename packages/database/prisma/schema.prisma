@@ -272,6 +272,8 @@ model ClassTemplate {
   rebornShadowOffsetX   Int               @default(0) @map("reborn_shadow_offset_x")
   rebornShadowOffsetY   Int               @default(0) @map("reborn_shadow_offset_y")
   raceCode              String            @default("HUMAN") @map("race_code")
+  combatStyle           String            @default("MELEE") @map("combat_style") /// MELEE (Corpo a Corpo) ou RANGED (À Distância)
+  attackRange           Int               @default(60) @map("attack_range") /// Distância padrão de alcance do ataque em pixels
   baseAttributesJson       Json              @map("base_attributes_json") /// Ex: {"VIT":10,"STR":10,"INT":10,"WIS":10,"AGI":10,"DEX":10}
   growthPerLevelJson       Json              @map("growth_per_level_json")
   baseCombatAttributesJson Json?             @default("{}") @map("base_combat_attributes_json") /// Atributos de combate base não-derivados (ex: BATTLE_MOVE_SPEED: 180, ATTACK_SPEED: 1.0)
@@ -309,6 +311,8 @@ model MonsterTemplate {
   raceCode           String         @map("race_code")
   fixedElementCode   String         @map("fixed_element_code") /// Elemento fixo quando atua como monstro inimigo
   rarityTier         String         @default("F") @map("rarity_tier") /// Tier de Raridade do Monstro: SS, S, A, B, C, D, F
+  combatStyle        String         @default("MELEE") @map("combat_style") /// MELEE (Corpo a Corpo) ou RANGED (À Distância)
+  attackRange        Int            @default(60) @map("attack_range") /// Distância padrão de alcance do ataque em pixels
   isTamableAsPet     Boolean        @default(true) @map("is_tamable_as_pet")
   baseAttributesJson Json           @map("base_attributes_json") /// Pesos de VIT, STR, INT, WIS, AGI, DEX no Nv.1
   skillIdsJson       Json           @default("[]") @map("skill_ids_json")
@@ -511,6 +515,8 @@ model PetTemplate {
   recommendedElementCode   String         @default("NEUTRAL") @map("recommended_element_code")
   rarityTier               String         @default("COMMON") @map("rarity_tier") /// SS, S, A, B, C, D, F
   role                     String         @default("BALANCED") @map("role") /// TANK, PHYS_DPS, MAG_DPS, HEALER, SUPPORT, BALANCED
+  combatStyle              String         @default("MELEE") @map("combat_style") /// MELEE (Corpo a Corpo) ou RANGED (À Distância)
+  attackRange              Int            @default(60) @map("attack_range") /// Distância padrão de alcance do ataque em pixels
   catchRatePct             Float          @default(25.0) @map("catch_rate_pct")
   baseAttributesJson       Json           @map("base_attributes_json") /// Pesos de VIT, STR, INT, WIS, AGI, DEX
   baseCombatAttributesJson Json?          @default("{}") @map("base_combat_attributes_json") /// Velocidade em Batalha, Vel. Ataque, Precisão, Desvio, Crítico

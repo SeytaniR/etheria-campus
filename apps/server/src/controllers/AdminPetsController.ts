@@ -21,6 +21,8 @@ export interface PetTemplateDto {
   recommendedElementCode?: string;
   rarityTier?: string;
   role?: string;
+  combatStyle?: string;
+  attackRange?: number;
   catchRatePct?: number;
   isActive?: boolean;
   skillIdsJson?: number[];
@@ -196,6 +198,8 @@ export class AdminPetsController {
         recommendedElementCode: dto.recommendedElementCode || 'NEUTRAL',
         rarityTier: dto.rarityTier || 'COMMON',
         role: dto.role || 'BALANCED',
+        combatStyle: dto.combatStyle === 'RANGED' ? 'RANGED' : 'MELEE',
+        attackRange: Math.max(10, Math.min(1000, Number(dto.attackRange) || (dto.combatStyle === 'RANGED' ? 220 : 60))),
         catchRatePct: dto.catchRatePct !== undefined ? Number(dto.catchRatePct) : 25.0,
         baseAttributesJson: dto.baseAttributesJson || { VIT: 12, STR: 12, INT: 10, WIS: 10, AGI: 10, DEX: 10 },
         baseCombatAttributesJson: (dto.baseCombatAttributesJson as any) || {},
@@ -242,6 +246,8 @@ export class AdminPetsController {
         recommendedElementCode: dto.recommendedElementCode || pet.recommendedElementCode,
         rarityTier: dto.rarityTier || pet.rarityTier,
         role: dto.role || pet.role,
+        combatStyle: dto.combatStyle ? (dto.combatStyle === 'RANGED' ? 'RANGED' : 'MELEE') : pet.combatStyle,
+        attackRange: dto.attackRange !== undefined ? Math.max(10, Math.min(1000, Number(dto.attackRange))) : pet.attackRange,
         catchRatePct: dto.catchRatePct !== undefined ? Number(dto.catchRatePct) : pet.catchRatePct,
         baseAttributesJson: dto.baseAttributesJson ? (dto.baseAttributesJson as any) : pet.baseAttributesJson,
         baseCombatAttributesJson: dto.baseCombatAttributesJson ? (dto.baseCombatAttributesJson as any) : pet.baseCombatAttributesJson,

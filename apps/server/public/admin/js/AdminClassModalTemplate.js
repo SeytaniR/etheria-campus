@@ -24,9 +24,17 @@ class AdminClassModalTemplate {
       <input type="hidden" id="classAssetKeyInput" value="" />
       <input type="hidden" id="classRebornAssetKeyInput" value="" />
 
-      <div style="display:grid; grid-template-columns:1fr 1fr; gap:6px;">
+      <div style="display:grid; grid-template-columns:1.2fr 1fr 1.1fr 1fr; gap:6px;">
         <input type="text" id="classNameInput" placeholder="Nome da Classe / Personagem" style="padding:6px 8px; font-size:0.84rem;" />
         <select id="classRaceSelect" style="padding:6px 8px; font-size:0.84rem;"></select>
+        <select id="classCombatStyleSelect" onchange="AdminApp.onCombatStyleChange('class')" style="padding:6px 8px; font-size:0.84rem;" title="Estilo de Combate">
+          <option value="MELEE">⚔️ Melee (Corpo a Corpo)</option>
+          <option value="RANGED">🏹 Ranged (À Distância)</option>
+        </select>
+        <div style="display:flex; align-items:center; gap:4px;">
+          <label style="font-size:0.7rem; color:var(--text-muted); white-space:nowrap;">Alcance:</label>
+          <input type="number" id="classAttackRangeInput" min="20" max="600" value="60" style="padding:6px 6px; font-size:0.84rem; width:100%;" title="Distância padrão de alcance do ataque (pixels)" />
+        </div>
       </div>
 
       <!-- 5 ABAS DO MODAL COM DESTAQUE CLARO PARA ATRIBUTOS E HABILIDADES -->
@@ -442,6 +450,19 @@ class AdminClassModalTemplate {
       box.querySelectorAll('input.entity-skill-checkbox').forEach((cb) => {
         cb.checked = defaultSet.has(Number(cb.value));
       });
+    };
+
+    app.onCombatStyleChange = function (prefix) {
+      const styleSelect = document.getElementById(`${prefix}CombatStyleSelect`);
+      const rangeInput = document.getElementById(`${prefix}AttackRangeInput`);
+      if (!styleSelect || !rangeInput) return;
+      const isRanged = styleSelect.value === 'RANGED';
+      const cur = Number(rangeInput.value) || 0;
+      if (isRanged && (cur === 60 || cur === 52 || cur === 55 || cur === 0)) {
+        rangeInput.value = '220';
+      } else if (!isRanged && cur === 220) {
+        rangeInput.value = '60';
+      }
     };
   }
 }

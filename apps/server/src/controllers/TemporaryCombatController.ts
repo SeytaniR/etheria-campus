@@ -39,6 +39,8 @@ export interface CombatUnit {
   thumbUrl: string;
   elementCode?: string;
   raceCode?: string;
+  combatStyle?: 'MELEE' | 'RANGED';
+  attackRange?: number;
   isAlive: boolean;
   activeStatuses?: ActiveStatusInstance[];
 }
@@ -214,6 +216,8 @@ export class TemporaryCombatController {
       thumbUrl: charThumb,
       elementCode: charElementCode,
       raceCode: 'HUMAN',
+      combatStyle: (pc?.classTemplate?.combatStyle as any) || 'MELEE',
+      attackRange: pc?.classTemplate?.attackRange || 60,
       isAlive: true,
       activeStatuses: [],
     };
@@ -243,6 +247,8 @@ export class TemporaryCombatController {
           thumbUrl: `${this.mcreworkPagesBaseUrl}/assets/monsters/${petKey}/thumb.webp`,
           elementCode: cp.elementCode || 'NEUTRAL',
           raceCode: 'BEAST',
+          combatStyle: (mt?.combatStyle as any) || 'MELEE',
+          attackRange: mt?.attackRange || 60,
           isAlive: true,
           activeStatuses: [],
         });
@@ -272,6 +278,8 @@ export class TemporaryCombatController {
           thumbUrl: `${this.mcreworkPagesBaseUrl}/assets/monsters/${comp.key}/thumb.webp`,
           elementCode: 'NEUTRAL',
           raceCode: 'BEAST',
+          combatStyle: 'MELEE',
+          attackRange: 60,
           isAlive: true,
           activeStatuses: [],
         });
@@ -317,6 +325,8 @@ export class TemporaryCombatController {
           thumbUrl: mobThumb,
           elementCode: mobTemplate.fixedElementCode || 'NEUTRAL',
           raceCode: mobTemplate.raceCode || 'BEAST',
+          combatStyle: (mobTemplate.combatStyle as any) || 'MELEE',
+          attackRange: mobTemplate.attackRange || 60,
           isAlive: true,
           activeStatuses: [],
         });
@@ -514,6 +524,8 @@ export class TemporaryCombatController {
         thumbUrl: `${this.mcreworkPagesBaseUrl}/assets/monsters/${mobKey}/thumb.webp`,
         elementCode: tmpl.fixedElementCode || 'NEUTRAL',
         raceCode: tmpl.raceCode || 'BEAST',
+        combatStyle: (tmpl.combatStyle as any) || 'MELEE',
+        attackRange: tmpl.attackRange || 60,
         isAlive: true,
         activeStatuses: [],
       });
