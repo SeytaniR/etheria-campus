@@ -22,6 +22,7 @@ import { GamePlayController } from './controllers/GamePlayController.js';
 import { AdminMonstersController } from './controllers/AdminMonstersController.js';
 import { AdminPetsController } from './controllers/AdminPetsController.js';
 import { AdminEquipmentsController } from './controllers/AdminEquipmentsController.js';
+import { AdminItemsController } from './controllers/AdminItemsController.js';
 import { AdminSkillsController } from './controllers/AdminSkillsController.js';
 import { AdminQuestsController } from './controllers/AdminQuestsController.js';
 import { AdminAttributesController } from './controllers/AdminAttributesController.js';
@@ -64,6 +65,7 @@ export class EtheriaServerApp {
   private readonly monstersController: AdminMonstersController;
   private readonly petsController: AdminPetsController;
   private readonly equipmentsController: AdminEquipmentsController;
+  private readonly itemsController: AdminItemsController;
   private readonly skillsController: AdminSkillsController;
   private readonly questsController: AdminQuestsController;
   private readonly attributesController: AdminAttributesController;
@@ -81,6 +83,7 @@ export class EtheriaServerApp {
     this.monstersController = new AdminMonstersController(this.prisma);
     this.petsController = new AdminPetsController(this.prisma);
     this.equipmentsController = new AdminEquipmentsController(this.prisma);
+    this.itemsController = new AdminItemsController(this.prisma);
     this.skillsController = new AdminSkillsController(this.prisma);
     this.questsController = new AdminQuestsController(this.prisma, snapshotManager);
     this.attributesController = new AdminAttributesController(this.prisma);
@@ -575,6 +578,30 @@ export class EtheriaServerApp {
           return;
         }
 
+        // --- Itens Gerais e Consumíveis (mcrework & PostgreSQL) ---
+        if (pathname === '/api/admin/mcrework/items' && method === 'GET') {
+          if (this.enforceTablePermission(res, session, 'MONSTERS', 'READ')) this.sendJson(res, 200, await this.itemsController.getMcreworkItemsCatalog());
+          return;
+        }
+        if (pathname === '/api/admin/items' && method === 'GET') {
+          const cat = urlObj.searchParams.get('category') || undefined;
+          if (this.enforceTablePermission(res, session, 'MONSTERS', 'READ')) this.sendJson(res, 200, await this.itemsController.getItemTemplates(cat));
+          return;
+        }
+        if (pathname === '/api/admin/items' && method === 'POST') {
+          if (this.enforceTablePermission(res, session, 'MONSTERS', 'READ_WRITE')) this.sendJson(res, 201, await this.itemsController.createItemTemplate(await this.readJsonBody(req)));
+          return;
+        }
+        const itemMatch = pathname.match(/^\/api\/admin\/items\/(\d+)$/);
+        if (itemMatch && method === 'PUT') {
+          if (this.enforceTablePermission(res, session, 'MONSTERS', 'READ_WRITE')) this.sendJson(res, 200, await this.itemsController.updateItemTemplate(Number(itemMatch[1]), await this.readJsonBody(req)));
+          return;
+        }
+        if (itemMatch && method === 'DELETE') {
+          if (this.enforceTablePermission(res, session, 'MONSTERS', 'READ_WRITE')) this.sendJson(res, 200, await this.itemsController.deleteItemTemplate(Number(itemMatch[1])));
+          return;
+        }
+
         // --- Rotas de Habilidades (Skills) & Buffs/Debuffs (Status Effects) ---
         if (pathname === '/api/admin/mcrework/skill-assets' && method === 'GET') {
           if (this.enforceTablePermission(res, session, 'SKILLS', 'READ')) this.sendJson(res, 200, await this.skillsController.getMcreworkSkillAssets());
@@ -969,6 +996,7 @@ export class EtheriaServerApp {
       void this.questsController.ensureInitialQuests();
       void this.petsController.seedInitialPetsIfEmpty();
       void this.equipmentsController.seedInitialEquipmentsIfEmpty();
+      void this.itemsController.seedInitialItemsIfEmpty();
     });
     return server;
   }

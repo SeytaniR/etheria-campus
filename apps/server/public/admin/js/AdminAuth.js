@@ -118,6 +118,7 @@ class AdminAuth {
         monsters: 'MONSTERS',
         pets: 'MONSTERS',
         equipments: 'MONSTERS',
+        items: 'MONSTERS',
         attributes: 'ATTRIBUTES',
         skills: 'SKILLS',
         'status-effects': 'STATUS_EFFECTS',
@@ -132,6 +133,7 @@ class AdminAuth {
         monsters: document.getElementById('tabBtnMonsters'),
         pets: document.getElementById('tabBtnPets'),
         equipments: document.getElementById('tabBtnEquipments'),
+        items: document.getElementById('tabBtnItems'),
         attributes: document.getElementById('tabBtnAttributes'),
         skills: document.getElementById('tabBtnSkills'),
         'status-effects': document.getElementById('tabBtnStatusEffects'),
@@ -184,6 +186,7 @@ class AdminAuth {
         { id: 'tabMonsters', btn: 'tabBtnMonsters', key: 'monsters', code: 'MONSTERS' },
         { id: 'tabPets', btn: 'tabBtnPets', key: 'pets', code: 'MONSTERS' },
         { id: 'tabEquipments', btn: 'tabBtnEquipments', key: 'equipments', code: 'MONSTERS' },
+        { id: 'tabItems', btn: 'tabBtnItems', key: 'items', code: 'MONSTERS' },
         { id: 'tabSkills', btn: 'tabBtnSkills', key: 'skills', code: 'SKILLS' },
         { id: 'tabStatusEffects', btn: 'tabBtnStatusEffects', key: 'status-effects', code: 'STATUS_EFFECTS' },
         { id: 'tabAttributes', btn: 'tabBtnAttributes', key: 'attributes', code: 'ATTRIBUTES' },
@@ -223,6 +226,9 @@ class AdminAuth {
       if (tab === 'equipments' && typeof this.renderEquipmentsCrudTable === 'function') {
         this.renderEquipmentsCrudTable();
       }
+      if (tab === 'items' && typeof this.renderItemsCrudTable === 'function') {
+        this.renderItemsCrudTable();
+      }
       if (tab === 'skills' && typeof this.renderSkillsCrudTable === 'function') {
         this.renderSkillsCrudTable();
       }
@@ -253,6 +259,7 @@ class AdminAuth {
         monsters: 'MONSTERS',
         pets: 'MONSTERS',
         equipments: 'MONSTERS',
+        items: 'MONSTERS',
         attributes: 'ATTRIBUTES',
         skills: 'SKILLS',
         'status-effects': 'STATUS_EFFECTS',
@@ -270,6 +277,7 @@ class AdminAuth {
           monsters: document.getElementById('tabMonsters'),
           pets: document.getElementById('tabPets'),
           equipments: document.getElementById('tabEquipments'),
+          items: document.getElementById('tabItems'),
           attributes: document.getElementById('tabAttributes'),
           skills: document.getElementById('tabSkills'),
           'status-effects': document.getElementById('tabStatusEffects'),

@@ -406,6 +406,11 @@ model ItemTemplate {
   rarityTier            String         @default("COMMON") @map("rarity_tier") /// SS, S, A, B, C, D, F, COMMON
   requiredLevel         Int            @default(1) @map("required_level")
   priceGold             Int            @default(0) @map("price_gold")
+  maxStack              Int            @default(99) @map("max_stack") /// Quantidade máxima por pilha (1..99999)
+  cooldownSec           Float          @default(0.0) @map("cooldown_sec") /// Tempo de recarga do item em segundos
+  targetType            String         @default("SELF") @map("target_type") /// SELF, ALLY, ENEMY, PET, NONE
+  effectType            String?        @map("effect_type") /// HEAL_HP, RESTORE_MP, BUFF_STATS, CHANGE_ELEMENT, TELEPORT, CATCH_PET, GRANT_EXP, MATERIAL, OPEN_CHEST
+  effectValue           Float          @default(0.0) @map("effect_value") /// Valor numérico base do efeito (ex: +250 HP)
   reqClassCodesJson     Json           @default("[]") @map("req_class_codes_json") /// Classes que podem equipar (vazio = Todas)
   baseStatBonusesJson   Json           @default("{}") @map("base_stat_bonuses_json") /// VIT, STR, INT, WIS, AGI, DEX
   combatStatBonusesJson Json           @default("{}") @map("combat_stat_bonuses_json") /// PHYS_ATK, MAG_ATK, PHYS_DEF, MAG_DEF, BATTLE_MOVE_SPEED, ATTACK_SPEED, PHYS_ACCURACY, MAG_ACCURACY, PHYS_EVASION, MAG_EVASION, CRIT_CHANCE_PCT, CRIT_DAMAGE_PCT, ATTACK_RANGE

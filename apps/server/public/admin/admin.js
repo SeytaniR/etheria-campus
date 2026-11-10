@@ -79,6 +79,7 @@ class EtheriaAdminStudio {
     if (window.AdminTeleportNpcsTab) window.AdminTeleportNpcsTab.attach(this);
     if (window.AdminPetsTab) window.AdminPetsTab.attach(this);
     if (window.AdminEquipmentsTab) window.AdminEquipmentsTab.attach(this);
+    if (window.AdminItemsTab) window.AdminItemsTab.attach(this);
 
     this.init();
   }
@@ -123,6 +124,7 @@ class EtheriaAdminStudio {
     if (typeof this.loadPetTemplates === 'function') await this.loadPetTemplates();
     if (typeof this.loadEquipmentTemplates === 'function') await this.loadEquipmentTemplates();
     if (typeof this.loadEquipmentSlots === 'function') await this.loadEquipmentSlots();
+    if (typeof this.loadItemTemplates === 'function') await this.loadItemTemplates();
 
     if (this.savedMaps.length > 0 && !this.currentMapId) {
       this.selectSavedMap(this.savedMaps[0].id);
