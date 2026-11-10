@@ -119,6 +119,7 @@ class AdminAuth {
         pets: 'MONSTERS',
         equipments: 'MONSTERS',
         items: 'MONSTERS',
+        mounts: 'MONSTERS',
         attributes: 'ATTRIBUTES',
         skills: 'SKILLS',
         'status-effects': 'STATUS_EFFECTS',
@@ -134,6 +135,7 @@ class AdminAuth {
         pets: document.getElementById('tabBtnPets'),
         equipments: document.getElementById('tabBtnEquipments'),
         items: document.getElementById('tabBtnItems'),
+        mounts: document.getElementById('tabBtnFlyingMounts'),
         attributes: document.getElementById('tabBtnAttributes'),
         skills: document.getElementById('tabBtnSkills'),
         'status-effects': document.getElementById('tabBtnStatusEffects'),
@@ -187,6 +189,7 @@ class AdminAuth {
         { id: 'tabPets', btn: 'tabBtnPets', key: 'pets', code: 'MONSTERS' },
         { id: 'tabEquipments', btn: 'tabBtnEquipments', key: 'equipments', code: 'MONSTERS' },
         { id: 'tabItems', btn: 'tabBtnItems', key: 'items', code: 'MONSTERS' },
+        { id: 'tabFlyingMounts', btn: 'tabBtnFlyingMounts', key: 'mounts', code: 'MONSTERS' },
         { id: 'tabSkills', btn: 'tabBtnSkills', key: 'skills', code: 'SKILLS' },
         { id: 'tabStatusEffects', btn: 'tabBtnStatusEffects', key: 'status-effects', code: 'STATUS_EFFECTS' },
         { id: 'tabAttributes', btn: 'tabBtnAttributes', key: 'attributes', code: 'ATTRIBUTES' },
@@ -229,6 +232,9 @@ class AdminAuth {
       if (tab === 'items' && typeof this.renderItemsCrudTable === 'function') {
         this.renderItemsCrudTable();
       }
+      if (tab === 'mounts' && typeof this.renderFlyingMountsCrudTable === 'function') {
+        this.renderFlyingMountsCrudTable();
+      }
       if (tab === 'skills' && typeof this.renderSkillsCrudTable === 'function') {
         this.renderSkillsCrudTable();
       }
@@ -260,6 +266,7 @@ class AdminAuth {
         pets: 'MONSTERS',
         equipments: 'MONSTERS',
         items: 'MONSTERS',
+        mounts: 'MONSTERS',
         attributes: 'ATTRIBUTES',
         skills: 'SKILLS',
         'status-effects': 'STATUS_EFFECTS',

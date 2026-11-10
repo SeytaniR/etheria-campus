@@ -45,6 +45,7 @@ export interface LowCodeDatabaseSnapshot {
   itemTemplates: any[];
   questTemplates?: any[];
   petTemplates?: any[];
+  flyingMountTemplates?: any[];
 }
 
 /**
@@ -99,6 +100,7 @@ export class SnapshotManager {
       itemTemplates: await this.prisma.itemTemplate.findMany({ orderBy: { id: 'asc' } }),
       questTemplates: await this.prisma.questTemplate.findMany({ orderBy: { id: 'asc' } }),
       petTemplates: await this.prisma.petTemplate.findMany({ orderBy: { id: 'asc' } }),
+      flyingMountTemplates: await this.prisma.flyingMountTemplate.findMany({ orderBy: { id: 'asc' } }),
     };
 
     await fs.writeFile(this.snapshotFilePath, JSON.stringify(snapshot, null, 2), 'utf-8');

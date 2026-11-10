@@ -424,6 +424,33 @@ model ItemTemplate {
   @@map("item_templates")
 }
 
+/// Catálogo de Montarias Voadoras (Sprites 2.5D, Tiers de Voo, Altitudes e Bônus).
+model FlyingMountTemplate {
+  id                    Int      @id @default(autoincrement())
+  code                  String   @unique
+  mcreworkMountKey      String   @map("mcrework_mount_key") /// Ex: mount_dress_010019, mount_000003
+  nameI18nKey           String   @map("name_i18n_key")
+  descriptionI18nKey    String   @map("description_i18n_key")
+  tier                  Int      @default(1) /// Tier 1 a 10
+  rarityTier            String   @default("COMMON") @map("rarity_tier") /// SS, S, A, B, C, D, F, COMMON
+  mountType             String   @default("FLYING") @map("mount_type") /// FLYING, DIVINE, MYTHIC, GLIDER
+  speedBonusPct         Float    @default(30.0) @map("speed_bonus_pct") /// Bônus de velocidade no mapa/voo (%)
+  flightAltitude        Float    @default(45.0) @map("flight_altitude") /// Altitude de voo em pixels acima do chão
+  staminaMax            Int      @default(100) @map("stamina_max") /// Fôlego de voo / Estamina
+  groundOffsetY         Int      @default(0) @map("ground_offset_y") /// Calibração de solo do sprite
+  riderOffsetY          Int      @default(-40) @map("rider_offset_y") /// Ponto de montaria do cavaleiro
+  requiredLevel         Int      @default(1) @map("required_level")
+  priceGold             Int      @default(1000) @map("price_gold")
+  baseAttributesJson    Json     @default("{}") @map("base_attributes_json") /// VIT, STR, INT, WIS, AGI, DEX
+  combatAttributesJson  Json     @default("{}") @map("combat_attributes_json") /// BATTLE_MOVE_SPEED, PHYS_DEF, MAG_DEF, etc.
+  specialSkillsJson     Json     @default("[]") @map("special_skills_json")
+  isActive              Boolean  @default(true) @map("is_active")
+  createdAt             DateTime @default(now()) @map("created_at")
+  updatedAt             DateTime @default(now()) @updatedAt @map("updated_at")
+
+  @@map("flying_mount_templates")
+}
+
 // ----------------------------------------------------------------------------
 // 7. CONTAS DE USUÁRIO, PERSONAGENS, PETS E FORMAÇÃO TÁTICA DE 10 SLOTS
 // ----------------------------------------------------------------------------

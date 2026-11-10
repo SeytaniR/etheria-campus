@@ -23,6 +23,7 @@ import { AdminMonstersController } from './controllers/AdminMonstersController.j
 import { AdminPetsController } from './controllers/AdminPetsController.js';
 import { AdminEquipmentsController } from './controllers/AdminEquipmentsController.js';
 import { AdminItemsController } from './controllers/AdminItemsController.js';
+import { AdminFlyingMountsController } from './controllers/AdminFlyingMountsController.js';
 import { AdminSkillsController } from './controllers/AdminSkillsController.js';
 import { AdminQuestsController } from './controllers/AdminQuestsController.js';
 import { AdminAttributesController } from './controllers/AdminAttributesController.js';
@@ -66,6 +67,7 @@ export class EtheriaServerApp {
   private readonly petsController: AdminPetsController;
   private readonly equipmentsController: AdminEquipmentsController;
   private readonly itemsController: AdminItemsController;
+  private readonly mountsController: AdminFlyingMountsController;
   private readonly skillsController: AdminSkillsController;
   private readonly questsController: AdminQuestsController;
   private readonly attributesController: AdminAttributesController;
@@ -84,6 +86,7 @@ export class EtheriaServerApp {
     this.petsController = new AdminPetsController(this.prisma);
     this.equipmentsController = new AdminEquipmentsController(this.prisma);
     this.itemsController = new AdminItemsController(this.prisma);
+    this.mountsController = new AdminFlyingMountsController(this.prisma);
     this.skillsController = new AdminSkillsController(this.prisma);
     this.questsController = new AdminQuestsController(this.prisma, snapshotManager);
     this.attributesController = new AdminAttributesController(this.prisma);
@@ -379,31 +382,25 @@ export class EtheriaServerApp {
         }
         const userMatch = pathname.match(/^\/api\/admin\/users\/(\d+)$/);
         if (userMatch && method === 'PUT') {
-          const id = Number(userMatch[1]);
-          const dto = await this.readJsonBody(req);
-          this.sendJson(res, 200, await this.usersController.updateUser(id, dto, session));
+          this.sendJson(res, 200, await this.usersController.updateUser(Number(userMatch[1]), await this.readJsonBody(req), session));
           return;
         }
         if (userMatch && method === 'DELETE') {
-          const id = Number(userMatch[1]);
-          this.sendJson(res, 200, await this.usersController.deleteUser(id, session));
+          this.sendJson(res, 200, await this.usersController.deleteUser(Number(userMatch[1]), session));
           return;
         }
 
         // --- Rotas do Editor Visual de Mapas, NPCs, Classes & Galeria mcrework ---
         if (pathname === '/api/admin/mcrework/maps' && method === 'GET') {
-          if (!this.enforceTablePermission(res, session, 'MAPS', 'READ')) return;
-          this.sendJson(res, 200, await this.mapsController.getMcreworkCleanMapGallery());
+          if (this.enforceTablePermission(res, session, 'MAPS', 'READ')) this.sendJson(res, 200, await this.mapsController.getMcreworkCleanMapGallery());
           return;
         }
         if (pathname === '/api/admin/mcrework/npcs' && method === 'GET') {
-          if (!this.enforceTablePermission(res, session, 'NPCS', 'READ')) return;
-          this.sendJson(res, 200, await this.mapsController.getMcreworkNpcGallery());
+          if (this.enforceTablePermission(res, session, 'NPCS', 'READ')) this.sendJson(res, 200, await this.mapsController.getMcreworkNpcGallery());
           return;
         }
         if (pathname === '/api/admin/mcrework/characters' && method === 'GET') {
-          if (!this.enforceTablePermission(res, session, 'CLASSES', 'READ')) return;
-          this.sendJson(res, 200, await this.mapsController.getMcreworkCharacterGallery());
+          if (this.enforceTablePermission(res, session, 'CLASSES', 'READ')) this.sendJson(res, 200, await this.mapsController.getMcreworkCharacterGallery());
           return;
         }
         if (pathname === '/api/admin/maps/bootstrap' && method === 'GET') {
@@ -420,29 +417,20 @@ export class EtheriaServerApp {
           return;
         }
         if (pathname === '/api/admin/class-templates' && method === 'POST') {
-          if (!this.enforceTablePermission(res, session, 'CLASSES', 'READ_WRITE')) return;
-          const dto = await this.readJsonBody(req);
-          this.sendJson(res, 201, await this.mapsController.saveClassTemplate(dto, null));
+          if (this.enforceTablePermission(res, session, 'CLASSES', 'READ_WRITE')) this.sendJson(res, 201, await this.mapsController.saveClassTemplate(await this.readJsonBody(req), null));
           return;
         }
         const classMatch = pathname.match(/^\/api\/admin\/class-templates\/(\d+)$/);
         if (classMatch && method === 'PUT') {
-          if (!this.enforceTablePermission(res, session, 'CLASSES', 'READ_WRITE')) return;
-          const id = Number(classMatch[1]);
-          const dto = await this.readJsonBody(req);
-          this.sendJson(res, 200, await this.mapsController.saveClassTemplate(dto, id));
+          if (this.enforceTablePermission(res, session, 'CLASSES', 'READ_WRITE')) this.sendJson(res, 200, await this.mapsController.saveClassTemplate(await this.readJsonBody(req), Number(classMatch[1])));
           return;
         }
         if (classMatch && method === 'DELETE') {
-          if (!this.enforceTablePermission(res, session, 'CLASSES', 'READ_WRITE')) return;
-          const id = Number(classMatch[1]);
-          this.sendJson(res, 200, await this.mapsController.deleteClassTemplate(id));
+          if (this.enforceTablePermission(res, session, 'CLASSES', 'READ_WRITE')) this.sendJson(res, 200, await this.mapsController.deleteClassTemplate(Number(classMatch[1])));
           return;
         }
         if (pathname === '/api/admin/npc-templates' && method === 'POST') {
-          if (!this.enforceTablePermission(res, session, 'NPCS', 'READ_WRITE')) return;
-          const dto = await this.readJsonBody(req);
-          this.sendJson(res, 201, await this.mapsController.saveNpcTemplate(dto, null));
+          if (this.enforceTablePermission(res, session, 'NPCS', 'READ_WRITE')) this.sendJson(res, 201, await this.mapsController.saveNpcTemplate(await this.readJsonBody(req), null));
           return;
         }
         const npcMatch = pathname.match(/^\/api\/admin\/npc-templates\/(\d+)$/);
@@ -602,6 +590,30 @@ export class EtheriaServerApp {
           return;
         }
 
+        // --- Montarias Voadoras (mcrework & PostgreSQL) ---
+        if (pathname === '/api/admin/mcrework/mounts' && method === 'GET') {
+          if (this.enforceTablePermission(res, session, 'MONSTERS', 'READ')) this.sendJson(res, 200, await this.mountsController.getMcreworkMountsGallery());
+          return;
+        }
+        if (pathname === '/api/admin/flying-mounts' && method === 'GET') {
+          const type = urlObj.searchParams.get('type') || undefined;
+          if (this.enforceTablePermission(res, session, 'MONSTERS', 'READ')) this.sendJson(res, 200, await this.mountsController.getFlyingMountTemplates(type));
+          return;
+        }
+        if (pathname === '/api/admin/flying-mounts' && method === 'POST') {
+          if (this.enforceTablePermission(res, session, 'MONSTERS', 'READ_WRITE')) this.sendJson(res, 201, await this.mountsController.createFlyingMountTemplate(await this.readJsonBody(req)));
+          return;
+        }
+        const mountMatch = pathname.match(/^\/api\/admin\/flying-mounts\/(\d+)$/);
+        if (mountMatch && method === 'PUT') {
+          if (this.enforceTablePermission(res, session, 'MONSTERS', 'READ_WRITE')) this.sendJson(res, 200, await this.mountsController.updateFlyingMountTemplate(Number(mountMatch[1]), await this.readJsonBody(req)));
+          return;
+        }
+        if (mountMatch && method === 'DELETE') {
+          if (this.enforceTablePermission(res, session, 'MONSTERS', 'READ_WRITE')) this.sendJson(res, 200, await this.mountsController.deleteFlyingMountTemplate(Number(mountMatch[1])));
+          return;
+        }
+
         // --- Rotas de Habilidades (Skills) & Buffs/Debuffs (Status Effects) ---
         if (pathname === '/api/admin/mcrework/skill-assets' && method === 'GET') {
           if (this.enforceTablePermission(res, session, 'SKILLS', 'READ')) this.sendJson(res, 200, await this.skillsController.getMcreworkSkillAssets());
@@ -644,64 +656,45 @@ export class EtheriaServerApp {
         }
         const autoLinkMatch = pathname.match(/^\/api\/admin\/skill-templates\/(\d+)\/auto-link-monsters$/);
         if (autoLinkMatch && method === 'POST') {
-          if (!this.enforceTablePermission(res, session, 'SKILLS', 'READ_WRITE')) return;
-          const id = Number(autoLinkMatch[1]);
-          const dto = await this.readJsonBody(req);
-          this.sendJson(res, 200, await this.skillsController.autoLinkSkillToMonsters(id, dto?.elementCode));
+          if (this.enforceTablePermission(res, session, 'SKILLS', 'READ_WRITE')) this.sendJson(res, 200, await this.skillsController.autoLinkSkillToMonsters(Number(autoLinkMatch[1]), (await this.readJsonBody(req))?.elementCode));
           return;
         }
 
         // --- Rotas do Estúdio Visual No-Code de Quests (`quest_templates`) ---
         if (pathname === '/api/admin/quest-templates' && method === 'GET') {
-          if (!this.enforceTablePermission(res, session, 'QUESTS', 'READ')) return;
-          this.sendJson(res, 200, await this.questsController.getQuestTemplates());
+          if (this.enforceTablePermission(res, session, 'QUESTS', 'READ')) this.sendJson(res, 200, await this.questsController.getQuestTemplates());
           return;
         }
         if (pathname === '/api/admin/quest-templates' && method === 'POST') {
-          if (!this.enforceTablePermission(res, session, 'QUESTS', 'READ_WRITE')) return;
-          const dto = await this.readJsonBody(req);
-          this.sendJson(res, 201, await this.questsController.saveQuestTemplate(dto, null));
+          if (this.enforceTablePermission(res, session, 'QUESTS', 'READ_WRITE')) this.sendJson(res, 201, await this.questsController.saveQuestTemplate(await this.readJsonBody(req), null));
           return;
         }
         const questMatch = pathname.match(/^\/api\/admin\/quest-templates\/(\d+)$/);
         if (questMatch && method === 'PUT') {
-          if (!this.enforceTablePermission(res, session, 'QUESTS', 'READ_WRITE')) return;
-          const id = Number(questMatch[1]);
-          const dto = await this.readJsonBody(req);
-          this.sendJson(res, 200, await this.questsController.saveQuestTemplate(dto, id));
+          if (this.enforceTablePermission(res, session, 'QUESTS', 'READ_WRITE')) this.sendJson(res, 200, await this.questsController.saveQuestTemplate(await this.readJsonBody(req), Number(questMatch[1])));
           return;
         }
         if (questMatch && method === 'DELETE') {
-          if (!this.enforceTablePermission(res, session, 'QUESTS', 'READ_WRITE')) return;
-          const id = Number(questMatch[1]);
-          this.sendJson(res, 200, await this.questsController.deleteQuestTemplate(id));
+          if (this.enforceTablePermission(res, session, 'QUESTS', 'READ_WRITE')) this.sendJson(res, 200, await this.questsController.deleteQuestTemplate(Number(questMatch[1])));
           return;
         }
 
         // --- Rotas de Atributos Base, Combate & Matriz de Conversão Procedural ---
         if (pathname === '/api/admin/attributes' && method === 'GET') {
-          if (!this.enforceTablePermission(res, session, 'ATTRIBUTES', 'READ')) return;
-          this.sendJson(res, 200, await this.attributesController.getAttributesData());
+          if (this.enforceTablePermission(res, session, 'ATTRIBUTES', 'READ')) this.sendJson(res, 200, await this.attributesController.getAttributesData());
           return;
         }
         if (pathname === '/api/admin/attributes/conversions' && method === 'PUT') {
-          if (!this.enforceTablePermission(res, session, 'ATTRIBUTES', 'READ_WRITE')) return;
-          const items = await this.readJsonBody(req);
-          this.sendJson(res, 200, await this.attributesController.batchUpdateConversions(items));
+          if (this.enforceTablePermission(res, session, 'ATTRIBUTES', 'READ_WRITE')) this.sendJson(res, 200, await this.attributesController.batchUpdateConversions(await this.readJsonBody(req)));
           return;
         }
         if (pathname === '/api/admin/attributes/conversions/single' && method === 'PUT') {
-          if (!this.enforceTablePermission(res, session, 'ATTRIBUTES', 'READ_WRITE')) return;
-          const dto = await this.readJsonBody(req);
-          this.sendJson(res, 200, await this.attributesController.updateConversion(dto));
+          if (this.enforceTablePermission(res, session, 'ATTRIBUTES', 'READ_WRITE')) this.sendJson(res, 200, await this.attributesController.updateConversion(await this.readJsonBody(req)));
           return;
         }
         const combatAttrMatch = pathname.match(/^\/api\/admin\/attributes\/combat\/([a-zA-Z0-9_]+)$/);
         if (combatAttrMatch && method === 'PUT') {
-          if (!this.enforceTablePermission(res, session, 'ATTRIBUTES', 'READ_WRITE')) return;
-          const code = combatAttrMatch[1];
-          const dto = await this.readJsonBody(req);
-          this.sendJson(res, 200, await this.attributesController.updateCombatAttribute(code, dto));
+          if (this.enforceTablePermission(res, session, 'ATTRIBUTES', 'READ_WRITE')) this.sendJson(res, 200, await this.attributesController.updateCombatAttribute(combatAttrMatch[1], await this.readJsonBody(req)));
           return;
         }
 
@@ -997,6 +990,7 @@ export class EtheriaServerApp {
       void this.petsController.seedInitialPetsIfEmpty();
       void this.equipmentsController.seedInitialEquipmentsIfEmpty();
       void this.itemsController.seedInitialItemsIfEmpty();
+      void this.mountsController.seedInitialFlyingMountsIfEmpty();
     });
     return server;
   }

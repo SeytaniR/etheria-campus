@@ -1,6 +1,6 @@
 {
   "version": "0.2.0",
-  "exportedAt": "2026-11-10T02:59:05.761Z",
+  "exportedAt": "2026-11-10T03:40:15.119Z",
   "i18nTranslations": [
     {
       "id": 1,
@@ -2584,6 +2584,76 @@
       "locale": "pt-BR",
       "text": "Artefato mágico de contenção usado em monstros para tentar capturá-los como Pets.",
       "updatedAt": "2026-11-10T02:58:20.071Z"
+    },
+    {
+      "id": 629,
+      "key": "mount.mount_passaro_alado_sangue.name",
+      "locale": "pt-BR",
+      "text": "Pássaro Alado de Sangue",
+      "updatedAt": "2026-11-10T03:39:07.696Z"
+    },
+    {
+      "id": 630,
+      "key": "mount.mount_passaro_alado_sangue.desc",
+      "locale": "pt-BR",
+      "text": "Criatura alada de penas rubras, sobrevoa rios e terrenos acidentados com agilidade.",
+      "updatedAt": "2026-11-10T03:39:07.711Z"
+    },
+    {
+      "id": 631,
+      "key": "mount.mount_leao_dragao_celeste.name",
+      "locale": "pt-BR",
+      "text": "Leão Dragão Celeste",
+      "updatedAt": "2026-11-10T03:39:07.931Z"
+    },
+    {
+      "id": 632,
+      "key": "mount.mount_leao_dragao_celeste.desc",
+      "locale": "pt-BR",
+      "text": "Fera majestosa com crina de nuvens celestiais capaz de planar sobre obstáculos.",
+      "updatedAt": "2026-11-10T03:39:07.935Z"
+    },
+    {
+      "id": 633,
+      "key": "mount.mount_raposa_espectral_alada.name",
+      "locale": "pt-BR",
+      "text": "Raposa Espectral Fantasma",
+      "updatedAt": "2026-11-10T03:39:08.085Z"
+    },
+    {
+      "id": 634,
+      "key": "mount.mount_raposa_espectral_alada.desc",
+      "locale": "pt-BR",
+      "text": "Espírito translúcido que flutua graciosamente nas brisas etéreas.",
+      "updatedAt": "2026-11-10T03:39:08.089Z"
+    },
+    {
+      "id": 635,
+      "key": "mount.mount_dragao_sagrado_soberano.name",
+      "locale": "pt-BR",
+      "text": "Dragão Sagrado Soberano",
+      "updatedAt": "2026-11-10T03:39:08.226Z"
+    },
+    {
+      "id": 636,
+      "key": "mount.mount_dragao_sagrado_soberano.desc",
+      "locale": "pt-BR",
+      "text": "Dragão lendário que corta os céus em alta velocidade, dominando o espaço aéreo.",
+      "updatedAt": "2026-11-10T03:39:08.230Z"
+    },
+    {
+      "id": 637,
+      "key": "mount.mount_suprema_eternidade.name",
+      "locale": "pt-BR",
+      "text": "Montaria Suprema da Eternidade",
+      "updatedAt": "2026-11-10T03:39:08.368Z"
+    },
+    {
+      "id": 638,
+      "key": "mount.mount_suprema_eternidade.desc",
+      "locale": "pt-BR",
+      "text": "A montaria mítica definitiva, forjada com luz estelar infinita e asas reluzentes.",
+      "updatedAt": "2026-11-10T03:39:08.401Z"
     }
   ],
   "biomes": [
@@ -43269,6 +43339,166 @@
       "isActive": true,
       "createdAt": "2026-11-10T02:05:42.760Z",
       "updatedAt": "2026-11-10T02:05:42.760Z"
+    }
+  ],
+  "flyingMountTemplates": [
+    {
+      "id": 1,
+      "code": "mount_passaro_alado_sangue",
+      "mcreworkMountKey": "mount_000003",
+      "nameI18nKey": "mount.mount_passaro_alado_sangue.name",
+      "descriptionI18nKey": "mount.mount_passaro_alado_sangue.desc",
+      "tier": 3,
+      "rarityTier": "B",
+      "mountType": "FLYING",
+      "speedBonusPct": 35,
+      "flightAltitude": 38,
+      "staminaMax": 120,
+      "groundOffsetY": 0,
+      "riderOffsetY": -45,
+      "requiredLevel": 10,
+      "priceGold": 1200,
+      "baseAttributesJson": {
+        "AGI": 8,
+        "DEX": 5
+      },
+      "combatAttributesJson": {
+        "PHYS_EVASION": 8,
+        "BATTLE_MOVE_SPEED": 15
+      },
+      "specialSkillsJson": [],
+      "isActive": true,
+      "createdAt": "2026-11-10T03:39:07.744Z",
+      "updatedAt": "2026-11-10T03:39:07.744Z"
+    },
+    {
+      "id": 2,
+      "code": "mount_leao_dragao_celeste",
+      "mcreworkMountKey": "mount_000005",
+      "nameI18nKey": "mount.mount_leao_dragao_celeste.name",
+      "descriptionI18nKey": "mount.mount_leao_dragao_celeste.desc",
+      "tier": 5,
+      "rarityTier": "A",
+      "mountType": "DIVINE",
+      "speedBonusPct": 50,
+      "flightAltitude": 45,
+      "staminaMax": 150,
+      "groundOffsetY": 0,
+      "riderOffsetY": -50,
+      "requiredLevel": 20,
+      "priceGold": 3500,
+      "baseAttributesJson": {
+        "STR": 12,
+        "VIT": 10
+      },
+      "combatAttributesJson": {
+        "MAG_DEF": 15,
+        "PHYS_DEF": 20,
+        "BATTLE_MOVE_SPEED": 25
+      },
+      "specialSkillsJson": [],
+      "isActive": true,
+      "createdAt": "2026-11-10T03:39:07.940Z",
+      "updatedAt": "2026-11-10T03:39:07.940Z"
+    },
+    {
+      "id": 3,
+      "code": "mount_raposa_espectral_alada",
+      "mcreworkMountKey": "mount_dress_010016",
+      "nameI18nKey": "mount.mount_raposa_espectral_alada.name",
+      "descriptionI18nKey": "mount.mount_raposa_espectral_alada.desc",
+      "tier": 8,
+      "rarityTier": "S",
+      "mountType": "DIVINE",
+      "speedBonusPct": 75,
+      "flightAltitude": 55,
+      "staminaMax": 200,
+      "groundOffsetY": 0,
+      "riderOffsetY": -55,
+      "requiredLevel": 30,
+      "priceGold": 8000,
+      "baseAttributesJson": {
+        "AGI": 12,
+        "INT": 16,
+        "WIS": 14
+      },
+      "combatAttributesJson": {
+        "MAG_EVASION": 18,
+        "MAG_ACCURACY": 15,
+        "BATTLE_MOVE_SPEED": 35
+      },
+      "specialSkillsJson": [],
+      "isActive": true,
+      "createdAt": "2026-11-10T03:39:08.093Z",
+      "updatedAt": "2026-11-10T03:39:08.093Z"
+    },
+    {
+      "id": 4,
+      "code": "mount_dragao_sagrado_soberano",
+      "mcreworkMountKey": "mount_dress_010019",
+      "nameI18nKey": "mount.mount_dragao_sagrado_soberano.name",
+      "descriptionI18nKey": "mount.mount_dragao_sagrado_soberano.desc",
+      "tier": 10,
+      "rarityTier": "SS",
+      "mountType": "MYTHIC",
+      "speedBonusPct": 100,
+      "flightAltitude": 70,
+      "staminaMax": 300,
+      "groundOffsetY": 0,
+      "riderOffsetY": -65,
+      "requiredLevel": 40,
+      "priceGold": 25000,
+      "baseAttributesJson": {
+        "AGI": 20,
+        "INT": 20,
+        "STR": 20,
+        "VIT": 20
+      },
+      "combatAttributesJson": {
+        "MAG_ATK": 35,
+        "PHYS_ATK": 35,
+        "ATTACK_SPEED": 0.15,
+        "BATTLE_MOVE_SPEED": 45
+      },
+      "specialSkillsJson": [],
+      "isActive": true,
+      "createdAt": "2026-11-10T03:39:08.234Z",
+      "updatedAt": "2026-11-10T03:39:08.234Z"
+    },
+    {
+      "id": 5,
+      "code": "mount_suprema_eternidade",
+      "mcreworkMountKey": "mount_dress_010020",
+      "nameI18nKey": "mount.mount_suprema_eternidade.name",
+      "descriptionI18nKey": "mount.mount_suprema_eternidade.desc",
+      "tier": 10,
+      "rarityTier": "SS",
+      "mountType": "MYTHIC",
+      "speedBonusPct": 120,
+      "flightAltitude": 85,
+      "staminaMax": 500,
+      "groundOffsetY": 0,
+      "riderOffsetY": -75,
+      "requiredLevel": 50,
+      "priceGold": 50000,
+      "baseAttributesJson": {
+        "AGI": 25,
+        "DEX": 25,
+        "INT": 25,
+        "STR": 25,
+        "VIT": 30,
+        "WIS": 25
+      },
+      "combatAttributesJson": {
+        "MAG_DEF": 50,
+        "PHYS_DEF": 50,
+        "ATTACK_SPEED": 0.25,
+        "BATTLE_MOVE_SPEED": 55
+      },
+      "specialSkillsJson": [],
+      "isActive": true,
+      "createdAt": "2026-11-10T03:39:08.405Z",
+      "updatedAt": "2026-11-10T03:39:08.405Z"
     }
   ]
 }
