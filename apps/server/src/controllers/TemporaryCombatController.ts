@@ -127,7 +127,8 @@ export class TemporaryCombatController {
     characterId: number,
     monsterTemplateId: number,
     quantity: number = 1,
-    monsterLevel: number = 1
+    monsterLevel: number = 1,
+    customMonsterUnits?: CombatUnit[]
   ): Promise<TemporaryBattleState> {
     const qty = Math.max(1, Math.min(5, Number(quantity) || 1));
     const lvl = Math.max(1, Math.min(100, Number(monsterLevel) || 1));
@@ -291,30 +292,35 @@ export class TemporaryCombatController {
     const mobAtlasJson = `${this.mcreworkPagesBaseUrl}/assets/monsters/${mobKey}/atlas.json`;
     const mobAtlasWebp = `${this.mcreworkPagesBaseUrl}/assets/monsters/${mobKey}/atlas.webp`;
 
-    const monsterUnits: CombatUnit[] = [];
-    for (let i = 0; i < qty; i++) {
-      monsterUnits.push({
-        id: `mob_${mobTemplate.id}_${i}`,
-        index: i,
-        name: qty > 1 ? `${mobBaseName} #${i + 1}` : mobBaseName,
-        level: lvl,
-        hp: mobMaxHp,
-        maxHp: mobMaxHp,
-        mp: mobMaxMp,
-        maxMp: mobMaxMp,
-        atk: mobAtk,
-        def: mobDef,
-        speed: mobSpeed,
-        spriteKey: mobKey,
-        atlasJsonUrl: mobAtlasJson,
-        atlasWebpUrl: mobAtlasWebp,
-        groundOffsetY: mobTemplate.groundOffsetY || 0,
-        thumbUrl: mobThumb,
-        elementCode: mobTemplate.fixedElementCode || 'NEUTRAL',
-        raceCode: mobTemplate.raceCode || 'BEAST',
-        isAlive: true,
-        activeStatuses: [],
-      });
+    const monsterUnits: CombatUnit[] = (customMonsterUnits && customMonsterUnits.length > 0)
+      ? customMonsterUnits
+      : [];
+
+    if (monsterUnits.length === 0) {
+      for (let i = 0; i < qty; i++) {
+        monsterUnits.push({
+          id: `mob_${mobTemplate.id}_${i}`,
+          index: i,
+          name: qty > 1 ? `${mobBaseName} #${i + 1}` : mobBaseName,
+          level: lvl,
+          hp: mobMaxHp,
+          maxHp: mobMaxHp,
+          mp: mobMaxMp,
+          maxMp: mobMaxMp,
+          atk: mobAtk,
+          def: mobDef,
+          speed: mobSpeed,
+          spriteKey: mobKey,
+          atlasJsonUrl: mobAtlasJson,
+          atlasWebpUrl: mobAtlasWebp,
+          groundOffsetY: mobTemplate.groundOffsetY || 0,
+          thumbUrl: mobThumb,
+          elementCode: mobTemplate.fixedElementCode || 'NEUTRAL',
+          raceCode: mobTemplate.raceCode || 'BEAST',
+          isAlive: true,
+          activeStatuses: [],
+        });
+      }
     }
 
     const battleId = randomUUID();
@@ -329,7 +335,7 @@ export class TemporaryCombatController {
       pets: petUnits,
       monsters: monsterUnits,
       combatLog: [
-        `⚔️ Batalha iniciada! [${charName}] (Nv.${charLevel}) entrou em combate contra ${qty}x [${mobBaseName}] (Nv.${lvl})!`,
+        `⚔️ Batalha iniciada! [${charName}] (Nv.${charLevel}) e aliados enfrentam ${monsterUnits.length} monstro(s)!`,
       ],
       isFinished: false,
       winner: null,
@@ -347,7 +353,10 @@ export class TemporaryCombatController {
   }
 
   /**
-   * Sorteia um encontro de monstros aleatório baseado nos biomas e nível do mapa atual.
+   * Sorteia um encontro de monstros autoritário para a Arena de Ação:
+   * - Desacoplado de biomas: utiliza exclusivamente os Tipos de Monstros (raças) e Monstros Individuais configurados no mapa.
+   * - Quantidade: Aleatório de 1 a 5 monstros para cada combatente aliado na equipe (jogador + pets).
+   * - Probabilidade por Raridade: Sorteio ponderado onde SS é muito difícil (mítico/chefe), S é difícil, A é raro, e C/D/F são comuns.
    */
   public async startEncounterByMap(characterId: number, mapId: number): Promise<TemporaryBattleState> {
     const map = await this.prisma.gameMap.findUnique({
@@ -362,18 +371,47 @@ export class TemporaryCombatController {
       throw new Error(`Este mapa possui taxa de encontro zero (zona segura).`);
     }
 
-    // Busca templates de monstros vinculados aos biomas primário e secundário do mapa
-    const biomeIds = [map.primaryBiomeId, map.secondaryBiomeId].filter(Boolean);
-    const monsterBiomes = await this.prisma.monsterBiome.findMany({
-      where: { biomeId: { in: biomeIds } },
-      include: { monsterTemplate: true },
+    // 1. Carrega personagem e equipe de pets para contar combatentes aliados
+    const pc = await this.prisma.playerCharacter.findUnique({
+      where: { id: Number(characterId) },
+      include: {
+        pets: { take: 3, include: { monsterTemplate: true } },
+      },
     });
 
-    let candidateTemplates = monsterBiomes
-      .map((mb) => mb.monsterTemplate)
-      .filter((m) => m && m.isActive);
+    const alliesCount = 1 + (pc && pc.pets && pc.pets.length > 0 ? pc.pets.length : 2);
 
-    // Se nenhum monstro estiver especificamente associado ao bioma, busca qualquer monstro ativo
+    // 2. Sorteia quantidade total: de 1 a 5 monstros para CADA jogador ou pet na equipe
+    let totalMonstersToSpawn = 0;
+    for (let i = 0; i < alliesCount; i++) {
+      totalMonstersToSpawn += Math.floor(Math.random() * 5) + 1; // 1 a 5 por aliado
+    }
+    // Teto de segurança operacional na arena (ex: até 15 monstros simultâneos)
+    totalMonstersToSpawn = Math.min(15, totalMonstersToSpawn);
+
+    // 3. Obtém o pool de monstros elegíveis do mapa (Tipos/Raças + Monstros Individuais)
+    const allowedRaces = Array.isArray(map.allowedMonsterRacesJson)
+      ? (map.allowedMonsterRacesJson as string[]).filter(Boolean)
+      : [];
+    const allowedIds = Array.isArray(map.allowedMonsterTemplateIdsJson)
+      ? (map.allowedMonsterTemplateIdsJson as number[]).map(Number).filter(Boolean)
+      : [];
+
+    let candidateTemplates: any[] = [];
+    if (allowedRaces.length > 0 || allowedIds.length > 0) {
+      const orClauses: any[] = [];
+      if (allowedRaces.length > 0) orClauses.push({ raceCode: { in: allowedRaces } });
+      if (allowedIds.length > 0) orClauses.push({ id: { in: allowedIds } });
+
+      candidateTemplates = await this.prisma.monsterTemplate.findMany({
+        where: {
+          isActive: true,
+          OR: orClauses,
+        },
+      });
+    }
+
+    // Fallback: se o mapa não tiver tipos definidos ainda, busca todos os monstros ativos
     if (candidateTemplates.length === 0) {
       candidateTemplates = await this.prisma.monsterTemplate.findMany({
         where: { isActive: true },
@@ -381,24 +419,108 @@ export class TemporaryCombatController {
     }
 
     if (candidateTemplates.length === 0) {
-      throw new Error(`Nenhum monstro cadastrado no sistema para encontros.`);
+      throw new Error('Nenhum monstro ativo cadastrado no sistema para encontros.');
     }
 
-    // Sorteia um template aleatório
-    const selectedTemplate = candidateTemplates[Math.floor(Math.random() * candidateTemplates.length)];
+    // 4. Mapeamento de traduções i18n dos monstros
+    const translations = await this.prisma.i18nTranslation.findMany({
+      where: {
+        key: { in: candidateTemplates.map((t) => t.nameI18nKey) },
+        locale: 'pt-BR',
+      },
+    });
+    const i18nMap = new Map(translations.map((t) => [t.key, t.text]));
 
-    // Sorteia quantidade (1 mob: 60%, 2 mobs: 30%, 3 mobs: 10%)
-    const rollQty = Math.random();
-    const quantity = rollQty < 0.60 ? 1 : rollQty < 0.90 ? 2 : 3;
+    // 5. Pesos de spawn por Raridade: SS muito difícil, S difícil, A raro, B/C/D/F comuns
+    const rarityWeights: Record<string, number> = {
+      SS: 1,     // Muito Difícil (~0.5%)
+      S: 4,      // Difícil (~1.5%)
+      A: 15,     // Raro / Normal Alto (~6%)
+      B: 35,     // Normal Médio (~15%)
+      C: 70,     // Normal (~30%)
+      D: 110,    // Comum
+      F: 140,    // Muito Comum
+      COMMON: 140,
+    };
 
-    // Calcula nível do monstro baseado no nível do mapa e variação
+    const rarityStatMults: Record<string, { hp: number; atk: number; def: number }> = {
+      SS: { hp: 2.2, atk: 1.5, def: 1.3 },
+      S: { hp: 1.6, atk: 1.3, def: 1.2 },
+      A: { hp: 1.25, atk: 1.15, def: 1.1 },
+      B: { hp: 1.1, atk: 1.05, def: 1.0 },
+      C: { hp: 1.0, atk: 1.0, def: 1.0 },
+      D: { hp: 0.9, atk: 0.9, def: 0.9 },
+      F: { hp: 0.85, atk: 0.85, def: 0.85 },
+      COMMON: { hp: 0.85, atk: 0.85, def: 0.85 },
+    };
+
+    const pickWeightedCandidate = () => {
+      let totalW = 0;
+      const weights = candidateTemplates.map((c) => {
+        const w = rarityWeights[c.rarityTier?.toUpperCase()] || 100;
+        totalW += w;
+        return w;
+      });
+      let roll = Math.random() * totalW;
+      for (let i = 0; i < candidateTemplates.length; i++) {
+        roll -= weights[i];
+        if (roll <= 0) return candidateTemplates[i];
+      }
+      return candidateTemplates[candidateTemplates.length - 1];
+    };
+
+    // 6. Calcula variação de nível do mapa
     const minVar = map.levelVarianceMin ?? -2;
     const maxVar = map.levelVarianceMax ?? 5;
     const varRange = Math.max(0, maxVar - minVar);
-    const variance = minVar + Math.floor(Math.random() * (varRange + 1));
-    const monsterLevel = Math.max(1, Math.min(100, (map.requiredLevel || 1) + variance));
 
-    return this.startBattle(characterId, selectedTemplate.id, quantity, monsterLevel);
+    // 7. Constrói a lista heterogênea de monstros sorteados
+    const monsterUnits: CombatUnit[] = [];
+    for (let i = 0; i < totalMonstersToSpawn; i++) {
+      const tmpl = pickWeightedCandidate();
+      const variance = minVar + Math.floor(Math.random() * (varRange + 1));
+      const mobLvl = Math.max(1, Math.min(100, (map.requiredLevel || 1) + variance));
+
+      const rTier = (tmpl.rarityTier || 'F').toUpperCase();
+      const mult = rarityStatMults[rTier] || { hp: 1.0, atk: 1.0, def: 1.0 };
+      const mobStats = (tmpl.baseAttributesJson as any) || { VIT: 12, STR: 12, INT: 10, WIS: 10, AGI: 10, DEX: 10 };
+
+      const mobMaxHp = Math.round((mobStats.VIT * 20 + mobLvl * 18) * mult.hp);
+      const mobMaxMp = Math.round((mobStats.INT * 10 + mobLvl * 8) * mult.hp);
+      const mobAtk = Math.round((mobStats.STR * 2.6 + mobLvl * 3.2) * mult.atk);
+      const mobDef = Math.round((mobStats.VIT * 1.4 + mobLvl * 2.0) * mult.def);
+      const mobSpeed = Math.round(mobStats.AGI * 1.8 + mobLvl);
+
+      const baseName = i18nMap.get(tmpl.nameI18nKey) || tmpl.code;
+      const raritySuffix = rTier === 'SS' ? ' ⭐[SS]' : rTier === 'S' ? ' ⭐[S]' : '';
+      const mobKey = tmpl.mcreworkMonsterKey;
+
+      monsterUnits.push({
+        id: `mob_${tmpl.id}_${i}`,
+        index: i,
+        name: `${baseName} #${i + 1}${raritySuffix}`,
+        level: mobLvl,
+        hp: mobMaxHp,
+        maxHp: mobMaxHp,
+        mp: mobMaxMp,
+        maxMp: mobMaxMp,
+        atk: mobAtk,
+        def: mobDef,
+        speed: mobSpeed,
+        spriteKey: mobKey,
+        atlasJsonUrl: `${this.mcreworkPagesBaseUrl}/assets/monsters/${mobKey}/atlas.json`,
+        atlasWebpUrl: `${this.mcreworkPagesBaseUrl}/assets/monsters/${mobKey}/atlas.webp`,
+        groundOffsetY: tmpl.groundOffsetY || 0,
+        thumbUrl: `${this.mcreworkPagesBaseUrl}/assets/monsters/${mobKey}/thumb.webp`,
+        elementCode: tmpl.fixedElementCode || 'NEUTRAL',
+        raceCode: tmpl.raceCode || 'BEAST',
+        isAlive: true,
+        activeStatuses: [],
+      });
+    }
+
+    const firstTemplateId = monsterUnits[0] ? Number(candidateTemplates[0]?.id || 1) : 1;
+    return this.startBattle(characterId, firstTemplateId, monsterUnits.length, map.requiredLevel, monsterUnits);
   }
 
   /**

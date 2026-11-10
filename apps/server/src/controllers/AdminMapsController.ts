@@ -25,6 +25,8 @@ export interface SaveMapDto {
   mapTypeId: number;
   primaryBiomeId: number;
   secondaryBiomeId: number;
+  allowedMonsterRaces?: string[];
+  allowedMonsterTemplateIds?: number[];
   encounterRatePct?: number;
   dominatedById?: string | null;
   spawnX?: number;
@@ -70,11 +72,7 @@ export interface SaveNpcTemplateDto {
   namePtBr: string;
   mcreworkNpcKey: string;
   isDecorationOnly: boolean;
-  triggersJson: Array<{
-    type: 'QUEST' | 'SHOP' | 'BATTLE' | 'EVENT' | 'DIALOGUE';
-    label?: string;
-    config?: Record<string, unknown>;
-  }>;
+  triggersJson: Array<{ type: 'QUEST' | 'SHOP' | 'BATTLE' | 'EVENT' | 'DIALOGUE'; label?: string; config?: Record<string, unknown> }>;
 }
 
 export interface SaveClassTemplateDto {
@@ -94,22 +92,8 @@ export interface SaveClassTemplateDto {
   skillIdsJson?: number[];
   isActive?: boolean;
   baseCombatAttributesJson?: Record<string, number>;
-  baseAttributesJson?: {
-    VIT: number;
-    STR: number;
-    INT: number;
-    WIS: number;
-    AGI: number;
-    DEX: number;
-  };
-  growthPerLevelJson?: {
-    VIT: number;
-    STR: number;
-    INT: number;
-    WIS: number;
-    AGI: number;
-    DEX: number;
-  };
+  baseAttributesJson?: Record<string, number>;
+  growthPerLevelJson?: Record<string, number>;
 }
 
 export class AdminMapsController {
@@ -318,6 +302,20 @@ export class AdminMapsController {
       namePtBr: i18nMap.get(m.nameI18nKey) ?? m.code,
     }));
 
+    const monsterTemplates = (
+      await this.prisma.monsterTemplate.findMany({
+        where: { isActive: true },
+        orderBy: [{ rarityTier: 'asc' }, { id: 'asc' }],
+      })
+    ).map((mt) => ({
+      id: mt.id,
+      code: mt.code,
+      namePtBr: i18nMap.get(mt.nameI18nKey) ?? mt.code,
+      raceCode: mt.raceCode,
+      rarityTier: mt.rarityTier,
+      thumbUrl: `${this.mcreworkPagesBaseUrl}/assets/monsters/${mt.mcreworkMonsterKey}/thumb.webp`,
+    }));
+
     return {
       biomes,
       mapTypes,
@@ -326,6 +324,7 @@ export class AdminMapsController {
       monsterRarities,
       classTemplates,
       npcTemplates,
+      monsterTemplates,
       maps,
     };
   }
@@ -351,23 +350,10 @@ export class AdminMapsController {
     const rebornMcreworkCharKey = dto.rebornMcreworkCharKey ? dto.rebornMcreworkCharKey.trim() : null;
     const skillIdsJson = Array.isArray(dto.skillIdsJson) ? dto.skillIdsJson.map((n) => Number(n)).filter((n) => n > 0) : undefined;
 
-    const baseAttrs = {
-      VIT: Number(dto.baseAttributesJson?.VIT ?? 10),
-      STR: Number(dto.baseAttributesJson?.STR ?? 10),
-      INT: Number(dto.baseAttributesJson?.INT ?? 10),
-      WIS: Number(dto.baseAttributesJson?.WIS ?? 10),
-      AGI: Number(dto.baseAttributesJson?.AGI ?? 10),
-      DEX: Number(dto.baseAttributesJson?.DEX ?? 10),
-    };
-
-    const growthAttrs = {
-      VIT: Number(dto.growthPerLevelJson?.VIT ?? 2),
-      STR: Number(dto.growthPerLevelJson?.STR ?? 2),
-      INT: Number(dto.growthPerLevelJson?.INT ?? 2),
-      WIS: Number(dto.growthPerLevelJson?.WIS ?? 2),
-      AGI: Number(dto.growthPerLevelJson?.AGI ?? 2),
-      DEX: Number(dto.growthPerLevelJson?.DEX ?? 2),
-    };
+    const b = dto.baseAttributesJson || {};
+    const baseAttrs = { VIT: Number(b.VIT ?? 10), STR: Number(b.STR ?? 10), INT: Number(b.INT ?? 10), WIS: Number(b.WIS ?? 10), AGI: Number(b.AGI ?? 10), DEX: Number(b.DEX ?? 10) };
+    const g = dto.growthPerLevelJson || {};
+    const growthAttrs = { VIT: Number(g.VIT ?? 2), STR: Number(g.STR ?? 2), INT: Number(g.INT ?? 2), WIS: Number(g.WIS ?? 2), AGI: Number(g.AGI ?? 2), DEX: Number(g.DEX ?? 2) };
 
     let savedClass: any;
     let finalNamePtBr = (dto.namePtBr ?? '').trim();
@@ -609,8 +595,10 @@ export class AdminMapsController {
       levelVarianceMin: Number(dto.levelVarianceMin ?? -2),
       levelVarianceMax: Number(dto.levelVarianceMax ?? 5),
       mapTypeId: Number(dto.mapTypeId),
-      primaryBiomeId: Number(dto.primaryBiomeId),
-      secondaryBiomeId: Number(dto.secondaryBiomeId),
+      primaryBiomeId: Number(dto.primaryBiomeId) || 1,
+      secondaryBiomeId: Number(dto.secondaryBiomeId) || 1,
+      allowedMonsterRacesJson: Array.isArray(dto.allowedMonsterRaces) ? dto.allowedMonsterRaces : [],
+      allowedMonsterTemplateIdsJson: Array.isArray(dto.allowedMonsterTemplateIds) ? dto.allowedMonsterTemplateIds.map(Number) : [],
       encounterRatePct: dto.encounterRatePct !== undefined
         ? Math.max(0, Math.min(100, Number(dto.encounterRatePct)))
         : (Number(dto.mapTypeId) === 1 && (Number(dto.requiredLevel) <= 1) ? 0.0 : 8.0),

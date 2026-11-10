@@ -27,6 +27,9 @@ class EtheriaAdminStudio {
     this.classSearchQuery = '';
     this.selectedMcreworkCharKey = '';
     this.npcSearchQuery = '';
+    this.allMonsterTemplates = [];
+    this.mapSelectedMonsterRaces = [];
+    this.mapSelectedMonsterTemplateIds = [];
 
     // Estado do Mapa atual aberto no editor
     this.currentMapId = null;
@@ -113,9 +116,11 @@ class EtheriaAdminStudio {
     this.monsterRarities = data.monsterRarities || [];
     this.classTemplates = data.classTemplates || [];
     this.npcTemplates = data.npcTemplates || [];
+    this.allMonsterTemplates = data.monsterTemplates || [];
     this.savedMaps = data.maps || [];
 
     this.renderSelectOptions();
+    this.renderMapMonsterTypesAndPicker();
     this.renderSavedMapsList();
     if (typeof this.loadAttributesData === 'function') await this.loadAttributesData();
     if (typeof this.renderNpcsCrudTable === 'function') this.renderNpcsCrudTable();
@@ -330,6 +335,9 @@ class EtheriaAdminStudio {
     }
     if (typeof this.renderLayerLists === 'function') this.renderLayerLists();
     if (typeof this.renderMapTeleportNpcsTable === 'function') this.renderMapTeleportNpcsTable();
+    this.mapSelectedMonsterRaces = [];
+    this.mapSelectedMonsterTemplateIds = [];
+    this.renderMapMonsterTypesAndPicker();
     this.renderSavedMapsList();
   }
 
@@ -339,6 +347,10 @@ class EtheriaAdminStudio {
 
     const prevMapId = this.currentMapId;
     this.currentMapId = m.id;
+
+    this.mapSelectedMonsterRaces = Array.isArray(m.allowedMonsterRacesJson) ? [...m.allowedMonsterRacesJson] : [];
+    this.mapSelectedMonsterTemplateIds = Array.isArray(m.allowedMonsterTemplateIdsJson) ? [...m.allowedMonsterTemplateIdsJson] : [];
+    this.renderMapMonsterTypesAndPicker();
 
     const titleBadge = document.getElementById('mapFormTitleBadge');
     if (titleBadge) {
@@ -423,8 +435,10 @@ class EtheriaAdminStudio {
         mcreworkMapImage: document.getElementById('mapImagePath').value.trim(),
         requiredLevel: Number(document.getElementById('mapReqLevel').value) || 1,
         mapTypeId: Number(document.getElementById('mapTypeSelect').value),
-        primaryBiomeId: Number(document.getElementById('primaryBiomeSelect').value),
-        secondaryBiomeId: Number(document.getElementById('secondaryBiomeSelect').value),
+        primaryBiomeId: Number(document.getElementById('primaryBiomeSelect')?.value || 1),
+        secondaryBiomeId: Number(document.getElementById('secondaryBiomeSelect')?.value || 1),
+        allowedMonsterRaces: Array.from(document.querySelectorAll('input[name="mapMonsterRace"]:checked')).map((c) => c.value),
+        allowedMonsterTemplateIds: this.mapSelectedMonsterTemplateIds,
         spawnX: Number(document.getElementById('mapSpawnX').value) || 500,
         spawnY: Number(document.getElementById('mapSpawnY').value) || 500,
         overlapOpacity: Number(document.getElementById('mapOverlapOpacity').value) || 0.45,
@@ -518,6 +532,91 @@ class EtheriaAdminStudio {
       this.cameraInitializedForUrl = '';
       this.loadMapBackgroundImage(item.bgImageUrl);
     }
+  }
+
+  renderMapMonsterTypesAndPicker() {
+    const container = document.getElementById('mapMonsterTypesContainer');
+    if (container && this.races) {
+      const raceIcons = {
+        DRAGON: '🐉', BEAST: '🐺', HUMAN: '👤', SPIRIT: '👻', DEMON: '😈',
+        AQUATIC: '🌊', REPTILIAN: '🦎', ROBOTIC: '⚙️', PLANT: '🌿', CELESTIAL: '👼', FAIRY: '🧚',
+      };
+      container.innerHTML = this.races
+        .map((r) => {
+          const icon = raceIcons[r.code] || '🐾';
+          const isChecked = this.mapSelectedMonsterRaces.includes(r.code);
+          return `
+            <label style="display:flex; align-items:center; gap:4px; font-size:0.73rem; background:rgba(30,41,59,0.7); padding:3px 6px; border-radius:4px; cursor:pointer;">
+              <input type="checkbox" name="mapMonsterRace" value="${r.code}" ${isChecked ? 'checked' : ''} onchange="AdminApp.onMapMonsterRaceChanged()" />
+              <span>${icon} ${r.namePtBr || r.code}</span>
+            </label>
+          `;
+        })
+        .join('');
+    }
+
+    const select = document.getElementById('mapAddIndividualMonsterSelect');
+    if (select && this.allMonsterTemplates) {
+      select.innerHTML = '<option value="">➕ Selecione um monstro para adicionar...</option>' +
+        this.allMonsterTemplates
+          .map((m) => `<option value="${m.id}">[${m.rarityTier}] #${m.id} ${m.namePtBr} (${m.raceCode})</option>`)
+          .join('');
+    }
+
+    this.renderMapIndividualMonstersChips();
+  }
+
+  toggleAllMapMonsterTypes(checked) {
+    document.querySelectorAll('input[name="mapMonsterRace"]').forEach((chk) => {
+      chk.checked = checked;
+    });
+    this.onMapMonsterRaceChanged();
+  }
+
+  onMapMonsterRaceChanged() {
+    this.mapSelectedMonsterRaces = Array.from(document.querySelectorAll('input[name="mapMonsterRace"]:checked')).map((c) => c.value);
+  }
+
+  addIndividualMonsterToMap() {
+    const select = document.getElementById('mapAddIndividualMonsterSelect');
+    if (!select || !select.value) return;
+    const id = Number(select.value);
+    if (!this.mapSelectedMonsterTemplateIds.includes(id)) {
+      this.mapSelectedMonsterTemplateIds.push(id);
+      this.renderMapIndividualMonstersChips();
+    }
+    select.value = '';
+  }
+
+  removeIndividualMonsterFromMap(id) {
+    this.mapSelectedMonsterTemplateIds = this.mapSelectedMonsterTemplateIds.filter((x) => x !== Number(id));
+    this.renderMapIndividualMonstersChips();
+  }
+
+  renderMapIndividualMonstersChips() {
+    const box = document.getElementById('mapIndividualMonstersChips');
+    if (!box) return;
+    if (this.mapSelectedMonsterTemplateIds.length === 0) {
+      box.innerHTML = '<span style="color:#64748b; font-size:0.74rem; font-style:italic;">Nenhum monstro individual adicionado fora dos tipos.</span>';
+      return;
+    }
+    const rarityColors = { SS: '#fbbf24', S: '#c084fc', A: '#38bdf8', B: '#4ade80', C: '#fde047', D: '#cbd5e1', F: '#94a3b8' };
+    box.innerHTML = this.mapSelectedMonsterTemplateIds
+      .map((id) => {
+        const m = this.allMonsterTemplates.find((x) => x.id === id);
+        const name = m ? m.namePtBr : `Monstro #${id}`;
+        const rColor = m ? (rarityColors[m.rarityTier] || '#94a3b8') : '#94a3b8';
+        const thumb = m?.thumbUrl || '/play/assets/placeholder_pet.png';
+        return `
+          <div style="display:inline-flex; align-items:center; gap:6px; background:rgba(30,41,59,0.9); border:1px solid ${rColor}55; border-radius:6px; padding:2px 8px; font-size:0.75rem;">
+            <img src="${thumb}" alt="" style="width:18px; height:18px; object-fit:contain; border-radius:3px;" onerror="this.style.display='none'" />
+            <strong style="color:#f8fafc;">${name}</strong>
+            <span style="color:${rColor}; font-size:0.70rem; font-weight:700;">[${m?.rarityTier || 'F'}]</span>
+            <button type="button" onclick="AdminApp.removeIndividualMonsterFromMap(${id})" style="background:transparent; border:none; color:#f87171; cursor:pointer; padding:0 2px; font-size:0.80rem;" title="Remover">✕</button>
+          </div>
+        `;
+      })
+      .join('');
   }
 }
 

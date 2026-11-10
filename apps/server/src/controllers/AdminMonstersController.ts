@@ -105,11 +105,6 @@ export class AdminMonstersController {
       include: {
         race: true,
         fixedElement: true,
-        biomes: {
-          include: {
-            biome: true,
-          },
-        },
       },
     });
 
@@ -123,11 +118,7 @@ export class AdminMonstersController {
       thumbUrl: `${this.mcreworkPagesBaseUrl}/assets/monsters/${mt.mcreworkMonsterKey}/thumb.webp`,
       atlasJsonUrl: `${this.mcreworkPagesBaseUrl}/assets/monsters/${mt.mcreworkMonsterKey}/atlas.json`,
       atlasWebpUrl: `${this.mcreworkPagesBaseUrl}/assets/monsters/${mt.mcreworkMonsterKey}/atlas.webp`,
-      biomesList: (mt.biomes ?? []).map((b) => ({
-        biomeId: b.biomeId,
-        code: b.biome.code,
-        namePtBr: i18nMap.get(b.biome.nameI18nKey) ?? b.biome.code,
-      })),
+      biomesList: [],
     }));
   }
 
@@ -196,17 +187,6 @@ export class AdminMonstersController {
       },
     });
 
-    // Vincula biomas selecionados
-    if (Array.isArray(dto.biomeIds) && dto.biomeIds.length > 0) {
-      await this.prisma.monsterBiome.createMany({
-        data: dto.biomeIds.map((biomeId) => ({
-          monsterTemplateId: created.id,
-          biomeId: Number(biomeId),
-        })),
-        skipDuplicates: true,
-      });
-    }
-
     await this.snapshotManager.exportToDisk();
     return created;
   }
@@ -255,22 +235,6 @@ export class AdminMonstersController {
         baseAttributesJson: dto.baseAttributesJson ?? (existing.baseAttributesJson as any),
       },
     });
-
-    // Atualiza vínculos de biomas
-    if (Array.isArray(dto.biomeIds)) {
-      await this.prisma.monsterBiome.deleteMany({
-        where: { monsterTemplateId: id },
-      });
-      if (dto.biomeIds.length > 0) {
-        await this.prisma.monsterBiome.createMany({
-          data: dto.biomeIds.map((biomeId) => ({
-            monsterTemplateId: id,
-            biomeId: Number(biomeId),
-          })),
-          skipDuplicates: true,
-        });
-      }
-    }
 
     await this.snapshotManager.exportToDisk();
     return updated;
