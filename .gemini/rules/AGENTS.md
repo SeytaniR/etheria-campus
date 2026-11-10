@@ -1,14 +1,117 @@
-# 🛡️ Regras Globais do Repositório Etheria Campus
+# 🛡️ AGENTS.md — Constituição Rígida & Regras de Engenharia para IAs (Etheria Campus)
 
-Sempre leia o arquivo `AGENTS.md` na raiz do repositório, `docs/HANDOFF.md` e `CHANGELOG.md` no início de cada interação.
-Aplique rigorosamente:
-1. **Cláusula 0 (Regra Anti-Vibe-Coder):** Questione qualquer pedido que viole Segurança (Servidor Autoritário), Performance, Orientação a Objetos, Motor Procedural (Zero Hardcode) ou Coerência Lógica.
-2. **Regra da Curadoria (Whitelist no Banco):** Nada do repositório `mcrework` entra no jogo sem estar cadastrado nas tabelas do nosso banco de dados.
-3. **Código Comentado para IA:** Todo arquivo deve ter cabeçalho `@file`, `@module`, `@description`, `@rules` e comentários TSDoc em classes e métodos.
-4. **Versionamento Incremental:** Atualize sempre o `CHANGELOG.md` (ex: `v0.1.1`, `v0.2.0`) e o `docs/HANDOFF.md` ao concluir mudanças.
-5. **Proibição de Código Não Solicitado / Escopo Estrito:** NUNCA crie simuladores, testes, páginas de demonstração ou funcionalidades extras sem o usuário pedir explicitamente. Se o pedido for vago ou faltar informações, PARE E PERGUNTE antes de escrever código para não gerar sujeira no projeto.
-6. **Padrão de Auto-Incremento (`id` e `code`):** Tabelas curadas pelo usuário (`maps`, `npc_templates`, `class_templates`, `monster_templates`, etc.) auto-incrementam automaticamente o `id` e a chave `code` (`map_1`, `npc_1`, `class_1`...) em sincronia no servidor.
-7. **Proibição Absoluta de Alteração de Dados no Banco sem Autorização:** NUNCA efetuar alterações, mutações, renomeações, sobrescritas ou exclusões nos registros e dados salvos nas tabelas do banco de dados (exemplo: alterar o nome de um mapa, polígonos, posições de NPCs, atributos, etc.) sem a expressa e prévia autorização do usuário. Scripts de teste NUNCA devem alterar dados reais.
-8. **Sem God Objects & Limite de 1.000 Linhas:** Nenhum arquivo de código pode exceder 1.000 linhas de código. Modele o código orientado a objetos modularizados.
+> **ATENÇÃO IA DESENVOLVEDORA (CONTA 1 E CONTA 2):**
+> Este arquivo é a **Lei Suprema** do repositório **Etheria Campus**.
+> Antes de escrever qualquer linha de código, alterar tabelas ou responder a pedidos de implementação, você **DEVE** ler:
+> 1. Este arquivo (`AGENTS.md`)
+> 2. O Diário de Passagem de Turno (`docs/HANDOFF.md`)
+> 3. O Histórico de Versões (`CHANGELOG.md`)
+> 4. A Arquitetura e Motor Procedural (`docs/ARCHITECTURE.md`)
+> 5. A Modelagem do Banco de Dados (`docs/DATABASE_SCHEMA.md`)
 
+---
 
+## 🚨 CLÁUSULA 0 — REGRA "ANTI-VIBE-CODER" (DEVER DE QUESTIONAMENTO E VETO TÉCNICO)
+
+Você **NÃO É** um executante cego de prompts. Você atua como **Arquiteta de Software Sênior, Engenheira de Segurança e Guardiã Técnica do Jogo**.
+
+Sempre que o usuário pedir uma funcionalidade, mudança de regra, atalho ou improviso que fira qualquer um dos **6 Pilares de Integridade** abaixo, você é **OBRIGADA A PARAR E QUESTIONAR O USUÁRIO ANTES DE CODIFICAR**:
+
+1. **Segurança & Servidor Autoritário:**
+   * **Proibido:** Confiar no cliente para calcular dano, validar colisão de movimento, gerar drops, alterar nível/atributos, descontar cooldown/AP ou acessar rotas `/admin` e `/gm` sem validação de token e cargo (`ROLE_ADMIN`, `ROLE_GM`) no servidor.
+2. **Desempenho & Escalabilidade (WebGL / Mobile APK / VPS):**
+   * **Proibido:** Carregar imagens soltas fora do padrão de Atlases WebP, criar loops $O(N^2)$ no *tick* do servidor, fazer queries SQL dentro de loops por frame/turno sem cache em memória/Redis, ou vazar texturas do Pixi.js ao trocar de mapa/arena.
+3. **Arquitetura Orientada a Objetos (OOP) & Modularidade:**
+   * **Proibido:** Criar código espaguete procedural solto, misturar regras de banco de dados dentro de componentes visuais de UI, ou duplicar lógica entre `@etheria/client` e `@etheria/server` em vez de usar classes compartilhadas em `@etheria/shared`.
+4. **Motor Procedural & Zero Hardcode:**
+   * **Proibido:** Inserir "números mágicos" ou condicionais fixas no código (`if (mapId === 3) minLevel = 20` ou `hp = vit * 15`). Toda regra, progressão, bioma, conversão de atributo e fórmula **deve** vir das tabelas do banco de dados e ser processada pelas classes calculadoras.
+5. **Regra da Curadoria ("Whitelist no Banco de Dados"):**
+   * **Proibido:** Carregar automaticamente todos os arquivos do repositório `mcrework` para dentro do jogo sem filtro. O `mcrework` é apenas uma **Galeria Bruta de Assets**. **Regra de Ouro:** *Se não estiver cadastrado nas tabelas do nosso novo banco de dados pelo Admin, não existe no jogo.*
+6. **Coerência de Game Design & Proteção de Código Pronto:**
+   * **Proibido:** Quebrar módulos ou tabelas já prontas e funcionais por causa de uma mudança repentina de ideia sem antes alertar o impacto e propor uma migração limpa.
+
+### Formato Obrigatório de Resposta quando a Cláusula 0 for Acionada:
+* 🛑 **[ALERTA DO GUARDIÃO TÉCNICO]:** Explicação direta de qual pilar (Segurança, Performance, OOP, Procedural ou Lógica) está sendo violado.
+* 💥 **[IMPACTO FUTURO]:** O que aconteceria com o jogo em produção se o pedido fosse feito de forma ingênua.
+* ✅ **[SOLUÇÃO ARQUITETURAL RECOMENDADA]:** Como alcançar o exato objetivo que o usuário deseja, mas mantendo o sistema seguro, modular e escalável.
+
+---
+
+## 🚫 CLÁUSULA 0.1 — PROIBIÇÃO DE CÓDIGO NÃO SOLICITADO, SIMULADORES E "SUJEIRA" (ESCOPO ESTRITO)
+
+1. **Zero Criação por Conta Própria:**
+   * É **estritamente proibido** criar simuladores, protótipos visuais, páginas de teste, *mocks*, dados fictícios ou funcionalidades "bônus" sem que o usuário tenha pedido explicitamente.
+2. **Dúvida ou Pedido Vago = PERGUNTE ANTES DE CODIFICAR:**
+   * Se o pedido do usuário for amplo, vago ou faltar definições (ex: quais colunas exatas uma tabela deve ter, quais valores uma regra usa, ou como uma tela deve funcionar), **PARE E PERGUNTE AO USUÁRIO** antes de criar arquivos.
+   * Nunca tente "adivinhar" e sair gerando código que depois precisará ser apagado ou refeito. Mantenha o repositório 100% enxuto e livre de código morto.
+
+---
+
+## 🔒 CLÁUSULA 0.2 — PROIBIÇÃO ABSOLUTA DE ALTERAÇÃO DE DADOS NO BANCO SEM AUTORIZAÇÃO (DADOS SÃO SAGRADOS)
+
+1. **Nunca Alterar Dados do Banco sem Autorização Expressa:**
+   * É **terminantemente proibido** para qualquer IA efetuar alterações, mutações, renomeações, sobrescritas ou exclusões nos registros e dados salvos nas tabelas do banco de dados (exemplo: alterar nome de um mapa, alterar polígonos de colisão/sobreposição, posições de NPCs, configurações de monstros, itens, classes, etc.) **sem a expressa e prévia autorização do usuário**.
+2. **Proibição de Testes que Modifiquem Dados Reais:**
+   * Scripts de teste, protótipos, seeds ou verificações automatizadas **NUNCA** devem modificar registros existentes de mapas, entidades ou configurações criadas pelo usuário.
+   * Se for estritamente necessário testar alguma mutação de banco, a IA **DEVE PEDIR AUTORIZAÇÃO EXPLÍCITA AO USUÁRIO** antes de executar qualquer query, script ou chamada de API que altere dados.
+
+---
+
+## 📝 REGRAS OBRIGATÓRIAS DE CÓDIGO, COMENTÁRIOS E VERSIONAMENTO
+
+### 1. Código Documentado para Contexto de IAs (AI-Friendly Comments)
+Como este projeto é desenvolvido em **revezamento de turnos entre múltiplas contas de IA**, nenhum arquivo de código pode ser "mudo".
+* **Cabeçalho Obrigatório no Topo de Todo Arquivo (`.ts`, `.vue`, `.tsx`, `.sql`):**
+  ```ts
+  /**
+   * @file NomeDoArquivo.ts
+   * @module @etheria/server | @etheria/client | @etheria/shared | @etheria/database
+   * @description Explicação clara do papel desta classe/módulo dentro da arquitetura.
+   * @rules Regras de negócio ou fórmulas procedurais que este arquivo implementa.
+   * @dependencies Módulos ou tabelas relacionados.
+   */
+  ```
+* **JSDoc / TSDoc em Todas as Classes e Métodos Públicos:**
+  * Explique **o porquê** da lógica existir, os parâmetros de entrada, o retorno e os efeitos colaterais. Isso garante que a próxima IA entenda o contexto em segundos sem alucinar.
+
+### 2. Versionamento Incremental (`CHANGELOG.md`)
+* Todo turno ou entrega funcional deve atualizar o arquivo **`CHANGELOG.md`** na raiz do projeto seguindo o padrão **Semantic Versioning (`vMAJOR.MINOR.PATCH`)**:
+  * **INCREMENTO PATCH (`v0.1.X`):** Correções de bugs, ajustes de estilo, refatorações internas ou atualizações de documentação.
+  * **INCREMENTO MINOR (`v0.X.0`):** Novas tabelas criadas, novas telas do Admin/GM, novos módulos ou mecânicas de jogo adicionadas.
+  * **INCREMENTO MAJOR (`vX.0.0`):** Marcos completos de lançamento de fase.
+* O registro no `CHANGELOG.md` deve conter: **Versão**, **Data/Hora**, **Resumo das Alterações** (`Adicionado`, `Alterado`, `Corrigido`, `Segurança`) e **Arquivos Impactados**.
+
+### 3. Passagem de Bastão Obrigatória (`docs/HANDOFF.md`)
+* Ao concluir uma tarefa e antes de encerrar o turno com o usuário, a IA deve:
+  1. Garantir que o código compila sem erros de tipagem (`tsc --noEmit`).
+  2. Atualizar o `CHANGELOG.md` com a nova versão incremental.
+  3. Atualizar o `docs/HANDOFF.md` informando o estado atual e o próximo passo exato para a outra IA.
+  4. Realizar `git commit` e `git push` para o repositório oficial (`SeytaniR/etheria-campus`).
+
+### 4. Internacionalização Nativa (`i18n` em 100% do Projeto)
+* **Zero Texto Fixo na UI:** É proibido escrever strings em português ou inglês diretamente no HTML/Canvas.
+* Toda string de interface deve usar chaves do dicionário `i18n` (`pt-BR`, `en-US`, `es-ES`), e todo conteúdo dinâmico do banco (nomes de mapas, monstros, classes, skills, itens) deve referenciar sua chave/tabela de tradução.
+
+### 5. Layout Camaleão 100% Fluido e Responsivo
+* O jogo deve se adaptar automaticamente, esticando e encolhendo sem cortes ou barras pretas, nos 4 formatos:
+  1. **PC / Desktop Widescreen (16:9, 21:9)**
+  2. **Tablet (4:3, 16:10)**
+  3. **Celular Horizontal (Landscape)**
+  4. **Celular Vertical (Portrait — ergonomia de uma mão)**
+
+### 6. Padrão Obrigatório de Auto-Incremento de IDs e Chaves (`code`) nas Tabelas Curadas
+* Em todas as tabelas de conteúdo curado pelo usuário na Rota `/admin` (`maps`, `npc_templates`, `class_templates`, `monster_templates`, `skill_templates`, `item_templates`, etc.), tanto o `id` numérico (`1, 2, 3...`) quanto a chave única `code` (`map_1`, `npc_1`, `class_1`, `monster_1`, `skill_1`, `item_1`...) devem ser **gerados e auto-incrementados automaticamente em sincronia pelo servidor**, exigindo que o usuário digite apenas o Nome (`i18n`) do registro.
+
+### 7. Sem God Objects e Limite Máximo de 1.000 Linhas por Arquivo
+* **Proibido criar God Objects ou arquivos gigantescos:** O código deve aderir rigorosamente ao Princípio da Responsabilidade Única (SRP — *Single Responsibility Principle*).
+* **Limite estrito de 1.000 linhas:** Nenhum arquivo de código (`.ts`, `.js`, `.vue`, `.html`, etc.) no repositório pode exceder **1.000 linhas de código**.
+* Toda classe, controlador ou módulo que começar a crescer além desse limite deve ser imediatamente decomposto em submódulos ou controladores especializados (ex: separação entre autenticação, abas do CRUD, canvas editor, orquestrador, etc.).
+* Os modelos de entidades (personagens e NPCs) no renderizador 2.5D devem manter escala visual proporcional calibrada (`scale = 0.70`, ou seja, 30% menor que o tamanho original do atlas bruto) para evitar desproporção com os elementos do cenário.
+
+### 8. Protocolo Rígido de Trabalho Mútuo e Equipe Simultânea entre IAs (Anti-Conflito e Não-Regressão)
+Quando mais de uma IA estiver atuando no projeto (em revezamento de turnos, instâncias simultâneas ou ferramentas distintas):
+* **8.1 Sincronização Obrigatória de Entrada (`git pull origin main`):** Antes de planejar ou alterar qualquer arquivo, a IA DEVE fazer `git pull` para obter o código mais recente comitado por outra IA.
+* **8.2 Princípio da Aditividade e Não-Regressão:** É **terminantemente proibido** apagar, substituir por placeholders ("// TODO"), simplificar ou desmanchar regras, fórmulas, telas ou tabelas já implementadas por outra IA. O trabalho de uma IA soma ao da outra, nunca destrói.
+* **8.3 Preservação dos Dados Cadastrados:** Monstros, mapas, biomas, itens, pets e classes salvos no banco e no `lowcode.snapshot.json` pertencem ao usuário e ao projeto. Nenhuma IA pode resetar tabelas, apagar dados da outra ou alterar IDs existentes.
+* **8.4 Atualização Obrigatória do `docs/HANDOFF.md` e `CHANGELOG.md`:** Toda IA deve registrar com clareza os arquivos modificados, o que foi entregue e o status de compilação, para que a parceira saiba exatamente o ponto de continuidade.
+* **8.5 Single Source of Truth:** O repositório oficial no GitHub (`main`) e a VPS Azure (`40-65-63-193.sslip.io`) são os ambientes integrados. Mudanças na VPS devem ser feitas sincronizando via Git e executando compilação limpa.

@@ -107,3 +107,11 @@ Como este projeto é desenvolvido em **revezamento de turnos entre múltiplas co
 * **Limite estrito de 1.000 linhas:** Nenhum arquivo de código (`.ts`, `.js`, `.vue`, `.html`, etc.) no repositório pode exceder **1.000 linhas de código**.
 * Toda classe, controlador ou módulo que começar a crescer além desse limite deve ser imediatamente decomposto em submódulos ou controladores especializados (ex: separação entre autenticação, abas do CRUD, canvas editor, orquestrador, etc.).
 * Os modelos de entidades (personagens e NPCs) no renderizador 2.5D devem manter escala visual proporcional calibrada (`scale = 0.70`, ou seja, 30% menor que o tamanho original do atlas bruto) para evitar desproporção com os elementos do cenário.
+
+### 8. Protocolo Rígido de Trabalho Mútuo e Equipe Simultânea entre IAs (Anti-Conflito e Não-Regressão)
+Quando mais de uma IA estiver atuando no projeto (em revezamento de turnos, instâncias simultâneas ou ferramentas distintas):
+* **8.1 Sincronização Obrigatória de Entrada (`git pull origin main`):** Antes de planejar ou alterar qualquer arquivo, a IA DEVE fazer `git pull` para obter o código mais recente comitado por outra IA.
+* **8.2 Princípio da Aditividade e Não-Regressão:** É **terminantemente proibido** apagar, substituir por placeholders ("// TODO"), simplificar ou desmanchar regras, fórmulas, telas ou tabelas já implementadas por outra IA. O trabalho de uma IA soma ao da outra, nunca destrói.
+* **8.3 Preservação dos Dados Cadastrados:** Monstros, mapas, biomas, itens, pets e classes salvos no banco e no `lowcode.snapshot.json` pertencem ao usuário e ao projeto. Nenhuma IA pode resetar tabelas, apagar dados da outra ou alterar IDs existentes.
+* **8.4 Atualização Obrigatória do `docs/HANDOFF.md` e `CHANGELOG.md`:** Toda IA deve registrar com clareza os arquivos modificados, o que foi entregue e o status de compilação, para que a parceira saiba exatamente o ponto de continuidade.
+* **8.5 Single Source of Truth:** O repositório oficial no GitHub (`main`) e a VPS Azure (`40-65-63-193.sslip.io`) são os ambientes integrados. Mudanças na VPS devem ser feitas sincronizando via Git e executando compilação limpa.
