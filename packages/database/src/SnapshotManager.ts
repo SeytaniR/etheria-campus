@@ -44,6 +44,7 @@ export interface LowCodeDatabaseSnapshot {
   statusEffectTemplates: any[];
   itemTemplates: any[];
   questTemplates?: any[];
+  petTemplates?: any[];
 }
 
 /**
@@ -97,6 +98,7 @@ export class SnapshotManager {
       statusEffectTemplates: await this.prisma.statusEffectTemplate.findMany({ orderBy: { id: 'asc' } }),
       itemTemplates: await this.prisma.itemTemplate.findMany({ orderBy: { id: 'asc' } }),
       questTemplates: await this.prisma.questTemplate.findMany({ orderBy: { id: 'asc' } }),
+      petTemplates: await this.prisma.petTemplate.findMany({ orderBy: { id: 'asc' } }),
     };
 
     await fs.writeFile(this.snapshotFilePath, JSON.stringify(snapshot, null, 2), 'utf-8');

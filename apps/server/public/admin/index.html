@@ -447,6 +447,7 @@
         <button id="tabBtnNpcs" onclick="AdminApp.switchTab('npcs')">🧙 Tabela de NPCs</button>
         <button id="tabBtnClasses" onclick="AdminApp.switchTab('classes')">🦸 Personagens</button>
         <button id="tabBtnMonsters" onclick="AdminApp.switchTab('monsters')">🐉 Monstros</button>
+        <button id="tabBtnPets" onclick="AdminApp.switchTab('pets')">🐾 Tabela de Pets</button>
         <button id="tabBtnAttributes" onclick="AdminApp.switchTab('attributes')">📊 Atributos & Conversões</button>
         <button id="tabBtnUsers" onclick="AdminApp.switchTab('users')">🔐 Contas</button>
         <button class="btn-success" onclick="window.open('/play', '_blank')">🎮 Testar no Jogo (/play)</button>
@@ -648,6 +649,84 @@
             <tbody id="monstersTableBody"></tbody>
           </table>
         </div>
+      </div>
+    </div>
+    <!-- ABA: CRUD DE PETS COMPANHEIROS -->
+    <div id="tabPets" style="display:none; padding:16px; max-width:1200px; margin:0 auto; width:100%; gap:16px; flex-direction:column;">
+      <div class="panel">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
+          <div>
+            <h3 style="margin:0; color:#38bdf8;">🐾 Tabela de Pets Companheiros (Templates no PostgreSQL)</h3>
+            <p style="font-size:0.8rem; color:var(--text-muted); margin:4px 0 0;">
+              Gerencie pets, funções táticas (Tanque, DPS, Suporte), atributos base, status de arena, calibração 2.5D e taxas de captura.
+            </p>
+          </div>
+          <div style="display:flex; gap:8px; align-items:center;">
+            <span id="petsCounterBadge" style="font-size:0.8rem; color:var(--text-muted);"></span>
+            <button class="btn-primary" onclick="AdminApp.openCreatePetModal()">➕ Novo Pet Companheiro</button>
+          </div>
+        </div>
+        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(160px, 1fr)); gap:10px; margin-top:14px; padding-bottom:12px; border-bottom:1px solid var(--border);">
+          <div class="field">
+            <label>🔍 Buscar por Nome/Chave</label>
+            <input type="text" id="petSearchInput" placeholder="Ex: Lobo, creature_..." oninput="AdminApp.filterPetsCrudTable()" />
+          </div>
+          <div class="field">
+            <label>Raridade</label>
+            <select id="petRarityFilterSelect" onchange="AdminApp.filterPetsCrudTable()">
+              <option value="all">Todas as Raridades</option>
+              <option value="SS">SS (Mítico)</option>
+              <option value="S">S (Lendário)</option>
+              <option value="A">A (Épico)</option>
+              <option value="B">B (Raro)</option>
+              <option value="C">C (Incomum)</option>
+              <option value="D">D (Regular)</option>
+              <option value="F">F (Básico)</option>
+              <option value="COMMON">COMMON (Comum)</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Raça</label>
+            <select id="petRaceFilterSelect" onchange="AdminApp.filterPetsCrudTable()">
+              <option value="all">Todas as Raças</option>
+              <option value="BEAST">Selvagem (BEAST)</option>
+              <option value="CELESTIAL">Celestial</option>
+              <option value="SPIRIT">Espírito</option>
+              <option value="DRAGON">Dragão</option>
+              <option value="PLANT">Planta</option>
+              <option value="AQUATIC">Aquático</option>
+              <option value="REPTILIAN">Reptiliano</option>
+              <option value="ROBOTIC">Robótico</option>
+              <option value="DEMON">Demônio</option>
+              <option value="FAIRY">Fada</option>
+              <option value="HUMAN">Humano</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Elemento</label>
+            <select id="petElementFilterSelect" onchange="AdminApp.filterPetsCrudTable()">
+              <option value="all">Todos os Elementos</option>
+              <option value="NEUTRAL">⚪ Neutro</option>
+              <option value="FIRE">🔥 Fogo</option>
+              <option value="WATER">🌊 Água</option>
+              <option value="EARTH">🌿 Terra</option>
+              <option value="AIR">💨 Ar</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Função (Role)</label>
+            <select id="petRoleFilterSelect" onchange="AdminApp.filterPetsCrudTable()">
+              <option value="all">Todas as Funções</option>
+              <option value="BALANCED">⚖️ Equilibrado</option>
+              <option value="TANK">🛡️ Tanque</option>
+              <option value="PHYS_DPS">⚔️ DPS Físico</option>
+              <option value="MAG_DPS">🔮 DPS Mágico</option>
+              <option value="HEALER">💚 Curandeiro</option>
+              <option value="SUPPORT">🌀 Suporte</option>
+            </select>
+          </div>
+        </div>
+        <div id="petsTableContainer" style="overflow-x:auto; margin-top:12px;"></div>
       </div>
     </div>
     <!-- ABA: CONTROLE DE CONTAS & PERMISSÕES (DEV & ADMIN) -->
@@ -887,6 +966,7 @@
   <script src="/admin/js/AdminClassModalTemplate.js"></script>
   <script src="/admin/js/AdminClassesTab.js"></script>
   <script src="/admin/js/AdminMonstersTab.js"></script>
+  <script src="/admin/js/AdminPetsTab.js"></script>
   <script src="/admin/js/AdminArenaPreview.js"></script>
   <script src="/admin/js/AdminStatusEffectsTab.js"></script>
   <script src="/admin/js/AdminSkillsAutoLink.js"></script>

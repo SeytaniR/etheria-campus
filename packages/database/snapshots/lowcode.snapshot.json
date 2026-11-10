@@ -1,6 +1,6 @@
 {
   "version": "0.2.0",
-  "exportedAt": "2026-11-08T19:59:36.588Z",
+  "exportedAt": "2026-11-10T02:06:52.362Z",
   "i18nTranslations": [
     {
       "id": 1,
@@ -2206,6 +2206,76 @@
       "locale": "pt-BR",
       "text": "Tian-Shu",
       "updatedAt": "2026-11-08T19:57:51.924Z"
+    },
+    {
+      "id": 571,
+      "key": "combat_attr.battle_move_speed",
+      "locale": "pt-BR",
+      "text": "Velocidade em Batalha",
+      "updatedAt": "2026-11-09T02:51:44.877Z"
+    },
+    {
+      "id": 572,
+      "key": "combat_attr.attack_speed",
+      "locale": "pt-BR",
+      "text": "Velocidade de Ataque",
+      "updatedAt": "2026-11-09T02:51:44.894Z"
+    },
+    {
+      "id": 573,
+      "key": "pet.pet_lobo_guardiao.name",
+      "locale": "pt-BR",
+      "text": "Lobo Guardião",
+      "updatedAt": "2026-11-10T02:05:42.649Z"
+    },
+    {
+      "id": 574,
+      "key": "pet.pet_lobo_guardiao.desc",
+      "locale": "pt-BR",
+      "text": "Um companheiro leal da floresta que protege seu herói com instinto protetor.",
+      "updatedAt": "2026-11-10T02:05:42.683Z"
+    },
+    {
+      "id": 575,
+      "key": "pet.pet_grifo_protetor.name",
+      "locale": "pt-BR",
+      "text": "Grifo Protetor",
+      "updatedAt": "2026-11-10T02:05:42.729Z"
+    },
+    {
+      "id": 576,
+      "key": "pet.pet_grifo_protetor.desc",
+      "locale": "pt-BR",
+      "text": "Criatura mística dos céus que desfere ataques rápidos e oferece suporte tático.",
+      "updatedAt": "2026-11-10T02:05:42.733Z"
+    },
+    {
+      "id": 577,
+      "key": "pet.pet_raposa_mistica.name",
+      "locale": "pt-BR",
+      "text": "Raposa Mística",
+      "updatedAt": "2026-11-10T02:05:42.751Z"
+    },
+    {
+      "id": 578,
+      "key": "pet.pet_raposa_mistica.desc",
+      "locale": "pt-BR",
+      "text": "Espírito ardente com caudas flamejantes capaz de conjurar bolas de fogo teleguiadas.",
+      "updatedAt": "2026-11-10T02:05:42.755Z"
+    },
+    {
+      "id": 579,
+      "key": "pet.pet_drag_ozinho_astral_mwa1u5tk.name",
+      "locale": "pt-BR",
+      "text": "Drag�ozinho Astral",
+      "updatedAt": "2026-11-10T02:06:33.466Z"
+    },
+    {
+      "id": 580,
+      "key": "pet.pet_drag_ozinho_astral_mwa1u5tk.desc",
+      "locale": "pt-BR",
+      "text": "Um drag�o miniatura que conjura pequenas esferas estelares.",
+      "updatedAt": "2026-11-10T02:06:33.472Z"
     }
   ],
   "biomes": [
@@ -40330,6 +40400,18 @@
       "isPercentage": true
     },
     {
+      "code": "ATTACK_SPEED",
+      "nameI18nKey": "combat_attr.attack_speed",
+      "baseDefault": 1,
+      "isPercentage": false
+    },
+    {
+      "code": "BATTLE_MOVE_SPEED",
+      "nameI18nKey": "combat_attr.battle_move_speed",
+      "baseDefault": 180,
+      "isPercentage": false
+    },
+    {
       "code": "CONTROL_HIT",
       "nameI18nKey": "attr.combat.control_hit.name",
       "baseDefault": 0,
@@ -40773,6 +40855,7 @@
         "VIT": 2,
         "WIS": 2
       },
+      "baseCombatAttributesJson": {},
       "skillIdsJson": [
         1,
         2,
@@ -40810,6 +40893,7 @@
         "VIT": 2,
         "WIS": 2
       },
+      "baseCombatAttributesJson": {},
       "skillIdsJson": [
         1,
         2,
@@ -40847,6 +40931,7 @@
         "VIT": 2,
         "WIS": 2
       },
+      "baseCombatAttributesJson": {},
       "skillIdsJson": [
         1,
         2,
@@ -40884,6 +40969,7 @@
         "VIT": 2,
         "WIS": 2
       },
+      "baseCombatAttributesJson": {},
       "skillIdsJson": [
         1,
         2,
@@ -40921,6 +41007,7 @@
         "VIT": 2,
         "WIS": 2
       },
+      "baseCombatAttributesJson": {},
       "skillIdsJson": [
         1,
         2,
@@ -40958,6 +41045,7 @@
         "VIT": 2,
         "WIS": 2
       },
+      "baseCombatAttributesJson": {},
       "skillIdsJson": [
         1,
         2,
@@ -40995,6 +41083,7 @@
         "VIT": 2,
         "WIS": 2
       },
+      "baseCombatAttributesJson": {},
       "skillIdsJson": [
         1,
         2,
@@ -41032,6 +41121,7 @@
         "VIT": 2,
         "WIS": 2
       },
+      "baseCombatAttributesJson": {},
       "skillIdsJson": [
         1,
         2,
@@ -41069,6 +41159,7 @@
         "VIT": 2,
         "WIS": 2
       },
+      "baseCombatAttributesJson": {},
       "skillIdsJson": [
         1,
         2,
@@ -41106,6 +41197,7 @@
         "VIT": 2,
         "WIS": 2
       },
+      "baseCombatAttributesJson": {},
       "skillIdsJson": [
         1,
         2,
@@ -41143,6 +41235,7 @@
         "VIT": 2,
         "WIS": 2
       },
+      "baseCombatAttributesJson": {},
       "skillIdsJson": [
         1,
         2,
@@ -41180,6 +41273,7 @@
         "VIT": 2,
         "WIS": 2
       },
+      "baseCombatAttributesJson": {},
       "skillIdsJson": [
         1,
         2,
@@ -42156,6 +42250,102 @@
         "triggerReborn": true
       },
       "isActive": true
+    }
+  ],
+  "petTemplates": [
+    {
+      "id": 1,
+      "code": "pet_lobo_guardiao",
+      "mcreworkPetKey": "creature_000001",
+      "nameI18nKey": "pet.pet_lobo_guardiao.name",
+      "descriptionI18nKey": "pet.pet_lobo_guardiao.desc",
+      "groundOffsetY": 0,
+      "raceCode": "BEAST",
+      "recommendedElementCode": "EARTH",
+      "rarityTier": "B",
+      "role": "TANK",
+      "catchRatePct": 35,
+      "baseAttributesJson": {
+        "AGI": 12,
+        "DEX": 10,
+        "INT": 8,
+        "STR": 13,
+        "VIT": 16,
+        "WIS": 9
+      },
+      "baseCombatAttributesJson": {
+        "ATTACK_SPEED": 1.1,
+        "PHYS_EVASION": 12,
+        "PHYS_ACCURACY": 95,
+        "BATTLE_MOVE_SPEED": 175
+      },
+      "skillIdsJson": [],
+      "isActive": true,
+      "createdAt": "2026-11-10T02:05:42.695Z",
+      "updatedAt": "2026-11-10T02:05:42.695Z"
+    },
+    {
+      "id": 2,
+      "code": "pet_grifo_protetor",
+      "mcreworkPetKey": "creature_000002",
+      "nameI18nKey": "pet.pet_grifo_protetor.name",
+      "descriptionI18nKey": "pet.pet_grifo_protetor.desc",
+      "groundOffsetY": 0,
+      "raceCode": "CELESTIAL",
+      "recommendedElementCode": "AIR",
+      "rarityTier": "A",
+      "role": "SUPPORT",
+      "catchRatePct": 25,
+      "baseAttributesJson": {
+        "AGI": 15,
+        "DEX": 13,
+        "INT": 12,
+        "STR": 14,
+        "VIT": 12,
+        "WIS": 11
+      },
+      "baseCombatAttributesJson": {
+        "ATTACK_SPEED": 1.25,
+        "PHYS_EVASION": 18,
+        "PHYS_ACCURACY": 100,
+        "BATTLE_MOVE_SPEED": 185
+      },
+      "skillIdsJson": [],
+      "isActive": true,
+      "createdAt": "2026-11-10T02:05:42.738Z",
+      "updatedAt": "2026-11-10T02:05:42.738Z"
+    },
+    {
+      "id": 3,
+      "code": "pet_raposa_mistica",
+      "mcreworkPetKey": "creature_000003",
+      "nameI18nKey": "pet.pet_raposa_mistica.name",
+      "descriptionI18nKey": "pet.pet_raposa_mistica.desc",
+      "groundOffsetY": 0,
+      "raceCode": "SPIRIT",
+      "recommendedElementCode": "FIRE",
+      "rarityTier": "S",
+      "role": "MAG_DPS",
+      "catchRatePct": 15,
+      "baseAttributesJson": {
+        "AGI": 14,
+        "DEX": 14,
+        "INT": 18,
+        "STR": 8,
+        "VIT": 10,
+        "WIS": 14
+      },
+      "baseCombatAttributesJson": {
+        "CRIT_RATE": 12,
+        "MAG_EVASION": 15,
+        "ATTACK_SPEED": 1.15,
+        "MAG_ACCURACY": 105,
+        "BATTLE_MOVE_SPEED": 180
+      },
+      "skillIdsJson": [],
+      "isActive": true,
+      "createdAt": "2026-11-10T02:05:42.760Z",
+      "updatedAt": "2026-11-10T02:05:42.760Z"
     }
   ]
 }

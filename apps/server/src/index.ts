@@ -20,6 +20,7 @@ import { AdminUsersController } from './controllers/AdminUsersController.js';
 import { AdminMapsController } from './controllers/AdminMapsController.js';
 import { GamePlayController } from './controllers/GamePlayController.js';
 import { AdminMonstersController } from './controllers/AdminMonstersController.js';
+import { AdminPetsController } from './controllers/AdminPetsController.js';
 import { AdminSkillsController } from './controllers/AdminSkillsController.js';
 import { AdminQuestsController } from './controllers/AdminQuestsController.js';
 import { AdminAttributesController } from './controllers/AdminAttributesController.js';
@@ -60,6 +61,7 @@ export class EtheriaServerApp {
   private readonly mapsController: AdminMapsController;
   private readonly playController: GamePlayController;
   private readonly monstersController: AdminMonstersController;
+  private readonly petsController: AdminPetsController;
   private readonly skillsController: AdminSkillsController;
   private readonly questsController: AdminQuestsController;
   private readonly attributesController: AdminAttributesController;
@@ -75,6 +77,7 @@ export class EtheriaServerApp {
     this.mapsController = new AdminMapsController(this.prisma);
     this.playController = new GamePlayController(this.prisma);
     this.monstersController = new AdminMonstersController(this.prisma);
+    this.petsController = new AdminPetsController(this.prisma);
     this.skillsController = new AdminSkillsController(this.prisma);
     this.questsController = new AdminQuestsController(this.prisma, snapshotManager);
     this.attributesController = new AdminAttributesController(this.prisma);
@@ -509,33 +512,47 @@ export class EtheriaServerApp {
 
         // Templates de Monstros / Mobs (mcrework & PostgreSQL)
         if (pathname === '/api/admin/mcrework/monsters' && method === 'GET') {
-          if (!this.enforceTablePermission(res, session, 'MONSTERS', 'READ')) return;
-          this.sendJson(res, 200, await this.monstersController.getMcreworkMonsterGallery());
+          if (this.enforceTablePermission(res, session, 'MONSTERS', 'READ')) this.sendJson(res, 200, await this.monstersController.getMcreworkMonsterGallery());
           return;
         }
         if (pathname === '/api/admin/monster-templates' && method === 'GET') {
-          if (!this.enforceTablePermission(res, session, 'MONSTERS', 'READ')) return;
-          this.sendJson(res, 200, await this.monstersController.getMonsterTemplates());
+          if (this.enforceTablePermission(res, session, 'MONSTERS', 'READ')) this.sendJson(res, 200, await this.monstersController.getMonsterTemplates());
           return;
         }
         if (pathname === '/api/admin/monster-templates' && method === 'POST') {
-          if (!this.enforceTablePermission(res, session, 'MONSTERS', 'READ_WRITE')) return;
-          const dto = await this.readJsonBody(req);
-          this.sendJson(res, 201, await this.monstersController.createMonsterTemplate(dto));
+          if (this.enforceTablePermission(res, session, 'MONSTERS', 'READ_WRITE')) this.sendJson(res, 201, await this.monstersController.createMonsterTemplate(await this.readJsonBody(req)));
           return;
         }
         const monsterMatch = pathname.match(/^\/api\/admin\/monster-templates\/(\d+)$/);
         if (monsterMatch && method === 'PUT') {
-          if (!this.enforceTablePermission(res, session, 'MONSTERS', 'READ_WRITE')) return;
-          const id = Number(monsterMatch[1]);
-          const dto = await this.readJsonBody(req);
-          this.sendJson(res, 200, await this.monstersController.updateMonsterTemplate(id, dto));
+          if (this.enforceTablePermission(res, session, 'MONSTERS', 'READ_WRITE')) this.sendJson(res, 200, await this.monstersController.updateMonsterTemplate(Number(monsterMatch[1]), await this.readJsonBody(req)));
           return;
         }
         if (monsterMatch && method === 'DELETE') {
-          if (!this.enforceTablePermission(res, session, 'MONSTERS', 'READ_WRITE')) return;
-          const id = Number(monsterMatch[1]);
-          this.sendJson(res, 200, await this.monstersController.deleteMonsterTemplate(id));
+          if (this.enforceTablePermission(res, session, 'MONSTERS', 'READ_WRITE')) this.sendJson(res, 200, await this.monstersController.deleteMonsterTemplate(Number(monsterMatch[1])));
+          return;
+        }
+
+        // --- Templates de Pets Companheiros (mcrework & PostgreSQL) ---
+        if (pathname === '/api/admin/mcrework/pets' && method === 'GET') {
+          if (this.enforceTablePermission(res, session, 'MONSTERS', 'READ')) this.sendJson(res, 200, await this.petsController.getMcreworkPetsGallery());
+          return;
+        }
+        if (pathname === '/api/admin/pet-templates' && method === 'GET') {
+          if (this.enforceTablePermission(res, session, 'MONSTERS', 'READ')) this.sendJson(res, 200, await this.petsController.getPetTemplates());
+          return;
+        }
+        if (pathname === '/api/admin/pet-templates' && method === 'POST') {
+          if (this.enforceTablePermission(res, session, 'MONSTERS', 'READ_WRITE')) this.sendJson(res, 201, await this.petsController.createPetTemplate(await this.readJsonBody(req)));
+          return;
+        }
+        const petMatch = pathname.match(/^\/api\/admin\/pet-templates\/(\d+)$/);
+        if (petMatch && method === 'PUT') {
+          if (this.enforceTablePermission(res, session, 'MONSTERS', 'READ_WRITE')) this.sendJson(res, 200, await this.petsController.updatePetTemplate(Number(petMatch[1]), await this.readJsonBody(req)));
+          return;
+        }
+        if (petMatch && method === 'DELETE') {
+          if (this.enforceTablePermission(res, session, 'MONSTERS', 'READ_WRITE')) this.sendJson(res, 200, await this.petsController.deletePetTemplate(Number(petMatch[1])));
           return;
         }
 

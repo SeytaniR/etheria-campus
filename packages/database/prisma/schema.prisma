@@ -166,6 +166,7 @@ model Element {
   attackerMatchups   ElementMatchup[] @relation("AttackerElement")
   defenderMatchups   ElementMatchup[] @relation("DefenderElement")
   monsters           MonsterTemplate[]
+  pets               PetTemplate[]
 
   @@map("elements")
 }
@@ -192,6 +193,7 @@ model Race {
   defenderMatchups RaceMatchup[]     @relation("DefenderRace")
   classes          ClassTemplate[]
   monsters         MonsterTemplate[]
+  pets             PetTemplate[]
 
   @@map("races")
 }
@@ -457,19 +459,48 @@ model PlayerCharacter {
   @@map("player_characters")
 }
 
+/// Templates de Pets Companheiros curados do mcrework para combate de ação ao lado do jogador.
+model PetTemplate {
+  id                       Int            @id @default(autoincrement())
+  code                     String         @unique
+  mcreworkPetKey           String         @map("mcrework_pet_key")
+  nameI18nKey              String         @map("name_i18n_key")
+  descriptionI18nKey       String?        @map("description_i18n_key")
+  groundOffsetY            Int            @default(0) @map("ground_offset_y")
+  raceCode                 String         @map("race_code")
+  recommendedElementCode   String         @default("NEUTRAL") @map("recommended_element_code")
+  rarityTier               String         @default("COMMON") @map("rarity_tier") /// SS, S, A, B, C, D, F
+  role                     String         @default("BALANCED") @map("role") /// TANK, PHYS_DPS, MAG_DPS, HEALER, SUPPORT, BALANCED
+  catchRatePct             Float          @default(25.0) @map("catch_rate_pct")
+  baseAttributesJson       Json           @map("base_attributes_json") /// Pesos de VIT, STR, INT, WIS, AGI, DEX
+  baseCombatAttributesJson Json?          @default("{}") @map("base_combat_attributes_json") /// Velocidade em Batalha, Vel. Ataque, Precisão, Desvio, Crítico
+  skillIdsJson             Json           @default("[]") @map("skill_ids_json")
+  isActive                 Boolean        @default(true) @map("is_active")
+  createdAt                DateTime       @default(now()) @map("created_at")
+  updatedAt                DateTime       @updatedAt @map("updated_at")
+
+  race                     Race           @relation(fields: [raceCode], references: [code])
+  recommendedElement       Element        @relation(fields: [recommendedElementCode], references: [code])
+  characterPets            CharacterPet[]
+
+  @@map("pet_templates")
+}
+
 /// Pets pertencentes a um Personagem (possuem elemento sorteado na obtenção e 6 slots de equipamento).
 model CharacterPet {
-  id                  Int             @id @default(autoincrement())
-  characterId         Int             @map("character_id")
-  monsterTemplateId   Int             @map("monster_template_id")
+  id                  Int              @id @default(autoincrement())
+  characterId         Int              @map("character_id")
+  monsterTemplateId   Int?             @map("monster_template_id")
+  petTemplateId       Int?             @map("pet_template_id")
   nickname            String?
-  elementCode         String          @map("element_code") /// Sorteado na criação/captura: 10% NEUTRAL, 20% cada ativo
-  level               Int             @default(1)
-  experience          BigInt          @default(0)
-  equippedItemsJson   Json            @default("{}") @map("equipped_items_json") /// Mapeia PET_EQUIP_1..6 -> ID do item
+  elementCode         String           @map("element_code") /// Sorteado na criação/captura: 10% NEUTRAL, 20% cada ativo
+  level               Int              @default(1)
+  experience          BigInt           @default(0)
+  equippedItemsJson   Json             @default("{}") @map("equipped_items_json") /// Mapeia PET_EQUIP_1..6 -> ID do item
 
-  character           PlayerCharacter @relation(fields: [characterId], references: [id], onDelete: Cascade)
-  monsterTemplate     MonsterTemplate @relation(fields: [monsterTemplateId], references: [id])
+  character           PlayerCharacter  @relation(fields: [characterId], references: [id], onDelete: Cascade)
+  monsterTemplate     MonsterTemplate? @relation(fields: [monsterTemplateId], references: [id])
+  petTemplate         PetTemplate?     @relation(fields: [petTemplateId], references: [id])
 
   @@map("character_pets")
 }
