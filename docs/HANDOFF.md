@@ -8,9 +8,9 @@
 ---
 
 ## 📌 Status Atual do Projeto
-* **Versão Atual:** `v0.6.2`
+* **Versão Atual:** `v0.6.3`
 * **Última Atualização:** `2026-11-10`
-* **Fase Atual:** **Gatilhos e Bloco Visual de Limpeza de Debuffs (`CLEANSE_DISPEL`) Concluídos (`v0.6.2`) — Adicionados gatilhos `ON_DEBUFF_RECEIVED` e `ON_TURN_START_CLEANSE` e bloco visual `CLEANSE_DISPEL` no Studio Low-Code (`/admin`), preview 2.5D e motor de combate, respeitando 100% a Cláusula 0.2 (zero mutação nas tabelas existentes) e Regra #7 (< 1.000 linhas por arquivo).**
+* **Fase Atual:** **Transição Completa do Sistema de Combate e Tabelas para Tempo Real (`v0.6.3`) — Eliminados resquícios de turnos em habilidades, buffs e debuffs. Habilidades agora operam com Cooldowns em Segundos (`cooldownSeconds`), buffs e debuffs operam com Duração (`durationSeconds`) e Intervalos de Pulso (`tickIntervalSeconds`), com gatilhos contínuos em tempo real (`CONTINUOUS_TICK`, `INTERVAL_TICK`). Mantida 100% de compatibilidade retroativa com fallback para dados existentes (Cláusula 0.2) e todos os arquivos estritamente abaixo de 1.000 linhas (Regra #7).**
 * **Repositório Oficial:** `https://github.com/SeytaniR/etheria-campus`
 * **Fonte Bruta de Assets:** `https://github.com/SeytaniR/mcrework` (`https://seytanir.github.io/mcrework/`)
 

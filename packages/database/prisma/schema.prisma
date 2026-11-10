@@ -344,7 +344,7 @@ model MonsterBiome {
 // 6. HABILIDADES (ATIVAS & PASSIVAS), BUFFS/DEBUFFS E EQUIPAMENTOS (16 + 6 SLOTS)
 // ----------------------------------------------------------------------------
 
-/// Habilidades de Combate (Modo 5B) baseadas nos 7 Blocos Universais de Efeito (Modo Visual No-Code).
+/// Habilidades de Combate em Tempo Real baseadas nos 7 Blocos Universais de Efeito (Modo Visual No-Code).
 model SkillTemplate {
   id                 Int     @id @default(autoincrement())
   code               String  @unique
@@ -355,11 +355,14 @@ model SkillTemplate {
   castMovement       String  @default("MELEE_ADVANCE") @map("cast_movement") /// MELEE_ADVANCE ou STAND_IN_PLACE
   mcreworkVfxKey     String? @map("mcrework_vfx_key") /// ID do efeito em assets/effects/catalog.json
   skillType          String  @default("ACTIVE") @map("skill_type") /// ACTIVE ou PASSIVE
-  triggerType        String  @default("MANUAL_AP") @map("trigger_type") /// MANUAL_AP, PASSIVE_ALWAYS, ON_TURN_START, ON_HIT, ON_CRIT, ON_DAMAGE_TAKEN, ON_KILL
+  triggerType        String  @default("MANUAL") @map("trigger_type") /// MANUAL, PASSIVE_ALWAYS, ON_HIT, ON_CRIT, ON_DAMAGE_TAKEN, ON_KILL, INTERVAL_TICK
   mpCost             Int     @default(10) @map("mp_cost")
-  apCost             Int     @default(2) @map("ap_cost")
-  cooldownTurns      Int     @default(0) @map("cooldown_turns")
-  targetScope        String  @default("MELEE_FRONTLINE") @map("target_scope") /// MELEE_FRONTLINE, RANGED_ANY, ROW_FRONT, ROW_BACK, COLUMN_PIERCE, CROSS, ALL_ENEMIES, SELF, ALLY_SINGLE, ALLY_ALL
+  apCost             Int     @default(2) @map("ap_cost") /// Custo de stamina/estamina de ação
+  cooldownSeconds    Float   @default(0.0) @map("cooldown_seconds") /// Tempo de recarga em segundos (ex: 2.5s, 6.0s)
+  cooldownTurns      Int     @default(0) @map("cooldown_turns") /// Compatibilidade legada
+  castRange          Int     @default(160) @map("cast_range") /// Alcance máximo de conjuração em pixels
+  aoeRadius          Int     @default(0) @map("aoe_radius") /// Raio de área de impacto em pixels (0 = alvo único)
+  targetScope        String  @default("TARGET_PRIMARY") @map("target_scope") /// TARGET_PRIMARY, RANGED_ANY, ALL_ENEMIES, SELF, ALLY_SINGLE, ALLY_ALL, AOE_CIRCLE
   hitCount           Int     @default(1) @map("hit_count")
   effectBlocksJson   Json    @default("[]") @map("effect_blocks_json") /// Lista visual de blocos: DAMAGE, HEAL, SHIELD, STATUS, MOVE_SLOT, CLEANSE_DISPEL, RESOURCE
   isActive           Boolean @default(true) @map("is_active")
@@ -367,7 +370,7 @@ model SkillTemplate {
   @@map("skill_templates")
 }
 
-/// Templates de Buffs, Debuffs, Dano por Turno (DoT) e Controles de Grupo (CC).
+/// Templates de Buffs, Debuffs, Dano por Tempo (DoT) e Controles de Grupo (CC) em Tempo Real.
 /// Não se ativam sozinhos: exigem uma Habilidade Ativa ou Passiva para serem aplicados no alvo.
 model StatusEffectTemplate {
   id                   Int     @id @default(autoincrement())
@@ -377,11 +380,13 @@ model StatusEffectTemplate {
   iconKey              String? @map("icon_key") /// Ícone informativo e exibido acima da cabeça do alvo na batalha
   mcreworkVfxKey       String? @map("mcrework_vfx_key") /// Efeito especial 2.5D acionado quando o gatilho do Buff/Debuff dispara
   isBuff               Boolean @default(true) @map("is_buff") /// true = Buff, false = Debuff
-  triggerType          String  @default("ON_TURN_START") @map("trigger_type") /// WHILE_ACTIVE, ON_APPLY, ON_TURN_START, ON_TURN_END, ON_HIT_TAKEN, ON_ATTACK
+  triggerType          String  @default("CONTINUOUS_TICK") @map("trigger_type") /// CONTINUOUS_TICK, WHILE_ACTIVE, ON_APPLY, ON_HIT_TAKEN, ON_ATTACK, ON_EXPIRE
   maxStacks            Int     @default(1) @map("max_stacks")
-  defaultDurationTurns Int     @default(2) @map("default_duration_turns")
+  durationSeconds      Float   @default(5.0) @map("duration_seconds") /// Duração total do efeito em segundos
+  tickIntervalSeconds  Float   @default(1.0) @map("tick_interval_seconds") /// Intervalo entre pulsos de DoT/HoT em segundos (padrão 1.0s)
+  defaultDurationTurns Int     @default(2) @map("default_duration_turns") /// Compatibilidade legada
   statModifiersJson    Json    @default("{}") @map("stat_modifiers_json") /// Ex: {"ATK_PCT":20,"DEF_PCT":-15,"SPEED_PCT":10}
-  dotHotFormulaJson    Json    @default("{}") @map("dot_hot_formula_json") /// Configuração visual de Dano/Cura por gatilho
+  dotHotFormulaJson    Json    @default("{}") @map("dot_hot_formula_json") /// Configuração visual de Dano/Cura por segundo/tick
   controlFlagsJson     Json    @default("[]") @map("control_flags_json") /// Ex: ["STUN", "SILENCE", "FREEZE"]
   effectBlocksJson     Json    @default("[]") @map("effect_blocks_json")
   isActive             Boolean @default(true) @map("is_active")

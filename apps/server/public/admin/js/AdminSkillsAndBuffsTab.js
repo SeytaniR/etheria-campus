@@ -147,7 +147,7 @@ class AdminSkillsAndBuffsTab {
                     <span style="font-size:0.65rem; padding:1px 5px; border-radius:4px; background:${elemBadge.bg}; color:${elemBadge.text}; border:1px solid ${elemBadge.border}; font-weight:700;">${elemBadge.icon} ${elemBadge.label}</span>
                     <span style="font-size:0.65rem; padding:1px 5px; border-radius:4px; background:rgba(15,23,42,0.9); color:#94a3b8; border:1px solid #334155;">${scopeLabel}</span>
                     ${isPassive ? '<span style="font-size:0.65rem; color:#d8b4fe; font-weight:700;">♾️ Passiva</span>' : `<span style="font-size:0.65rem; color:#38bdf8; font-weight:700;">💧 ${sk.mpCost || 0} MP</span>`}
-                    ${sk.cooldownTurns > 0 ? `<span style="font-size:0.65rem; color:#fde047;">⏳ CD: ${sk.cooldownTurns}t</span>` : ''}
+                    ${(sk.cooldownSeconds ?? sk.cooldownTurns ?? 0) > 0 ? `<span style="font-size:0.65rem; color:#fde047;">⏳ CD: ${sk.cooldownSeconds ?? sk.cooldownTurns}s</span>` : ''}
                   </div>
                 </div>
               </div>
@@ -182,10 +182,12 @@ class AdminSkillsAndBuffsTab {
           }
           if (b.blockType === 'STATUS') {
             const st = (this.statusEffectTemplates || []).find((s) => s.id === Number(b.statusEffectId));
-            return `🧪 Aplica [${st ? st.namePtBr : `Status #${b.statusEffectId}`}] (${b.applyChancePct ?? 100}%, ${b.durationTurns || 2}t)`;
+            const dur = b.durationSeconds ?? b.durationTurns ?? (st?.durationSeconds ?? st?.defaultDurationTurns ?? 5);
+            return `🧪 Aplica [${st ? st.namePtBr : `Status #${b.statusEffectId}`}] (${b.applyChancePct ?? 100}%, ${dur}s)`;
           }
           if (b.blockType === 'SHIELD') {
-            return `🛡️ Escudo: ${b.scalePct || 15}% ${b.scaleStat || 'MAX_HP'} (${b.durationTurns || 2}t)`;
+            const dur = b.durationSeconds ?? b.durationTurns ?? 5;
+            return `🛡️ Escudo: ${b.scalePct || 15}% ${b.scaleStat || 'MAX_HP'} (${dur}s)`;
           }
           if (b.blockType === 'CLEANSE_DISPEL' || b.blockType === 'CLEANSE') {
             const qtyTxt = Number(b.maxDebuffs) > 0 ? `até ${b.maxDebuffs}` : 'Todos';
@@ -236,7 +238,7 @@ class AdminSkillsAndBuffsTab {
             </td>
             <td>
               <div style="font-size:0.74rem; font-weight:600;">🎯 ${sk.targetScope} (${sk.hitCount || 1} hit)</div>
-              <div style="font-size:0.7rem; color:#7dd3fc;">💧 ${sk.mpCost || 0} MP &bull; ⏳ CD: ${sk.cooldownTurns || 0}t</div>
+              <div style="font-size:0.7rem; color:#7dd3fc;">💧 ${sk.mpCost || 0} MP &bull; ⏳ CD: ${sk.cooldownSeconds ?? sk.cooldownTurns ?? 0}s &bull; 📏 ${sk.castRange ?? 160}px</div>
             </td>
             <td>
               <div style="font-size:0.73rem; line-height:1.35;">${this.formatSkillBlocksSummary(sk.effectBlocksJson)}</div>
@@ -270,7 +272,13 @@ class AdminSkillsAndBuffsTab {
         document.getElementById('skillTargetScopeSelect').value = existing.targetScope || 'MELEE_FRONTLINE';
         document.getElementById('skillHitCountInput').value = String(existing.hitCount || 1);
         document.getElementById('skillMpCostInput').value = String(existing.mpCost ?? 10);
-        document.getElementById('skillCooldownInput').value = String(existing.cooldownTurns ?? 0);
+        document.getElementById('skillCooldownInput').value = String(existing.cooldownSeconds ?? existing.cooldownTurns ?? 0);
+        if (document.getElementById('skillCastRangeInput')) {
+          document.getElementById('skillCastRangeInput').value = String(existing.castRange ?? 160);
+        }
+        if (document.getElementById('skillAoeRadiusInput')) {
+          document.getElementById('skillAoeRadiusInput').value = String(existing.aoeRadius ?? 0);
+        }
         document.getElementById('skillCastMovementSelect').value = existing.castMovement || 'MELEE_ADVANCE';
         document.getElementById('skillCastActionSelect').value = String(existing.castActionId || 3);
 
@@ -299,7 +307,9 @@ class AdminSkillsAndBuffsTab {
         document.getElementById('skillTargetScopeSelect').value = 'MELEE_FRONTLINE';
         document.getElementById('skillHitCountInput').value = '1';
         document.getElementById('skillMpCostInput').value = '12';
-        document.getElementById('skillCooldownInput').value = '0';
+        document.getElementById('skillCooldownInput').value = '3.0';
+        if (document.getElementById('skillCastRangeInput')) document.getElementById('skillCastRangeInput').value = '160';
+        if (document.getElementById('skillAoeRadiusInput')) document.getElementById('skillAoeRadiusInput').value = '0';
         document.getElementById('skillCastMovementSelect').value = 'MELEE_ADVANCE';
         document.getElementById('skillCastActionSelect').value = '3';
 
@@ -357,7 +367,8 @@ class AdminSkillsAndBuffsTab {
           blockType: 'STATUS',
           statusEffectId: firstStatusId,
           applyChancePct: 100,
-          durationTurns: 3,
+          durationSeconds: 5.0,
+          durationTurns: 5,
           targetSelf: false,
         });
       } else if (blockType === 'SHIELD') {
@@ -366,7 +377,8 @@ class AdminSkillsAndBuffsTab {
           scaleStat: 'MAX_HP',
           scalePct: 20,
           flatAmount: 30,
-          durationTurns: 2,
+          durationSeconds: 5.0,
+          durationTurns: 5,
         });
       } else if (blockType === 'CLEANSE_DISPEL') {
         this.editingSkillBlocks.push({
@@ -532,8 +544,8 @@ class AdminSkillsAndBuffsTab {
                   <input type="number" min="1" max="100" value="${blk.applyChancePct ?? 100}" onchange="AdminApp.updateVisualSkillBlockField(${i}, 'applyChancePct', this.value, true)" />
                 </div>
                 <div>
-                  <label style="font-size:0.7rem;">Duração (Turnos)</label>
-                  <input type="number" min="1" max="10" value="${blk.durationTurns ?? 3}" onchange="AdminApp.updateVisualSkillBlockField(${i}, 'durationTurns', this.value, true)" />
+                  <label style="font-size:0.7rem;">Duração (Segundos)</label>
+                  <input type="number" min="0.5" max="60" step="0.5" value="${blk.durationSeconds ?? blk.durationTurns ?? 5}" onchange="AdminApp.updateVisualSkillBlockField(${i}, 'durationSeconds', this.value, true); AdminApp.updateVisualSkillBlockField(${i}, 'durationTurns', Math.round(Number(this.value)), true);" />
                 </div>
               </div>
             </div>`;
@@ -641,7 +653,9 @@ class AdminSkillsAndBuffsTab {
         const targetScope = document.getElementById('skillTargetScopeSelect').value || 'MELEE_FRONTLINE';
         const hitCount = Number(document.getElementById('skillHitCountInput').value) || 1;
         const mpCost = Number(document.getElementById('skillMpCostInput').value) || 0;
-        const cooldownTurns = Number(document.getElementById('skillCooldownInput').value) || 0;
+        const cooldownVal = Number(document.getElementById('skillCooldownInput').value) || 0;
+        const castRange = Number(document.getElementById('skillCastRangeInput')?.value) || 160;
+        const aoeRadius = Number(document.getElementById('skillAoeRadiusInput')?.value) || 0;
         const castMovement = document.getElementById('skillCastMovementSelect').value || 'MELEE_ADVANCE';
         const castActionId = Number(document.getElementById('skillCastActionSelect').value) || 3;
 
@@ -663,7 +677,10 @@ class AdminSkillsAndBuffsTab {
           hitCount,
           mpCost,
           apCost: 0,
-          cooldownTurns,
+          cooldownSeconds: cooldownVal,
+          cooldownTurns: Math.round(cooldownVal),
+          castRange,
+          aoeRadius,
           effectBlocksJson: this.editingSkillBlocks,
         };
 
@@ -829,15 +846,15 @@ class AdminSkillsAndBuffsTab {
             <div class="field">
               <label style="color:#fde047; font-weight:700;">Gatilho de Ativação</label>
               <select id="skillTriggerSelect" onchange="AdminApp.onSkillTriggerChanged && AdminApp.onSkillTriggerChanged(this.value)">
-                <option value="ACTIVE">🎯 Uso Manual / Combate Livre</option>
+                <option value="ACTIVE">🎯 Uso Manual / Tempo Real</option>
                 <option value="PASSIVE_ALWAYS">♾️ Passiva Permanente</option>
-                <option value="ON_TURN_START">🌅 No Início do Turno</option>
+                <option value="INTERVAL_TICK">⏱️ Periódico (A cada intervalo de segundos)</option>
                 <option value="ON_HIT">🗡️ Ao Acertar um Golpe</option>
                 <option value="ON_CRIT">💥 Ao Causar Dano Crítico</option>
                 <option value="ON_DAMAGE_TAKEN">🛡️ Ao Receber Dano</option>
                 <option value="ON_KILL">💀 Ao Derrotar um Inimigo</option>
                 <option value="ON_DEBUFF_RECEIVED">✨ Ao Receber Debuff (Limpar Debuffs)</option>
-                <option value="ON_TURN_START_CLEANSE">🧹 No Início do Turno com Debuff (Limpar Debuffs)</option>
+                <option value="INTERVAL_TICK_CLEANSE">🧹 Purificação Periódica (A cada intervalo com Debuff)</option>
               </select>
             </div>
             <div class="field">
@@ -854,7 +871,9 @@ class AdminSkillsAndBuffsTab {
             </div>
             <div class="field"><label>Nº de Golpes (Hits)</label><input type="number" id="skillHitCountInput" value="1" min="1" max="10" /></div>
             <div class="field"><label>💧 Custo de MP</label><input type="number" id="skillMpCostInput" value="12" min="0" /></div>
-            <div class="field"><label>⏳ Cooldown (Turnos)</label><input type="number" id="skillCooldownInput" value="0" min="0" /></div>
+            <div class="field"><label>⏳ Cooldown (Segundos)</label><input type="number" id="skillCooldownInput" value="3.0" min="0" step="0.5" /></div>
+            <div class="field"><label>🎯 Alcance (Pixels)</label><input type="number" id="skillCastRangeInput" value="160" min="0" step="10" /></div>
+            <div class="field"><label>💥 Raio de Área (AoE px)</label><input type="number" id="skillAoeRadiusInput" value="0" min="0" step="10" /></div>
           </div>
           <div style="display:flex; align-items:center; gap:8px; margin-top:10px; padding:6px 10px; background:rgba(2,6,23,0.8); border:1px solid #0284c7; border-radius:6px; flex-wrap:wrap;">
             <label style="display:flex; align-items:center; gap:6px; font-size:0.75rem; color:#fde047; font-weight:700; cursor:pointer; margin:0;">

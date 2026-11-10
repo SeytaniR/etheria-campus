@@ -226,7 +226,7 @@ export const INITIAL_BASE_ATTRIBUTES = [
   { code: 'STR', namePtBr: 'Força', descriptionPtBr: 'Aumenta o Ataque Físico, a Penetração Física, o Dano Crítico e a Potência de Anomalias Físicas.' },
   { code: 'INT', namePtBr: 'Inteligência', descriptionPtBr: 'Aumenta o Ataque Mágico, o MP Máximo, a Penetração Mágica e o Acerto de Controle/Anomalias Mágicas.' },
   { code: 'WIS', namePtBr: 'Sabedoria', descriptionPtBr: 'Aumenta o Poder de Cura/Escudo, a Defesa Mágica, a Regeneração de MP, o Desvio Mágico e a Resistência a Controle.' },
-  { code: 'AGI', namePtBr: 'Agilidade', descriptionPtBr: 'Aumenta a Velocidade de Iniciativa no Turno, a Esquiva Física, o Desvio Mágico e o Ataque Físico Leve.' },
+  { code: 'AGI', namePtBr: 'Agilidade', descriptionPtBr: 'Aumenta a Velocidade de Ataque (Redução de Intervalo entre Golpes), a Esquiva Física, o Desvio Mágico e o Ataque Físico Leve.' },
   { code: 'DEX', namePtBr: 'Destreza', descriptionPtBr: 'Aumenta a Chance Crítica, a Precisão Física/Mágica, o Acerto de Controle e o Acerto de Anomalias.' },
 ];
 
@@ -244,7 +244,7 @@ export const INITIAL_COMBAT_ATTRIBUTES = [
   { code: 'MAG_PEN', namePtBr: 'Penetração Mágica', baseDefault: 0, isPercentage: false },
   { code: 'HEAL_POWER', namePtBr: 'Poder de Cura e Escudo', baseDefault: 10, isPercentage: false },
   { code: 'MP_REGEN', namePtBr: 'Regeneração de MP', baseDefault: 5, isPercentage: false },
-  { code: 'SPEED', namePtBr: 'Velocidade de Iniciativa', baseDefault: 100, isPercentage: false },
+  { code: 'SPEED', namePtBr: 'Velocidade de Ataque / Ação', baseDefault: 100, isPercentage: false },
   { code: 'PHYS_ACCURACY', namePtBr: 'Precisão Física', baseDefault: 1.0, isPercentage: true },
   { code: 'PHYS_EVASION', namePtBr: 'Esquiva Física', baseDefault: 0.02, isPercentage: true },
   { code: 'MAG_ACCURACY', namePtBr: 'Precisão Mágica', baseDefault: 1.0, isPercentage: true },

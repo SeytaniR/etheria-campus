@@ -26,12 +26,14 @@ class AdminStatusEffectsTab {
       }
 
       const triggerLabels = {
-        WHILE_ACTIVE: '♾️ Enquanto Ativo (Contínuo)',
-        ON_TURN_START: '🌅 No Início do Turno do Alvo',
-        ON_TURN_END: '🌙 No Fim do Turno do Alvo',
+        CONTINUOUS_TICK: '⏱️ A cada Segundo / Tick Periódico',
+        WHILE_ACTIVE: '♾️ Enquanto Ativo (Passivo Contínuo)',
         ON_APPLY: '⚡ Ao Ser Aplicado',
         ON_HIT_TAKEN: '🛡️ Ao Receber Golpe',
         ON_ATTACK: '🗡️ Ao Atacar',
+        ON_EXPIRE: '⏳ Ao Expirar Efeito',
+        ON_TURN_START: '⏱️ Periódico (Tick)',
+        ON_TURN_END: '⏳ Ao Expirar',
       };
 
       tbody.innerHTML = this.statusEffectTemplates
@@ -79,7 +81,7 @@ class AdminStatusEffectsTab {
             </td>
             <td>
               <div style="font-size:0.75rem; font-weight:700; color:#fde047;">${triggerLabels[st.triggerType] || st.triggerType}</div>
-              <div style="font-size:0.7rem; color:var(--text-muted);">⏱️ ${st.defaultDurationTurns} turno(s) &bull; Máx ${st.maxStacks}x</div>
+              <div style="font-size:0.7rem; color:var(--text-muted);">⏱️ ${(st.durationSeconds ?? (st.defaultDurationTurns ? st.defaultDurationTurns * 2.5 : 5.0)).toFixed(1)}s (Tick: ${(st.tickIntervalSeconds ?? 1.0).toFixed(1)}s) &bull; Máx ${st.maxStacks}x</div>
             </td>
             <td>
               <div style="font-size:0.74rem; color:#e2e8f0; max-width:260px; white-space:normal;">
@@ -110,8 +112,11 @@ class AdminStatusEffectsTab {
         document.getElementById('statusNameInput').value = existing.namePtBr || '';
         document.getElementById('statusDescInput').value = existing.descriptionPtBr || '';
         document.getElementById('statusIsBuffSelect').value = existing.isBuff ? 'true' : 'false';
-        document.getElementById('statusTriggerSelect').value = existing.triggerType || 'ON_TURN_START';
-        document.getElementById('statusDurationInput').value = String(existing.defaultDurationTurns || 2);
+        document.getElementById('statusTriggerSelect').value = existing.triggerType || 'CONTINUOUS_TICK';
+        document.getElementById('statusDurationInput').value = String(existing.durationSeconds ?? (existing.defaultDurationTurns ? existing.defaultDurationTurns * 2.5 : 5.0));
+        if (document.getElementById('statusTickIntervalInput')) {
+          document.getElementById('statusTickIntervalInput').value = String(existing.tickIntervalSeconds ?? 1.0);
+        }
         document.getElementById('statusMaxStacksInput').value = String(existing.maxStacks || 1);
 
         const mods = existing.statModifiersJson || {};
@@ -142,8 +147,11 @@ class AdminStatusEffectsTab {
         document.getElementById('statusNameInput').value = '';
         document.getElementById('statusDescInput').value = '';
         document.getElementById('statusIsBuffSelect').value = 'true';
-        document.getElementById('statusTriggerSelect').value = 'ON_TURN_START';
-        document.getElementById('statusDurationInput').value = '3';
+        document.getElementById('statusTriggerSelect').value = 'CONTINUOUS_TICK';
+        document.getElementById('statusDurationInput').value = '5.0';
+        if (document.getElementById('statusTickIntervalInput')) {
+          document.getElementById('statusTickIntervalInput').value = '1.0';
+        }
         document.getElementById('statusMaxStacksInput').value = '1';
 
         document.getElementById('statusModAtkPct').value = '0';
@@ -183,7 +191,7 @@ class AdminStatusEffectsTab {
       if (!badge) return;
 
       if (mode === 'NONE') {
-        badge.textContent = 'Sem Dano/Cura por turno (apenas modificadores de atributo ou controle)';
+        badge.textContent = 'Sem Dano/Cura Periódico (apenas modificadores de atributo ou controle)';
       } else if (mode === 'DAMAGE') {
         badge.textContent = `💥 Fórmula Visual: Causa [${pct}% de ${stat} + ${flat}] de Dano (${elem}) toda vez que o gatilho disparar`;
       } else {
@@ -262,8 +270,10 @@ class AdminStatusEffectsTab {
         const namePtBr = document.getElementById('statusNameInput').value.trim();
         const descriptionPtBr = document.getElementById('statusDescInput').value.trim();
         const isBuff = document.getElementById('statusIsBuffSelect').value === 'true';
-        const triggerType = document.getElementById('statusTriggerSelect').value || 'ON_TURN_START';
-        const defaultDurationTurns = Number(document.getElementById('statusDurationInput').value) || 2;
+        const triggerType = document.getElementById('statusTriggerSelect').value || 'CONTINUOUS_TICK';
+        const durationSeconds = Number(document.getElementById('statusDurationInput').value) || 5.0;
+        const tickIntervalSeconds = Number(document.getElementById('statusTickIntervalInput')?.value) || 1.0;
+        const defaultDurationTurns = Math.max(1, Math.round(durationSeconds / 2.5));
         const maxStacks = Number(document.getElementById('statusMaxStacksInput').value) || 1;
 
         if (!namePtBr) {
@@ -296,6 +306,8 @@ class AdminStatusEffectsTab {
           mcreworkVfxKey: this.selectedStatusVfxKey,
           isBuff,
           triggerType,
+          durationSeconds,
+          tickIntervalSeconds,
           defaultDurationTurns,
           maxStacks,
           statModifiersJson,
@@ -357,15 +369,16 @@ class AdminStatusEffectsTab {
             <div class="field">
               <label style="color:#fde047; font-weight:700;">⚡ Gatilho do Buff/Debuff</label>
               <select id="statusTriggerSelect">
-                <option value="ON_TURN_START">🌅 No Início do Turno do Alvo</option>
-                <option value="ON_TURN_END">🌙 No Fim do Turno do Alvo</option>
-                <option value="WHILE_ACTIVE">♾️ Enquanto Estiver Ativo (Contínuo)</option>
+                <option value="CONTINUOUS_TICK">⏱️ A cada Segundo / Tick Periódico</option>
+                <option value="WHILE_ACTIVE">♾️ Enquanto Estiver Ativo (Passivo Contínuo)</option>
                 <option value="ON_APPLY">⚡ Imediatamente Ao Ser Aplicado</option>
                 <option value="ON_HIT_TAKEN">🛡️ Quando o Alvo Receber Golpe</option>
                 <option value="ON_ATTACK">🗡️ Quando o Alvo Atacar</option>
+                <option value="ON_EXPIRE">⏳ No Término (Ao Expirar Efeito)</option>
               </select>
             </div>
-            <div class="field"><label>Duração Padrão (Turnos)</label><input type="number" id="statusDurationInput" value="3" min="1" max="20" /></div>
+            <div class="field"><label>⏱️ Duração (Segundos)</label><input type="number" id="statusDurationInput" value="5.0" min="0.5" max="300" step="0.5" /></div>
+            <div class="field"><label>Intervalo de Tick (Segundos)</label><input type="number" id="statusTickIntervalInput" value="1.0" min="0.1" max="60" step="0.5" /></div>
             <div class="field"><label>Máximo de Acúmulos (Stacks)</label><input type="number" id="statusMaxStacksInput" value="1" min="1" max="10" /></div>
           </div>
           <div class="field" style="margin-top:8px;">

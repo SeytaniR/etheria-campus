@@ -20,6 +20,8 @@ export interface StatusEffectDto {
   isBuff: boolean;
   triggerType: string;
   maxStacks?: number;
+  durationSeconds?: number;
+  tickIntervalSeconds?: number;
   defaultDurationTurns?: number;
   statModifiersJson?: Record<string, number>;
   dotHotFormulaJson?: any;
@@ -39,7 +41,10 @@ export interface SkillTemplateDto {
   triggerType: string;
   mpCost?: number;
   apCost?: number;
+  cooldownSeconds?: number;
   cooldownTurns?: number;
+  castRange?: number;
+  aoeRadius?: number;
   targetScope: string;
   hitCount?: number;
   effectBlocksJson?: any[];
@@ -194,8 +199,10 @@ export class AdminSkillsController {
         iconKey: dto.iconKey || 'assets/skills/icons/100156.png',
         mcreworkVfxKey: dto.mcreworkVfxKey || null,
         isBuff: dto.isBuff !== false,
-        triggerType: dto.triggerType || 'ON_TURN_START',
+        triggerType: dto.triggerType || 'CONTINUOUS_TICK',
         maxStacks: Math.max(1, Number(dto.maxStacks) || 1),
+        durationSeconds: dto.durationSeconds !== undefined ? Math.max(0.1, Number(dto.durationSeconds)) : (dto.defaultDurationTurns ? dto.defaultDurationTurns * 2.5 : 5.0),
+        tickIntervalSeconds: dto.tickIntervalSeconds !== undefined ? Math.max(0.1, Number(dto.tickIntervalSeconds)) : 1.0,
         defaultDurationTurns: Math.max(1, Number(dto.defaultDurationTurns) || 2),
         statModifiersJson: dto.statModifiersJson ?? {},
         dotHotFormulaJson: dto.dotHotFormulaJson ?? {},
@@ -245,6 +252,14 @@ export class AdminSkillsController {
         isBuff: dto.isBuff !== undefined ? Boolean(dto.isBuff) : existing.isBuff,
         triggerType: dto.triggerType || existing.triggerType,
         maxStacks: dto.maxStacks !== undefined ? Math.max(1, Number(dto.maxStacks) || 1) : existing.maxStacks,
+        durationSeconds:
+          dto.durationSeconds !== undefined
+            ? Math.max(0.1, Number(dto.durationSeconds))
+            : ((existing as any).durationSeconds ?? (existing.defaultDurationTurns ? existing.defaultDurationTurns * 2.5 : 5.0)),
+        tickIntervalSeconds:
+          dto.tickIntervalSeconds !== undefined
+            ? Math.max(0.1, Number(dto.tickIntervalSeconds))
+            : ((existing as any).tickIntervalSeconds ?? 1.0),
         defaultDurationTurns:
           dto.defaultDurationTurns !== undefined
             ? Math.max(1, Number(dto.defaultDurationTurns) || 1)
@@ -337,7 +352,10 @@ export class AdminSkillsController {
         triggerType: dto.triggerType || 'ACTIVE',
         mpCost: Math.max(0, Number(dto.mpCost) ?? 10),
         apCost: 0,
+        cooldownSeconds: dto.cooldownSeconds !== undefined ? Math.max(0, Number(dto.cooldownSeconds)) : (dto.cooldownTurns ? dto.cooldownTurns * 3.0 : 0.0),
         cooldownTurns: Math.max(0, Number(dto.cooldownTurns) ?? 0),
+        castRange: dto.castRange !== undefined ? Math.max(10, Number(dto.castRange)) : 160,
+        aoeRadius: dto.aoeRadius !== undefined ? Math.max(0, Number(dto.aoeRadius)) : 0,
         targetScope: dto.targetScope || 'MELEE_FRONTLINE',
         hitCount: Math.max(1, Number(dto.hitCount) || 1),
         effectBlocksJson: Array.isArray(dto.effectBlocksJson) ? dto.effectBlocksJson : [],
@@ -386,8 +404,14 @@ export class AdminSkillsController {
         triggerType: dto.triggerType || existing.triggerType || 'ACTIVE',
         mpCost: dto.mpCost !== undefined ? Math.max(0, Number(dto.mpCost)) : existing.mpCost,
         apCost: 0,
+        cooldownSeconds:
+          dto.cooldownSeconds !== undefined
+            ? Math.max(0, Number(dto.cooldownSeconds))
+            : ((existing as any).cooldownSeconds ?? (existing.cooldownTurns ? existing.cooldownTurns * 3.0 : 0.0)),
         cooldownTurns:
           dto.cooldownTurns !== undefined ? Math.max(0, Number(dto.cooldownTurns)) : existing.cooldownTurns,
+        castRange: dto.castRange !== undefined ? Math.max(10, Number(dto.castRange)) : ((existing as any).castRange ?? 160),
+        aoeRadius: dto.aoeRadius !== undefined ? Math.max(0, Number(dto.aoeRadius)) : ((existing as any).aoeRadius ?? 0),
         targetScope: dto.targetScope || existing.targetScope,
         hitCount: dto.hitCount !== undefined ? Math.max(1, Number(dto.hitCount) || 1) : existing.hitCount,
         effectBlocksJson: Array.isArray(dto.effectBlocksJson)
@@ -476,12 +500,14 @@ export class AdminSkillsController {
         const initialStatuses: StatusEffectDto[] = [
           {
             namePtBr: 'Queimadura Solar',
-            descriptionPtBr: 'Chamas intensas que causam dano de Fogo no início de cada turno do alvo.',
+            descriptionPtBr: 'Chamas intensas que causam dano de Fogo contínuo por segundo ao alvo (6s).',
             iconKey: 'assets/skills/icons/100156.png',
             mcreworkVfxKey: '10002',
             isBuff: false,
-            triggerType: 'ON_TURN_START',
+            triggerType: 'CONTINUOUS_TICK',
             maxStacks: 3,
+            durationSeconds: 6.0,
+            tickIntervalSeconds: 1.0,
             defaultDurationTurns: 3,
             statModifiersJson: { DEF_PCT: -10 },
             dotHotFormulaJson: { mode: 'DAMAGE', scaleStat: 'ATK', scalePct: 35, flatAmount: 10, elementCode: 'FIRE' },
@@ -489,12 +515,14 @@ export class AdminSkillsController {
           },
           {
             namePtBr: 'Toxina Paralisante',
-            descriptionPtBr: 'Veneno corrosivo que drena a vitalidade no início do turno e reduz a velocidade.',
+            descriptionPtBr: 'Veneno corrosivo que drena vitalidade por segundo e reduz a velocidade de ataque.',
             iconKey: 'assets/skills/icons/100157.png',
             mcreworkVfxKey: '10004',
             isBuff: false,
-            triggerType: 'ON_TURN_START',
+            triggerType: 'CONTINUOUS_TICK',
             maxStacks: 2,
+            durationSeconds: 6.0,
+            tickIntervalSeconds: 1.0,
             defaultDurationTurns: 3,
             statModifiersJson: { SPEED_PCT: -20 },
             dotHotFormulaJson: { mode: 'DAMAGE', scaleStat: 'MAX_HP', scalePct: 8, flatAmount: 8, elementCode: 'EARTH' },
@@ -502,12 +530,14 @@ export class AdminSkillsController {
           },
           {
             namePtBr: 'Fúria de Batalha',
-            descriptionPtBr: 'Aumenta o Ataque em +30% e a Velocidade em +15% enquanto estiver ativo.',
+            descriptionPtBr: 'Aumenta o Ataque em +30% e a Velocidade em +15% por 8 segundos.',
             iconKey: 'assets/skills/icons/100158.png',
             mcreworkVfxKey: '10001',
             isBuff: true,
             triggerType: 'WHILE_ACTIVE',
             maxStacks: 1,
+            durationSeconds: 8.0,
+            tickIntervalSeconds: 1.0,
             defaultDurationTurns: 3,
             statModifiersJson: { ATK_PCT: 30, SPEED_PCT: 15 },
             dotHotFormulaJson: { mode: 'NONE' },
@@ -515,12 +545,14 @@ export class AdminSkillsController {
           },
           {
             namePtBr: 'Bênção Regenerativa',
-            descriptionPtBr: 'Aura sagrada que restaura HP no início de cada turno e eleva a Defesa.',
+            descriptionPtBr: 'Aura sagrada que restaura HP continuamente a cada segundo e eleva a Defesa por 6s.',
             iconKey: 'assets/skills/icons/100159.png',
             mcreworkVfxKey: '10005',
             isBuff: true,
-            triggerType: 'ON_TURN_START',
+            triggerType: 'CONTINUOUS_TICK',
             maxStacks: 1,
+            durationSeconds: 6.0,
+            tickIntervalSeconds: 1.0,
             defaultDurationTurns: 3,
             statModifiersJson: { DEF_PCT: 25 },
             dotHotFormulaJson: { mode: 'HEAL', scaleStat: 'MAX_HP', scalePct: 12, flatAmount: 15, elementCode: 'WATER' },
@@ -528,12 +560,14 @@ export class AdminSkillsController {
           },
           {
             namePtBr: 'Atordoamento Sísmico',
-            descriptionPtBr: 'Alvo atordoado pela onda de choque, ficando impedido de agir por 1 turno.',
+            descriptionPtBr: 'Alvo atordoado pela onda de choque, ficando impedido de agir por 2.5 segundos.',
             iconKey: 'assets/skills/icons/100160.png',
             mcreworkVfxKey: '10008',
             isBuff: false,
             triggerType: 'WHILE_ACTIVE',
             maxStacks: 1,
+            durationSeconds: 2.5,
+            tickIntervalSeconds: 1.0,
             defaultDurationTurns: 1,
             statModifiersJson: {},
             dotHotFormulaJson: { mode: 'NONE' },
@@ -640,6 +674,7 @@ export class AdminSkillsController {
                 blockType: 'STATUS',
                 statusEffectId: 2,
                 applyChancePct: 100,
+                durationSeconds: 6.0,
                 durationTurns: 3,
                 targetSelf: false,
               },
@@ -647,7 +682,7 @@ export class AdminSkillsController {
           },
           {
             namePtBr: 'Rugido do Guerreiro',
-            descriptionPtBr: 'Restaura 18% do HP Máximo e ativa o buff Fúria de Batalha (+30% ATK) por 3 turnos.',
+            descriptionPtBr: 'Restaura 18% do HP Máximo e ativa o buff Fúria de Batalha (+30% ATK) por 6 segundos.',
             mcreworkIconKey: 'assets/skills/icons/100159.png',
             castActionId: 7,
             castMovement: 'STAND_IN_PLACE',
@@ -656,6 +691,7 @@ export class AdminSkillsController {
             triggerType: 'ACTIVE',
             mpCost: 15,
             apCost: 0,
+            cooldownSeconds: 6.0,
             cooldownTurns: 2,
             targetScope: 'SELF',
             hitCount: 1,
@@ -671,6 +707,7 @@ export class AdminSkillsController {
                 blockType: 'STATUS',
                 statusEffectId: 3,
                 applyChancePct: 100,
+                durationSeconds: 6.0,
                 durationTurns: 3,
                 targetSelf: true,
               },

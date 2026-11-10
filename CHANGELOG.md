@@ -5,6 +5,28 @@ Qualquer IA trabalhando neste repositório **DEVE** incrementar a versão e regi
 
 ---
 
+## [v0.6.3] - 2026-11-10
+### Combate em Tempo Real — Migração de Resquícios de Turno para Cooldowns e Segundos
+* **Transição Completa para Mecânica de Ação em Tempo Real:**
+  * Removidos e atualizados todos os resquícios conceituais e estruturais de batalha por turnos em habilidades, status, tabelas e visualizadores.
+  * **Habilidades com Cooldown em Segundos (`cooldownSeconds`, `cooldownMs`):**
+    * Tabela `skill_templates`: adicionadas as colunas `cooldown_seconds` (Float, padrão `0.0s`), `cast_range` (Int, alcance em pixels, padrão `160px`) e `aoe_radius` (Int, raio de área em pixels, padrão `0px`).
+    * As colunas legadas `cooldown_turns` foram preservadas com fallback automático para assegurar 100% de compatibilidade retroativa (Cláusula 0.2).
+    * Gatilhos atualizados para tempo real: `ACTIVE` (Uso Manual / Tempo Real), `INTERVAL_TICK` (Periódico a cada intervalo de segundos), `INTERVAL_TICK_CLEANSE` (Purificação periódica com debuff ativo).
+  * **Buffs e Debuffs com Duração e Intervalo em Segundos (`durationSeconds`, `tickIntervalSeconds`):**
+    * Tabela `status_effect_templates`: adicionadas as colunas `duration_seconds` (Float, padrão `5.0s`) e `tick_interval_seconds` (Float, padrão `1.0s` para pulsos de dano/cura DoT e HoT).
+    * Gatilhos de status ajustados para execução contínua: `CONTINUOUS_TICK` (Ticks Periódicos em Segundos), `WHILE_ACTIVE` (Enquanto Ativo), `ON_APPLY` (No Momento do Impacto), `ON_HIT_TAKEN` (Ao Receber Dano), `ON_ATTACK` (Ao Desferir Golpe), `ON_EXPIRE` (Ao Expirar a Duração).
+  * **Admin Studio Low-Code (`AdminSkillsAndBuffsTab.js`, `AdminStatusEffectsTab.js`, `AdminSkillsAutoLink.js`):**
+    * Todos os badges, resumos e formulários de criação/edição agora operam em segundos (`⏱️ 6.0s (Tick: 1.0s)`, `⏳ CD: 3.0s`, `Duração (Segundos)` com `step="0.5"`).
+    * Adicionados campos de Alcance (`skillCastRangeInput`) e Raio AoE (`skillAoeRadiusInput`) no modal de criação/edição de habilidades.
+  * **Motor de Combate e Controladores (`AdminSkillsController.ts`, `TemporaryCombatController.ts`, `ActionCombatArena.js`):**
+    * `ActiveStatusInstance` atualizado com contagem regressiva em segundos (`durationSeconds` e `remainingSeconds`) e ticks contínuos (`CONTINUOUS_TICK`).
+    * Dicionário de sementes (`seedData.ts`): redefinido o atributo `AGI` e `SPEED` como "Velocidade de Ataque / Ação" (redução de intervalo entre ataques) em substituição a "iniciativa no turno".
+  * **Documentação Oficial de Atributos & Matilhas de Combate:**
+    * Atualizado `docs/combat_math_guide.html` e recompilado o PDF `apps/server/public/docs/Etheria_Campus_Atributos_e_Matematicas_de_Combate.pdf`.
+
+---
+
 ## [v0.6.2] - 2026-11-10
 ### Habilidades & Combate — Gatilho e Bloco Visual de Limpeza de Debuffs (`CLEANSE_DISPEL`)
 * **Gatilho de Limpeza de Debuffs para Habilidades (`AdminSkillsAndBuffsTab.js`, `AdminSkillsAutoLink.js`):**

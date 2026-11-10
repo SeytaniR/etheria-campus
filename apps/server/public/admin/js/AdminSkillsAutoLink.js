@@ -53,19 +53,21 @@ class AdminSkillsAutoLink {
       switch (triggerType) {
         case 'ACTIVE': return '🎯 Uso Manual / Combate Livre';
         case 'PASSIVE_ALWAYS': return '♾️ Passiva Permanente';
-        case 'ON_TURN_START': return '🌅 No Início do Turno';
+        case 'INTERVAL_TICK':
+        case 'ON_TURN_START': return '⏱️ Periódico (A cada intervalo de segundos)';
         case 'ON_HIT': return '🗡️ Ao Acertar um Golpe';
         case 'ON_CRIT': return '💥 Ao Causar Dano Crítico';
         case 'ON_DAMAGE_TAKEN': return '🛡️ Ao Receber Dano';
         case 'ON_KILL': return '💀 Ao Derrotar um Inimigo';
         case 'ON_DEBUFF_RECEIVED': return '✨ Ao Receber Debuff (Limpar Debuffs)';
-        case 'ON_TURN_START_CLEANSE': return '🧹 No Início do Turno com Debuff (Limpar Debuffs)';
+        case 'INTERVAL_TICK_CLEANSE':
+        case 'ON_TURN_START_CLEANSE': return '🧹 Purificação Periódica (A cada intervalo com Debuff)';
         default: return triggerType || '🎯 Uso Manual';
       }
     };
 
     app.onSkillTriggerChanged = function (triggerVal) {
-      if (triggerVal === 'ON_DEBUFF_RECEIVED' || triggerVal === 'ON_TURN_START_CLEANSE') {
+      if (triggerVal === 'ON_DEBUFF_RECEIVED' || triggerVal === 'INTERVAL_TICK_CLEANSE' || triggerVal === 'ON_TURN_START_CLEANSE') {
         const typeSel = document.getElementById('skillTypeSelect');
         if (typeSel && triggerVal !== 'ACTIVE') {
           typeSel.value = 'PASSIVE';

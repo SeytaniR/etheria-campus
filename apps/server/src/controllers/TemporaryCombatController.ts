@@ -17,6 +17,8 @@ export interface ActiveStatusInstance {
   iconUrl: string;
   vfxKey?: string | null;
   triggerType: string;
+  durationSeconds?: number;
+  remainingSeconds?: number;
   remainingTurns: number;
 }
 
@@ -620,7 +622,9 @@ export class TemporaryCombatController {
         isBuff: false,
         iconUrl: `${this.mcreworkPagesBaseUrl}/assets/skills/icons/100180.png`,
         vfxKey: '10025',
-        triggerType: 'ON_TURN_START',
+        triggerType: 'CONTINUOUS_TICK',
+        durationSeconds: 6.0,
+        remainingSeconds: 6.0,
         remainingTurns: 3,
       };
       if (targetMob.isAlive) {
@@ -663,7 +667,9 @@ export class TemporaryCombatController {
         isBuff: true,
         iconUrl: `${this.mcreworkPagesBaseUrl}/assets/skills/icons/100150.png`,
         vfxKey: '10004',
-        triggerType: 'ON_TURN_START',
+        triggerType: 'CONTINUOUS_TICK',
+        durationSeconds: 5.0,
+        remainingSeconds: 5.0,
         remainingTurns: 2,
       };
       player.activeStatuses = (player.activeStatuses || []).filter((s) => s.code !== 'status_regen_blessing');
@@ -706,11 +712,11 @@ export class TemporaryCombatController {
       return battle;
     }
 
-    // 2.5. GATILHOS DE BUFFS/DEBUFFS DOS MONSTROS NO INÍCIO DO TURNO DELES (ON_TURN_START)
+    // 2.5. GATILHOS DE BUFFS/DEBUFFS DOS MONSTROS EM TEMPO REAL / TICKS PERIÓDICOS
     for (const mob of aliveMonsters) {
       if (!mob.activeStatuses || mob.activeStatuses.length === 0) continue;
       for (const st of mob.activeStatuses) {
-        if (st.triggerType === 'ON_TURN_START' && !st.isBuff) {
+        if ((st.triggerType === 'CONTINUOUS_TICK' || st.triggerType === 'ON_TURN_START') && !st.isBuff) {
           const dotDmg = Math.max(6, Math.round(mob.maxHp * 0.08));
           mob.hp = Math.max(0, mob.hp - dotDmg);
           if (mob.hp === 0) {
@@ -730,9 +736,12 @@ export class TemporaryCombatController {
           });
           battle.combatLog.unshift(`🧪 Gatilho [${st.name}] ativado em [${mob.name}]: -${dotDmg} HP!`);
         }
-        st.remainingTurns -= 1;
+        if (st.remainingSeconds !== undefined) {
+          st.remainingSeconds = Math.max(0, st.remainingSeconds - 1.0);
+        }
+        st.remainingTurns = Math.max(0, (st.remainingTurns || 1) - 1);
       }
-      mob.activeStatuses = (mob.activeStatuses || []).filter((s) => s.remainingTurns > 0);
+      mob.activeStatuses = (mob.activeStatuses || []).filter((s) => (s.remainingSeconds ?? s.remainingTurns ?? 0) > 0);
     }
 
     aliveMonsters = battle.monsters.filter((m) => m.isAlive);
