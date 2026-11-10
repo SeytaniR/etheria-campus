@@ -5,6 +5,20 @@ Qualquer IA trabalhando neste repositório **DEVE** incrementar a versão e regi
 
 ---
 
+## [v0.6.1] - 2026-11-10
+### Infraestrutura, Nuvem 24/7 & Governança de Equipe Multi-IA
+* **Deploy em Produção na VPS Azure (Independente do PC Local):**
+  * Servidor Etheria Campus totalmente configurado e rodando permanentemente na VM Azure (`40.65.63.193` - Standard B2pts_v2 ARM64, Ubuntu 24.04).
+  * **Acesso Público com SSL Automático (HTTPS):** Configurado no Caddy Web Server com proxy reverso na porta 4000:
+    * **HTTPS Oficial:** `https://40-65-63-193.sslip.io/admin` e `https://40-65-63-193.sslip.io/play`.
+    * **HTTP Alternativo:** `http://40.65.63.193/admin` e `http://40.65.63.193/play`.
+  * **Serviço Contínuo (`systemd`):** Criado e ativado `etheria-campus.service` com inicialização automática no boot do sistema operacional e reinicialização imediata em caso de falha.
+  * **Banco PostgreSQL 16 em Produção:** Migrado com 100% dos dados originais (todos os 10 mapas, 20 portais, 34 NPCs, 14 monstros curados, classes, pets, montarias e 670 traduções).
+* **Protocolo Rígido de Colaboração e Trabalho em Equipe entre IAs (Regra #8):**
+  * Incluído no [`AGENTS.md`](AGENTS.md) e [`docs/HANDOFF.md`](docs/HANDOFF.md) o protocolo de não-regressão, aditividade de código, obrigatoriedade de `git pull origin main` no início de cada turno e atualização estrita de documentação antes de comitar.
+
+---
+
 ## [v0.6.0] - 2026-11-10
 ### Combate, Criação & Customização (Personagens, Pets e Monstros)
 * **Estilo de Combate Melee vs Ranged e Distância de Alcance Configurável:**

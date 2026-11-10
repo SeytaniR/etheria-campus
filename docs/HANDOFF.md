@@ -44,10 +44,19 @@
 9. **Proibição Absoluta de Alteração de Dados no Banco sem Autorização (Cláusula 0.2):**
    * Terminantemente proibido alterar, renomear, limpar ou sobrescrever registros ou configurações nas tabelas do banco de dados (ex: alterar nome de mapas, polígonos, posições de NPCs, etc.) sem autorização prévia e expressa do usuário.
    * Scripts de teste, protótipos e verificações automatizadas NUNCA devem efetuar mutações em dados reais.
+10. **Protocolo Rígido de Trabalho em Equipe entre IAs (Regra #8):**
+   * **Entrada Obrigatória:** Toda IA deve executar `git pull origin main` antes de iniciar qualquer alteração.
+   * **Não-Regressão e Aditividade:** Proibido reescrever, simplificar ou desmanchar regras, tabelas ou telas feitas por outra IA. O desenvolvimento é cumulativo.
+   * **Dados Sagrados:** Dados criados no banco e no snapshot pertencem ao projeto e nunca devem ser apagados.
+   * **Saída Obrigatória:** Testar compilação (`npm run build:packages && npm --workspace=@etheria/server run build`), atualizar `CHANGELOG.md` e `docs/HANDOFF.md`, e dar `git commit` + `git push origin main`.
+11. **Ambiente de Produção 24/7 na VPS Azure (`40-65-63-193.sslip.io`):**
+   * Servidor oficial rodando permanentemente na nuvem Azure (Standard B2pts_v2 ARM64, Ubuntu 24.04).
+   * Caddy Web Server com SSL Let's Encrypt automático em `https://40-65-63-193.sslip.io` e HTTP em `http://40.65.63.193`.
+   * Serviço gerenciado pelo systemd: `systemctl status etheria-campus`.
+   * PostgreSQL 16 local na porta 5432 gerenciando os dados persistentes com snapshots sincronizados no Git.
 
 ---
 
 ## 🎯 Próxima Tarefa Exata da Fila
-* **Etapa 2:** Criar o conector da galeria `mcrework` (`@etheria/asset-bridge`) e a **Rota `/admin` (Studio Low-Code)** para permitir ao usuário:
-  1. Cadastrar Mapas importando apenas a imagem base do `mcrework` e desenhar/salvar visualmente no banco a **Área de Colisão (`collision_mesh_json`)** e a **Área de Sobreposição/Opacidade (`overlap_mesh_json`)**, além de posicionar Portais e NPCs;
-  2. Cadastrar e editar Classes, Monstros/Pets, Habilidades, Elementos, Raças, Atributos e Itens direto nas tabelas do PostgreSQL com exportação automática de Snapshot.
+* **Servidor 24/7 em Produção:** Ativo e acessível publicamente via `https://40-65-63-193.sslip.io/admin` e `https://40-65-63-193.sslip.io/play`.
+* **Próximos passos de desenvolvimento:** Continuar a evolução do sistema de combate, drops, inventário e missões conforme direcionado pelo usuário.
