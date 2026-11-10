@@ -403,10 +403,16 @@ model ItemTemplate {
   mcreworkIconKey       String?        @map("mcrework_icon_key")
   itemCategory          String         @map("item_category") /// CHARACTER_EQUIPMENT, PET_EQUIPMENT, CONSUMABLE, ELEMENT_CHANGER, MATERIAL
   equipmentSlotCode     String?        @map("equipment_slot_code")
+  rarityTier            String         @default("COMMON") @map("rarity_tier") /// SS, S, A, B, C, D, F, COMMON
   requiredLevel         Int            @default(1) @map("required_level")
-  baseStatBonusesJson   Json           @default("{}") @map("base_stat_bonuses_json")
-  combatStatBonusesJson Json           @default("{}") @map("combat_stat_bonuses_json")
+  priceGold             Int            @default(0) @map("price_gold")
+  reqClassCodesJson     Json           @default("[]") @map("req_class_codes_json") /// Classes que podem equipar (vazio = Todas)
+  baseStatBonusesJson   Json           @default("{}") @map("base_stat_bonuses_json") /// VIT, STR, INT, WIS, AGI, DEX
+  combatStatBonusesJson Json           @default("{}") @map("combat_stat_bonuses_json") /// PHYS_ATK, MAG_ATK, PHYS_DEF, MAG_DEF, BATTLE_MOVE_SPEED, ATTACK_SPEED, PHYS_ACCURACY, MAG_ACCURACY, PHYS_EVASION, MAG_EVASION, CRIT_CHANCE_PCT, CRIT_DAMAGE_PCT, ATTACK_RANGE
   specialEffectJson     Json           @default("{}") @map("special_effect_json")
+  isActive              Boolean        @default(true) @map("is_active")
+  createdAt             DateTime       @default(now()) @map("created_at")
+  updatedAt             DateTime       @default(now()) @updatedAt @map("updated_at")
 
   equipmentSlot         EquipmentSlot? @relation(fields: [equipmentSlotCode], references: [code])
 

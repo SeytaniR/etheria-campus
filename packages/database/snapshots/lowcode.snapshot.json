@@ -1,6 +1,6 @@
 {
   "version": "0.2.0",
-  "exportedAt": "2026-11-10T02:06:52.362Z",
+  "exportedAt": "2026-11-10T02:40:14.116Z",
   "i18nTranslations": [
     {
       "id": 1,
@@ -2276,6 +2276,146 @@
       "locale": "pt-BR",
       "text": "Um drag�o miniatura que conjura pequenas esferas estelares.",
       "updatedAt": "2026-11-10T02:06:33.472Z"
+    },
+    {
+      "id": 581,
+      "key": "item.equip_espada_ferro_recruta.name",
+      "locale": "pt-BR",
+      "text": "Espada de Ferro do Recruta",
+      "updatedAt": "2026-11-10T02:39:40.469Z"
+    },
+    {
+      "id": 582,
+      "key": "item.equip_espada_ferro_recruta.desc",
+      "locale": "pt-BR",
+      "text": "Lâmina afiada forjada para novos aventureiros de Etheria.",
+      "updatedAt": "2026-11-10T02:39:40.577Z"
+    },
+    {
+      "id": 583,
+      "key": "item.equip_cajado_ventos_misticos.name",
+      "locale": "pt-BR",
+      "text": "Cajado dos Ventos Místicos",
+      "updatedAt": "2026-11-10T02:39:40.783Z"
+    },
+    {
+      "id": 584,
+      "key": "item.equip_cajado_ventos_misticos.desc",
+      "locale": "pt-BR",
+      "text": "Canaliza correntes arcanas velozes para acelerar conjurações.",
+      "updatedAt": "2026-11-10T02:39:40.788Z"
+    },
+    {
+      "id": 585,
+      "key": "item.equip_escudo_carvalho_reforcado.name",
+      "locale": "pt-BR",
+      "text": "Escudo de Carvalho Reforçado",
+      "updatedAt": "2026-11-10T02:39:40.931Z"
+    },
+    {
+      "id": 586,
+      "key": "item.equip_escudo_carvalho_reforcado.desc",
+      "locale": "pt-BR",
+      "text": "Madeira densa revestida em aros de ferro, bloqueia golpes físicos pesados.",
+      "updatedAt": "2026-11-10T02:39:40.936Z"
+    },
+    {
+      "id": 587,
+      "key": "item.equip_peitoral_malha_protetora.name",
+      "locale": "pt-BR",
+      "text": "Peitoral de Malha Protetora",
+      "updatedAt": "2026-11-10T02:39:41.081Z"
+    },
+    {
+      "id": 588,
+      "key": "item.equip_peitoral_malha_protetora.desc",
+      "locale": "pt-BR",
+      "text": "Elos entrelaçados que oferecem sólida proteção corporal em escaramuças.",
+      "updatedAt": "2026-11-10T02:39:41.087Z"
+    },
+    {
+      "id": 589,
+      "key": "item.equip_tunica_seda_fadas.name",
+      "locale": "pt-BR",
+      "text": "Túnica de Seda das Fadas",
+      "updatedAt": "2026-11-10T02:39:41.251Z"
+    },
+    {
+      "id": 590,
+      "key": "item.equip_tunica_seda_fadas.desc",
+      "locale": "pt-BR",
+      "text": "Tecido encantado leve como o ar, amplia a resistência mágica e a mobilidade.",
+      "updatedAt": "2026-11-10T02:39:41.255Z"
+    },
+    {
+      "id": 591,
+      "key": "item.equip_elmo_cavaleiro_bronze.name",
+      "locale": "pt-BR",
+      "text": "Elmo do Cavaleiro de Bronze",
+      "updatedAt": "2026-11-10T02:39:41.400Z"
+    },
+    {
+      "id": 592,
+      "key": "item.equip_elmo_cavaleiro_bronze.desc",
+      "locale": "pt-BR",
+      "text": "Capacete robusto com viseira reforçada contra ataques contundentes.",
+      "updatedAt": "2026-11-10T02:39:41.405Z"
+    },
+    {
+      "id": 593,
+      "key": "item.equip_botas_aladas_mensageiro.name",
+      "locale": "pt-BR",
+      "text": "Botas Aladas do Mensageiro",
+      "updatedAt": "2026-11-10T02:39:41.567Z"
+    },
+    {
+      "id": 594,
+      "key": "item.equip_botas_aladas_mensageiro.desc",
+      "locale": "pt-BR",
+      "text": "Botas encantadas que conferem passadas ligeiras e velocidade de esquiva na arena.",
+      "updatedAt": "2026-11-10T02:39:41.571Z"
+    },
+    {
+      "id": 595,
+      "key": "item.equip_anel_rubi_flamejante.name",
+      "locale": "pt-BR",
+      "text": "Anel de Rubi Flamejante",
+      "updatedAt": "2026-11-10T02:39:41.712Z"
+    },
+    {
+      "id": 596,
+      "key": "item.equip_anel_rubi_flamejante.desc",
+      "locale": "pt-BR",
+      "text": "Jóia incrustada com essência do fogo que faz cada golpe pulsar com poder crítico.",
+      "updatedAt": "2026-11-10T02:39:41.716Z"
+    },
+    {
+      "id": 597,
+      "key": "item.equip_asas_celestiais_aurora.name",
+      "locale": "pt-BR",
+      "text": "Asas Celestiais da Aurora",
+      "updatedAt": "2026-11-10T02:39:41.858Z"
+    },
+    {
+      "id": 598,
+      "key": "item.equip_asas_celestiais_aurora.desc",
+      "locale": "pt-BR",
+      "text": "Plumas místicas que elevam o herói e aumentam dramaticamente a presença em combate.",
+      "updatedAt": "2026-11-10T02:39:41.862Z"
+    },
+    {
+      "id": 599,
+      "key": "item.equip_selo_batalha_pet.name",
+      "locale": "pt-BR",
+      "text": "Selo de Batalha do Pet Guardião",
+      "updatedAt": "2026-11-10T02:39:41.996Z"
+    },
+    {
+      "id": 600,
+      "key": "item.equip_selo_batalha_pet.desc",
+      "locale": "pt-BR",
+      "text": "Amuleto energizado que potencializa o vigor e a força de ataque do pet companheiro.",
+      "updatedAt": "2026-11-10T02:39:42.000Z"
     }
   ],
   "biomes": [
@@ -41871,7 +42011,271 @@
       "isActive": true
     }
   ],
-  "itemTemplates": [],
+  "itemTemplates": [
+    {
+      "id": 1,
+      "code": "equip_espada_ferro_recruta",
+      "nameI18nKey": "item.equip_espada_ferro_recruta.name",
+      "descriptionI18nKey": "item.equip_espada_ferro_recruta.desc",
+      "mcreworkIconKey": "assets/equipment/icons/equip_normal_100001.png",
+      "itemCategory": "CHARACTER_EQUIPMENT",
+      "equipmentSlotCode": "WEAPON_1",
+      "rarityTier": "COMMON",
+      "requiredLevel": 1,
+      "priceGold": 50,
+      "reqClassCodesJson": [],
+      "baseStatBonusesJson": {
+        "STR": 3
+      },
+      "combatStatBonusesJson": {
+        "PHYS_ATK": 15,
+        "ATTACK_RANGE": 65,
+        "ATTACK_SPEED": 0.05
+      },
+      "specialEffectJson": {},
+      "isActive": true,
+      "createdAt": "2026-11-10T02:39:40.591Z",
+      "updatedAt": "2026-11-10T02:39:40.591Z"
+    },
+    {
+      "id": 2,
+      "code": "equip_cajado_ventos_misticos",
+      "nameI18nKey": "item.equip_cajado_ventos_misticos.name",
+      "descriptionI18nKey": "item.equip_cajado_ventos_misticos.desc",
+      "mcreworkIconKey": "assets/equipment/icons/equip_normal_100005.png",
+      "itemCategory": "CHARACTER_EQUIPMENT",
+      "equipmentSlotCode": "WEAPON_1",
+      "rarityTier": "B",
+      "requiredLevel": 10,
+      "priceGold": 350,
+      "reqClassCodesJson": [
+        "MAGE",
+        "CLERIC"
+      ],
+      "baseStatBonusesJson": {
+        "INT": 8,
+        "WIS": 5
+      },
+      "combatStatBonusesJson": {
+        "MAG_ATK": 35,
+        "ATTACK_RANGE": 220,
+        "MAG_ACCURACY": 10
+      },
+      "specialEffectJson": {},
+      "isActive": true,
+      "createdAt": "2026-11-10T02:39:40.795Z",
+      "updatedAt": "2026-11-10T02:39:40.795Z"
+    },
+    {
+      "id": 3,
+      "code": "equip_escudo_carvalho_reforcado",
+      "nameI18nKey": "item.equip_escudo_carvalho_reforcado.name",
+      "descriptionI18nKey": "item.equip_escudo_carvalho_reforcado.desc",
+      "mcreworkIconKey": "assets/equipment/icons/equip_normal_110001.png",
+      "itemCategory": "CHARACTER_EQUIPMENT",
+      "equipmentSlotCode": "WEAPON_2",
+      "rarityTier": "COMMON",
+      "requiredLevel": 1,
+      "priceGold": 60,
+      "reqClassCodesJson": [
+        "WARRIOR",
+        "PALADIN"
+      ],
+      "baseStatBonusesJson": {
+        "VIT": 4
+      },
+      "combatStatBonusesJson": {
+        "MAG_DEF": 8,
+        "PHYS_DEF": 12,
+        "PHYS_EVASION": 5
+      },
+      "specialEffectJson": {},
+      "isActive": true,
+      "createdAt": "2026-11-10T02:39:40.944Z",
+      "updatedAt": "2026-11-10T02:39:40.944Z"
+    },
+    {
+      "id": 4,
+      "code": "equip_peitoral_malha_protetora",
+      "nameI18nKey": "item.equip_peitoral_malha_protetora.name",
+      "descriptionI18nKey": "item.equip_peitoral_malha_protetora.desc",
+      "mcreworkIconKey": "assets/equipment/icons/equip_normal_210001.png",
+      "itemCategory": "CHARACTER_EQUIPMENT",
+      "equipmentSlotCode": "CHEST",
+      "rarityTier": "COMMON",
+      "requiredLevel": 5,
+      "priceGold": 120,
+      "reqClassCodesJson": [],
+      "baseStatBonusesJson": {
+        "VIT": 5
+      },
+      "combatStatBonusesJson": {
+        "MAG_DEF": 10,
+        "PHYS_DEF": 25,
+        "BATTLE_MOVE_SPEED": -5
+      },
+      "specialEffectJson": {},
+      "isActive": true,
+      "createdAt": "2026-11-10T02:39:41.097Z",
+      "updatedAt": "2026-11-10T02:39:41.097Z"
+    },
+    {
+      "id": 5,
+      "code": "equip_tunica_seda_fadas",
+      "nameI18nKey": "item.equip_tunica_seda_fadas.name",
+      "descriptionI18nKey": "item.equip_tunica_seda_fadas.desc",
+      "mcreworkIconKey": "assets/equipment/icons/equip_normal_210003.png",
+      "itemCategory": "CHARACTER_EQUIPMENT",
+      "equipmentSlotCode": "CHEST",
+      "rarityTier": "B",
+      "requiredLevel": 10,
+      "priceGold": 400,
+      "reqClassCodesJson": [],
+      "baseStatBonusesJson": {
+        "INT": 6,
+        "WIS": 6
+      },
+      "combatStatBonusesJson": {
+        "MAG_DEF": 30,
+        "PHYS_DEF": 12,
+        "BATTLE_MOVE_SPEED": 10
+      },
+      "specialEffectJson": {},
+      "isActive": true,
+      "createdAt": "2026-11-10T02:39:41.262Z",
+      "updatedAt": "2026-11-10T02:39:41.262Z"
+    },
+    {
+      "id": 6,
+      "code": "equip_elmo_cavaleiro_bronze",
+      "nameI18nKey": "item.equip_elmo_cavaleiro_bronze.name",
+      "descriptionI18nKey": "item.equip_elmo_cavaleiro_bronze.desc",
+      "mcreworkIconKey": "assets/equipment/icons/equip_normal_200001.png",
+      "itemCategory": "CHARACTER_EQUIPMENT",
+      "equipmentSlotCode": "HEAD",
+      "rarityTier": "C",
+      "requiredLevel": 8,
+      "priceGold": 180,
+      "reqClassCodesJson": [],
+      "baseStatBonusesJson": {
+        "STR": 2,
+        "VIT": 4
+      },
+      "combatStatBonusesJson": {
+        "MAG_DEF": 6,
+        "PHYS_DEF": 15
+      },
+      "specialEffectJson": {},
+      "isActive": true,
+      "createdAt": "2026-11-10T02:39:41.412Z",
+      "updatedAt": "2026-11-10T02:39:41.412Z"
+    },
+    {
+      "id": 7,
+      "code": "equip_botas_aladas_mensageiro",
+      "nameI18nKey": "item.equip_botas_aladas_mensageiro.name",
+      "descriptionI18nKey": "item.equip_botas_aladas_mensageiro.desc",
+      "mcreworkIconKey": "assets/equipment/icons/equip_normal_230001.png",
+      "itemCategory": "CHARACTER_EQUIPMENT",
+      "equipmentSlotCode": "FEET",
+      "rarityTier": "A",
+      "requiredLevel": 15,
+      "priceGold": 850,
+      "reqClassCodesJson": [],
+      "baseStatBonusesJson": {
+        "AGI": 10,
+        "DEX": 6
+      },
+      "combatStatBonusesJson": {
+        "ATTACK_SPEED": 0.1,
+        "PHYS_EVASION": 12,
+        "BATTLE_MOVE_SPEED": 25
+      },
+      "specialEffectJson": {},
+      "isActive": true,
+      "createdAt": "2026-11-10T02:39:41.580Z",
+      "updatedAt": "2026-11-10T02:39:41.580Z"
+    },
+    {
+      "id": 8,
+      "code": "equip_anel_rubi_flamejante",
+      "nameI18nKey": "item.equip_anel_rubi_flamejante.name",
+      "descriptionI18nKey": "item.equip_anel_rubi_flamejante.desc",
+      "mcreworkIconKey": "assets/equipment/icons/equip_normal_400001.png",
+      "itemCategory": "CHARACTER_EQUIPMENT",
+      "equipmentSlotCode": "RING",
+      "rarityTier": "A",
+      "requiredLevel": 12,
+      "priceGold": 700,
+      "reqClassCodesJson": [],
+      "baseStatBonusesJson": {
+        "STR": 6
+      },
+      "combatStatBonusesJson": {
+        "PHYS_ATK": 12,
+        "CRIT_CHANCE_PCT": 5,
+        "CRIT_DAMAGE_PCT": 15
+      },
+      "specialEffectJson": {},
+      "isActive": true,
+      "createdAt": "2026-11-10T02:39:41.723Z",
+      "updatedAt": "2026-11-10T02:39:41.723Z"
+    },
+    {
+      "id": 9,
+      "code": "equip_asas_celestiais_aurora",
+      "nameI18nKey": "item.equip_asas_celestiais_aurora.name",
+      "descriptionI18nKey": "item.equip_asas_celestiais_aurora.desc",
+      "mcreworkIconKey": "assets/equipment/icons/equip_normal_500001.png",
+      "itemCategory": "CHARACTER_EQUIPMENT",
+      "equipmentSlotCode": "WINGS",
+      "rarityTier": "S",
+      "requiredLevel": 20,
+      "priceGold": 2500,
+      "reqClassCodesJson": [],
+      "baseStatBonusesJson": {
+        "AGI": 12,
+        "DEX": 8,
+        "VIT": 12
+      },
+      "combatStatBonusesJson": {
+        "MAG_EVASION": 15,
+        "ATTACK_SPEED": 0.15,
+        "PHYS_EVASION": 15,
+        "BATTLE_MOVE_SPEED": 35
+      },
+      "specialEffectJson": {},
+      "isActive": true,
+      "createdAt": "2026-11-10T02:39:41.868Z",
+      "updatedAt": "2026-11-10T02:39:41.868Z"
+    },
+    {
+      "id": 10,
+      "code": "equip_selo_batalha_pet",
+      "nameI18nKey": "item.equip_selo_batalha_pet.name",
+      "descriptionI18nKey": "item.equip_selo_batalha_pet.desc",
+      "mcreworkIconKey": "assets/equipment/icons/equip_normal_600001.png",
+      "itemCategory": "PET_EQUIPMENT",
+      "equipmentSlotCode": "PET_EQUIP_2",
+      "rarityTier": "C",
+      "requiredLevel": 1,
+      "priceGold": 200,
+      "reqClassCodesJson": [],
+      "baseStatBonusesJson": {
+        "STR": 5,
+        "VIT": 5
+      },
+      "combatStatBonusesJson": {
+        "PHYS_ATK": 18,
+        "PHYS_DEF": 14,
+        "BATTLE_MOVE_SPEED": 10
+      },
+      "specialEffectJson": {},
+      "isActive": true,
+      "createdAt": "2026-11-10T02:39:42.007Z",
+      "updatedAt": "2026-11-10T02:39:42.007Z"
+    }
+  ],
   "questTemplates": [
     {
       "id": 6,

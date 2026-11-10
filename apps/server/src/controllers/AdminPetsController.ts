@@ -271,7 +271,7 @@ export class AdminPetsController {
   /**
    * Semeia pets iniciais caso a tabela esteja vazia no primeiro carregamento.
    */
-  private async seedInitialPetsIfEmpty() {
+  public async seedInitialPetsIfEmpty() {
     try {
       const count = await this.prisma.petTemplate.count();
       if (count > 0) return;
