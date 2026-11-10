@@ -176,6 +176,7 @@ export class EtheriaServerApp {
     '.svg': 'image/svg+xml',
     '.ico': 'image/x-icon',
     '.woff2': 'font/woff2',
+    '.pdf': 'application/pdf',
   };
 
   /**

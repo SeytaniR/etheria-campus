@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Etheria Campus — Atributos e Matemáticas de Combate</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap');
+
+    @page {
+      size: A4 portrait;
+      margin: 16mm 14mm 16mm 14mm;
+      @bottom-right {
+        content: counter(page);
+        font-family: 'Inter', sans-serif;
+        font-size: 8pt;
+        color: #64748b;
+      }
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      font-size: 9pt;
+      line-height: 1.45;
+      color: #1e293b;
+      background-color: #ffffff;
+      margin: 0;
+      padding: 0;
+    }
+
+    .cover {
+      background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #312e81 100%);
+      color: #ffffff;
+      padding: 30px;
+      border-radius: 12px;
+      margin-bottom: 24px;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.12);
+    }
+
+    .cover-badge {
+      display: inline-block;
+      background: rgba(99, 102, 241, 0.35);
+      border: 1px solid rgba(165, 180, 252, 0.4);
+      color: #c7d2fe;
+      font-size: 7.5pt;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      padding: 4px 10px;
+      border-radius: 999px;
+      margin-bottom: 12px;
+    }
+
+    .cover h1 {
+      margin: 0 0 6px 0;
+      font-size: 22pt;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      color: #ffffff;
+    }
+
+    .cover h2 {
+      margin: 0 0 14px 0;
+      font-size: 11pt;
+      font-weight: 400;
+      color: #cbd5e1;
+    }
+
+    .cover-meta {
+      display: flex;
+      gap: 20px;
+      font-size: 8pt;
+      color: #94a3b8;
+      border-top: 1px solid rgba(255,255,255,0.12);
+      padding-top: 12px;
+      margin-top: 12px;
+    }
+
+    .cover-meta span strong {
+      color: #e2e8f0;
+    }
+
+    h2.section-title {
+      font-size: 13pt;
+      font-weight: 700;
+      color: #0f172a;
+      border-bottom: 2px solid #e2e8f0;
+      padding-bottom: 5px;
+      margin: 22px 0 12px 0;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    h3.subsection-title {
+      font-size: 10.5pt;
+      font-weight: 600;
+      color: #334155;
+      margin: 14px 0 6px 0;
+    }
+
+    p {
+      margin: 0 0 8px 0;
+      color: #334155;
+    }
+
+    .card {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 12px 14px;
+      margin-bottom: 12px;
+      page-break-inside: avoid;
+    }
+
+    .card-accent {
+      border-left: 4px solid #4f46e5;
+    }
+
+    .formula-box {
+      background: #0f172a;
+      color: #f8fafc;
+      padding: 10px 14px;
+      border-radius: 6px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 8.5pt;
+      margin: 8px 0 10px 0;
+      border: 1px solid #1e293b;
+      page-break-inside: avoid;
+    }
+
+    .formula-box .title {
+      color: #818cf8;
+      font-size: 7pt;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      margin-bottom: 4px;
+      display: block;
+    }
+
+    .formula-box .math {
+      color: #38bdf8;
+      font-size: 9.5pt;
+      font-weight: 600;
+    }
+
+    .formula-box .desc {
+      color: #94a3b8;
+      font-size: 7.5pt;
+      margin-top: 4px;
+      font-family: 'Inter', sans-serif;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 8px 0 14px 0;
+      font-size: 8pt;
+      page-break-inside: avoid;
+    }
+
+    th {
+      background: #f1f5f9;
+      color: #0f172a;
+      font-weight: 600;
+      text-align: left;
+      padding: 6px 8px;
+      border: 1px solid #cbd5e1;
+    }
+
+    td {
+      padding: 5px 8px;
+      border: 1px solid #e2e8f0;
+      color: #334155;
+    }
+
+    tr:nth-child(even) td {
+      background-color: #f8fafc;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 7pt;
+      font-weight: 600;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .badge-primary { background: #e0e7ff; color: #3730a3; }
+    .badge-success { background: #dcfce7; color: #166534; }
+    .badge-warning { background: #fef3c7; color: #92400e; }
+    .badge-danger  { background: #fee2e2; color: #991b1b; }
+    .badge-neutral { background: #f1f5f9; color: #475569; }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      page-break-inside: avoid;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 10px;
+      page-break-inside: avoid;
+    }
+
+    .page-break {
+      page-break-before: always;
+    }
+
+    ul, ol {
+      margin: 4px 0 8px 0;
+      padding-left: 20px;
+      color: #334155;
+    }
+
+    li {
+      margin-bottom: 3px;
+    }
+
+    .highlight {
+      color: #4f46e5;
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- CAPA E HEADER -->
+  <div class="cover">
+    <div class="cover-badge">Motor Autoritário & Game Design Oficial</div>
+    <h1>Etheria Campus — Atributos & Matemáticas de Combate</h1>
+    <h2>Especificação Completa de Fórmulas, Derivações, Mitigações e Mecânicas de Arena</h2>
+    <div class="cover-meta">
+      <span><strong>Versão:</strong> v0.6.1</span>
+      <span><strong>Data:</strong> Novembro / 2026</span>
+      <span><strong>Arquitetura:</strong> Servidor Autoritário 100% Determinístico</span>
+      <span><strong>Ambiente:</strong> VPS Azure (Standard ARM64)</span>
+    </div>
+  </div>
+
+  <!-- INTRODUÇÃO -->
+  <div class="card card-accent">
+    <h3 style="margin-top:0; color:#1e1b4b; font-size:10pt;">Visão Geral do Motor de Combate</h3>
+    <p>O sistema de combate do <strong>Etheria Campus</strong> foi desenhado para unir a agilidade de um RPG de ação em tempo real à profundidade tática de um MMORPG clássico. Todas as variáveis, lançamentos de habilidades, verificações de acerto, reduções de dano e efeitos de controle são <strong>estritamente calculados e validados no servidor</strong>, evitando qualquer manipulação ou cálculo client-side.</p>
+    <p>Os pilares fundamentais são: <strong>Zero Skillshots Perdidos</strong> (todos os ataques básicos e habilidades são teleguiados ao alvo), filtrados pela <strong>Matemática de Acerto e Desvio</strong>, com distinção nativa de alcance (<strong>Melee vs Ranged</strong>) e suporte procedural a <strong>Área de Impacto (AoE)</strong> e <strong>Alcance Global</strong>.</p>
+  </div>
+
+  <!-- SEÇÃO 1: OS 6 ATRIBUTOS BASE -->
+  <h2 class="section-title">1. Os 6 Atributos Base Primários (Core Attributes)</h2>
+  <p>Os Atributos Base constituem a essência de cada personagem, classe, pet ou monstro. Eles são definidos no nível 1 e aumentam a cada nível através do <em>Growth Rate</em> procedural e da distribuição de pontos do jogador.</p>
+
+  <div class="grid-2">
+    <div class="card">
+      <strong style="color:#4f46e5; font-size:9pt;">🛡️ VIT — Vitalidade</strong>
+      <p style="font-size:7.8pt; margin-top:4px;">Determina a durabilidade geral. Aumenta massivamente o <strong>HP Máximo</strong>, concede <strong>Defesa Física</strong> proporcional e confere <strong>Resistência a Controle (Hard CC)</strong> e <strong>Resistência a Anomalias/DoT</strong>.</p>
+    </div>
+    <div class="card">
+      <strong style="color:#dc2626; font-size:9pt;">⚔️ STR — Força</strong>
+      <p style="font-size:7.8pt; margin-top:4px;">Governa o poder muscular e impacto físico. Aumenta diretamente o <strong>Ataque Físico</strong>, confere <strong>Penetração Física</strong>, amplia o <strong>Multiplicador de Dano Crítico</strong> e a eficácia de <strong>Anomalias Físicas</strong> (Sangramento).</p>
+    </div>
+    <div class="card">
+      <strong style="color:#0284c7; font-size:9pt;">🔮 INT — Inteligência</strong>
+      <p style="font-size:7.8pt; margin-top:4px;">Rege o domínio mágico ofensivo e capacidade arcana. Aumenta o <strong>Ataque Mágico</strong>, expande o <strong>MP Máximo</strong>, fornece <strong>Penetração Mágica</strong> e potencializa o acerto de <strong>Controles e Queimaduras Mágicas</strong>.</p>
+    </div>
+    <div class="card">
+      <strong style="color:#16a34a; font-size:9pt;">🌿 WIS — Sabedoria</strong>
+      <p style="font-size:7.8pt; margin-top:4px;">Harmonia espiritual e resistência. Amplia o <strong>Poder de Cura e Escudos</strong>, concede <strong>Defesa Mágica</strong>, acelera a <strong>Regeneração de MP</strong>, aumenta o <strong>Desvio Mágico</strong> e fortalece a <strong>Resistência a Controle</strong>.</p>
+    </div>
+    <div class="card">
+      <strong style="color:#ca8a04; font-size:9pt;">⚡ AGI — Agilidade</strong>
+      <p style="font-size:7.8pt; margin-top:4px;">Rapidez de reflexos e mobilidade. Aumenta a <strong>Velocidade de Iniciativa (Speed)</strong>, a <strong>Esquiva Física</strong>, o <strong>Desvio Mágico</strong> e confere um bônus secundário de <strong>Ataque Físico Leve</strong>.</p>
+    </div>
+    <div class="card">
+      <strong style="color:#9333ea; font-size:9pt;">🎯 DEX — Destreza</strong>
+      <p style="font-size:7.8pt; margin-top:4px;">Precisão cirúrgica e letalidade. Eleva a <strong>Chance Crítica (Crit Rate)</strong>, a <strong>Precisão Física e Mágica</strong>, e maximiza o <strong>Acerto de Controle</strong> e <strong>Acerto de Anomalias</strong> contra alvos evasivos.</p>
+    </div>
+  </div>
+
+  <!-- SEÇÃO 2: MATRIZ DE CONVERSÃO PROCEDURAL -->
+  <h2 class="section-title">2. Matriz de Derivação Procedural (Base → Combate)</h2>
+  <p>Diferente de sistemas rígidos ou com números arbitrários hardcoded, o Etheria Campus utiliza uma matriz autoritária no PostgreSQL onde <strong>cada 1 ponto</strong> de atributo base se traduz diretamente em múltiplos atributos de combate:</p>
+
+  <table>
+    <thead>
+      <tr>
+        <th style="width:14%;">Atributo Base</th>
+        <th style="width:26%;">Atributo de Combate Alvo</th>
+        <th style="width:16%;">Ganho por Ponto</th>
+        <th style="width:44%;">Efeito no Personagem</th>
+      </tr>
+    </thead>
+    <tbody>
+      <!-- VIT -->
+      <tr>
+        <td><span class="badge badge-primary">VIT</span></td>
+        <td><code>MAX_HP</code> (HP Máximo)</td>
+        <td><strong>+20.0 pts</strong></td>
+        <td>Expande a reserva de vida máxima.</td>
+      </tr>
+      <tr>
+        <td><span class="badge badge-primary">VIT</span></td>
+        <td><code>PHYS_DEF</code> (Defesa Física)</td>
+        <td><strong>+1.5 pts</strong></td>
+        <td>Aumenta a mitigação contra cortes, perfurações e golpes contundentes.</td>
+      </tr>
+      <tr>
+        <td><span class="badge badge-primary">VIT</span></td>
+        <td><code>CONTROL_RESIST</code></td>
+        <td><strong>+0.15%</strong></td>
+        <td>Reduz a chance de sofrer Atordoamento (Stun), Congelamento e Imobilização.</td>
+      </tr>
+      <tr>
+        <td><span class="badge badge-primary">VIT</span></td>
+        <td><code>ANOMALY_RESIST</code></td>
+        <td><strong>+0.25%</strong></td>
+        <td>Reduz a chance de receber Queimadura, Sangramento, Veneno ou Eletrocussão.</td>
+      </tr>
+
+      <!-- STR -->
+      <tr>
+        <td><span class="badge badge-danger">STR</span></td>
+        <td><code>PHYS_ATK</code> (Ataque Físico)</td>
+        <td><strong>+2.5 pts</strong></td>
+        <td>Base de dano físico bruto para golpes corpo a corpo e tiros à distância.</td>
+      </tr>
+      <tr>
+        <td><span class="badge badge-danger">STR</span></td>
+        <td><code>PHYS_PEN</code> (Penetração Física)</td>
+        <td><strong>+0.8 pts</strong></td>
+        <td>Ignora diretamente a Defesa Física do defensor antes da mitigação.</td>
+      </tr>
+      <tr>
+        <td><span class="badge badge-danger">STR</span></td>
+        <td><code>CRIT_DMG</code> (Dano Crítico)</td>
+        <td><strong>+0.30%</strong></td>
+        <td>Aumenta o multiplicador de impacto dos golpes críticos (ex: 1.50x → 1.53x).</td>
+      </tr>
+      <tr>
+        <td><span class="badge badge-danger">STR</span></td>
+        <td><code>ANOMALY_HIT</code></td>
+        <td><strong>+0.15%</strong></td>
+        <td>Facilita a aplicação de Sangramento e Ferimento Profundo.</td>
+      </tr>
+
+      <!-- INT -->
+      <tr>
+        <td><span class="badge badge-primary">INT</span></td>
+        <td><code>MAG_ATK</code> (Ataque Mágico)</td>
+        <td><strong>+2.5 pts</strong></td>
+        <td>Base de poder para feitiços elementais, orbes mágicos e invocações.</td>
+      </tr>
+      <tr>
+        <td><span class="badge badge-primary">INT</span></td>
+        <td><code>MAX_MP</code> (MP Máximo)</td>
+        <td><strong>+12.0 pts</strong></td>
+        <td>Reserva de Mana para conjuração contínua de magias.</td>
+      </tr>
+      <tr>
+        <td><span class="badge badge-primary">INT</span></td>
+        <td><code>MAG_PEN</code> (Penetração Mágica)</td>
+        <td><strong>+0.8 pts</strong></td>
+        <td>Ignora a Defesa Mágica do defensor.</td>
+      </tr>
+      <tr>
+        <td><span class="badge badge-primary">INT</span></td>
+        <td><code>CONTROL_HIT</code> / <code>ANOMALY_HIT</code></td>
+        <td><strong>+0.15% / +0.15%</strong></td>
+        <td>Garante maior probabilidade de sucesso ao aplicar congelamento e queimadura.</td>
+      </tr>
+
+      <!-- WIS -->
+      <tr>
+        <td><span class="badge badge-success">WIS</span></td>
+        <td><code>HEAL_POWER</code> (Cura e Escudos)</td>
+        <td><strong>+2.2 pts</strong></td>
+        <td>Multiplica a eficácia de feitiços de cura e escudos protetores.</td>
+      </tr>
+      <tr>
+        <td><span class="badge badge-success">WIS</span></td>
+        <td><code>MAG_DEF</code> (Defesa Mágica)</td>
+        <td><strong>+1.8 pts</strong></td>
+        <td>Mitiga o dano mágico elemental sofrido.</td>
+      </tr>
+      <tr>
+        <td><span class="badge badge-success">WIS</span></td>
+        <td><code>MP_REGEN</code> (Regeneração MP)</td>
+        <td><strong>+0.6 pts/tick</strong></td>
+        <td>Recupera Mana passivamente a cada intervalo de combate.</td>
+      </tr>
+      <tr>
+        <td><span class="badge badge-success">WIS</span></td>
+        <td><code>MAG_EVASION</code> (Desvio Mágico)</td>
+        <td><strong>+0.15%</strong></td>
+        <td>Permite dissipar ou esquivar-se de magias direcionadas.</td>
+      </tr>
+
+      <!-- AGI -->
+      <tr>
+        <td><span class="badge badge-warning">AGI</span></td>
+        <td><code>SPEED</code> (Iniciativa de Turno)</td>
+        <td><strong>+1.5 pts</strong></td>
+        <td>Determina quem age primeiro na ordem das rodadas.</td>
+      </tr>
+      <tr>
+        <td><span class="badge badge-warning">AGI</span></td>
+        <td><code>PHYS_EVASION</code> (Esquiva Física)</td>
+        <td><strong>+0.20%</strong></td>
+        <td>Aumenta a chance de esquivar de ataques físicos e projéteis.</td>
+      </tr>
+      <tr>
+        <td><span class="badge badge-warning">AGI</span></td>
+        <td><code>PHYS_ATK</code> (Ataque Leve)</td>
+        <td><strong>+0.5 pts</strong></td>
+        <td>Complemento de dano físico para classes ágeis (Ladrões, Assassinos).</td>
+      </tr>
+
+      <!-- DEX -->
+      <tr>
+        <td><span class="badge badge-neutral">DEX</span></td>
+        <td><code>CRIT_RATE</code> (Chance Crítica)</td>
+        <td><strong>+0.20%</strong></td>
+        <td>Aumenta a frequência de golpes críticos (ex: 50 DEX = +10% Crit Rate).</td>
+      </tr>
+      <tr>
+        <td><span class="badge badge-neutral">DEX</span></td>
+        <td><code>PHYS_ACCURACY</code> / <code>MAG_ACCURACY</code></td>
+        <td><strong>+0.20% / +0.20%</strong></td>
+        <td>Garante acerto mesmo contra alvos com alta esquiva e desvio.</td>
+      </tr>
+      <tr>
+        <td><span class="badge badge-neutral">DEX</span></td>
+        <td><code>CONTROL_HIT</code> / <code>ANOMALY_HIT</code></td>
+        <td><strong>+0.20% / +0.20%</strong></td>
+        <td>Amplia a precisão na aplicação de debuffs críticos e atordoamentos.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- SEÇÃO 3: FÓRMULAS DE COMBATE -->
+  <div class="page-break"></div>
+  <h2 class="section-title">3. Fórmulas Matemáticas Autoritárias de Combate</h2>
+
+  <!-- 3.1 Mitigação de Dano -->
+  <h3 class="subsection-title">3.1 Mitigação Proporcional de Dano (Defesa & Nível)</h3>
+  <p>Para evitar que personagens acumulem defesa infinita e se tornem 100% imunes a dano, o Etheria Campus utiliza uma curva assintótica proporcional com base no nível do combate:</p>
+
+  <div class="formula-box">
+    <span class="title">Fórmula de Mitigação de Dano (0% a 90% Max Cap)</span>
+    <div class="math">Mitigação (%) = DefesaEfetiva / (DefesaEfetiva + 100 + (10 × Nível))</div>
+    <div class="desc">Onde <code>DefesaEfetiva = max(0, Defesa - Penetração)</code>.</div>
+  </div>
+
+  <div class="card">
+    <strong>Exemplo Prático de Mitigação:</strong>
+    <ul>
+      <li><strong>Nível 1 (Defesa 100):</strong> $100 / (100 + 100 + 10) = 100 / 210 = \mathbf{47.6\%}$ de mitigação.</li>
+      <li><strong>Nível 50 (Defesa 500):</strong> $500 / (500 + 100 + 500) = 500 / 1100 = \mathbf{45.4\%}$ de mitigação.</li>
+      <li><strong>Nível 100 (Defesa 1200):</strong> $1200 / (1200 + 100 + 1000) = 1200 / 2300 = \mathbf{52.1\%}$ de mitigação.</li>
+    </ul>
+    <span style="font-size:7.5pt; color:#64748b;">* Essa curva garante que a progressão de atributos acompanhe a evolução dos níveis sem quebrar o balanceamento em fases avançadas.</span>
+  </div>
+
+  <!-- 3.2 Dano Final -->
+  <h3 class="subsection-title">3.2 Cálculo do Dano Final Aplicado</h3>
+  <p>O dano final recebido por uma entidade considera o ataque bruto, a mitigação, os multiplicadores de habilidade, a variação determinística e os bônus elementais e raciais:</p>
+
+  <div class="formula-box">
+    <span class="title">Equação do Dano Final</span>
+    <div class="math">DanoFinal = max(1, [ DanoBruto × (1 - Mitigação) ] × MultElemento × MultRaça × MultCrítico)</div>
+    <div class="desc">DanoBruto = Ataque × MultiplicadorHabilidade. Se o golpe for Crítico, MultCrítico = CRIT_DMG (base 1.50x).</div>
+  </div>
+
+  <!-- 3.3 Confrontos Elementais -->
+  <h3 class="subsection-title">3.3 Matriz de Confronto Elemental (±25%)</h3>
+  <p>O sistema conta com 5 Elementos fixos vinculados a cada criatura, classe e habilidade. O ciclo ativo concede <strong>+25%</strong> de dano no elemento fraco e <strong>-25%</strong> no elemento forte. O elemento <strong>Neutro</strong> possui penalidade universal:</p>
+
+  <div class="formula-box" style="background:#1e1b4b; border-color:#3730a3;">
+    <span class="title" style="color:#a5b4fc;">Ciclo Elemental Ativo</span>
+    <div class="math" style="color:#e0e7ff;">🔥 FOGO  >  🌿 TERRA  >  💨 AR  >  🌊 ÁGUA  >  🔥 FOGO</div>
+    <div class="desc" style="color:#c7d2fe;">Vantagem: ×1.25 (+25%) | Desvantagem: ×0.75 (-25%) | Elementos Iguais: ×1.00 (Neutro)</div>
+  </div>
+
+  <div class="card">
+    <strong style="color:#475569;">Regra Especial do Elemento Neutro (NEUTRAL):</strong>
+    <p style="font-size:8pt; margin-top:2px;">O elemento Neutro <strong>sempre sofre +25% de dano</strong> de qualquer elemento e <strong>sempre causa -25% de dano</strong> contra qualquer elemento. Todos os monstros têm elemento fixo na tabela; Personagens e Pets sorteiam seu elemento inicial na criação (10% Neutro, 20% para cada ativo), podendo alterar posteriormente via itens de transmutação.</p>
+  </div>
+
+  <!-- 3.4 Matriz de Vantagem Racial -->
+  <h3 class="subsection-title">3.4 Matriz de Vantagem Racial (+10%)</h3>
+  <p>Existem 11 Raças no jogo organizadas em dois princípios:</p>
+  <ul>
+    <li><strong>HUMAN (Humano):</strong> Possui <strong>+10% (1.10x)</strong> de dano contra todas as outras 10 raças, e sofre <strong>-10% (0.90x)</strong> de dano de todas elas.</li>
+    <li><strong>Ciclo das 10 Raças (+10% / -10%):</strong>
+      <div style="font-family:'JetBrains Mono',monospace; font-size:7.5pt; color:#1e293b; background:#f1f5f9; padding:5px 8px; border-radius:4px; margin:4px 0;">
+        PLANT > DRAGON > REPTILIAN > AQUATIC > ROBOTIC > CELESTIAL > DEMON > FAIRY > SPIRIT > BEAST > PLANT
+      </div>
+    </li>
+  </ul>
+
+  <!-- SEÇÃO 4: ACERTO, DESVIO E TELEGUIADO -->
+  <div class="page-break"></div>
+  <h2 class="section-title">4. Mecânica Teleguiada & Sistema de Acerto e Desvio</h2>
+
+  <div class="card card-accent">
+    <h3 style="margin-top:0; color:#1e1b4b; font-size:10pt;">🏹 Princípio do Ataque Teleguiado (Homing Trajectory)</h3>
+    <p>No <strong>Etheria Campus</strong> não existem <em>skillshots</em> cegos que erram o caminho ou são desperdiçados no chão. Todo ataque básico e toda habilidade conjurada <strong>trava fisicamente no alvo</strong> e viaja diretamente até ele em tempo real:</p>
+    <ul>
+      <li>O projétil ou golpe sempre atinge as coordenadas espaciais do alvo na arena;</li>
+      <li><strong>O Acerto Real é determinado pela rolagem de Acerto vs Desvio</strong> no momento do impacto.</li>
+    </ul>
+  </div>
+
+  <h3 class="subsection-title">4.1 Fórmula de Chance de Acerto (Hit Rate vs Evasion)</h3>
+  <p>A probabilidade de um golpe causar dano é calculada comparando a Precisão do Atacante contra o Desvio do Defensor:</p>
+
+  <div class="formula-box">
+    <span class="title">Cálculo de Chance Efetiva de Acerto</span>
+    <div class="math">ChanceAcerto = clamp( 85% + (PrecisãoAtacante - DesvioDefensor) / 2, 20%, 100% )</div>
+    <div class="desc">A precisão base é de 85%. O piso mínimo absoluto de chance é 20% e o teto máximo é 100%.</div>
+  </div>
+
+  <div class="grid-2">
+    <div class="card">
+      <strong style="color:#16a34a;">Resultado: HIT (Acerto)</strong>
+      <p style="font-size:7.8pt; margin-top:4px;">Se <code>random(0, 1) &le; ChanceAcerto</code>: o golpe conecta com sucesso, calcula o dano mitigado, verifica se houve crítico e aplica os efeitos de impacto e status correspondentes.</p>
+    </div>
+    <div class="card">
+      <strong style="color:#dc2626;">Resultado: MISS (Desvio / Esquiva)</strong>
+      <p style="font-size:7.8pt; margin-top:4px;">Se <code>random(0, 1) &gt; ChanceAcerto</code>: o alvo desvia, bloqueia ou esquiva. O float text <strong>"MISS"</strong> é emitido na tela, zero dano é infligido e nenhum efeito secundário ou DoT é aplicado.</p>
+    </div>
+  </div>
+
+  <!-- SEÇÃO 5: AOE E ESCOPO GLOBAL -->
+  <h2 class="section-title">5. Habilidades em Área (AoE) e Alcance Global</h2>
+
+  <p>As habilidades contam com 3 modalidades espaciais de alcance configuráveis no banco de dados e processadas pelo motor autoritário:</p>
+
+  <div class="grid-3">
+    <div class="card">
+      <strong style="color:#4f46e5; font-size:8.5pt;">🎯 Alvo Único (Single Target)</strong>
+      <p style="font-size:7.5pt; margin-top:4px;">Teleguiado diretamente à entidade alvo. Causa dano ou cura concentrada apenas no receptor primário.</p>
+    </div>
+    <div class="card">
+      <strong style="color:#0284c7; font-size:8.5pt;">💥 Área de Impacto (AoE com Raio)</strong>
+      <p style="font-size:7.5pt; margin-top:4px;">O alvo primário é o <strong>ponto central teleguiado</strong>. Ao atingi-lo, cria-se uma área de raio <code>aoeRadius</code> (ex: 80px, 120px) atingindo todos os alvos válidos no entorno.</p>
+    </div>
+    <div class="card">
+      <strong style="color:#9333ea; font-size:8.5pt;">🌐 Alcance Global (Arena Wide)</strong>
+      <p style="font-size:7.5pt; margin-top:4px;">Com a flag <code>isGlobalScope = true</code>, a habilidade ignora distância e atinge <strong>todos os inimigos ou aliados</strong> presentes na arena inteira.</p>
+    </div>
+  </div>
+
+  <!-- SEÇÃO 6: ESTILOS DE COMBATE E VELOCIDADE -->
+  <h2 class="section-title">6. Estilos de Combate (Melee vs Ranged) e Velocidade</h2>
+
+  <h3 class="subsection-title">6.1 Melee (Corpo a Corpo) vs Ranged (Longo Alcance)</h3>
+  <p>Classes, monstros e pets podem ser configurados nativamente como unidades corpo a corpo ou de longo alcance, com distâncias padrão configuráveis:</p>
+
+  <table>
+    <thead>
+      <tr>
+        <th style="width:20%;">Estilo</th>
+        <th style="width:25%;">Distância Padrão</th>
+        <th style="width:25%;">Comportamento de Aproximação</th>
+        <th style="width:30%;">Projétil / Animação</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="badge badge-danger">⚔️ MELEE</span></td>
+        <td><strong>60 pixels</strong></td>
+        <td>Avança até colar no alvo antes de desferir o golpe.</td>
+        <td>Corte físico direto (<code>⚔️</code>) com impacto imediato.</td>
+      </tr>
+      <tr>
+        <td><span class="badge badge-primary">🏹 RANGED</span></td>
+        <td><strong>220 pixels</strong></td>
+        <td>Mantém espaçamento e ataca de longe. Se o alvo se afastar além do alcance, persegue até atingir a distância tática.</td>
+        <td>Projétil teleguiado (flecha <code>🏹</code>, orbe arcano ou disparo) com velocidade de viagem no ar.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3 class="subsection-title">6.2 Velocidade de Movimento em Batalha & Teto Máximo (+40% Cap)</h3>
+  <div class="card card-accent">
+    <p>A velocidade de deslocamento dentro das arenas de batalha possui valor base configurado no template da classe (padrão de <strong>168 px/s</strong>). Para impedir exploits, quebras de física ou descompensações visuais:</p>
+    <div class="formula-box">
+      <span class="title">Teto Máximo de Velocidade de Movimento (Hard Cap)</span>
+      <div class="math">VelocidadeEfetiva = min( VelocidadeBase × 1.40, VelocidadeCalculada )</div>
+      <div class="desc">Nenhuma combinação de buffs, poções ou equipamentos pode aumentar a velocidade em mais de +40% além da base.</div>
+    </div>
+  </div>
+
+  <!-- SEÇÃO 7: STATUS EFFECTS E CONTROLE -->
+  <h2 class="section-title">7. Efeitos de Status (DoT / HoT) e Resistência a Controle</h2>
+
+  <div class="grid-2">
+    <div class="card">
+      <strong style="color:#0f172a; font-size:8.5pt;">🔥 Efeitos Periódicos (DoT e HoT)</strong>
+      <p style="font-size:7.5pt; margin-top:4px;">Status como Queimadura, Sangramento ou Regeneração operam por <em>ticks</em> temporais a cada <code>tickIntervalMs</code>. A fórmula de dano periódico é resolvida no servidor:</p>
+      <div style="font-family:'JetBrains Mono',monospace; font-size:7.5pt; background:#f1f5f9; padding:4px 6px; border-radius:4px;">
+        DanoDoT = max(1, (AtkConjurador * Multiplicador) / TotalTicks)
+      </div>
+    </div>
+    <div class="card">
+      <strong style="color:#0f172a; font-size:8.5pt;">⛓️ Resistência a Controle (Hard CC)</strong>
+      <p style="font-size:7.5pt; margin-top:4px;">Ao lançar um atordoamento ou imobilização, a chance de sucesso é:</p>
+      <div style="font-family:'JetBrains Mono',monospace; font-size:7.5pt; background:#f1f5f9; padding:4px 6px; border-radius:4px;">
+        ChanceCC = clamp(50% + ControlHit - ControlResist, 10%, 90%)
+      </div>
+      <p style="font-size:7.5pt; margin-top:4px;">Garante que chefes e tanques com alta Vitalidade/Sabedoria resistam a atordoamentos contínuos (anti perma-stun).</p>
+    </div>
+  </div>
+
+  <div style="margin-top:20px; padding:10px 14px; background:#f1f5f9; border-radius:8px; font-size:7.5pt; color:#475569; text-align:center;">
+    <strong>Etheria Campus</strong> • Documentação Técnica de Combate • Servidor Autoritário Node.js / PostgreSQL / Pixi.js WebGL • 2026
+  </div>
+
+</body>
+</html>
