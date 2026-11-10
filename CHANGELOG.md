@@ -5,6 +5,17 @@ Qualquer IA trabalhando neste repositório **DEVE** incrementar a versão e regi
 
 ---
 
+## [v0.5.9] - 2026-11-10
+### Segurança & Governança de IA
+* **Nova Regra Mandatória para Agentes de IA — Cláusula 0.2 (`AGENTS.md`, `.gemini/rules/AGENTS.md`, `docs/HANDOFF.md`):**
+  * **Proibição Absoluta de Alteração de Dados no Banco de Dados sem Autorização:** Fica terminantemente vedado a qualquer IA efetuar mutações, alterações de nome, edições ou exclusões em registros do banco de dados (ex: alterar nome de mapa, polígonos, NPCs, templates) sem autorização expressa e prévia do usuário.
+  * **Proteção contra Testes com Mutações:** Scripts de teste, protótipos e verificações automatizadas nunca devem sobrescrever ou mutar registros reais das tabelas de configuração do usuário.
+* **Restauração Completa do Mapa 4 ("Espaço Zen"):**
+  * Revertidos com 100% de integridade todos os dados do Mapa 4 a partir do snapshot oficial do commit `de6bab8` (nome original "Espaço Zen", 23 polígonos de colisão, 34 polígonos de sobreposição, portais bidirecionais vinculados ao Mapa 2 e os 4 NPCs posicionados).
+  * Atualização e exportação do snapshot JSON em `packages/database/snapshots/lowcode.snapshot.json`.
+
+---
+
 ## [v0.5.8] - 2026-11-07
 ### Corrigido & Aprimorado
 * **Restauração e Acesso Direto à Edição de Atributos e Habilidades na Tabela de Personagens (`AdminClassesTab.js`, `AdminClassModalTemplate.js`):**

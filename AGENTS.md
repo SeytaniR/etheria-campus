@@ -47,6 +47,16 @@ Sempre que o usuário pedir uma funcionalidade, mudança de regra, atalho ou imp
 
 ---
 
+## 🔒 CLÁUSULA 0.2 — PROIBIÇÃO ABSOLUTA DE ALTERAÇÃO DE DADOS NO BANCO SEM AUTORIZAÇÃO (DADOS SÃO SAGRADOS)
+
+1. **Nunca Alterar Dados do Banco sem Autorização Expressa:**
+   * É **terminantemente proibido** para qualquer IA efetuar alterações, mutações, renomeações, sobrescritas ou exclusões nos registros e dados salvos nas tabelas do banco de dados (exemplo: alterar nome de um mapa, alterar polígonos de colisão/sobreposição, posições de NPCs, configurações de monstros, itens, classes, etc.) **sem a expressa e prévia autorização do usuário**.
+2. **Proibição de Testes que Modifiquem Dados Reais:**
+   * Scripts de teste, protótipos, seeds ou verificações automatizadas **NUNCA** devem modificar registros existentes de mapas, entidades ou configurações criadas pelo usuário.
+   * Se for estritamente necessário testar alguma mutação de banco, a IA **DEVE PEDIR AUTORIZAÇÃO EXPLÍCITA AO USUÁRIO** antes de executar qualquer query, script ou chamada de API que altere dados.
+
+---
+
 ## 📝 REGRAS OBRIGATÓRIAS DE CÓDIGO, COMENTÁRIOS E VERSIONAMENTO
 
 ### 1. Código Documentado para Contexto de IAs (AI-Friendly Comments)

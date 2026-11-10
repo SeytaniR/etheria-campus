@@ -41,6 +41,9 @@
    * Código estritamente modularizado por responsabilidade única.
    * Frontend de `/play` e `/admin` dividido em submódulos especializados (`ClientPolygonMesh`, `McreworkSpriteSheet`, `PlayGmController`, `AdminAuth`, `AdminUsersTab`, `AdminNpcsTab`, `AdminClassesTab`, `AdminCanvasEditor`).
    * Escala dos modelos 2.5D padronizada em 70% (`scale = 0.70`).
+9. **Proibição Absoluta de Alteração de Dados no Banco sem Autorização (Cláusula 0.2):**
+   * Terminantemente proibido alterar, renomear, limpar ou sobrescrever registros ou configurações nas tabelas do banco de dados (ex: alterar nome de mapas, polígonos, posições de NPCs, etc.) sem autorização prévia e expressa do usuário.
+   * Scripts de teste, protótipos e verificações automatizadas NUNCA devem efetuar mutações em dados reais.
 
 ---
 
