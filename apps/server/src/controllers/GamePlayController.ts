@@ -124,6 +124,7 @@ export class GamePlayController {
     }));
 
     const attributeConversions = await this.prisma.attributeConversion.findMany();
+    const elementMatchups = await this.prisma.elementMatchup.findMany();
 
     const maps = (
       await this.prisma.gameMap.findMany({
@@ -168,6 +169,7 @@ export class GamePlayController {
       races,
       combatAttributes,
       attributeConversions,
+      elementMatchups,
       maps,
       characters,
     };

@@ -5,6 +5,19 @@ Qualquer IA trabalhando neste repositório **DEVE** incrementar a versão e regi
 
 ---
 
+## [v0.9.2] - 2026-11-11
+### Combate Unificado (GM = Real), Remoção de Redutores, Balanceamento de Nível/Raridade & Dano Elemental Global
+* **Adicionado:**
+  * **Calculadora Global Compartilhada (`packages/shared/src/CombatDamageCalculator.ts`):** Exposta em `/shared/CombatDamageCalculator.js` para uso idêntico no Servidor e na Arena 2.5D (`/play`), aplicando tetos de acerto/desvio (`[10%..95%]`), mitigação defensiva proporcional por nível (`(100 + 10*Nível) / (Def + 100 + 10*Nível)`) e multiplicadores reais de `element_matchups` (`FIRE > EARTH > AIR > WATER > FIRE ±25%`, `NEUTRAL -25%` causado / `+25%` sofrido).
+  * **Construtor Único de Monstros (`apps/server/src/controllers/MonsterCombatBuilder.ts`):** Centraliza o cálculo de monstros para **ambas** as rotas (`startBattle` do GM e `startEncounterByMap` dos encontros reais).
+* **Alterado (`TemporaryCombatController.ts`, `ActionCombatArena.js`, `ArenaPhysicsSolver.js`, `GamePlayController.ts`):**
+  * **100% Realidade entre GM e In-Game:** Batalhas invocadas pelo Painel `/gm` e encontros reais no mapa usam o mesmo construtor de monstros e a mesma fórmula global de dano.
+  * **Zero Redutores em Monstros:** Removidos os redutores `0.80/0.70/0.82/0.78/0.72/0.90/0.70` sobre `attribute_conversions`; monstros agora usam `100% (1.0x)` das conversões do banco (incluindo `INT -> MAG_ATK` para monstros mágicos e `DEX/AGI/STR` em secundários).
+  * **Escalonamento Balanceado por Nível de Mapa:** Crescimento proporcional contínuo por nível (`1 + (mobLvl - 1) * 0.12`) antes das conversões e trava proporcional da variação positiva em mapas iniciais (ex: Nv 1 limitado a `1..3`).
+  * **Buff nas Raridades A, S e SS (com proteção também em MAG_DEF):** `A` (`1.50x HP / 1.35x ATK / 1.25x DEF`), `S` (`2.15x / 1.60x / 1.45x`), `SS` (`3.20x / 1.95x / 1.70x`); `B/C/D/F` mantidos.
+
+---
+
 ## [v0.9.1] - 2026-11-11
 ### Governança: Regra Obrigatória de Git + Deploy Contínuo na VPS (`Regra #9`)
 * **Adicionado (`AGENTS.md` & `docs/HANDOFF.md`):**

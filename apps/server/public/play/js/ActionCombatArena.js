@@ -152,6 +152,7 @@ class ActionCombatArena {
     this.readyPlayerIds = new Set();
     this.totalRealPlayers = Number(battleState.totalRealPlayers) || 1;
 
+    this.elementMatchups = battleState.elementMatchups || this.client?.elementMatchups || [];
     this.arenaCenterX = Math.round(this.client?.playerX || 400);
     this.arenaCenterY = Math.round(this.client?.playerY || 300);
     this.arenaRadiusX = 650;
@@ -196,6 +197,9 @@ class ActionCombatArena {
       hp: pState.hp || 500, maxHp: pState.maxHp || 500, mp: pState.mp || 200, maxMp: pState.maxMp || 200,
       atk: pState.atk || 75, def: pState.def || 40, magDef: pState.magDef || pState.def || 40,
       name: pState.name || this.client?.activeChar?.name || 'Herói',
+      level: Number(pState.level || this.client?.activeChar?.level) || 1,
+      elementCode: pState.elementCode || this.client?.activeChar?.elementCode || 'NEUTRAL',
+      raceCode: pState.raceCode || this.client?.activeChar?.raceCode || 'HUMAN',
       physAccuracy: Math.min(125, Math.max(20, Number(baseCombat.PHYS_ACCURACY) || 95)),
       physEvasion: Math.min(75, Math.max(0, Number(baseCombat.PHYS_EVASION) || 5)),
       magAccuracy: Math.min(125, Math.max(20, Number(baseCombat.MAG_ACCURACY) || 95)),
@@ -447,14 +451,11 @@ class ActionCombatArena {
         return;
       }
       this.player.dir = this.compute8Direction(target.x - this.player.x, target.y - this.player.y);
-      const isCrit = Math.random() < (this.player.critRate || 0.15);
       const isMagical = this.player.damageType === 'MAGICAL';
-      const defStat = isMagical ? (target.magDef || target.def) : target.def;
-      const rawDmg = Math.max(12, Math.round(this.player.atk * (100 / (100 + defStat * 0.4))));
       const isRanged = this.player.combatStyle === 'RANGED';
       const projectileEmoji = isMagical ? (isRanged ? '🔮' : '✨') : (isRanged ? '🏹' : '⚔️');
       const projectileColor = isMagical ? '#c084fc' : '#fde047';
-      this.spawnHomingProjectile(target, 'SINGLE', 0, rawDmg, isCrit, projectileEmoji, projectileColor, isMagical);
+      this.spawnHomingProjectile(target, 'SINGLE', 0, this.player.atk, false, projectileEmoji, projectileColor, isMagical, undefined, undefined, undefined, undefined, 'ALLY', this.player.critDmg, { attackerUnit: this.player, skillMultiplier: 1.0 });
     }
     this.updateHud();
   }
@@ -478,21 +479,18 @@ class ActionCombatArena {
     this.player.mp = Math.max(0, this.player.mp - mpCost);
     this.player.actionStartTime = now; this.player.action = 7; this.player.attackTimer = 0.40;
     this.player.dir = this.compute8Direction(target.x - this.player.x, target.y - this.player.y);
-    const isCrit = Math.random() < (this.player.critRate || 0.15);
-    const rawDmg = Math.round(this.player.atk * dmgMultiplier);
-    this.spawnHomingProjectile(target, skillType, aoeRadius, rawDmg, isCrit, emoji, color, isMagical);
+    this.spawnHomingProjectile(target, skillType, aoeRadius, this.player.atk, false, emoji, color, isMagical, undefined, undefined, undefined, undefined, 'ALLY', this.player.critDmg, { attackerUnit: this.player, skillMultiplier: dmgMultiplier });
     this.updateHud();
   }
 
-  spawnHomingProjectile(target, skillType, aoeRadius, dmg, isCrit, emoji, color, isMagical, startX, startY, speed, attackerAcc, team = 'ALLY', critDmgMult = null) {
+  spawnHomingProjectile(target, skillType, aoeRadius, dmg, isCrit, emoji, color, isMagical, startX, startY, speed, attackerAcc, team = 'ALLY', critDmgMult = null, extra = null) {
     this.projectiles.push({
       x: startX !== undefined ? startX : this.player.x,
       y: startY !== undefined ? startY : this.player.y - 20,
       target, skillType, aoeRadius, dmg, isCrit, emoji, color, isMagical,
-      speed: speed || 620,
-      attackerAcc,
-      team,
-      critDmgMult,
+      speed: speed || 620, attackerAcc, team, critDmgMult,
+      attackerUnit: extra?.attackerUnit || (team === 'ALLY' ? this.player : null),
+      skillMultiplier: extra?.skillMultiplier ?? 1.0,
     });
   }
 
@@ -554,11 +552,9 @@ class ActionCombatArena {
   }
 
   calculateHitRate(attackerAcc, defenderEva) {
-    const acc = Number(attackerAcc) <= 1.5 ? Number(attackerAcc) * 100 : Number(attackerAcc);
-    const eva = Number(defenderEva) <= 1.5 ? Number(defenderEva) * 100 : Number(defenderEva);
-    const clampedEva = Math.min(75, Math.max(0, eva || 0));
-    const clampedAcc = Math.min(125, Math.max(20, acc || 95));
-    return Math.max(10, Math.min(95, clampedAcc - clampedEva));
+    return window.CombatDamageCalculator
+      ? window.CombatDamageCalculator.calculateEffectiveHitRate(attackerAcc, defenderEva)
+      : Math.max(10, Math.min(95, (Number(attackerAcc) || 95) - Math.min(75, Math.max(0, Number(defenderEva) || 5))));
   }
 
   applyDamageWithHitEvasionRoll(defender, p, attackerAcc, now) {
@@ -567,22 +563,32 @@ class ActionCombatArena {
       this.floatingTexts.push({ x: defender.x, y: defender.y - 45, text: '💨 DESVIO!', color: '#38bdf8', life: 0.9 });
       return;
     }
-
+    const atkUnit = p.attackerUnit || this.player || {};
     const eva = p.isMagical ? (defender.magEvasion || 5) : (defender.physEvasion || 5);
-    const hitRate = this.calculateHitRate(attackerAcc, eva);
-    if (Math.random() * 100 > hitRate) {
+    const defStat = p.isMagical ? (defender.magDef || defender.def || 25) : (defender.def || 25);
+    const Calc = window.CombatDamageCalculator;
+    const res = Calc ? Calc.calculateHitDamage({
+      attackerAtk: p.dmg ?? atkUnit.atk ?? 40,
+      attackerLevel: Number(atkUnit.level) || 1,
+      attackerElementCode: atkUnit.elementCode || 'NEUTRAL',
+      attackerCritRate: atkUnit.critRate ?? 0.08,
+      attackerCritDmg: p.critDmgMult || atkUnit.critDmg || 1.5,
+      attackerAccuracy: attackerAcc,
+      defenderDef: defStat,
+      defenderElementCode: defender.elementCode || 'NEUTRAL',
+      defenderEvasion: eva,
+      skillMultiplier: p.skillMultiplier ?? 1.0,
+      elementMatchups: this.elementMatchups,
+    }) : { isHit: Math.random() * 100 <= this.calculateHitRate(attackerAcc, eva), isCrit: false, finalDamage: Math.max(4, Math.round(p.dmg || 40)), elementRelation: 'NORMAL' };
+
+    if (!res.isHit) {
       this.floatingTexts.push({ x: defender.x, y: defender.y - 48, text: '💨 DESVIO!', color: '#38bdf8', life: 1.05 });
       return;
     }
-
-    const variance = 0.92 + Math.random() * 0.16;
-    const defStat = p.isMagical ? (defender.magDef || defender.def || 25) : (defender.def || 25);
-    const baseDmg = !p.alreadyMitigated && p.team === 'ENEMY' ? Math.max(4, Math.round(p.dmg * (100 / (100 + defStat * 0.45)))) : p.dmg;
-    let finalDmg = Math.round(baseDmg * variance);
-    if (p.isCrit) finalDmg = Math.round(finalDmg * (p.critDmgMult || this.player?.critDmg || 1.55));
-    const text = p.isCrit ? `💥 CRÍTICO! -${finalDmg}` : `${p.emoji} -${finalDmg}`;
-    const color = p.isCrit ? '#fde047' : p.color;
-    this.dealDamageToUnit(defender, finalDmg, text, color, now);
+    const relBadge = res.elementRelation === 'ADVANTAGE' ? ' 🔥' : (res.elementRelation === 'DISADVANTAGE' || res.elementRelation === 'NEUTRAL_PENALTY' ? ' 🛡️' : '');
+    const text = res.isCrit ? `💥 CRÍTICO! -${res.finalDamage}${relBadge}` : `${p.emoji} -${res.finalDamage}${relBadge}`;
+    const color = res.isCrit ? '#fde047' : (res.elementRelation === 'ADVANTAGE' ? '#fb923c' : p.color);
+    this.dealDamageToUnit(defender, res.finalDamage, text, color, now);
   }
 
   /**
@@ -600,40 +606,28 @@ class ActionCombatArena {
     attacker.action = isRangedShot ? 7 : 3;
 
     const acc = isMag ? (attacker.magAccuracy || 95) : (attacker.physAccuracy || 95);
-    const isCrit = Math.random() < (attacker.critRate || 0.08);
-
     if (isRangedShot) {
       const emoji = isMag ? (attacker.team === 'ALLY' ? '✨' : '🔮') : '🏹';
       const color = attacker.team === 'ALLY' ? (isMag ? '#c084fc' : '#38bdf8') : (isMag ? '#f43f5e' : '#fb923c');
-      const defStat = isMag ? (target.magDef || target.def || 25) : (target.def || 25);
-      const rawDmg = attacker.team === 'ALLY'
-        ? Math.max(6, Math.round(attacker.atk * (100 / (100 + defStat * 0.4))))
-        : attacker.atk;
       this.spawnHomingProjectile(
-        target, 'SINGLE_TARGET', 0, rawDmg, isCrit, emoji, color, isMag,
-        attacker.x, attacker.y - 20, 560, acc, attacker.team, attacker.critDmg || 1.5
+        target, 'SINGLE_TARGET', 0, attacker.atk, false, emoji, color, isMag,
+        attacker.x, attacker.y - 20, 560, acc, attacker.team, attacker.critDmg || 1.5,
+        { attackerUnit: attacker, skillMultiplier: 1.0 }
       );
       return;
     }
 
-    // Ataque Melee ou Ranged lutando corpo-a-corpo (Close Brawl)
-    const defStat = isMag ? (target.magDef || target.def || 25) : (target.def || 25);
-    const baseDmg = Math.max(4, Math.round(attacker.atk * (100 / (100 + defStat * 0.45))));
-    const dmgScale = isCloseBrawl ? 0.85 : 1.0; // Ranged em luta CQC bate ligeiramente reduzido
+    const dmgScale = isCloseBrawl ? 0.85 : 1.0;
     this.applyDamageWithHitEvasionRoll(
       target,
       {
-        team: attacker.team,
-        alreadyMitigated: true,
-        dmg: Math.max(3, Math.round(baseDmg * dmgScale)),
-        isCrit,
+        team: attacker.team, dmg: attacker.atk, attackerUnit: attacker, skillMultiplier: dmgScale,
         critDmgMult: attacker.critDmg || 1.5,
         emoji: isMag ? '💥' : (attacker.team === 'ALLY' ? '🐾' : '💔'),
         color: attacker.team === 'ALLY' ? (isMag ? '#c084fc' : '#38bdf8') : (isMag ? '#c084fc' : '#ef4444'),
         isMagical: isMag,
       },
-      acc,
-      now
+      acc, now
     );
 
     if (attacker.team === 'ALLY') {

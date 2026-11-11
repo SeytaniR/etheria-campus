@@ -8,9 +8,9 @@
 ---
 
 ## 📌 Status Atual do Projeto
-* **Versão Atual:** `v0.9.1`
+* **Versão Atual:** `v0.9.2`
 * **Última Atualização:** `2026-11-11`
-* **Fase Atual:** **Regra de Git + VPS Sempre 100% Atualizada (`v0.9.1`) sobre Quests Meta Procedurais (`v0.9.0`) — Repositório e VPS Azure (`40.65.63.193`) em sincronia total com `v0.9.0` já migrada (`prisma db push` executado em produção).**
+* **Fase Atual:** **Combate Unificado GM/Real, Dano Elemental Global & Balanceamento de Monstros (`v0.9.2`) — `CombatDamageCalculator` compartilhado em `@etheria/shared` + `MonsterCombatBuilder.ts` unificado entre `/gm` e encontros reais, zero redutor de conversão, curva balanceada por nível, buff em `A/S/SS` e vantagem elemental `±25%` ativa.**
 * **Repositório Oficial:** `https://github.com/SeytaniR/etheria-campus`
 * **Fonte Bruta de Assets:** `https://github.com/SeytaniR/mcrework` (`https://seytanir.github.io/mcrework/`)
 

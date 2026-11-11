@@ -21,6 +21,7 @@ class EtheriaPlayClient {
     this.races = [];
     this.combatAttributes = [];
     this.attributeConversions = [];
+    this.elementMatchups = [];
     this.mapsList = [];
     this.myCharacters = [];
     this.selectedClassIdForCreation = null;
@@ -154,6 +155,7 @@ class EtheriaPlayClient {
     this.races = data.races || [];
     this.combatAttributes = data.combatAttributes || [];
     this.attributeConversions = data.attributeConversions || [];
+    this.elementMatchups = data.elementMatchups || [];
     this.mapsList = data.maps || [];
     this.myCharacters = data.characters || [];
 

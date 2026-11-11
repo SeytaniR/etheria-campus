@@ -5,3 +5,4 @@
  */
 
 export * from './MapPolygonMesh.js';
+export * from './CombatDamageCalculator.js';

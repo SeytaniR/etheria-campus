@@ -201,6 +201,21 @@ export class EtheriaServerApp {
    * Suporta rotas raiz, subpastas (/admin/js/*, /play/js/*) e sanitização contra traversal.
    */
   private async tryServeStatic(pathname: string, res: http.ServerResponse): Promise<boolean> {
+    if (pathname === '/shared/CombatDamageCalculator.js') {
+      try {
+        const sharedCalcPath = path.resolve(__dirname, '../../../packages/shared/dist/CombatDamageCalculator.js');
+        const data = await fs.readFile(sharedCalcPath);
+        res.writeHead(200, {
+          'Content-Type': 'application/javascript; charset=utf-8',
+          'Cache-Control': 'no-cache, no-store, must-revalidate, max-age=0',
+        });
+        res.end(data);
+        return true;
+      } catch {
+        return false;
+      }
+    }
+
     let relPath = pathname;
     if (relPath === '/' || relPath === '/admin' || relPath === '/admin/') {
       relPath = '/admin/index.html';
