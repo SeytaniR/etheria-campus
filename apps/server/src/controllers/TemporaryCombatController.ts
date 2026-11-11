@@ -164,7 +164,7 @@ export class TemporaryCombatController {
       return this.buildBattleInstance(characterId, Number(monsterTemplateId) || 1, customMonsterUnits, scalingCtx);
     }
 
-    const qty = Math.max(1, Math.min(15, Number(quantity) || 1));
+    const qty = Math.max(1, Math.min(25, Number(quantity) || 1));
     const lvl = Math.max(1, Math.min(100, Number(monsterLevel) || 1));
 
     const mobTemplate = await this.prisma.monsterTemplate.findUnique({
@@ -223,12 +223,27 @@ export class TemporaryCombatController {
       include: { pets: { take: 3, include: { monsterTemplate: true } } },
     });
 
-    const alliesCount = 1 + (pc && pc.pets && pc.pets.length > 0 ? pc.pets.length : 2);
-    let totalMonstersToSpawn = 0;
-    for (let i = 0; i < alliesCount; i++) {
-      totalMonstersToSpawn += Math.floor(Math.random() * 5) + 1;
+    // Regra Proporcional de Spawn:
+    // - Jogador solo sem pet (allies = 1): 1 a 7 monstros
+    // - Jogador + pet (base 2 combatentes): 3 a 10 monstros
+    // - Cada combatente adicional alem da base de 2 (+1 a 3 monstros / +1 min e +2 max):
+    //   Ex: 3 pets e 2 jogadores (5 combatentes -> 3 adicionais): 6 a 16 monstros
+    const numPets = pc && pc.pets && pc.pets.length > 0 ? pc.pets.length : 0;
+    const alliesCount = 1 + numPets;
+    let minMobs = 1;
+    let maxMobs = 7;
+    if (alliesCount === 2) {
+      minMobs = 3;
+      maxMobs = 10;
+    } else if (alliesCount > 2) {
+      const extraAllies = alliesCount - 2;
+      minMobs = 3 + extraAllies * 1;
+      maxMobs = 10 + extraAllies * 2;
     }
-    totalMonstersToSpawn = Math.min(15, totalMonstersToSpawn);
+    const totalMonstersToSpawn = Math.max(
+      1,
+      Math.min(25, Math.floor(Math.random() * (maxMobs - minMobs + 1)) + minMobs)
+    );
 
     const candidateTemplates = await MapSpawnResolver.findEligibleMonstersForMap<MonsterTemplate>(
       this.prisma,
@@ -458,58 +473,7 @@ export class TemporaryCombatController {
               mEva: Number(cStats.MAG_EVASION) || 5,
             };
           })
-        : [
-            {
-              id: 'pet_comp_0',
-              name: 'Lobo Guardião (Pet)',
-              level: charLevel,
-              assetFolder: 'monsters',
-              spriteKey: 'creature_000001',
-              groundOffsetY: 0,
-              elementCode: 'NEUTRAL',
-              raceCode: 'BEAST',
-              style: 'MELEE',
-              range: 60,
-              dmgType: 'PHYSICAL',
-              hp: Math.round(playerMaxHp * 0.72),
-              atk: Math.round(playerAtk * 0.55),
-              def: Math.round(playerDef * 0.85),
-              magDef: Math.round(playerMagDef * 0.75),
-              moveSpd: Math.round(playerMoveSpeed * 0.92),
-              critRate: 0.06,
-              critDmg: 1.5,
-              attackSpeed: 1.0,
-              pAcc: 95,
-              pEva: 5,
-              mAcc: 95,
-              mEva: 5,
-            },
-            {
-              id: 'pet_comp_1',
-              name: 'Grifo Protetor (Pet)',
-              level: charLevel,
-              assetFolder: 'monsters',
-              spriteKey: 'creature_000002',
-              groundOffsetY: 0,
-              elementCode: 'NEUTRAL',
-              raceCode: 'BEAST',
-              style: 'RANGED',
-              range: 220,
-              dmgType: 'MAGICAL',
-              hp: Math.round(playerMaxHp * 0.52),
-              atk: Math.round(playerAtk * 0.72),
-              def: Math.round(playerDef * 0.50),
-              magDef: Math.round(playerMagDef * 0.65),
-              moveSpd: Math.round(playerMoveSpeed * 0.95),
-              critRate: 0.12,
-              critDmg: 1.6,
-              attackSpeed: 1.05,
-              pAcc: 95,
-              pEva: 8,
-              mAcc: 95,
-              mEva: 8,
-            },
-          ];
+        : [];
 
     rawPets.forEach((p: any, idx: number) => {
       petUnits.push({
@@ -606,7 +570,7 @@ export class TemporaryCombatController {
 
     let isDefending = false;
     const elemTag = (rel: string) =>
-      rel === 'ADVANTAGE' ? ' 🔥[Vantagem +25%]' : rel === 'DISADVANTAGE' || rel === 'NEUTRAL_PENALTY' ? ' 🛡️[-25%]' : '';
+      rel === 'ADVANTAGE' ? ' [Vantagem +25%]' : rel === 'DISADVANTAGE' || rel === 'NEUTRAL_PENALTY' ? ' [-25%]' : '';
 
     if (actionType === 'ATTACK' || actionType === 'SKILL') {
       const isSkill = actionType === 'SKILL';
@@ -635,9 +599,9 @@ export class TemporaryCombatController {
         events.push({
           actor: 'player', targetType: 'monster', targetIndex: targetMob.index, type: 'MISS',
           animAction: isSkill ? 7 : 3, amount: 0, hpRemaining: targetMob.hp,
-          message: `${player.name} errou o golpe contra ${targetMob.name} (💨 DESVIO)!`,
+          message: `${player.name} errou o golpe contra ${targetMob.name} (DESVIO)!`,
         });
-        battle.combatLog.unshift(`💨 [${player.name}] errou [${targetMob.name}] (💨 DESVIO)!`);
+        battle.combatLog.unshift(`[${player.name}] errou [${targetMob.name}] (DESVIO)!`);
       } else {
         targetMob.hp = Math.max(0, targetMob.hp - dmgRes.finalDamage);
         if (targetMob.hp === 0) targetMob.isAlive = false;
@@ -698,7 +662,7 @@ export class TemporaryCombatController {
       const totalExp = battle.monsters.reduce((acc, m) => acc + m.level * 45, 0);
       const totalGold = battle.monsters.reduce((acc, m) => acc + Math.max(10, m.level * 18), 0);
       battle.rewards = { exp: totalExp, gold: totalGold };
-      battle.combatLog.unshift(`🏆 VITÓRIA! Todos os monstros foram derrotados! (+${totalExp} EXP, +${totalGold} Ouro)`);
+      battle.combatLog.unshift(`VITÓRIA! Todos os monstros foram derrotados! (+${totalExp} EXP, +${totalGold} Ouro)`);
       battle.lastEvents = events;
       return battle;
     }
@@ -745,7 +709,7 @@ export class TemporaryCombatController {
       if (!player.isAlive) {
         battle.isFinished = true;
         battle.winner = 'MONSTERS';
-        battle.combatLog.unshift(`💀 [${player.name}] foi derrotado em combate!`);
+        battle.combatLog.unshift(`[${player.name}] foi derrotado em combate!`);
         break;
       }
     }

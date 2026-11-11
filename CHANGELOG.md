@@ -5,6 +5,27 @@ Qualquer IA trabalhando neste repositório **DEVE** incrementar a versão e regi
 
 ---
 
+## [v0.10.1] - 2026-11-11
+### Spawn Proporcional de Monstros por Combatentes Aliados & Textos Flutuantes Discretos sem Emoji
+* **Adicionado / Modificado (`TemporaryCombatController.ts`):**
+  * **Nova Regra Matematica de Spawn em Batalha:**
+    * **Jogador Solo sem Pet (1 aliado):** Gera de `1 a 7` monstros.
+    * **Jogador + 1 Pet (2 aliados):** Gera de `3 a 10` monstros.
+    * **Combatentes Adicionais (Party / Pets extras alem da base de 2):** Soma `+1 a 3` monstros por modelo extra (+1 no minimo, +2 no maximo). Exemplo pratico do usuario (3 pets + 2 jogadores = 5 aliados, 3 extras): `3 + 3*1 = 6` a `10 + 3*2 = 16` monstros sorteados.
+    * **Remocao de Pets Ficticios:** Removido o fallback forcado que injetava `pet_comp_0`/`pet_comp_1` quando o jogador nao possuia pets, viabilizando combate 100% solo real.
+    * **Teto Expandido:** Suporte ampliado para ate 25 monstros simultaneos em combate com distribuicao espacial eliptica e colisao fisica.
+* **Refatorado / Visual (`ActionCombatArena.js`):**
+  * **Textos Flutuantes Limpos sem Emojis:**
+    * Desvio/Miss: `DESVIO` (azul celeste `#38bdf8`).
+    * Fora de Alcance: `FORA DE ALCANCE` (amarelo `#fde047`).
+    * Dano Critico: `CRÍTICO -{dano}` (amarelo/ouro `#fde047`).
+    * Dano Normal: `-{dano}` (laranja `#fb923c` em vantagem elemental, vermelho `#f87171` em dano sofrido por aliados, branco `#ffffff` padrao).
+    * Purificacao: `PURIFICADO (-{qtd})` (verde-agua `#2dd4bf`).
+    * Banners e Notificacoes: `PREPARE-SE PARA A BATALHA`, `COMBATE INICIADO`, `VITÓRIA!`, `VOCÊ FOI DERROTADO!`, `Fuga da Batalha`.
+    * Tipografia refinada `13px system-ui, -apple-system, sans-serif` com renderizacao discreta e alto contraste.
+
+---
+
 ## [v0.10.0] - 2026-11-11
 ### Tabela de Drops em Monstros (`loot_table_json`) & Rolagem de Loot em Combate
 * **Adicionado:**

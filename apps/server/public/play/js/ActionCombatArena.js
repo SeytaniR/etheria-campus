@@ -279,12 +279,12 @@ class ActionCombatArena {
     const timerEl = document.getElementById('actPrepTimer'); if (timerEl) timerEl.textContent = '20s';
     const btnReady = document.getElementById('btnActReady'); if (btnReady) { btnReady.classList.remove('ready'); btnReady.textContent = '⚡ PRONTO!'; }
     const statusEl = document.getElementById('actPrepStatusText');
-    if (statusEl) statusEl.textContent = this.totalRealPlayers > 1 ? `👥 Aguardando: 0/${this.totalRealPlayers} jogadores prontos` : 'Trace sua estratégia ou clique em Pronto';
+    if (statusEl) statusEl.textContent = this.totalRealPlayers > 1 ? `Aguardando: 0/${this.totalRealPlayers} jogadores prontos` : 'Trace sua estratégia ou clique em Pronto';
 
     this.floatingTexts.push({
       x: spawns.px,
       y: spawns.py - 60,
-      text: '⏳ PREPARE-SE PARA A BATALHA!',
+      text: 'PREPARE-SE PARA A BATALHA',
       color: '#38bdf8',
       life: 2.2,
     });
@@ -304,7 +304,7 @@ class ActionCombatArena {
       if (btnReady) { btnReady.classList.remove('ready'); btnReady.textContent = '⚡ PRONTO!'; }
     }
     if (this.readyPlayerIds.size >= this.totalRealPlayers) this.startFightNow();
-    else if (statusEl) statusEl.textContent = `👥 Aguardando: ${this.readyPlayerIds.size}/${this.totalRealPlayers} jogadores prontos...`;
+    else if (statusEl) statusEl.textContent = `Aguardando: ${this.readyPlayerIds.size}/${this.totalRealPlayers} jogadores prontos...`;
   }
 
   startFightNow() {
@@ -312,7 +312,7 @@ class ActionCombatArena {
     this.combatState = 'FIGHTING';
     const prepBanner = document.getElementById('actionPrepBanner'); if (prepBanner) prepBanner.style.display = 'none';
     const px = this.player ? this.player.x : this.arenaCenterX, py = (this.player ? this.player.y : this.arenaCenterY) - 70;
-    this.floatingTexts.push({ x: px, y: py, text: '⚔️ LUTA INICIADA!', color: '#fde047', life: 1.8 });
+    this.floatingTexts.push({ x: px, y: py, text: 'COMBATE INICIADO', color: '#fde047', life: 1.8 });
   }
 
   closeArena() {
@@ -407,7 +407,7 @@ class ActionCombatArena {
         unit.hp = Math.min(unit.maxHp, unit.hp + healAmt);
       }
       this.floatingTexts.push({
-        x: unit.x, y: unit.y - 54, text: `✨ PURIFICADO! (-${removed} Debuff)`, color: '#2dd4bf', life: 1.25,
+        x: unit.x, y: unit.y - 54, text: `PURIFICADO (-${removed})`, color: '#2dd4bf', life: 1.25,
       });
     }
     return removed;
@@ -447,7 +447,7 @@ class ActionCombatArena {
       const dist = Math.hypot(target.x - this.player.x, target.y - this.player.y);
       const maxRange = this.player.attackRange || (this.player.combatStyle === 'RANGED' ? 220 : 60);
       if (dist > maxRange + 25) {
-        this.floatingTexts.push({ x: this.player.x, y: this.player.y - 45, text: '📏 Fora de Alcance!', color: '#fde047', life: 0.7 });
+        this.floatingTexts.push({ x: this.player.x, y: this.player.y - 45, text: 'FORA DE ALCANCE', color: '#fde047', life: 0.7 });
         return;
       }
       this.player.dir = this.compute8Direction(target.x - this.player.x, target.y - this.player.y);
@@ -560,7 +560,7 @@ class ActionCombatArena {
   applyDamageWithHitEvasionRoll(defender, p, attackerAcc, now) {
     if (!defender || !defender.isAlive) return;
     if (defender.isPlayer && defender.isDashing) {
-      this.floatingTexts.push({ x: defender.x, y: defender.y - 45, text: '💨 DESVIO!', color: '#38bdf8', life: 0.9 });
+      this.floatingTexts.push({ x: defender.x, y: defender.y - 45, text: 'DESVIO', color: '#38bdf8', life: 0.9 });
       return;
     }
     const atkUnit = p.attackerUnit || this.player || {};
@@ -582,12 +582,15 @@ class ActionCombatArena {
     }) : { isHit: Math.random() * 100 <= this.calculateHitRate(attackerAcc, eva), isCrit: false, finalDamage: Math.max(4, Math.round(p.dmg || 40)), elementRelation: 'NORMAL' };
 
     if (!res.isHit) {
-      this.floatingTexts.push({ x: defender.x, y: defender.y - 48, text: '💨 DESVIO!', color: '#38bdf8', life: 1.05 });
+      this.floatingTexts.push({ x: defender.x, y: defender.y - 48, text: 'DESVIO', color: '#38bdf8', life: 1.05 });
       return;
     }
-    const relBadge = res.elementRelation === 'ADVANTAGE' ? ' 🔥' : (res.elementRelation === 'DISADVANTAGE' || res.elementRelation === 'NEUTRAL_PENALTY' ? ' 🛡️' : '');
-    const text = res.isCrit ? `💥 CRÍTICO! -${res.finalDamage}${relBadge}` : `${p.emoji} -${res.finalDamage}${relBadge}`;
-    const color = res.isCrit ? '#fde047' : (res.elementRelation === 'ADVANTAGE' ? '#fb923c' : p.color);
+    const text = res.isCrit ? `CRÍTICO -${res.finalDamage}` : `-${res.finalDamage}`;
+    const color = res.isCrit
+      ? '#fde047'
+      : (res.elementRelation === 'ADVANTAGE'
+        ? '#fb923c'
+        : (defender.team === 'ALLY' ? '#f87171' : (p.color || '#ffffff')));
     this.dealDamageToUnit(defender, res.finalDamage, text, color, now);
   }
 
@@ -652,7 +655,7 @@ class ActionCombatArena {
       const expGained = this.monsters.length * 65;
       const goldGained = this.monsters.length * 25;
       this.recordBattleVictoryOnServer(expGained, goldGained);
-      this.showResult(true, `Você venceu o confronto na arena!<br><br>✨ <strong>+${expGained} EXP</strong> &bull; 🪙 <strong>+${goldGained} Ouro</strong>`);
+      this.showResult(true, `Você venceu o confronto na arena!<br><br><strong>+${expGained} EXP</strong> &bull; <strong>+${goldGained} Ouro</strong>`);
     }
   }
 
@@ -664,7 +667,7 @@ class ActionCombatArena {
       if (res?.characterGold !== undefined && this.client.activeChar) { this.client.activeChar.gold = res.characterGold; this.client.updateHudInfo?.(); }
       if (Array.isArray(res?.droppedItems) && res.droppedItems.length > 0) {
         const rEl = document.getElementById('actionResultRewards');
-        const dropTxt = res.droppedItems.map((d) => `🎒 +${d.quantity}x ${d.namePtBr}`).join(' &bull; ');
+        const dropTxt = res.droppedItems.map((d) => `+${d.quantity}x ${d.namePtBr}`).join(' &bull; ');
         if (rEl) rEl.innerHTML += `<div style="margin-top:6px; color:#5eead4; font-weight:700;">${dropTxt}</div>`;
       }
     } catch (err) { console.warn('Falha ao sincronizar vitória no backend:', err); }
@@ -678,7 +681,7 @@ class ActionCombatArena {
     const title = document.getElementById('actionResultTitle');
     const rewards = document.getElementById('actionResultRewards');
     if (!banner || !title || !rewards) return;
-    title.textContent = isFled ? '🏃 Fuga da Batalha' : (isVictory ? '🏆 VITÓRIA!' : '💀 VOCÊ FOI DERROTADO!');
+    title.textContent = isFled ? 'Fuga da Batalha' : (isVictory ? 'VITÓRIA!' : 'VOCÊ FOI DERROTADO!');
     title.style.color = isFled ? '#7dd3fc' : (isVictory ? '#fde047' : '#f87171');
     rewards.innerHTML = messageHtml;
     banner.style.display = 'flex';
@@ -961,9 +964,15 @@ class ActionCombatArena {
 
   renderFloatingTexts(ctx) {
     for (const f of this.floatingTexts) {
-      ctx.save(); ctx.font = 'bold 14px sans-serif'; ctx.textAlign = 'center'; ctx.fillStyle = f.color || '#fff';
-      ctx.shadowColor = '#000'; ctx.shadowBlur = 4; ctx.globalAlpha = Math.max(0, Math.min(1, f.life));
-      ctx.fillText(f.text, f.x, f.y); ctx.restore();
+      ctx.save();
+      ctx.font = 'bold 13px system-ui, -apple-system, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillStyle = f.color || '#fff';
+      ctx.shadowColor = 'rgba(0, 0, 0, 0.9)';
+      ctx.shadowBlur = 3;
+      ctx.globalAlpha = Math.max(0, Math.min(1, f.life));
+      ctx.fillText(f.text, f.x, f.y);
+      ctx.restore();
     }
   }
 }
