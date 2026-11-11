@@ -5,6 +5,13 @@ Qualquer IA trabalhando neste repositório **DEVE** incrementar a versão e regi
 
 ---
 
+## [v0.9.1] - 2026-11-11
+### Governança: Regra Obrigatória de Git + Deploy Contínuo na VPS (`Regra #9`)
+* **Adicionado (`AGENTS.md` & `docs/HANDOFF.md`):**
+  * Formalizada a **Regra #9**: toda entrega validada deve executar obrigatoriamente `git commit` + `git push origin main` e manter a VPS Azure (`/home/azureuser/etheria-campus`) 100% atualizada com backup preventivo de snapshot/banco antes do deploy para rollback seguro.
+
+---
+
 ## [v0.9.0] - 2026-11-11
 ### Quests Meta Procedurais (`META`), Contagem por Raça/Coleta & Base Inicial de Mochila/Ouro (Incompleta)
 * **Adicionado:**

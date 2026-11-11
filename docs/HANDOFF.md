@@ -8,9 +8,9 @@
 ---
 
 ## 📌 Status Atual do Projeto
-* **Versão Atual:** `v0.9.0`
+* **Versão Atual:** `v0.9.1`
 * **Última Atualização:** `2026-11-11`
-* **Fase Atual:** **Quests Meta Procedurais (`v0.9.0`) — Nova categoria `META` com estágios `1..N` (`x10` por padrão: `10 ➔ 100 ➔ 1.000...`), suporte a Matar Monstro, Matar Raça (`KILL_RACE`) e Coletar/Entregar Item (`COLLECT_ITEM`), escalada própria de recompensas em grade editável, entrega cumulativa via NPC e Base Inicial (incompleta) de Carteira (`gold`) e Mochila (`character_inventory_items`).**
+* **Fase Atual:** **Regra de Git + VPS Sempre 100% Atualizada (`v0.9.1`) sobre Quests Meta Procedurais (`v0.9.0`) — Repositório e VPS Azure (`40.65.63.193`) em sincronia total com `v0.9.0` já migrada (`prisma db push` executado em produção).**
 * **Repositório Oficial:** `https://github.com/SeytaniR/etheria-campus`
 * **Fonte Bruta de Assets:** `https://github.com/SeytaniR/mcrework` (`https://seytanir.github.io/mcrework/`)
 
@@ -54,12 +54,14 @@
    * Caddy Web Server com SSL Let's Encrypt automático em `https://40-65-63-193.sslip.io` e HTTP em `http://40.65.63.193`.
    * Serviço gerenciado pelo systemd: `systemctl status etheria-campus`.
    * PostgreSQL 16 local na porta 5432 gerenciando os dados persistentes com snapshots sincronizados no Git.
+12. **Git + VPS 100% Atualizada + Segurança por Backups (`AGENTS.md` Regra #9):**
+   * Sempre versionar no Git (`commit` + `push`) e atualizar imediatamente a VPS (`git pull`, `prisma db push` se houver mudança de schema, `build` e `systemctl restart etheria-campus`), preservando backup preventivo do snapshot/banco para rollback.
 
 ---
 
 ## ⚠️ Pendências Documentadas & Base Incompleta (Economia/Inventário)
 * **Carteira (`player_characters.gold`) e Mochila (`character_inventory_items`) criadas na `v0.9.0` são INCOMPLETAS por decisão explícita:** suportam acúmulo/consumo em Quests Meta (`COLLECT_ITEM`), recompensas de ouro/itens e drop provisório vinculado à missão. Ao implementar o módulo completo de **Inventário, Loja, Equipamentos nos 16 Slots e Drops Globais**, estenda essas tabelas existentes sem resetar dados.
-* **Migração na VPS ao subir `v0.9.0`:** executar `npx prisma db push --schema=packages/database/prisma/schema.prisma` antes de reiniciar o `etheria-campus.service`.
+* **Status do Deploy `v0.9.0` na VPS:** `prisma db push`, compilação e reinício do `etheria-campus.service` **já aplicados e validados** em `40.65.63.193` (`HTTP 200` em `/admin` e `/play`).
 
 ## 🎯 Próxima Tarefa Exata da Fila
 * **Servidor 24/7 em Produção:** Ativo e acessível publicamente via `https://40-65-63-193.sslip.io/admin` e `https://40-65-63-193.sslip.io/play`.

@@ -86,7 +86,7 @@ Como este projeto é desenvolvido em **revezamento de turnos entre múltiplas co
   1. Garantir que o código compila sem erros de tipagem (`tsc --noEmit`).
   2. Atualizar o `CHANGELOG.md` com a nova versão incremental.
   3. Atualizar o `docs/HANDOFF.md` informando o estado atual e o próximo passo exato para a outra IA.
-  4. Realizar `git commit` e `git push` para o repositório oficial (`SeytaniR/etheria-campus`).
+  4. Realizar `git commit` + `git push origin main` para o repositório oficial (`SeytaniR/etheria-campus`) e atualizar imediatamente a VPS de produção (Regra #9).
 
 ### 4. Internacionalização Nativa (`i18n` em 100% do Projeto)
 * **Zero Texto Fixo na UI:** É proibido escrever strings em português ou inglês diretamente no HTML/Canvas.
@@ -115,3 +115,12 @@ Quando mais de uma IA estiver atuando no projeto (em revezamento de turnos, inst
 * **8.3 Preservação dos Dados Cadastrados:** Monstros, mapas, biomas, itens, pets e classes salvos no banco e no `lowcode.snapshot.json` pertencem ao usuário e ao projeto. Nenhuma IA pode resetar tabelas, apagar dados da outra ou alterar IDs existentes.
 * **8.4 Atualização Obrigatória do `docs/HANDOFF.md` e `CHANGELOG.md`:** Toda IA deve registrar com clareza os arquivos modificados, o que foi entregue e o status de compilação, para que a parceira saiba exatamente o ponto de continuidade.
 * **8.5 Single Source of Truth:** O repositório oficial no GitHub (`main`) e a VPS Azure (`40-65-63-193.sslip.io`) são os ambientes integrados. Mudanças na VPS devem ser feitas sincronizando via Git e executando compilação limpa.
+
+### 9. Sincronização Obrigatória Git + VPS 100% Atualizada & Segurança por Backup/Rollback
+* **9.1 Nunca Deixar Alterações Fora do Git nem Desatualizadas na VPS:** Toda entrega validada (build + typecheck passando) DEVE encerrar com **`git commit` + `git push origin main`** seguido de **deploy imediato na VPS Azure** (`/home/azureuser/etheria-campus` em `40.65.63.193`).
+* **9.2 Rotina Segura de Atualização na VPS:**
+  1. Fazer backup preventivo do `packages/database/snapshots/lowcode.snapshot.json` na VPS antes do pull (preservando edições feitas ao vivo no `/admin`).
+  2. Executar `git pull origin main` sem descartar dados de produção.
+  3. Se o `schema.prisma` mudou, rodar `npx prisma db push --schema=packages/database/prisma/schema.prisma` (nunca usar `--force-reset` ou `--accept-data-loss`) e `npx prisma generate --schema=packages/database/prisma/schema.prisma`.
+  4. Rodar `npm run build:packages && npm --workspace=@etheria/server run build` e `sudo systemctl restart etheria-campus`, validando `HTTP 200` em `/admin` e `/play`.
+* **9.3 Rollback Garantido:** Graças aos commits atômicos no Git e aos backups preventivos de snapshot/PostgreSQL antes de alterações sensíveis, qualquer regressão em produção pode ser revertida rapidamente restaurando o snapshot/commit estável anterior. *(Nunca gravar senhas ou chaves SSH em texto claro no repositório).*
