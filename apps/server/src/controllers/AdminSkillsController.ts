@@ -17,6 +17,8 @@ export interface StatusEffectDto {
   descriptionPtBr?: string;
   iconKey?: string;
   mcreworkVfxKey?: string;
+  vfxColorHex?: string | null;
+  vfxColorIntensity?: number;
   isBuff: boolean;
   triggerType: string;
   maxStacks?: number;
@@ -37,6 +39,8 @@ export interface SkillTemplateDto {
   castActionId?: number;
   castMovement?: string;
   mcreworkVfxKey?: string;
+  vfxColorHex?: string | null;
+  vfxColorIntensity?: number;
   skillType: string;
   triggerType: string;
   mpCost?: number;
@@ -120,6 +124,28 @@ export class AdminSkillsController {
     return `${this.mcreworkPagesBaseUrl}/${iconKey.replace(/^\/+/, '')}`;
   }
 
+  /**
+   * Sanitiza e normaliza uma cor Hexadecimal #RRGGBB para tintura de partículas VFX.
+   * Retorna null caso vazia ou inválida (mantendo a cor original do asset).
+   */
+  private normalizeVfxColorHex(raw?: string | null): string | null {
+    if (!raw || typeof raw !== 'string') return null;
+    const trimmed = raw.trim();
+    if (!trimmed) return null;
+    const match = trimmed.match(/^#?([0-9a-fA-F]{6})$/);
+    return match ? `#${match[1].toLowerCase()}` : null;
+  }
+
+  /**
+   * Garante que a intensidade de recoloração da partícula VFX permaneça no intervalo [0..100].
+   */
+  private clampVfxColorIntensity(raw?: number | null, fallback = 100): number {
+    if (raw === undefined || raw === null || Number.isNaN(Number(raw))) {
+      return fallback;
+    }
+    return Math.max(0, Math.min(100, Math.round(Number(raw))));
+  }
+
   private resolveVfxUrls(vfxKey?: string | null) {
     if (!vfxKey) {
       return {
@@ -157,6 +183,8 @@ export class AdminSkillsController {
       namePtBr: i18nMap.get(st.nameI18nKey) ?? st.code,
       descriptionPtBr: st.descriptionI18nKey ? (i18nMap.get(st.descriptionI18nKey) ?? '') : '',
       iconUrl: this.resolveIconUrl(st.iconKey),
+      vfxColorHex: st.vfxColorHex ?? null,
+      vfxColorIntensity: st.vfxColorIntensity ?? 100,
       ...this.resolveVfxUrls(st.mcreworkVfxKey),
     }));
   }
@@ -198,6 +226,8 @@ export class AdminSkillsController {
         descriptionI18nKey: descText ? descKey : null,
         iconKey: dto.iconKey || 'assets/skills/icons/100156.png',
         mcreworkVfxKey: dto.mcreworkVfxKey || null,
+        vfxColorHex: this.normalizeVfxColorHex(dto.vfxColorHex),
+        vfxColorIntensity: this.clampVfxColorIntensity(dto.vfxColorIntensity, 100),
         isBuff: dto.isBuff !== false,
         triggerType: dto.triggerType || 'CONTINUOUS_TICK',
         maxStacks: Math.max(1, Number(dto.maxStacks) || 1),
@@ -249,6 +279,8 @@ export class AdminSkillsController {
         descriptionI18nKey: descText ? descKey : null,
         iconKey: dto.iconKey !== undefined ? dto.iconKey : existing.iconKey,
         mcreworkVfxKey: dto.mcreworkVfxKey !== undefined ? (dto.mcreworkVfxKey || null) : existing.mcreworkVfxKey,
+        vfxColorHex: dto.vfxColorHex !== undefined ? this.normalizeVfxColorHex(dto.vfxColorHex) : existing.vfxColorHex,
+        vfxColorIntensity: dto.vfxColorIntensity !== undefined ? this.clampVfxColorIntensity(dto.vfxColorIntensity, existing.vfxColorIntensity) : existing.vfxColorIntensity,
         isBuff: dto.isBuff !== undefined ? Boolean(dto.isBuff) : existing.isBuff,
         triggerType: dto.triggerType || existing.triggerType,
         maxStacks: dto.maxStacks !== undefined ? Math.max(1, Number(dto.maxStacks) || 1) : existing.maxStacks,
@@ -307,6 +339,8 @@ export class AdminSkillsController {
       namePtBr: i18nMap.get(sk.nameI18nKey) ?? sk.code,
       descriptionPtBr: sk.descriptionI18nKey ? (i18nMap.get(sk.descriptionI18nKey) ?? '') : '',
       iconUrl: this.resolveIconUrl(sk.mcreworkIconKey),
+      vfxColorHex: sk.vfxColorHex ?? null,
+      vfxColorIntensity: sk.vfxColorIntensity ?? 100,
       ...this.resolveVfxUrls(sk.mcreworkVfxKey),
     }));
   }
@@ -348,6 +382,8 @@ export class AdminSkillsController {
         castActionId: Number(dto.castActionId) || 3,
         castMovement: dto.castMovement || 'MELEE_ADVANCE',
         mcreworkVfxKey: dto.mcreworkVfxKey || null,
+        vfxColorHex: this.normalizeVfxColorHex(dto.vfxColorHex),
+        vfxColorIntensity: this.clampVfxColorIntensity(dto.vfxColorIntensity, 100),
         skillType: dto.skillType || 'ACTIVE',
         triggerType: dto.triggerType || 'ACTIVE',
         mpCost: Math.max(0, Number(dto.mpCost) ?? 10),
@@ -400,6 +436,8 @@ export class AdminSkillsController {
         castActionId: dto.castActionId !== undefined ? Number(dto.castActionId) : existing.castActionId,
         castMovement: dto.castMovement || existing.castMovement,
         mcreworkVfxKey: dto.mcreworkVfxKey !== undefined ? (dto.mcreworkVfxKey || null) : existing.mcreworkVfxKey,
+        vfxColorHex: dto.vfxColorHex !== undefined ? this.normalizeVfxColorHex(dto.vfxColorHex) : existing.vfxColorHex,
+        vfxColorIntensity: dto.vfxColorIntensity !== undefined ? this.clampVfxColorIntensity(dto.vfxColorIntensity, existing.vfxColorIntensity) : existing.vfxColorIntensity,
         skillType: dto.skillType || existing.skillType,
         triggerType: dto.triggerType || existing.triggerType || 'ACTIVE',
         mpCost: dto.mpCost !== undefined ? Math.max(0, Number(dto.mpCost)) : existing.mpCost,

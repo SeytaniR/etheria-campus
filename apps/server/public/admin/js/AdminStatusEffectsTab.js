@@ -12,6 +12,8 @@ class AdminStatusEffectsTab {
     app.statusEffectTemplates = [];
     app.selectedStatusIconKey = 'assets/skills/icons/100156.png';
     app.selectedStatusVfxKey = '10002';
+    app.selectedStatusVfxColorHex = null;
+    app.selectedStatusVfxColorIntensity = 100;
     app.statusAssetPickerMode = 'icon';
 
     AdminStatusEffectsTab.injectModalDom();
@@ -65,7 +67,7 @@ class AdminStatusEffectsTab {
                 <img src="${st.iconUrl}" alt="Icon" title="Ícone na Cabeça do Alvo" style="width:40px; height:40px; border-radius:6px; border:1.5px solid ${st.isBuff ? '#22c55e' : '#ef4444'}; background:#020617; object-fit:contain;" />
                 ${
                   st.vfxThumbUrl
-                    ? `<img src="${st.vfxThumbUrl}" alt="VFX" title="VFX #${st.mcreworkVfxKey}" style="width:40px; height:40px; border-radius:6px; border:1px solid #38bdf8; background:#020617; object-fit:contain;" />`
+                    ? `<div style="display:flex; flex-direction:column; align-items:center; gap:2px;"><canvas class="vfx-color-thumb" data-vfx-thumb="${st.vfxThumbUrl}" data-vfx-color="${st.vfxColorHex || ''}" data-vfx-intensity="${st.vfxColorIntensity ?? 100}" width="40" height="40" title="VFX #${st.mcreworkVfxKey}${st.vfxColorHex ? ' • ' + st.vfxColorHex : ''}" style="width:40px; height:40px; border-radius:6px; border:1.5px solid ${st.vfxColorHex || '#38bdf8'}; background:#020617;"></canvas>${st.vfxColorHex ? `<span style="font-size:0.60rem; font-family:monospace; color:#f8fafc; background:${st.vfxColorHex}33; border:1px solid ${st.vfxColorHex}; padding:0 4px; border-radius:4px;">${st.vfxColorHex}</span>` : ''}</div>`
                     : `<span style="font-size:0.7rem; color:var(--text-muted);">Sem VFX</span>`
                 }
               </div>
@@ -97,6 +99,9 @@ class AdminStatusEffectsTab {
           </tr>`;
         })
         .join('');
+      if (window.VfxColorProcessor) {
+        window.VfxColorProcessor.hydrateAllThumbCanvases(tbody);
+      }
     };
 
     app.openStatusEffectModal = async function (editId = null) {
@@ -138,6 +143,8 @@ class AdminStatusEffectsTab {
 
         this.selectedStatusIconKey = existing.iconKey || 'assets/skills/icons/100156.png';
         this.selectedStatusVfxKey = existing.mcreworkVfxKey || '10002';
+        this.selectedStatusVfxColorHex = existing.vfxColorHex || null;
+        this.selectedStatusVfxColorIntensity = existing.vfxColorIntensity ?? 100;
       } else {
         const maxId = this.statusEffectTemplates.reduce((acc, s) => Math.max(acc, Number(s.id) || 0), 0);
         const nextId = maxId + 1;
@@ -170,14 +177,20 @@ class AdminStatusEffectsTab {
 
         this.selectedStatusIconKey = 'assets/skills/icons/100156.png';
         this.selectedStatusVfxKey = '10002';
+        this.selectedStatusVfxColorHex = null;
+        this.selectedStatusVfxColorIntensity = 100;
       }
 
       this.updateStatusVisualSummary();
+      if (typeof this.syncVfxColorControls === 'function') {
+        this.syncVfxColorControls('status', this.selectedStatusVfxColorHex, this.selectedStatusVfxColorIntensity);
+      }
       this.renderStatusAssetGallery();
       this.startVfxPreviewCanvasLoop(
         'statusVfxPreviewCanvas',
         () => this.selectedStatusVfxKey,
-        () => `https://seytanir.github.io/mcrework/${this.selectedStatusIconKey.replace(/^\/+/, '')}`
+        () => `https://seytanir.github.io/mcrework/${this.selectedStatusIconKey.replace(/^\/+/, '')}`,
+        () => ({ colorHex: this.selectedStatusVfxColorHex, intensity: this.selectedStatusVfxColorIntensity })
       );
     };
 
@@ -219,6 +232,9 @@ class AdminStatusEffectsTab {
       if (vfxLabel) {
         vfxLabel.textContent = this.selectedStatusVfxKey ? `VFX #${this.selectedStatusVfxKey}` : 'Nenhum VFX';
       }
+      if (typeof this.refreshSelectedVfxThumb === 'function') {
+        this.refreshSelectedVfxThumb('status');
+      }
 
       if (this.statusAssetPickerMode === 'icon') {
         const filtered = this.mcreworkSkillIcons
@@ -241,7 +257,7 @@ class AdminStatusEffectsTab {
             const isSel = v.vfxKey === this.selectedStatusVfxKey;
             return `
             <div class="gallery-card ${isSel ? 'selected' : ''}" onclick="AdminApp.pickStatusVfx('${v.vfxKey}')" style="padding:6px;">
-              <img src="${v.thumbUrl}" alt="${v.vfxKey}" loading="lazy" style="width:48px; height:48px; object-fit:contain; margin:0 auto;" />
+              <img src="${v.thumbUrl}" alt="${v.vfxKey}" crossorigin="anonymous" loading="lazy" style="width:48px; height:48px; object-fit:contain; margin:0 auto;" />
               <strong style="font-size:0.7rem; text-align:center;">VFX #${v.vfxKey}</strong>
               <span style="font-size:0.64rem; color:var(--text-muted); text-align:center;">${v.frames} frames</span>
             </div>`;
@@ -304,6 +320,8 @@ class AdminStatusEffectsTab {
           descriptionPtBr,
           iconKey: this.selectedStatusIconKey,
           mcreworkVfxKey: this.selectedStatusVfxKey,
+          vfxColorHex: this.selectedStatusVfxColorHex || null,
+          vfxColorIntensity: this.selectedStatusVfxColorIntensity ?? 100,
           isBuff,
           triggerType,
           durationSeconds,
@@ -473,11 +491,13 @@ class AdminStatusEffectsTab {
             <div style="flex:1; display:flex; flex-direction:column; justify-content:space-between; gap:8px; min-width:230px;">
               <div style="display:flex; align-items:center; gap:10px;">
                 <img id="statusSelectedIconImg" src="" alt="Icon" style="width:44px; height:44px; border-radius:8px; border:2px solid #fde047; background:#0f172a; object-fit:contain;" />
+                <canvas id="statusSelectedVfxThumbCanvas" width="42" height="42" title="Prévia do Efeito Especial colorido" style="width:42px; height:42px; border-radius:8px; border:2px solid #c084fc; background:#0f172a; flex-shrink:0;"></canvas>
                 <div>
                   <div style="font-size:0.82rem; font-weight:700; color:#fde047;">Ícone Acima da Cabeça & Efeito: <span id="statusSelectedVfxLabel" style="color:#38bdf8;"></span></div>
                   <div style="font-size:0.72rem; color:var(--text-muted);">Alterne abaixo para escolher o Ícone ou o Efeito Especial (VFX) animado do mcrework:</div>
                 </div>
               </div>
+              ${window.AdminVfxColorPicker ? window.AdminVfxColorPicker.buildControlsHtml('status') : ''}
               <div style="display:flex; gap:6px; flex-wrap:wrap;">
                 <button type="button" id="btnStatusPickIcon" class="btn-primary" onclick="AdminApp.switchStatusAssetPicker('icon')" style="padding:5px 12px; font-size:0.76rem;">🖼️ Escolher Ícone da Cabeça</button>
                 <button type="button" id="btnStatusPickVfx" onclick="AdminApp.switchStatusAssetPicker('vfx')" style="padding:5px 12px; font-size:0.76rem;">✨ Escolher Efeito Especial (VFX)</button>

@@ -356,6 +356,8 @@ model SkillTemplate {
   castActionId       Int     @default(3) @map("cast_action_id") /// 3 = Ataque Físico, 7 = Conjuração/Skill, 4 = Guarda
   castMovement       String  @default("MELEE_ADVANCE") @map("cast_movement") /// MELEE_ADVANCE ou STAND_IN_PLACE
   mcreworkVfxKey     String? @map("mcrework_vfx_key") /// ID do efeito em assets/effects/catalog.json
+  vfxColorHex        String? @map("vfx_color_hex") /// Cor Hex (#RRGGBB) opcional para recolorir partículas transparentes (null = cor original)
+  vfxColorIntensity  Int     @default(100) @map("vfx_color_intensity") /// Intensidade da recoloração sobre a partícula (0..100%)
   skillType          String  @default("ACTIVE") @map("skill_type") /// ACTIVE ou PASSIVE
   triggerType        String  @default("MANUAL") @map("trigger_type") /// MANUAL, PASSIVE_ALWAYS, ON_HIT, ON_CRIT, ON_DAMAGE_TAKEN, ON_KILL, INTERVAL_TICK
   mpCost             Int     @default(10) @map("mp_cost")
@@ -381,6 +383,8 @@ model StatusEffectTemplate {
   descriptionI18nKey   String? @map("description_i18n_key")
   iconKey              String? @map("icon_key") /// Ícone informativo e exibido acima da cabeça do alvo na batalha
   mcreworkVfxKey       String? @map("mcrework_vfx_key") /// Efeito especial 2.5D acionado quando o gatilho do Buff/Debuff dispara
+  vfxColorHex          String? @map("vfx_color_hex") /// Cor Hex (#RRGGBB) opcional para recolorir partículas transparentes (null = cor original)
+  vfxColorIntensity    Int     @default(100) @map("vfx_color_intensity") /// Intensidade da recoloração sobre a partícula (0..100%)
   isBuff               Boolean @default(true) @map("is_buff") /// true = Buff, false = Debuff
   triggerType          String  @default("CONTINUOUS_TICK") @map("trigger_type") /// CONTINUOUS_TICK, WHILE_ACTIVE, ON_APPLY, ON_HIT_TAKEN, ON_ATTACK, ON_EXPIRE
   maxStacks            Int     @default(1) @map("max_stacks")

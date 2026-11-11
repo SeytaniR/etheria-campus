@@ -192,7 +192,7 @@ class AdminArenaPreview {
       this.arenaPreviewCycleStartMs = performance.now();
     };
 
-    app.startVfxPreviewCanvasLoop = function (canvasId, getVfxKeyFn, getOverheadIconUrlFn) {
+    app.startVfxPreviewCanvasLoop = function (canvasId, getVfxKeyFn, getOverheadIconUrlFn, getVfxColorFn) {
       if (this.vfxPreviewAnimFrame) {
         cancelAnimationFrame(this.vfxPreviewAnimFrame);
       }
@@ -315,6 +315,9 @@ class AdminArenaPreview {
         const cycleElapsed = (now - this.arenaPreviewCycleStartMs) % cycleDuration;
         const vfxKey = getVfxKeyFn ? getVfxKeyFn() : '';
         const mainIconUrl = getOverheadIconUrlFn ? getOverheadIconUrlFn() : '';
+        const vfxColorCfg = typeof getVfxColorFn === 'function' ? getVfxColorFn() : null;
+        const vfxColorHex = vfxColorCfg?.colorHex || null;
+        const vfxColorIntensity = vfxColorCfg?.intensity ?? 100;
 
         let castMovement = 'STAND_IN_PLACE';
         let castActionId = 7;
@@ -524,7 +527,7 @@ class AdminArenaPreview {
 
           // Efeito Especial (VFX) sobre a unidade atingida durante a janela de impacto
           if (isImpactWindow && u.isTargeted && vfxKey) {
-            this.drawVfxOnCanvas(ctx, vfxKey, u.x, u.y - 28, cycleElapsed - 600, 0.82);
+            this.drawVfxOnCanvas(ctx, vfxKey, u.x, u.y - 28, cycleElapsed - 600, 0.82, vfxColorHex, vfxColorIntensity);
           }
 
           // HUD de HP + Ícone de Buff/Debuff na cabeça da unidade

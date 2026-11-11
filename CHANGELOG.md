@@ -5,6 +5,23 @@ Qualquer IA trabalhando neste repositório **DEVE** incrementar a versão e regi
 
 ---
 
+## [v0.7.0] - 2026-11-11
+### Personalização de Cor de Partículas VFX Transparentes (`vfxColorHex` & `vfxColorIntensity`)
+* **Adicionado:**
+  * **Processador Compartilhado de Partículas VFX (`apps/server/public/play/js/VfxColorProcessor.js`):**
+    * Engine OO de recolorização para spritesheets `atlas.webp` e miniaturas `thumb.png` com fundo transparente (RGBA8888), pré-assado em Canvas Offscreen com cache em `WeakMap` (custo zero por frame em 60 FPS e remoção FIFO para evitar vazamento de memória).
+    * Preserva 100% dos pixels transparentes (`alpha === 0`) e halos translúcidos, combinando luminância ponderada (`0.65 * peak + 0.35 * lum`) para tingir perfeitamente tanto partículas brancas/cinzas quanto efeitos coloridos, com fallback seguro para `source-atop` em cenários sem CORS.
+  * **Persistência no Banco (`packages/database/prisma/schema.prisma` & `AdminSkillsController.ts`):**
+    * Adicionados `vfxColorHex` (`String?`, `null` = cor original) e `vfxColorIntensity` (`Int` padrão `100`, intervalo `0..100`) em `SkillTemplate` (`skill_templates`) e `StatusEffectTemplate` (`status_effect_templates`) com sanitização estrita `#RRGGBB` no servidor e espelhamento no Snapshot JSON.
+  * **Controles Visuais no Estúdio `/admin` (`AdminVfxColorPicker.js`):**
+    * Novo seletor de cor nativo + campo Hex (`#RRGGBB`), slider de **Intensidade (`0%–100%`)**, paleta rápida de 10 cores elementais/mágicas e botão **🔄 Restaurar Original** compartilhado entre Habilidades e Buffs/Debuffs.
+    * Preview ao vivo em tempo real na Arena 2.5D (`AdminArenaPreview.js`) e miniaturas coloridas diretamente nas tabelas CRUD (`AdminSkillsAndBuffsTab.js` & `AdminStatusEffectsTab.js`).
+* **Alterado / Modularizado (Regra #7 — Limite de 1.000 Linhas):**
+  * Extraído `AdminSkillsModalDom.js` de `AdminSkillsAndBuffsTab.js` (que caiu para 767 linhas) e extraído `admin.css` de `admin/index.html` (que caiu de 998 para 589 linhas).
+  * Módulo `VfxColorProcessor.js` também acoplado em `play/index.html` pronto para o combate em tempo real.
+
+---
+
 ## [v0.6.9] - 2026-11-11
 ### Auditoria Completa, Segurança Reforçada, Modularização & Otimizações de Desempenho (v0.6.9)
 * **Bloco 1: Segurança & Integridade de Acesso:**

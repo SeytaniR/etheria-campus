@@ -8,9 +8,9 @@
 ---
 
 ## 📌 Status Atual do Projeto
-* **Versão Atual:** `v0.6.9`
+* **Versão Atual:** `v0.7.0`
 * **Última Atualização:** `2026-11-11`
-* **Fase Atual:** **Auditoria Completa, Segurança Reforçada, Modularização & Otimizações de Desempenho (`v0.6.9`) — Mitigadas vulnerabilidades de elevação de privilégio (VULN-01) e BOLA/IDOR (VULN-02), modularizado `index.ts` em `AdminRouter.ts` e `PlayRouter.ts` (100% de conformidade com a Regra #7), adicionado cache de i18n, proteção de memória para mapas e serialização de BigInt.**
+* **Fase Atual:** **Personalização de Cor de Partículas VFX Transparentes (`v0.7.0`) — Adicionados `vfxColorHex` e `vfxColorIntensity` em Habilidades e Buffs/Debuffs, criado motor compartilhado `VfxColorProcessor.js` (Offscreen Canvas pre-baked), UI modular `AdminVfxColorPicker.js`, preview ao vivo na Arena 2.5D e miniaturas nas tabelas CRUD.**
 * **Repositório Oficial:** `https://github.com/SeytaniR/etheria-campus`
 * **Fonte Bruta de Assets:** `https://github.com/SeytaniR/mcrework` (`https://seytanir.github.io/mcrework/`)
 
