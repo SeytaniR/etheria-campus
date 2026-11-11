@@ -16,6 +16,7 @@
 
 import { PrismaClient, SnapshotManager, I18nCache } from '@etheria/database';
 import { MapPolygonMesh, type MapPolygon } from '@etheria/shared';
+import { MapSpawnResolver } from './MapSpawnResolver.js';
 
 export interface CreateCharacterDto {
   name: string;
@@ -134,7 +135,11 @@ export class GamePlayController {
       code: m.code,
       namePtBr: i18nMap.get(m.nameI18nKey) ?? m.code,
       requiredLevel: m.requiredLevel,
-      encounterRatePct: m.encounterRatePct ?? 0.0,
+      allowMonsterSpawn: m.mapType.allowMonsterSpawn,
+      encounterRatePct: MapSpawnResolver.resolveEffectiveEncounterRate(
+        m.mapType.allowMonsterSpawn,
+        m.encounterRatePct,
+      ),
       spawnX: m.spawnX,
       spawnY: m.spawnY,
       mapTypeCode: m.mapType.code,
@@ -368,6 +373,14 @@ export class GamePlayController {
       ? map.mcreworkMapImage
       : `${this.mcreworkPagesBaseUrl}/${map.mcreworkMapImage.replace(/^\/+/, '')}`;
 
+    const effectiveEncounterRate = MapSpawnResolver.resolveEffectiveEncounterRate(
+      map.mapType.allowMonsterSpawn,
+      map.encounterRatePct,
+    );
+    const eligibleMonsters = effectiveEncounterRate > 0
+      ? await MapSpawnResolver.findEligibleMonstersForMap(this.prisma, map)
+      : [];
+
     return {
       id: map.id,
       code: map.code,
@@ -375,7 +388,10 @@ export class GamePlayController {
       mcreworkMapImage: map.mcreworkMapImage,
       bgImageUrl: bgUrl,
       requiredLevel: map.requiredLevel,
-      encounterRatePct: map.encounterRatePct ?? 0.0,
+      encounterRatePct: effectiveEncounterRate,
+      canSpawnMonsters: Boolean(
+        map.mapType.allowMonsterSpawn && effectiveEncounterRate > 0 && eligibleMonsters.length > 0,
+      ),
       levelVarianceMin: map.levelVarianceMin,
       levelVarianceMax: map.levelVarianceMax,
       spawnX: map.spawnX,

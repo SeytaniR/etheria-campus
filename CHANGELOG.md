@@ -5,6 +5,20 @@ Qualquer IA trabalhando neste repositório **DEVE** incrementar a versão e regi
 
 ---
 
+## [v0.8.1] - 2026-11-11
+### Blindagem Autoritativa de Spawn de Monstros por Mapa (`MapSpawnResolver` & Regras de Zona Segura)
+* **Corrigido:**
+  * **Cidades e Vilas não spawnam mais monstros:** Mapas seguros (`MapType.allowMonsterSpawn === false`, como `CITY` e `VILLAGE`) que possuíam `encounterRatePct > 0` legado (ex.: `map_4`, `map_5`, `map_7`, `map_8`) agora têm spawn bloqueado no servidor e no cliente com taxa efetiva `0%`.
+  * **Removido Fallback Global de Monstros:** Removida a busca de todos os monstros ativos do banco em `TemporaryCombatController.startEncounterByMap` quando um mapa não possui raças nem monstros individuais configurados (o que fazia mapas seguros vazios e mapas sem monstros compatíveis spawnarem qualquer monstro).
+  * **Padrão de Criação/Edição no `/admin` (`AdminMapsController.ts` & `admin.js`):** Corrigido o fallback que aplicava `encounterRatePct = 8.0` em Cidades nível > 1 e Vilas ao salvar sem taxa explícita; agora tipos de mapa seguros travam `#mapEncounterRatePct` em `0` na UI e no servidor.
+* **Adicionado:**
+  * **Resolvedor Compartilhado (`apps/server/src/controllers/MapSpawnResolver.ts`):** Centraliza `parseAllowedRaces`, `parseAllowedMonsterIds`, `resolveEffectiveEncounterRate`, `canMapSpawnMonsters` e `findEligibleMonstersForMap`, garantindo que apenas monstros ativos pertencentes às raças permitidas (`allowedMonsterRacesJson`) **ou** listados individualmente (`allowedMonsterTemplateIdsJson`, mesmo fora das raças selecionadas) possam nascer em mapas onde `allowMonsterSpawn === true`.
+* **Alterado:**
+  * `GamePlayController.ts` passa a expor `allowMonsterSpawn` no bootstrap, normalizar `encounterRatePct` para `0` em zonas seguras e enviar `canSpawnMonsters` em `getMapStateForPlay`.
+  * `apps/server/public/play/play.js` valida `allowMonsterSpawn` e `canSpawnMonsters` antes de disparar encontros aleatórios ou interromper o movimento do jogador.
+
+---
+
 ## [v0.8.0] - 2026-11-11
 ### Arena 1300px, Colisão Física Universal entre Modelos & Inteligência Artificial Tática de Equipe
 * **Adicionado:**

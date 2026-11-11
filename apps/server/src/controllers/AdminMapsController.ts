@@ -14,6 +14,7 @@
 
 import { PrismaClient, SnapshotManager, I18nCache } from '@etheria/database';
 import type { MapPolygon } from '@etheria/shared';
+import { MapSpawnResolver } from './MapSpawnResolver.js';
 
 export interface SaveMapDto {
   code?: string;
@@ -595,6 +596,18 @@ export class AdminMapsController {
     }
 
     const cleanName = dto.namePtBr.trim();
+    const mapType = await this.prisma.mapType.findUnique({
+      where: { id: Number(dto.mapTypeId) },
+    });
+    if (!mapType) {
+      throw new Error(`Tipo de mapa inválido (#${dto.mapTypeId}).`);
+    }
+
+    const effectiveEncounterRate = MapSpawnResolver.resolveEffectiveEncounterRate(
+      mapType.allowMonsterSpawn,
+      dto.encounterRatePct !== undefined ? dto.encounterRatePct : 8.0,
+    );
+
     const baseData = {
       mcreworkMapImage: dto.mcreworkMapImage,
       requiredLevel: Number(dto.requiredLevel) || 1,
@@ -603,11 +616,9 @@ export class AdminMapsController {
       mapTypeId: Number(dto.mapTypeId),
       primaryBiomeId: Number(dto.primaryBiomeId) || 1,
       secondaryBiomeId: Number(dto.secondaryBiomeId) || 1,
-      allowedMonsterRacesJson: Array.isArray(dto.allowedMonsterRaces) ? dto.allowedMonsterRaces : [],
-      allowedMonsterTemplateIdsJson: Array.isArray(dto.allowedMonsterTemplateIds) ? dto.allowedMonsterTemplateIds.map(Number) : [],
-      encounterRatePct: dto.encounterRatePct !== undefined
-        ? Math.max(0, Math.min(100, Number(dto.encounterRatePct)))
-        : (Number(dto.mapTypeId) === 1 && (Number(dto.requiredLevel) <= 1) ? 0.0 : 8.0),
+      allowedMonsterRacesJson: MapSpawnResolver.parseAllowedRaces(dto.allowedMonsterRaces),
+      allowedMonsterTemplateIdsJson: MapSpawnResolver.parseAllowedMonsterIds(dto.allowedMonsterTemplateIds),
+      encounterRatePct: effectiveEncounterRate,
       dominatedById: dto.dominatedById || null,
       spawnX: Number(dto.spawnX ?? 500),
       spawnY: Number(dto.spawnY ?? 500),

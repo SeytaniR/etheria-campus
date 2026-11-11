@@ -603,6 +603,9 @@ class EtheriaPlayClient {
     ) {
       return;
     }
+    if (!this.currentMap.mapType?.allowMonsterSpawn || this.currentMap.canSpawnMonsters === false) {
+      return;
+    }
     const rate = Number(this.currentMap.encounterRatePct) || 0;
     if (rate > 0 && Math.random() * 100 < rate) {
       void this.triggerMapEncounter();
@@ -610,7 +613,15 @@ class EtheriaPlayClient {
   }
 
   async triggerMapEncounter() {
-    if (this.isEncounterLoading || !this.activeChar || !this.currentMap) return;
+    if (
+      this.isEncounterLoading ||
+      !this.activeChar ||
+      !this.currentMap ||
+      !this.currentMap.mapType?.allowMonsterSpawn ||
+      this.currentMap.canSpawnMonsters === false
+    ) {
+      return;
+    }
     this.isEncounterLoading = true;
     this.moveTargetX = null;
     this.moveTargetY = null;
@@ -640,7 +651,13 @@ class EtheriaPlayClient {
       }
     } catch (err) {
       console.warn('Encontro cancelado:', err.message);
-      this.encounterCooldownUntil = performance.now() + 4000;
+      const msg = String(err?.message || '').toLowerCase();
+      if (msg.includes('zona segura') || msg.includes('nenhum monstro')) {
+        if (this.currentMap) this.currentMap.canSpawnMonsters = false;
+        this.encounterCooldownUntil = performance.now() + 10000;
+      } else {
+        this.encounterCooldownUntil = performance.now() + 5000;
+      }
     } finally {
       this.isEncounterLoading = false;
     }

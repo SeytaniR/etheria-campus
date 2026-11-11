@@ -223,6 +223,25 @@ class EtheriaAdminStudio {
       OPEN_PVP: '⚔️ PvP: Totalmente Aberto',
     };
     badge.innerHTML = `${dom} &bull; ${spawn} &bull; ${pvpMap[mt.pvpRule] || mt.pvpRule}`;
+
+    const rateInput = document.getElementById('mapEncounterRatePct');
+    if (rateInput) {
+      if (!mt.allowMonsterSpawn) {
+        if (Number(rateInput.value) > 0) {
+          rateInput.dataset.lastNonZeroRate = rateInput.value;
+        }
+        rateInput.value = '0';
+        rateInput.disabled = true;
+        rateInput.title = 'Este tipo de mapa não permite spawn de monstros (taxa fixada em 0%).';
+      } else {
+        const wasDisabled = rateInput.disabled;
+        rateInput.disabled = false;
+        rateInput.title = '';
+        if (wasDisabled && Number(rateInput.value) === 0) {
+          rateInput.value = rateInput.dataset.lastNonZeroRate || '8';
+        }
+      }
+    }
   }
 
   updateBiomeDesc() {
@@ -348,6 +367,7 @@ class EtheriaAdminStudio {
     this.mapSelectedMonsterRaces = [];
     this.mapSelectedMonsterTemplateIds = [];
     this.renderMapMonsterTypesAndPicker();
+    this.updateMapTypeRuleBadge();
     this.renderSavedMapsList();
   }
 
@@ -371,11 +391,18 @@ class EtheriaAdminStudio {
     document.getElementById('mapNamePtBr').value = m.namePtBr;
     document.getElementById('mapReqLevel').value = m.requiredLevel;
     document.getElementById('mapImagePath').value = m.mcreworkMapImage;
+    const mt = this.mapTypes.find((x) => x.id === Number(m.mapTypeId));
     document.getElementById('mapTypeSelect').value = String(m.mapTypeId);
     document.getElementById('primaryBiomeSelect').value = String(m.primaryBiomeId);
     document.getElementById('secondaryBiomeSelect').value = String(m.secondaryBiomeId);
     document.getElementById('mapOverlapOpacity').value = String(m.overlapOpacity ?? 0.45);
-    document.getElementById('mapEncounterRatePct').value = String(m.encounterRatePct ?? (m.id === 1 ? 0 : 8));
+    const rateInput = document.getElementById('mapEncounterRatePct');
+    if (rateInput) {
+      rateInput.disabled = false;
+      delete rateInput.dataset.lastNonZeroRate;
+      const rawRate = Number(m.encounterRatePct ?? (mt?.allowMonsterSpawn ? 8 : 0));
+      rateInput.value = String(mt && !mt.allowMonsterSpawn ? 0 : (Number.isFinite(rawRate) ? rawRate : 0));
+    }
     document.getElementById('mapDominatedBy').value = m.dominatedById || '';
     document.getElementById('mapIsActiveSelect').value = m.isActive ? 'true' : 'false';
 
@@ -439,6 +466,12 @@ class EtheriaAdminStudio {
 
   async saveCurrentMap(stayInVisualEditor = false) {
     try {
+      const selectedMapType = this.mapTypes.find((x) => x.id === Number(document.getElementById('mapTypeSelect').value));
+      const rawEncounterRate = Number(document.getElementById('mapEncounterRatePct')?.value ?? 8);
+      const effectiveEncounterRate = selectedMapType && !selectedMapType.allowMonsterSpawn
+        ? 0
+        : (Number.isFinite(rawEncounterRate) ? Math.max(0, Math.min(100, rawEncounterRate)) : 0);
+
       const dto = {
         code: document.getElementById('mapCode').value.trim(),
         namePtBr: document.getElementById('mapNamePtBr').value.trim() || 'Mapa em Edição',
@@ -452,7 +485,7 @@ class EtheriaAdminStudio {
         spawnX: Number(document.getElementById('mapSpawnX').value) || 500,
         spawnY: Number(document.getElementById('mapSpawnY').value) || 500,
         overlapOpacity: Number(document.getElementById('mapOverlapOpacity').value) || 0.45,
-        encounterRatePct: Number(document.getElementById('mapEncounterRatePct')?.value ?? 8),
+        encounterRatePct: effectiveEncounterRate,
         dominatedById: document.getElementById('mapDominatedBy').value.trim() || null,
         isActive: document.getElementById('mapIsActiveSelect').value === 'true',
         collisionMeshJson: this.collisionPolygons,

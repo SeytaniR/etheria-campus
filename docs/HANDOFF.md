@@ -8,9 +8,9 @@
 ---
 
 ## 📌 Status Atual do Projeto
-* **Versão Atual:** `v0.8.0`
+* **Versão Atual:** `v0.8.1`
 * **Última Atualização:** `2026-11-11`
-* **Fase Atual:** **Arena 1300px, Colisão Física Universal & IA Tática de Equipe (`v0.8.0`) — Arena ampliada para 1300x940 px com maior separação inicial entre times, solver de colisão elíptica entre todos os modelos (zero acúmulo de sombras) e IA tática para Pets e Monstros (Tank protege Rangeds, Top DPS foca dano, Frágil ataca pelas bordas/longo alcance, Ranged abriga-se atrás de Melee e aceita luta corpo a corpo quando encurralado).**
+* **Fase Atual:** **Blindagem de Spawn de Monstros por Mapa (`v0.8.1`) — Novo módulo autoritativo `MapSpawnResolver.ts` garantindo bloqueio absoluto em Cidades/Vilas (`allowMonsterSpawn === false`), remoção total do fallback global de monstros, seleção estrita pela união de raças permitidas + monstros individuais permitidos (mesmo fora das raças selecionadas), e travamento da taxa em `0%` no `/admin` e `/play` para zonas seguras.**
 * **Repositório Oficial:** `https://github.com/SeytaniR/etheria-campus`
 * **Fonte Bruta de Assets:** `https://github.com/SeytaniR/mcrework` (`https://seytanir.github.io/mcrework/`)
 

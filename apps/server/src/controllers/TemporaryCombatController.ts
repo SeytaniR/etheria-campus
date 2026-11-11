@@ -7,9 +7,10 @@
  *   de combate por turnos final forem implementados.
  */
 
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient, type MonsterTemplate } from '@prisma/client';
 import { I18nCache } from '@etheria/database';
 import { randomUUID } from 'node:crypto';
+import { MapSpawnResolver } from './MapSpawnResolver.js';
 
 export interface ActiveStatusInstance {
   code: string;
@@ -396,13 +397,18 @@ export class TemporaryCombatController {
   public async startEncounterByMap(characterId: number, mapId: number): Promise<TemporaryBattleState> {
     const map = await this.prisma.gameMap.findUnique({
       where: { id: Number(mapId) },
+      include: { mapType: true },
     });
 
     if (!map) {
       throw new Error(`Mapa #${mapId} não encontrado.`);
     }
 
-    if (map.encounterRatePct <= 0) {
+    if (!map.mapType?.allowMonsterSpawn) {
+      throw new Error(`Este mapa (${map.code}) é uma zona segura e não permite spawn de monstros.`);
+    }
+
+    if (MapSpawnResolver.resolveEffectiveEncounterRate(true, map.encounterRatePct) <= 0) {
       throw new Error(`Este mapa possui taxa de encontro zero (zona segura).`);
     }
 
@@ -424,37 +430,14 @@ export class TemporaryCombatController {
     // Teto de segurança operacional na arena (ex: até 15 monstros simultâneos)
     totalMonstersToSpawn = Math.min(15, totalMonstersToSpawn);
 
-    // 3. Obtém o pool de monstros elegíveis do mapa (Tipos/Raças + Monstros Individuais)
-    const allowedRaces = Array.isArray(map.allowedMonsterRacesJson)
-      ? (map.allowedMonsterRacesJson as string[]).filter(Boolean)
-      : [];
-    const allowedIds = Array.isArray(map.allowedMonsterTemplateIdsJson)
-      ? (map.allowedMonsterTemplateIdsJson as number[]).map(Number).filter(Boolean)
-      : [];
-
-    let candidateTemplates: any[] = [];
-    if (allowedRaces.length > 0 || allowedIds.length > 0) {
-      const orClauses: any[] = [];
-      if (allowedRaces.length > 0) orClauses.push({ raceCode: { in: allowedRaces } });
-      if (allowedIds.length > 0) orClauses.push({ id: { in: allowedIds } });
-
-      candidateTemplates = await this.prisma.monsterTemplate.findMany({
-        where: {
-          isActive: true,
-          OR: orClauses,
-        },
-      });
-    }
-
-    // Fallback: se o mapa não tiver tipos definidos ainda, busca todos os monstros ativos
-    if (candidateTemplates.length === 0) {
-      candidateTemplates = await this.prisma.monsterTemplate.findMany({
-        where: { isActive: true },
-      });
-    }
+    // 3. Obtém o pool estrito de monstros elegíveis do mapa (Raças + Individuais mesmo fora da raça), sem fallback global
+    const candidateTemplates = await MapSpawnResolver.findEligibleMonstersForMap<MonsterTemplate>(
+      this.prisma,
+      map,
+    );
 
     if (candidateTemplates.length === 0) {
-      throw new Error('Nenhum monstro ativo cadastrado no sistema para encontros.');
+      throw new Error(`Nenhum monstro permitido/ativo configurado para spawn no mapa #${map.id}.`);
     }
 
     // 4. Mapeamento de traduções i18n dos monstros
