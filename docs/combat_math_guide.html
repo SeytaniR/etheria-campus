@@ -241,7 +241,7 @@
     <h1>Etheria Campus — Atributos & Matemáticas de Combate</h1>
     <h2>Especificação Completa de Fórmulas, Derivações, Mitigações e Mecânicas de Arena</h2>
     <div class="cover-meta">
-      <span><strong>Versão:</strong> v0.6.1</span>
+      <span><strong>Versão:</strong> v0.6.8</span>
       <span><strong>Data:</strong> Novembro / 2026</span>
       <span><strong>Arquitetura:</strong> Servidor Autoritário 100% Determinístico</span>
       <span><strong>Ambiente:</strong> VPS Azure (Standard ARM64)</span>
@@ -520,13 +520,18 @@
     </ul>
   </div>
 
-  <h3 class="subsection-title">4.1 Fórmula de Chance de Acerto (Hit Rate vs Evasion)</h3>
-  <p>A probabilidade de um golpe causar dano é calculada comparando a Precisão do Atacante contra o Desvio do Defensor:</p>
+  <h3 class="subsection-title">4.1 Fórmula de Chance de Acerto (Hit Rate vs Evasion) & Tetos de Balanceamento</h3>
+  <p>A probabilidade de um golpe causar dano é calculada de forma linear e transparente comparando a Precisão do Atacante contra o Desvio do Defensor, aplicando tetos estritos para assegurar que <strong>ninguém seja inalvejável</strong> e <strong>ninguém tenha precisão perfeita que nunca erra</strong> em nenhum estágio do jogo (nível 1 ao 100):</p>
 
   <div class="formula-box">
-    <span class="title">Cálculo de Chance Efetiva de Acerto</span>
-    <div class="math">ChanceAcerto = clamp( 85% + (PrecisãoAtacante - DesvioDefensor) / 2, 20%, 100% )</div>
-    <div class="desc">A precisão base é de 85%. O piso mínimo absoluto de chance é 20% e o teto máximo é 100%.</div>
+    <span class="title">Cálculo Autoritário de Chance Efetiva de Acerto</span>
+    <div class="math">ChanceAcerto = clamp( PrecisãoAtacante - DesvioDefensor, 10%, 95% )</div>
+    <div class="desc">
+      • <strong>Teto de Desvio Efetivo:</strong> Máximo de <strong>75%</strong> (nenhuma build alcança 100% de esquiva; ninguém é inalvejável).<br/>
+      • <strong>Teto de Precisão em Atributos:</strong> Máximo de <strong>125%</strong> (permite contrabalancear alvos altamente ágeis).<br/>
+      • <strong>Teto Máximo de Acerto em Combate:</strong> <strong>95%</strong> (zero precisão perfeita; sempre há pelo menos 5% de margem natural de desvio/falha).<br/>
+      • <strong>Piso Mínimo de Acerto em Combate:</strong> <strong>10%</strong> (mesmo contra evasão extrema no teto, o atacante retém 10% de chance de conectar).
+    </div>
   </div>
 
   <div class="grid-2">

@@ -559,7 +559,16 @@ class AdminClassesTab {
         ['VIT','STR','INT','WIS','AGI','DEX'].forEach((k) => { const el = document.getElementById(`classGrow${k}`); if (el) el.value = String(grow[k] ?? 2); });
 
         const bComb = existingClass.baseCombatAttributesJson || {};
-        const cMap = { MoveSpeed: bComb.BATTLE_MOVE_SPEED ?? 180, AttackSpeed: bComb.ATTACK_SPEED ?? 1.0, PhysAcc: bComb.PHYS_ACCURACY ?? 100, PhysEva: bComb.PHYS_EVASION ?? 10, MagAcc: bComb.MAG_ACCURACY ?? 100, MagEva: bComb.MAG_EVASION ?? 10, CritRate: bComb.CRIT_RATE ?? 5, CritDmg: bComb.CRIT_DMG ?? 150 };
+        const cMap = {
+          MoveSpeed: bComb.BATTLE_MOVE_SPEED ?? 180,
+          AttackSpeed: bComb.ATTACK_SPEED ?? 1.0,
+          PhysAcc: bComb.PHYS_ACCURACY ?? 95,
+          PhysEva: bComb.PHYS_EVASION ?? 5,
+          MagAcc: bComb.MAG_ACCURACY ?? 95,
+          MagEva: bComb.MAG_EVASION ?? 5,
+          CritRate: bComb.CRIT_RATE ?? 5,
+          CritDmg: bComb.CRIT_DMG ?? 150
+        };
         Object.entries(cMap).forEach(([k, v]) => { const el = document.getElementById(`classBaseCombat${k}`); if (el) el.value = String(v); });
       } else {
         const maxClassId = this.classTemplates.reduce((acc, c) => Math.max(acc, Number(c.id) || 0), 0);
@@ -593,10 +602,10 @@ class AdminClassesTab {
         ['VIT','STR','INT','WIS','AGI','DEX'].forEach((k) => { const el = document.getElementById(`classGrow${k}`); if (el) el.value = '2'; });
         document.getElementById('classBaseCombatMoveSpeed').value = '180';
         document.getElementById('classBaseCombatAttackSpeed').value = '1.0';
-        document.getElementById('classBaseCombatPhysAcc').value = '100';
-        document.getElementById('classBaseCombatPhysEva').value = '10';
-        document.getElementById('classBaseCombatMagAcc').value = '100';
-        document.getElementById('classBaseCombatMagEva').value = '10';
+        document.getElementById('classBaseCombatPhysAcc').value = '95';
+        document.getElementById('classBaseCombatPhysEva').value = '5';
+        document.getElementById('classBaseCombatMagAcc').value = '95';
+        document.getElementById('classBaseCombatMagEva').value = '5';
         document.getElementById('classBaseCombatCritRate').value = '5';
         document.getElementById('classBaseCombatCritDmg').value = '150';
       }
@@ -737,12 +746,12 @@ class AdminClassesTab {
           baseCombatAttributesJson: {
             BATTLE_MOVE_SPEED: Number(document.getElementById('classBaseCombatMoveSpeed')?.value) || 180,
             ATTACK_SPEED: Number(document.getElementById('classBaseCombatAttackSpeed')?.value) || 1.0,
-            PHYS_ACCURACY: Number(document.getElementById('classBaseCombatPhysAcc')?.value) || 100,
-            PHYS_EVASION: Number(document.getElementById('classBaseCombatPhysEva')?.value) || 10,
-            MAG_ACCURACY: Number(document.getElementById('classBaseCombatMagAcc')?.value) || 100,
-            MAG_EVASION: Number(document.getElementById('classBaseCombatMagEva')?.value) || 10,
-            CRIT_RATE: Number(document.getElementById('classBaseCombatCritRate')?.value) || 5,
-            CRIT_DMG: Number(document.getElementById('classBaseCombatCritDmg')?.value) || 150,
+            PHYS_ACCURACY: Math.max(20, Math.min(125, Number(document.getElementById('classBaseCombatPhysAcc')?.value) || 95)),
+            PHYS_EVASION: Math.max(0, Math.min(75, Number(document.getElementById('classBaseCombatPhysEva')?.value) || 5)),
+            MAG_ACCURACY: Math.max(20, Math.min(125, Number(document.getElementById('classBaseCombatMagAcc')?.value) || 95)),
+            MAG_EVASION: Math.max(0, Math.min(75, Number(document.getElementById('classBaseCombatMagEva')?.value) || 5)),
+            CRIT_RATE: Math.max(0, Math.min(80, Number(document.getElementById('classBaseCombatCritRate')?.value) || 5)),
+            CRIT_DMG: Math.max(100, Math.min(300, Number(document.getElementById('classBaseCombatCritDmg')?.value) || 150)),
           },
           baseAttributesJson: ['VIT','STR','INT','WIS','AGI','DEX'].reduce((acc, k) => (acc[k] = Number(document.getElementById(`classBase${k}`)?.value) || 10, acc), {}),
           growthPerLevelJson: ['VIT','STR','INT','WIS','AGI','DEX'].reduce((acc, k) => (acc[k] = Number(document.getElementById(`classGrow${k}`)?.value) || 0, acc), {}),
@@ -789,8 +798,8 @@ class AdminClassesTab {
                 <span style="font-size:0.67rem; color:#fca5a5; background:rgba(239,68,68,0.12); border:1px solid #ef4444; border-radius:4px; padding:1px 5px;" title="Ataque Físico / Mágico Nv.1">
                   ⚔️ ${Math.round(combatMap.PHYS_ATK.value)} / 🔮 ${Math.round(combatMap.MAG_ATK.value)}
                 </span>
-                <span style="font-size:0.67rem; color:#7dd3fc; background:rgba(56,189,248,0.12); border:1px solid #38bdf8; border-radius:4px; padding:1px 5px;" title="Precisão Física / Mágica Nv.1">
-                  🎯 ${(Number(combatMap.PHYS_ACCURACY?.value || 1) * 100).toFixed(1)}% / ${(Number(combatMap.MAG_ACCURACY?.value || 1) * 100).toFixed(1)}%
+                <span style="font-size:0.67rem; color:#7dd3fc; background:rgba(56,189,248,0.12); border:1px solid #38bdf8; border-radius:4px; padding:1px 5px;" title="Precisão Física / Desvio Físico Nv.1">
+                  🎯 ${(Number(combatMap.PHYS_ACCURACY?.value || 0.95) * 100).toFixed(1)}% / 💨 ${(Number(combatMap.PHYS_EVASION?.value || 0.05) * 100).toFixed(1)}%
                 </span>
                 <span style="font-size:0.67rem; color:#d8b4fe; background:rgba(192,132,252,0.12); border:1px solid #c084fc; border-radius:4px; padding:1px 5px;" title="Hard CC (Acerto / Resistência) Nv.1">
                   💫 CC: +${(Number(combatMap.CONTROL_HIT?.value || 0) * 100).toFixed(1)}% / +${(Number(combatMap.CONTROL_RESIST?.value || 0) * 100).toFixed(1)}%

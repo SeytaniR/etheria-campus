@@ -188,12 +188,12 @@ class ActionCombatArena {
       x: spawns.px, y: spawns.py, speed: battleSpeed, dir: pDir, action: 0, isAlive: true,
       hp: pState.hp || 500, maxHp: pState.maxHp || 500, mp: pState.mp || 200, maxMp: pState.maxMp || 200,
       atk: pState.atk || 75, def: pState.def || 40, name: pState.name || this.client?.activeChar?.name || 'Herói',
-      physAccuracy: Number(baseCombat.PHYS_ACCURACY) || 100,
-      physEvasion: Number(baseCombat.PHYS_EVASION) || 10,
-      magAccuracy: Number(baseCombat.MAG_ACCURACY) || 100,
-      magEvasion: Number(baseCombat.MAG_EVASION) || 10,
-      critRate: (Number(baseCombat.CRIT_RATE) || 5) / 100,
-      critDmg: (Number(baseCombat.CRIT_DMG) || 150) / 100,
+      physAccuracy: Math.min(125, Math.max(20, Number(baseCombat.PHYS_ACCURACY) || 95)),
+      physEvasion: Math.min(75, Math.max(0, Number(baseCombat.PHYS_EVASION) || 5)),
+      magAccuracy: Math.min(125, Math.max(20, Number(baseCombat.MAG_ACCURACY) || 95)),
+      magEvasion: Math.min(75, Math.max(0, Number(baseCombat.MAG_EVASION) || 5)),
+      critRate: Math.min(0.80, (Number(baseCombat.CRIT_RATE) || 5) / 100),
+      critDmg: Math.min(3.00, (Number(baseCombat.CRIT_DMG) || 150) / 100),
       attackSpeed: Number(baseCombat.ATTACK_SPEED) || 1.0,
       sprite: this.getSprite(pState.atlasJsonUrl, pState.atlasWebpUrl, pState.thumbUrl) ||
               (this.client?.activeChar ? this.client.getOrCreateSprite(
@@ -225,6 +225,8 @@ class ActionCombatArena {
         id: m.id || `mob_${idx}`, templateId: battleState.monsterTemplateId,
         name: m.name || `Monstro #${idx + 1}`, x: mx, y: my, dir: mDir, action: 0, isAlive: true,
         hp: m.hp || 300, maxHp: m.maxHp || 300, atk: m.atk || 45, def: m.def || 25,
+        physAccuracy: Number(m.physAccuracy) || 95, physEvasion: Math.min(75, Number(m.physEvasion) || 5),
+        magAccuracy: Number(m.magAccuracy) || 95, magEvasion: Math.min(75, Number(m.magEvasion) || 5),
         speed: Number(m.battleMoveSpeed) || Number(m.speed) || Math.round(battleSpeed * 0.70), combatStyle: m.combatStyle || 'MELEE', attackRange: m.attackRange || (m.combatStyle === 'RANGED' ? 220 : 52),
         damageType: m.damageType || 'PHYSICAL',
         nextAttackTime: performance.now() + 1000 + idx * 400, hitTimer: 0, attackTimer: 0, fadeAlpha: 1.0,
@@ -516,9 +518,19 @@ class ActionCombatArena {
     this.checkVictoryCondition();
   }
 
+  calculateHitRate(attackerAcc, defenderEva) {
+    const acc = Number(attackerAcc) <= 1.5 ? Number(attackerAcc) * 100 : Number(attackerAcc);
+    const eva = Number(defenderEva) <= 1.5 ? Number(defenderEva) * 100 : Number(defenderEva);
+    const clampedEva = Math.min(75, Math.max(0, eva || 0)); // Teto de 75% de evasão (ninguém é inalvejável)
+    const clampedAcc = Math.min(125, Math.max(20, acc || 95)); // Teto de 125% de precisão
+    // Teto de acerto em combate: 95% (sempre há pelo menos 5% de chance de errar; zero precisão perfeita)
+    // Piso de acerto em combate: 10% (sempre há pelo menos 10% de chance de conectar; ninguém é inalvejável)
+    return Math.max(10, Math.min(95, clampedAcc - clampedEva));
+  }
+
   applyDamageWithHitEvasionRoll(mob, p, attackerAcc, now) {
-    const eva = p.isMagical ? (mob.magEvasion || 10) : (mob.physEvasion || 10);
-    const hitRate = Math.max(15, Math.min(100, 90 + (attackerAcc - eva) * 0.20));
+    const eva = p.isMagical ? (mob.magEvasion || 5) : (mob.physEvasion || 5);
+    const hitRate = this.calculateHitRate(attackerAcc, eva);
     const isHit = Math.random() * 100 <= hitRate;
 
     if (!isHit) {
@@ -781,8 +793,8 @@ class ActionCombatArena {
           if (!this.player.isDashing) {
             const isMagical = mob.damageType === 'MAGICAL';
             const mobAcc = isMagical ? (mob.magAccuracy || 95) : (mob.physAccuracy || 95);
-            const pEva = isMagical ? (this.player.magEvasion || 10) : (this.player.physEvasion || 10);
-            const hitRate = Math.max(15, Math.min(100, 90 + (mobAcc - pEva) * 0.20));
+            const pEva = isMagical ? (this.player.magEvasion || 5) : (this.player.physEvasion || 5);
+            const hitRate = this.calculateHitRate(mobAcc, pEva);
             if (Math.random() * 100 > hitRate) {
               this.floatingTexts.push({ x: this.player.x, y: this.player.y - 45, text: '💨 DESVIO!', color: '#38bdf8', life: 1.0 });
             } else {

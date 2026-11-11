@@ -150,10 +150,27 @@ export class AdminAttributesController {
       });
     }
 
+    let finalBaseDefault = dto.baseDefault !== undefined ? Number(dto.baseDefault) : existing.baseDefault;
+
+    // Aplica tetos de segurança e normalização para atributos percentuais
+    if (code === 'PHYS_EVASION' || code === 'MAG_EVASION') {
+      if (finalBaseDefault > 1.0) finalBaseDefault /= 100;
+      finalBaseDefault = Math.max(0, Math.min(0.75, finalBaseDefault)); // Teto de 75% (ninguém é inalvejável)
+    } else if (code === 'PHYS_ACCURACY' || code === 'MAG_ACCURACY') {
+      if (finalBaseDefault > 2.0) finalBaseDefault /= 100;
+      finalBaseDefault = Math.max(0.20, Math.min(1.25, finalBaseDefault)); // Teto de 125%
+    } else if (code === 'CRIT_RATE') {
+      if (finalBaseDefault > 1.0) finalBaseDefault /= 100;
+      finalBaseDefault = Math.max(0.01, Math.min(0.80, finalBaseDefault)); // Teto de 80%
+    } else if (code === 'CRIT_DMG') {
+      if (finalBaseDefault > 5.0) finalBaseDefault /= 100;
+      finalBaseDefault = Math.max(1.00, Math.min(3.00, finalBaseDefault)); // Teto de 300%
+    }
+
     const updated = await this.prisma.combatAttribute.update({
       where: { code },
       data: {
-        baseDefault: dto.baseDefault !== undefined ? Number(dto.baseDefault) : existing.baseDefault,
+        baseDefault: finalBaseDefault,
         isPercentage: dto.isPercentage !== undefined ? Boolean(dto.isPercentage) : existing.isPercentage,
       },
     });

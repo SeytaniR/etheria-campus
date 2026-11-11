@@ -45,6 +45,10 @@ export interface CombatUnit {
   attackRange?: number;
   damageType?: 'PHYSICAL' | 'MAGICAL';
   battleMoveSpeed?: number;
+  physAccuracy?: number;
+  physEvasion?: number;
+  magAccuracy?: number;
+  magEvasion?: number;
   isAlive: boolean;
   activeStatuses?: ActiveStatusInstance[];
 }
@@ -246,77 +250,51 @@ export class TemporaryCombatController {
       combatStyle: (pc?.classTemplate?.combatStyle as any) || 'MELEE',
       attackRange: pc?.classTemplate?.attackRange || 60,
       damageType: (pc?.classTemplate?.damageType as any) || 'PHYSICAL',
+      physAccuracy: Math.min(125, Math.max(20, Number((pc?.classTemplate as any)?.baseCombatAttributesJson?.PHYS_ACCURACY) || 95)),
+      physEvasion: Math.min(75, Math.max(0, Number((pc?.classTemplate as any)?.baseCombatAttributesJson?.PHYS_EVASION) || 5)),
+      magAccuracy: Math.min(125, Math.max(20, Number((pc?.classTemplate as any)?.baseCombatAttributesJson?.MAG_ACCURACY) || 95)),
+      magEvasion: Math.min(75, Math.max(0, Number((pc?.classTemplate as any)?.baseCombatAttributesJson?.MAG_EVASION) || 5)),
       isAlive: true,
       activeStatuses: [],
     };
 
     // Pets que acompanham o jogador em combate (2 a 3 pets)
     const petUnits: CombatUnit[] = [];
-    if (pc && pc.pets && pc.pets.length > 0) {
-      pc.pets.slice(0, 3).forEach((cp: any, idx: number) => {
-        const mt = cp.monsterTemplate;
-        const petKey = mt?.mcreworkMonsterKey || 'creature_000001';
-        petUnits.push({
-          id: `pet_${cp.id}_${idx}`,
-          index: idx,
-          name: cp.nickname || `Pet #${idx + 1}`,
-          level: cp.level || charLevel,
-          hp: Math.round(playerMaxHp * 0.65),
-          maxHp: Math.round(playerMaxHp * 0.65),
-          mp: Math.round(playerMaxMp * 0.50),
-          maxMp: Math.round(playerMaxMp * 0.50),
-          atk: Math.round(playerAtk * 0.60),
-          def: Math.round(playerDef * 0.65),
-          speed: Math.round(playerSpeed * 0.95),
-          spriteKey: petKey,
-          atlasJsonUrl: `${this.mcreworkPagesBaseUrl}/assets/monsters/${petKey}/atlas.json`,
-          atlasWebpUrl: `${this.mcreworkPagesBaseUrl}/assets/monsters/${petKey}/atlas.webp`,
-          groundOffsetY: mt?.groundOffsetY || 0,
-          thumbUrl: `${this.mcreworkPagesBaseUrl}/assets/monsters/${petKey}/thumb.webp`,
-          elementCode: cp.elementCode || 'NEUTRAL',
-          raceCode: 'BEAST',
-          combatStyle: (mt?.combatStyle as any) || 'MELEE',
-          attackRange: mt?.attackRange || 60,
-          damageType: (mt?.damageType as any) || 'PHYSICAL',
-          battleMoveSpeed: Math.round(playerMoveSpeed * 0.90),
-          isAlive: true,
-          activeStatuses: [],
-        });
+    const rawPets = (pc && pc.pets && pc.pets.length > 0)
+      ? pc.pets.slice(0, 3).map((cp: any, idx: number) => {
+          const mt = cp.monsterTemplate;
+          const k = mt?.mcreworkMonsterKey || 'creature_000001';
+          return {
+            id: `pet_${cp.id}_${idx}`, name: cp.nickname || `Pet #${idx + 1}`,
+            spriteKey: k, groundOffsetY: mt?.groundOffsetY || 0, elementCode: cp.elementCode || 'NEUTRAL',
+            style: (mt?.combatStyle as any) || 'MELEE', range: mt?.attackRange || 60, dmgType: (mt?.damageType as any) || 'PHYSICAL',
+            pAcc: Number(mt?.baseCombatAttributesJson?.PHYS_ACCURACY) || 95, pEva: Number(mt?.baseCombatAttributesJson?.PHYS_EVASION) || 5,
+            mAcc: Number(mt?.baseCombatAttributesJson?.MAG_ACCURACY) || 95, mEva: Number(mt?.baseCombatAttributesJson?.MAG_EVASION) || 5,
+          };
+        })
+      : [
+          { id: 'pet_comp_0', name: 'Lobo Guardião (Pet)', spriteKey: 'creature_000001', groundOffsetY: 0, elementCode: 'NEUTRAL', style: 'MELEE', range: 60, dmgType: 'PHYSICAL', pAcc: 95, pEva: 5, mAcc: 95, mEva: 5 },
+          { id: 'pet_comp_1', name: 'Grifo Protetor (Pet)', spriteKey: 'creature_000002', groundOffsetY: 0, elementCode: 'NEUTRAL', style: 'MELEE', range: 60, dmgType: 'PHYSICAL', pAcc: 95, pEva: 5, mAcc: 95, mEva: 5 },
+        ];
+
+    rawPets.forEach((p: any, idx: number) => {
+      petUnits.push({
+        id: p.id, index: idx, name: p.name, level: charLevel,
+        hp: Math.round(playerMaxHp * 0.65), maxHp: Math.round(playerMaxHp * 0.65),
+        mp: Math.round(playerMaxMp * 0.50), maxMp: Math.round(playerMaxMp * 0.50),
+        atk: Math.round(playerAtk * 0.60), def: Math.round(playerDef * 0.65), speed: Math.round(playerSpeed * 0.95),
+        spriteKey: p.spriteKey,
+        atlasJsonUrl: `${this.mcreworkPagesBaseUrl}/assets/monsters/${p.spriteKey}/atlas.json`,
+        atlasWebpUrl: `${this.mcreworkPagesBaseUrl}/assets/monsters/${p.spriteKey}/atlas.webp`,
+        groundOffsetY: p.groundOffsetY,
+        thumbUrl: `${this.mcreworkPagesBaseUrl}/assets/monsters/${p.spriteKey}/thumb.webp`,
+        elementCode: p.elementCode, raceCode: 'BEAST', combatStyle: p.style, attackRange: p.range,
+        damageType: p.dmgType, battleMoveSpeed: Math.round(playerMoveSpeed * 0.90),
+        physAccuracy: Math.min(125, Math.max(20, p.pAcc)), physEvasion: Math.min(75, Math.max(0, p.pEva)),
+        magAccuracy: Math.min(125, Math.max(20, p.mAcc)), magEvasion: Math.min(75, Math.max(0, p.mEva)),
+        isAlive: true, activeStatuses: [],
       });
-    } else {
-      const defaultCompanions = [
-        { key: 'creature_000001', name: 'Lobo Guardião (Pet)' },
-        { key: 'creature_000002', name: 'Grifo Protetor (Pet)' }
-      ];
-      defaultCompanions.forEach((comp, idx) => {
-        petUnits.push({
-          id: `pet_comp_${idx}`,
-          index: idx,
-          name: comp.name,
-          level: charLevel,
-          hp: Math.round(playerMaxHp * 0.65),
-          maxHp: Math.round(playerMaxHp * 0.65),
-          mp: Math.round(playerMaxMp * 0.50),
-          maxMp: Math.round(playerMaxMp * 0.50),
-          atk: Math.round(playerAtk * 0.60),
-          def: Math.round(playerDef * 0.65),
-          speed: Math.round(playerSpeed * 0.95),
-          spriteKey: comp.key,
-          atlasJsonUrl: `${this.mcreworkPagesBaseUrl}/assets/monsters/${comp.key}/atlas.json`,
-          atlasWebpUrl: `${this.mcreworkPagesBaseUrl}/assets/monsters/${comp.key}/atlas.webp`,
-          groundOffsetY: 0,
-          thumbUrl: `${this.mcreworkPagesBaseUrl}/assets/monsters/${comp.key}/thumb.webp`,
-          elementCode: 'NEUTRAL',
-          raceCode: 'BEAST',
-          combatStyle: 'MELEE',
-          attackRange: 60,
-          damageType: 'PHYSICAL',
-          battleMoveSpeed: Math.round(playerMoveSpeed * 0.90),
-          isAlive: true,
-          activeStatuses: [],
-        });
-      });
-    }
+    });
 
     // Calcula Atributos do Monstro (escalonados por nível; o Rank SS..F é mantido apenas como registro por ora)
     const mobStats = (mobTemplate.baseAttributesJson as any) || { VIT: 12, STR: 12, INT: 10, WIS: 10, AGI: 10, DEX: 10 };
@@ -340,30 +318,18 @@ export class TemporaryCombatController {
     if (monsterUnits.length === 0) {
       for (let i = 0; i < qty; i++) {
         monsterUnits.push({
-          id: `mob_${mobTemplate.id}_${i}`,
-          index: i,
-          name: qty > 1 ? `${mobBaseName} #${i + 1}` : mobBaseName,
-          level: lvl,
-          hp: mobMaxHp,
-          maxHp: mobMaxHp,
-          mp: mobMaxMp,
-          maxMp: mobMaxMp,
-          atk: mobAtk,
-          def: mobDef,
-          speed: mobSpeed,
-          spriteKey: mobKey,
-          atlasJsonUrl: mobAtlasJson,
-          atlasWebpUrl: mobAtlasWebp,
-          groundOffsetY: mobTemplate.groundOffsetY || 0,
-          thumbUrl: mobThumb,
-          elementCode: mobTemplate.fixedElementCode || 'NEUTRAL',
-          raceCode: mobTemplate.raceCode || 'BEAST',
-          combatStyle: (mobTemplate.combatStyle as any) || 'MELEE',
-          attackRange: mobTemplate.attackRange || 60,
+          id: `mob_${mobTemplate.id}_${i}`, index: i, name: qty > 1 ? `${mobBaseName} #${i + 1}` : mobBaseName, level: lvl,
+          hp: mobMaxHp, maxHp: mobMaxHp, mp: mobMaxMp, maxMp: mobMaxMp, atk: mobAtk, def: mobDef, speed: mobSpeed,
+          battleMoveSpeed: mobMoveSpeed, spriteKey: mobKey, atlasJsonUrl: mobAtlasJson, atlasWebpUrl: mobAtlasWebp,
+          groundOffsetY: mobTemplate.groundOffsetY || 0, thumbUrl: mobThumb,
+          elementCode: mobTemplate.fixedElementCode || 'NEUTRAL', raceCode: mobTemplate.raceCode || 'BEAST',
+          combatStyle: (mobTemplate.combatStyle as any) || 'MELEE', attackRange: mobTemplate.attackRange || 60,
           damageType: (mobTemplate.damageType as any) || 'PHYSICAL',
-          battleMoveSpeed: mobMoveSpeed,
-          isAlive: true,
-          activeStatuses: [],
+          physAccuracy: Math.min(125, Math.max(20, Number((mobTemplate as any)?.baseCombatAttributesJson?.PHYS_ACCURACY) || 95)),
+          physEvasion: Math.min(75, Math.max(0, Number((mobTemplate as any)?.baseCombatAttributesJson?.PHYS_EVASION) || 5)),
+          magAccuracy: Math.min(125, Math.max(20, Number((mobTemplate as any)?.baseCombatAttributesJson?.MAG_ACCURACY) || 95)),
+          magEvasion: Math.min(75, Math.max(0, Number((mobTemplate as any)?.baseCombatAttributesJson?.MAG_EVASION) || 5)),
+          isAlive: true, activeStatuses: [],
         });
       }
     }
@@ -556,35 +522,39 @@ export class TemporaryCombatController {
       const mobKey = tmpl.mcreworkMonsterKey;
 
       monsterUnits.push({
-        id: `mob_${tmpl.id}_${i}`,
-        index: i,
-        name: `${baseName} #${i + 1}${raritySuffix}`,
-        level: mobLvl,
-        hp: mobMaxHp,
-        maxHp: mobMaxHp,
-        mp: mobMaxMp,
-        maxMp: mobMaxMp,
-        atk: mobAtk,
-        def: mobDef,
-        speed: mobSpeed,
-        battleMoveSpeed: mobMoveSpeed,
-        spriteKey: mobKey,
+        id: `mob_${tmpl.id}_${i}`, index: i, name: `${baseName} #${i + 1}${raritySuffix}`, level: mobLvl,
+        hp: mobMaxHp, maxHp: mobMaxHp, mp: mobMaxMp, maxMp: mobMaxMp, atk: mobAtk, def: mobDef, speed: mobSpeed,
+        battleMoveSpeed: mobMoveSpeed, spriteKey: mobKey,
         atlasJsonUrl: `${this.mcreworkPagesBaseUrl}/assets/monsters/${mobKey}/atlas.json`,
         atlasWebpUrl: `${this.mcreworkPagesBaseUrl}/assets/monsters/${mobKey}/atlas.webp`,
-        groundOffsetY: tmpl.groundOffsetY || 0,
-        thumbUrl: `${this.mcreworkPagesBaseUrl}/assets/monsters/${mobKey}/thumb.webp`,
-        elementCode: tmpl.fixedElementCode || 'NEUTRAL',
-        raceCode: tmpl.raceCode || 'BEAST',
-        combatStyle: (tmpl.combatStyle as any) || 'MELEE',
-        attackRange: tmpl.attackRange || 60,
-        damageType: (tmpl.damageType as any) || 'PHYSICAL',
-        isAlive: true,
-        activeStatuses: [],
+        groundOffsetY: tmpl.groundOffsetY || 0, thumbUrl: `${this.mcreworkPagesBaseUrl}/assets/monsters/${mobKey}/thumb.webp`,
+        elementCode: tmpl.fixedElementCode || 'NEUTRAL', raceCode: tmpl.raceCode || 'BEAST',
+        combatStyle: (tmpl.combatStyle as any) || 'MELEE', attackRange: tmpl.attackRange || 60, damageType: (tmpl.damageType as any) || 'PHYSICAL',
+        physAccuracy: Math.min(125, Math.max(20, Number((tmpl as any)?.baseCombatAttributesJson?.PHYS_ACCURACY) || 95)),
+        physEvasion: Math.min(75, Math.max(0, Number((tmpl as any)?.baseCombatAttributesJson?.PHYS_EVASION) || 5)),
+        magAccuracy: Math.min(125, Math.max(20, Number((tmpl as any)?.baseCombatAttributesJson?.MAG_ACCURACY) || 95)),
+        magEvasion: Math.min(75, Math.max(0, Number((tmpl as any)?.baseCombatAttributesJson?.MAG_EVASION) || 5)),
+        isAlive: true, activeStatuses: [],
       });
     }
 
     const firstTemplateId = monsterUnits[0] ? Number(candidateTemplates[0]?.id || 1) : 1;
     return this.startBattle(characterId, firstTemplateId, monsterUnits.length, map.requiredLevel, monsterUnits);
+  }
+
+  /**
+   * Calcula a taxa de acerto efetiva entre atacante e defensor:
+   * - Teto de Desvio: 75% (ninguém é inalvejável).
+   * - Teto de Precisão em Atributos: 125%.
+   * - Teto de Acerto em Combate: 95% (zero acerto perfeito; sempre há pelo menos 5% de chance de erro/desvio).
+   * - Piso de Acerto em Combate: 10% (sempre há pelo menos 10% de chance de conectar; ninguém é inalvejável).
+   */
+  public calculateEffectiveHitRate(attackerAcc?: number, defenderEva?: number): number {
+    const acc = Number(attackerAcc) <= 1.5 ? Number(attackerAcc) * 100 : Number(attackerAcc);
+    const eva = Number(defenderEva) <= 1.5 ? Number(defenderEva) * 100 : Number(defenderEva);
+    const clampedEva = Math.min(75, Math.max(0, eva || 0));
+    const clampedAcc = Math.min(125, Math.max(20, acc || 95));
+    return Math.max(10, Math.min(95, clampedAcc - clampedEva));
   }
 
   /**
@@ -623,86 +593,128 @@ export class TemporaryCombatController {
 
     // 1. AÇÃO DO JOGADOR
     if (actionType === 'ATTACK') {
-      const isCrit = Math.random() < 0.2; // 20% crit rate
-      const variance = 0.9 + Math.random() * 0.2;
-      let rawDmg = Math.round(player.atk * variance - targetMob.def * 0.4);
-      if (isCrit) rawDmg = Math.round(rawDmg * 1.6);
-      const dmg = Math.max(5, rawDmg);
+      const isMag = player.damageType === 'MAGICAL';
+      const pAcc = isMag ? (player.magAccuracy || 95) : (player.physAccuracy || 95);
+      const mEva = isMag ? (targetMob.magEvasion || 5) : (targetMob.physEvasion || 5);
+      const hitChance = this.calculateEffectiveHitRate(pAcc, mEva);
+      const isHit = Math.random() * 100 <= hitChance;
 
-      targetMob.hp = Math.max(0, targetMob.hp - dmg);
-      if (targetMob.hp === 0) targetMob.isAlive = false;
+      if (!isHit) {
+        events.push({
+          actor: 'player',
+          targetType: 'monster',
+          targetIndex: targetMob.index,
+          type: 'MISS',
+          animAction: 3,
+          amount: 0,
+          hpRemaining: targetMob.hp,
+          message: `${player.name} atacou ${targetMob.name}, mas errou o golpe (💨 DESVIO)!`,
+        });
+        battle.combatLog.unshift(`💨 [${player.name}] atacou [${targetMob.name}], mas o golpe errou (💨 DESVIO)!`);
+      } else {
+        const isCrit = Math.random() < 0.2; // 20% crit rate
+        const variance = 0.9 + Math.random() * 0.2;
+        let rawDmg = Math.round(player.atk * variance - targetMob.def * 0.4);
+        if (isCrit) rawDmg = Math.round(rawDmg * 1.6);
+        const dmg = Math.max(5, rawDmg);
 
-      events.push({
-        actor: 'player',
-        targetType: 'monster',
-        targetIndex: targetMob.index,
-        type: isCrit ? 'CRIT' : 'DAMAGE',
-        animAction: 3,
-        amount: dmg,
-        isCrit,
-        hpRemaining: targetMob.hp,
-        message: `${player.name} desferiu um Golpe ${isCrit ? 'CRÍTICO ' : ''}em ${targetMob.name} causando ${dmg} de Dano!`,
-      });
+        targetMob.hp = Math.max(0, targetMob.hp - dmg);
+        if (targetMob.hp === 0) targetMob.isAlive = false;
 
-      battle.combatLog.unshift(
-        `🗡️ [${player.name}] atacou [${targetMob.name}] causando ${dmg} de dano${isCrit ? ' (💥 CRÍTICO!)' : ''}!`
-      );
+        events.push({
+          actor: 'player',
+          targetType: 'monster',
+          targetIndex: targetMob.index,
+          type: isCrit ? 'CRIT' : 'DAMAGE',
+          animAction: 3,
+          amount: dmg,
+          isCrit,
+          hpRemaining: targetMob.hp,
+          message: `${player.name} desferiu um Golpe ${isCrit ? 'CRÍTICO ' : ''}em ${targetMob.name} causando ${dmg} de Dano!`,
+        });
 
-      if (!targetMob.isAlive) {
-        battle.combatLog.unshift(`💀 [${targetMob.name}] foi derrotado!`);
+        battle.combatLog.unshift(
+          `🗡️ [${player.name}] atacou [${targetMob.name}] causando ${dmg} de dano${isCrit ? ' (💥 CRÍTICO!)' : ''}!`
+        );
+
+        if (!targetMob.isAlive) {
+          battle.combatLog.unshift(`💀 [${targetMob.name}] foi derrotado!`);
+        }
       }
     } else if (actionType === 'SKILL') {
       const mpCost = 15;
       if (player.mp >= mpCost) {
         player.mp -= mpCost;
       }
-      const isCrit = Math.random() < 0.3; // 30% crit rate na skill
-      const variance = 1.0 + Math.random() * 0.3;
-      let rawDmg = Math.round(player.atk * 1.8 * variance - targetMob.def * 0.2);
-      if (isCrit) rawDmg = Math.round(rawDmg * 1.5);
-      const dmg = Math.max(15, rawDmg);
+      const isMag = player.damageType === 'MAGICAL';
+      const pAcc = (isMag ? (player.magAccuracy || 95) : (player.physAccuracy || 95)) + 5;
+      const mEva = isMag ? (targetMob.magEvasion || 5) : (targetMob.physEvasion || 5);
+      const hitChance = this.calculateEffectiveHitRate(pAcc, mEva);
+      const isHit = Math.random() * 100 <= hitChance;
 
-      targetMob.hp = Math.max(0, targetMob.hp - dmg);
-      if (targetMob.hp === 0) targetMob.isAlive = false;
+      if (!isHit) {
+        events.push({
+          actor: 'player',
+          targetType: 'monster',
+          targetIndex: targetMob.index,
+          type: 'MISS',
+          animAction: 7,
+          amount: 0,
+          hpRemaining: targetMob.hp,
+          message: `${player.name} conjurou Chama Purgatorial, mas ${targetMob.name} esquivou (💨 DESVIO)!`,
+        });
+        battle.combatLog.unshift(
+          `💨 [${player.name}] conjurou Chama Purgatorial em [${targetMob.name}], mas o alvo esquivou (💨 DESVIO)!`
+        );
+      } else {
+        const isCrit = Math.random() < 0.3; // 30% crit rate na skill
+        const variance = 1.0 + Math.random() * 0.3;
+        let rawDmg = Math.round(player.atk * 1.8 * variance - targetMob.def * 0.2);
+        if (isCrit) rawDmg = Math.round(rawDmg * 1.5);
+        const dmg = Math.max(15, rawDmg);
 
-      // Aplica o Debuff "Queimadura Solar" (com ícone na cabeça do alvo + VFX especial 10025)
-      const burnDebuff: ActiveStatusInstance = {
-        code: 'status_burn',
-        name: 'Queimadura Solar',
-        isBuff: false,
-        iconUrl: `${this.mcreworkPagesBaseUrl}/assets/skills/icons/100180.png`,
-        vfxKey: '10025',
-        triggerType: 'CONTINUOUS_TICK',
-        durationSeconds: 6.0,
-        remainingSeconds: 6.0,
-        remainingTurns: 3,
-      };
-      if (targetMob.isAlive) {
-        targetMob.activeStatuses = (targetMob.activeStatuses || []).filter((s) => s.code !== 'status_burn');
-        targetMob.activeStatuses.push(burnDebuff);
-      }
+        targetMob.hp = Math.max(0, targetMob.hp - dmg);
+        if (targetMob.hp === 0) targetMob.isAlive = false;
 
-      events.push({
-        actor: 'player',
-        targetType: 'monster',
-        targetIndex: targetMob.index,
-        type: 'CRIT',
-        animAction: 7,
-        vfxKey: '10025',
-        statusApplied: targetMob.isAlive ? burnDebuff : null,
-        amount: dmg,
-        isCrit: true,
-        hpRemaining: targetMob.hp,
-        message: `${player.name} conjurou Chama Purgatorial em ${targetMob.name} causando ${dmg} de Dano + Queimadura Solar!`,
-      });
+        // Aplica o Debuff "Queimadura Solar" (com ícone na cabeça do alvo + VFX especial 10025)
+        const burnDebuff: ActiveStatusInstance = {
+          code: 'status_burn',
+          name: 'Queimadura Solar',
+          isBuff: false,
+          iconUrl: `${this.mcreworkPagesBaseUrl}/assets/skills/icons/100180.png`,
+          vfxKey: '10025',
+          triggerType: 'CONTINUOUS_TICK',
+          durationSeconds: 6.0,
+          remainingSeconds: 6.0,
+          remainingTurns: 3,
+        };
+        if (targetMob.isAlive) {
+          targetMob.activeStatuses = (targetMob.activeStatuses || []).filter((s) => s.code !== 'status_burn');
+          targetMob.activeStatuses.push(burnDebuff);
+        }
 
-      battle.combatLog.unshift(
-        `🔥 [${player.name}] lançou Chama Purgatorial em [${targetMob.name}] causando ${dmg} de dano e aplicando 🧪 [Queimadura Solar]!`
-      );
+        events.push({
+          actor: 'player',
+          targetType: 'monster',
+          targetIndex: targetMob.index,
+          type: 'CRIT',
+          animAction: 7,
+          vfxKey: '10025',
+          statusApplied: targetMob.isAlive ? burnDebuff : null,
+          amount: dmg,
+          isCrit: true,
+          hpRemaining: targetMob.hp,
+          message: `${player.name} conjurou Chama Purgatorial em ${targetMob.name} causando ${dmg} de Dano + Queimadura Solar!`,
+        });
 
-      if (!targetMob.isAlive) {
-        targetMob.activeStatuses = [];
-        battle.combatLog.unshift(`💀 [${targetMob.name}] foi destruído pelo golpe especial!`);
+        battle.combatLog.unshift(
+          `🔥 [${player.name}] lançou Chama Purgatorial em [${targetMob.name}] causando ${dmg} de dano e aplicando 🧪 [Queimadura Solar]!`
+        );
+
+        if (!targetMob.isAlive) {
+          targetMob.activeStatuses = [];
+          battle.combatLog.unshift(`💀 [${targetMob.name}] foi destruído pelo golpe especial!`);
+        }
       }
     } else if (actionType === 'DEFEND') {
       isDefending = true;
@@ -810,6 +822,27 @@ export class TemporaryCombatController {
     const playerEffectiveDef = isDefending ? Math.round(player.def * 1.5) : player.def;
 
     for (const mob of aliveMonsters) {
+      const isMag = mob.damageType === 'MAGICAL';
+      const mobAcc = isMag ? (mob.magAccuracy || 95) : (mob.physAccuracy || 95);
+      const pEva = isMag ? (player.magEvasion || 5) : (player.physEvasion || 5);
+      const hitChance = this.calculateEffectiveHitRate(mobAcc, pEva);
+      const isHit = Math.random() * 100 <= hitChance;
+
+      if (!isHit) {
+        events.push({
+          actor: 'monster',
+          actorIndex: mob.index,
+          targetType: 'player',
+          type: 'MISS',
+          animAction: 3,
+          amount: 0,
+          hpRemaining: player.hp,
+          message: `${mob.name} atacou ${player.name}, mas errou o golpe (💨 DESVIO)!`,
+        });
+        battle.combatLog.unshift(`💨 [${mob.name}] atacou [${player.name}], mas o golpe errou (💨 DESVIO)!`);
+        continue;
+      }
+
       const isCrit = Math.random() < 0.12;
       const variance = 0.85 + Math.random() * 0.3;
       let rawDmg = Math.round(mob.atk * variance - playerEffectiveDef * 0.35);

@@ -272,12 +272,12 @@ class AdminClassModalTemplate {
             <div><label style="font-size:0.7rem; color:#86efac; font-weight:700;">🎯 Alcance Ataque (px)</label><input type="number" id="classStatsAttackRangeInput" value="60" min="20" max="600" oninput="AdminApp.syncClassAttackRange(this.value)" title="Distância padrão de alcance do ataque em pixels" /></div>
             <div><label style="font-size:0.7rem; color:#38bdf8;">🏃 Vel. Batalha (px/s)</label><input type="number" id="classBaseCombatMoveSpeed" value="180" min="100" max="300" oninput="AdminApp.updateClassCombatStatsPreview()" /></div>
             <div><label style="font-size:0.7rem; color:#38bdf8;">⚔️ Vel. Ataque (atks/s)</label><input type="number" id="classBaseCombatAttackSpeed" value="1.0" step="0.1" min="0.5" max="3.0" oninput="AdminApp.updateClassCombatStatsPreview()" /></div>
-            <div><label style="font-size:0.7rem; color:#38bdf8;">🎯 Precisão Física</label><input type="number" id="classBaseCombatPhysAcc" value="100" min="0" oninput="AdminApp.updateClassCombatStatsPreview()" /></div>
-            <div><label style="font-size:0.7rem; color:#38bdf8;">💨 Desvio Físico</label><input type="number" id="classBaseCombatPhysEva" value="10" min="0" oninput="AdminApp.updateClassCombatStatsPreview()" /></div>
-            <div><label style="font-size:0.7rem; color:#38bdf8;">🔮 Precisão Mágica</label><input type="number" id="classBaseCombatMagAcc" value="100" min="0" oninput="AdminApp.updateClassCombatStatsPreview()" /></div>
-            <div><label style="font-size:0.7rem; color:#38bdf8;">✨ Desvio Mágico</label><input type="number" id="classBaseCombatMagEva" value="10" min="0" oninput="AdminApp.updateClassCombatStatsPreview()" /></div>
-            <div><label style="font-size:0.7rem; color:#38bdf8;">💥 Taxa Crítica (%)</label><input type="number" id="classBaseCombatCritRate" value="5" min="0" max="100" oninput="AdminApp.updateClassCombatStatsPreview()" /></div>
-            <div><label style="font-size:0.7rem; color:#38bdf8;">⚡ Dano Crítico (%)</label><input type="number" id="classBaseCombatCritDmg" value="150" min="100" oninput="AdminApp.updateClassCombatStatsPreview()" /></div>
+            <div><label style="font-size:0.7rem; color:#38bdf8;">🎯 Precisão Física (%)</label><input type="number" id="classBaseCombatPhysAcc" value="95" min="20" max="125" oninput="AdminApp.updateClassCombatStatsPreview()" title="Teto de precisão: 125%" /></div>
+            <div><label style="font-size:0.7rem; color:#38bdf8;">💨 Desvio Físico (%)</label><input type="number" id="classBaseCombatPhysEva" value="5" min="0" max="75" oninput="AdminApp.updateClassCombatStatsPreview()" title="Teto de desvio: 75% (ninguém é inalvejável)" /></div>
+            <div><label style="font-size:0.7rem; color:#38bdf8;">🔮 Precisão Mágica (%)</label><input type="number" id="classBaseCombatMagAcc" value="95" min="20" max="125" oninput="AdminApp.updateClassCombatStatsPreview()" title="Teto de precisão: 125%" /></div>
+            <div><label style="font-size:0.7rem; color:#38bdf8;">✨ Desvio Mágico (%)</label><input type="number" id="classBaseCombatMagEva" value="5" min="0" max="75" oninput="AdminApp.updateClassCombatStatsPreview()" title="Teto de desvio: 75% (ninguém é inalvejável)" /></div>
+            <div><label style="font-size:0.7rem; color:#38bdf8;">💥 Taxa Crítica (%)</label><input type="number" id="classBaseCombatCritRate" value="5" min="0" max="80" oninput="AdminApp.updateClassCombatStatsPreview()" title="Teto crítico: 80%" /></div>
+            <div><label style="font-size:0.7rem; color:#38bdf8;">⚡ Dano Crítico (%)</label><input type="number" id="classBaseCombatCritDmg" value="150" min="100" max="300" oninput="AdminApp.updateClassCombatStatsPreview()" title="Teto dano crítico: 300%" /></div>
           </div>
         </div>
 
@@ -389,15 +389,22 @@ class AdminClassModalTemplate {
         pointsBadge.innerHTML = `Nv.1: <strong>${totalBaseLv1} pts</strong> ${simLevel > 1 ? `➔ Nv.${simLevel}: <strong>${totalEff} pts</strong>` : ''}`;
       }
 
+      const rawPhysAcc = Number(document.getElementById('classBaseCombatPhysAcc')?.value) || 95;
+      const rawPhysEva = Number(document.getElementById('classBaseCombatPhysEva')?.value) || 5;
+      const rawMagAcc = Number(document.getElementById('classBaseCombatMagAcc')?.value) || 95;
+      const rawMagEva = Number(document.getElementById('classBaseCombatMagEva')?.value) || 5;
+      const rawCritRate = Number(document.getElementById('classBaseCombatCritRate')?.value) || 5;
+      const rawCritDmg = Number(document.getElementById('classBaseCombatCritDmg')?.value) || 150;
+
       const customCombatBases = {
         BATTLE_MOVE_SPEED: Number(document.getElementById('classBaseCombatMoveSpeed')?.value) || 180,
         ATTACK_SPEED: Number(document.getElementById('classBaseCombatAttackSpeed')?.value) || 1.0,
-        PHYS_ACCURACY: Number(document.getElementById('classBaseCombatPhysAcc')?.value) || 100,
-        PHYS_EVASION: Number(document.getElementById('classBaseCombatPhysEva')?.value) || 10,
-        MAG_ACCURACY: Number(document.getElementById('classBaseCombatMagAcc')?.value) || 100,
-        MAG_EVASION: Number(document.getElementById('classBaseCombatMagEva')?.value) || 10,
-        CRIT_RATE: (Number(document.getElementById('classBaseCombatCritRate')?.value) || 5) / 100,
-        CRIT_DMG: (Number(document.getElementById('classBaseCombatCritDmg')?.value) || 150) / 100,
+        PHYS_ACCURACY: rawPhysAcc > 1.5 ? rawPhysAcc / 100 : rawPhysAcc,
+        PHYS_EVASION: rawPhysEva > 1.0 ? rawPhysEva / 100 : rawPhysEva,
+        MAG_ACCURACY: rawMagAcc > 1.5 ? rawMagAcc / 100 : rawMagAcc,
+        MAG_EVASION: rawMagEva > 1.0 ? rawMagEva / 100 : rawMagEva,
+        CRIT_RATE: rawCritRate > 1.0 ? rawCritRate / 100 : rawCritRate,
+        CRIT_DMG: rawCritDmg > 5.0 ? rawCritDmg / 100 : rawCritDmg,
       };
 
       const combatMap = typeof this.calculateCombatAttributes === 'function'
@@ -433,10 +440,14 @@ class AdminClassModalTemplate {
                 ? `+${(item.bonusFromAttrs * 100).toFixed(2)}%`
                 : `+${Math.round(item.bonusFromAttrs * 10) / 10}`;
 
+              const capBadge = item.capReached
+                ? `<span style="font-size:0.65rem; color:#f87171; font-weight:700;" title="Teto máximo atingido"> [Teto: ${(item.capMax * 100).toFixed(0)}%]</span>`
+                : '';
+
               return `
               <div style="background:rgba(15,23,42,0.9); border:1px solid var(--border); border-radius:6px; padding:6px 8px; display:flex; flex-direction:column; justify-content:space-between; gap:2px;">
                 <div style="display:flex; justify-content:space-between; align-items:center;">
-                  <span style="font-size:0.73rem; color:#f1f5f9; font-weight:600;">${item.namePtBr}</span>
+                  <span style="font-size:0.73rem; color:#f1f5f9; font-weight:600;">${item.namePtBr}${capBadge}</span>
                   <code style="font-size:0.65rem; color:var(--text-muted);">${item.code}</code>
                 </div>
                 <div style="display:flex; align-items:baseline; justify-content:space-between; margin-top:2px;">
@@ -458,6 +469,7 @@ class AdminClassModalTemplate {
             <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:6px;">
               ${statsCards}
             </div>
+            ${fam.id === 'acerto_desvio' ? '<div style="font-size:0.68rem; color:#7dd3fc; margin-top:6px; line-height:1.3;">🛡️ <strong>Regra de Balanceamento:</strong> O Desvio possui teto de 75% (ninguém é inalvejável). A Precisão em combate tem teto de 95% e piso de 10% (sempre há chance de errar ou desviar de raspão).</div>' : ''}
           </div>`;
         })
         .join('');

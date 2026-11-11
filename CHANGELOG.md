@@ -5,6 +5,30 @@ Qualquer IA trabalhando neste repositório **DEVE** incrementar a versão e regi
 
 ---
 
+## [v0.6.8] - 2026-11-11
+### Combate Autoritário & Painel Admin — Revisão Profunda e Tetos Matemáticos de Acerto e Desvio (Ninguém Inalvejável & Zero Precisão Perfeita)
+* **Revisão Matemática das Taxas de Acerto e Desvio:**
+  * **Causa Raiz Identificada:** Na rota `/admin` e no motor de combate, os atributos `PHYS_ACCURACY`, `MAG_ACCURACY`, `PHYS_EVASION` e `MAG_EVASION` não possuíam tetos rígidos e sofriam inconsistências de representação entre decimais (`0.05` = 5%) e inteiros (`95` = 95%). Sem travas, valores podiam ultrapassar 100%, gerando situações em que unidades podiam se tornar inalvejáveis (evasão >= 100%) ou ter acerto garantido infalível (precisão de 100% que nunca erra).
+  * **Novo Modelo Matemático Unificado & Tetos de Balanceamento:**
+    * **Teto Máximo de Evasão / Desvio: 75% (`0.75`):** Nenhuma entidade (jogador, monstro ou pet), build ou equipamento pode acumular mais de 75% de esquiva. **Ninguém é inalvejável**.
+    * **Teto Máximo de Precisão em Atributos: 125% (`1.25`):** Permite que classes focadas em Destreza (`DEX`) e precisão contrabalanceiem oponentes altamente esquivos.
+    * **Teto Máximo de Acerto em Combate: 95% (`0.95`):** **Zero precisão perfeita**. Nenhum ataque básico ou habilidade de dano pode ter 100% de garantia; sempre há no mínimo 5% de margem natural de desvio, erro ou esquiva.
+    * **Piso Mínimo de Acerto em Combate: 10% (`0.10`):** Mesmo contra um defensor no teto máximo de evasão (75%), o atacante retém sempre pelo menos 10% de chance de conectar o golpe.
+    * **Fórmula Autoritária Linear:**
+      ChanceAcerto = clamp(PrecisãoAtacante - DesvioDefensor, 10%, 95%)
+      Garante escalabilidade idêntica e balanceada desde os estágios iniciais (Nível 1) até as progressões avançadas (Nível 100).
+* **Painel Admin Studio Low-Code (`AdminAttributesController.ts`, `AdminAttributesTab.js`, `AdminClassModalTemplate.js`, `AdminClassesTab.js`, `AdminPetsTab.js`):**
+  * **Backend Clamping:** Clamps estritos no `AdminAttributesController.ts` ao salvar atributos de combate (Evasão `[0, 0.75]`, Precisão `[0.20, 1.25]`, Taxa Crítica `[0.01, 0.80]`, Dano Crítico `[1.00, 3.00]`).
+  * **Normalização Visual na Aba de Atributos:** Tabela com indicadores explícitos de decimais (`0.05 = 5% • Teto Máx: 0.75 = 75%`) e auto-clamp preventivo com feedback visual caso o usuário digite valores fora dos limites.
+  * **Modais de Classes e Pets:** Inputs numéricos com limites estritos (`min`/`max`), badge de alerta `[Teto Máx: XX%]` ao alcançar o limite, conversão automática de inteiros para decimais na persistência e nota explicativa de balanceamento no card da família `acerto_desvio`.
+* **Motor de Combate em Tempo Real & Turnos (`ActionCombatArena.js` & `TemporaryCombatController.ts`):**
+  * **`ActionCombatArena.js`:** Método autoritário `calculateHitRate(attackerAcc, defenderEva)` implementado com os tetos de 75% de evasão, 125% de precisão, 95% de acerto máx e 10% mín. Aplicado nos ataques do jogador, projéteis teleguiados de pets e ataques de monstros na arena em tempo real.
+  * **`TemporaryCombatController.ts`:** Método `calculateEffectiveHitRate` implementado e acoplado ao fluxo de turnos em `executeAction`. Ataques normais (`ATTACK`), habilidades com dano (`SKILL`) e retaliação de monstros realizam o teste de acerto vs evasão, gerando eventos `MISS` (`💨 DESVIO!`) no combat log e nos floating combat texts quando o golpe é esquivado.
+* **Documentação Oficial Atualizada (`docs/combat_math_guide.html`):**
+  * Seção 4.1 revisada detalhando a fórmula autoritária de acerto e evasão, explicitando as regras de governança contra entidades inalvejáveis e precisão absoluta. Incrementada versão do guia para `v0.6.8`.
+
+---
+
 ## [v0.6.7] - 2026-11-11
 ### Admin Studio Low-Code — Correção de Layout e Sincronização do Alcance de Ataque (`attackRange`) no Modal de Personagens
 * **Correção de Overflow e Visibilidade do Alcance de Personagens:**

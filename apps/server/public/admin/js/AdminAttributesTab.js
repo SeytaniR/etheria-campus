@@ -42,9 +42,17 @@ class AdminAttributesTab {
 
       const result = {};
       for (const ca of combatAttrs) {
-        const baseDef = (customCombatBases && customCombatBases[ca.code] !== undefined)
+        let baseDef = (customCombatBases && customCombatBases[ca.code] !== undefined)
           ? Number(customCombatBases[ca.code])
           : (Number(ca.baseDefault) || 0);
+
+        // Se o atributo é percentual e veio na escala 0-100 (ex: 95 em vez de 0.95), normaliza para decimal
+        if (ca.isPercentage && baseDef > 1.5 && ca.code !== 'CRIT_DMG') {
+          baseDef = baseDef / 100;
+        } else if (ca.isPercentage && ca.code === 'CRIT_DMG' && baseDef > 5.0) {
+          baseDef = baseDef / 100;
+        }
+
         let bonus = 0;
         for (const conv of conversions) {
           if (conv.combatAttributeCode === ca.code) {
@@ -53,10 +61,50 @@ class AdminAttributesTab {
           }
         }
         let finalVal = baseDef + bonus;
-        if (ca.code === 'BATTLE_MOVE_SPEED') {
+
+        // TETOS E LIMITES RIGOROSOS DE ATRIBUTOS (CAPS)
+        let capReached = false;
+        let capMax = null;
+        if (ca.code === 'PHYS_EVASION' || ca.code === 'MAG_EVASION') {
+          // Teto absoluto de Evasão/Desvio: 75% (0.75) para que ninguém seja inalvejável
+          capMax = 0.75;
+          if (finalVal > capMax) {
+            finalVal = capMax;
+            capReached = true;
+          }
+          finalVal = Math.max(0, finalVal);
+        } else if (ca.code === 'PHYS_ACCURACY' || ca.code === 'MAG_ACCURACY') {
+          // Teto de Precisão: 125% (1.25)
+          capMax = 1.25;
+          if (finalVal > capMax) {
+            finalVal = capMax;
+            capReached = true;
+          }
+          finalVal = Math.max(0.20, finalVal);
+        } else if (ca.code === 'CRIT_RATE') {
+          // Teto de Chance Crítica: 80% (0.80)
+          capMax = 0.80;
+          if (finalVal > capMax) {
+            finalVal = capMax;
+            capReached = true;
+          }
+          finalVal = Math.max(0.01, finalVal);
+        } else if (ca.code === 'CRIT_DMG') {
+          // Teto de Dano Crítico: 300% (3.00)
+          capMax = 3.00;
+          if (finalVal > capMax) {
+            finalVal = capMax;
+            capReached = true;
+          }
+          finalVal = Math.max(1.00, finalVal);
+        } else if (ca.code === 'BATTLE_MOVE_SPEED') {
           const cap = baseDef * 1.40; // Teto rigoroso de 40% de aumento na velocidade de batalha
-          if (finalVal > cap) finalVal = cap;
+          if (finalVal > cap) {
+            finalVal = cap;
+            capReached = true;
+          }
         }
+
         result[ca.code] = {
           code: ca.code,
           namePtBr: ca.namePtBr,
@@ -64,6 +112,8 @@ class AdminAttributesTab {
           bonusFromAttrs: bonus,
           isPercentage: Boolean(ca.isPercentage),
           value: finalVal,
+          capReached,
+          capMax,
         };
       }
       return result;
@@ -148,7 +198,21 @@ class AdminAttributesTab {
             <td>${getFamilyBadge(ca.code)}</td>
             <td>
               <input type="number" step="${ca.isPercentage ? '0.01' : '1'}" id="combatBaseDefault_${ca.code}" value="${ca.baseDefault}" style="width:85px; padding:3px 6px; font-size:0.75rem;" />
-              <span style="font-size:0.7rem; color:var(--text-muted); margin-left:4px;">${ca.isPercentage ? '(Em decimal: 0.05 = 5%)' : ''}</span>
+              <span style="font-size:0.7rem; color:var(--text-muted); margin-left:4px;">
+                ${
+                  ca.isPercentage
+                    ? ['PHYS_EVASION', 'MAG_EVASION'].includes(ca.code)
+                      ? '(Decimal: 0.05 = 5% • Teto Máx: 0.75 = 75%)'
+                      : ['PHYS_ACCURACY', 'MAG_ACCURACY'].includes(ca.code)
+                      ? '(Decimal: 0.95 = 95% • Teto Máx: 1.25 = 125%)'
+                      : ca.code === 'CRIT_RATE'
+                      ? '(Decimal: 0.05 = 5% • Teto Máx: 0.80 = 80%)'
+                      : ca.code === 'CRIT_DMG'
+                      ? '(Decimal: 1.50 = 150% • Teto Máx: 3.00 = 300%)'
+                      : '(Em decimal: 0.05 = 5%)'
+                    : ''
+                }
+              </span>
             </td>
             <td>
               <span style="padding:2px 6px; border-radius:4px; background:${ca.isPercentage ? 'rgba(56,189,248,0.15)' : 'rgba(148,163,184,0.15)'}; color:${ca.isPercentage ? '#38bdf8' : '#94a3b8'}; font-size:0.7rem; font-weight:700;">
@@ -230,7 +294,22 @@ class AdminAttributesTab {
     app.saveCombatAttributeBase = async function (code) {
       try {
         const input = document.getElementById(`combatBaseDefault_${code}`);
-        const baseDefault = Number(input?.value) || 0;
+        let baseDefault = Number(input?.value) || 0;
+
+        if (['PHYS_EVASION', 'MAG_EVASION'].includes(code)) {
+          if (baseDefault > 1.0) baseDefault = baseDefault / 100;
+          if (baseDefault > 0.75) {
+            alert('⚠️ O teto de Desvio é 75% (0.75) para garantir que ninguém seja inalvejável. Ajustando para 0.75.');
+            baseDefault = 0.75;
+          }
+        } else if (['PHYS_ACCURACY', 'MAG_ACCURACY'].includes(code)) {
+          if (baseDefault > 2.0) baseDefault = baseDefault / 100;
+          if (baseDefault > 1.25) {
+            alert('⚠️ O teto de Precisão é 125% (1.25). Ajustando para 1.25.');
+            baseDefault = 1.25;
+          }
+        }
+
         await this.api(`/api/admin/attributes/combat/${code}`, {
           method: 'PUT',
           body: JSON.stringify({ baseDefault }),

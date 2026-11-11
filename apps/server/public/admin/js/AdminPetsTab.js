@@ -306,12 +306,12 @@ class AdminPetsTab {
         const baseCombatAttributesJson = {
           BATTLE_MOVE_SPEED: Number(document.getElementById('petCombatMoveSpeedInput')?.value) || 180,
           ATTACK_SPEED: Number(document.getElementById('petCombatAttackSpeedInput')?.value) || 1.0,
-          PHYS_ACCURACY: Number(document.getElementById('petCombatPhysAccInput')?.value) || 95,
-          PHYS_EVASION: Number(document.getElementById('petCombatPhysEvaInput')?.value) || 10,
-          MAG_ACCURACY: Number(document.getElementById('petCombatMagAccInput')?.value) || 95,
-          MAG_EVASION: Number(document.getElementById('petCombatMagEvaInput')?.value) || 10,
-          CRIT_RATE: Number(document.getElementById('petCombatCritRateInput')?.value) || 5,
-          CRIT_DMG: Number(document.getElementById('petCombatCritDmgInput')?.value) || 150,
+          PHYS_ACCURACY: Math.max(20, Math.min(125, Number(document.getElementById('petCombatPhysAccInput')?.value) || 95)),
+          PHYS_EVASION: Math.max(0, Math.min(75, Number(document.getElementById('petCombatPhysEvaInput')?.value) || 5)),
+          MAG_ACCURACY: Math.max(20, Math.min(125, Number(document.getElementById('petCombatMagAccInput')?.value) || 95)),
+          MAG_EVASION: Math.max(0, Math.min(75, Number(document.getElementById('petCombatMagEvaInput')?.value) || 5)),
+          CRIT_RATE: Math.max(0, Math.min(80, Number(document.getElementById('petCombatCritRateInput')?.value) || 5)),
+          CRIT_DMG: Math.max(100, Math.min(300, Number(document.getElementById('petCombatCritDmgInput')?.value) || 150)),
         };
 
         const dto = {
