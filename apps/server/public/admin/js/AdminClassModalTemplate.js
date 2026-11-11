@@ -24,20 +24,43 @@ class AdminClassModalTemplate {
       <input type="hidden" id="classAssetKeyInput" value="" />
       <input type="hidden" id="classRebornAssetKeyInput" value="" />
 
-      <div style="display:grid; grid-template-columns:1.2fr 1fr 1fr 1fr 0.9fr; gap:6px;">
-        <input type="text" id="classNameInput" placeholder="Nome da Classe / Personagem" style="padding:6px 8px; font-size:0.84rem;" />
-        <select id="classRaceSelect" style="padding:6px 8px; font-size:0.84rem;"></select>
-        <select id="classCombatStyleSelect" onchange="AdminApp.onCombatStyleChange('class')" style="padding:6px 8px; font-size:0.84rem;" title="Estilo de Combate">
-          <option value="MELEE">⚔️ Melee (Corpo a Corpo)</option>
-          <option value="RANGED">🏹 Ranged (À Distância)</option>
-        </select>
-        <select id="classDamageTypeSelect" style="padding:6px 8px; font-size:0.84rem;" title="Tipo de Dano do Ataque Básico">
-          <option value="PHYSICAL">🗡️ Dano Físico</option>
-          <option value="MAGICAL">🔮 Dano Mágico</option>
-        </select>
-        <div style="display:flex; align-items:center; gap:4px;">
-          <label style="font-size:0.7rem; color:var(--text-muted); white-space:nowrap;">Alcance:</label>
-          <input type="number" id="classAttackRangeInput" min="20" max="600" value="60" style="padding:6px 6px; font-size:0.84rem; width:100%;" title="Distância padrão de alcance do ataque (pixels)" />
+      <!-- IDENTIFICAÇÃO BÁSICA & PARÂMETROS DE COMBATE (RESPONSIVO E SEM CORTES) -->
+      <div style="background:rgba(15,23,42,0.85); border:1.5px solid var(--border); border-radius:10px; padding:10px 12px; display:flex; flex-direction:column; gap:8px;">
+        <!-- Linha 1: Identificação (Nome e Raça) -->
+        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:10px;">
+          <div class="field" style="margin:0;">
+            <label style="color:#fde047; font-weight:700; font-size:0.75rem; margin-bottom:3px; display:block;">🏷️ Nome da Classe / Personagem</label>
+            <input type="text" id="classNameInput" placeholder="Ex: Guerreiro, Mago, Arqueiro..." style="width:100%; padding:7px 10px; font-size:0.86rem; box-sizing:border-box;" />
+          </div>
+          <div class="field" style="margin:0;">
+            <label style="color:#38bdf8; font-weight:700; font-size:0.75rem; margin-bottom:3px; display:block;">🧬 Raça do Personagem</label>
+            <select id="classRaceSelect" style="width:100%; padding:7px 10px; font-size:0.86rem; box-sizing:border-box;"></select>
+          </div>
+        </div>
+
+        <!-- Linha 2: Mecânicas de Combate Básico (Estilo, Tipo de Dano e Alcance) -->
+        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:10px; background:rgba(2,6,23,0.55); border:1px solid #1e293b; border-radius:8px; padding:8px 10px;">
+          <div class="field" style="margin:0;">
+            <label style="color:#fde047; font-weight:700; font-size:0.75rem; margin-bottom:3px; display:block;">⚔️ Estilo de Combate</label>
+            <select id="classCombatStyleSelect" onchange="AdminApp.onCombatStyleChange('class')" style="width:100%; padding:7px 10px; font-size:0.86rem; box-sizing:border-box;" title="Estilo de Combate">
+              <option value="MELEE">⚔️ Melee (Corpo a Corpo)</option>
+              <option value="RANGED">🏹 Ranged (À Distância)</option>
+            </select>
+          </div>
+          <div class="field" style="margin:0;">
+            <label style="color:#c084fc; font-weight:700; font-size:0.75rem; margin-bottom:3px; display:block;">✨ Tipo de Dano</label>
+            <select id="classDamageTypeSelect" style="width:100%; padding:7px 10px; font-size:0.86rem; box-sizing:border-box;" title="Tipo de Dano do Ataque Básico">
+              <option value="PHYSICAL">🗡️ Dano Físico</option>
+              <option value="MAGICAL">🔮 Dano Mágico</option>
+            </select>
+          </div>
+          <div class="field" style="margin:0;">
+            <label style="color:#86efac; font-weight:700; font-size:0.75rem; margin-bottom:3px; display:block;">🎯 Alcance do Ataque (px)</label>
+            <div style="display:flex; align-items:center; gap:6px;">
+              <input type="number" id="classAttackRangeInput" min="20" max="600" value="60" oninput="AdminApp.syncClassAttackRange(this.value)" style="flex:1; padding:7px 10px; font-size:0.88rem; font-weight:700; color:#86efac; text-align:center; box-sizing:border-box;" title="Distância padrão de alcance do ataque em pixels (ex: 60 para Melee, 220 para Ranged)" />
+              <span style="font-size:0.76rem; color:var(--text-muted); font-weight:600;">px</span>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -245,7 +268,8 @@ class AdminClassModalTemplate {
             <label style="color:#38bdf8; font-weight:700; margin:0;">⚙️ Atributos Base de Combate da Classe (Piso Fixo Não-Derivado)</label>
             <span style="font-size:0.7rem; color:#94a3b8;">Teto máx. de velocidade em arena: +40%</span>
           </div>
-          <div style="display:grid; grid-template-columns:repeat(4, 1fr); gap:6px;">
+          <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(130px, 1fr)); gap:6px;">
+            <div><label style="font-size:0.7rem; color:#86efac; font-weight:700;">🎯 Alcance Ataque (px)</label><input type="number" id="classStatsAttackRangeInput" value="60" min="20" max="600" oninput="AdminApp.syncClassAttackRange(this.value)" title="Distância padrão de alcance do ataque em pixels" /></div>
             <div><label style="font-size:0.7rem; color:#38bdf8;">🏃 Vel. Batalha (px/s)</label><input type="number" id="classBaseCombatMoveSpeed" value="180" min="100" max="300" oninput="AdminApp.updateClassCombatStatsPreview()" /></div>
             <div><label style="font-size:0.7rem; color:#38bdf8;">⚔️ Vel. Ataque (atks/s)</label><input type="number" id="classBaseCombatAttackSpeed" value="1.0" step="0.1" min="0.5" max="3.0" oninput="AdminApp.updateClassCombatStatsPreview()" /></div>
             <div><label style="font-size:0.7rem; color:#38bdf8;">🎯 Precisão Física</label><input type="number" id="classBaseCombatPhysAcc" value="100" min="0" oninput="AdminApp.updateClassCombatStatsPreview()" /></div>
@@ -456,16 +480,28 @@ class AdminClassModalTemplate {
       });
     };
 
+    app.syncClassAttackRange = function (val) {
+      const el1 = document.getElementById('classAttackRangeInput');
+      const el2 = document.getElementById('classStatsAttackRangeInput');
+      if (el1 && el1.value !== String(val)) el1.value = String(val);
+      if (el2 && el2.value !== String(val)) el2.value = String(val);
+    };
+
     app.onCombatStyleChange = function (prefix) {
       const styleSelect = document.getElementById(`${prefix}CombatStyleSelect`);
       const rangeInput = document.getElementById(`${prefix}AttackRangeInput`);
       if (!styleSelect || !rangeInput) return;
       const isRanged = styleSelect.value === 'RANGED';
       const cur = Number(rangeInput.value) || 0;
+      let newRange = rangeInput.value;
       if (isRanged && (cur === 60 || cur === 52 || cur === 55 || cur === 0)) {
-        rangeInput.value = '220';
+        newRange = '220';
       } else if (!isRanged && cur === 220) {
-        rangeInput.value = '60';
+        newRange = '60';
+      }
+      rangeInput.value = newRange;
+      if (prefix === 'class' && typeof app.syncClassAttackRange === 'function') {
+        app.syncClassAttackRange(newRange);
       }
     };
   }

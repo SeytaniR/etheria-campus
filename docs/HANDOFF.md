@@ -8,9 +8,9 @@
 ---
 
 ## 📌 Status Atual do Projeto
-* **Versão Atual:** `v0.6.6`
-* **Última Atualização:** `2026-11-10`
-* **Fase Atual:** **Tipo de Dano Físico vs Mágico (`damageType`) em Classes, Monstros e Pets (`v0.6.6`) — Implementado campo de seleção de tipo de dano no banco (`schema.prisma`), controllers de Admin, payloads de jogo e arena de combate (`ActionCombatArena.js`). O ataque básico e rolagem de acerto/evasão agora respondem dinamicamente ao tipo de dano (físico mitigado por DEF física, mágico mitigado por DEF mágica, com novos visuais de projéteis).**
+* **Versão Atual:** `v0.6.7`
+* **Última Atualização:** `2026-11-11`
+* **Fase Atual:** **Correção de Layout e Sincronização de Alcance em Personagens (`v0.6.7`) — Reestruturado o cabeçalho do modal de personagens (`AdminClassModalTemplate.js`) em linhas fluidas com `repeat(auto-fit, minmax(180px, 1fr))` para eliminar esmagamento e overflow do campo de alcance (`classAttackRangeInput`). Espelhado também na aba `📊 Atributos & Combate` com sincronização bidirecional em tempo real (`syncClassAttackRange`).**
 * **Repositório Oficial:** `https://github.com/SeytaniR/etheria-campus`
 * **Fonte Bruta de Assets:** `https://github.com/SeytaniR/mcrework` (`https://seytanir.github.io/mcrework/`)
 

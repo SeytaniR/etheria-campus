@@ -545,7 +545,9 @@ class AdminClassesTab {
         document.getElementById('classRebornShadowOffsetYInput').value = String(existingClass.rebornShadowOffsetY || 0);
         const cStyle = existingClass.combatStyle || 'MELEE';
         const sEl = document.getElementById('classCombatStyleSelect'); if (sEl) sEl.value = cStyle;
-        const rEl = document.getElementById('classAttackRangeInput'); if (rEl) rEl.value = String(existingClass.attackRange || (cStyle === 'RANGED' ? 220 : 60));
+        const rangeVal = String(existingClass.attackRange || (cStyle === 'RANGED' ? 220 : 60));
+        const rEl = document.getElementById('classAttackRangeInput'); if (rEl) rEl.value = rangeVal;
+        const rEl2 = document.getElementById('classStatsAttackRangeInput'); if (rEl2) rEl2.value = rangeVal;
         const dtEl = document.getElementById('classDamageTypeSelect'); if (dtEl) dtEl.value = existingClass.damageType || 'PHYSICAL';
 
         this.selectedMcreworkCharKey = existingClass.mcreworkCharKey || '';
@@ -581,6 +583,7 @@ class AdminClassesTab {
         document.getElementById('classRebornShadowOffsetYInput').value = '0';
         const sEl = document.getElementById('classCombatStyleSelect'); if (sEl) sEl.value = 'MELEE';
         const rEl = document.getElementById('classAttackRangeInput'); if (rEl) rEl.value = '60';
+        const rEl2 = document.getElementById('classStatsAttackRangeInput'); if (rEl2) rEl2.value = '60';
         const dtEl = document.getElementById('classDamageTypeSelect'); if (dtEl) dtEl.value = 'PHYSICAL';
 
         this.selectedMcreworkCharKey = '';
@@ -719,7 +722,7 @@ class AdminClassesTab {
           namePtBr,
           raceCode,
           combatStyle: document.getElementById('classCombatStyleSelect')?.value || 'MELEE',
-          attackRange: Number(document.getElementById('classAttackRangeInput')?.value) || 60,
+          attackRange: Number(document.getElementById('classAttackRangeInput')?.value) || Number(document.getElementById('classStatsAttackRangeInput')?.value) || 60,
           damageType: document.getElementById('classDamageTypeSelect')?.value || 'PHYSICAL',
           mcreworkCharKey,
           rebornMcreworkCharKey,

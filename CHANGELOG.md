@@ -5,6 +5,22 @@ Qualquer IA trabalhando neste repositório **DEVE** incrementar a versão e regi
 
 ---
 
+## [v0.6.7] - 2026-11-11
+### Admin Studio Low-Code — Correção de Layout e Sincronização do Alcance de Ataque (`attackRange`) no Modal de Personagens
+* **Correção de Overflow e Visibilidade do Alcance de Personagens:**
+  * **Causa Raiz Identificada:** No modal de cadastro e edição de personagens (`AdminClassModalTemplate.js`), o cabeçalho forçava 5 campos em uma única linha rígida (`grid-template-columns: 1.2fr 1fr 1fr 1fr 0.9fr;`). Como os `<select>` possuem largura mínima intrínseca ditada pelas opções textuais e o `.modal-box` possui `overflow: hidden`, o 5º elemento (`Alcance: [ 60 ]`) era empurrado para fora da tela ou espremido a zero pixels em resoluções inferiores a 1100px.
+  * **Header Modular e 100% Responsivo:**
+    * O cabeçalho foi reorganizado em dois blocos fluidos e bem espaçados com `repeat(auto-fit, minmax(180px, 1fr))`:
+      * **Linha 1:** `🏷️ Nome da Classe / Personagem` e `🧬 Raça do Personagem`.
+      * **Linha 2 (Mecânicas de Combate Básico):** `⚔️ Estilo de Combate` (Melee/Ranged), `✨ Tipo de Dano` (Físico/Mágico) e `🎯 Alcance do Ataque (px)`.
+    * Cada campo possui rótulo próprio, cores de destaque e input numérico centralizado, sem transbordamentos ou cortes visuais em qualquer tamanho de janela.
+  * **Espelhamento na Aba de Atributos & Combate (`classTabStats`):**
+    * Inserido o campo `🎯 Alcance Ataque (px)` no Bloco 2.5 ("Atributos Base de Combate da Classe"), permitindo configurar o alcance diretamente ao calibrar velocidade de batalha, precisão e crítico.
+    * Criada a função `AdminApp.syncClassAttackRange` que sincroniza em tempo real qualquer alteração feita tanto no cabeçalho quanto na aba de combate.
+    * Sincronização automática preservada em `AdminApp.onCombatStyleChange` ao alternar entre Melee e Ranged.
+
+---
+
 ## [v0.6.6] - 2026-11-10
 ### Combate & Criação Low-Code — Tipo de Dano Físico vs Mágico (`damageType`) para Classes, Monstros e Pets
 * **Dano Físico vs Dano Mágico em Classes, Monstros e Pets:**
