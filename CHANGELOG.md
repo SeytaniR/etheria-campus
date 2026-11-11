@@ -5,6 +5,24 @@ Qualquer IA trabalhando neste repositório **DEVE** incrementar a versão e regi
 
 ---
 
+## [v0.8.0] - 2026-11-11
+### Arena 1300px, Colisão Física Universal entre Modelos & Inteligência Artificial Tática de Equipe
+* **Adicionado:**
+  * **Motor Físico de Colisão & Formação (`apps/server/public/play/js/ArenaPhysicsSolver.js`):**
+    * **Colisão entre Todos os Modelos:** Solver elíptico iterativo (`resolveAllUnitCollisions`, até 12 passes com saída antecipada) aplicado a cada frame sobre Jogador, Pets e Monstros, impedindo que as entidades se acumulem em uma única sombra.
+    * **Formação Inicial Vanguarda / Retaguarda (`buildTeamFormationPositions`):** Separa unidades Melee à frente e Ranged atrás com espaçamento amplo (`72 px` lateral, `68 px` entre fileiras) e detecção de pontos livres.
+    * **Flanqueamento e Slots ao Redor de Alvos (`computeSurroundAttackSlot`):** Distribui atacantes em anel sem empilhamento e direciona unidades frágeis para as bordas opostas ao centro de ameaça.
+  * **Inteligência Artificial Tática (`apps/server/public/play/js/ArenaUnitAiController.js`):**
+    * **Cálculo Geral por Time (`evaluateTeamTactics`):** Avalia proceduralmente atributos reais (`HP`, `DEF`, `MAG_DEF`, `ATK`, `ATTACK_SPEED`, `CRIT`) designando **Tank Protector** (intercepta ameaças contra aliados Ranged), **Top Dano** (prioriza maximizar dano) e **Mais Frágil** (ataca à distância ou pelas bordas sem se expor).
+    * **Regras Melee:** Persegue o inimigo mais próximo (ou intercepta atacantes dos Rangeds quando Tank) com prevenção contra perseguição infinita (`avoidTargetUntil`).
+    * **Regras Ranged + Anti-Kite Infinito:** Ataca o inimigo mais próximo dentro do alcance, move-se quando necessário para buscar alvos, recua posicionando-se atrás de um aliado Melee quando ameaçado e **aceita luta corpo a corpo** (`standAndFightTimer`) ao ser encurralado ou após kiting prolongado.
+* **Alterado (`ActionCombatArena.js`, `TemporaryCombatController.ts`, `play/index.html`):**
+  * **Arena Ampliada para 1300 px:** `arenaRadiusX` aumentado de `468` (`936 px`) para **`650` (`1300 px`)** e `arenaRadiusY` ampliado proporcionalmente de `338` para **`470` (`940 px`)**.
+  * **Maior Afastamento Inicial entre Equipes:** Candidatos de separação em `findFairSpawnPositions` expandidos até **`840 px`** (antes máx `364 px`).
+  * Monstros agora podem atacar e disparar projéteis teleguiados tanto no Jogador quanto nos Pets aliados (permitindo que Pets Tank realmente protejam aliados Ranged); `TemporaryCombatController.ts` passa a enviar também `magDef`, `critRate`, `critDmg`, `attackSpeed` e estatísticas de `petTemplate`.
+
+---
+
 ## [v0.7.0] - 2026-11-11
 ### Personalização de Cor de Partículas VFX Transparentes (`vfxColorHex` & `vfxColorIntensity`)
 * **Adicionado:**

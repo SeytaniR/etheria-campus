@@ -34,6 +34,10 @@ export interface CombatUnit {
   maxMp: number;
   atk: number;
   def: number;
+  magDef?: number;
+  critRate?: number;
+  critDmg?: number;
+  attackSpeed?: number;
   speed: number;
   spriteKey: string;
   atlasJsonUrl: string;
@@ -175,7 +179,7 @@ export class TemporaryCombatController {
     if (characterId) {
       pc = await this.prisma.playerCharacter.findUnique({
         where: { id: Number(characterId) },
-        include: { classTemplate: true, pets: { take: 3, include: { monsterTemplate: true } } },
+        include: { classTemplate: true, pets: { take: 3, include: { monsterTemplate: true, petTemplate: true } } },
       });
       if (pc) {
         charName = pc.name;
@@ -216,6 +220,7 @@ export class TemporaryCombatController {
     const intMpRatio = getRatio('INT', 'MAX_MP', 15);
     const strAtkRatio = getRatio('STR', 'PHYS_ATK', 3.2);
     const vitDefRatio = getRatio('VIT', 'PHYS_DEF', 1.8);
+    const wisMagDefRatio = getRatio('WIS', 'MAG_DEF', 1.8);
     const agiSpdRatio = getRatio('AGI', 'SPEED', 2.0);
     const agiMoveRatio = getRatio('AGI', 'BATTLE_MOVE_SPEED', 0.5);
 
@@ -230,6 +235,7 @@ export class TemporaryCombatController {
     const playerMaxMp = Math.round(charBaseStats.INT * intMpRatio + charLevel * 10);
     const playerAtk = Math.round(charBaseStats.STR * strAtkRatio + charLevel * 4);
     const playerDef = Math.round(charBaseStats.VIT * vitDefRatio + charLevel * 2.5);
+    const playerMagDef = Math.round(charBaseStats.WIS * wisMagDefRatio + charLevel * 2.0);
     const playerSpeed = Math.round(charBaseStats.AGI * agiSpdRatio + charLevel);
 
     const playerUnit: CombatUnit = {
@@ -243,6 +249,10 @@ export class TemporaryCombatController {
       maxMp: playerMaxMp,
       atk: playerAtk,
       def: playerDef,
+      magDef: playerMagDef,
+      critRate: Math.min(0.80, (Number((pc?.classTemplate as any)?.baseCombatAttributesJson?.CRIT_RATE) || 5) / 100),
+      critDmg: Math.min(3.00, (Number((pc?.classTemplate as any)?.baseCombatAttributesJson?.CRIT_DMG) || 150) / 100),
+      attackSpeed: Number((pc?.classTemplate as any)?.baseCombatAttributesJson?.ATTACK_SPEED) || 1.0,
       speed: playerSpeed,
       battleMoveSpeed: playerMoveSpeed,
       spriteKey: charSpriteKey,
@@ -267,34 +277,44 @@ export class TemporaryCombatController {
     const petUnits: CombatUnit[] = [];
     const rawPets = (pc && pc.pets && pc.pets.length > 0)
       ? pc.pets.slice(0, 3).map((cp: any, idx: number) => {
-          const mt = cp.monsterTemplate;
-          const k = mt?.mcreworkMonsterKey || 'creature_000001';
+          const tpl = cp.petTemplate || cp.monsterTemplate;
+          const k = cp.petTemplate?.mcreworkPetKey || cp.monsterTemplate?.mcreworkMonsterKey || 'creature_000001';
+          const assetFolder = cp.petTemplate?.mcreworkPetKey ? 'pets' : 'monsters';
+          const bStats = (tpl?.baseAttributesJson as any) || null;
+          const cStats = (tpl?.baseCombatAttributesJson as any) || {};
+          const pLvl = cp.level || charLevel;
+          const pMaxHp = bStats ? Math.round((Number(bStats.VIT) || 12) * (vitHpRatio * 0.72) + pLvl * 16) : Math.round(playerMaxHp * 0.65);
+          const pAtk = bStats ? Math.round(Math.max(Number(bStats.STR) || 10, Number(bStats.INT) || 10) * (strAtkRatio * 0.75) + pLvl * 3.0) : Math.round(playerAtk * 0.60);
+          const pDef = bStats ? Math.round((Number(bStats.VIT) || 10) * (vitDefRatio * 0.72) + pLvl * 2.0) : Math.round(playerDef * 0.65);
+          const pMagDef = bStats ? Math.round((Number(bStats.WIS) || 10) * (wisMagDefRatio * 0.72) + pLvl * 1.8) : Math.round(playerMagDef * 0.65);
           return {
-            id: `pet_${cp.id}_${idx}`, name: cp.nickname || `Pet #${idx + 1}`,
-            spriteKey: k, groundOffsetY: mt?.groundOffsetY || 0, elementCode: cp.elementCode || 'NEUTRAL',
-            style: (mt?.combatStyle as any) || 'MELEE', range: mt?.attackRange || 60, dmgType: (mt?.damageType as any) || 'PHYSICAL',
-            pAcc: Number(mt?.baseCombatAttributesJson?.PHYS_ACCURACY) || 95, pEva: Number(mt?.baseCombatAttributesJson?.PHYS_EVASION) || 5,
-            mAcc: Number(mt?.baseCombatAttributesJson?.MAG_ACCURACY) || 95, mEva: Number(mt?.baseCombatAttributesJson?.MAG_EVASION) || 5,
+            id: `pet_${cp.id}_${idx}`, name: cp.nickname || `Pet #${idx + 1}`, level: pLvl, assetFolder,
+            spriteKey: k, groundOffsetY: tpl?.groundOffsetY || 0, elementCode: cp.elementCode || 'NEUTRAL',
+            style: (tpl?.combatStyle as any) || 'MELEE', range: tpl?.attackRange || 60, dmgType: (tpl?.damageType as any) || 'PHYSICAL',
+            hp: pMaxHp, atk: pAtk, def: pDef, magDef: pMagDef,
+            moveSpd: Number(cStats.BATTLE_MOVE_SPEED) || Math.round(playerMoveSpeed * 0.90),
+            critRate: Math.min(0.80, (Number(cStats.CRIT_RATE) || 5) / 100), critDmg: Math.min(3.00, (Number(cStats.CRIT_DMG) || 150) / 100),
+            attackSpeed: Number(cStats.ATTACK_SPEED) || 1.0,
+            pAcc: Number(cStats.PHYS_ACCURACY) || 95, pEva: Number(cStats.PHYS_EVASION) || 5,
+            mAcc: Number(cStats.MAG_ACCURACY) || 95, mEva: Number(cStats.MAG_EVASION) || 5,
           };
         })
       : [
-          { id: 'pet_comp_0', name: 'Lobo Guardião (Pet)', spriteKey: 'creature_000001', groundOffsetY: 0, elementCode: 'NEUTRAL', style: 'MELEE', range: 60, dmgType: 'PHYSICAL', pAcc: 95, pEva: 5, mAcc: 95, mEva: 5 },
-          { id: 'pet_comp_1', name: 'Grifo Protetor (Pet)', spriteKey: 'creature_000002', groundOffsetY: 0, elementCode: 'NEUTRAL', style: 'MELEE', range: 60, dmgType: 'PHYSICAL', pAcc: 95, pEva: 5, mAcc: 95, mEva: 5 },
+          { id: 'pet_comp_0', name: 'Lobo Guardião (Pet)', level: charLevel, assetFolder: 'monsters', spriteKey: 'creature_000001', groundOffsetY: 0, elementCode: 'NEUTRAL', style: 'MELEE', range: 60, dmgType: 'PHYSICAL', hp: Math.round(playerMaxHp * 0.72), atk: Math.round(playerAtk * 0.55), def: Math.round(playerDef * 0.85), magDef: Math.round(playerMagDef * 0.75), moveSpd: Math.round(playerMoveSpeed * 0.92), critRate: 0.06, critDmg: 1.5, attackSpeed: 1.0, pAcc: 95, pEva: 5, mAcc: 95, mEva: 5 },
+          { id: 'pet_comp_1', name: 'Grifo Protetor (Pet)', level: charLevel, assetFolder: 'monsters', spriteKey: 'creature_000002', groundOffsetY: 0, elementCode: 'NEUTRAL', style: 'RANGED', range: 220, dmgType: 'MAGICAL', hp: Math.round(playerMaxHp * 0.52), atk: Math.round(playerAtk * 0.72), def: Math.round(playerDef * 0.50), magDef: Math.round(playerMagDef * 0.65), moveSpd: Math.round(playerMoveSpeed * 0.95), critRate: 0.12, critDmg: 1.6, attackSpeed: 1.05, pAcc: 95, pEva: 8, mAcc: 95, mEva: 8 },
         ];
 
     rawPets.forEach((p: any, idx: number) => {
       petUnits.push({
-        id: p.id, index: idx, name: p.name, level: charLevel,
-        hp: Math.round(playerMaxHp * 0.65), maxHp: Math.round(playerMaxHp * 0.65),
-        mp: Math.round(playerMaxMp * 0.50), maxMp: Math.round(playerMaxMp * 0.50),
-        atk: Math.round(playerAtk * 0.60), def: Math.round(playerDef * 0.65), speed: Math.round(playerSpeed * 0.95),
-        spriteKey: p.spriteKey,
-        atlasJsonUrl: `${this.mcreworkPagesBaseUrl}/assets/monsters/${p.spriteKey}/atlas.json`,
-        atlasWebpUrl: `${this.mcreworkPagesBaseUrl}/assets/monsters/${p.spriteKey}/atlas.webp`,
-        groundOffsetY: p.groundOffsetY,
-        thumbUrl: `${this.mcreworkPagesBaseUrl}/assets/monsters/${p.spriteKey}/thumb.webp`,
+        id: p.id, index: idx, name: p.name, level: p.level || charLevel,
+        hp: p.hp, maxHp: p.hp, mp: Math.round(playerMaxMp * 0.50), maxMp: Math.round(playerMaxMp * 0.50),
+        atk: p.atk, def: p.def, magDef: p.magDef, critRate: p.critRate, critDmg: p.critDmg, attackSpeed: p.attackSpeed,
+        speed: Math.round(playerSpeed * 0.95), spriteKey: p.spriteKey,
+        atlasJsonUrl: `${this.mcreworkPagesBaseUrl}/assets/${p.assetFolder}/${p.spriteKey}/atlas.json`,
+        atlasWebpUrl: `${this.mcreworkPagesBaseUrl}/assets/${p.assetFolder}/${p.spriteKey}/atlas.webp`,
+        groundOffsetY: p.groundOffsetY, thumbUrl: `${this.mcreworkPagesBaseUrl}/assets/${p.assetFolder}/${p.spriteKey}/thumb.webp`,
         elementCode: p.elementCode, raceCode: 'BEAST', combatStyle: p.style, attackRange: p.range,
-        damageType: p.dmgType, battleMoveSpeed: Math.round(playerMoveSpeed * 0.90),
+        damageType: p.dmgType, battleMoveSpeed: p.moveSpd,
         physAccuracy: Math.min(125, Math.max(20, p.pAcc)), physEvasion: Math.min(75, Math.max(0, p.pEva)),
         magAccuracy: Math.min(125, Math.max(20, p.mAcc)), magEvasion: Math.min(75, Math.max(0, p.mEva)),
         isAlive: true, activeStatuses: [],
@@ -324,7 +344,11 @@ export class TemporaryCombatController {
       for (let i = 0; i < qty; i++) {
         monsterUnits.push({
           id: `mob_${mobTemplate.id}_${i}`, index: i, name: qty > 1 ? `${mobBaseName} #${i + 1}` : mobBaseName, level: lvl,
-          hp: mobMaxHp, maxHp: mobMaxHp, mp: mobMaxMp, maxMp: mobMaxMp, atk: mobAtk, def: mobDef, speed: mobSpeed,
+          hp: mobMaxHp, maxHp: mobMaxHp, mp: mobMaxMp, maxMp: mobMaxMp, atk: mobAtk, def: mobDef,
+          magDef: Math.round((Number(mobStats.WIS) || 10) * (wisMagDefRatio * 0.72) + lvl * 1.8),
+          critRate: Math.min(0.80, (Number((mobTemplate as any)?.baseCombatAttributesJson?.CRIT_RATE) || 5) / 100),
+          critDmg: Math.min(3.00, (Number((mobTemplate as any)?.baseCombatAttributesJson?.CRIT_DMG) || 150) / 100),
+          attackSpeed: Number((mobTemplate as any)?.baseCombatAttributesJson?.ATTACK_SPEED) || 1.0, speed: mobSpeed,
           battleMoveSpeed: mobMoveSpeed, spriteKey: mobKey, atlasJsonUrl: mobAtlasJson, atlasWebpUrl: mobAtlasWebp,
           groundOffsetY: mobTemplate.groundOffsetY || 0, thumbUrl: mobThumb,
           elementCode: mobTemplate.fixedElementCode || 'NEUTRAL', raceCode: mobTemplate.raceCode || 'BEAST',
@@ -495,6 +519,7 @@ export class TemporaryCombatController {
     const intMpRatio = getRatio('INT', 'MAX_MP', 15);
     const strAtkRatio = getRatio('STR', 'PHYS_ATK', 3.2);
     const vitDefRatio = getRatio('VIT', 'PHYS_DEF', 1.8);
+    const wisMagDefRatio = getRatio('WIS', 'MAG_DEF', 1.8);
     const agiSpdRatio = getRatio('AGI', 'SPEED', 2.0);
     const agiMoveRatio = getRatio('AGI', 'BATTLE_MOVE_SPEED', 0.5);
     const battleMoveAttr = await this.prisma.combatAttribute.findUnique({ where: { code: 'BATTLE_MOVE_SPEED' } });
@@ -523,7 +548,11 @@ export class TemporaryCombatController {
 
       monsterUnits.push({
         id: `mob_${tmpl.id}_${i}`, index: i, name: `${baseName} #${i + 1}${raritySuffix}`, level: mobLvl,
-        hp: mobMaxHp, maxHp: mobMaxHp, mp: mobMaxMp, maxMp: mobMaxMp, atk: mobAtk, def: mobDef, speed: mobSpeed,
+        hp: mobMaxHp, maxHp: mobMaxHp, mp: mobMaxMp, maxMp: mobMaxMp, atk: mobAtk, def: mobDef,
+        magDef: Math.round((Number(mobStats.WIS) || 10) * (wisMagDefRatio * 0.72) + mobLvl * 1.8),
+        critRate: Math.min(0.80, (Number((tmpl as any)?.baseCombatAttributesJson?.CRIT_RATE) || 5) / 100),
+        critDmg: Math.min(3.00, (Number((tmpl as any)?.baseCombatAttributesJson?.CRIT_DMG) || 150) / 100),
+        attackSpeed: Number((tmpl as any)?.baseCombatAttributesJson?.ATTACK_SPEED) || 1.0, speed: mobSpeed,
         battleMoveSpeed: mobMoveSpeed, spriteKey: mobKey,
         atlasJsonUrl: `${this.mcreworkPagesBaseUrl}/assets/monsters/${mobKey}/atlas.json`,
         atlasWebpUrl: `${this.mcreworkPagesBaseUrl}/assets/monsters/${mobKey}/atlas.webp`,

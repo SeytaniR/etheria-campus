@@ -1,7 +1,10 @@
 /**
  * @file apps/server/public/play/js/ActionCombatArena.js
  * @module @etheria/server
- * @description Arena Instanciada no Mapa Real com Combate Livre em Tempo Real e Pathfinding de Monstros.
+ * @description Arena Instanciada no Mapa Real (1300x940 px) com Combate Livre em Tempo Real,
+ *   Colisão Física entre Todos os Modelos, Formação Tática e IA Coordenadora de Equipes.
+ * @rules Segue estritamente AGENTS.md (Pilar 3: OOP Modular, Regra #7 < 1.000 linhas).
+ * @dependencies ArenaPhysicsSolver, ArenaUnitAiController, ClientPolygonMesh, McreworkSpriteSheet
  */
 
 class ActionCombatArena {
@@ -17,11 +20,11 @@ class ActionCombatArena {
     this.readyPlayerIds = new Set();
     this.isLocalPlayerReady = false;
 
-    // Dimensões da Arena no Mapa Real (+30% de área de combate)
+    // Dimensões da Arena no Mapa Real (1300 x 940 px elíptico)
     this.arenaCenterX = 0;
     this.arenaCenterY = 0;
-    this.arenaRadiusX = 468;
-    this.arenaRadiusY = 338;
+    this.arenaRadiusX = 650;
+    this.arenaRadiusY = 470;
 
     // Entidades na arena
     this.player = null;
@@ -30,6 +33,12 @@ class ActionCombatArena {
     this.floatingTexts = [];
     this.projectiles = [];
     this.selectedTargetMob = null;
+
+    // Submódulo de IA Tática e Controle de Recálculo Periódico
+    this.aiController = window.ArenaUnitAiController ? new window.ArenaUnitAiController() : null;
+    this.nextTacticsEvalTime = 0;
+    this.allyTeamTactics = { enemyCentroid: { x: 0, y: 0, count: 0 } };
+    this.enemyTeamTactics = { enemyCentroid: { x: 0, y: 0, count: 0 } };
 
     // Inputs e Controles
     this.keysDown = new Set();
@@ -79,7 +88,6 @@ class ActionCombatArena {
       this.keysDown.delete(e.key.toLowerCase());
     });
 
-    // Joystick Virtual (Pointer Events)
     const zone = document.getElementById('actionJoystickZone');
     if (zone) {
       const startJoystick = (clientX, clientY, id) => {
@@ -129,16 +137,10 @@ class ActionCombatArena {
   }
 
   findFairSpawnPositions(cx, cy) {
-    const angles = [-Math.PI / 4, (-3 * Math.PI) / 4, 0, Math.PI / 2, Math.PI / 4, (3 * Math.PI) / 4, Math.PI, -Math.PI / 2];
-    for (const dist of [364, 320, 280, 240, 200, 160]) {
-      const half = dist / 2;
-      for (const ang of angles) {
-        const px = Math.round(cx - Math.cos(ang) * half), py = Math.round(cy - Math.sin(ang) * (half * 0.72));
-        const mx = Math.round(cx + Math.cos(ang) * half), my = Math.round(cy + Math.sin(ang) * (half * 0.72));
-        if (!this.isBlocked(px, py) && !this.isBlocked(mx, my)) return { px, py, mx, my };
-      }
+    if (window.ArenaPhysicsSolver) {
+      return window.ArenaPhysicsSolver.findFairSpawnPositions(cx, cy, this.arenaRadiusX, this.arenaRadiusY, (x, y) => this.isBlocked(x, y));
     }
-    return { px: cx - 80, py: cy, mx: cx + 80, my: cy };
+    return { px: cx - 320, py: cy, mx: cx + 320, my: cy };
   }
 
   openArena(battleState) {
@@ -152,8 +154,8 @@ class ActionCombatArena {
 
     this.arenaCenterX = Math.round(this.client?.playerX || 400);
     this.arenaCenterY = Math.round(this.client?.playerY || 300);
-    this.arenaRadiusX = 468;
-    this.arenaRadiusY = 338;
+    this.arenaRadiusX = 650;
+    this.arenaRadiusY = 470;
 
     const spawns = this.findFairSpawnPositions(this.arenaCenterX, this.arenaCenterY);
     const pState = battleState.player || {};
@@ -185,9 +187,15 @@ class ActionCombatArena {
     this.selectedTargetMob = null;
 
     this.player = {
+      id: pState.id || 'player_1',
+      isPlayer: true,
+      team: 'ALLY',
+      bodyRadiusX: 24,
+      bodyRadiusY: 17,
       x: spawns.px, y: spawns.py, speed: battleSpeed, dir: pDir, action: 0, isAlive: true,
       hp: pState.hp || 500, maxHp: pState.maxHp || 500, mp: pState.mp || 200, maxMp: pState.maxMp || 200,
-      atk: pState.atk || 75, def: pState.def || 40, name: pState.name || this.client?.activeChar?.name || 'Herói',
+      atk: pState.atk || 75, def: pState.def || 40, magDef: pState.magDef || pState.def || 40,
+      name: pState.name || this.client?.activeChar?.name || 'Herói',
       physAccuracy: Math.min(125, Math.max(20, Number(baseCombat.PHYS_ACCURACY) || 95)),
       physEvasion: Math.min(75, Math.max(0, Number(baseCombat.PHYS_EVASION) || 5)),
       magAccuracy: Math.min(125, Math.max(20, Number(baseCombat.MAG_ACCURACY) || 95)),
@@ -205,8 +213,9 @@ class ActionCombatArena {
       groundOffsetY: pState.groundOffsetY || this.client?.activeChar?.groundOffsetY || 0,
       shadowOffsetX: pState.shadowOffsetX || this.client?.activeChar?.shadowOffsetX || 0,
       shadowOffsetY: pState.shadowOffsetY || this.client?.activeChar?.shadowOffsetY || 0,
-      combatStyle: pState.combatStyle || 'MELEE', attackRange: pState.attackRange || (pState.combatStyle === 'RANGED' ? 220 : 60),
-      damageType: pState.damageType || (this.client?.activeChar?.damageType) || 'PHYSICAL',
+      combatStyle: pState.combatStyle || this.client?.activeChar?.combatStyle || 'MELEE',
+      attackRange: pState.attackRange || this.client?.activeChar?.attackRange || (pState.combatStyle === 'RANGED' ? 220 : 60),
+      damageType: pState.damageType || this.client?.activeChar?.damageType || 'PHYSICAL',
       isAttacking: false, attackTimer: 0, isDashing: false, dashTimer: 0, hitTimer: 0,
     };
 
@@ -215,45 +224,48 @@ class ActionCombatArena {
       this.client.currentPath = null; this.client.moveTargetX = null; this.client.moveTargetY = null;
     }
 
-    const mStates = Array.isArray(battleState.monsters) ? battleState.monsters : [];
-    this.monsters = mStates.map((m, idx) => {
-      const offsetPerp = (idx - (mStates.length - 1) / 2) * 50;
-      let mx = spawns.mx, my = spawns.my + offsetPerp;
-      if (this.isBlocked(mx, my)) { mx = spawns.mx; my = spawns.my; }
-      const mDir = this.compute8Direction(spawns.px - mx, spawns.py - my);
-      return {
-        id: m.id || `mob_${idx}`, templateId: battleState.monsterTemplateId,
-        name: m.name || `Monstro #${idx + 1}`, x: mx, y: my, dir: mDir, action: 0, isAlive: true,
-        hp: m.hp || 300, maxHp: m.maxHp || 300, atk: m.atk || 45, def: m.def || 25,
-        physAccuracy: Number(m.physAccuracy) || 95, physEvasion: Math.min(75, Number(m.physEvasion) || 5),
-        magAccuracy: Number(m.magAccuracy) || 95, magEvasion: Math.min(75, Number(m.magEvasion) || 5),
-        speed: Number(m.battleMoveSpeed) || Number(m.speed) || Math.round(battleSpeed * 0.70), combatStyle: m.combatStyle || 'MELEE', attackRange: m.attackRange || (m.combatStyle === 'RANGED' ? 220 : 52),
-        damageType: m.damageType || 'PHYSICAL',
-        nextAttackTime: performance.now() + 1000 + idx * 400, hitTimer: 0, attackTimer: 0, fadeAlpha: 1.0,
-        sprite: this.getSprite(m.atlasJsonUrl, m.atlasWebpUrl, m.thumbUrl),
-        groundOffsetY: m.groundOffsetY || 0, shadowOffsetX: m.shadowOffsetX || 0, shadowOffsetY: m.shadowOffsetY || 0,
-        path: null, nextRepathTime: 0,
-      };
-    });
-
+    const isBlockedFn = (x, y) => this.isBlocked(x, y);
     const pList = Array.isArray(battleState.pets) ? battleState.pets : [];
-    this.pets = pList.map((p, idx) => {
-      const offsetX = -36 - idx * 16;
-      const offsetY = idx === 0 ? -26 : (idx === 1 ? 26 : 0);
-      let px = spawns.px + offsetX, py = spawns.py + offsetY;
-      if (this.isBlocked(px, py)) { px = spawns.px - 20; py = spawns.py; }
-      return {
-        id: p.id || `pet_${idx}`, name: p.name || `Pet #${idx + 1}`,
-        x: px, y: py, dir: pDir, action: 0, isAlive: true,
-        hp: p.hp || 320, maxHp: p.maxHp || 320, atk: p.atk || 42, def: p.def || 28,
-        speed: Number(p.battleMoveSpeed) || Math.round(battleSpeed * 0.90), combatStyle: p.combatStyle || 'MELEE', attackRange: p.attackRange || (p.combatStyle === 'RANGED' ? 220 : 55),
-        damageType: p.damageType || 'PHYSICAL',
-        nextAttackTime: performance.now() + 1000 + idx * 450, hitTimer: 0, attackTimer: 0, fadeAlpha: 1.0,
-        sprite: this.getSprite(p.atlasJsonUrl, p.atlasWebpUrl, p.thumbUrl),
-        groundOffsetY: p.groundOffsetY || 0, shadowOffsetX: p.shadowOffsetX || 0, shadowOffsetY: p.shadowOffsetY || 0,
-        path: null, targetMob: null,
-      };
-    });
+    const mStates = Array.isArray(battleState.monsters) ? battleState.monsters : [];
+
+    const mDir = this.compute8Direction(spawns.px - spawns.mx, spawns.py - spawns.my);
+    const getSp = (j, w, t) => this.getSprite(j, w, t);
+    const rawPetModels = pList.map((p, idx) =>
+      window.ArenaPhysicsSolver.createAiUnitModel(p, idx, false, spawns.px, spawns.py, pDir, battleSpeed, getSp)
+    );
+    const rawMobModels = mStates.map((m, idx) =>
+      window.ArenaPhysicsSolver.createAiUnitModel(m, idx, true, spawns.mx, spawns.my, mDir, battleSpeed, getSp, battleState.monsterTemplateId)
+    );
+
+    if (window.ArenaPhysicsSolver) {
+      const petCoords = window.ArenaPhysicsSolver.buildTeamFormationPositions(
+        spawns.px, spawns.py, spawns.mx, spawns.my, rawPetModels,
+        this.arenaCenterX, this.arenaCenterY, this.arenaRadiusX, this.arenaRadiusY, isBlockedFn, [{ x: spawns.px, y: spawns.py }]
+      );
+      rawPetModels.forEach((p, idx) => { if (petCoords[idx]) { p.x = petCoords[idx].x; p.y = petCoords[idx].y; } });
+
+      const mobCoords = window.ArenaPhysicsSolver.buildTeamFormationPositions(
+        spawns.mx, spawns.my, spawns.px, spawns.py, rawMobModels,
+        this.arenaCenterX, this.arenaCenterY, this.arenaRadiusX, this.arenaRadiusY, isBlockedFn, [{ x: spawns.px, y: spawns.py }, ...rawPetModels]
+      );
+      rawMobModels.forEach((m, idx) => { if (mobCoords[idx]) { m.x = mobCoords[idx].x; m.y = mobCoords[idx].y; } });
+    }
+
+    this.pets = rawPetModels;
+    this.monsters = rawMobModels;
+
+    if (window.ArenaPhysicsSolver) {
+      window.ArenaPhysicsSolver.resolveAllUnitCollisions(
+        [this.player, ...this.pets, ...this.monsters],
+        this.arenaCenterX, this.arenaCenterY, this.arenaRadiusX, this.arenaRadiusY, isBlockedFn
+      );
+    }
+
+    if (this.aiController) {
+      this.allyTeamTactics = this.aiController.evaluateTeamTactics([this.player, ...this.pets], this.monsters);
+      this.enemyTeamTactics = this.aiController.evaluateTeamTactics(this.monsters, [this.player, ...this.pets]);
+      this.nextTacticsEvalTime = performance.now() + 350;
+    }
 
     this.floatingTexts = [];
 
@@ -349,10 +361,26 @@ class ActionCombatArena {
     else el.style.display = 'none';
   }
 
+  dealDamageToUnit(unit, dmg, text, color, now) {
+    if (!unit || !unit.isAlive) return;
+    unit.hp = Math.max(0, unit.hp - dmg);
+    unit.hitTimer = 0.24;
+    unit.actionStartTime = now;
+    unit.action = 5;
+    this.floatingTexts.push({ x: unit.x, y: unit.y - 48, text, color, life: 1.05 });
+
+    if (unit.hp === 0) {
+      unit.isAlive = false;
+      unit.actionStartTime = now;
+      unit.action = 6;
+      if (unit.isPlayer) {
+        this.showResult(false, 'Você foi derrotado na arena.');
+      }
+    }
+  }
+
   dealDamageToMob(mob, dmg, text, color, now) {
-    mob.hp = Math.max(0, mob.hp - dmg); mob.hitTimer = 0.28; mob.actionStartTime = now; mob.action = 5;
-    this.floatingTexts.push({ x: mob.x, y: mob.y - 48, text, color, life: 1.1 });
-    if (mob.hp === 0) { mob.isAlive = false; mob.actionStartTime = now; mob.action = 6; }
+    this.dealDamageToUnit(mob, dmg, text, color, now);
   }
 
   cleanseUnitDebuffs(unit, maxDebuffs = 0, healPerDebuffPct = 0, cleanseChancePct = 100) {
@@ -375,11 +403,7 @@ class ActionCombatArena {
         unit.hp = Math.min(unit.maxHp, unit.hp + healAmt);
       }
       this.floatingTexts.push({
-        x: unit.x,
-        y: unit.y - 54,
-        text: `✨ PURIFICADO! (-${removed} Debuff)`,
-        color: '#2dd4bf',
-        life: 1.25,
+        x: unit.x, y: unit.y - 54, text: `✨ PURIFICADO! (-${removed} Debuff)`, color: '#2dd4bf', life: 1.25,
       });
     }
     return removed;
@@ -442,10 +466,8 @@ class ActionCombatArena {
     if (!target) return;
 
     if (skillNum === 1) {
-      // Habilidade 1: Dano em Área Teleguiado (TARGET_AOE - raio 140px no entorno do alvo primário)
       this.executeHomingSkill(target, 20, 3800, 'TARGET_AOE', 150, 1.85, '🌪️', '#a78bfa', true, now, 'skill1');
     } else if (skillNum === 2) {
-      // Habilidade 2: Alcance Global (GLOBAL_AOE - atinge todos os inimigos da arena toda)
       this.executeHomingSkill(target, 35, 5800, 'GLOBAL_AOE', 0, 2.25, '⚡', '#38bdf8', true, now, 'skill2');
     }
   }
@@ -462,13 +484,15 @@ class ActionCombatArena {
     this.updateHud();
   }
 
-  spawnHomingProjectile(target, skillType, aoeRadius, dmg, isCrit, emoji, color, isMagical, startX, startY, speed, attackerAcc) {
+  spawnHomingProjectile(target, skillType, aoeRadius, dmg, isCrit, emoji, color, isMagical, startX, startY, speed, attackerAcc, team = 'ALLY', critDmgMult = null) {
     this.projectiles.push({
       x: startX !== undefined ? startX : this.player.x,
       y: startY !== undefined ? startY : this.player.y - 20,
       target, skillType, aoeRadius, dmg, isCrit, emoji, color, isMagical,
       speed: speed || 620,
       attackerAcc,
+      team,
+      critDmgMult,
     });
   }
 
@@ -476,7 +500,12 @@ class ActionCombatArena {
     for (let i = this.projectiles.length - 1; i >= 0; i--) {
       const p = this.projectiles[i];
       if (!p.target || !p.target.isAlive) {
-        p.target = this.getLockedTarget();
+        if (p.team === 'ENEMY') {
+          const aliveAllies = [this.player, ...this.pets].filter((u) => u && u.isAlive);
+          p.target = aliveAllies[0] || null;
+        } else {
+          p.target = this.getLockedTarget();
+        }
         if (!p.target) { this.projectiles.splice(i, 1); continue; }
       }
       const tx = p.target.x;
@@ -497,6 +526,12 @@ class ActionCombatArena {
 
   resolveHomingImpact(p, now) {
     const acc = p.attackerAcc !== undefined ? p.attackerAcc : (p.isMagical ? (this.player.magAccuracy || 100) : (this.player.physAccuracy || 100));
+
+    if (p.team === 'ENEMY') {
+      this.applyDamageWithHitEvasionRoll(p.target, p, acc, now);
+      this.updateHud();
+      return;
+    }
 
     if (p.skillType === 'TARGET_AOE') {
       const cx = p.target.x;
@@ -521,29 +556,92 @@ class ActionCombatArena {
   calculateHitRate(attackerAcc, defenderEva) {
     const acc = Number(attackerAcc) <= 1.5 ? Number(attackerAcc) * 100 : Number(attackerAcc);
     const eva = Number(defenderEva) <= 1.5 ? Number(defenderEva) * 100 : Number(defenderEva);
-    const clampedEva = Math.min(75, Math.max(0, eva || 0)); // Teto de 75% de evasão (ninguém é inalvejável)
-    const clampedAcc = Math.min(125, Math.max(20, acc || 95)); // Teto de 125% de precisão
-    // Teto de acerto em combate: 95% (sempre há pelo menos 5% de chance de errar; zero precisão perfeita)
-    // Piso de acerto em combate: 10% (sempre há pelo menos 10% de chance de conectar; ninguém é inalvejável)
+    const clampedEva = Math.min(75, Math.max(0, eva || 0));
+    const clampedAcc = Math.min(125, Math.max(20, acc || 95));
     return Math.max(10, Math.min(95, clampedAcc - clampedEva));
   }
 
-  applyDamageWithHitEvasionRoll(mob, p, attackerAcc, now) {
-    const eva = p.isMagical ? (mob.magEvasion || 5) : (mob.physEvasion || 5);
-    const hitRate = this.calculateHitRate(attackerAcc, eva);
-    const isHit = Math.random() * 100 <= hitRate;
+  applyDamageWithHitEvasionRoll(defender, p, attackerAcc, now) {
+    if (!defender || !defender.isAlive) return;
+    if (defender.isPlayer && defender.isDashing) {
+      this.floatingTexts.push({ x: defender.x, y: defender.y - 45, text: '💨 DESVIO!', color: '#38bdf8', life: 0.9 });
+      return;
+    }
 
-    if (!isHit) {
-      this.floatingTexts.push({ x: mob.x, y: mob.y - 48, text: '💨 DESVIO!', color: '#38bdf8', life: 1.1 });
+    const eva = p.isMagical ? (defender.magEvasion || 5) : (defender.physEvasion || 5);
+    const hitRate = this.calculateHitRate(attackerAcc, eva);
+    if (Math.random() * 100 > hitRate) {
+      this.floatingTexts.push({ x: defender.x, y: defender.y - 48, text: '💨 DESVIO!', color: '#38bdf8', life: 1.05 });
       return;
     }
 
     const variance = 0.92 + Math.random() * 0.16;
-    let finalDmg = Math.round(p.dmg * variance);
-    if (p.isCrit) finalDmg = Math.round(finalDmg * (this.player.critDmg || 1.55));
+    const defStat = p.isMagical ? (defender.magDef || defender.def || 25) : (defender.def || 25);
+    const baseDmg = !p.alreadyMitigated && p.team === 'ENEMY' ? Math.max(4, Math.round(p.dmg * (100 / (100 + defStat * 0.45)))) : p.dmg;
+    let finalDmg = Math.round(baseDmg * variance);
+    if (p.isCrit) finalDmg = Math.round(finalDmg * (p.critDmgMult || this.player?.critDmg || 1.55));
     const text = p.isCrit ? `💥 CRÍTICO! -${finalDmg}` : `${p.emoji} -${finalDmg}`;
     const color = p.isCrit ? '#fde047' : p.color;
-    this.dealDamageToMob(mob, finalDmg, text, color, now);
+    this.dealDamageToUnit(defender, finalDmg, text, color, now);
+  }
+
+  /**
+   * Executa ataque de Pet ou Monstro (suportando disparo à distância Ranged ou golpe Melee/Corpo a Corpo).
+   */
+  executeAiUnitAttack(attacker, target, isCloseBrawl, now) {
+    const aspd = Number(attacker.attackSpeed) || 1.0;
+    const baseCd = attacker.team === 'ALLY' ? 1400 : 1550;
+    attacker.nextAttackTime = now + Math.round(baseCd / aspd) + Math.random() * 350;
+    attacker.attackTimer = 0.34;
+    attacker.actionStartTime = now;
+
+    const isMag = attacker.damageType === 'MAGICAL';
+    const isRangedShot = attacker.combatStyle === 'RANGED' && !isCloseBrawl;
+    attacker.action = isRangedShot ? 7 : 3;
+
+    const acc = isMag ? (attacker.magAccuracy || 95) : (attacker.physAccuracy || 95);
+    const isCrit = Math.random() < (attacker.critRate || 0.08);
+
+    if (isRangedShot) {
+      const emoji = isMag ? (attacker.team === 'ALLY' ? '✨' : '🔮') : '🏹';
+      const color = attacker.team === 'ALLY' ? (isMag ? '#c084fc' : '#38bdf8') : (isMag ? '#f43f5e' : '#fb923c');
+      const defStat = isMag ? (target.magDef || target.def || 25) : (target.def || 25);
+      const rawDmg = attacker.team === 'ALLY'
+        ? Math.max(6, Math.round(attacker.atk * (100 / (100 + defStat * 0.4))))
+        : attacker.atk;
+      this.spawnHomingProjectile(
+        target, 'SINGLE_TARGET', 0, rawDmg, isCrit, emoji, color, isMag,
+        attacker.x, attacker.y - 20, 560, acc, attacker.team, attacker.critDmg || 1.5
+      );
+      return;
+    }
+
+    // Ataque Melee ou Ranged lutando corpo-a-corpo (Close Brawl)
+    const defStat = isMag ? (target.magDef || target.def || 25) : (target.def || 25);
+    const baseDmg = Math.max(4, Math.round(attacker.atk * (100 / (100 + defStat * 0.45))));
+    const dmgScale = isCloseBrawl ? 0.85 : 1.0; // Ranged em luta CQC bate ligeiramente reduzido
+    this.applyDamageWithHitEvasionRoll(
+      target,
+      {
+        team: attacker.team,
+        alreadyMitigated: true,
+        dmg: Math.max(3, Math.round(baseDmg * dmgScale)),
+        isCrit,
+        critDmgMult: attacker.critDmg || 1.5,
+        emoji: isMag ? '💥' : (attacker.team === 'ALLY' ? '🐾' : '💔'),
+        color: attacker.team === 'ALLY' ? (isMag ? '#c084fc' : '#38bdf8') : (isMag ? '#c084fc' : '#ef4444'),
+        isMagical: isMag,
+      },
+      acc,
+      now
+    );
+
+    if (attacker.team === 'ALLY') {
+      this.updateHud();
+      this.checkVictoryCondition();
+    } else {
+      this.updateHud();
+    }
   }
 
   triggerDash() {
@@ -554,6 +652,7 @@ class ActionCombatArena {
   }
 
   checkVictoryCondition() {
+    if (this.combatState !== 'FIGHTING') return;
     const aliveMobs = this.monsters.filter((m) => m.isAlive);
     if (aliveMobs.length === 0) {
       const expGained = this.monsters.length * 65;
@@ -600,48 +699,9 @@ class ActionCombatArena {
     return ((sector % 8) + 8) % 8;
   }
 
-  updatePhysics(dt, now) {
-    if (!this.isActive || !this.player || !this.player.isAlive) return;
-
-    // 0. Atualiza Contagem de 20s durante PREPARATION
-    if (this.combatState === 'PREPARATION') {
-      this.prepTimeRemaining = Math.max(0, this.prepTimeRemaining - dt);
-      const timerEl = document.getElementById('actPrepTimer');
-      if (timerEl) timerEl.textContent = `${Math.ceil(this.prepTimeRemaining)}s`;
-      if (this.prepTimeRemaining <= 0) {
-        this.startFightNow();
-        return;
-      }
-
-      this.player.action = 0;
-      if (this.client) {
-        this.client.currentPath = null;
-        this.client.moveTargetX = null;
-        this.client.moveTargetY = null;
-        this.client.dpadDx = 0;
-        this.client.dpadDy = 0;
-        this.client.isMoving = false;
-      }
-      for (const mob of this.monsters) {
-        if (!mob.isAlive) continue;
-        mob.action = 0;
-        mob.dir = this.compute8Direction(this.player.x - mob.x, this.player.y - mob.y);
-      }
-      for (const pet of this.pets) {
-        if (!pet.isAlive) continue;
-        pet.action = 0;
-        const firstMob = this.monsters.find((m) => m.isAlive);
-        pet.dir = firstMob ? this.compute8Direction(firstMob.x - pet.x, firstMob.y - pet.y) : this.player.dir;
-      }
-      return;
-    }
-
-    this.updateProjectiles(dt, now);
-
-    // 1. Movimentação do Jogador em Combate Ativo (FIGHTING)
+  updatePlayerMovement(dt) {
     let vx = 0;
     let vy = 0;
-
     const keys = this.keysDown;
     const clientKeys = this.client?.keysDown;
     const isDown = (k) => keys.has(k) || (clientKeys && clientKeys.has(k));
@@ -655,7 +715,6 @@ class ActionCombatArena {
       vx = this.client.dpadDx;
       vy = this.client.dpadDy;
     }
-
     if (this.joystickActive && (this.joystickVector.x !== 0 || this.joystickVector.y !== 0)) {
       vx = this.joystickVector.x;
       vy = this.joystickVector.y;
@@ -670,14 +729,10 @@ class ActionCombatArena {
       const dx = wp.x - this.player.x, dy = wp.y - this.player.y, dist = Math.hypot(dx, dy);
       if (dist <= 12) {
         this.client.currentPath.shift();
-        if (this.client.currentPath.length > 0) {
-          this.client.moveTargetX = this.client.currentPath[0].x; this.client.moveTargetY = this.client.currentPath[0].y;
-        } else {
-          this.client.currentPath = null; this.client.moveTargetX = null; this.client.moveTargetY = null;
-        }
-      } else {
-        vx = dx / dist; vy = dy / dist;
-      }
+        this.client.moveTargetX = this.client.currentPath[0]?.x ?? null;
+        this.client.moveTargetY = this.client.currentPath[0]?.y ?? null;
+        if (this.client.currentPath.length === 0) this.client.currentPath = null;
+      } else { vx = dx / dist; vy = dy / dist; }
     } else if (this.client && this.client.moveTargetX !== null && this.client.moveTargetY !== null) {
       const dx = this.client.moveTargetX - this.player.x, dy = this.client.moveTargetY - this.player.y, dist = Math.hypot(dx, dy);
       if (dist <= 8) { this.client.moveTargetX = null; this.client.moveTargetY = null; } else { vx = dx / dist; vy = dy / dist; }
@@ -695,190 +750,143 @@ class ActionCombatArena {
     if (this.player.hitTimer > 0) this.player.hitTimer -= dt;
 
     if (vx !== 0 || vy !== 0) {
-      let targetX = this.player.x + vx * curSpeed * dt;
-      let targetY = this.player.y + vy * curSpeed * dt;
+      const targetX = this.player.x + vx * curSpeed * dt;
+      const targetY = this.player.y + vy * curSpeed * dt;
+      const isBlockedFn = (x, y) => this.isBlocked(x, y);
 
-      const normX = (targetX - this.arenaCenterX) / this.arenaRadiusX, normY = (targetY - this.arenaCenterY) / this.arenaRadiusY;
-      const distSq = normX * normX + normY * normY;
-      if (distSq > 1) {
-        const scale = 1 / Math.sqrt(distSq);
-        targetX = this.arenaCenterX + (targetX - this.arenaCenterX) * scale;
-        targetY = this.arenaCenterY + (targetY - this.arenaCenterY) * scale;
-      }
-      if (!this.isBlocked(targetX, targetY)) { this.player.x = targetX; this.player.y = targetY; }
-      else if (!this.isBlocked(targetX, this.player.y)) this.player.x = targetX;
-      else if (!this.isBlocked(this.player.x, targetY)) this.player.y = targetY;
-      else if (this.client && (this.client.moveTargetX !== null || this.client.moveTargetY !== null)) {
+      const moved = window.ArenaPhysicsSolver
+        ? window.ArenaPhysicsSolver.moveWithCollision(this.player, targetX, targetY, this.arenaCenterX, this.arenaCenterY, this.arenaRadiusX, this.arenaRadiusY, isBlockedFn)
+        : false;
+
+      if (!moved && this.client && (this.client.moveTargetX !== null || this.client.moveTargetY !== null)) {
         this.client.moveTargetX = null; this.client.moveTargetY = null; this.client.currentPath = null;
       }
 
       this.player.dir = this.compute8Direction(vx, vy);
       if (!this.player.isAttacking) this.player.action = 1;
-      if (this.client) { this.client.playerX = this.player.x; this.client.playerY = this.player.y; this.client.playerDir = this.player.dir; }
     } else if (!this.player.isAttacking && this.player.hitTimer <= 0) {
       this.player.action = 0;
     }
+  }
 
-    // 2. IA dos Monstros com Desvio Dinâmico de Obstáculos (Pathfinding)
-    for (const mob of this.monsters) {
-      if (!mob.isAlive) {
-        mob.fadeAlpha = Math.max(0, mob.fadeAlpha - dt * 1.5);
-        continue;
+  updatePhysics(dt, now) {
+    if (!this.isActive || !this.player || !this.player.isAlive) return;
+
+    // 0. Contagem regressiva durante PREPARATION
+    if (this.combatState === 'PREPARATION') {
+      this.prepTimeRemaining = Math.max(0, this.prepTimeRemaining - dt);
+      const timerEl = document.getElementById('actPrepTimer');
+      if (timerEl) timerEl.textContent = `${Math.ceil(this.prepTimeRemaining)}s`;
+      if (this.prepTimeRemaining <= 0) {
+        this.startFightNow();
+        return;
       }
 
-      if (mob.hitTimer > 0) {
-        mob.hitTimer -= dt;
-        if (mob.hitTimer <= 0) mob.action = 0;
-        continue;
+      this.player.action = 0;
+      if (this.client) {
+        this.client.currentPath = null; this.client.moveTargetX = null; this.client.moveTargetY = null;
+        this.client.dpadDx = 0; this.client.dpadDy = 0; this.client.isMoving = false;
       }
-      if (mob.attackTimer > 0) {
-        mob.attackTimer -= dt;
-        if (mob.attackTimer <= 0) mob.action = 0;
-        continue;
-      }
-
-      const mdx = this.player.x - mob.x;
-      const mdy = this.player.y - mob.y;
-      const mDist = Math.hypot(mdx, mdy);
-
-      if (mDist > mob.attackRange) {
-        let steerX = mdx;
-        let steerY = mdy;
-
-        // Verifica se a linha reta até o jogador está livre de obstáculos
-        const mesh = this.client?.mesh;
-        const isDirectClear = mesh ? mesh.isSegmentClear(mob.x, mob.y, this.player.x, this.player.y, 16) : true;
-
-        if (isDirectClear) {
-          mob.path = null;
-        } else {
-          // Desvio inteligente via A* e String Pulling
-          if (!mob.path || mob.path.length === 0 || now >= (mob.nextRepathTime || 0)) {
-            mob.path = mesh ? mesh.findPath(mob.x, mob.y, this.player.x, this.player.y) : null;
-            mob.nextRepathTime = now + 350 + Math.random() * 150;
-          }
-
-          if (mob.path && mob.path.length > 0) {
-            if (Math.hypot(mob.path[0].x - mob.x, mob.path[0].y - mob.y) <= 14) mob.path.shift();
-            if (mob.path.length > 0) { steerX = mob.path[0].x - mob.x; steerY = mob.path[0].y - mob.y; }
-          }
-        }
-
-        const steerLen = Math.hypot(steerX, steerY);
-        let nMx = mob.x + (steerLen > 0 ? (steerX / steerLen) * mob.speed * dt : 0);
-        let nMy = mob.y + (steerLen > 0 ? (steerY / steerLen) * mob.speed * dt : 0);
-
-        const mNormX = (nMx - this.arenaCenterX) / this.arenaRadiusX;
-        const mNormY = (nMy - this.arenaCenterY) / this.arenaRadiusY;
-        const mDistSq = mNormX * mNormX + mNormY * mNormY;
-        if (mDistSq > 1) {
-          const scale = 1 / Math.sqrt(mDistSq);
-          nMx = this.arenaCenterX + (nMx - this.arenaCenterX) * scale;
-          nMy = this.arenaCenterY + (nMy - this.arenaCenterY) * scale;
-        }
-
-        if (!this.isBlocked(nMx, nMy)) { mob.x = nMx; mob.y = nMy; }
-        else if (!this.isBlocked(nMx, mob.y)) mob.x = nMx;
-        else if (!this.isBlocked(mob.x, nMy)) mob.y = nMy;
-
-        mob.dir = this.compute8Direction(steerX, steerY);
-        mob.action = 1;
-      } else {
+      for (const mob of this.monsters) {
+        if (!mob.isAlive) continue;
         mob.action = 0;
-        mob.dir = this.compute8Direction(mdx, mdy);
+        mob.dir = this.compute8Direction(this.player.x - mob.x, this.player.y - mob.y);
+      }
+      for (const pet of this.pets) {
+        if (!pet.isAlive) continue;
+        pet.action = 0;
+        const firstMob = this.monsters.find((m) => m.isAlive);
+        pet.dir = firstMob ? this.compute8Direction(firstMob.x - pet.x, firstMob.y - pet.y) : this.player.dir;
+      }
+      return;
+    }
 
-        if (now >= mob.nextAttackTime) {
-          mob.nextAttackTime = now + 1800 + Math.random() * 800;
-          mob.attackTimer = 0.40; mob.actionStartTime = now; mob.action = 3;
-          if (!this.player.isDashing) {
-            const isMagical = mob.damageType === 'MAGICAL';
-            const mobAcc = isMagical ? (mob.magAccuracy || 95) : (mob.physAccuracy || 95);
-            const pEva = isMagical ? (this.player.magEvasion || 5) : (this.player.physEvasion || 5);
-            const hitRate = this.calculateHitRate(mobAcc, pEva);
-            if (Math.random() * 100 > hitRate) {
-              this.floatingTexts.push({ x: this.player.x, y: this.player.y - 45, text: '💨 DESVIO!', color: '#38bdf8', life: 1.0 });
-            } else {
-              const defStat = isMagical ? (this.player.magDef || this.player.def) : this.player.def;
-              const dmg = Math.max(5, Math.round(mob.atk * (100 / (100 + defStat * 0.5))));
-              this.player.hp = Math.max(0, this.player.hp - dmg);
-              this.player.hitTimer = 0.22; this.player.actionStartTime = now; this.player.action = 5;
-              const dmgIcon = isMagical ? '🔮' : '💔';
-              this.floatingTexts.push({ x: this.player.x, y: this.player.y - 45, text: `${dmgIcon} -${dmg}`, color: isMagical ? '#c084fc' : '#ef4444', life: 1.0 });
-              if (this.player.hp === 0) {
-                this.player.isAlive = false; this.player.actionStartTime = now; this.player.action = 6;
-                this.showResult(false, 'Você foi derrotado na arena.'); break;
-              }
-            }
-          }
-        }
+    if (this.combatState !== 'FIGHTING') {
+      for (const pet of this.pets) {
+        if (!pet.isAlive && pet.fadeAlpha > 0) pet.fadeAlpha = Math.max(0, pet.fadeAlpha - dt * 1.1);
+      }
+      for (const mob of this.monsters) {
+        if (!mob.isAlive && mob.fadeAlpha > 0) mob.fadeAlpha = Math.max(0, mob.fadeAlpha - dt * 1.1);
+      }
+      for (let i = this.floatingTexts.length - 1; i >= 0; i--) {
+        const f = this.floatingTexts[i]; f.y -= dt * 28; f.life -= dt;
+        if (f.life <= 0) this.floatingTexts.splice(i, 1);
+      }
+      return;
+    }
+
+    this.updateProjectiles(dt, now);
+    this.updatePlayerMovement(dt);
+
+    const allyTeam = [this.player, ...this.pets];
+    const mesh = this.client?.mesh;
+    const isBlockedFn = (x, y) => this.isBlocked(x, y);
+    const compute8DirFn = (dx, dy) => this.compute8Direction(dx, dy);
+
+    // 1. Recalcula Táticas Coletivas por Equipe a cada 0.35s
+    if (this.aiController && now >= this.nextTacticsEvalTime) {
+      this.allyTeamTactics = this.aiController.evaluateTeamTactics(allyTeam, this.monsters);
+      this.enemyTeamTactics = this.aiController.evaluateTeamTactics(this.monsters, allyTeam);
+      this.nextTacticsEvalTime = now + 350;
+    }
+
+    // 2. Atualiza IA Tática dos Monstros (Time Inimigo)
+    const enemyContext = {
+      mesh,
+      cx: this.arenaCenterX,
+      cy: this.arenaCenterY,
+      rx: this.arenaRadiusX,
+      ry: this.arenaRadiusY,
+      isBlockedFn,
+      compute8DirFn,
+      enemyCentroid: this.enemyTeamTactics.enemyCentroid,
+      preferredEnemy: null,
+      onPerformAttack: (mob, target, isCloseBrawl) => this.executeAiUnitAttack(mob, target, isCloseBrawl, now),
+    };
+    for (const mob of this.monsters) {
+      if (this.aiController) {
+        this.aiController.updateUnit(mob, this.monsters, allyTeam, enemyContext, dt, now);
       }
     }
 
-    // 2.5. IA Autônoma dos Pets Aliados (2 a 3 pets)
+    // 3. Atualiza IA Tática dos Pets Aliados
+    const allyContext = {
+      mesh,
+      cx: this.arenaCenterX,
+      cy: this.arenaCenterY,
+      rx: this.arenaRadiusX,
+      ry: this.arenaRadiusY,
+      isBlockedFn,
+      compute8DirFn,
+      enemyCentroid: this.allyTeamTactics.enemyCentroid,
+      preferredEnemy: this.selectedTargetMob && this.selectedTargetMob.isAlive ? this.selectedTargetMob : null,
+      onPerformAttack: (pet, target, isCloseBrawl) => this.executeAiUnitAttack(pet, target, isCloseBrawl, now),
+    };
     for (const pet of this.pets) {
-      if (!pet.isAlive) {
-        if (pet.fadeAlpha > 0) pet.fadeAlpha = Math.max(0, pet.fadeAlpha - dt * 0.8);
-        continue;
-      }
-      if (pet.hitTimer > 0) {
-        pet.hitTimer -= dt;
-        if (pet.hitTimer <= 0 && pet.action === 5) pet.action = 0;
-      }
-      if (pet.attackTimer > 0) {
-        pet.attackTimer -= dt;
-        if (pet.attackTimer <= 0 && pet.action === 3) pet.action = 0;
-        continue;
-      }
-
-      let target = (this.selectedTargetMob && this.selectedTargetMob.isAlive) ? this.selectedTargetMob : null;
-      if (!target) {
-        let minDist = Infinity;
-        for (const m of this.monsters) {
-          if (!m.isAlive) continue;
-          const d = Math.hypot(m.x - pet.x, m.y - pet.y);
-          if (d < minDist) { minDist = d; target = m; }
-        }
-      }
-      pet.targetMob = target;
-
-      if (target) {
-        const pdx = target.x - pet.x, pdy = target.y - pet.y, dist = Math.hypot(pdx, pdy);
-        if (dist > pet.attackRange) {
-          const s = pet.speed * dt;
-          let nx = pet.x + (pdx / dist) * s, ny = pet.y + (pdy / dist) * s;
-          const pNormX = (nx - this.arenaCenterX) / this.arenaRadiusX, pNormY = (ny - this.arenaCenterY) / this.arenaRadiusY;
-          if (pNormX * pNormX + pNormY * pNormY <= 1) {
-            if (!this.isBlocked(nx, ny)) { pet.x = nx; pet.y = ny; }
-            else if (!this.isBlocked(nx, pet.y)) pet.x = nx;
-            else if (!this.isBlocked(pet.x, ny)) pet.y = ny;
-          }
-          pet.dir = this.compute8Direction(pdx, pdy);
-          pet.action = 1;
-        } else {
-          pet.action = 0;
-          pet.dir = this.compute8Direction(pdx, pdy);
-          if (now >= pet.nextAttackTime) {
-            pet.nextAttackTime = now + 1500 + Math.random() * 500;
-            pet.attackTimer = 0.35; pet.actionStartTime = now; pet.action = 3;
-            const isPetMag = pet.damageType === 'MAGICAL';
-            const petEmoji = isPetMag ? '✨' : '🐾';
-            const petColor = isPetMag ? '#c084fc' : '#38bdf8';
-            this.spawnHomingProjectile(target, 'SINGLE_TARGET', 0, pet.atk, false, petEmoji, petColor, isPetMag, pet.x, pet.y - 20, 500, isPetMag ? (pet.magAccuracy || 100) : (pet.physAccuracy || 100));
-          }
-        }
-      } else {
-        const fdx = (this.player.x - 30) - pet.x, fdy = this.player.y - pet.y, fDist = Math.hypot(fdx, fdy);
-        if (fDist > 65) {
-          const s = pet.speed * dt;
-          pet.x += (fdx / fDist) * s; pet.y += (fdy / fDist) * s;
-          pet.dir = this.compute8Direction(fdx, fdy); pet.action = 1;
-        } else {
-          pet.action = 0;
-        }
+      if (this.aiController) {
+        this.aiController.updateUnit(pet, allyTeam, this.monsters, allyContext, dt, now);
       }
     }
 
-    // 3. Floating Texts
+    // 4. Colisão Física Universal entre Todos os Modelos (evita acúmulo em uma única sombra)
+    if (window.ArenaPhysicsSolver) {
+      window.ArenaPhysicsSolver.resolveAllUnitCollisions(
+        [this.player, ...this.pets, ...this.monsters],
+        this.arenaCenterX,
+        this.arenaCenterY,
+        this.arenaRadiusX,
+        this.arenaRadiusY,
+        isBlockedFn
+      );
+    }
+
+    if (this.client) {
+      this.client.playerX = this.player.x;
+      this.client.playerY = this.player.y;
+      this.client.playerDir = this.player.dir;
+    }
+
+    // 5. Floating Texts
     for (let i = this.floatingTexts.length - 1; i >= 0; i--) {
       const f = this.floatingTexts[i]; f.y -= dt * 28; f.life -= dt;
       if (f.life <= 0) this.floatingTexts.splice(i, 1);
@@ -924,7 +932,6 @@ class ActionCombatArena {
       ctx.fill();
     }
 
-    // Retículo de Foco Teleguiado no Alvo Travado
     const target = this.getLockedTarget();
     if (target && target.isAlive) {
       const pPulse = 1 + 0.12 * Math.sin(now / 150);

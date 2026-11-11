@@ -8,9 +8,9 @@
 ---
 
 ## 📌 Status Atual do Projeto
-* **Versão Atual:** `v0.7.0`
+* **Versão Atual:** `v0.8.0`
 * **Última Atualização:** `2026-11-11`
-* **Fase Atual:** **Personalização de Cor de Partículas VFX Transparentes (`v0.7.0`) — Adicionados `vfxColorHex` e `vfxColorIntensity` em Habilidades e Buffs/Debuffs, criado motor compartilhado `VfxColorProcessor.js` (Offscreen Canvas pre-baked), UI modular `AdminVfxColorPicker.js`, preview ao vivo na Arena 2.5D e miniaturas nas tabelas CRUD.**
+* **Fase Atual:** **Arena 1300px, Colisão Física Universal & IA Tática de Equipe (`v0.8.0`) — Arena ampliada para 1300x940 px com maior separação inicial entre times, solver de colisão elíptica entre todos os modelos (zero acúmulo de sombras) e IA tática para Pets e Monstros (Tank protege Rangeds, Top DPS foca dano, Frágil ataca pelas bordas/longo alcance, Ranged abriga-se atrás de Melee e aceita luta corpo a corpo quando encurralado).**
 * **Repositório Oficial:** `https://github.com/SeytaniR/etheria-campus`
 * **Fonte Bruta de Assets:** `https://github.com/SeytaniR/mcrework` (`https://seytanir.github.io/mcrework/`)
 
