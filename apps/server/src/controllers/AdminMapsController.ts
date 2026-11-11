@@ -91,6 +91,7 @@ export interface SaveClassTemplateDto {
   raceCode?: string;
   combatStyle?: string;
   attackRange?: number;
+  damageType?: string;
   skillIdsJson?: number[];
   isActive?: boolean;
   baseCombatAttributesJson?: Record<string, number>;
@@ -352,6 +353,7 @@ export class AdminMapsController {
     const rebornMcreworkCharKey = dto.rebornMcreworkCharKey ? dto.rebornMcreworkCharKey.trim() : null;
     const combatStyle = dto.combatStyle === 'RANGED' ? 'RANGED' : 'MELEE';
     const attackRange = Math.max(10, Math.min(1000, Number(dto.attackRange) || (combatStyle === 'RANGED' ? 220 : 60)));
+    const damageType = dto.damageType === 'MAGICAL' ? 'MAGICAL' : 'PHYSICAL';
     const skillIdsJson = Array.isArray(dto.skillIdsJson) ? dto.skillIdsJson.map((n) => Number(n)).filter((n) => n > 0) : undefined;
 
     const b = dto.baseAttributesJson || {};
@@ -401,6 +403,7 @@ export class AdminMapsController {
             raceCode,
             combatStyle,
             attackRange,
+            damageType,
             baseAttributesJson: baseAttrs as any,
             growthPerLevelJson: growthAttrs as any,
             ...(dto.baseCombatAttributesJson !== undefined ? { baseCombatAttributesJson: dto.baseCombatAttributesJson as any } : {}),
@@ -426,6 +429,7 @@ export class AdminMapsController {
             raceCode,
             combatStyle,
             attackRange,
+            damageType,
             baseAttributesJson: baseAttrs as any,
             growthPerLevelJson: growthAttrs as any,
             baseCombatAttributesJson: (dto.baseCombatAttributesJson ?? {}) as any,

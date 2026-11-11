@@ -43,6 +43,7 @@ export interface CombatUnit {
   raceCode?: string;
   combatStyle?: 'MELEE' | 'RANGED';
   attackRange?: number;
+  damageType?: 'PHYSICAL' | 'MAGICAL';
   battleMoveSpeed?: number;
   isAlive: boolean;
   activeStatuses?: ActiveStatusInstance[];
@@ -244,6 +245,7 @@ export class TemporaryCombatController {
       raceCode: 'HUMAN',
       combatStyle: (pc?.classTemplate?.combatStyle as any) || 'MELEE',
       attackRange: pc?.classTemplate?.attackRange || 60,
+      damageType: (pc?.classTemplate?.damageType as any) || 'PHYSICAL',
       isAlive: true,
       activeStatuses: [],
     };
@@ -275,6 +277,7 @@ export class TemporaryCombatController {
           raceCode: 'BEAST',
           combatStyle: (mt?.combatStyle as any) || 'MELEE',
           attackRange: mt?.attackRange || 60,
+          damageType: (mt?.damageType as any) || 'PHYSICAL',
           battleMoveSpeed: Math.round(playerMoveSpeed * 0.90),
           isAlive: true,
           activeStatuses: [],
@@ -307,6 +310,7 @@ export class TemporaryCombatController {
           raceCode: 'BEAST',
           combatStyle: 'MELEE',
           attackRange: 60,
+          damageType: 'PHYSICAL',
           battleMoveSpeed: Math.round(playerMoveSpeed * 0.90),
           isAlive: true,
           activeStatuses: [],
@@ -356,6 +360,7 @@ export class TemporaryCombatController {
           raceCode: mobTemplate.raceCode || 'BEAST',
           combatStyle: (mobTemplate.combatStyle as any) || 'MELEE',
           attackRange: mobTemplate.attackRange || 60,
+          damageType: (mobTemplate.damageType as any) || 'PHYSICAL',
           battleMoveSpeed: mobMoveSpeed,
           isAlive: true,
           activeStatuses: [],
@@ -572,6 +577,7 @@ export class TemporaryCombatController {
         raceCode: tmpl.raceCode || 'BEAST',
         combatStyle: (tmpl.combatStyle as any) || 'MELEE',
         attackRange: tmpl.attackRange || 60,
+        damageType: (tmpl.damageType as any) || 'PHYSICAL',
         isAlive: true,
         activeStatuses: [],
       });

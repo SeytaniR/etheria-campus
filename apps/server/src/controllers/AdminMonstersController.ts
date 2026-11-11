@@ -23,6 +23,7 @@ export interface MonsterTemplateDto {
   rarityTier?: string;
   combatStyle?: string;
   attackRange?: number;
+  damageType?: string;
   isTamableAsPet: boolean;
   isActive?: boolean;
   biomeIds?: number[];
@@ -167,6 +168,7 @@ export class AdminMonstersController {
 
     const combatStyle = dto.combatStyle === 'RANGED' ? 'RANGED' : 'MELEE';
     const attackRange = Math.max(10, Math.min(1000, Number(dto.attackRange) || (combatStyle === 'RANGED' ? 220 : 60)));
+    const damageType = dto.damageType === 'MAGICAL' ? 'MAGICAL' : 'PHYSICAL';
 
     const created = await this.prisma.monsterTemplate.create({
       data: {
@@ -180,6 +182,7 @@ export class AdminMonstersController {
         rarityTier: this.normalizeRarityTier(dto.rarityTier),
         combatStyle,
         attackRange,
+        damageType,
         isTamableAsPet: dto.isTamableAsPet !== false,
         isActive: dto.isActive !== false,
         skillIdsJson: Array.isArray(dto.skillIdsJson) ? (dto.skillIdsJson as any) : ([1] as any),
@@ -238,6 +241,7 @@ export class AdminMonstersController {
         rarityTier: dto.rarityTier ? this.normalizeRarityTier(dto.rarityTier) : existing.rarityTier,
         combatStyle: dto.combatStyle ? (dto.combatStyle === 'RANGED' ? 'RANGED' : 'MELEE') : existing.combatStyle,
         attackRange: dto.attackRange !== undefined ? Math.max(10, Math.min(1000, Number(dto.attackRange))) : existing.attackRange,
+        damageType: dto.damageType ? (dto.damageType === 'MAGICAL' ? 'MAGICAL' : 'PHYSICAL') : existing.damageType,
         isTamableAsPet: dto.isTamableAsPet !== undefined ? !!dto.isTamableAsPet : existing.isTamableAsPet,
         isActive: dto.isActive !== undefined ? !!dto.isActive : existing.isActive,
         skillIdsJson: Array.isArray(dto.skillIdsJson) ? (dto.skillIdsJson as any) : (existing.skillIdsJson as any),

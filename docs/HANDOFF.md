@@ -8,9 +8,9 @@
 ---
 
 ## 📌 Status Atual do Projeto
-* **Versão Atual:** `v0.6.5`
+* **Versão Atual:** `v0.6.6`
 * **Última Atualização:** `2026-11-10`
-* **Fase Atual:** **Correção Autoritária de Velocidade de Movimento em Batalha (`v0.6.5`) — Eliminadas falhas de leitura e tetos hardcoded em `ActionCombatArena.js`. `BATTLE_MOVE_SPEED` agora é computado autoritativamente no backend (`TemporaryCombatController`) consultando a tabela `combat_attributes`, a sobrescrita de `class_templates` e o bônus de AGI via `attribute_conversions`, refletindo 100% de forma imediata no combate.**
+* **Fase Atual:** **Tipo de Dano Físico vs Mágico (`damageType`) em Classes, Monstros e Pets (`v0.6.6`) — Implementado campo de seleção de tipo de dano no banco (`schema.prisma`), controllers de Admin, payloads de jogo e arena de combate (`ActionCombatArena.js`). O ataque básico e rolagem de acerto/evasão agora respondem dinamicamente ao tipo de dano (físico mitigado por DEF física, mágico mitigado por DEF mágica, com novos visuais de projéteis).**
 * **Repositório Oficial:** `https://github.com/SeytaniR/etheria-campus`
 * **Fonte Bruta de Assets:** `https://github.com/SeytaniR/mcrework` (`https://seytanir.github.io/mcrework/`)
 

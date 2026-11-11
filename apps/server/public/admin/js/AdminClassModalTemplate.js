@@ -24,12 +24,16 @@ class AdminClassModalTemplate {
       <input type="hidden" id="classAssetKeyInput" value="" />
       <input type="hidden" id="classRebornAssetKeyInput" value="" />
 
-      <div style="display:grid; grid-template-columns:1.2fr 1fr 1.1fr 1fr; gap:6px;">
+      <div style="display:grid; grid-template-columns:1.2fr 1fr 1fr 1fr 0.9fr; gap:6px;">
         <input type="text" id="classNameInput" placeholder="Nome da Classe / Personagem" style="padding:6px 8px; font-size:0.84rem;" />
         <select id="classRaceSelect" style="padding:6px 8px; font-size:0.84rem;"></select>
         <select id="classCombatStyleSelect" onchange="AdminApp.onCombatStyleChange('class')" style="padding:6px 8px; font-size:0.84rem;" title="Estilo de Combate">
           <option value="MELEE">⚔️ Melee (Corpo a Corpo)</option>
           <option value="RANGED">🏹 Ranged (À Distância)</option>
+        </select>
+        <select id="classDamageTypeSelect" style="padding:6px 8px; font-size:0.84rem;" title="Tipo de Dano do Ataque Básico">
+          <option value="PHYSICAL">🗡️ Dano Físico</option>
+          <option value="MAGICAL">🔮 Dano Mágico</option>
         </select>
         <div style="display:flex; align-items:center; gap:4px;">
           <label style="font-size:0.7rem; color:var(--text-muted); white-space:nowrap;">Alcance:</label>

@@ -206,6 +206,7 @@ class ActionCombatArena {
       shadowOffsetX: pState.shadowOffsetX || this.client?.activeChar?.shadowOffsetX || 0,
       shadowOffsetY: pState.shadowOffsetY || this.client?.activeChar?.shadowOffsetY || 0,
       combatStyle: pState.combatStyle || 'MELEE', attackRange: pState.attackRange || (pState.combatStyle === 'RANGED' ? 220 : 60),
+      damageType: pState.damageType || (this.client?.activeChar?.damageType) || 'PHYSICAL',
       isAttacking: false, attackTimer: 0, isDashing: false, dashTimer: 0, hitTimer: 0,
     };
 
@@ -225,6 +226,7 @@ class ActionCombatArena {
         name: m.name || `Monstro #${idx + 1}`, x: mx, y: my, dir: mDir, action: 0, isAlive: true,
         hp: m.hp || 300, maxHp: m.maxHp || 300, atk: m.atk || 45, def: m.def || 25,
         speed: Number(m.battleMoveSpeed) || Number(m.speed) || Math.round(battleSpeed * 0.70), combatStyle: m.combatStyle || 'MELEE', attackRange: m.attackRange || (m.combatStyle === 'RANGED' ? 220 : 52),
+        damageType: m.damageType || 'PHYSICAL',
         nextAttackTime: performance.now() + 1000 + idx * 400, hitTimer: 0, attackTimer: 0, fadeAlpha: 1.0,
         sprite: this.getSprite(m.atlasJsonUrl, m.atlasWebpUrl, m.thumbUrl),
         groundOffsetY: m.groundOffsetY || 0, shadowOffsetX: m.shadowOffsetX || 0, shadowOffsetY: m.shadowOffsetY || 0,
@@ -243,6 +245,7 @@ class ActionCombatArena {
         x: px, y: py, dir: pDir, action: 0, isAlive: true,
         hp: p.hp || 320, maxHp: p.maxHp || 320, atk: p.atk || 42, def: p.def || 28,
         speed: Number(p.battleMoveSpeed) || Math.round(battleSpeed * 0.90), combatStyle: p.combatStyle || 'MELEE', attackRange: p.attackRange || (p.combatStyle === 'RANGED' ? 220 : 55),
+        damageType: p.damageType || 'PHYSICAL',
         nextAttackTime: performance.now() + 1000 + idx * 450, hitTimer: 0, attackTimer: 0, fadeAlpha: 1.0,
         sprite: this.getSprite(p.atlasJsonUrl, p.atlasWebpUrl, p.thumbUrl),
         groundOffsetY: p.groundOffsetY || 0, shadowOffsetX: p.shadowOffsetX || 0, shadowOffsetY: p.shadowOffsetY || 0,
@@ -419,9 +422,13 @@ class ActionCombatArena {
       }
       this.player.dir = this.compute8Direction(target.x - this.player.x, target.y - this.player.y);
       const isCrit = Math.random() < (this.player.critRate || 0.15);
-      const rawDmg = Math.max(12, Math.round(this.player.atk * (100 / (100 + target.def * 0.4))));
+      const isMagical = this.player.damageType === 'MAGICAL';
+      const defStat = isMagical ? (target.magDef || target.def) : target.def;
+      const rawDmg = Math.max(12, Math.round(this.player.atk * (100 / (100 + defStat * 0.4))));
       const isRanged = this.player.combatStyle === 'RANGED';
-      this.spawnHomingProjectile(target, 'SINGLE', 0, rawDmg, isCrit, isRanged ? '🏹' : '⚔️', '#fde047', false);
+      const projectileEmoji = isMagical ? (isRanged ? '🔮' : '✨') : (isRanged ? '🏹' : '⚔️');
+      const projectileColor = isMagical ? '#c084fc' : '#fde047';
+      this.spawnHomingProjectile(target, 'SINGLE', 0, rawDmg, isCrit, projectileEmoji, projectileColor, isMagical);
     }
     this.updateHud();
   }
@@ -772,15 +779,19 @@ class ActionCombatArena {
           mob.nextAttackTime = now + 1800 + Math.random() * 800;
           mob.attackTimer = 0.40; mob.actionStartTime = now; mob.action = 3;
           if (!this.player.isDashing) {
-            const mobAcc = mob.physAccuracy || 95, pEva = this.player.physEvasion || 10;
+            const isMagical = mob.damageType === 'MAGICAL';
+            const mobAcc = isMagical ? (mob.magAccuracy || 95) : (mob.physAccuracy || 95);
+            const pEva = isMagical ? (this.player.magEvasion || 10) : (this.player.physEvasion || 10);
             const hitRate = Math.max(15, Math.min(100, 90 + (mobAcc - pEva) * 0.20));
             if (Math.random() * 100 > hitRate) {
               this.floatingTexts.push({ x: this.player.x, y: this.player.y - 45, text: '💨 DESVIO!', color: '#38bdf8', life: 1.0 });
             } else {
-              const dmg = Math.max(5, Math.round(mob.atk * (100 / (100 + this.player.def * 0.5))));
+              const defStat = isMagical ? (this.player.magDef || this.player.def) : this.player.def;
+              const dmg = Math.max(5, Math.round(mob.atk * (100 / (100 + defStat * 0.5))));
               this.player.hp = Math.max(0, this.player.hp - dmg);
               this.player.hitTimer = 0.22; this.player.actionStartTime = now; this.player.action = 5;
-              this.floatingTexts.push({ x: this.player.x, y: this.player.y - 45, text: `💔 -${dmg}`, color: '#ef4444', life: 1.0 });
+              const dmgIcon = isMagical ? '🔮' : '💔';
+              this.floatingTexts.push({ x: this.player.x, y: this.player.y - 45, text: `${dmgIcon} -${dmg}`, color: isMagical ? '#c084fc' : '#ef4444', life: 1.0 });
               if (this.player.hp === 0) {
                 this.player.isAlive = false; this.player.actionStartTime = now; this.player.action = 6;
                 this.showResult(false, 'Você foi derrotado na arena.'); break;
@@ -837,7 +848,10 @@ class ActionCombatArena {
           if (now >= pet.nextAttackTime) {
             pet.nextAttackTime = now + 1500 + Math.random() * 500;
             pet.attackTimer = 0.35; pet.actionStartTime = now; pet.action = 3;
-            this.spawnHomingProjectile(target, 'SINGLE_TARGET', 0, pet.atk, false, '🐾', '#38bdf8', false, pet.x, pet.y - 20, 500, 100);
+            const isPetMag = pet.damageType === 'MAGICAL';
+            const petEmoji = isPetMag ? '✨' : '🐾';
+            const petColor = isPetMag ? '#c084fc' : '#38bdf8';
+            this.spawnHomingProjectile(target, 'SINGLE_TARGET', 0, pet.atk, false, petEmoji, petColor, isPetMag, pet.x, pet.y - 20, 500, isPetMag ? (pet.magAccuracy || 100) : (pet.physAccuracy || 100));
           }
         }
       } else {

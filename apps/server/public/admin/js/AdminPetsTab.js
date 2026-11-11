@@ -91,6 +91,7 @@ class AdminPetsTab {
       document.getElementById('petGroundOffsetYInput').value = '0';
       const sEl = document.getElementById('petCombatStyleSelect'); if (sEl) sEl.value = 'MELEE';
       const rEl = document.getElementById('petAttackRangeInput'); if (rEl) rEl.value = '60';
+      const dtEl = document.getElementById('petDamageTypeSelect'); if (dtEl) dtEl.value = 'PHYSICAL';
 
       ['VIT', 'STR', 'INT', 'WIS', 'AGI', 'DEX'].forEach((attr) => {
         const inp = document.getElementById(`petBase${attr}Input`);
@@ -132,6 +133,7 @@ class AdminPetsTab {
       const pStyle = pet.combatStyle || 'MELEE';
       const sEl = document.getElementById('petCombatStyleSelect'); if (sEl) sEl.value = pStyle;
       const rEl = document.getElementById('petAttackRangeInput'); if (rEl) rEl.value = String(pet.attackRange || (pStyle === 'RANGED' ? 220 : 60));
+      const dtEl = document.getElementById('petDamageTypeSelect'); if (dtEl) dtEl.value = pet.damageType || 'PHYSICAL';
 
       const b = pet.baseAttributesJson || {};
       ['VIT', 'STR', 'INT', 'WIS', 'AGI', 'DEX'].forEach((attr) => {
@@ -284,6 +286,7 @@ class AdminPetsTab {
         const role = document.getElementById('petRoleSelect').value || 'BALANCED';
         const combatStyle = document.getElementById('petCombatStyleSelect')?.value || 'MELEE';
         const attackRange = Number(document.getElementById('petAttackRangeInput')?.value) || (combatStyle === 'RANGED' ? 220 : 60);
+        const damageType = document.getElementById('petDamageTypeSelect')?.value || 'PHYSICAL';
         const catchRatePct = Number(document.getElementById('petCatchRateInput').value) || 25.0;
         const isActive = document.getElementById('petActiveSelect').value === 'true';
         const groundOffsetY = Number(document.getElementById('petGroundOffsetYInput').value) || 0;
@@ -321,6 +324,7 @@ class AdminPetsTab {
           role,
           combatStyle,
           attackRange,
+          damageType,
           catchRatePct,
           isActive,
           groundOffsetY,
@@ -441,6 +445,7 @@ class AdminPetsTab {
                     ${roleBadges[p.role] || roleBadges.BALANCED}
                     <div style="margin-top:3px; font-size:0.71rem;">
                       ${p.combatStyle === 'RANGED' ? `<span style="color:#38bdf8; font-weight:700;">🏹 Ranged (${p.attackRange || 220}px)</span>` : `<span style="color:#fbbf24; font-weight:700;">⚔️ Melee (${p.attackRange || 60}px)</span>`}
+                      &bull; ${p.damageType === 'MAGICAL' ? `<span style="color:#c084fc; font-weight:700;">🔮 Mágico</span>` : `<span style="color:#f59e0b; font-weight:700;">🗡️ Físico</span>`}
                     </div>
                   </td>
                   <td style="padding:8px 10px; font-size:0.75rem; color:#cbd5e1; font-family:monospace;">
@@ -553,6 +558,13 @@ class AdminPetsTab {
               <select id="petCombatStyleSelect" onchange="AdminApp.onCombatStyleChange('pet')">
                 <option value="MELEE">⚔️ Melee (Corpo a Corpo)</option>
                 <option value="RANGED">🏹 Ranged (À Distância)</option>
+              </select>
+            </div>
+            <div class="field">
+              <label style="color:#c084fc; font-weight:700;">✨ Tipo de Dano</label>
+              <select id="petDamageTypeSelect" title="Tipo de Dano do Ataque Básico">
+                <option value="PHYSICAL">🗡️ Dano Físico</option>
+                <option value="MAGICAL">🔮 Dano Mágico</option>
               </select>
             </div>
             <div class="field">

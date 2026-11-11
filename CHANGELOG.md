@@ -5,6 +5,32 @@ Qualquer IA trabalhando neste repositório **DEVE** incrementar a versão e regi
 
 ---
 
+## [v0.6.6] - 2026-11-10
+### Combate & Criação Low-Code — Tipo de Dano Físico vs Mágico (`damageType`) para Classes, Monstros e Pets
+* **Dano Físico vs Dano Mágico em Classes, Monstros e Pets:**
+  * **Banco de Dados & Prisma (`packages/database/prisma/schema.prisma`):**
+    * Adicionada a coluna `damageType String @default("PHYSICAL") @map("damage_type")` nas models `ClassTemplate`, `MonsterTemplate` e `PetTemplate`.
+    * Garantida 100% de compatibilidade retroativa e integridade de registros existentes (`@default("PHYSICAL")`).
+  * **Controllers Backend (`AdminMapsController.ts`, `AdminMonstersController.ts`, `AdminPetsController.ts`):**
+    * Adicionado `damageType?: string;` nos DTOs `ClassTemplateDto`, `MonsterTemplateDto` e `PetTemplateDto`.
+    * Mapeamento, validação e persistência de `damageType` (`PHYSICAL` ou `MAGICAL`) nos métodos de criação e atualização.
+  * **Transmissão de Estado & Inicialização de Batalha (`GamePlayController.ts` & `TemporaryCombatController.ts`):**
+    * `formatCharacterPayload` agora envia autoritativamente `damageType` do personagem/classe para o cliente.
+    * Adicionado `damageType?: 'PHYSICAL' | 'MAGICAL'` ao tipo `CombatUnit`.
+    * Inicialização de jogadores (`playerUnit`), pets aliados (`petUnits`) e monstros (`monsterUnits`) atribui corretamente o `damageType` configurado no banco de dados.
+  * **Painel Admin Studio Low-Code (`AdminClassModalTemplate.js`, `AdminClassesTab.js`, `AdminMonstersTab.js`, `AdminPetsTab.js`):**
+    * Adicionado campo seletor `<select>` para **Tipo de Dano** (`🗡️ Dano Físico` ou `🔮 Dano Mágico`) nos modais de criação e edição de Personagens/Classes, Monstros e Pets.
+    * Carregamento do valor existente e salvamento do DTO integrados.
+    * Inseridos badges visuais (`🔮 Mágico` e `🗡️ Físico`) nas listagens de cards e tabelas das três entidades.
+  * **Arena de Combate em Tempo Real (`ActionCombatArena.js`):**
+    * O ataque básico do jogador agora verifica o `damageType`:
+      * `PHYSICAL`: mitigado por `target.def` (Defesa Física), projétil `⚔️` (Melee) ou `🏹` (Ranged), cor dourada `#fde047`.
+      * `MAGICAL`: mitigado por `target.magDef` (Defesa Mágica), projétil `✨` (Melee Mágico) ou `🔮` (Ranged Mágico), cor púrpura arcana `#c084fc`.
+    * Ataque de Monstros: calcula rolagem de acerto e evasão (`magAccuracy` vs `magEvasion` ou `physAccuracy` vs `physEvasion`), mitigação pela defesa correspondente do jogador (`magDef` vs `def`) e exibe indicador visual contextual (`🔮 -Dano` vs `💔 -Dano`).
+    * Ataque de Pets: projétil e rolagem adaptados automaticamente para físico (`🐾` / `#38bdf8`) ou mágico (`✨` / `#c084fc`).
+
+---
+
 ## [v0.6.5] - 2026-11-10
 ### Combate Action & Arena — Correção da Velocidade de Movimento em Batalha (`BATTLE_MOVE_SPEED`)
 * **Correção Autoritária de Movimentação em Arena de Combate:**

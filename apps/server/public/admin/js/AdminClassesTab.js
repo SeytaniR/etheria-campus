@@ -546,6 +546,7 @@ class AdminClassesTab {
         const cStyle = existingClass.combatStyle || 'MELEE';
         const sEl = document.getElementById('classCombatStyleSelect'); if (sEl) sEl.value = cStyle;
         const rEl = document.getElementById('classAttackRangeInput'); if (rEl) rEl.value = String(existingClass.attackRange || (cStyle === 'RANGED' ? 220 : 60));
+        const dtEl = document.getElementById('classDamageTypeSelect'); if (dtEl) dtEl.value = existingClass.damageType || 'PHYSICAL';
 
         this.selectedMcreworkCharKey = existingClass.mcreworkCharKey || '';
         this.selectedMcreworkRebornCharKey = existingClass.rebornMcreworkCharKey || '';
@@ -580,6 +581,7 @@ class AdminClassesTab {
         document.getElementById('classRebornShadowOffsetYInput').value = '0';
         const sEl = document.getElementById('classCombatStyleSelect'); if (sEl) sEl.value = 'MELEE';
         const rEl = document.getElementById('classAttackRangeInput'); if (rEl) rEl.value = '60';
+        const dtEl = document.getElementById('classDamageTypeSelect'); if (dtEl) dtEl.value = 'PHYSICAL';
 
         this.selectedMcreworkCharKey = '';
         this.selectedMcreworkRebornCharKey = '';
@@ -718,6 +720,7 @@ class AdminClassesTab {
           raceCode,
           combatStyle: document.getElementById('classCombatStyleSelect')?.value || 'MELEE',
           attackRange: Number(document.getElementById('classAttackRangeInput')?.value) || 60,
+          damageType: document.getElementById('classDamageTypeSelect')?.value || 'PHYSICAL',
           mcreworkCharKey,
           rebornMcreworkCharKey,
           descriptionPtBr,
@@ -846,7 +849,7 @@ class AdminClassesTab {
           </td>
           <td>
             <span style="padding:2px 8px; border-radius:99px; background:rgba(56,189,248,0.14); color:var(--accent); font-size:0.75rem;">${ct.raceNamePtBr || ct.raceCode}</span>
-            <div style="margin-top:3px; font-size:0.71rem;">${ct.combatStyle === 'RANGED' ? `<span style="color:#38bdf8; font-weight:700;">🏹 Ranged (${ct.attackRange || 220}px)</span>` : `<span style="color:#fbbf24; font-weight:700;">⚔️ Melee (${ct.attackRange || 60}px)</span>`}</div>
+            <div style="margin-top:3px; font-size:0.71rem;">${ct.combatStyle === 'RANGED' ? `<span style="color:#38bdf8; font-weight:700;">🏹 Ranged (${ct.attackRange || 220}px)</span>` : `<span style="color:#fbbf24; font-weight:700;">⚔️ Melee (${ct.attackRange || 60}px)</span>`} &bull; ${ct.damageType === 'MAGICAL' ? `<span style="color:#c084fc; font-weight:700;">🔮 Mágico</span>` : `<span style="color:#f59e0b; font-weight:700;">🗡️ Físico</span>`}</div>
           </td>
           <td>
             <div style="cursor:pointer;" onclick="AdminApp.openClassTemplateModal(${ct.id}, 'stats')" title="Clique para editar Atributos Base e Crescimento">
