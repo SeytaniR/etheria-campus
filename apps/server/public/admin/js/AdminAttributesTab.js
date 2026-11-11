@@ -291,10 +291,18 @@ class AdminAttributesTab {
         .join('');
     };
 
+    
+    const parseFlexibleNumber = (val, fallback = 0) => {
+      if (val === undefined || val === null || val === '') return fallback;
+      const normalized = typeof val === 'string' ? val.trim().replace(',', '.') : val;
+      const num = Number(normalized);
+      return Number.isFinite(num) ? num : fallback;
+    };
+
     app.saveCombatAttributeBase = async function (code) {
       try {
         const input = document.getElementById(`combatBaseDefault_${code}`);
-        let baseDefault = Number(input?.value) || 0;
+        let baseDefault = parseFlexibleNumber(input?.value, 0);
 
         if (['PHYS_EVASION', 'MAG_EVASION'].includes(code)) {
           if (baseDefault > 1.0) baseDefault = baseDefault / 100;
@@ -326,7 +334,7 @@ class AdminAttributesTab {
         const payload = inputs.map((inp) => ({
           baseAttributeCode: inp.getAttribute('data-base'),
           combatAttributeCode: inp.getAttribute('data-combat'),
-          ratioPerPoint: Number(inp.value) || 0,
+          ratioPerPoint: parseFlexibleNumber(inp.value, 0),
         }));
 
         await this.api('/api/admin/attributes/conversions', {
@@ -348,7 +356,7 @@ class AdminAttributesTab {
         if (!sel || !rat) return;
 
         const combatCode = sel.value;
-        const ratioPerPoint = Number(rat.value) || 0;
+        const ratioPerPoint = parseFlexibleNumber(rat.value, 0);
 
         await this.api('/api/admin/attributes/conversions/single', {
           method: 'PUT',

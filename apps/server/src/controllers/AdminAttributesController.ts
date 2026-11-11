@@ -23,6 +23,14 @@ export interface UpdateCombatAttributeDto {
   isPercentage?: boolean;
 }
 
+
+function parseFlexibleNumber(val: unknown, fallback: number = 0): number {
+  if (val === undefined || val === null || val === '') return fallback;
+  const normalized = typeof val === 'string' ? val.trim().replace(',', '.') : val;
+  const num = Number(normalized);
+  return Number.isFinite(num) ? num : fallback;
+}
+
 export class AdminAttributesController {
   private readonly prisma: PrismaClient;
   private readonly snapshotManager: SnapshotManager;
@@ -85,12 +93,12 @@ export class AdminAttributesController {
         },
       },
       update: {
-        ratioPerPoint: Number(ratioPerPoint) || 0,
+        ratioPerPoint: parseFlexibleNumber(ratioPerPoint, 0),
       },
       create: {
         baseAttributeCode,
         combatAttributeCode,
-        ratioPerPoint: Number(ratioPerPoint) || 0,
+        ratioPerPoint: parseFlexibleNumber(ratioPerPoint, 0),
       },
     });
 
@@ -117,12 +125,12 @@ export class AdminAttributesController {
             },
           },
           update: {
-            ratioPerPoint: Number(item.ratioPerPoint) || 0,
+            ratioPerPoint: parseFlexibleNumber(item.ratioPerPoint, 0),
           },
           create: {
             baseAttributeCode: item.baseAttributeCode,
             combatAttributeCode: item.combatAttributeCode,
-            ratioPerPoint: Number(item.ratioPerPoint) || 0,
+            ratioPerPoint: parseFlexibleNumber(item.ratioPerPoint, 0),
           },
         });
       }
@@ -150,7 +158,7 @@ export class AdminAttributesController {
       });
     }
 
-    let finalBaseDefault = dto.baseDefault !== undefined ? Number(dto.baseDefault) : existing.baseDefault;
+    let finalBaseDefault = dto.baseDefault !== undefined ? parseFlexibleNumber(dto.baseDefault, existing.baseDefault) : existing.baseDefault;
 
     // Aplica tetos de segurança e normalização para atributos percentuais
     if (code === 'PHYS_EVASION' || code === 'MAG_EVASION') {
