@@ -13,6 +13,13 @@
 import { PrismaClient } from '@prisma/client';
 import { SnapshotManager } from '@etheria/database';
 
+export interface MonsterDropEntryDto {
+  itemTemplateId: number;
+  minQty: number;
+  maxQty: number;
+  chancePct: number;
+}
+
 export interface MonsterTemplateDto {
   namePtBr: string;
   descriptionPtBr?: string;
@@ -28,6 +35,7 @@ export interface MonsterTemplateDto {
   isActive?: boolean;
   biomeIds?: number[];
   skillIdsJson?: number[];
+  lootTableJson?: MonsterDropEntryDto[];
   baseAttributesJson: {
     VIT: number;
     STR: number;
@@ -103,16 +111,26 @@ export class AdminMonstersController {
       i18nMap.set(t.key, t.text);
     }
 
-    const templates = await this.prisma.monsterTemplate.findMany({
-      orderBy: { id: 'asc' },
-      include: {
-        race: true,
-        fixedElement: true,
-      },
-    });
+    const [templates, itemRows] = await Promise.all([
+      this.prisma.monsterTemplate.findMany({
+        orderBy: { id: 'asc' },
+        include: { race: true, fixedElement: true },
+      }),
+      this.prisma.itemTemplate.findMany({ select: { id: true, code: true, nameI18nKey: true } }),
+    ]);
+    const itemNameMap = new Map<number, string>(
+      itemRows.map((it) => [it.id, i18nMap.get(it.nameI18nKey) ?? it.code])
+    );
 
-    return templates.map((mt) => ({
+    return templates.map((mt) => {
+      const normalizedLoot = this.normalizeLootTable(mt.lootTableJson);
+      return {
       ...mt,
+      lootTableJson: normalizedLoot,
+      lootTableResolved: normalizedLoot.map((entry) => ({
+        ...entry,
+        itemNamePtBr: itemNameMap.get(entry.itemTemplateId) ?? `Item #${entry.itemTemplateId}`,
+      })),
       rarityTier: mt.rarityTier || 'F',
       namePtBr: i18nMap.get(mt.nameI18nKey) ?? mt.code,
       descriptionPtBr: mt.descriptionI18nKey ? (i18nMap.get(mt.descriptionI18nKey) ?? '') : '',
@@ -122,7 +140,23 @@ export class AdminMonstersController {
       atlasJsonUrl: `${this.mcreworkPagesBaseUrl}/assets/monsters/${mt.mcreworkMonsterKey}/atlas.json`,
       atlasWebpUrl: `${this.mcreworkPagesBaseUrl}/assets/monsters/${mt.mcreworkMonsterKey}/atlas.webp`,
       biomesList: [],
-    }));
+    }; });
+  }
+
+  private normalizeLootTable(raw: unknown): MonsterDropEntryDto[] {
+    if (!Array.isArray(raw)) return [];
+    const out: MonsterDropEntryDto[] = [];
+    for (const entry of raw) {
+      if (!entry || typeof entry !== 'object') continue;
+      const itemTemplateId = Number((entry as any).itemTemplateId);
+      if (!Number.isInteger(itemTemplateId) || itemTemplateId <= 0) continue;
+      const minQty = Math.max(1, Math.min(9999, Math.round(Number((entry as any).minQty ?? (entry as any).quantity ?? 1) || 1)));
+      const maxQty = Math.max(minQty, Math.min(9999, Math.round(Number((entry as any).maxQty ?? (entry as any).quantity ?? minQty) || minQty)));
+      const rawChance = Number((entry as any).chancePct ?? 10);
+      const chancePct = Number.isFinite(rawChance) ? Math.max(0.01, Math.min(100, Math.round(rawChance * 100) / 100)) : 10;
+      out.push({ itemTemplateId, minQty, maxQty, chancePct });
+    }
+    return out;
   }
 
   private normalizeRarityTier(raw?: string): string {
@@ -186,6 +220,7 @@ export class AdminMonstersController {
         isTamableAsPet: dto.isTamableAsPet !== false,
         isActive: dto.isActive !== false,
         skillIdsJson: Array.isArray(dto.skillIdsJson) ? (dto.skillIdsJson as any) : ([1] as any),
+        lootTableJson: this.normalizeLootTable(dto.lootTableJson) as any,
         baseAttributesJson: dto.baseAttributesJson ?? {
           VIT: 12,
           STR: 12,
@@ -245,6 +280,7 @@ export class AdminMonstersController {
         isTamableAsPet: dto.isTamableAsPet !== undefined ? !!dto.isTamableAsPet : existing.isTamableAsPet,
         isActive: dto.isActive !== undefined ? !!dto.isActive : existing.isActive,
         skillIdsJson: Array.isArray(dto.skillIdsJson) ? (dto.skillIdsJson as any) : (existing.skillIdsJson as any),
+        lootTableJson: dto.lootTableJson !== undefined ? (this.normalizeLootTable(dto.lootTableJson) as any) : (existing.lootTableJson as any),
         baseAttributesJson: dto.baseAttributesJson ?? (existing.baseAttributesJson as any),
       },
     });

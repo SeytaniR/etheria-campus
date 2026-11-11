@@ -298,4 +298,61 @@ export class CharacterInventoryService {
     }
     return summary;
   }
+
+  /**
+   * Rola e credita na mochila os drops configurados diretamente na tabela do monstro (`monster_templates.loot_table_json`).
+   */
+  public static async rollMonsterLootDrops(
+    prismaOrTx: any,
+    characterId: number,
+    defeatedMonsters: DefeatedMonsterDropUnit[],
+    itemNamesMap: Map<number, string>,
+  ): Promise<GrantedQuestDropSummary[]> {
+    const mobIds = Array.from(
+      new Set(defeatedMonsters.map((u) => Number(u.monsterTemplateId)).filter((id) => Number.isInteger(id) && id > 0)),
+    );
+    if (mobIds.length === 0) return [];
+
+    const dbMobs = await prismaOrTx.monsterTemplate.findMany({
+      where: { id: { in: mobIds } },
+      select: { id: true, lootTableJson: true },
+    });
+    const lootByMobId = new Map<number, any[]>(
+      dbMobs.map((m: any) => [Number(m.id), Array.isArray(m.lootTableJson) ? m.lootTableJson : []]),
+    );
+
+    const grantedTotals = new Map<number, number>();
+    for (const unit of defeatedMonsters) {
+      const entries = lootByMobId.get(Number(unit.monsterTemplateId)) || [];
+      if (entries.length === 0) continue;
+      const kills = Math.max(1, Math.round(Number(unit.count) || 1));
+
+      for (let k = 0; k < kills; k++) {
+        for (const entry of entries) {
+          const itemId = Number(entry?.itemTemplateId) || 0;
+          if (itemId <= 0 || !itemNamesMap.has(itemId)) continue;
+          const chance = Math.max(0.01, Math.min(100, Number(entry?.chancePct) || 0));
+          if (chance < 100 && Math.random() * 100 > chance) continue;
+
+          const minQ = Math.max(1, Math.round(Number(entry?.minQty ?? entry?.quantity ?? 1) || 1));
+          const maxQ = Math.max(minQ, Math.round(Number(entry?.maxQty ?? entry?.quantity ?? minQ) || minQ));
+          const qty = minQ + Math.floor(Math.random() * (maxQ - minQ + 1));
+          if (qty > 0) {
+            grantedTotals.set(itemId, (grantedTotals.get(itemId) || 0) + qty);
+          }
+        }
+      }
+    }
+
+    const summary: GrantedQuestDropSummary[] = [];
+    for (const [itemId, qty] of grantedTotals.entries()) {
+      await this.addItem(prismaOrTx, characterId, itemId, qty);
+      summary.push({
+        itemTemplateId: itemId,
+        namePtBr: itemNamesMap.get(itemId) ?? `Item #${itemId}`,
+        quantity: qty,
+      });
+    }
+    return summary;
+  }
 }

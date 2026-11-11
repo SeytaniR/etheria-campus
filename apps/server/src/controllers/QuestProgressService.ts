@@ -435,13 +435,26 @@ export class QuestProgressService {
     );
 
     const updatedGold = await CharacterInventoryService.addGold(this.prisma, characterId, bonusGold);
-    const droppedItems = await CharacterInventoryService.grantProvisionalQuestDrops(
+    const monsterLootDrops = await CharacterInventoryService.rollMonsterLootDrops(
+      this.prisma,
+      characterId,
+      normalizedUnits,
+      itemNameMap,
+    );
+    const questDrops = await CharacterInventoryService.grantProvisionalQuestDrops(
       this.prisma,
       characterId,
       inProgressQuests,
       normalizedUnits,
       itemNameMap,
     );
+    const mergedDropMap = new Map<number, { itemTemplateId: number; namePtBr: string; quantity: number }>();
+    for (const d of [...monsterLootDrops, ...questDrops]) {
+      const existing = mergedDropMap.get(d.itemTemplateId);
+      if (existing) existing.quantity += d.quantity;
+      else mergedDropMap.set(d.itemTemplateId, { ...d });
+    }
+    const droppedItems = Array.from(mergedDropMap.values());
 
     for (const q of inProgressQuests) {
       const objectives = Array.isArray(q.objectives) ? q.objectives : [];

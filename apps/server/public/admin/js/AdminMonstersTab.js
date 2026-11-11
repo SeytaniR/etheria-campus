@@ -10,6 +10,7 @@
 class AdminMonstersTab {
   static attach(app) {
     app.monsterTemplates = [];
+    app.editingMonsterDrops = [];
     app.mcreworkMonsters = [];
     app.selectedMcreworkMonsterKey = '';
     app.monsterSearchQuery = '';
@@ -357,6 +358,9 @@ class AdminMonstersTab {
       if ((!this.skillTemplates || this.skillTemplates.length === 0) && typeof this.loadSkillsAndBuffsData === 'function') {
         await this.loadSkillsAndBuffsData();
       }
+      if ((!this.itemTemplates || this.itemTemplates.length === 0) && typeof this.loadItemTemplates === 'function') {
+        await this.loadItemTemplates();
+      }
       if (typeof this.renderEntitySkillsChecklist === 'function') {
         const currentSkills =
           existingMonster && Array.isArray(existingMonster.skillIdsJson) && existingMonster.skillIdsJson.length > 0
@@ -364,6 +368,11 @@ class AdminMonstersTab {
             : [1];
         this.renderEntitySkillsChecklist('monsterSkillsChecklist', currentSkills);
       }
+      this.populateMonsterDropsItemSelect();
+      this.editingMonsterDrops = Array.isArray(existingMonster?.lootTableJson)
+        ? JSON.parse(JSON.stringify(existingMonster.lootTableJson))
+        : [];
+      this.renderMonsterDropsList();
 
       const grid = document.getElementById('mcreworkMonstersGrid');
       if (this.mcreworkMonsters.length === 0) {
@@ -429,6 +438,7 @@ class AdminMonstersTab {
           isTamableAsPet,
           isActive,
           skillIdsJson,
+          lootTableJson: this.editingMonsterDrops || [],
           baseAttributesJson: {
             VIT: Number(document.getElementById('monsterBaseVIT').value) || 10,
             STR: Number(document.getElementById('monsterBaseSTR').value) || 10,
@@ -464,12 +474,79 @@ class AdminMonstersTab {
       }
     };
 
+    app.populateMonsterDropsItemSelect = function () {
+      const sel = document.getElementById('monsterDropAddItemSelect');
+      if (!sel) return;
+      const items = this.itemTemplates || [];
+      sel.innerHTML = items.length
+        ? items.map((it) => `<option value="${it.id}">#${it.id} ${it.namePtBr} (${it.itemCategory} • ${it.rarityTier || 'COMMON'})</option>`).join('')
+        : `<option value="">Cadastre itens na aba Itens primeiro</option>`;
+    };
+
+    app.addMonsterDropEntry = function () {
+      const itemId = Number(document.getElementById('monsterDropAddItemSelect')?.value) || 0;
+      if (!itemId) { alert('Selecione um item válido.'); return; }
+      const minQty = Math.max(1, Math.round(Number(document.getElementById('monsterDropAddMinQty')?.value) || 1));
+      const maxQty = Math.max(minQty, Math.round(Number(document.getElementById('monsterDropAddMaxQty')?.value) || minQty));
+      const chancePct = Math.max(0.01, Math.min(100, Number(document.getElementById('monsterDropAddChance')?.value) || 25));
+      this.editingMonsterDrops.push({ itemTemplateId: itemId, minQty, maxQty, chancePct });
+      this.renderMonsterDropsList();
+    };
+
+    app.updateMonsterDropEntry = function (idx, field, val) {
+      const entry = this.editingMonsterDrops[idx];
+      if (!entry) return;
+      if (field === 'itemTemplateId') entry.itemTemplateId = Number(val) || entry.itemTemplateId;
+      else if (field === 'minQty') { entry.minQty = Math.max(1, Math.round(Number(val) || 1)); if (entry.maxQty < entry.minQty) entry.maxQty = entry.minQty; }
+      else if (field === 'maxQty') entry.maxQty = Math.max(entry.minQty || 1, Math.round(Number(val) || 1));
+      else if (field === 'chancePct') entry.chancePct = Math.max(0.01, Math.min(100, Number(val) || 0.01));
+      this.renderMonsterDropsList();
+    };
+
+    app.removeMonsterDropEntry = function (idx) {
+      this.editingMonsterDrops.splice(idx, 1);
+      this.renderMonsterDropsList();
+    };
+
+    app.renderMonsterDropsList = function () {
+      const listEl = document.getElementById('monsterDropsListContainer');
+      const badgeEl = document.getElementById('monsterDropsCountBadge');
+      if (badgeEl) badgeEl.textContent = `${(this.editingMonsterDrops || []).length} drop(s)`;
+      if (!listEl) return;
+      if (!this.editingMonsterDrops || this.editingMonsterDrops.length === 0) {
+        listEl.innerHTML = `<div style="color:#64748b; font-size:0.76rem; padding:10px; text-align:center;">Nenhum drop configurado ainda. Selecione um item acima para adicionar.</div>`;
+        return;
+      }
+      const itemOpts = (selId) => (this.itemTemplates || []).map((it) => `<option value="${it.id}" ${Number(selId) === Number(it.id) ? 'selected' : ''}>#${it.id} ${it.namePtBr}</option>`).join('');
+      listEl.innerHTML = this.editingMonsterDrops.map((d, i) => `
+        <div style="display:grid; grid-template-columns:1fr 78px 78px 92px auto; gap:6px; align-items:center; background:#0f172a; border:1px solid #334155; border-radius:6px; padding:6px 8px;">
+          <select onchange="AdminApp.updateMonsterDropEntry(${i}, 'itemTemplateId', this.value)" style="font-size:0.75rem; padding:4px 6px;">${itemOpts(d.itemTemplateId)}</select>
+          <input type="number" min="1" value="${d.minQty}" title="Qtd Mínima" onchange="AdminApp.updateMonsterDropEntry(${i}, 'minQty', this.value)" style="font-size:0.76rem; padding:4px 6px;" />
+          <input type="number" min="1" value="${d.maxQty}" title="Qtd Máxima" onchange="AdminApp.updateMonsterDropEntry(${i}, 'maxQty', this.value)" style="font-size:0.76rem; padding:4px 6px;" />
+          <div style="display:flex; align-items:center; gap:3px;">
+            <input type="number" min="0.01" max="100" step="0.1" value="${d.chancePct}" title="Chance (%)" onchange="AdminApp.updateMonsterDropEntry(${i}, 'chancePct', this.value)" style="font-size:0.76rem; padding:4px 6px;" />
+            <span style="font-size:0.74rem; color:#fde047;">%</span>
+          </div>
+          <button type="button" class="btn-danger" onclick="AdminApp.removeMonsterDropEntry(${i})" style="padding:4px 8px; font-size:0.74rem;">🗑️</button>
+        </div>`).join('');
+    };
+
+    app.formatMonsterDropsCellHtml = function (m) {
+      const drops = Array.isArray(m.lootTableResolved) && m.lootTableResolved.length ? m.lootTableResolved : (Array.isArray(m.lootTableJson) ? m.lootTableJson : []);
+      if (!drops.length) return `<span style="font-size:0.72rem; color:#64748b;">— Sem drops</span>`;
+      return `<div style="display:flex; flex-direction:column; gap:3px;">${drops.map((d) => {
+        const itName = d.itemNamePtBr || (this.itemTemplates || []).find((x) => Number(x.id) === Number(d.itemTemplateId))?.namePtBr || `Item #${d.itemTemplateId}`;
+        const qtyStr = d.minQty === d.maxQty ? `${d.minQty}x` : `${d.minQty}–${d.maxQty}x`;
+        return `<span style="display:inline-flex; align-items:center; gap:4px; padding:2px 6px; border-radius:6px; background:rgba(34,197,94,0.14); border:1px solid rgba(34,197,94,0.4); font-size:0.71rem; color:#86efac; white-space:nowrap;">🎁 <strong>${qtyStr}</strong> ${itName} <strong style="color:#fde047;">(${d.chancePct}%)</strong></span>`;
+      }).join('')}</div>`;
+    };
+
     app.renderMonstersCrudTable = function () {
       const tbody = document.getElementById('monstersTableBody');
       if (!tbody) return;
 
       if (!this.monsterTemplates || this.monsterTemplates.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="7" style="color:var(--text-muted); padding:16px; text-align:center;">Nenhum Monstro cadastrado ainda. Clique em <strong>"➕ Novo Monstro do mcrework"</strong> acima para criar o primeiro!</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="8" style="color:var(--text-muted); padding:16px; text-align:center;">Nenhum Monstro cadastrado ainda. Clique em <strong>"➕ Novo Monstro do mcrework"</strong> acima para criar o primeiro!</td></tr>`;
         return;
       }
 
@@ -533,6 +610,7 @@ class AdminMonstersTab {
             <div style="margin-top:4px; font-size:0.71rem;">${m.combatStyle === 'RANGED' ? `<span style="color:#38bdf8; font-weight:700;">🏹 Ranged (${m.attackRange || 220}px)</span>` : `<span style="color:#fbbf24; font-weight:700;">⚔️ Melee (${m.attackRange || 60}px)</span>`} &bull; ${m.damageType === 'MAGICAL' ? `<span style="color:#c084fc; font-weight:700;">🔮 Mágico</span>` : `<span style="color:#f59e0b; font-weight:700;">🗡️ Físico</span>`}</div>
           </td>
           <td><span style="font-family:monospace; font-size:0.75rem;">${statsStr}</span></td>
+          <td>${this.formatMonsterDropsCellHtml(m)}</td>
           <td>
             <div style="display:flex; gap:6px;">
               <button class="btn-primary" onclick="AdminApp.openMonsterTemplateModal(${m.id})">✏️ Editar</button>
@@ -680,6 +758,25 @@ class AdminMonstersTab {
           <button type="button" class="skill-filter-chip" onclick="AdminApp.filterEntitySkillsByElement('monsterSkillsChecklist', 'NEUTRAL', this)" style="padding:2px 8px; font-size:0.70rem; color:#cbd5e1;">⚪ Neutro</button>
         </div>
         <div id="monsterSkillsChecklist" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(min(100%, 250px), 1fr)); gap:8px; max-height:240px; overflow-y:auto; overflow-x:hidden; padding:8px; background:#020617; border:1px solid var(--border); border-radius:8px; box-sizing:border-box;"></div>
+      </div>
+
+      <!-- BLOCO 4.5: TABELA DE DROPS DO MONSTRO -->
+      <div style="background:rgba(15,23,42,0.75); border:1.5px solid #22c55e; border-radius:10px; padding:12px; margin-bottom:12px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; margin-bottom:8px;">
+          <span style="font-size:0.82rem; font-weight:700; color:#86efac;">🎁 Drops ao Derrotar este Monstro (Itens, Quantidade e Chance %)</span>
+          <span id="monsterDropsCountBadge" style="font-size:0.72rem; color:#86efac; font-weight:700; background:rgba(34,197,94,0.15); padding:2px 8px; border-radius:6px; border:1px solid #16a34a;">0 drop(s)</span>
+        </div>
+        <div style="display:grid; grid-template-columns:1fr 80px 80px 95px auto; gap:8px; align-items:end; background:#020617; border:1px solid #334155; border-radius:8px; padding:8px; margin-bottom:8px;">
+          <div class="field"><label>📦 Item</label><select id="monsterDropAddItemSelect"></select></div>
+          <div class="field"><label>Qtd Mín</label><input type="number" id="monsterDropAddMinQty" value="1" min="1" /></div>
+          <div class="field"><label>Qtd Máx</label><input type="number" id="monsterDropAddMaxQty" value="1" min="1" /></div>
+          <div class="field"><label>Chance (%)</label><input type="number" id="monsterDropAddChance" value="25" min="0.01" max="100" step="0.1" /></div>
+          <button type="button" class="btn-success" onclick="AdminApp.addMonsterDropEntry()" style="padding:8px 12px; font-weight:700; white-space:nowrap;">➕ Adicionar Drop</button>
+        </div>
+        <div style="font-size:0.69rem; color:#94a3b8; display:grid; grid-template-columns:1fr 78px 78px 92px auto; gap:6px; padding:0 8px 4px;">
+          <span>Item selecionado</span><span>Mín</span><span>Máx</span><span>Chance (%)</span><span></span>
+        </div>
+        <div id="monsterDropsListContainer" style="display:flex; flex-direction:column; gap:6px; max-height:190px; overflow-y:auto;"></div>
       </div>
 
       <!-- BLOCO 5: PALCO 2.5D ANIMADO & GALERIA DE MODELOS DO MCREWORK -->

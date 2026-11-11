@@ -5,6 +5,15 @@ Qualquer IA trabalhando neste repositório **DEVE** incrementar a versão e regi
 
 ---
 
+## [v0.10.0] - 2026-11-11
+### Tabela de Drops em Monstros (`loot_table_json`) & Rolagem de Loot em Combate
+* **Adicionado:**
+  * **Construtor de Drops no Modal de Monstros (`/admin`, `AdminMonstersTab.js`):** Permite adicionar, editar e remover itens que o monstro dropa ao morrer, definindo `Item`, `Qtd Mín`, `Qtd Máx` e `Chance (%)` (`0.01%–100%`), com exibição resumida em pílulas na tabela CRUD de Monstros.
+  * **Persistência & Enriquecimento (`AdminMonstersController.ts`):** Normaliza e salva `lootTableJson` no banco PostgreSQL (espelhado automaticamente no Snapshot JSON) e entrega `lootTableResolved` com os nomes dos itens em PT-BR.
+  * **Rolagem de Drops na Vitória (`CharacterInventoryService.rollMonsterLootDrops` & `QuestProgressService.ts`):** Ao derrotar monstros em batalha real (`/play`) ou GM (`/gm`), cada monstro morto rola sua `lootTableJson`, credita os itens ganhos na mochila básica (`character_inventory_items`) e exibe os itens ganhos no banner de vitória.
+
+---
+
 ## [v0.9.2] - 2026-11-11
 ### Combate Unificado (GM = Real), Remoção de Redutores, Balanceamento de Nível/Raridade & Dano Elemental Global
 * **Adicionado:**
