@@ -5,6 +5,29 @@ Qualquer IA trabalhando neste repositório **DEVE** incrementar a versão e regi
 
 ---
 
+## [v0.6.9] - 2026-11-11
+### Auditoria Completa, Segurança Reforçada, Modularização & Otimizações de Desempenho (v0.6.9)
+* **Bloco 1: Segurança & Integridade de Acesso:**
+  * **Mitigação VULN-01 (Elevação Silenciosa para ADMIN em Tokens Inválidos):** Em `/api/play/*`, removido o fallback perigoso que atribuía a sessão ao primeiro ADMIN do banco quando o `sub` do token fosse inválido. Agora tokens corrompidos ou adulterados recebem imediatamente HTTP 401 Unauthorized.
+  * **Mitigação VULN-02 (BOLA / IDOR em Missões e Combate):** Implementada validação rigorosa de posse de personagem (`verifyCharacterOwnership`) em `PlayRouter.ts`. Endpoints de quests (`/quests`, `/quests/accept`, `/quests/interact-npc`, `/quests/turn-in`) e de combate (`/combat/encounter`, `/temporary-combat/start`, `/temporary-combat/action`, `/temporary-combat/auto-resolve`) agora validam se o `characterId` pertence ao `userAccountId` autenticado antes de executar ou registrar progresso (jogadores `ADMIN` e `GM` mantêm permissão especial).
+  * **Proteção em `updateClassGroundOffset`:** Restrita a alteração do offset vertical global de classes exclusivamente para `ADMIN` e `GM`. Jogadores comuns com `role === 'PLAYER'` recebem erro de autorização.
+  * **Proteção contra Sobrescrita Destrutiva em `AdminQuestsInitialSeeds.ts`:** Removido o comando `await prisma.questTemplate.deleteMany({})` que destruía as missões customizadas do usuário caso houvesse 5 ou menos cadastradas. Agora as sementes iniciais só são criadas se a tabela estiver absolutamente vazia (`existing.length === 0`).
+  * **Sanitização contra XSS Armazenado em `admin.js`:** Adicionada a função utilitária `escapeHtml(str)` e aplicada na renderização dinâmica de títulos e descrições personalizadas na UI administrativa.
+* **Bloco 2: Arquitetura & Governança (Regra #7 - Limite Mandatório de 1.000 Linhas):**
+  * **Decomposição Modular de `apps/server/src/index.ts`:** O arquivo monolithic de 1.028 linhas foi reduzido para 412 linhas, delegando suas responsabilidades para submódulos dedicados:
+    * `apps/server/src/routes/AdminRouter.ts` (604 linhas): Gerencia todos os endpoints `/api/admin/*`, login admin, contexto e controle de permissões por tabela (RBAC).
+    * `apps/server/src/routes/PlayRouter.ts` (351 linhas): Gerencia todos os endpoints `/api/play/*`, autenticação de jogadores, exploração, teleporte, missões e instâncias de combate autoritárias.
+  * **Conformidade de Linhas:** Varredura global executada no monorepo confirmando **zero arquivos** acima do limite de 1.000 linhas (`Files > 1000 lines: []`).
+* **Bloco 4: Desempenho, Cache & Gestão de Recursos (ARM64 VPS):**
+  * **`I18nCache` com Invalidação Automatizada:** Criado módulo `@etheria/database/I18nCache` com cache em memória RAM e TTL de 5 minutos, eliminando dezenas de consultas repetitivas a `i18nTranslation.findMany` em todos os controladores (`GamePlayController`, `TemporaryCombatController`, `AdminMapsController`, `AdminQuestsController`). Invalidação acoplada automaticamente ao `SnapshotManager.exportToDisk()`.
+  * **Método `importFromDisk()` no `SnapshotManager`:** Adicionado suporte nativo para importar o snapshot JSON de volta ao banco de dados PostgreSQL com `upsert`, permitindo restauração sem perda de dados.
+  * **Eliminação de Vazamento de Memória (Memory Leak) no Combate:** Substituído o `setTimeout` de 1 hora individual por instância de batalha por um sweep periódico global de 5 minutos não bloqueante (`interval.unref()`) em `TemporaryCombatController.ts`, liberando memória de batalhas abandonadas.
+  * **Controle de Memória para Cache de Mapas no Servidor:** O pré-aquecimento de imagens de mapas (`prewarmMapImages`) foi delimitado aos 5 primeiros mapas e o proxy reverso em memória RAM foi limitado a no máximo 12 imagens simultâneas com política de expulsão FIFO, evitando sobrecarga ou estouro de memória (OOM) na VPS Azure ARM64.
+  * **Serialização Resiliente de BigInt em `sendJson`:** Implementado replacer seguro `JSON.stringify(data, (_, v) => typeof v === 'bigint' ? v.toString() : v)` evitando erros `TypeError: Do not know how to serialize a BigInt`.
+* **Bloco 3 (Gameplay & Economia):** Preservado intacto sem alterações a pedido explícito do usuário.
+
+---
+
 ## [v0.6.8] - 2026-11-11
 ### Combate Autoritário & Painel Admin — Revisão Profunda e Tetos Matemáticos de Acerto e Desvio (Ninguém Inalvejável & Zero Precisão Perfeita)
 * **Revisão Matemática das Taxas de Acerto e Desvio:**

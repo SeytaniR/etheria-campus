@@ -89,6 +89,16 @@ class EtheriaAdminStudio {
     this.init();
   }
 
+  escapeHtml(str) {
+    if (!str) return '';
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#039;');
+  }
+
   async init() {
     if (typeof this.setupCanvasEvents === 'function') {
       this.setupCanvasEvents();
@@ -354,7 +364,7 @@ class EtheriaAdminStudio {
 
     const titleBadge = document.getElementById('mapFormTitleBadge');
     if (titleBadge) {
-      titleBadge.innerHTML = `✏️ Editando Mapa #${m.id} (${m.code}): <span style="color:#86efac;">${m.namePtBr}</span>`;
+      titleBadge.innerHTML = `✏️ Editando Mapa #${m.id} (${m.code}): <span style="color:#86efac;">${this.escapeHtml(m.namePtBr)}</span>`;
     }
 
     document.getElementById('mapCode').value = `#${m.id} • ${m.code}`;

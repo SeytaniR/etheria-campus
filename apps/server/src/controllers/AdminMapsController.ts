@@ -12,7 +12,7 @@
  * @dependencies @etheria/database, @etheria/shared
  */
 
-import { PrismaClient, SnapshotManager } from '@etheria/database';
+import { PrismaClient, SnapshotManager, I18nCache } from '@etheria/database';
 import type { MapPolygon } from '@etheria/shared';
 
 export interface SaveMapDto {
@@ -198,13 +198,7 @@ export class AdminMapsController {
    * - Os Mapas cadastrados no nosso banco (com seus polígonos de colisão/sobreposição, portais e NPCs)
    */
   public async getEditorBootstrap() {
-    const translations = await this.prisma.i18nTranslation.findMany({
-      where: { locale: 'pt-BR' },
-    });
-    const i18nMap = new Map<string, string>();
-    for (const t of translations) {
-      i18nMap.set(t.key, t.text);
-    }
+    const i18nMap = await I18nCache.getTranslations(this.prisma, 'pt-BR');
 
     const biomes = (await this.prisma.biome.findMany({ orderBy: { id: 'asc' } })).map((b) => ({
       ...b,

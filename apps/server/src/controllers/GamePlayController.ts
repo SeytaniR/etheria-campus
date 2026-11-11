@@ -14,7 +14,7 @@
  * @dependencies @etheria/database, @etheria/shared
  */
 
-import { PrismaClient, SnapshotManager } from '@etheria/database';
+import { PrismaClient, SnapshotManager, I18nCache } from '@etheria/database';
 import { MapPolygonMesh, type MapPolygon } from '@etheria/shared';
 
 export interface CreateCharacterDto {
@@ -79,13 +79,7 @@ export class GamePlayController {
    * - Lista de Personagens criados pelo usuário logado (`player_characters`)
    */
   public async getPlayBootstrap(userAccountId: number) {
-    const translations = await this.prisma.i18nTranslation.findMany({
-      where: { locale: 'pt-BR' },
-    });
-    const i18nMap = new Map<string, string>();
-    for (const t of translations) {
-      i18nMap.set(t.key, t.text);
-    }
+    const i18nMap = await I18nCache.getTranslations(this.prisma, 'pt-BR');
 
     const classTemplates = (
       await this.prisma.classTemplate.findMany({
@@ -307,8 +301,7 @@ export class GamePlayController {
       include: { classTemplate: true },
     });
 
-    const translations = await this.prisma.i18nTranslation.findMany({ where: { locale: 'pt-BR' } });
-    const i18nMap = new Map<string, string>(translations.map((t) => [t.key, t.text]));
+    const i18nMap = await I18nCache.getTranslations(this.prisma, 'pt-BR');
 
     return this.serializeCharacter(created, i18nMap);
   }
@@ -329,8 +322,7 @@ export class GamePlayController {
    * Carrega o estado completo de um Mapa para renderização e exploração no cliente `/play`.
    */
   public async getMapStateForPlay(requestedMapId: number) {
-    const translations = await this.prisma.i18nTranslation.findMany({ where: { locale: 'pt-BR' } });
-    const i18nMap = new Map<string, string>(translations.map((t) => [t.key, t.text]));
+    const i18nMap = await I18nCache.getTranslations(this.prisma, 'pt-BR');
 
     let map = await this.prisma.gameMap.findUnique({
       where: { id: requestedMapId },
@@ -671,8 +663,7 @@ export class GamePlayController {
       include: { classTemplate: true },
     });
 
-    const translations = await this.prisma.i18nTranslation.findMany({ where: { locale: 'pt-BR' } });
-    const i18nMap = new Map<string, string>(translations.map((t) => [t.key, t.text]));
+    const i18nMap = await I18nCache.getTranslations(this.prisma, 'pt-BR');
     return this.serializeCharacter(updated, i18nMap);
   }
 
@@ -690,8 +681,8 @@ export class GamePlayController {
       throw new Error('Personagem ou classe não encontrado.');
     }
 
-    if (char.userAccountId !== userAccountId && !['ADMIN', 'GM'].includes(role)) {
-      throw new Error('Não autorizado a alterar este personagem.');
+    if (!['ADMIN', 'GM'].includes(role)) {
+      throw new Error('Apenas Administradores ou GMs podem alterar o offset visual de classes.');
     }
 
     const clampedOffset = Math.max(-60, Math.min(60, Math.round(Number(offset) || 0)));
@@ -714,8 +705,7 @@ export class GamePlayController {
       include: { classTemplate: true },
     });
 
-    const translations = await this.prisma.i18nTranslation.findMany({ where: { locale: 'pt-BR' } });
-    const i18nMap = new Map<string, string>(translations.map((t) => [t.key, t.text]));
+    const i18nMap = await I18nCache.getTranslations(this.prisma, 'pt-BR');
     return this.serializeCharacter(updatedChar, i18nMap);
   }
 }

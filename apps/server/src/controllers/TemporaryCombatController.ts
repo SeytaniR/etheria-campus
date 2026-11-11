@@ -8,6 +8,7 @@
  */
 
 import { PrismaClient } from '@prisma/client';
+import { I18nCache } from '@etheria/database';
 import { randomUUID } from 'node:crypto';
 
 export interface ActiveStatusInstance {
@@ -70,6 +71,7 @@ export interface FloatingCombatNumber {
 
 export interface TemporaryBattleState {
   battleId: string;
+  createdAt?: number;
   characterId?: number;
   monsterTemplateId?: number;
   victoryRecorded?: boolean;
@@ -95,19 +97,22 @@ export class TemporaryCombatController {
 
   constructor(prisma: PrismaClient) {
     this.prisma = prisma;
+    const interval = setInterval(() => {
+      const now = Date.now();
+      for (const [id, b] of this.activeBattles.entries()) {
+        if (b.isFinished || (b.createdAt && now - b.createdAt > 20 * 60 * 1000)) {
+          this.activeBattles.delete(id);
+        }
+      }
+    }, 5 * 60 * 1000);
+    interval.unref();
   }
 
   /**
    * Retorna os monstros disponíveis no banco para preencher o seletor do Painel GM.
    */
   public async getAvailableMonsters() {
-    const translations = await this.prisma.i18nTranslation.findMany({
-      where: { locale: 'pt-BR' },
-    });
-    const i18nMap = new Map<string, string>();
-    for (const t of translations) {
-      i18nMap.set(t.key, t.text);
-    }
+    const i18nMap = await I18nCache.getTranslations(this.prisma, 'pt-BR');
 
     const monsters = await this.prisma.monsterTemplate.findMany({
       where: { isActive: true },
@@ -338,6 +343,7 @@ export class TemporaryCombatController {
     const state: TemporaryBattleState = {
       battleId,
       characterId: Number(characterId) || 1,
+      createdAt: Date.now(),
       monsterTemplateId: Number(mobTemplate.id),
       victoryRecorded: false,
       totalRealPlayers: 1,
@@ -354,12 +360,6 @@ export class TemporaryCombatController {
     };
 
     this.activeBattles.set(battleId, state);
-
-    // Limpeza de batalhas antigas após 1 hora para economizar memória
-    setTimeout(() => {
-      this.activeBattles.delete(battleId);
-    }, 60 * 60 * 1000);
-
     return state;
   }
 

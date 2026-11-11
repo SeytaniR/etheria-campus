@@ -11,6 +11,7 @@ import { PrismaClient } from '@prisma/client';
 import * as fs from 'node:fs/promises';
 import * as path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { I18nCache } from './I18nCache.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -110,6 +111,115 @@ export class SnapshotManager {
     };
 
     await fs.writeFile(this.snapshotFilePath, JSON.stringify(snapshot, null, 2), 'utf-8');
+    I18nCache.invalidate();
     return this.snapshotFilePath;
+  }
+
+  /**
+   * Importa e restaura os dados Low-Code salvos no Snapshot JSON para o PostgreSQL.
+   * Executa de forma aditiva e idempotente para garantir integridade.
+   */
+  public async importFromDisk(): Promise<{ restored: boolean; message: string }> {
+    try {
+      const exists = await fs.stat(this.snapshotFilePath).catch(() => null);
+      if (!exists) {
+        return { restored: false, message: `Snapshot não encontrado em ${this.snapshotFilePath}` };
+      }
+
+      const raw = await fs.readFile(this.snapshotFilePath, 'utf-8');
+      const snapshot: LowCodeDatabaseSnapshot = JSON.parse(raw);
+
+      // 1. i18n
+      if (Array.isArray(snapshot.i18nTranslations)) {
+        for (const t of snapshot.i18nTranslations) {
+          await this.prisma.i18nTranslation.upsert({
+            where: { key_locale: { key: t.key, locale: t.locale } },
+            create: { locale: t.locale, key: t.key, text: t.text },
+            update: { text: t.text },
+          });
+        }
+      }
+
+      // 2. Mapas e Portais
+      if (Array.isArray(snapshot.maps)) {
+        for (const m of snapshot.maps) {
+          await this.prisma.gameMap.upsert({
+            where: { id: m.id },
+            create: {
+              id: m.id, code: m.code, nameI18nKey: m.nameI18nKey,
+              mapTypeId: m.mapTypeId, primaryBiomeId: m.primaryBiomeId, secondaryBiomeId: m.secondaryBiomeId,
+              mcreworkMapImage: m.mcreworkMapImage, requiredLevel: m.requiredLevel,
+              spawnX: m.spawnX, spawnY: m.spawnY,
+              encounterRatePct: m.encounterRatePct, levelVarianceMin: m.levelVarianceMin, levelVarianceMax: m.levelVarianceMax,
+              overlapOpacity: m.overlapOpacity, collisionMeshJson: m.collisionMeshJson, overlapMeshJson: m.overlapMeshJson,
+            },
+            update: {
+              code: m.code, nameI18nKey: m.nameI18nKey,
+              mapTypeId: m.mapTypeId, primaryBiomeId: m.primaryBiomeId, secondaryBiomeId: m.secondaryBiomeId,
+              mcreworkMapImage: m.mcreworkMapImage, requiredLevel: m.requiredLevel,
+              spawnX: m.spawnX, spawnY: m.spawnY,
+              encounterRatePct: m.encounterRatePct, levelVarianceMin: m.levelVarianceMin, levelVarianceMax: m.levelVarianceMax,
+              overlapOpacity: m.overlapOpacity, collisionMeshJson: m.collisionMeshJson, overlapMeshJson: m.overlapMeshJson,
+            },
+          });
+        }
+      }
+
+      // 3. Classes
+      if (Array.isArray(snapshot.classTemplates)) {
+        for (const c of snapshot.classTemplates) {
+          await this.prisma.classTemplate.upsert({
+            where: { id: c.id },
+            create: {
+              id: c.id, code: c.code, nameI18nKey: c.nameI18nKey, descriptionI18nKey: c.descriptionI18nKey,
+              mcreworkCharKey: c.mcreworkCharKey, rebornMcreworkCharKey: c.rebornMcreworkCharKey,
+              groundOffsetY: c.groundOffsetY, rebornGroundOffsetY: c.rebornGroundOffsetY,
+              raceCode: c.raceCode, combatStyle: c.combatStyle || 'MELEE', attackRange: c.attackRange || 60,
+              damageType: c.damageType || 'PHYSICAL',
+              baseAttributesJson: c.baseAttributesJson, growthPerLevelJson: c.growthPerLevelJson,
+              baseCombatAttributesJson: c.baseCombatAttributesJson, skillIdsJson: c.skillIdsJson,
+            },
+            update: {
+              code: c.code, nameI18nKey: c.nameI18nKey, descriptionI18nKey: c.descriptionI18nKey,
+              mcreworkCharKey: c.mcreworkCharKey, rebornMcreworkCharKey: c.rebornMcreworkCharKey,
+              groundOffsetY: c.groundOffsetY, rebornGroundOffsetY: c.rebornGroundOffsetY,
+              raceCode: c.raceCode, combatStyle: c.combatStyle || 'MELEE', attackRange: c.attackRange || 60,
+              damageType: c.damageType || 'PHYSICAL',
+              baseAttributesJson: c.baseAttributesJson, growthPerLevelJson: c.growthPerLevelJson,
+              baseCombatAttributesJson: c.baseCombatAttributesJson, skillIdsJson: c.skillIdsJson,
+            },
+          });
+        }
+      }
+
+      // 4. Monstros
+      if (Array.isArray(snapshot.monsterTemplates)) {
+        for (const m of snapshot.monsterTemplates) {
+          await this.prisma.monsterTemplate.upsert({
+            where: { id: m.id },
+            create: {
+              id: m.id, code: m.code, nameI18nKey: m.nameI18nKey, descriptionI18nKey: m.descriptionI18nKey,
+              mcreworkMonsterKey: m.mcreworkMonsterKey, groundOffsetY: m.groundOffsetY,
+              raceCode: m.raceCode, combatStyle: m.combatStyle || 'MELEE', attackRange: m.attackRange || 60,
+              damageType: m.damageType || 'PHYSICAL',
+              rarityTier: m.rarityTier, fixedElementCode: m.fixedElementCode,
+              baseAttributesJson: m.baseAttributesJson, lootTableJson: m.lootTableJson,
+            },
+            update: {
+              code: m.code, nameI18nKey: m.nameI18nKey, descriptionI18nKey: m.descriptionI18nKey,
+              mcreworkMonsterKey: m.mcreworkMonsterKey, groundOffsetY: m.groundOffsetY,
+              raceCode: m.raceCode, combatStyle: m.combatStyle || 'MELEE', attackRange: m.attackRange || 60,
+              damageType: m.damageType || 'PHYSICAL',
+              rarityTier: m.rarityTier, fixedElementCode: m.fixedElementCode,
+              baseAttributesJson: m.baseAttributesJson, lootTableJson: m.lootTableJson,
+            },
+          });
+        }
+      }
+
+      return { restored: true, message: `Snapshot importado com sucesso a partir de ${this.snapshotFilePath}` };
+    } catch (err: any) {
+      return { restored: false, message: `Falha ao restaurar snapshot: ${err?.message || err}` };
+    }
   }
 }

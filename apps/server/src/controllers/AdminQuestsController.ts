@@ -14,7 +14,7 @@
  */
 
 import { PrismaClient } from '@prisma/client';
-import { SnapshotManager } from '@etheria/database';
+import { SnapshotManager, I18nCache } from '@etheria/database';
 import { ensureInitialQuestsSeed } from './AdminQuestsInitialSeeds.js';
 
 export interface QuestObjectiveBlockDto {
@@ -88,8 +88,8 @@ export class AdminQuestsController {
    * cadeia linear automática de Capítulos/Episódios, Gatilhos e Requisitos.
    */
   public async getQuestTemplates() {
-    const [translations, quests, npcs, maps, monsters, classes] = await Promise.all([
-      this.prisma.i18nTranslation.findMany({ where: { locale: 'pt-BR' } }),
+    const [i18nMap, quests, npcs, maps, monsters, classes] = await Promise.all([
+      I18nCache.getTranslations(this.prisma, 'pt-BR'),
       this.prisma.questTemplate.findMany({
         orderBy: [{ chapterOrder: 'asc' }, { episodeOrder: 'asc' }, { id: 'asc' }],
       }),
@@ -98,11 +98,6 @@ export class AdminQuestsController {
       this.prisma.monsterTemplate.findMany(),
       this.prisma.classTemplate.findMany(),
     ]);
-
-    const i18nMap = new Map<string, string>();
-    for (const t of translations) {
-      i18nMap.set(t.key, t.text);
-    }
 
     const npcNameMap = new Map<number, string>();
     for (const n of npcs) {

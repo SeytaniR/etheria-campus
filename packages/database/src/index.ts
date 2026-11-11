@@ -7,4 +7,5 @@
 
 export { PrismaClient } from '@prisma/client';
 export * from './SnapshotManager.js';
+export * from './I18nCache.js';
 export * from './seedData.js';

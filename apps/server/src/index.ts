@@ -2,9 +2,10 @@
  * @file apps/server/src/index.ts
  * @module @etheria/server
  * @description Servidor HTTP & API Autoritária do Etheria Campus.
- *   Serve a Rota `/admin` (Studio Low-Code), valida a proteção dual-mode (`.env` restrito ao localhost
- *   vs CRUD de usuários do banco para acessos externos) e gerencia a persistência no PostgreSQL + Snapshots.
- * @rules Segue estritamente AGENTS.md (Cláusula 0 de Segurança e Arquitetura OO).
+ *   Serve a Rota `/admin` (Studio Low-Code), Rota `/play` (MMORPG 2.5D Client),
+ *   delega o roteamento para submódulos especializados (AdminRouter, PlayRouter)
+ *   e gerencia a persistência no PostgreSQL + Snapshots.
+ * @rules Segue estritamente AGENTS.md (Cláusula 0 de Segurança, Regra #7 de 1.000 linhas).
  * @dependencies node:http, node:fs/promises, node:path, @etheria/database
  */
 
@@ -15,7 +16,7 @@ import * as path from 'node:path';
 import { spawn } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { PrismaClient, SnapshotManager } from '@etheria/database';
-import { AdminAuthService, type AdminTokenPayload } from './security/AdminAuthService.js';
+import { AdminAuthService } from './security/AdminAuthService.js';
 import { AdminUsersController } from './controllers/AdminUsersController.js';
 import { AdminMapsController } from './controllers/AdminMapsController.js';
 import { GamePlayController } from './controllers/GamePlayController.js';
@@ -29,6 +30,8 @@ import { AdminQuestsController } from './controllers/AdminQuestsController.js';
 import { AdminAttributesController } from './controllers/AdminAttributesController.js';
 import { AdminExperienceController } from './controllers/AdminExperienceController.js';
 import { TemporaryCombatController } from './controllers/TemporaryCombatController.js';
+import { AdminRouter } from './routes/AdminRouter.js';
+import { PlayRouter } from './routes/PlayRouter.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -74,8 +77,11 @@ export class EtheriaServerApp {
   private readonly attributesController: AdminAttributesController;
   private readonly experienceController: AdminExperienceController;
   private readonly combatController: TemporaryCombatController;
+  private readonly adminRouter: AdminRouter;
+  private readonly playRouter: PlayRouter;
   private readonly publicDir: string;
   private readonly mapImageCache = new Map<number, { buffer: Buffer; contentType: string }>();
+  private static readonly MAX_CACHED_MAP_IMAGES = 12;
 
   constructor() {
     this.prisma = new PrismaClient();
@@ -95,12 +101,43 @@ export class EtheriaServerApp {
     this.experienceController = new AdminExperienceController(this.prisma);
     this.combatController = new TemporaryCombatController(this.prisma);
     this.publicDir = path.resolve(__dirname, '../public');
+
+    const sendJson = this.sendJson.bind(this);
+    const readJsonBody = this.readJsonBody.bind(this);
+
+    this.adminRouter = new AdminRouter({
+      prisma: this.prisma,
+      authService: this.authService,
+      usersController: this.usersController,
+      mapsController: this.mapsController,
+      monstersController: this.monstersController,
+      petsController: this.petsController,
+      equipmentsController: this.equipmentsController,
+      itemsController: this.itemsController,
+      mountsController: this.mountsController,
+      skillsController: this.skillsController,
+      questsController: this.questsController,
+      attributesController: this.attributesController,
+      experienceController: this.experienceController,
+      sendJson,
+      readJsonBody,
+    });
+
+    this.playRouter = new PlayRouter({
+      prisma: this.prisma,
+      authService: this.authService,
+      playController: this.playController,
+      combatController: this.combatController,
+      questsController: this.questsController,
+      sendJson,
+      readJsonBody,
+    });
   }
 
   /**
    * Lê e decodifica o corpo JSON de uma requisição HTTP com limite de segurança (10 MB para malhas de mapas).
    */
-  private async readJsonBody<T = any>(req: http.IncomingMessage): Promise<T> {
+  public async readJsonBody<T = any>(req: http.IncomingMessage): Promise<T> {
     return new Promise((resolve, reject) => {
       const chunks: Buffer[] = [];
       let totalSize = 0;
@@ -117,7 +154,7 @@ export class EtheriaServerApp {
         try {
           const raw = Buffer.concat(chunks).toString('utf-8');
           resolve(raw ? JSON.parse(raw) : ({} as T));
-        } catch (err) {
+        } catch {
           reject(new Error('JSON inválido no corpo da requisição.'));
         }
       });
@@ -126,37 +163,17 @@ export class EtheriaServerApp {
   }
 
   /**
-   * Envia uma resposta JSON padronizada.
+   * Envia uma resposta JSON padronizada com serialização resiliente de BigInt para string.
    */
-  private sendJson(res: http.ServerResponse, statusCode: number, data: unknown): void {
-    const payload = JSON.stringify(data);
+  public sendJson(res: http.ServerResponse, statusCode: number, data: unknown): void {
+    const payload = JSON.stringify(data, (_, value) =>
+      typeof value === 'bigint' ? value.toString() : value
+    );
     res.writeHead(statusCode, {
       'Content-Type': 'application/json; charset=utf-8',
       'Cache-Control': 'no-store',
     });
     res.end(payload);
-  }
-
-  /**
-   * Valida se a sessão autenticada possui permissão suficiente para ler ou editar a tabela informada.
-   * - DEV: passe livre irrestrito para todas as tabelas.
-   * - ADMIN: valida permissões granulares configuradas pelo DEV.
-   */
-  private enforceTablePermission(
-    res: http.ServerResponse,
-    session: AdminTokenPayload,
-    tableKey: string,
-    mode: 'READ' | 'READ_WRITE'
-  ): boolean {
-    if (this.authService.canAccessTable(session, tableKey, mode)) {
-      return true;
-    }
-    this.sendJson(res, 403, {
-      error: `Acesso negado: Você possui permissão insuficiente para ${
-        mode === 'READ_WRITE' ? 'editar' : 'visualizar'
-      } a tabela "${tableKey}". Solicite liberação ao Desenvolvedor (DEV).`,
-    });
-    return false;
   }
 
   /**
@@ -219,8 +236,8 @@ export class EtheriaServerApp {
 
   /**
    * Proxy reverso resiliente e de alta performance para imagens de mapas.
-   * Evita bloqueios de CORS, inspeção rígida de celular e requisições cross-domain,
-   * servindo a imagem diretamente através do túnel Cloudflare via same-origin com cache em memória RAM.
+   * Evita bloqueios de CORS e requisições cross-domain, servindo via same-origin com cache em memória RAM.
+   * Implementa expulsão FIFO para respeitar o limite máximo de imagens simultâneas em memória.
    */
   private async handleMapImageAsset(mapId: number, res: http.ServerResponse): Promise<void> {
     try {
@@ -261,6 +278,14 @@ export class EtheriaServerApp {
       const arrayBuf = await upstream.arrayBuffer();
       const buffer = Buffer.from(arrayBuf);
 
+      // Limita o tamanho do cache em memória com eviction FIFO
+      if (this.mapImageCache.size >= EtheriaServerApp.MAX_CACHED_MAP_IMAGES && !this.mapImageCache.has(mapId)) {
+        const oldestKey = this.mapImageCache.keys().next().value;
+        if (oldestKey !== undefined) {
+          this.mapImageCache.delete(oldestKey);
+        }
+      }
+
       this.mapImageCache.set(mapId, { buffer, contentType });
 
       res.writeHead(200, {
@@ -276,13 +301,16 @@ export class EtheriaServerApp {
   }
 
   /**
-   * Pré-carrega de forma assíncrona todas as imagens de fundo dos mapas ativos na memória RAM,
-   * garantindo respostas com latência zero (0ms) para jogadores em redes móveis ou pelo Cloudflare Tunnel.
+   * Pré-carrega de forma assíncrona as imagens de fundo dos primeiros 5 mapas na memória RAM,
+   * garantindo respostas com latência zero (0ms) no boot sem sobrecarregar a memória em ARM64.
    */
   public async prewarmMapImages(): Promise<void> {
     try {
       const maps = await this.prisma.gameMap.findMany({
+        where: { mcreworkMapImage: { not: '' } },
         select: { id: true, mcreworkMapImage: true },
+        take: 5,
+        orderBy: { id: 'asc' },
       });
       for (const map of maps) {
         if (!map.mcreworkMapImage) continue;
@@ -308,7 +336,7 @@ export class EtheriaServerApp {
   }
 
   /**
-   * Processa todas as requisições HTTP destinadas à API e aos arquivos estáticos da Rota `/admin`.
+   * Processa todas as requisições HTTP destinadas à API e aos arquivos estáticos.
    */
   public async handleRequest(req: http.IncomingMessage, res: http.ServerResponse): Promise<void> {
     try {
@@ -316,7 +344,7 @@ export class EtheriaServerApp {
       const pathname = urlObj.pathname;
       const method = req.method ?? 'GET';
 
-      // 0. Asset Proxy Público (Imagens de Fundo dos Mapas em Cache RAM de Alta Performance)
+      // 0. Asset Proxy Público (Imagens de Fundo dos Mapas em Cache RAM com Limite de Memória)
       const mapAssetMatch = pathname.match(/^\/api\/assets\/map-image\/(\d+)$/);
       if (mapAssetMatch && (method === 'GET' || method === 'HEAD')) {
         const mapId = Number(mapAssetMatch[1]);
@@ -324,661 +352,17 @@ export class EtheriaServerApp {
         return;
       }
 
-      // 1. Status de Conexão e Diagnóstico de Localhost para a tela de login do /admin
-      if (pathname === '/api/admin/auth/context' && method === 'GET') {
-        const isStrictLocalhost = this.authService.isStrictLocalhost(req);
-        const tokenPayload = this.authService.verifyRequestToken(req);
-        this.sendJson(res, 200, {
-          isStrictLocalhost,
-          envLoginAllowed: isStrictLocalhost,
-          authenticated: Boolean(tokenPayload),
-          session: tokenPayload,
-        });
+      // 1. Delegar para o AdminRouter (/api/admin/*)
+      if (await this.adminRouter.handle(req, res, pathname, method, urlObj)) {
         return;
       }
 
-      // 2. Endpoint de Login da Rota /admin
-      if (pathname === '/api/admin/auth/login' && method === 'POST') {
-        const body = await this.readJsonBody<{ username?: string; password?: string }>(req);
-        const result = await this.authService.authenticate(
-          req,
-          body.username ?? '',
-          body.password ?? ''
-        );
-        if (!result.success) {
-          this.sendJson(res, 401, { error: result.error });
-          return;
-        }
-        this.sendJson(res, 200, {
-          token: result.token,
-          session: result.payload,
-        });
+      // 2. Delegar para o PlayRouter (/api/play/*)
+      if (await this.playRouter.handle(req, res, pathname, method, urlObj)) {
         return;
       }
 
-      // 3. Proteção Obrigatória (Guard) para todas as demais rotas `/api/admin/*`
-      if (pathname.startsWith('/api/admin/')) {
-        const session = this.authService.verifyRequestToken(req);
-        if (!session) {
-          this.sendJson(res, 401, {
-            error: 'Não autorizado. Faça login na rota /admin.',
-          });
-          return;
-        }
-
-        // --- Rotas do CRUD de Contas de Usuários e Permissões ---
-        if (pathname === '/api/admin/users' && method === 'GET') {
-          this.sendJson(res, 200, await this.usersController.listUsers(session));
-          return;
-        }
-        if (pathname === '/api/admin/users' && method === 'POST') {
-          const dto = await this.readJsonBody(req);
-          this.sendJson(res, 201, await this.usersController.createUser(dto, session));
-          return;
-        }
-        const userPermsMatch = pathname.match(/^\/api\/admin\/users\/(\d+)\/permissions$/);
-        if (userPermsMatch && method === 'PUT') {
-          const id = Number(userPermsMatch[1]);
-          const body = await this.readJsonBody<{ permissions?: Record<string, any>; tablePermissions?: Record<string, any> }>(req);
-          const perms = body.permissions ?? body.tablePermissions ?? {};
-          this.sendJson(res, 200, await this.usersController.updateTablePermissions(id, perms, session));
-          return;
-        }
-        const userMatch = pathname.match(/^\/api\/admin\/users\/(\d+)$/);
-        if (userMatch && method === 'PUT') {
-          this.sendJson(res, 200, await this.usersController.updateUser(Number(userMatch[1]), await this.readJsonBody(req), session));
-          return;
-        }
-        if (userMatch && method === 'DELETE') {
-          this.sendJson(res, 200, await this.usersController.deleteUser(Number(userMatch[1]), session));
-          return;
-        }
-
-        // --- Rotas do Editor Visual de Mapas, NPCs, Classes & Galeria mcrework ---
-        if (pathname === '/api/admin/mcrework/maps' && method === 'GET') {
-          if (this.enforceTablePermission(res, session, 'MAPS', 'READ')) this.sendJson(res, 200, await this.mapsController.getMcreworkCleanMapGallery());
-          return;
-        }
-        if (pathname === '/api/admin/mcrework/npcs' && method === 'GET') {
-          if (this.enforceTablePermission(res, session, 'NPCS', 'READ')) this.sendJson(res, 200, await this.mapsController.getMcreworkNpcGallery());
-          return;
-        }
-        if (pathname === '/api/admin/mcrework/characters' && method === 'GET') {
-          if (this.enforceTablePermission(res, session, 'CLASSES', 'READ')) this.sendJson(res, 200, await this.mapsController.getMcreworkCharacterGallery());
-          return;
-        }
-        if (pathname === '/api/admin/maps/bootstrap' && method === 'GET') {
-          // Permite carregar bootstrap se tiver acesso a MAPS, NPCS ou CLASSES
-          if (
-            !this.authService.canAccessTable(session, 'MAPS', 'READ') &&
-            !this.authService.canAccessTable(session, 'NPCS', 'READ') &&
-            !this.authService.canAccessTable(session, 'CLASSES', 'READ')
-          ) {
-            this.sendJson(res, 403, { error: 'Acesso negado às tabelas de Mapas, NPCs e Classes.' });
-            return;
-          }
-          this.sendJson(res, 200, await this.mapsController.getEditorBootstrap());
-          return;
-        }
-        if (pathname === '/api/admin/class-templates' && method === 'POST') {
-          if (this.enforceTablePermission(res, session, 'CLASSES', 'READ_WRITE')) this.sendJson(res, 201, await this.mapsController.saveClassTemplate(await this.readJsonBody(req), null));
-          return;
-        }
-        const classMatch = pathname.match(/^\/api\/admin\/class-templates\/(\d+)$/);
-        if (classMatch && method === 'PUT') {
-          if (this.enforceTablePermission(res, session, 'CLASSES', 'READ_WRITE')) this.sendJson(res, 200, await this.mapsController.saveClassTemplate(await this.readJsonBody(req), Number(classMatch[1])));
-          return;
-        }
-        if (classMatch && method === 'DELETE') {
-          if (this.enforceTablePermission(res, session, 'CLASSES', 'READ_WRITE')) this.sendJson(res, 200, await this.mapsController.deleteClassTemplate(Number(classMatch[1])));
-          return;
-        }
-        if (pathname === '/api/admin/npc-templates' && method === 'POST') {
-          if (this.enforceTablePermission(res, session, 'NPCS', 'READ_WRITE')) this.sendJson(res, 201, await this.mapsController.saveNpcTemplate(await this.readJsonBody(req), null));
-          return;
-        }
-        const npcMatch = pathname.match(/^\/api\/admin\/npc-templates\/(\d+)$/);
-        if (npcMatch && method === 'PUT') {
-          if (this.enforceTablePermission(res, session, 'NPCS', 'READ_WRITE')) this.sendJson(res, 200, await this.mapsController.saveNpcTemplate(await this.readJsonBody(req), Number(npcMatch[1])));
-          return;
-        }
-        if (npcMatch && method === 'DELETE') {
-          if (this.enforceTablePermission(res, session, 'NPCS', 'READ_WRITE')) this.sendJson(res, 200, await this.mapsController.deleteNpcTemplate(Number(npcMatch[1])));
-          return;
-        }
-        if (pathname === '/api/admin/maps' && method === 'POST') {
-          if (this.enforceTablePermission(res, session, 'MAPS', 'READ_WRITE')) this.sendJson(res, 201, await this.mapsController.saveMap(null, await this.readJsonBody(req)));
-          return;
-        }
-        const mapMatch = pathname.match(/^\/api\/admin\/maps\/(\d+)$/);
-        if (mapMatch && method === 'PUT') {
-          if (this.enforceTablePermission(res, session, 'MAPS', 'READ_WRITE')) this.sendJson(res, 200, await this.mapsController.saveMap(Number(mapMatch[1]), await this.readJsonBody(req)));
-          return;
-        }
-        if (mapMatch && method === 'DELETE') {
-          if (this.enforceTablePermission(res, session, 'MAPS', 'READ_WRITE')) this.sendJson(res, 200, await this.mapsController.deleteMap(Number(mapMatch[1])));
-          return;
-        }
-        const mapNpcRotateMatch = pathname.match(/^\/api\/admin\/map-npcs\/(\d+)\/rotate$/);
-        if (mapNpcRotateMatch && method === 'POST') {
-          if (!this.enforceTablePermission(res, session, 'NPCS', 'READ_WRITE') && !this.enforceTablePermission(res, session, 'MAPS', 'READ_WRITE')) return;
-          const placementId = Number(mapNpcRotateMatch[1]);
-          this.sendJson(res, 200, await this.mapsController.rotateMapNpcPlacement(placementId));
-          return;
-        }
-        const mapTeleportNpcMatch = pathname.match(/^\/api\/admin\/maps\/(\d+)\/teleport-npcs$/);
-        if (mapTeleportNpcMatch && method === 'POST') {
-          if (!this.enforceTablePermission(res, session, 'MAPS', 'READ_WRITE') && !this.enforceTablePermission(res, session, 'NPCS', 'READ_WRITE')) return;
-          const mapId = Number(mapTeleportNpcMatch[1]);
-          const dto = await this.readJsonBody(req);
-          this.sendJson(res, 201, await this.mapsController.saveMapTeleportNpc(mapId, dto));
-          return;
-        }
-        const mapNpcTeleportMatch = pathname.match(/^\/api\/admin\/map-npcs\/(\d+)\/teleport$/);
-        if (mapNpcTeleportMatch && method === 'PUT') {
-          if (!this.enforceTablePermission(res, session, 'MAPS', 'READ_WRITE') && !this.enforceTablePermission(res, session, 'NPCS', 'READ_WRITE')) return;
-          const placementId = Number(mapNpcTeleportMatch[1]);
-          const dto = await this.readJsonBody(req);
-          dto.id = placementId;
-          const existingNpc = await this.prisma.mapNpc.findUnique({ where: { id: placementId } });
-          if (!existingNpc) {
-            this.sendJson(res, 404, { error: `Posicionamento de NPC #${placementId} não encontrado.` });
-            return;
-          }
-          this.sendJson(res, 200, await this.mapsController.saveMapTeleportNpc(existingNpc.mapId, dto));
-          return;
-        }
-        const mapNpcDeleteMatch = pathname.match(/^\/api\/admin\/map-npcs\/(\d+)$/);
-        if (mapNpcDeleteMatch && method === 'DELETE') {
-          if (!this.enforceTablePermission(res, session, 'MAPS', 'READ_WRITE') && !this.enforceTablePermission(res, session, 'NPCS', 'READ_WRITE')) return;
-          const placementId = Number(mapNpcDeleteMatch[1]);
-          this.sendJson(res, 200, await this.mapsController.deleteMapNpc(placementId));
-          return;
-        }
-
-        // Templates de Monstros / Mobs (mcrework & PostgreSQL)
-        if (pathname === '/api/admin/mcrework/monsters' && method === 'GET') {
-          if (this.enforceTablePermission(res, session, 'MONSTERS', 'READ')) this.sendJson(res, 200, await this.monstersController.getMcreworkMonsterGallery());
-          return;
-        }
-        if (pathname === '/api/admin/monster-templates' && method === 'GET') {
-          if (this.enforceTablePermission(res, session, 'MONSTERS', 'READ')) this.sendJson(res, 200, await this.monstersController.getMonsterTemplates());
-          return;
-        }
-        if (pathname === '/api/admin/monster-templates' && method === 'POST') {
-          if (this.enforceTablePermission(res, session, 'MONSTERS', 'READ_WRITE')) this.sendJson(res, 201, await this.monstersController.createMonsterTemplate(await this.readJsonBody(req)));
-          return;
-        }
-        const monsterMatch = pathname.match(/^\/api\/admin\/monster-templates\/(\d+)$/);
-        if (monsterMatch && method === 'PUT') {
-          if (this.enforceTablePermission(res, session, 'MONSTERS', 'READ_WRITE')) this.sendJson(res, 200, await this.monstersController.updateMonsterTemplate(Number(monsterMatch[1]), await this.readJsonBody(req)));
-          return;
-        }
-        if (monsterMatch && method === 'DELETE') {
-          if (this.enforceTablePermission(res, session, 'MONSTERS', 'READ_WRITE')) this.sendJson(res, 200, await this.monstersController.deleteMonsterTemplate(Number(monsterMatch[1])));
-          return;
-        }
-
-        // --- Templates de Pets Companheiros (mcrework & PostgreSQL) ---
-        if (pathname === '/api/admin/mcrework/pets' && method === 'GET') {
-          if (this.enforceTablePermission(res, session, 'MONSTERS', 'READ')) this.sendJson(res, 200, await this.petsController.getMcreworkPetsGallery());
-          return;
-        }
-        if (pathname === '/api/admin/pet-templates' && method === 'GET') {
-          if (this.enforceTablePermission(res, session, 'MONSTERS', 'READ')) this.sendJson(res, 200, await this.petsController.getPetTemplates());
-          return;
-        }
-        if (pathname === '/api/admin/pet-templates' && method === 'POST') {
-          if (this.enforceTablePermission(res, session, 'MONSTERS', 'READ_WRITE')) this.sendJson(res, 201, await this.petsController.createPetTemplate(await this.readJsonBody(req)));
-          return;
-        }
-        const petMatch = pathname.match(/^\/api\/admin\/pet-templates\/(\d+)$/);
-        if (petMatch && method === 'PUT') {
-          if (this.enforceTablePermission(res, session, 'MONSTERS', 'READ_WRITE')) this.sendJson(res, 200, await this.petsController.updatePetTemplate(Number(petMatch[1]), await this.readJsonBody(req)));
-          return;
-        }
-        if (petMatch && method === 'DELETE') {
-          if (this.enforceTablePermission(res, session, 'MONSTERS', 'READ_WRITE')) this.sendJson(res, 200, await this.petsController.deletePetTemplate(Number(petMatch[1])));
-          return;
-        }
-
-        // --- Equipamentos e Itens (mcrework & PostgreSQL) ---
-        if (pathname === '/api/admin/equipment-slots' && method === 'GET') {
-          if (this.enforceTablePermission(res, session, 'MONSTERS', 'READ')) this.sendJson(res, 200, await this.equipmentsController.getEquipmentSlots());
-          return;
-        }
-        if (pathname === '/api/admin/mcrework/equipment' && method === 'GET') {
-          if (this.enforceTablePermission(res, session, 'MONSTERS', 'READ')) this.sendJson(res, 200, await this.equipmentsController.getMcreworkEquipmentGallery());
-          return;
-        }
-        if (pathname === '/api/admin/equipments' && method === 'GET') {
-          const cat = urlObj.searchParams.get('category') || undefined;
-          if (this.enforceTablePermission(res, session, 'MONSTERS', 'READ')) this.sendJson(res, 200, await this.equipmentsController.getEquipmentTemplates(cat));
-          return;
-        }
-        if (pathname === '/api/admin/equipments' && method === 'POST') {
-          if (this.enforceTablePermission(res, session, 'MONSTERS', 'READ_WRITE')) this.sendJson(res, 201, await this.equipmentsController.createEquipmentTemplate(await this.readJsonBody(req)));
-          return;
-        }
-        const eqMatch = pathname.match(/^\/api\/admin\/equipments\/(\d+)$/);
-        if (eqMatch && method === 'PUT') {
-          if (this.enforceTablePermission(res, session, 'MONSTERS', 'READ_WRITE')) this.sendJson(res, 200, await this.equipmentsController.updateEquipmentTemplate(Number(eqMatch[1]), await this.readJsonBody(req)));
-          return;
-        }
-        if (eqMatch && method === 'DELETE') {
-          if (this.enforceTablePermission(res, session, 'MONSTERS', 'READ_WRITE')) this.sendJson(res, 200, await this.equipmentsController.deleteEquipmentTemplate(Number(eqMatch[1])));
-          return;
-        }
-
-        // --- Itens Gerais e Consumíveis (mcrework & PostgreSQL) ---
-        if (pathname === '/api/admin/mcrework/items' && method === 'GET') {
-          if (this.enforceTablePermission(res, session, 'MONSTERS', 'READ')) this.sendJson(res, 200, await this.itemsController.getMcreworkItemsCatalog());
-          return;
-        }
-        if (pathname === '/api/admin/items' && method === 'GET') {
-          const cat = urlObj.searchParams.get('category') || undefined;
-          if (this.enforceTablePermission(res, session, 'MONSTERS', 'READ')) this.sendJson(res, 200, await this.itemsController.getItemTemplates(cat));
-          return;
-        }
-        if (pathname === '/api/admin/items' && method === 'POST') {
-          if (this.enforceTablePermission(res, session, 'MONSTERS', 'READ_WRITE')) this.sendJson(res, 201, await this.itemsController.createItemTemplate(await this.readJsonBody(req)));
-          return;
-        }
-        const itemMatch = pathname.match(/^\/api\/admin\/items\/(\d+)$/);
-        if (itemMatch && method === 'PUT') {
-          if (this.enforceTablePermission(res, session, 'MONSTERS', 'READ_WRITE')) this.sendJson(res, 200, await this.itemsController.updateItemTemplate(Number(itemMatch[1]), await this.readJsonBody(req)));
-          return;
-        }
-        if (itemMatch && method === 'DELETE') {
-          if (this.enforceTablePermission(res, session, 'MONSTERS', 'READ_WRITE')) this.sendJson(res, 200, await this.itemsController.deleteItemTemplate(Number(itemMatch[1])));
-          return;
-        }
-
-        // --- Montarias Voadoras (mcrework & PostgreSQL) ---
-        if (pathname === '/api/admin/mcrework/mounts' && method === 'GET') {
-          if (this.enforceTablePermission(res, session, 'MONSTERS', 'READ')) this.sendJson(res, 200, await this.mountsController.getMcreworkMountsGallery());
-          return;
-        }
-        if (pathname === '/api/admin/flying-mounts' && method === 'GET') {
-          const type = urlObj.searchParams.get('type') || undefined;
-          if (this.enforceTablePermission(res, session, 'MONSTERS', 'READ')) this.sendJson(res, 200, await this.mountsController.getFlyingMountTemplates(type));
-          return;
-        }
-        if (pathname === '/api/admin/flying-mounts' && method === 'POST') {
-          if (this.enforceTablePermission(res, session, 'MONSTERS', 'READ_WRITE')) this.sendJson(res, 201, await this.mountsController.createFlyingMountTemplate(await this.readJsonBody(req)));
-          return;
-        }
-        const mountMatch = pathname.match(/^\/api\/admin\/flying-mounts\/(\d+)$/);
-        if (mountMatch && method === 'PUT') {
-          if (this.enforceTablePermission(res, session, 'MONSTERS', 'READ_WRITE')) this.sendJson(res, 200, await this.mountsController.updateFlyingMountTemplate(Number(mountMatch[1]), await this.readJsonBody(req)));
-          return;
-        }
-        if (mountMatch && method === 'DELETE') {
-          if (this.enforceTablePermission(res, session, 'MONSTERS', 'READ_WRITE')) this.sendJson(res, 200, await this.mountsController.deleteFlyingMountTemplate(Number(mountMatch[1])));
-          return;
-        }
-
-        // --- Rotas de Habilidades (Skills) & Buffs/Debuffs (Status Effects) ---
-        if (pathname === '/api/admin/mcrework/skill-assets' && method === 'GET') {
-          if (this.enforceTablePermission(res, session, 'SKILLS', 'READ')) this.sendJson(res, 200, await this.skillsController.getMcreworkSkillAssets());
-          return;
-        }
-        if (pathname === '/api/admin/status-effects' && method === 'GET') {
-          if (this.enforceTablePermission(res, session, 'STATUS_EFFECTS', 'READ')) this.sendJson(res, 200, await this.skillsController.getStatusEffectTemplates());
-          return;
-        }
-        if (pathname === '/api/admin/status-effects' && method === 'POST') {
-          if (this.enforceTablePermission(res, session, 'STATUS_EFFECTS', 'READ_WRITE')) this.sendJson(res, 201, await this.skillsController.createStatusEffectTemplate(await this.readJsonBody(req)));
-          return;
-        }
-        const statusEffectMatch = pathname.match(/^\/api\/admin\/status-effects\/(\d+)$/);
-        if (statusEffectMatch && method === 'PUT') {
-          if (this.enforceTablePermission(res, session, 'STATUS_EFFECTS', 'READ_WRITE')) this.sendJson(res, 200, await this.skillsController.updateStatusEffectTemplate(Number(statusEffectMatch[1]), await this.readJsonBody(req)));
-          return;
-        }
-        if (statusEffectMatch && method === 'DELETE') {
-          if (this.enforceTablePermission(res, session, 'STATUS_EFFECTS', 'READ_WRITE')) this.sendJson(res, 200, await this.skillsController.deleteStatusEffectTemplate(Number(statusEffectMatch[1])));
-          return;
-        }
-
-        if (pathname === '/api/admin/skill-templates' && method === 'GET') {
-          if (this.enforceTablePermission(res, session, 'SKILLS', 'READ')) this.sendJson(res, 200, await this.skillsController.getSkillTemplates());
-          return;
-        }
-        if (pathname === '/api/admin/skill-templates' && method === 'POST') {
-          if (this.enforceTablePermission(res, session, 'SKILLS', 'READ_WRITE')) this.sendJson(res, 201, await this.skillsController.createSkillTemplate(await this.readJsonBody(req)));
-          return;
-        }
-        const skillMatch = pathname.match(/^\/api\/admin\/skill-templates\/(\d+)$/);
-        if (skillMatch && method === 'PUT') {
-          if (this.enforceTablePermission(res, session, 'SKILLS', 'READ_WRITE')) this.sendJson(res, 200, await this.skillsController.updateSkillTemplate(Number(skillMatch[1]), await this.readJsonBody(req)));
-          return;
-        }
-        if (skillMatch && method === 'DELETE') {
-          if (this.enforceTablePermission(res, session, 'SKILLS', 'READ_WRITE')) this.sendJson(res, 200, await this.skillsController.deleteSkillTemplate(Number(skillMatch[1])));
-          return;
-        }
-        const autoLinkMatch = pathname.match(/^\/api\/admin\/skill-templates\/(\d+)\/auto-link-monsters$/);
-        if (autoLinkMatch && method === 'POST') {
-          if (this.enforceTablePermission(res, session, 'SKILLS', 'READ_WRITE')) this.sendJson(res, 200, await this.skillsController.autoLinkSkillToMonsters(Number(autoLinkMatch[1]), (await this.readJsonBody(req))?.elementCode));
-          return;
-        }
-
-        // --- Rotas do Estúdio Visual No-Code de Quests (`quest_templates`) ---
-        if (pathname === '/api/admin/quest-templates' && method === 'GET') {
-          if (this.enforceTablePermission(res, session, 'QUESTS', 'READ')) this.sendJson(res, 200, await this.questsController.getQuestTemplates());
-          return;
-        }
-        if (pathname === '/api/admin/quest-templates' && method === 'POST') {
-          if (this.enforceTablePermission(res, session, 'QUESTS', 'READ_WRITE')) this.sendJson(res, 201, await this.questsController.saveQuestTemplate(await this.readJsonBody(req), null));
-          return;
-        }
-        const questMatch = pathname.match(/^\/api\/admin\/quest-templates\/(\d+)$/);
-        if (questMatch && method === 'PUT') {
-          if (this.enforceTablePermission(res, session, 'QUESTS', 'READ_WRITE')) this.sendJson(res, 200, await this.questsController.saveQuestTemplate(await this.readJsonBody(req), Number(questMatch[1])));
-          return;
-        }
-        if (questMatch && method === 'DELETE') {
-          if (this.enforceTablePermission(res, session, 'QUESTS', 'READ_WRITE')) this.sendJson(res, 200, await this.questsController.deleteQuestTemplate(Number(questMatch[1])));
-          return;
-        }
-
-        // --- Rotas de Atributos Base, Combate & Matriz de Conversão Procedural ---
-        if (pathname === '/api/admin/attributes' && method === 'GET') {
-          if (this.enforceTablePermission(res, session, 'ATTRIBUTES', 'READ')) this.sendJson(res, 200, await this.attributesController.getAttributesData());
-          return;
-        }
-        if (pathname === '/api/admin/attributes/conversions' && method === 'PUT') {
-          if (this.enforceTablePermission(res, session, 'ATTRIBUTES', 'READ_WRITE')) this.sendJson(res, 200, await this.attributesController.batchUpdateConversions(await this.readJsonBody(req)));
-          return;
-        }
-        if (pathname === '/api/admin/attributes/conversions/single' && method === 'PUT') {
-          if (this.enforceTablePermission(res, session, 'ATTRIBUTES', 'READ_WRITE')) this.sendJson(res, 200, await this.attributesController.updateConversion(await this.readJsonBody(req)));
-          return;
-        }
-        const combatAttrMatch = pathname.match(/^\/api\/admin\/attributes\/combat\/([a-zA-Z0-9_]+)$/);
-        if (combatAttrMatch && method === 'PUT') {
-          if (this.enforceTablePermission(res, session, 'ATTRIBUTES', 'READ_WRITE')) this.sendJson(res, 200, await this.attributesController.updateCombatAttribute(combatAttrMatch[1], await this.readJsonBody(req)));
-          return;
-        }
-
-        // --- Níveis e Progressão de Experiência (XP) Procedural & Brackets ---
-        if (pathname === '/api/admin/experience' && method === 'GET') {
-          const bracket = urlObj.searchParams.get('bracket');
-          if (this.enforceTablePermission(res, session, 'ATTRIBUTES', 'READ')) this.sendJson(res, 200, await this.experienceController.getLevelExperienceTemplates(bracket ? Number(bracket) : undefined));
-          return;
-        }
-        if (pathname === '/api/admin/experience/procedural' && method === 'POST') {
-          if (this.enforceTablePermission(res, session, 'ATTRIBUTES', 'READ_WRITE')) this.sendJson(res, 200, await this.experienceController.generateProceduralCurve(await this.readJsonBody(req)));
-          return;
-        }
-        const bracketMatch = pathname.match(/^\/api\/admin\/experience\/bracket\/(\d+)$/);
-        if (bracketMatch && method === 'PUT') {
-          if (this.enforceTablePermission(res, session, 'ATTRIBUTES', 'READ_WRITE')) this.sendJson(res, 200, await this.experienceController.updateBracketGroup(Number(bracketMatch[1]), await this.readJsonBody(req)));
-          return;
-        }
-        const levelMatch = pathname.match(/^\/api\/admin\/experience\/(\d+)$/);
-        if (levelMatch && method === 'PUT') {
-          if (this.enforceTablePermission(res, session, 'ATTRIBUTES', 'READ_WRITE')) this.sendJson(res, 200, await this.experienceController.updateSingleLevel(Number(levelMatch[1]), await this.readJsonBody(req)));
-          return;
-        }
-
-        this.sendJson(res, 404, { error: 'Rota da API Admin não encontrada.' });
-        return;
-      }
-
-      // 4. Rotas da API dos Jogadores e GM (`/api/play/*`)
-      if (pathname === '/api/play/auth/login' && method === 'POST') {
-        const body = await this.readJsonBody<{ username?: string; password?: string }>(req);
-        const result = await this.authService.authenticatePlay(
-          req,
-          body.username ?? '',
-          body.password ?? ''
-        );
-        if (!result.success) {
-          this.sendJson(res, 401, { error: result.error });
-          return;
-        }
-        this.sendJson(res, 200, {
-          token: result.token,
-          session: result.payload,
-        });
-        return;
-      }
-
-      if (pathname.startsWith('/api/play/')) {
-        const session = this.authService.verifyPlayToken(req);
-        if (!session) {
-          this.sendJson(res, 401, { error: 'Sessão expirada ou não autenticada. Faça login em /play.' });
-          return;
-        }
-
-        let userAccountId = Number(session.sub);
-        if (!Number.isInteger(userAccountId) || userAccountId <= 0) {
-          const firstAdmin = await this.prisma.userAccount.findFirst({
-            where: { role: 'ADMIN' },
-            orderBy: { id: 'asc' },
-          });
-          if (!firstAdmin) {
-            this.sendJson(res, 401, { error: 'Crie primeiro uma conta de usuário no banco.' });
-            return;
-          }
-          userAccountId = firstAdmin.id;
-        }
-
-        if (pathname === '/api/play/bootstrap' && method === 'GET') {
-          const data = await this.playController.getPlayBootstrap(userAccountId);
-          this.sendJson(res, 200, {
-            session: {
-              userAccountId,
-              username: session.username,
-              role: session.role,
-            },
-            ...data,
-          });
-          return;
-        }
-
-        if (pathname === '/api/play/characters' && method === 'POST') {
-          const dto = await this.readJsonBody(req);
-          this.sendJson(res, 201, await this.playController.createCharacter(userAccountId, dto));
-          return;
-        }
-
-        const charDeleteMatch = pathname.match(/^\/api\/play\/characters\/(\d+)$/);
-        if (charDeleteMatch && method === 'DELETE') {
-          const charId = Number(charDeleteMatch[1]);
-          this.sendJson(res, 200, await this.playController.deleteCharacter(userAccountId, charId));
-          return;
-        }
-
-        const playMapMatch = pathname.match(/^\/api\/play\/map\/(\d+)$/);
-        if (playMapMatch && method === 'GET') {
-          const mapId = Number(playMapMatch[1]);
-          this.sendJson(res, 200, await this.playController.getMapStateForPlay(mapId));
-          return;
-        }
-
-        const syncPosMatch = pathname.match(/^\/api\/play\/characters\/(\d+)\/sync-position$/);
-        if (syncPosMatch && method === 'POST') {
-          const charId = Number(syncPosMatch[1]);
-          const dto = await this.readJsonBody(req);
-          this.sendJson(
-            res,
-            200,
-            await this.playController.syncPosition(userAccountId, session.role, charId, dto)
-          );
-          return;
-        }
-
-        const traverseMatch = pathname.match(/^\/api\/play\/characters\/(\d+)\/traverse-portal$/);
-        if (traverseMatch && method === 'POST') {
-          const charId = Number(traverseMatch[1]);
-          const dto = await this.readJsonBody<{ portalId: number }>(req);
-          this.sendJson(
-            res,
-            200,
-            await this.playController.traversePortal(userAccountId, charId, Number(dto.portalId))
-          );
-          return;
-        }
-
-        const unstuckMatch = pathname.match(/^\/api\/play\/characters\/(\d+)\/unstuck$/);
-        if (unstuckMatch && method === 'POST') {
-          const charId = Number(unstuckMatch[1]);
-          this.sendJson(res, 200, await this.playController.unstuckCharacter(userAccountId, charId));
-          return;
-        }
-
-        const gmTeleportMatch = pathname.match(/^\/api\/play\/characters\/(\d+)\/gm-teleport$/);
-        if (gmTeleportMatch && method === 'POST') {
-          const charId = Number(gmTeleportMatch[1]);
-          const dto = await this.readJsonBody(req);
-          this.sendJson(
-            res,
-            200,
-            await this.playController.gmTeleport(userAccountId, session.role, charId, dto)
-          );
-          return;
-        }
-
-        const toggleRebornMatch = pathname.match(/^\/api\/play\/characters\/(\d+)\/toggle-reborn$/);
-        if (toggleRebornMatch && method === 'POST') {
-          const charId = Number(toggleRebornMatch[1]);
-          this.sendJson(
-            res,
-            200,
-            await this.playController.toggleReborn(userAccountId, session.role, charId)
-          );
-          return;
-        }
-
-        const groundOffsetMatch = pathname.match(/^\/api\/play\/characters\/(\d+)\/ground-offset$/);
-        if (groundOffsetMatch && method === 'POST') {
-          const charId = Number(groundOffsetMatch[1]);
-          const body = await this.readJsonBody<{ offset?: number }>(req);
-          this.sendJson(
-            res,
-            200,
-            await this.playController.updateClassGroundOffset(userAccountId, session.role, charId, Number(body.offset) || 0)
-          );
-          return;
-        }
-
-        // 📜 Rotas de Quests / Missões do Jogador e Indicadores de Cabeça dos NPCs (! vermelho, ? cinza, ? vermelho)
-        const charQuestsMatch = pathname.match(/^\/api\/play\/characters\/(\d+)\/quests$/);
-        if (charQuestsMatch && method === 'GET') {
-          const charId = Number(charQuestsMatch[1]);
-          const mapId = urlObj.searchParams.get('mapId') ? Number(urlObj.searchParams.get('mapId')) : null;
-          this.sendJson(res, 200, await this.questsController.getCharacterQuestState(charId, mapId));
-          return;
-        }
-        const acceptQuestMatch = pathname.match(/^\/api\/play\/characters\/(\d+)\/quests\/accept$/);
-        if (acceptQuestMatch && method === 'POST') {
-          const charId = Number(acceptQuestMatch[1]);
-          const body = await this.readJsonBody<{ questTemplateId: number; mapId?: number | null }>(req);
-          this.sendJson(
-            res,
-            200,
-            await this.questsController.acceptQuest(charId, Number(body.questTemplateId), body.mapId ?? null)
-          );
-          return;
-        }
-        const interactNpcQuestMatch = pathname.match(/^\/api\/play\/characters\/(\d+)\/quests\/interact-npc$/);
-        if (interactNpcQuestMatch && method === 'POST') {
-          const charId = Number(interactNpcQuestMatch[1]);
-          const body = await this.readJsonBody<{ npcTemplateId: number; mapId?: number | null }>(req);
-          this.sendJson(
-            res,
-            200,
-            await this.questsController.interactNpcForQuest(charId, Number(body.npcTemplateId), body.mapId ?? null)
-          );
-          return;
-        }
-        const turnInQuestMatch = pathname.match(/^\/api\/play\/characters\/(\d+)\/quests\/turn-in$/);
-        if (turnInQuestMatch && method === 'POST') {
-          const charId = Number(turnInQuestMatch[1]);
-          const body = await this.readJsonBody<{ questTemplateId: number; mapId?: number | null }>(req);
-          this.sendJson(
-            res,
-            200,
-            await this.questsController.turnInQuest(charId, Number(body.questTemplateId), body.mapId ?? null)
-          );
-          return;
-        }
-
-        // ⚔️ Rotas da Arena de Combate em Tempo Real e Encontros no Mapa
-        if (pathname === '/api/play/combat/encounter' && method === 'POST') {
-          const body = await this.readJsonBody<{ characterId?: number; mapId: number }>(req);
-          const state = await this.combatController.startEncounterByMap(
-            Number(body.characterId) || 1,
-            Number(body.mapId)
-          );
-          this.sendJson(res, 200, state);
-          return;
-        }
-        if (pathname === '/api/play/temporary-combat/monsters' && method === 'GET') {
-          this.sendJson(res, 200, await this.combatController.getAvailableMonsters());
-          return;
-        }
-        if (pathname === '/api/play/temporary-combat/start' && method === 'POST') {
-          const body = await this.readJsonBody<{
-            characterId?: number;
-            monsterTemplateId: number;
-            quantity?: number;
-            monsterLevel?: number;
-          }>(req);
-          const state = await this.combatController.startBattle(
-            Number(body.characterId) || 0,
-            Number(body.monsterTemplateId),
-            Number(body.quantity) || 1,
-            Number(body.monsterLevel) || 1
-          );
-          this.sendJson(res, 200, state);
-          return;
-        }
-        if (pathname === '/api/play/temporary-combat/action' && method === 'POST') {
-          const body = await this.readJsonBody<{
-            battleId: string;
-            actionType: 'ATTACK' | 'SKILL' | 'DEFEND';
-            targetMonsterIndex?: number;
-          }>(req);
-          const state = this.combatController.executeAction(
-            body.battleId,
-            body.actionType || 'ATTACK',
-            Number(body.targetMonsterIndex) || 0
-          );
-          if (state.isFinished && state.winner === 'PLAYER' && !state.victoryRecorded) {
-            state.victoryRecorded = true;
-            await this.questsController.recordBattleVictoryProgress(
-              state.characterId || 1,
-              state.monsterTemplateId || 1,
-              state.monsters.length
-            );
-          }
-          this.sendJson(res, 200, state);
-          return;
-        }
-        if (pathname === '/api/play/temporary-combat/auto-resolve' && method === 'POST') {
-          const body = await this.readJsonBody<{ battleId: string }>(req);
-          const state = this.combatController.autoResolve(body.battleId);
-          if (state.isFinished && state.winner === 'PLAYER' && !state.victoryRecorded) {
-            state.victoryRecorded = true;
-            await this.questsController.recordBattleVictoryProgress(
-              state.characterId || 1,
-              state.monsterTemplateId || 1,
-              state.monsters.length
-            );
-          }
-          this.sendJson(res, 200, state);
-          return;
-        }
-
-        this.sendJson(res, 404, { error: 'Rota da API Play não encontrada.' });
-        return;
-      }
-
-      // 5. Servir Arquivos Estáticos de `apps/server/public` (/admin, /play, /gm, subpastas /js, etc.)
+      // 3. Servir Arquivos Estáticos de `apps/server/public` (/admin, /play, /gm, subpastas /js, etc.)
       const served = await this.tryServeStatic(pathname, res);
       if (served) return;
 

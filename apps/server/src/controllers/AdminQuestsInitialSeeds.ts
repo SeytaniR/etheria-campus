@@ -19,18 +19,13 @@ export async function ensureInitialQuestsSeed(
     const npc3 = npcs[2]?.id || npc1;
     const npc4 = npcs[3]?.id || npc2;
 
-    const mainCap1 = existing.filter((q) => q.questCategory === 'MAIN' && q.chapterOrder === 1);
-    if (existing.length > 0 && mainCap1.length >= 3) {
+    if (existing.length > 0) {
       return;
     }
 
     console.log(
       '📜 [AdminQuestsInitialSeeds] Estruturando Quests por Capítulos e Episódios (1-1, 1-2, 1-3 => 2-1, 2-2)...'
     );
-
-    if (existing.length <= 5) {
-      await prisma.questTemplate.deleteMany({});
-    }
 
     // CAPÍTULO 1 — EPISÓDIO 1-1
     const ep1_1 = await controller.saveQuestTemplate({
