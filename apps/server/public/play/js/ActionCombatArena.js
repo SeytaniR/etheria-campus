@@ -394,6 +394,12 @@ class ActionCombatArena {
 
     const target = this.getLockedTarget();
     if (target) {
+      const dist = Math.hypot(target.x - this.player.x, target.y - this.player.y);
+      const maxRange = this.player.attackRange || (this.player.combatStyle === 'RANGED' ? 220 : 60);
+      if (dist > maxRange + 25) {
+        this.floatingTexts.push({ x: this.player.x, y: this.player.y - 45, text: '📏 Fora de Alcance!', color: '#fde047', life: 0.7 });
+        return;
+      }
       this.player.dir = this.compute8Direction(target.x - this.player.x, target.y - this.player.y);
       const isCrit = Math.random() < (this.player.critRate || 0.15);
       const rawDmg = Math.max(12, Math.round(this.player.atk * (100 / (100 + target.def * 0.4))));

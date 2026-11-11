@@ -205,6 +205,8 @@ export class GamePlayController {
       classCode: c.classTemplate?.code ?? `class_${c.classTemplateId}`,
       classNamePtBr,
       raceCode: c.classTemplate?.raceCode ?? 'HUMAN',
+      combatStyle: (c.classTemplate as any)?.combatStyle || 'MELEE',
+      attackRange: (c.classTemplate as any)?.attackRange || 60,
       isReborn,
       groundOffsetY,
       shadowOffsetX,

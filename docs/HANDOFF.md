@@ -8,9 +8,9 @@
 ---
 
 ## 📌 Status Atual do Projeto
-* **Versão Atual:** `v0.6.3`
+* **Versão Atual:** `v0.6.4`
 * **Última Atualização:** `2026-11-10`
-* **Fase Atual:** **Transição Completa do Sistema de Combate e Tabelas para Tempo Real (`v0.6.3`) — Eliminados resquícios de turnos em habilidades, buffs e debuffs. Habilidades agora operam com Cooldowns em Segundos (`cooldownSeconds`), buffs e debuffs operam com Duração (`durationSeconds`) e Intervalos de Pulso (`tickIntervalSeconds`), com gatilhos contínuos em tempo real (`CONTINUOUS_TICK`, `INTERVAL_TICK`). Mantida 100% de compatibilidade retroativa com fallback para dados existentes (Cláusula 0.2) e todos os arquivos estritamente abaixo de 1.000 linhas (Regra #7).**
+* **Fase Atual:** **Resposta Dinâmica Total a Atributos e Banco de Dados (`v0.6.4`) — Sincronização 100% autoritária entre banco PostgreSQL e gameplay: qualquer buff/nerf em atributos de classes, monstros, pets, personagens individuais (`distributedStatsJson`) ou matriz de conversão (`attribute_conversions`) altera o jogo imediatamente.**
 * **Repositório Oficial:** `https://github.com/SeytaniR/etheria-campus`
 * **Fonte Bruta de Assets:** `https://github.com/SeytaniR/mcrework` (`https://seytanir.github.io/mcrework/`)
 

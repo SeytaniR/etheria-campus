@@ -176,13 +176,16 @@ export class TemporaryCombatController {
           charSpriteKey = isRebornActive ? ct.rebornMcreworkCharKey! : ct.mcreworkCharKey;
           charGroundOffsetY = isRebornActive ? (ct.rebornGroundOffsetY || 0) : (ct.groundOffsetY || 0);
           const b = (ct.baseAttributesJson as any) || {};
+          const dist = (pc.distributedStatsJson as any) || {};
+          const growth = (ct.growthPerLevelJson as any) || {};
+          const lvUps = Math.max(0, (pc.level || 1) - 1);
           charBaseStats = {
-            VIT: b.VIT ?? 12,
-            STR: b.STR ?? 12,
-            INT: b.INT ?? 10,
-            WIS: b.WIS ?? 10,
-            AGI: b.AGI ?? 10,
-            DEX: b.DEX ?? 10,
+            VIT: (Number(b.VIT) || 10) + (Number(dist.VIT) || 0) + (Number(growth.VIT) || 2) * lvUps,
+            STR: (Number(b.STR) || 10) + (Number(dist.STR) || 0) + (Number(growth.STR) || 2) * lvUps,
+            INT: (Number(b.INT) || 10) + (Number(dist.INT) || 0) + (Number(growth.INT) || 2) * lvUps,
+            WIS: (Number(b.WIS) || 10) + (Number(dist.WIS) || 0) + (Number(growth.WIS) || 2) * lvUps,
+            AGI: (Number(b.AGI) || 10) + (Number(dist.AGI) || 0) + (Number(growth.AGI) || 2) * lvUps,
+            DEX: (Number(b.DEX) || 10) + (Number(dist.DEX) || 0) + (Number(growth.DEX) || 2) * lvUps,
           };
         }
       }
@@ -192,12 +195,24 @@ export class TemporaryCombatController {
     const charAtlasJson = `${this.mcreworkPagesBaseUrl}/assets/characters/${charSpriteKey}/atlas.json`;
     const charAtlasWebp = `${this.mcreworkPagesBaseUrl}/assets/characters/${charSpriteKey}/atlas.webp`;
 
-    // Calcula Atributos do Personagem
-    const playerMaxHp = charBaseStats.VIT * 25 + charLevel * 20;
-    const playerMaxMp = charBaseStats.INT * 15 + charLevel * 10;
-    const playerAtk = Math.round(charBaseStats.STR * 3.2 + charLevel * 4);
-    const playerDef = Math.round(charBaseStats.VIT * 1.8 + charLevel * 2.5);
-    const playerSpeed = charBaseStats.AGI * 2 + charLevel;
+    // Carrega matriz de conversões do banco de dados (attribute_conversions)
+    const convs = await this.prisma.attributeConversion.findMany();
+    const getRatio = (baseAttr: string, combatAttr: string, fallback: number) => {
+      const match = convs.find((c) => c.baseAttributeCode === baseAttr && c.combatAttributeCode === combatAttr);
+      return match ? Number(match.ratioPerPoint) : fallback;
+    };
+    const vitHpRatio = getRatio('VIT', 'MAX_HP', 25);
+    const intMpRatio = getRatio('INT', 'MAX_MP', 15);
+    const strAtkRatio = getRatio('STR', 'PHYS_ATK', 3.2);
+    const vitDefRatio = getRatio('VIT', 'PHYS_DEF', 1.8);
+    const agiSpdRatio = getRatio('AGI', 'SPEED', 2.0);
+
+    // Calcula Atributos do Personagem (100% dinâmicos do banco)
+    const playerMaxHp = Math.round(charBaseStats.VIT * vitHpRatio + charLevel * 20);
+    const playerMaxMp = Math.round(charBaseStats.INT * intMpRatio + charLevel * 10);
+    const playerAtk = Math.round(charBaseStats.STR * strAtkRatio + charLevel * 4);
+    const playerDef = Math.round(charBaseStats.VIT * vitDefRatio + charLevel * 2.5);
+    const playerSpeed = Math.round(charBaseStats.AGI * agiSpdRatio + charLevel);
 
     const playerUnit: CombatUnit = {
       id: `player_${characterId || 1}`,
@@ -292,11 +307,11 @@ export class TemporaryCombatController {
     const mobStats = (mobTemplate.baseAttributesJson as any) || { VIT: 12, STR: 12, INT: 10, WIS: 10, AGI: 10, DEX: 10 };
     const rarityMult = 1.0;
 
-    const mobMaxHp = Math.round((mobStats.VIT * 20 + lvl * 18) * rarityMult);
-    const mobMaxMp = Math.round((mobStats.INT * 10 + lvl * 8) * rarityMult);
-    const mobAtk = Math.round((mobStats.STR * 2.6 + lvl * 3.2) * rarityMult);
-    const mobDef = Math.round((mobStats.VIT * 1.4 + lvl * 2.0) * rarityMult);
-    const mobSpeed = Math.round((mobStats.AGI * 1.8 + lvl) * rarityMult);
+    const mobMaxHp = Math.round((mobStats.VIT * (vitHpRatio * 0.8) + lvl * 18) * rarityMult);
+    const mobMaxMp = Math.round((mobStats.INT * (intMpRatio * 0.7) + lvl * 8) * rarityMult);
+    const mobAtk = Math.round((mobStats.STR * (strAtkRatio * 0.82) + lvl * 3.2) * rarityMult);
+    const mobDef = Math.round((mobStats.VIT * (vitDefRatio * 0.78) + lvl * 2.0) * rarityMult);
+    const mobSpeed = Math.round((mobStats.AGI * (agiSpdRatio * 0.9) + lvl) * rarityMult);
     const mobKey = mobTemplate.mcreworkMonsterKey;
     const mobThumb = `${this.mcreworkPagesBaseUrl}/assets/monsters/${mobKey}/thumb.webp`;
     const mobAtlasJson = `${this.mcreworkPagesBaseUrl}/assets/monsters/${mobKey}/atlas.json`;
@@ -486,7 +501,18 @@ export class TemporaryCombatController {
     const maxVar = map.levelVarianceMax ?? 5;
     const varRange = Math.max(0, maxVar - minVar);
 
-    // 7. Constrói a lista heterogênea de monstros sorteados
+    // 7. Constrói a lista heterogênea de monstros sorteados (com conversões procedurais do banco)
+    const convs = await this.prisma.attributeConversion.findMany();
+    const getRatio = (baseAttr: string, combatAttr: string, fallback: number) => {
+      const match = convs.find((c) => c.baseAttributeCode === baseAttr && c.combatAttributeCode === combatAttr);
+      return match ? Number(match.ratioPerPoint) : fallback;
+    };
+    const vitHpRatio = getRatio('VIT', 'MAX_HP', 25);
+    const intMpRatio = getRatio('INT', 'MAX_MP', 15);
+    const strAtkRatio = getRatio('STR', 'PHYS_ATK', 3.2);
+    const vitDefRatio = getRatio('VIT', 'PHYS_DEF', 1.8);
+    const agiSpdRatio = getRatio('AGI', 'SPEED', 2.0);
+
     const monsterUnits: CombatUnit[] = [];
     for (let i = 0; i < totalMonstersToSpawn; i++) {
       const tmpl = pickWeightedCandidate();
@@ -497,11 +523,11 @@ export class TemporaryCombatController {
       const mult = rarityStatMults[rTier] || { hp: 1.0, atk: 1.0, def: 1.0 };
       const mobStats = (tmpl.baseAttributesJson as any) || { VIT: 12, STR: 12, INT: 10, WIS: 10, AGI: 10, DEX: 10 };
 
-      const mobMaxHp = Math.round((mobStats.VIT * 20 + mobLvl * 18) * mult.hp);
-      const mobMaxMp = Math.round((mobStats.INT * 10 + mobLvl * 8) * mult.hp);
-      const mobAtk = Math.round((mobStats.STR * 2.6 + mobLvl * 3.2) * mult.atk);
-      const mobDef = Math.round((mobStats.VIT * 1.4 + mobLvl * 2.0) * mult.def);
-      const mobSpeed = Math.round(mobStats.AGI * 1.8 + mobLvl);
+      const mobMaxHp = Math.round((mobStats.VIT * (vitHpRatio * 0.8) + mobLvl * 18) * mult.hp);
+      const mobMaxMp = Math.round((mobStats.INT * (intMpRatio * 0.7) + mobLvl * 8) * mult.hp);
+      const mobAtk = Math.round((mobStats.STR * (strAtkRatio * 0.82) + mobLvl * 3.2) * mult.atk);
+      const mobDef = Math.round((mobStats.VIT * (vitDefRatio * 0.78) + mobLvl * 2.0) * mult.def);
+      const mobSpeed = Math.round(mobStats.AGI * (agiSpdRatio * 0.9) + mobLvl);
 
       const baseName = i18nMap.get(tmpl.nameI18nKey) || tmpl.code;
       const raritySuffix = rTier === 'SS' ? ' ⭐[SS]' : rTier === 'S' ? ' ⭐[S]' : '';

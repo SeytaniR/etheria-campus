@@ -5,6 +5,20 @@ Qualquer IA trabalhando neste repositório **DEVE** incrementar a versão e regi
 
 ---
 
+## [v0.6.4] - 2026-11-10
+### Governança & Arquitetura — Resposta Dinâmica Total a Atributos e Banco de Dados
+* **Sincronização 100% Autoritária do Banco com o Jogo (Zero Hardcode):**
+  * **Atributos de Personagens (`PlayerCharacter` & `ClassTemplate`):**
+    * O cálculo de combate agora combina em tempo real os atributos base da classe (`ClassTemplate.baseAttributesJson`), a progressão de nível (`ClassTemplate.growthPerLevelJson * (level - 1)`) e os pontos distribuídos pelo jogador ou admin (`PlayerCharacter.distributedStatsJson`).
+    * Qualquer alteração direta no PostgreSQL ou no painel Admin (buff/nerf em atributos base, nível ou pontos alocados) altera imediatamente a vida, dano, defesa e velocidade do personagem in-game.
+  * **Matriz Procedural de Conversões (`attribute_conversions`):**
+    * `TemporaryCombatController` agora lê dinamicamente as taxas de conversão de atributos do banco (`this.prisma.attributeConversion.findMany()`). Se o admin alterar a taxa de conversão (ex: de `STR -> PHYS_ATK` de 3.2 para outro valor), todo o dano do jogo responde imediatamente.
+  * **Estilo de Combate Melee vs Ranged e Alcance no Cliente (`GamePlayController.ts` & `ActionCombatArena.js`):**
+    * `GamePlayController.formatCharacterPayload` passa oficialmente `combatStyle` e `attackRange` para o cliente.
+    * `ActionCombatArena.triggerAttack` valida a distância física do ataque com base no `attackRange` do personagem/classe, exibindo `📏 Fora de Alcance!` caso tente atacar além do alcance configurado no banco de dados.
+
+---
+
 ## [v0.6.3] - 2026-11-10
 ### Combate em Tempo Real — Migração de Resquícios de Turno para Cooldowns e Segundos
 * **Transição Completa para Mecânica de Ação em Tempo Real:**
