@@ -137,3 +137,15 @@ Os parâmetros de **Dominação**, **Spawn de Monstros** e **Regra de PvP** são
 2. **Espelhamento Automático (`packages/database/snapshots/`):**
    * Toda alteração feita pelo usuário nas tabelas de configuração via Rota `/admin` salva no **PostgreSQL** e exporta automaticamente um snapshot JSON versionado na pasta `packages/database/snapshots/`.
    * Ao iniciar um turno ou subir na VPS, o comando `db:sync` garante que o PostgreSQL contenha 100% dos snapshots salvos no Git, impedindo perda de dados e mantendo as duas contas de IA sempre sincronizadas.
+
+---
+
+## 5. Quests Meta Procedurais (`quest_templates.meta_config_json`) & Base Inicial Incompleta de Economia/Mochila (`v0.9.0`)
+
+* **`quest_templates` (`questCategory = 'META'`) & `character_quest_progress.current_stage`:**
+  * `meta_config_json`: armazena tipo de alvo (`KILL_MONSTER`, `KILL_RACE`, `COLLECT_ITEM`), quantidade inicial (ex: `10`), fator multiplicador (`x10` ➔ `10, 100, 1.000, 10.000...`), número de estágios (`1..15`), fonte provisória de drop para coleta e a grade editável por estágio (EXP, Ouro, Pontos de Atributo, Item de recompensa e `triggerReborn`).
+  * `current_stage`: acompanha o estágio atual (`1..N`) do personagem na mesma linha de `character_quest_progress` com contagem cumulativa entre estágios e avanço mediado pelo NPC.
+* **⚠️ AVISO DE ESTADO INCOMPLETO — Base Inicial de Carteira & Mochila (`player_characters.gold` + `character_inventory_items`):**
+  * **Adicionado propositalmente como fundação mínima:** coluna `gold` (`BigInt @default(0)`) em `player_characters` e tabela `character_inventory_items` (`character_id`, `item_template_id`, `quantity`).
+  * **O que JÁ funciona:** acúmulo e entrega real de Ouro e Itens em Quests (com consumo real da mochila no `turnInQuest`), drops provisórios vinculados a missões de coleta (`CharacterInventoryService.grantProvisionalQuestDrops`) e visualização em `🎒 Mochila` (`/play`).
+  * **O que AINDA ESTÁ INCOMPLETO (trabalho futuro de Economia/Inventário):** limite de slots/peso, uso de consumíveis, equipar/desequipar itens nos 16 slots, tabela global de drops por monstro independentemente de quest, lojas NPC e trocas entre jogadores. Toda expansão futura deve reaproveitar `player_characters.gold` e `character_inventory_items` sem quebrar as quests.

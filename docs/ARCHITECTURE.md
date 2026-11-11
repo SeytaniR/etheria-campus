@@ -152,3 +152,16 @@ Nenhum arquivo ou classe deve acumular responsabilidades de múltiplos domínios
 
 ### 6.2. Limite Mandatório de 1.000 Linhas por Arquivo
 * Nenhum arquivo de código no repositório pode exceder **1.000 linhas**. Todo módulo que atingir proporções elevadas deve ser decomposto imediatamente.
+
+---
+
+## 7. Engine de Quests Meta Procedurais & Base Inicial de Inventário (`v0.9.0`)
+
+* **Módulos Backend OOP Adicionados:**
+  * `MetaQuestProceduralEngine.ts`: gera estágios procedurais (`initial * multiplier^(stage-1)`) e escaladas independentes de recompensas (`MULTIPLIER`, `LINEAR_PCT`, `ADDITIVE`), preservando ajustes manuais por linha feitos no Studio `/admin`.
+  * `QuestProgressService.ts`: executa o ciclo em tempo real `/play` (`KILL_MONSTER`, `KILL_RACE`, `COLLECT_ITEM` cumulativo por estágio com entrega e avanço de estágio no NPC).
+  * `CharacterInventoryService.ts` (**Base Inicial Incompleta**): gerencia carteira (`gold`), pilha de itens (`CharacterInventoryItem`) e hook provisório de drop para quests `COLLECT_ITEM` até a construção do módulo dedicado de Economia & Drops.
+  * `CombatUtilityHelper.ts`: agrupa monstros e raças derrotadas em encontros mistos para registro autoritativo via `POST /api/play/combat/victory`.
+* **Módulos Frontend Adicionados:**
+  * `/admin`: `AdminMetaQuestsPanel.js` (construtor visual + grade editável de estágios).
+  * `/play`: `PlayBagController.js` (inspetor leve de Carteira & Mochila Básica marcado como incompleto).

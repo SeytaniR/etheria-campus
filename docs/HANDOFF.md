@@ -8,9 +8,9 @@
 ---
 
 ## 📌 Status Atual do Projeto
-* **Versão Atual:** `v0.8.1`
+* **Versão Atual:** `v0.9.0`
 * **Última Atualização:** `2026-11-11`
-* **Fase Atual:** **Blindagem de Spawn de Monstros por Mapa (`v0.8.1`) — Novo módulo autoritativo `MapSpawnResolver.ts` garantindo bloqueio absoluto em Cidades/Vilas (`allowMonsterSpawn === false`), remoção total do fallback global de monstros, seleção estrita pela união de raças permitidas + monstros individuais permitidos (mesmo fora das raças selecionadas), e travamento da taxa em `0%` no `/admin` e `/play` para zonas seguras.**
+* **Fase Atual:** **Quests Meta Procedurais (`v0.9.0`) — Nova categoria `META` com estágios `1..N` (`x10` por padrão: `10 ➔ 100 ➔ 1.000...`), suporte a Matar Monstro, Matar Raça (`KILL_RACE`) e Coletar/Entregar Item (`COLLECT_ITEM`), escalada própria de recompensas em grade editável, entrega cumulativa via NPC e Base Inicial (incompleta) de Carteira (`gold`) e Mochila (`character_inventory_items`).**
 * **Repositório Oficial:** `https://github.com/SeytaniR/etheria-campus`
 * **Fonte Bruta de Assets:** `https://github.com/SeytaniR/mcrework` (`https://seytanir.github.io/mcrework/`)
 
@@ -57,6 +57,10 @@
 
 ---
 
+## ⚠️ Pendências Documentadas & Base Incompleta (Economia/Inventário)
+* **Carteira (`player_characters.gold`) e Mochila (`character_inventory_items`) criadas na `v0.9.0` são INCOMPLETAS por decisão explícita:** suportam acúmulo/consumo em Quests Meta (`COLLECT_ITEM`), recompensas de ouro/itens e drop provisório vinculado à missão. Ao implementar o módulo completo de **Inventário, Loja, Equipamentos nos 16 Slots e Drops Globais**, estenda essas tabelas existentes sem resetar dados.
+* **Migração na VPS ao subir `v0.9.0`:** executar `npx prisma db push --schema=packages/database/prisma/schema.prisma` antes de reiniciar o `etheria-campus.service`.
+
 ## 🎯 Próxima Tarefa Exata da Fila
 * **Servidor 24/7 em Produção:** Ativo e acessível publicamente via `https://40-65-63-193.sslip.io/admin` e `https://40-65-63-193.sslip.io/play`.
-* **Próximos passos de desenvolvimento:** Continuar a evolução do sistema de combate, drops, inventário e missões conforme direcionado pelo usuário.
+* **Próximos passos de desenvolvimento:** Expandir sistema completo de Economia, Drops Globais, Inventário completo e uso de itens conforme direcionamento do usuário.

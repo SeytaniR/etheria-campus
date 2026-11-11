@@ -198,6 +198,18 @@ export class PlayRouter {
       return true;
     }
 
+    // 🎒 Carteira de Ouro & Mochila Básica (Base Inicial Incompleta para Quests)
+    const charInventoryMatch = pathname.match(/^\/api\/play\/characters\/(\d+)\/inventory$/);
+    if (charInventoryMatch && method === 'GET') {
+      const charId = Number(charInventoryMatch[1]);
+      if (!(await this.verifyCharacterOwnership(userAccountId, session.role, charId))) {
+        this.deps.sendJson(res, 403, { error: 'Acesso negado: este personagem não pertence à sua conta.' });
+        return true;
+      }
+      this.deps.sendJson(res, 200, await this.deps.playController.getCharacterInventory(charId));
+      return true;
+    }
+
     // 📜 Rotas de Quests / Missões do Jogador com Mitigação BOLA/IDOR
     const charQuestsMatch = pathname.match(/^\/api\/play\/characters\/(\d+)\/quests$/);
     if (charQuestsMatch && method === 'GET') {
@@ -211,18 +223,19 @@ export class PlayRouter {
       return true;
     }
 
-    const acceptQuestMatch = pathname.match(/^\/api\/play\/characters\/(\d+)\/quests\/accept$/);
+    const acceptQuestMatch = pathname.match(/^\/api\/play\/characters\/(\d+)\/quests(?:\/(\d+))?\/accept$/);
     if (acceptQuestMatch && method === 'POST') {
       const charId = Number(acceptQuestMatch[1]);
       if (!(await this.verifyCharacterOwnership(userAccountId, session.role, charId))) {
         this.deps.sendJson(res, 403, { error: 'Acesso negado: este personagem não pertence à sua conta.' });
         return true;
       }
-      const body = await this.deps.readJsonBody<{ questTemplateId: number; mapId?: number | null }>(req);
+      const body = await this.deps.readJsonBody<{ questTemplateId?: number; mapId?: number | null }>(req);
+      const questId = Number(acceptQuestMatch[2] || body.questTemplateId);
       this.deps.sendJson(
         res,
         200,
-        await this.deps.questsController.acceptQuest(charId, Number(body.questTemplateId), body.mapId ?? null)
+        await this.deps.questsController.acceptQuest(charId, questId, body.mapId ?? null)
       );
       return true;
     }
@@ -243,19 +256,45 @@ export class PlayRouter {
       return true;
     }
 
-    const turnInQuestMatch = pathname.match(/^\/api\/play\/characters\/(\d+)\/quests\/turn-in$/);
+    const turnInQuestMatch = pathname.match(/^\/api\/play\/characters\/(\d+)\/quests(?:\/(\d+))?\/turn-in$/);
     if (turnInQuestMatch && method === 'POST') {
       const charId = Number(turnInQuestMatch[1]);
       if (!(await this.verifyCharacterOwnership(userAccountId, session.role, charId))) {
         this.deps.sendJson(res, 403, { error: 'Acesso negado: este personagem não pertence à sua conta.' });
         return true;
       }
-      const body = await this.deps.readJsonBody<{ questTemplateId: number; mapId?: number | null }>(req);
+      const body = await this.deps.readJsonBody<{ questTemplateId?: number; mapId?: number | null }>(req);
+      const questId = Number(turnInQuestMatch[2] || body.questTemplateId);
       this.deps.sendJson(
         res,
         200,
-        await this.deps.questsController.turnInQuest(charId, Number(body.questTemplateId), body.mapId ?? null)
+        await this.deps.questsController.turnInQuest(charId, questId, body.mapId ?? null)
       );
+      return true;
+    }
+
+    // 🏆 Registro Autoritário de Vitória na Arena em Tempo Real (Avança KILL_MONSTER, KILL_RACE e Drops de Quest)
+    if (pathname === '/api/play/combat/victory' && method === 'POST') {
+      const body = await this.deps.readJsonBody<{ battleId: string }>(req);
+      const victoryData = this.deps.combatController.finalizeRealTimeVictory(String(body.battleId || ''));
+      if (!victoryData) {
+        this.deps.sendJson(res, 200, { alreadyRecorded: true });
+        return true;
+      }
+      if (!(await this.verifyCharacterOwnership(userAccountId, session.role, victoryData.characterId))) {
+        this.deps.sendJson(res, 403, { error: 'Acesso negado: esta batalha não pertence à sua conta.' });
+        return true;
+      }
+      const progressResult = await this.deps.questsController.recordBattleVictoryBatch(
+        victoryData.characterId,
+        victoryData.defeatedMonsters,
+        victoryData.goldReward
+      );
+      this.deps.sendJson(res, 200, {
+        alreadyRecorded: false,
+        goldGained: victoryData.goldReward,
+        ...progressResult,
+      });
       return true;
     }
 
@@ -316,10 +355,11 @@ export class PlayRouter {
       if (state.isFinished && state.winner === 'PLAYER' && !state.victoryRecorded) {
         state.victoryRecorded = true;
         if (state.characterId && (await this.verifyCharacterOwnership(userAccountId, session.role, state.characterId))) {
-          await this.deps.questsController.recordBattleVictoryProgress(
+          const batch = this.deps.combatController.buildDefeatedBatch(state);
+          await this.deps.questsController.recordBattleVictoryBatch(
             state.characterId,
-            state.monsterTemplateId || 1,
-            state.monsters.length
+            batch,
+            Number(state.rewards?.gold) || 0
           );
         }
       }
@@ -333,10 +373,11 @@ export class PlayRouter {
       if (state.isFinished && state.winner === 'PLAYER' && !state.victoryRecorded) {
         state.victoryRecorded = true;
         if (state.characterId && (await this.verifyCharacterOwnership(userAccountId, session.role, state.characterId))) {
-          await this.deps.questsController.recordBattleVictoryProgress(
+          const batch = this.deps.combatController.buildDefeatedBatch(state);
+          await this.deps.questsController.recordBattleVictoryBatch(
             state.characterId,
-            state.monsterTemplateId || 1,
-            state.monsters.length
+            batch,
+            Number(state.rewards?.gold) || 0
           );
         }
       }

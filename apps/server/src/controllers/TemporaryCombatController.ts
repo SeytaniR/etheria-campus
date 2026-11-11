@@ -11,6 +11,7 @@ import { PrismaClient, type MonsterTemplate } from '@prisma/client';
 import { I18nCache } from '@etheria/database';
 import { randomUUID } from 'node:crypto';
 import { MapSpawnResolver } from './MapSpawnResolver.js';
+import { CombatUtilityHelper } from './CombatUtilityHelper.js';
 
 export interface ActiveStatusInstance {
   code: string;
@@ -26,6 +27,7 @@ export interface ActiveStatusInstance {
 
 export interface CombatUnit {
   id: string;
+  monsterTemplateId?: number;
   index: number;
   name: string;
   level: number;
@@ -344,7 +346,7 @@ export class TemporaryCombatController {
     if (monsterUnits.length === 0) {
       for (let i = 0; i < qty; i++) {
         monsterUnits.push({
-          id: `mob_${mobTemplate.id}_${i}`, index: i, name: qty > 1 ? `${mobBaseName} #${i + 1}` : mobBaseName, level: lvl,
+          id: `mob_${mobTemplate.id}_${i}`, monsterTemplateId: Number(mobTemplate.id), index: i, name: qty > 1 ? `${mobBaseName} #${i + 1}` : mobBaseName, level: lvl,
           hp: mobMaxHp, maxHp: mobMaxHp, mp: mobMaxMp, maxMp: mobMaxMp, atk: mobAtk, def: mobDef,
           magDef: Math.round((Number(mobStats.WIS) || 10) * (wisMagDefRatio * 0.72) + lvl * 1.8),
           critRate: Math.min(0.80, (Number((mobTemplate as any)?.baseCombatAttributesJson?.CRIT_RATE) || 5) / 100),
@@ -530,7 +532,7 @@ export class TemporaryCombatController {
       const mobKey = tmpl.mcreworkMonsterKey;
 
       monsterUnits.push({
-        id: `mob_${tmpl.id}_${i}`, index: i, name: `${baseName} #${i + 1}${raritySuffix}`, level: mobLvl,
+        id: `mob_${tmpl.id}_${i}`, monsterTemplateId: Number(tmpl.id), index: i, name: `${baseName} #${i + 1}${raritySuffix}`, level: mobLvl,
         hp: mobMaxHp, maxHp: mobMaxHp, mp: mobMaxMp, maxMp: mobMaxMp, atk: mobAtk, def: mobDef,
         magDef: Math.round((Number(mobStats.WIS) || 10) * (wisMagDefRatio * 0.72) + mobLvl * 1.8),
         critRate: Math.min(0.80, (Number((tmpl as any)?.baseCombatAttributesJson?.CRIT_RATE) || 5) / 100),
@@ -917,7 +919,6 @@ export class TemporaryCombatController {
 
   /**
    * Processador procedural de Limpeza de Debuffs (`CLEANSE_DISPEL` / gatilhos `ON_DEBUFF_RECEIVED` e `ON_TURN_START_CLEANSE`).
-   * Remove até `maxDebuffs` (0 = todos) efeitos negativos (`isBuff === false`) da unidade alvo.
    */
   public cleanseUnitDebuffs(
     unit: CombatUnit,
@@ -925,39 +926,42 @@ export class TemporaryCombatController {
     healPerDebuffPct: number = 0,
     cleanseChancePct: number = 100
   ): { removedCount: number; removedNames: string[]; healedHp: number } {
-    if (!unit || !unit.isAlive || !Array.isArray(unit.activeStatuses) || unit.activeStatuses.length === 0) {
-      return { removedCount: 0, removedNames: [], healedHp: 0 };
+    return CombatUtilityHelper.cleanseUnitDebuffs(unit, maxDebuffs, healPerDebuffPct, cleanseChancePct);
+  }
+
+  /**
+   * Agrupa todos os monstros de uma batalha (incluindo encontros mistos) por Template ID e Raça.
+   */
+  public buildDefeatedBatch(
+    battle: TemporaryBattleState
+  ): Array<{ monsterTemplateId: number; raceCode: string; count: number }> {
+    return CombatUtilityHelper.buildDefeatedBatch(battle);
+  }
+
+  /**
+   * Conclui de forma autoritativa e idempotente uma vitória da Arena 2.5D em Tempo Real.
+   */
+  public finalizeRealTimeVictory(battleId: string): {
+    characterId: number;
+    defeatedMonsters: Array<{ monsterTemplateId: number; raceCode: string; count: number }>;
+    goldReward: number;
+  } | null {
+    const battle = this.activeBattles.get(battleId);
+    if (!battle || battle.victoryRecorded) {
+      return null;
     }
-    const chance = Math.max(0, Math.min(100, Number(cleanseChancePct) || 100));
-    if (Math.random() * 100 > chance) {
-      return { removedCount: 0, removedNames: [], healedHp: 0 };
+    battle.victoryRecorded = true;
+    battle.isFinished = true;
+    battle.winner = 'PLAYER';
+    for (const mob of battle.monsters) {
+      mob.hp = 0;
+      mob.isAlive = false;
     }
-
-    const limit = Number(maxDebuffs) > 0 ? Number(maxDebuffs) : Infinity;
-    const removedNames: string[] = [];
-    const remaining: ActiveStatusInstance[] = [];
-
-    for (const st of unit.activeStatuses) {
-      if (!st.isBuff && removedNames.length < limit) {
-        removedNames.push(st.name || st.code);
-      } else {
-        remaining.push(st);
-      }
-    }
-
-    unit.activeStatuses = remaining;
-
-    let healedHp = 0;
-    const healPct = Math.max(0, Number(healPerDebuffPct) || 0);
-    if (removedNames.length > 0 && healPct > 0) {
-      healedHp = Math.round(unit.maxHp * (healPct / 100) * removedNames.length);
-      unit.hp = Math.min(unit.maxHp, unit.hp + healedHp);
-    }
-
+    const goldReward = battle.monsters.reduce((acc, m) => acc + Math.max(10, (m.level || 1) * 18), 0);
     return {
-      removedCount: removedNames.length,
-      removedNames,
-      healedHp,
+      characterId: Number(battle.characterId) || 1,
+      defeatedMonsters: this.buildDefeatedBatch(battle),
+      goldReward,
     };
   }
 

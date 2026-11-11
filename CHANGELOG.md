@@ -5,6 +5,25 @@ Qualquer IA trabalhando neste repositório **DEVE** incrementar a versão e regi
 
 ---
 
+## [v0.9.0] - 2026-11-11
+### Quests Meta Procedurais (`META`), Contagem por Raça/Coleta & Base Inicial de Mochila/Ouro (Incompleta)
+* **Adicionado:**
+  * **Quests Meta Procedurais (`MetaQuestProceduralEngine.ts` & `AdminMetaQuestsPanel.js`):**
+    * Nova categoria `🟠 META` na tabela de missões (`/admin`), com filtro exclusivo, card visual no Quadro Draw.io/Tabela e construtor procedural em estágios (1 único registro com `currentStage` `1..N`).
+    * Suporte a alvos de **Matar Monstro específico** (`KILL_MONSTER`), **Matar Raça/Tipo** (`KILL_RACE`, ex: Selvagens, Demônios) e **Coletar & Entregar Item** (`COLLECT_ITEM`), com progressão multiplicativa configurável (padrão `x10`: `10 ➔ 100 ➔ 1.000 ➔ 10.000 ➔ 100.000...`).
+    * Escalada de recompensas selecionável e independente do `x10` (EXP, Ouro, Pontos de Atributo e Item nos modos `MULTIPLIER`, `LINEAR_PCT` ou `ADDITIVE`) gerando **grade editável por estágio** no modal antes de salvar.
+  * **Runtime Multi-Estágio & Combate (`QuestProgressService.ts`, `CombatUtilityHelper.ts` & `PlayRouter.ts`):**
+    * Novo endpoint autoritativo `POST /api/play/combat/victory` que contabiliza todos os monstros e raças mistas derrotadas na Arena 2.5D de forma idempotente.
+    * Progressão cumulativa entre estágios (`10` preservados para `100`, etc.) e entrega etapa a etapa diretamente na conversa com o NPC.
+  * **⚠️ Base Inicial Incompleta de Carteira & Mochila (`CharacterInventoryService.ts`, `PlayBagController.js`, `schema.prisma`):**
+    * Adicionados `PlayerCharacter.gold` (`BigInt`), tabela `CharacterInventoryItem`, rota `GET /api/play/characters/:id/inventory`, indicador `🪙` + botão `🎒 Mochila` no `/play` e drop provisório vinculado a missões `COLLECT_ITEM`. Documentado explicitamente em `ARCHITECTURE.md`, `DATABASE_SCHEMA.md` e `HANDOFF.md` como base parcial aguardando módulo futuro de Economia, Lojas e Tabela Global de Drops.
+* **Corrigido & Modularizado:**
+  * Corrigida incompatibilidade de rota em `PlayRouter.ts` que impedia `acceptQuest` (`/quests/:id/accept`) e `turnInQuest` (`/quests/:id/turn-in`) vindos de `PlayQuestsController.js`.
+  * `AdminQuestsController.ts` decomposto com `QuestProgressService.ts` (reduzido de 832 para ~435 linhas, respeitando Regra #7).
+  * **Aviso de Deploy VPS:** Requer `npx prisma db push --schema=packages/database/prisma/schema.prisma` ao atualizar produção.
+
+---
+
 ## [v0.8.1] - 2026-11-11
 ### Blindagem Autoritativa de Spawn de Monstros por Mapa (`MapSpawnResolver` & Regras de Zona Segura)
 * **Corrigido:**

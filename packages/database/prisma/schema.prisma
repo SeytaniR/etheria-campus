@@ -434,9 +434,10 @@ model ItemTemplate {
   specialEffectJson     Json           @default("{}") @map("special_effect_json")
   isActive              Boolean        @default(true) @map("is_active")
   createdAt             DateTime       @default(now()) @map("created_at")
-  updatedAt             DateTime       @default(now()) @updatedAt @map("updated_at")
+  updatedAt             DateTime                 @default(now()) @updatedAt @map("updated_at")
 
-  equipmentSlot         EquipmentSlot? @relation(fields: [equipmentSlotCode], references: [code])
+  equipmentSlot         EquipmentSlot?           @relation(fields: [equipmentSlotCode], references: [code])
+  inventoryStacks       CharacterInventoryItem[]
 
   @@map("item_templates")
 }
@@ -496,6 +497,7 @@ model PlayerCharacter {
   elementCode         String           @map("element_code") /// Sorteado no início: 10% NEUTRAL, 20% cada ativo
   level               Int              @default(1)
   experience          BigInt           @default(0)
+  gold                BigInt           @default(0) @map("gold") /// Carteira base inicial de Ouro (incompleta — aguardará módulo de Economia)
   unspentStatPoints   Int              @default(0) @map("unspent_stat_points")
   distributedStatsJson Json            @default("{\"VIT\":0,\"STR\":0,\"INT\":0,\"WIS\":0,\"AGI\":0,\"DEX\":0}") @map("distributed_stats_json")
   equippedItemsJson   Json             @default("{}") @map("equipped_items_json") /// Mapeia os 16 slots -> ID do item equipado
@@ -510,8 +512,25 @@ model PlayerCharacter {
   pets                CharacterPet[]
   formation           ArenaFormation?
   questProgress       CharacterQuestProgress[]
+  inventoryItems      CharacterInventoryItem[]
 
   @@map("player_characters")
+}
+
+/// Base Inicial de Inventário / Mochila do Personagem (INCOMPLETA — criada para coleta/entrega de quests e recompensas de itens; será expandida no módulo futuro de Economia, Slots & Drops).
+model CharacterInventoryItem {
+  id             Int             @id @default(autoincrement())
+  characterId    Int             @map("character_id")
+  itemTemplateId Int             @map("item_template_id")
+  quantity       Int             @default(1)
+  createdAt      DateTime        @default(now()) @map("created_at")
+  updatedAt      DateTime        @updatedAt @map("updated_at")
+
+  character      PlayerCharacter @relation(fields: [characterId], references: [id], onDelete: Cascade)
+  itemTemplate   ItemTemplate    @relation(fields: [itemTemplateId], references: [id], onDelete: Cascade)
+
+  @@unique([characterId, itemTemplateId])
+  @@map("character_inventory_items")
 }
 
 /// Templates de Pets Companheiros curados do mcrework para combate de ação ao lado do jogador.
@@ -589,7 +608,7 @@ model QuestTemplate {
   dialogueActiveI18nKey   String?                  @map("dialogue_active_i18n_key")
   dialogueCompleteI18nKey String?                  @map("dialogue_complete_i18n_key")
 
-  questCategory           String                   @default("MAIN") @map("quest_category") /// MAIN, SIDE, EPIC, PROFICIENCY
+  questCategory           String                   @default("MAIN") @map("quest_category") /// MAIN, SIDE, EPIC, PROFICIENCY, META
   chapterOrder            Int                      @default(1) @map("chapter_order") /// Capítulo (1, 2, 3...)
   episodeOrder            Int                      @default(1) @map("episode_order") /// Episódio dentro do Capítulo (1-1, 1-2, 1-3...)
   minLevel                Int                      @default(1) @map("min_level")
@@ -607,6 +626,7 @@ model QuestTemplate {
 
   objectivesJson          Json                     @default("[]") @map("objectives_json") /// Blocos visuais de objetivos
   rewardsJson             Json                     @default("{}") @map("rewards_json") /// Blocos visuais de recompensas
+  metaConfigJson          Json?                    @map("meta_config_json") /// Configuração procedural da Quest Meta (Alvo, x10, estágios, grade editável)
   isActive                Boolean                  @default(true) @map("is_active")
 
   progressList            CharacterQuestProgress[]
@@ -620,6 +640,7 @@ model CharacterQuestProgress {
   characterId     Int             @map("character_id")
   questTemplateId Int             @map("quest_template_id")
   status          String          @default("IN_PROGRESS") /// IN_PROGRESS, COMPLETED_PENDING_TURNIN, TURNED_IN
+  currentStage    Int             @default(1) @map("current_stage") /// Estágio atual em Quests Meta Procedurais (1..N)
   progressJson    Json            @default("[]") @map("progress_json") /// Contadores atuais de cada objetivo
   completedCount  Int             @default(0) @map("completed_count")
   updatedAt       DateTime        @updatedAt @map("updated_at")

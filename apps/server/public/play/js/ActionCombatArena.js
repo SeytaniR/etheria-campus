@@ -662,21 +662,18 @@ class ActionCombatArena {
     }
   }
 
-  async recordBattleVictoryOnServer(exp, gold) {
+  async recordBattleVictoryOnServer() {
     try {
-      if (this.currentBattle && this.client) {
-        await this.client.api('/api/play/temporary-combat/action', {
-          method: 'POST',
-          body: JSON.stringify({
-            battleId: this.currentBattle.battleId,
-            actionType: 'ATTACK',
-            targetMonsterIndex: 0,
-          }),
-        });
+      if (!this.currentBattle || !this.client) return;
+      const res = await this.client.api('/api/play/combat/victory', { method: 'POST', body: JSON.stringify({ battleId: this.currentBattle.battleId }) });
+      if (res?.questState) { this.client.questState = res.questState; this.client.updateQuestHudBadge?.(); }
+      if (res?.characterGold !== undefined && this.client.activeChar) { this.client.activeChar.gold = res.characterGold; this.client.updateHudInfo?.(); }
+      if (Array.isArray(res?.droppedItems) && res.droppedItems.length > 0) {
+        const rEl = document.getElementById('actionResultRewards');
+        const dropTxt = res.droppedItems.map((d) => `🎒 +${d.quantity}x ${d.namePtBr}`).join(' &bull; ');
+        if (rEl) rEl.innerHTML += `<div style="margin-top:6px; color:#5eead4; font-weight:700;">${dropTxt}</div>`;
       }
-    } catch (err) {
-      console.warn('Falha ao sincronizar vitória no backend:', err);
-    }
+    } catch (err) { console.warn('Falha ao sincronizar vitória no backend:', err); }
   }
 
   showResult(isVictory, messageHtml, isFled = false) {

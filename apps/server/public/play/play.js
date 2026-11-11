@@ -74,6 +74,7 @@ class EtheriaPlayClient {
     if (window.PlayLobbyController) window.PlayLobbyController.attach(this);
     if (window.PlayGmController) window.PlayGmController.attach(this);
     if (window.PlayQuestsController) window.PlayQuestsController.attach(this);
+    if (window.PlayBagController) window.PlayBagController.attach(this);
 
     this.lastFrameTime = performance.now();
     this.init();
@@ -285,6 +286,8 @@ class EtheriaPlayClient {
     const el = this.getElementStyle(this.activeChar.elementCode);
     document.getElementById('hudCharName').textContent = `${this.activeChar.name} (Nv.${this.activeChar.level})`;
     document.getElementById('hudCharClass').textContent = `• ${this.activeChar.classNamePtBr}`;
+    const goldEl = document.getElementById('hudGoldBadge');
+    if (goldEl) goldEl.textContent = `🪙 ${Number(this.activeChar.gold || 0).toLocaleString('pt-BR')}`;
 
     const badge = document.getElementById('hudElementBadge');
     badge.textContent = `${el.icon} ${this.activeChar.elementNamePtBr}`;

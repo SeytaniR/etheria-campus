@@ -17,6 +17,7 @@
 import { PrismaClient, SnapshotManager, I18nCache } from '@etheria/database';
 import { MapPolygonMesh, type MapPolygon } from '@etheria/shared';
 import { MapSpawnResolver } from './MapSpawnResolver.js';
+import { CharacterInventoryService } from './CharacterInventoryService.js';
 
 export interface CreateCharacterDto {
   name: string;
@@ -223,6 +224,7 @@ export class GamePlayController {
       elementNamePtBr,
       level: c.level,
       experience: Number(c.experience ?? 0),
+      gold: Number(c.gold ?? 0),
       unspentStatPoints: c.unspentStatPoints,
       distributedStatsJson: c.distributedStatsJson,
       baseAttributesJson: c.classTemplate?.baseAttributesJson ?? {
@@ -723,5 +725,12 @@ export class GamePlayController {
 
     const i18nMap = await I18nCache.getTranslations(this.prisma, 'pt-BR');
     return this.serializeCharacter(updatedChar, i18nMap);
+  }
+
+  /**
+   * Retorna a Carteira de Ouro e a Mochila Básica do Personagem (Base Inicial Incompleta).
+   */
+  public async getCharacterInventory(characterId: number) {
+    return CharacterInventoryService.getWalletAndBag(this.prisma, characterId);
   }
 }

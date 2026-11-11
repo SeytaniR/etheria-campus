@@ -95,8 +95,10 @@ const PlayQuestsController = {
       ctx.restore();
     };
 
-    client.getQuestCategoryBadge = function (category, chapterOrder, episodeOrder) {
-      const epStr = chapterOrder ? ` • Ep. ${chapterOrder}-${episodeOrder || 1}` : '';
+    client.getQuestCategoryBadge = function (category, chapterOrder, episodeOrder, metaStageInfo = null) {
+      const epStr = metaStageInfo?.isMeta
+        ? ` • Estágio ${metaStageInfo.currentStage}/${metaStageInfo.totalStages}`
+        : (chapterOrder ? ` • Ep. ${chapterOrder}-${episodeOrder || 1}` : '');
       const map = {
         MAIN: {
           label: `🟡 Principal${epStr}`,
@@ -122,6 +124,12 @@ const PlayQuestsController = {
           color: '#4ade80',
           border: '#16a34a',
         },
+        META: {
+          label: `🟠 Meta${epStr}`,
+          bg: 'rgba(249, 115, 22, 0.20)',
+          color: '#fdba74',
+          border: '#f97316',
+        },
       };
       const st = map[category] || map.SIDE;
       return `<span style="background:${st.bg}; color:${st.color}; border:1px solid ${st.border}; padding:2px 8px; border-radius:99px; font-size:0.7rem; font-weight:700;">${st.label}</span>`;
@@ -135,6 +143,9 @@ const PlayQuestsController = {
       }
       if (r.gold > 0) {
         pills.push(`<span style="color:#fde047; font-weight:700;">🪙 +${r.gold} Ouro</span>`);
+      }
+      if (r.rewardItemTemplateId && r.rewardItemNamePtBr) {
+        pills.push(`<span style="color:#d8b4fe; font-weight:700;">🎒 +${Number(r.rewardItemQuantity || 1).toLocaleString('pt-BR')}x ${r.rewardItemNamePtBr}</span>`);
       }
       if (r.freePointsBonus > 0) {
         pills.push(`<span style="color:#38bdf8; font-weight:700;">📊 +${r.freePointsBonus} Pts Atributo</span>`);
@@ -154,13 +165,17 @@ const PlayQuestsController = {
           const cur = Number(obj.currentCount || 0);
           const req = Number(obj.requiredCount || 1);
           const done = Boolean(obj.completed) || cur >= req;
+          const bagHint = obj.type === 'COLLECT_ITEM'
+            ? `<div style="font-size:0.68rem; color:#94a3b8; margin-top:2px;">Entregues: ${Number(obj.deliveredCount || 0).toLocaleString('pt-BR')} • Na mochila: ${Number(obj.bagCount || 0).toLocaleString('pt-BR')} / Necessário nesta etapa: ${Number(obj.neededFromBag ?? req).toLocaleString('pt-BR')}</div>`
+            : '';
           return `
             <div style="display:flex; justify-content:space-between; align-items:center; gap:8px; padding:5px 8px; border-radius:6px; background:${done ? 'rgba(34,197,94,0.12)' : '#0f172a'}; border:1px solid ${done ? 'rgba(34,197,94,0.4)' : '#1e293b'}; font-size:0.76rem;">
-              <span style="color:${done ? '#86efac' : '#e2e8f0'};">
-                ${done ? '✅' : '▫️'} ${obj.descriptionPtBr || obj.type}
-              </span>
-              <strong style="font-family:monospace; color:${done ? '#4ade80' : '#fde047'};">
-                ${cur}/${req}
+              <div style="color:${done ? '#86efac' : '#e2e8f0'};">
+                <div>${done ? '✅' : '▫️'} ${obj.descriptionPtBr || obj.type}</div>
+                ${bagHint}
+              </div>
+              <strong style="font-family:monospace; color:${done ? '#4ade80' : '#fde047'}; white-space:nowrap;">
+                ${cur.toLocaleString('pt-BR')}/${req.toLocaleString('pt-BR')}
               </strong>
             </div>
           `;
@@ -246,7 +261,7 @@ const PlayQuestsController = {
                 <span style="background:#ef4444; color:#fff; font-weight:900; width:22px; height:22px; display:inline-flex; align-items:center; justify-content:center; border-radius:99px; font-size:0.85rem;">?</span>
                 <strong style="color:#fecdd3; font-size:0.92rem;">${q.titlePtBr}</strong>
               </div>
-              ${this.getQuestCategoryBadge(q.category, q.chapterOrder, q.episodeOrder)}
+              ${this.getQuestCategoryBadge(q.category, q.chapterOrder, q.episodeOrder, q.metaStageInfo)}
             </div>
             <p style="font-size:0.82rem; color:#f8fafc; font-style:italic; background:#020617; padding:8px 10px; border-radius:6px; border-left:3px solid #ef4444;">
               "${q.dialogueCompletePtBr || q.descriptionPtBr}"
@@ -258,8 +273,9 @@ const PlayQuestsController = {
               <div style="font-size:0.72rem; color:#94a3b8; margin-bottom:4px;">🎁 Recompensas da Missão:</div>
               ${this.renderRewardsSummaryHtml(q.rewards)}
             </div>
+            ${q.metaStageInfo?.nextStageRequiredCount ? `<div style="font-size:0.72rem; color:#fdba74; background:rgba(249,115,22,0.12); padding:5px 8px; border-radius:6px;">⏩ Ao entregar, avança para o <strong>Estágio ${q.metaStageInfo.currentStage + 1}/${q.metaStageInfo.totalStages}</strong> (Meta: ${Number(q.metaStageInfo.nextStageRequiredCount).toLocaleString('pt-BR')})</div>` : ''}
             <button class="btn-primary" style="background:linear-gradient(135deg, #ef4444, #dc2626); border-color:#f87171; color:#fff; padding:10px; font-size:0.86rem;" onclick="PlayApp.turnInCharacterQuest(${q.id})">
-              🏆 Concluir Missão & Receber Recompensa
+              ${q.metaStageInfo && q.metaStageInfo.currentStage < q.metaStageInfo.totalStages ? `🏆 Concluir Estágio ${q.metaStageInfo.currentStage}/${q.metaStageInfo.totalStages} & Avançar` : '🏆 Concluir Missão & Receber Recompensa'}
             </button>
           </div>
         `);
@@ -274,7 +290,7 @@ const PlayQuestsController = {
                 <span style="background:#ff2e4c; color:#fff; font-weight:900; width:22px; height:22px; display:inline-flex; align-items:center; justify-content:center; border-radius:99px; font-size:0.85rem;">!</span>
                 <strong style="color:#fde047; font-size:0.92rem;">${q.titlePtBr}</strong>
               </div>
-              ${this.getQuestCategoryBadge(q.category, q.chapterOrder, q.episodeOrder)}
+              ${this.getQuestCategoryBadge(q.category, q.chapterOrder, q.episodeOrder, q.metaStageInfo)}
             </div>
             <p style="font-size:0.82rem; color:#e2e8f0; font-style:italic; background:#020617; padding:8px 10px; border-radius:6px; border-left:3px solid #ff2e4c;">
               "${q.dialogueOfferPtBr || q.descriptionPtBr}"
@@ -304,7 +320,7 @@ const PlayQuestsController = {
                 <span style="background:#64748b; color:#f8fafc; font-weight:900; width:22px; height:22px; display:inline-flex; align-items:center; justify-content:center; border-radius:99px; font-size:0.85rem;">?</span>
                 <strong style="color:#cbd5e1; font-size:0.9rem;">${q.titlePtBr} (Em Andamento)</strong>
               </div>
-              ${this.getQuestCategoryBadge(q.category, q.chapterOrder, q.episodeOrder)}
+              ${this.getQuestCategoryBadge(q.category, q.chapterOrder, q.episodeOrder, q.metaStageInfo)}
             </div>
             <p style="font-size:0.8rem; color:#cbd5e1; font-style:italic; background:#020617; padding:8px 10px; border-radius:6px; border-left:3px solid #64748b;">
               "${q.dialogueActivePtBr || 'Continue cumprindo os objetivos da missão e retorne quando terminar.'}"
@@ -446,7 +462,7 @@ const PlayQuestsController = {
                   <div style="display:flex; justify-content:space-between; align-items:center; gap:6px; flex-wrap:wrap;">
                     <strong style="color:#fde047; font-size:0.88rem;">${q.titlePtBr}</strong>
                     <div style="display:flex; gap:6px; align-items:center;">
-                      ${this.getQuestCategoryBadge(q.category, q.chapterOrder, q.episodeOrder)}
+                      ${this.getQuestCategoryBadge(q.category, q.chapterOrder, q.episodeOrder, q.metaStageInfo)}
                       ${statusBadge}
                     </div>
                   </div>

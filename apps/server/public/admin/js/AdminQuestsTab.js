@@ -17,6 +17,7 @@ class AdminQuestsTab {
     app.questViewMode = 'DRAWIO'; // 'DRAWIO' | 'TABLE'
     app.editingQuestObjectives = [];
 
+    if (window.AdminMetaQuestsPanel) AdminMetaQuestsPanel.attach(app);
     AdminQuestsModalDom.injectTabAndModalDom();
 
     app.loadQuestTemplates = async function () {
@@ -45,7 +46,7 @@ class AdminQuestsTab {
 
     app.setQuestCategoryFilter = function (cat) {
       this.questCategoryFilter = cat;
-      ['ALL', 'MAIN', 'SIDE', 'EPIC', 'PROFICIENCY'].forEach((c) => {
+      ['ALL', 'MAIN', 'META', 'SIDE', 'EPIC', 'PROFICIENCY'].forEach((c) => {
         const btn = document.getElementById(`btnQuestFilter_${c}`);
         if (btn) btn.className = c === cat ? 'btn-primary' : '';
       });
@@ -125,9 +126,14 @@ class AdminQuestsTab {
           } else {
             hintEl.innerHTML = `🔒 <strong>Trava de Capítulo Automática:</strong> O Capítulo <strong>${chap} (${chap}-1)</strong> só será liberado quando o jogador concluir <strong>TODOS os episódios do Capítulo ${chap - 1}</strong>.`;
           }
+        } else if (cat === 'META') {
+          hintEl.innerHTML = `🟠 <strong>Quest Meta Procedural:</strong> Um único registro com N estágios progressivos (ex: 10 ➔ 100 ➔ 1.000), contagem cumulativa e entrega etapa a etapa no NPC.`;
         } else {
           hintEl.innerHTML = `ℹ️ Missão <strong>${cat}</strong> agrupada visualmente no <strong>Capítulo ${chap} (Card ${chap}-${ep})</strong>. Configure abaixo o Gatilho e os Requisitos para acioná-la!`;
         }
+      }
+      if (typeof this.toggleMetaQuestUi === 'function') {
+        this.toggleMetaQuestUi(cat === 'META');
       }
     };
 
@@ -145,7 +151,23 @@ class AdminQuestsTab {
         .map((obj) => {
           if (obj.type === 'KILL_MONSTER') {
             const mob = (this.monsterTemplates || []).find((m) => Number(m.id) === Number(obj.monsterTemplateId));
-            return `🐉 Matar <strong>${obj.requiredCount || 1}x ${mob ? mob.namePtBr : `Monstro #${obj.monsterTemplateId}`}</strong>`;
+            return `🐉 Matar <strong>${Number(obj.requiredCount || 1).toLocaleString('pt-BR')}x ${mob ? mob.namePtBr : `Monstro #${obj.monsterTemplateId}`}</strong>`;
+          }
+          if (obj.type === 'KILL_RACE') {
+            const race = (this.races || []).find((r) => String(r.code).toUpperCase() === String(obj.raceCode || '').toUpperCase());
+            return `🐾 Matar <strong>${Number(obj.requiredCount || 1).toLocaleString('pt-BR')}x Raça ${race?.namePtBr || obj.raceCode || '?'}</strong>`;
+          }
+          if (obj.type === 'COLLECT_ITEM') {
+            const item = (this.itemTemplates || []).find((it) => Number(it.id) === Number(obj.itemTemplateId));
+            return `📦 Coletar e Entregar <strong>${Number(obj.requiredCount || 1).toLocaleString('pt-BR')}x ${item ? item.namePtBr : `Item #${obj.itemTemplateId}`}</strong>`;
+          }
+          if (obj.type === 'KILL_RACE') {
+            const raceOpts = (this.races || []).map((r) => `<option value="${r.code}" ${String(obj.raceCode) === String(r.code) ? 'selected' : ''}>${r.namePtBr || r.code} (${r.code})</option>`).join('');
+            return `<div style="background:#020617; border:1px solid #f59e0b; border-radius:8px; padding:10px; display:grid; grid-template-columns:1fr 140px auto; gap:8px; align-items:end;"><div><label style="font-size:0.72rem; color:#fcd34d; font-weight:700;">🐾 Objetivo: Matar Raça</label><select onchange="AdminApp.updateVisualQuestObjectiveField(${i}, 'raceCode', this.value, false)">${raceOpts}</select></div><div><label style="font-size:0.72rem;">Qtd</label><input type="number" min="1" value="${obj.requiredCount || 10}" onchange="AdminApp.updateVisualQuestObjectiveField(${i}, 'requiredCount', this.value, true)" /></div><button type="button" class="btn-danger" onclick="AdminApp.removeVisualQuestObjective(${i})" style="padding:6px 10px;">🗑️</button></div>`;
+          }
+          if (obj.type === 'COLLECT_ITEM') {
+            const itemOpts = (this.itemTemplates || []).map((it) => `<option value="${it.id}" ${Number(obj.itemTemplateId) === Number(it.id) ? 'selected' : ''}>#${it.id} ${it.namePtBr}</option>`).join('');
+            return `<div style="background:#020617; border:1px solid #14b8a6; border-radius:8px; padding:10px; display:grid; grid-template-columns:1fr 140px auto; gap:8px; align-items:end;"><div><label style="font-size:0.72rem; color:#5eead4; font-weight:700;">📦 Objetivo: Coletar & Entregar Item</label><select onchange="AdminApp.updateVisualQuestObjectiveField(${i}, 'itemTemplateId', this.value, true)">${itemOpts}</select></div><div><label style="font-size:0.72rem;">Qtd</label><input type="number" min="1" value="${obj.requiredCount || 10}" onchange="AdminApp.updateVisualQuestObjectiveField(${i}, 'requiredCount', this.value, true)" /></div><button type="button" class="btn-danger" onclick="AdminApp.removeVisualQuestObjective(${i})" style="padding:6px 10px;">🗑️</button></div>`;
           }
           if (obj.type === 'TALK_NPC') {
             const npc = (this.npcTemplates || []).find((n) => Number(n.id) === Number(obj.npcTemplateId));
@@ -207,6 +229,7 @@ class AdminQuestsTab {
         SIDE: { label: '🔵 Secundária', bg: 'rgba(56,189,248,0.18)', color: '#7dd3fc', border: '#0ea5e9', cardBg: 'linear-gradient(180deg, rgba(15,23,42,0.96), rgba(9,13,22,0.98))' },
         EPIC: { label: '🟣 Épica', bg: 'rgba(192,132,252,0.18)', color: '#d8b4fe', border: '#a855f7', cardBg: 'linear-gradient(180deg, rgba(30,27,75,0.94), rgba(15,23,42,0.98))' },
         PROFICIENCY: { label: '🟢 Proficiência', bg: 'rgba(34,197,94,0.18)', color: '#86efac', border: '#22c55e', cardBg: 'linear-gradient(180deg, rgba(6,46,34,0.88), rgba(15,23,42,0.98))' },
+        META: { label: '🟠 Meta Procedural', bg: 'rgba(249,115,22,0.22)', color: '#fdba74', border: '#f97316', cardBg: 'linear-gradient(180deg, rgba(67,20,7,0.9), rgba(15,23,42,0.98))' },
       };
 
       const renderQuestCard = (q, nextMainInChapter = null) => {
@@ -216,6 +239,7 @@ class AdminQuestsTab {
         if (rew.exp) rewPills.push(`✨ +${rew.exp} EXP`);
         if (rew.gold) rewPills.push(`🪙 +${rew.gold} Ouro`);
         if (rew.statPoints) rewPills.push(`📊 +${rew.statPoints} Pts`);
+        if (rew.rewardItemTemplateId) rewPills.push(`🎒 +${rew.rewardItemQuantity || 1}x ${q.rewardItemNamePtBr || `#${rew.rewardItemTemplateId}`}`);
         if (rew.triggerReborn) rewPills.push(`👑 Reborn`);
 
         return `
@@ -257,6 +281,7 @@ class AdminQuestsTab {
 
               <!-- Objetivos -->
               <div style="background:rgba(15,23,42,0.8); border-left:3px solid ${st.border}; padding:5px 8px; font-size:0.72rem; line-height:1.35;">
+                ${q.metaSummaryPtBr ? `<div style="color:#fdba74; font-weight:700; margin-bottom:2px;">${q.metaSummaryPtBr}</div>` : ''}
                 ${this.formatQuestObjectivesSummary(q.objectivesJson)}
               </div>
 
@@ -420,6 +445,7 @@ class AdminQuestsTab {
         SIDE: { label: '🔵 Secundária', bg: 'rgba(56,189,248,0.2)', color: '#7dd3fc', border: '#0ea5e9' },
         EPIC: { label: '🟣 Épica', bg: 'rgba(192,132,252,0.2)', color: '#d8b4fe', border: '#a855f7' },
         PROFICIENCY: { label: '🟢 Proficiência', bg: 'rgba(34,197,94,0.2)', color: '#86efac', border: '#22c55e' },
+        META: { label: '🟠 Meta Procedural', bg: 'rgba(249,115,22,0.2)', color: '#fdba74', border: '#f97316' },
       };
 
       tbody.innerHTML = filtered
@@ -430,6 +456,7 @@ class AdminQuestsTab {
           if (rew.exp) rewParts.push(`✨ +${rew.exp} EXP`);
           if (rew.gold) rewParts.push(`🪙 +${rew.gold} Ouro`);
           if (rew.statPoints) rewParts.push(`📊 +${rew.statPoints} Pts`);
+          if (rew.rewardItemTemplateId) rewParts.push(`🎒 +${rew.rewardItemQuantity || 1}x ${q.rewardItemNamePtBr || `#${rew.rewardItemTemplateId}`}`);
           if (rew.triggerReborn) rewParts.push(`👑 Ativa Reborn`);
 
           return `
@@ -463,7 +490,7 @@ class AdminQuestsTab {
               <div style="font-size:0.7rem; color:#7dd3fc;">${q.turnInMapNamePtBr}</div>
             </td>
             <td>
-              <div style="font-size:0.72rem; line-height:1.35;">${this.formatQuestObjectivesSummary(q.objectivesJson)}</div>
+              <div style="font-size:0.72rem; line-height:1.35;">${q.metaSummaryPtBr ? `<div style="color:#fdba74; font-weight:700;">${q.metaSummaryPtBr}</div>` : ''}${this.formatQuestObjectivesSummary(q.objectivesJson)}</div>
             </td>
             <td>
               <div style="font-size:0.72rem; color:#86efac; font-weight:600;">${rewParts.join('<br/>') || '—'}</div>
@@ -544,6 +571,10 @@ class AdminQuestsTab {
       if (turnInNpcSelect) {
         turnInNpcSelect.innerHTML = `<option value="">🔄 Mesmo NPC que iniciou a Missão</option>` + npcOptionsHtml;
       }
+      const rewItemSel = document.getElementById('questRewardItemSelect');
+      if (rewItemSel) {
+        rewItemSel.innerHTML = `<option value="">— Sem item —</option>` + (this.itemTemplates || []).map((it) => `<option value="${it.id}">#${it.id} ${it.namePtBr}</option>`).join('');
+      }
 
       const existing = editId ? (this.questTemplates || []).find((q) => Number(q.id) === Number(editId)) : null;
 
@@ -596,6 +627,8 @@ class AdminQuestsTab {
         document.getElementById('questRewardExpInput').value = String(rew.exp ?? 150);
         document.getElementById('questRewardGoldInput').value = String(rew.gold ?? 80);
         document.getElementById('questRewardStatPtsInput').value = String(rew.statPoints ?? 2);
+        if (document.getElementById('questRewardItemSelect')) document.getElementById('questRewardItemSelect').value = rew.rewardItemTemplateId ? String(rew.rewardItemTemplateId) : '';
+        if (document.getElementById('questRewardItemQtyInput')) document.getElementById('questRewardItemQtyInput').value = String(rew.rewardItemQuantity ?? 1);
         document.getElementById('questRewardRebornSelect').value = rew.triggerReborn ? 'true' : 'false';
 
         this.editingQuestObjectives = Array.isArray(existing.objectivesJson)
@@ -645,6 +678,8 @@ class AdminQuestsTab {
         document.getElementById('questRewardExpInput').value = '150';
         document.getElementById('questRewardGoldInput').value = '80';
         document.getElementById('questRewardStatPtsInput').value = '2';
+        if (document.getElementById('questRewardItemSelect')) document.getElementById('questRewardItemSelect').value = '';
+        if (document.getElementById('questRewardItemQtyInput')) document.getElementById('questRewardItemQtyInput').value = '1';
         document.getElementById('questRewardRebornSelect').value = 'false';
 
         this.editingQuestObjectives = [
@@ -656,6 +691,9 @@ class AdminQuestsTab {
         ];
       }
 
+      if (typeof this.loadMetaConfigIntoForm === 'function') {
+        this.loadMetaConfigIntoForm(existing);
+      }
       this.onQuestEpisodeOrCategoryChanged();
       this.onQuestTriggerTypeChanged();
       this.renderVisualQuestObjectives();
@@ -667,6 +705,20 @@ class AdminQuestsTab {
           type: 'KILL_MONSTER',
           monsterTemplateId: this.monsterTemplates?.[0]?.id || 1,
           requiredCount: 3,
+        });
+      } else if (type === 'KILL_RACE') {
+        this.editingQuestObjectives.push({
+          type: 'KILL_RACE',
+          raceCode: this.races?.[0]?.code || 'BEAST',
+          requiredCount: 10,
+        });
+      } else if (type === 'COLLECT_ITEM') {
+        this.editingQuestObjectives.push({
+          type: 'COLLECT_ITEM',
+          itemTemplateId: this.itemTemplates?.[0]?.id || 1,
+          dropSourceMode: 'ANY_MONSTER',
+          dropChancePct: 100,
+          requiredCount: 10,
         });
       } else if (type === 'TALK_NPC') {
         this.editingQuestObjectives.push({
@@ -894,10 +946,13 @@ class AdminQuestsTab {
           dialogueActivePtBr,
           dialogueCompletePtBr,
           objectivesJson: this.editingQuestObjectives,
+          metaConfigJson: questCategory === 'META' && typeof this.buildMetaConfigDtoFromForm === 'function' ? this.buildMetaConfigDtoFromForm() : null,
           rewardsJson: {
             exp: Number(document.getElementById('questRewardExpInput').value) || 0,
             gold: Number(document.getElementById('questRewardGoldInput').value) || 0,
             statPoints: Number(document.getElementById('questRewardStatPtsInput').value) || 0,
+            rewardItemTemplateId: document.getElementById('questRewardItemSelect')?.value ? Number(document.getElementById('questRewardItemSelect').value) : null,
+            rewardItemQuantity: Math.max(1, Number(document.getElementById('questRewardItemQtyInput')?.value) || 1),
             triggerReborn: document.getElementById('questRewardRebornSelect').value === 'true',
           },
         };

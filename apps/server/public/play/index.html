@@ -661,6 +661,7 @@
             <span id="hudCharClass" style="font-size:0.75rem; color:var(--text-muted);"></span>
           </div>
           <span id="hudElementBadge" style="font-size:0.74rem; padding:2px 8px; border-radius:99px; background:rgba(56,189,248,0.2); font-weight:700;"></span>
+          <span id="hudGoldBadge" style="font-size:0.74rem; padding:2px 8px; border-radius:99px; background:rgba(234,179,8,0.18); color:#fde047; font-weight:700; font-family:monospace;">🪙 0</span>
         </div>
         <div style="font-size:0.76rem; color:var(--text-muted); margin-top:3px; display:flex; justify-content:space-between; gap:10px;">
           <span id="hudMapName">🗺️ Mapa</span>
@@ -671,6 +672,7 @@
 
       <div class="hud-actions">
         <button id="btnHudQuests" onclick="PlayApp.openQuestLogModal()" title="Ver Diário de Missões">📜 Missões</button>
+        <button id="btnHudBag" onclick="PlayApp.openBagModal()" title="Ver Carteira e Mochila Básica">🎒 Mochila</button>
         <button onclick="PlayApp.openStatsModal()" title="Ver Ficha de Atributos Procedurais">📊 Atributos</button>
         <button class="btn-amber" onclick="PlayApp.unstuckCharacter()" title="Voltar ao Ponto de Spawn do Mapa atual">
           🆘 Destravar (Spawn)
@@ -898,7 +900,8 @@
   <script src="/play/js/ActionCombatArena.js?v=20261111_ai"></script>
   <script src="/play/js/PlayLobbyController.js?v=20261108_p4"></script>
   <script src="/play/js/PlayGmController.js?v=20261108_p4"></script>
-  <script src="/play/js/PlayQuestsController.js?v=20261108_p4"></script>
+  <script src="/play/js/PlayBagController.js?v=20261111_meta"></script>
+  <script src="/play/js/PlayQuestsController.js?v=20261111_meta"></script>
   <script src="/play/play.js?v=20261108_p4"></script>
 </body>
 </html>
