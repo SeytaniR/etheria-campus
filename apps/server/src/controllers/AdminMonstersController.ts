@@ -159,6 +159,24 @@ export class AdminMonstersController {
     return out;
   }
 
+  private async validateAndNormalizeLootTable(raw: unknown): Promise<MonsterDropEntryDto[]> {
+    const normalized = this.normalizeLootTable(raw);
+    if (normalized.length === 0) return [];
+    const requestedIds = Array.from(new Set(normalized.map((entry) => entry.itemTemplateId)));
+    const dbItems = await this.prisma.itemTemplate.findMany({
+      where: { id: { in: requestedIds } },
+      select: { id: true },
+    });
+    const validIds = new Set(dbItems.map((item) => item.id));
+    const missingIds = requestedIds.filter((id) => !validIds.has(id));
+    if (missingIds.length > 0) {
+      throw new Error(
+        `Item(ns) não cadastrado(s) no banco de dados (#${missingIds.join(', #')}). Só é permitido escolher itens já cadastrados na tabela de Itens.`
+      );
+    }
+    return normalized;
+  }
+
   private normalizeRarityTier(raw?: string): string {
     const valid = ['SS', 'S', 'A', 'B', 'C', 'D', 'F'];
     const upper = String(raw || 'F').trim().toUpperCase();
@@ -203,6 +221,7 @@ export class AdminMonstersController {
     const combatStyle = dto.combatStyle === 'RANGED' ? 'RANGED' : 'MELEE';
     const attackRange = Math.max(10, Math.min(1000, Number(dto.attackRange) || (combatStyle === 'RANGED' ? 220 : 60)));
     const damageType = dto.damageType === 'MAGICAL' ? 'MAGICAL' : 'PHYSICAL';
+    const validatedLoot = await this.validateAndNormalizeLootTable(dto.lootTableJson);
 
     const created = await this.prisma.monsterTemplate.create({
       data: {
@@ -220,7 +239,7 @@ export class AdminMonstersController {
         isTamableAsPet: dto.isTamableAsPet !== false,
         isActive: dto.isActive !== false,
         skillIdsJson: Array.isArray(dto.skillIdsJson) ? (dto.skillIdsJson as any) : ([1] as any),
-        lootTableJson: this.normalizeLootTable(dto.lootTableJson) as any,
+        lootTableJson: validatedLoot as any,
         baseAttributesJson: dto.baseAttributesJson ?? {
           VIT: 12,
           STR: 12,
@@ -265,6 +284,11 @@ export class AdminMonstersController {
       });
     }
 
+    const validatedLoot =
+      dto.lootTableJson !== undefined
+        ? await this.validateAndNormalizeLootTable(dto.lootTableJson)
+        : (existing.lootTableJson as any);
+
     const updated = await this.prisma.monsterTemplate.update({
       where: { id },
       data: {
@@ -280,7 +304,7 @@ export class AdminMonstersController {
         isTamableAsPet: dto.isTamableAsPet !== undefined ? !!dto.isTamableAsPet : existing.isTamableAsPet,
         isActive: dto.isActive !== undefined ? !!dto.isActive : existing.isActive,
         skillIdsJson: Array.isArray(dto.skillIdsJson) ? (dto.skillIdsJson as any) : (existing.skillIdsJson as any),
-        lootTableJson: dto.lootTableJson !== undefined ? (this.normalizeLootTable(dto.lootTableJson) as any) : (existing.lootTableJson as any),
+        lootTableJson: validatedLoot as any,
         baseAttributesJson: dto.baseAttributesJson ?? (existing.baseAttributesJson as any),
       },
     });

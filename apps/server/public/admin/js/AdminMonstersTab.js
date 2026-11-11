@@ -358,9 +358,11 @@ class AdminMonstersTab {
       if ((!this.skillTemplates || this.skillTemplates.length === 0) && typeof this.loadSkillsAndBuffsData === 'function') {
         await this.loadSkillsAndBuffsData();
       }
-      if ((!this.itemTemplates || this.itemTemplates.length === 0) && typeof this.loadItemTemplates === 'function') {
+      if (typeof this.loadItemTemplates === 'function') {
         await this.loadItemTemplates();
       }
+      const dropFilterEl = document.getElementById('monsterDropItemFilterInput');
+      if (dropFilterEl) dropFilterEl.value = '';
       if (typeof this.renderEntitySkillsChecklist === 'function') {
         const currentSkills =
           existingMonster && Array.isArray(existingMonster.skillIdsJson) && existingMonster.skillIdsJson.length > 0
@@ -424,6 +426,13 @@ class AdminMonstersTab {
             ? this.getSelectedEntitySkillIds('monsterSkillsChecklist')
             : [1];
 
+        const registeredItemIds = new Set((this.itemTemplates || []).map((it) => Number(it.id)));
+        const invalidDrops = (this.editingMonsterDrops || []).filter((d) => !registeredItemIds.has(Number(d.itemTemplateId)));
+        if (invalidDrops.length > 0) {
+          alert('Existem drops na lista cujo item não está cadastrado no banco de dados. Selecione um item válido ou remova a linha inválida.');
+          return;
+        }
+
         const dto = {
           namePtBr,
           descriptionPtBr,
@@ -474,22 +483,42 @@ class AdminMonstersTab {
       }
     };
 
-    app.populateMonsterDropsItemSelect = function () {
+    app.populateMonsterDropsItemSelect = function (filterQuery = '') {
       const sel = document.getElementById('monsterDropAddItemSelect');
+      const addBtn = document.getElementById('monsterDropAddBtn');
       if (!sel) return;
-      const items = this.itemTemplates || [];
-      sel.innerHTML = items.length
-        ? items.map((it) => `<option value="${it.id}">#${it.id} ${it.namePtBr} (${it.itemCategory} • ${it.rarityTier || 'COMMON'})</option>`).join('')
-        : `<option value="">Cadastre itens na aba Itens primeiro</option>`;
+      const allItems = this.itemTemplates || [];
+      const q = String(filterQuery || '').trim().toLowerCase();
+      const filtered = q
+        ? allItems.filter((it) => `#${it.id} ${it.namePtBr || ''} ${it.code || ''} ${it.itemCategory || ''}`.toLowerCase().includes(q))
+        : allItems;
+      if (allItems.length === 0) {
+        sel.innerHTML = `<option value="">Nenhum item cadastrado no banco — cadastre na aba Itens primeiro</option>`;
+        if (addBtn) addBtn.disabled = true;
+        return;
+      }
+      if (filtered.length === 0) {
+        sel.innerHTML = `<option value="">Nenhum item do banco encontrado para o filtro</option>`;
+        if (addBtn) addBtn.disabled = true;
+        return;
+      }
+      sel.innerHTML = filtered
+        .map((it) => `<option value="${it.id}">#${it.id} ${it.namePtBr} (${it.itemCategory} • ${it.rarityTier || 'COMMON'})</option>`)
+        .join('');
+      if (addBtn) addBtn.disabled = false;
     };
 
     app.addMonsterDropEntry = function () {
       const itemId = Number(document.getElementById('monsterDropAddItemSelect')?.value) || 0;
-      if (!itemId) { alert('Selecione um item válido.'); return; }
+      const registeredItem = (this.itemTemplates || []).find((it) => Number(it.id) === itemId);
+      if (!itemId || !registeredItem) {
+        alert('Só é possível adicionar itens já cadastrados no banco de dados (aba Itens).');
+        return;
+      }
       const minQty = Math.max(1, Math.round(Number(document.getElementById('monsterDropAddMinQty')?.value) || 1));
       const maxQty = Math.max(minQty, Math.round(Number(document.getElementById('monsterDropAddMaxQty')?.value) || minQty));
       const chancePct = Math.max(0.01, Math.min(100, Number(document.getElementById('monsterDropAddChance')?.value) || 25));
-      this.editingMonsterDrops.push({ itemTemplateId: itemId, minQty, maxQty, chancePct });
+      this.editingMonsterDrops.push({ itemTemplateId: registeredItem.id, minQty, maxQty, chancePct });
       this.renderMonsterDropsList();
     };
 
@@ -517,9 +546,17 @@ class AdminMonstersTab {
         listEl.innerHTML = `<div style="color:#64748b; font-size:0.76rem; padding:10px; text-align:center;">Nenhum drop configurado ainda. Selecione um item acima para adicionar.</div>`;
         return;
       }
-      const itemOpts = (selId) => (this.itemTemplates || []).map((it) => `<option value="${it.id}" ${Number(selId) === Number(it.id) ? 'selected' : ''}>#${it.id} ${it.namePtBr}</option>`).join('');
-      listEl.innerHTML = this.editingMonsterDrops.map((d, i) => `
-        <div style="display:grid; grid-template-columns:1fr 78px 78px 92px auto; gap:6px; align-items:center; background:#0f172a; border:1px solid #334155; border-radius:6px; padding:6px 8px;">
+      const dbItems = this.itemTemplates || [];
+      const registeredIds = new Set(dbItems.map((it) => Number(it.id)));
+      const itemOpts = (selId) => {
+        const hasValid = registeredIds.has(Number(selId));
+        const missingOpt = hasValid ? '' : `<option value="" selected>⚠️ Item #${selId} não cadastrado — escolha outro</option>`;
+        return missingOpt + dbItems.map((it) => `<option value="${it.id}" ${Number(selId) === Number(it.id) ? 'selected' : ''}>#${it.id} ${it.namePtBr}</option>`).join('');
+      };
+      listEl.innerHTML = this.editingMonsterDrops.map((d, i) => {
+        const isMissing = !registeredIds.has(Number(d.itemTemplateId));
+        return `
+        <div style="display:grid; grid-template-columns:1fr 78px 78px 92px auto; gap:6px; align-items:center; background:#0f172a; border:1px solid ${isMissing ? '#ef4444' : '#334155'}; border-radius:6px; padding:6px 8px;">
           <select onchange="AdminApp.updateMonsterDropEntry(${i}, 'itemTemplateId', this.value)" style="font-size:0.75rem; padding:4px 6px;">${itemOpts(d.itemTemplateId)}</select>
           <input type="number" min="1" value="${d.minQty}" title="Qtd Mínima" onchange="AdminApp.updateMonsterDropEntry(${i}, 'minQty', this.value)" style="font-size:0.76rem; padding:4px 6px;" />
           <input type="number" min="1" value="${d.maxQty}" title="Qtd Máxima" onchange="AdminApp.updateMonsterDropEntry(${i}, 'maxQty', this.value)" style="font-size:0.76rem; padding:4px 6px;" />
@@ -528,7 +565,8 @@ class AdminMonstersTab {
             <span style="font-size:0.74rem; color:#fde047;">%</span>
           </div>
           <button type="button" class="btn-danger" onclick="AdminApp.removeMonsterDropEntry(${i})" style="padding:4px 8px; font-size:0.74rem;">🗑️</button>
-        </div>`).join('');
+        </div>`;
+      }).join('');
     };
 
     app.formatMonsterDropsCellHtml = function (m) {
@@ -763,15 +801,24 @@ class AdminMonstersTab {
       <!-- BLOCO 4.5: TABELA DE DROPS DO MONSTRO -->
       <div style="background:rgba(15,23,42,0.75); border:1.5px solid #22c55e; border-radius:10px; padding:12px; margin-bottom:12px;">
         <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; margin-bottom:8px;">
-          <span style="font-size:0.82rem; font-weight:700; color:#86efac;">🎁 Drops ao Derrotar este Monstro (Itens, Quantidade e Chance %)</span>
+          <div>
+            <span style="font-size:0.82rem; font-weight:700; color:#86efac;">🎁 Drops ao Derrotar este Monstro (Itens, Quantidade e Chance %)</span>
+            <div style="font-size:0.70rem; color:#94a3b8; margin-top:2px;">🔒 Apenas itens já cadastrados no banco de dados (aba Itens) podem ser selecionados.</div>
+          </div>
           <span id="monsterDropsCountBadge" style="font-size:0.72rem; color:#86efac; font-weight:700; background:rgba(34,197,94,0.15); padding:2px 8px; border-radius:6px; border:1px solid #16a34a;">0 drop(s)</span>
         </div>
         <div style="display:grid; grid-template-columns:1fr 80px 80px 95px auto; gap:8px; align-items:end; background:#020617; border:1px solid #334155; border-radius:8px; padding:8px; margin-bottom:8px;">
-          <div class="field"><label>📦 Item</label><select id="monsterDropAddItemSelect"></select></div>
+          <div class="field">
+            <label>📦 Item cadastrado no banco</label>
+            <div style="display:flex; gap:6px; flex-wrap:wrap;">
+              <input type="text" id="monsterDropItemFilterInput" placeholder="🔍 Filtrar item do banco..." oninput="AdminApp.populateMonsterDropsItemSelect(this.value)" style="max-width:155px; font-size:0.75rem; padding:6px 8px;" />
+              <select id="monsterDropAddItemSelect" style="flex:1; min-width:160px;"></select>
+            </div>
+          </div>
           <div class="field"><label>Qtd Mín</label><input type="number" id="monsterDropAddMinQty" value="1" min="1" /></div>
           <div class="field"><label>Qtd Máx</label><input type="number" id="monsterDropAddMaxQty" value="1" min="1" /></div>
           <div class="field"><label>Chance (%)</label><input type="number" id="monsterDropAddChance" value="25" min="0.01" max="100" step="0.1" /></div>
-          <button type="button" class="btn-success" onclick="AdminApp.addMonsterDropEntry()" style="padding:8px 12px; font-weight:700; white-space:nowrap;">➕ Adicionar Drop</button>
+          <button type="button" id="monsterDropAddBtn" class="btn-success" onclick="AdminApp.addMonsterDropEntry()" style="padding:8px 12px; font-weight:700; white-space:nowrap;">➕ Adicionar Drop</button>
         </div>
         <div style="font-size:0.69rem; color:#94a3b8; display:grid; grid-template-columns:1fr 78px 78px 92px auto; gap:6px; padding:0 8px 4px;">
           <span>Item selecionado</span><span>Mín</span><span>Máx</span><span>Chance (%)</span><span></span>
