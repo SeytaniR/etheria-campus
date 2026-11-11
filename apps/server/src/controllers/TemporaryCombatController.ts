@@ -43,6 +43,7 @@ export interface CombatUnit {
   raceCode?: string;
   combatStyle?: 'MELEE' | 'RANGED';
   attackRange?: number;
+  battleMoveSpeed?: number;
   isAlive: boolean;
   activeStatuses?: ActiveStatusInstance[];
 }
@@ -206,6 +207,13 @@ export class TemporaryCombatController {
     const strAtkRatio = getRatio('STR', 'PHYS_ATK', 3.2);
     const vitDefRatio = getRatio('VIT', 'PHYS_DEF', 1.8);
     const agiSpdRatio = getRatio('AGI', 'SPEED', 2.0);
+    const agiMoveRatio = getRatio('AGI', 'BATTLE_MOVE_SPEED', 0.5);
+
+    // Velocidade de Movimento em Batalha autoritária (lê de combat_attributes e class_templates)
+    const battleMoveAttr = await this.prisma.combatAttribute.findUnique({ where: { code: 'BATTLE_MOVE_SPEED' } });
+    const globalDefaultSpeed = Number(battleMoveAttr?.baseDefault) || 180;
+    const classBaseSpeed = Number((pc?.classTemplate as any)?.baseCombatAttributesJson?.BATTLE_MOVE_SPEED) || globalDefaultSpeed;
+    const playerMoveSpeed = Math.round(classBaseSpeed + charBaseStats.AGI * agiMoveRatio);
 
     // Calcula Atributos do Personagem (100% dinâmicos do banco)
     const playerMaxHp = Math.round(charBaseStats.VIT * vitHpRatio + charLevel * 20);
@@ -226,6 +234,7 @@ export class TemporaryCombatController {
       atk: playerAtk,
       def: playerDef,
       speed: playerSpeed,
+      battleMoveSpeed: playerMoveSpeed,
       spriteKey: charSpriteKey,
       atlasJsonUrl: charAtlasJson,
       atlasWebpUrl: charAtlasWebp,
@@ -266,6 +275,7 @@ export class TemporaryCombatController {
           raceCode: 'BEAST',
           combatStyle: (mt?.combatStyle as any) || 'MELEE',
           attackRange: mt?.attackRange || 60,
+          battleMoveSpeed: Math.round(playerMoveSpeed * 0.90),
           isAlive: true,
           activeStatuses: [],
         });
@@ -297,6 +307,7 @@ export class TemporaryCombatController {
           raceCode: 'BEAST',
           combatStyle: 'MELEE',
           attackRange: 60,
+          battleMoveSpeed: Math.round(playerMoveSpeed * 0.90),
           isAlive: true,
           activeStatuses: [],
         });
@@ -312,6 +323,7 @@ export class TemporaryCombatController {
     const mobAtk = Math.round((mobStats.STR * (strAtkRatio * 0.82) + lvl * 3.2) * rarityMult);
     const mobDef = Math.round((mobStats.VIT * (vitDefRatio * 0.78) + lvl * 2.0) * rarityMult);
     const mobSpeed = Math.round((mobStats.AGI * (agiSpdRatio * 0.9) + lvl) * rarityMult);
+    const mobMoveSpeed = Math.round(globalDefaultSpeed * 0.70 + mobStats.AGI * 0.35);
     const mobKey = mobTemplate.mcreworkMonsterKey;
     const mobThumb = `${this.mcreworkPagesBaseUrl}/assets/monsters/${mobKey}/thumb.webp`;
     const mobAtlasJson = `${this.mcreworkPagesBaseUrl}/assets/monsters/${mobKey}/atlas.json`;
@@ -344,6 +356,7 @@ export class TemporaryCombatController {
           raceCode: mobTemplate.raceCode || 'BEAST',
           combatStyle: (mobTemplate.combatStyle as any) || 'MELEE',
           attackRange: mobTemplate.attackRange || 60,
+          battleMoveSpeed: mobMoveSpeed,
           isAlive: true,
           activeStatuses: [],
         });
@@ -512,6 +525,9 @@ export class TemporaryCombatController {
     const strAtkRatio = getRatio('STR', 'PHYS_ATK', 3.2);
     const vitDefRatio = getRatio('VIT', 'PHYS_DEF', 1.8);
     const agiSpdRatio = getRatio('AGI', 'SPEED', 2.0);
+    const agiMoveRatio = getRatio('AGI', 'BATTLE_MOVE_SPEED', 0.5);
+    const battleMoveAttr = await this.prisma.combatAttribute.findUnique({ where: { code: 'BATTLE_MOVE_SPEED' } });
+    const globalDefaultSpeed = Number(battleMoveAttr?.baseDefault) || 180;
 
     const monsterUnits: CombatUnit[] = [];
     for (let i = 0; i < totalMonstersToSpawn; i++) {
@@ -528,6 +544,7 @@ export class TemporaryCombatController {
       const mobAtk = Math.round((mobStats.STR * (strAtkRatio * 0.82) + mobLvl * 3.2) * mult.atk);
       const mobDef = Math.round((mobStats.VIT * (vitDefRatio * 0.78) + mobLvl * 2.0) * mult.def);
       const mobSpeed = Math.round(mobStats.AGI * (agiSpdRatio * 0.9) + mobLvl);
+      const mobMoveSpeed = Math.round(globalDefaultSpeed * 0.70 + mobStats.AGI * 0.35);
 
       const baseName = i18nMap.get(tmpl.nameI18nKey) || tmpl.code;
       const raritySuffix = rTier === 'SS' ? ' ⭐[SS]' : rTier === 'S' ? ' ⭐[S]' : '';
@@ -545,6 +562,7 @@ export class TemporaryCombatController {
         atk: mobAtk,
         def: mobDef,
         speed: mobSpeed,
+        battleMoveSpeed: mobMoveSpeed,
         spriteKey: mobKey,
         atlasJsonUrl: `${this.mcreworkPagesBaseUrl}/assets/monsters/${mobKey}/atlas.json`,
         atlasWebpUrl: `${this.mcreworkPagesBaseUrl}/assets/monsters/${mobKey}/atlas.webp`,

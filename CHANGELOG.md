@@ -5,6 +5,21 @@ Qualquer IA trabalhando neste repositório **DEVE** incrementar a versão e regi
 
 ---
 
+## [v0.6.5] - 2026-11-10
+### Combate Action & Arena — Correção da Velocidade de Movimento em Batalha (`BATTLE_MOVE_SPEED`)
+* **Correção Autoritária de Movimentação em Arena de Combate:**
+  * **Causa Raiz Identificada:** Em `ActionCombatArena.js`, a velocidade em batalha estava tentando ler apenas a chave `baseCombatAttributesJson.BATTLE_MOVE_SPEED` da classe (que vinha vazia `{}` como padrão), ignorando a tabela global `combat_attributes.baseDefault` onde o admin altera o valor na aba *Atributos & Fórmulas*. Além disso, aplicava um teto rígido hardcoded (`Math.min(baseSpeed * 1.40)`) e fixava a velocidade de monstros (`110 + idx * 10`) e pets (`teto de 175`).
+  * **Cálculo Autoritário no Backend (`TemporaryCombatController.ts`):**
+    * Adicionado `battleMoveSpeed` ao DTO `CombatUnit`.
+    * O backend consulta autoritativamente o valor de `BATTLE_MOVE_SPEED` da tabela `combat_attributes` (ou sobrescrita da classe em `class_templates`) e soma a taxa de conversão cadastrada em `attribute_conversions` para o atributo `AGI`.
+    * Passa `battleMoveSpeed` calculado tanto para o jogador (`playerUnit`), quanto para pets e monstros sorteados.
+  * **Aplicação no Cliente (`ActionCombatArena.js`):**
+    * `this.player.speed` agora lê prioritariamente `pState.battleMoveSpeed` enviado pelo servidor, com fallback para o valor global de `combat_attributes` e conversão de `AGI`.
+    * Removido o teto artificial de 1.40x.
+    * Monstros e pets passam a adotar suas velocidades reais calculadas pelo banco (`m.battleMoveSpeed` e `p.battleMoveSpeed`), permitindo que qualquer alteração de velocidade de batalha surta efeito imediato.
+
+---
+
 ## [v0.6.4] - 2026-11-10
 ### Governança & Arquitetura — Resposta Dinâmica Total a Atributos e Banco de Dados
 * **Sincronização 100% Autoritária do Banco com o Jogo (Zero Hardcode):**

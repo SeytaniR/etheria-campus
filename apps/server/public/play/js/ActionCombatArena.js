@@ -160,9 +160,26 @@ class ActionCombatArena {
     const pDir = this.compute8Direction(spawns.mx - spawns.px, spawns.my - spawns.py);
 
     const baseCombat = this.client?.activeChar?.baseCombatAttributesJson || {};
-    const baseSpeed = Number(baseCombat.BATTLE_MOVE_SPEED) || 180;
-    const agi = (Number(this.client?.activeChar?.distributedStatsJson?.AGI) || 0) + (Number(this.client?.activeChar?.baseAttributesJson?.AGI) || 10);
-    const battleSpeed = Math.min(baseSpeed * 1.40, baseSpeed + agi * 0.5);
+    const globalCombatAttr = (this.client?.combatAttributes || []).find((ca) => ca.code === 'BATTLE_MOVE_SPEED');
+    const globalDefaultSpeed = globalCombatAttr ? Number(globalCombatAttr.baseDefault) : 180;
+    const classMoveSpeed = Number(baseCombat.BATTLE_MOVE_SPEED);
+    const agiConv = (this.client?.attributeConversions || []).find(
+      (c) => c.baseAttributeCode === 'AGI' && c.combatAttributeCode === 'BATTLE_MOVE_SPEED'
+    );
+    const agiRatio = agiConv ? Number(agiConv.ratioPerPoint) : 0.5;
+    const totalAgi =
+      (Number(this.client?.activeChar?.distributedStatsJson?.AGI) || 0) +
+      (Number(this.client?.activeChar?.baseAttributesJson?.AGI) || 10);
+
+    const battleSpeed = Math.max(
+      60,
+      Number(
+        pState.battleMoveSpeed ||
+        (classMoveSpeed ? classMoveSpeed + totalAgi * agiRatio : null) ||
+        (globalDefaultSpeed ? globalDefaultSpeed + totalAgi * agiRatio : null) ||
+        180
+      )
+    );
 
     this.projectiles = [];
     this.selectedTargetMob = null;
@@ -207,7 +224,7 @@ class ActionCombatArena {
         id: m.id || `mob_${idx}`, templateId: battleState.monsterTemplateId,
         name: m.name || `Monstro #${idx + 1}`, x: mx, y: my, dir: mDir, action: 0, isAlive: true,
         hp: m.hp || 300, maxHp: m.maxHp || 300, atk: m.atk || 45, def: m.def || 25,
-        speed: 110 + idx * 10, combatStyle: m.combatStyle || 'MELEE', attackRange: m.attackRange || (m.combatStyle === 'RANGED' ? 220 : 52),
+        speed: Number(m.battleMoveSpeed) || Number(m.speed) || Math.round(battleSpeed * 0.70), combatStyle: m.combatStyle || 'MELEE', attackRange: m.attackRange || (m.combatStyle === 'RANGED' ? 220 : 52),
         nextAttackTime: performance.now() + 1000 + idx * 400, hitTimer: 0, attackTimer: 0, fadeAlpha: 1.0,
         sprite: this.getSprite(m.atlasJsonUrl, m.atlasWebpUrl, m.thumbUrl),
         groundOffsetY: m.groundOffsetY || 0, shadowOffsetX: m.shadowOffsetX || 0, shadowOffsetY: m.shadowOffsetY || 0,
@@ -225,7 +242,7 @@ class ActionCombatArena {
         id: p.id || `pet_${idx}`, name: p.name || `Pet #${idx + 1}`,
         x: px, y: py, dir: pDir, action: 0, isAlive: true,
         hp: p.hp || 320, maxHp: p.maxHp || 320, atk: p.atk || 42, def: p.def || 28,
-        speed: Math.min(battleSpeed * 0.92, 175), combatStyle: p.combatStyle || 'MELEE', attackRange: p.attackRange || (p.combatStyle === 'RANGED' ? 220 : 55),
+        speed: Number(p.battleMoveSpeed) || Math.round(battleSpeed * 0.90), combatStyle: p.combatStyle || 'MELEE', attackRange: p.attackRange || (p.combatStyle === 'RANGED' ? 220 : 55),
         nextAttackTime: performance.now() + 1000 + idx * 450, hitTimer: 0, attackTimer: 0, fadeAlpha: 1.0,
         sprite: this.getSprite(p.atlasJsonUrl, p.atlasWebpUrl, p.thumbUrl),
         groundOffsetY: p.groundOffsetY || 0, shadowOffsetX: p.shadowOffsetX || 0, shadowOffsetY: p.shadowOffsetY || 0,

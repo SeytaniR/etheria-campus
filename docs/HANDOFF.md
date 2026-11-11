@@ -8,9 +8,9 @@
 ---
 
 ## 📌 Status Atual do Projeto
-* **Versão Atual:** `v0.6.4`
+* **Versão Atual:** `v0.6.5`
 * **Última Atualização:** `2026-11-10`
-* **Fase Atual:** **Resposta Dinâmica Total a Atributos e Banco de Dados (`v0.6.4`) — Sincronização 100% autoritária entre banco PostgreSQL e gameplay: qualquer buff/nerf em atributos de classes, monstros, pets, personagens individuais (`distributedStatsJson`) ou matriz de conversão (`attribute_conversions`) altera o jogo imediatamente.**
+* **Fase Atual:** **Correção Autoritária de Velocidade de Movimento em Batalha (`v0.6.5`) — Eliminadas falhas de leitura e tetos hardcoded em `ActionCombatArena.js`. `BATTLE_MOVE_SPEED` agora é computado autoritativamente no backend (`TemporaryCombatController`) consultando a tabela `combat_attributes`, a sobrescrita de `class_templates` e o bônus de AGI via `attribute_conversions`, refletindo 100% de forma imediata no combate.**
 * **Repositório Oficial:** `https://github.com/SeytaniR/etheria-campus`
 * **Fonte Bruta de Assets:** `https://github.com/SeytaniR/mcrework` (`https://seytanir.github.io/mcrework/`)
 
