@@ -6,9 +6,11 @@ Este documento detalha os módulos Orientados a Objetos, o Motor de Regras Proce
 
 ## 1. Visão Geral dos 6 Módulos Principais (Monorepo OO)
 
-1. **`@etheria/asset-bridge` (Conector da Galeria Bruta `mcrework`):**
+1. **`@etheria/asset-bridge` & `AssetMirrorService` (Conector e Espelho de Assets):**
    * Lê os catálogos, atlases WebP de personagens/monstros/NPCs, imagens limpas de fundo dos mapas (sem usar malhas ou colisões antigas do `mcrework`), ícones e efeitos especiais (VFX) do repositório `SeytaniR/mcrework`.
-   * **Regra da Curadoria (Whitelist):** Nenhum arquivo do `mcrework` existe no jogo automaticamente. Apenas o que for selecionado e salvo nas tabelas do nosso Banco de Dados via `/admin` passa a existir no jogo.
+   * **Papel Estrito do Repositório GitHub (`mcrework`):** O repositório remoto no GitHub serve exclusivamente para alimentar as galerias e miniaturas visuais do Estúdio `/admin` durante os processos de criação e edição.
+   * **Espelhamento Imediato no Servidor ao Salvar:** No momento em que o administrador clica em salvar qualquer entidade no banco de dados (Mapas, Personagens/Classes, NPCs, Monstros, Pets, Montarias, Equipamentos, Itens, Skills, Status Effects), o servidor faz o download e a instalação imediata do asset no disco local da VPS (`apps/server/cache/mcrework/`).
+   * **Isolamento Total do Client (`/play`):** O cliente do jogo comunica-se estrita e exclusivamente com o servidor do jogo (`/api/assets/*`, `/api/play/*`), nunca fazendo chamadas diretas ao GitHub. O download completo local é orquestrado via `PlayAssetDownloader.js` (Cache Storage).
 2. **`@etheria/shared` (Núcleo OO Compartilhado, Motor Procedural & i18n):**
    * Classes de domínio (`Entity`, `Actor`, `Character`, `Pet`, `Monster`, `ArenaFormation`, `CombatCalculator`, `MapMeshGrid`), contratos de pacotes de rede e sistema de tradução `i18n` (`pt-BR`, `en-US`, `es-ES`).
 3. **`@etheria/database` (Banco de Dados Low-Code):**

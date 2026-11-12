@@ -8,9 +8,9 @@
 ---
 
 ## 📌 Status Atual do Projeto
-* **Versão Atual:** `v0.14.0`
+* **Versão Atual:** `v0.15.0`
 * **Última Atualização:** `2026-11-12`
-* **Fase Atual:** **Câmera e Movimento Limitados à Borda do Mapa (Zero Área Preta) + Correção de Portais/Bouncing + Download e Cache Local de Assets (`v0.14.0`)** — Corrigida a câmera para nunca exibir o vazio preto fora do mapa, limitada a movimentação estritamente à borda da imagem (`[18, mapW - 18]`), resolvido o bug de portal teleportando de volta (imunidade de aterrissagem + afastamento obrigatório), adicionado espelho e cache em disco local na VPS (`AssetMirrorService`) e gerenciador de download local no client (`PlayAssetDownloader` com CacheStorage).
+* **Fase Atual:** **Arquitetura Sagrada de Assets: Isolamento Estrito Client-Servidor & Espelhamento Automático no Salvar (`v0.15.0`)** — Corrigida a câmera para nunca exibir o vazio preto fora do mapa, limitada a movimentação estritamente à borda da imagem (`[18, mapW - 18]`), resolvido o bug de portal teleportando de volta (imunidade de aterrissagem + afastamento obrigatório), adicionado espelho e cache em disco local na VPS (`AssetMirrorService`) e gerenciador de download local no client (`PlayAssetDownloader` com CacheStorage).
 * **Repositório Oficial:** `https://github.com/SeytaniR/etheria-campus`
 * **Fonte Bruta de Assets:** `https://github.com/SeytaniR/mcrework` (`https://seytanir.github.io/mcrework/`)
 
@@ -56,6 +56,11 @@
    * PostgreSQL 16 local na porta 5432 gerenciando os dados persistentes com snapshots sincronizados no Git.
 12. **Git + VPS 100% Atualizada + Segurança por Backups (`AGENTS.md` Regra #9):**
    * Sempre versionar no Git (`commit` + `push`) e atualizar imediatamente a VPS (`git pull`, `prisma db push` se houver mudança de schema, `build` e `systemctl restart etheria-campus`), preservando backup preventivo do snapshot/banco para rollback.
+13. **Arquitetura Sagrada de Assets: Isolamento Estrito Client-Servidor & Espelhamento Automático no Salvar (`v0.15.0`):**
+    * O repositório de assets no GitHub serve exclusivamente para alimentar as galerias e previews visuais da rota `/admin` durante criação e edição.
+    * No momento em que o admin salva qualquer registro no banco (Mapas, Personagens/Classes, NPCs, Monstros, Pets, Montarias, Equipamentos, Itens, Habilidades, Buffs/Debuffs), o servidor imediatamente baixa e instala todos os assets referenciados em disco local permanente (`apps/server/cache/mcrework/`).
+    * O cliente do jogo (`/play`) comunica-se estrita e exclusivamente com o servidor do jogo (`/api/assets/*`, `/api/play/*`), nunca fazendo requisições ao GitHub.
+    * A rota `/admin` comunica-se com o servidor do jogo para persistência e regras, e com o GitHub apenas para exibir galerias disponíveis para escolha.
 
 ---
 

@@ -7,6 +7,20 @@ Qualquer IA trabalhando neste repositório **DEVE** incrementar a versão e regi
 
 ---
 
+## [v0.15.0] - 2026-11-12
+### Arquitetura Sagrada de Assets: Isolamento Estrito Client-Servidor & Espelhamento Automático no Salvar
+* **Arquitetura & Governança de Assets (`AGENTS.md` Cláusula 10, `docs/ARCHITECTURE.md`, `docs/HANDOFF.md`):**
+  * **Papel Estrito do GitHub (`mcrework`):** O repositório remoto no GitHub funciona exclusivamente como catálogo/galeria de autoria para a rota `/admin` durante a navegação, seleção e edição de entidades.
+  * **Instalação Imediata no Servidor ao Salvar:** No momento em que o admin salva qualquer registro nas tabelas do banco de dados, o servidor imediatamente baixa e instala os assets vinculados no disco local da VPS (`apps/server/cache/mcrework/`), caso ainda não estejam em cache.
+  * **Isolamento Total do Client (`/play`):** O cliente do jogo comunica-se estrita e exclusivamente com o servidor do jogo (`/api/assets/*`, `/api/play/*`), com zero tráfego direto para o GitHub.
+  * **Comunicação do Admin (`/admin`):** O `/admin` comunica-se com o servidor para persistência e dados, consultando o GitHub apenas para listar as miniaturas das galerias de escolha.
+* **Implementado (Gatilhos Automáticos de Espelhamento em todos os Controladores Admin):**
+  * **`AssetMirrorService.ts`:** Novos métodos de espelhamento dedicados: `mirrorMapImage`, `mirrorClassAssets`, `mirrorNpcAssets`, `mirrorMonsterAssets`, `mirrorPetAssets`, `mirrorMountAssets`, `mirrorItemIcon` e `mirrorSkillOrEffectAssets`.
+  * **Gatilhos em Controladores:** `AdminMapsController` (mapas, classes, NPCs), `AdminMonstersController`, `AdminPetsController`, `AdminFlyingMountsController`, `AdminEquipmentsController`, `AdminItemsController` e `AdminSkillsController` disparam o espelhamento de disco local imediatamente ao criar ou atualizar entidades.
+  * **Injeção de Dependências:** Instância singleton de `AssetMirrorService` injetada nos controladores em `apps/server/src/index.ts`.
+
+---
+
 ## [v0.14.0] - 2026-11-12
 ### Limite Estrito de Bordas do Mapa e Câmera (Zero Área Preta), Imunidade Anti-Loop de Portais & Download Local de Assets
 * **Corrigido & Aprimorado (Câmera & Bordas do Mapa em `/play`):**

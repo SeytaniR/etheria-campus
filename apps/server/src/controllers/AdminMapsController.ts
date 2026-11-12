@@ -15,6 +15,7 @@
 import { PrismaClient, SnapshotManager, I18nCache } from '@etheria/database';
 import type { MapPolygon } from '@etheria/shared';
 import { MapSpawnResolver } from './MapSpawnResolver.js';
+import type { AssetMirrorService } from './AssetMirrorService.js';
 
 export interface SaveMapDto {
   code?: string;
@@ -109,10 +110,12 @@ export class AdminMapsController {
   private cachedMcreworkMaps: any[] | null = null;
   private cachedMcreworkNpcs: any[] | null = null;
   private cachedMcreworkChars: any[] | null = null;
+  private readonly assetMirrorService?: AssetMirrorService;
 
-  constructor(prisma: PrismaClient) {
+  constructor(prisma: PrismaClient, assetMirrorService?: AssetMirrorService) {
     this.prisma = prisma;
     this.snapshotManager = new SnapshotManager(prisma);
+    this.assetMirrorService = assetMirrorService;
   }
 
   /**
@@ -464,6 +467,9 @@ export class AdminMapsController {
     });
 
     await this.snapshotManager.exportToDisk();
+    if (this.assetMirrorService && savedClass?.mcreworkCharKey) {
+      await this.assetMirrorService.mirrorClassAssets(savedClass.mcreworkCharKey, savedClass.rebornMcreworkCharKey);
+    }
     return {
       ...savedClass,
       namePtBr: finalNamePtBr,
@@ -567,6 +573,9 @@ export class AdminMapsController {
     });
 
     await this.snapshotManager.exportToDisk();
+    if (this.assetMirrorService && savedNpc?.mcreworkNpcKey) {
+      await this.assetMirrorService.mirrorNpcAssets(savedNpc.mcreworkNpcKey);
+    }
     return {
       ...savedNpc,
       namePtBr: finalNamePtBr,
@@ -793,6 +802,9 @@ export class AdminMapsController {
     });
 
     await this.snapshotManager.exportToDisk();
+    if (this.assetMirrorService && dto.mcreworkMapImage) {
+      await this.assetMirrorService.mirrorMapImage(dto.mcreworkMapImage);
+    }
     return { id: savedMapId };
   }
 

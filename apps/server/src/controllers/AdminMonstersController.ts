@@ -12,6 +12,7 @@
 
 import { PrismaClient } from '@prisma/client';
 import { SnapshotManager } from '@etheria/database';
+import type { AssetMirrorService } from './AssetMirrorService.js';
 
 export interface MonsterDropEntryDto {
   itemTemplateId: number;
@@ -52,10 +53,12 @@ export class AdminMonstersController {
   private readonly mcreworkRawBaseUrl = 'https://raw.githubusercontent.com/SeytaniR/mcrework/main/web';
   private readonly mcreworkPagesBaseUrl = 'https://seytanir.github.io/mcrework';
   private cachedMcreworkMonsters: any[] | null = null;
+  private readonly assetMirrorService?: AssetMirrorService;
 
-  constructor(prisma: PrismaClient) {
+  constructor(prisma: PrismaClient, assetMirrorService?: AssetMirrorService) {
     this.prisma = prisma;
     this.snapshotManager = new SnapshotManager(prisma);
+    this.assetMirrorService = assetMirrorService;
   }
 
   /**
@@ -252,6 +255,9 @@ export class AdminMonstersController {
     });
 
     await this.snapshotManager.exportToDisk();
+    if (this.assetMirrorService && created.mcreworkMonsterKey) {
+      await this.assetMirrorService.mirrorMonsterAssets(created.mcreworkMonsterKey);
+    }
     return created;
   }
 
@@ -310,6 +316,9 @@ export class AdminMonstersController {
     });
 
     await this.snapshotManager.exportToDisk();
+    if (this.assetMirrorService && updated.mcreworkMonsterKey) {
+      await this.assetMirrorService.mirrorMonsterAssets(updated.mcreworkMonsterKey);
+    }
     return updated;
   }
 

@@ -11,6 +11,7 @@
 
 import { PrismaClient } from '@prisma/client';
 import { SnapshotManager } from '@etheria/database';
+import type { AssetMirrorService } from './AssetMirrorService.js';
 
 export interface PetTemplateDto {
   namePtBr: string;
@@ -53,10 +54,12 @@ export class AdminPetsController {
   private readonly mcreworkRawBaseUrl = 'https://raw.githubusercontent.com/SeytaniR/mcrework/main/web';
   private readonly mcreworkPagesBaseUrl = 'https://seytanir.github.io/mcrework';
   private cachedMcreworkPets: any[] | null = null;
+  private readonly assetMirrorService?: AssetMirrorService;
 
-  constructor(prisma: PrismaClient) {
+  constructor(prisma: PrismaClient, assetMirrorService?: AssetMirrorService) {
     this.prisma = prisma;
     this.snapshotManager = new SnapshotManager(prisma);
+    this.assetMirrorService = assetMirrorService;
   }
 
   /**
@@ -211,6 +214,9 @@ export class AdminPetsController {
     });
 
     try { await this.snapshotManager.exportToDisk(); } catch (_) {}
+    if (this.assetMirrorService && created.mcreworkPetKey) {
+      await this.assetMirrorService.mirrorPetAssets(created.mcreworkPetKey);
+    }
     return created;
   }
 
@@ -260,6 +266,9 @@ export class AdminPetsController {
     });
 
     try { await this.snapshotManager.exportToDisk(); } catch (_) {}
+    if (this.assetMirrorService && updated.mcreworkPetKey) {
+      await this.assetMirrorService.mirrorPetAssets(updated.mcreworkPetKey);
+    }
     return updated;
   }
 

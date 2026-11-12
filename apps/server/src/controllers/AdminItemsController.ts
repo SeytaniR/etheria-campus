@@ -11,6 +11,7 @@
 
 import { PrismaClient } from '@prisma/client';
 import { SnapshotManager } from '@etheria/database';
+import type { AssetMirrorService } from './AssetMirrorService.js';
 
 export interface ItemTemplateDto {
   code?: string;
@@ -37,10 +38,12 @@ export class AdminItemsController {
   private readonly mcreworkRawBaseUrl = 'https://raw.githubusercontent.com/SeytaniR/mcrework/main/web';
   private readonly mcreworkPagesBaseUrl = 'https://seytanir.github.io/mcrework';
   private cachedMcreworkItems: any[] | null = null;
+  private readonly assetMirrorService?: AssetMirrorService;
 
-  constructor(prisma: PrismaClient) {
+  constructor(prisma: PrismaClient, assetMirrorService?: AssetMirrorService) {
     this.prisma = prisma;
     this.snapshotManager = new SnapshotManager(prisma);
+    this.assetMirrorService = assetMirrorService;
   }
 
   /**
@@ -297,6 +300,9 @@ export class AdminItemsController {
     });
 
     await this.snapshotManager.exportToDisk();
+    if (this.assetMirrorService && created.mcreworkIconKey) {
+      await this.assetMirrorService.mirrorItemIcon(created.mcreworkIconKey);
+    }
     return created;
   }
 
@@ -333,6 +339,9 @@ export class AdminItemsController {
     });
 
     await this.snapshotManager.exportToDisk();
+    if (this.assetMirrorService && updated.mcreworkIconKey) {
+      await this.assetMirrorService.mirrorItemIcon(updated.mcreworkIconKey);
+    }
     return updated;
   }
 

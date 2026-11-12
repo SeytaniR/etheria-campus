@@ -317,9 +317,115 @@ export class AssetMirrorService {
     urls.add('/assets/worldmap/etheria_campus_logo.png');
 
     return {
-      version: 'v0.14.0',
+      version: 'v0.15.0',
       totalCount: urls.size,
       assets: Array.from(urls),
     };
+  }
+
+  /**
+   * Baixa e instala imediatamente no disco da VPS (`apps/server/cache/mcrework/`) o arquivo de imagem do mapa.
+   */
+  public async mirrorMapImage(mapImagePath: string | null | undefined): Promise<void> {
+    if (!mapImagePath) return;
+    const rel = this.normalizeRelPath(mapImagePath);
+    if (rel) {
+      await this.getOrFetchAsset(rel);
+    }
+  }
+
+  /**
+   * Baixa e instala no disco da VPS o pacote completo de sprites de uma Classe de Personagem (atlas.json, atlas.webp, thumb.webp).
+   */
+  public async mirrorClassAssets(charKey: string | null | undefined, rebornCharKey?: string | null | undefined): Promise<void> {
+    const keys = [charKey, rebornCharKey].filter(Boolean) as string[];
+    const tasks: Promise<unknown>[] = [];
+    for (const k of keys) {
+      tasks.push(
+        this.getOrFetchAsset(`assets/characters/${k}/atlas.json`),
+        this.getOrFetchAsset(`assets/characters/${k}/atlas.webp`),
+        this.getOrFetchAsset(`assets/characters/${k}/thumb.webp`)
+      );
+    }
+    await Promise.allSettled(tasks);
+  }
+
+  /**
+   * Baixa e instala no disco da VPS o pacote completo de sprites de um NPC (atlas.json, atlas.webp, thumb.png).
+   */
+  public async mirrorNpcAssets(npcKey: string | null | undefined): Promise<void> {
+    if (!npcKey) return;
+    await Promise.allSettled([
+      this.getOrFetchAsset(`assets/npcs/${npcKey}/atlas.json`),
+      this.getOrFetchAsset(`assets/npcs/${npcKey}/atlas.webp`),
+      this.getOrFetchAsset(`assets/npcs/${npcKey}/thumb.png`),
+    ]);
+  }
+
+  /**
+   * Baixa e instala no disco da VPS o pacote completo de sprites de um Monstro (atlas.json, atlas.webp, thumb.png).
+   */
+  public async mirrorMonsterAssets(monsterKey: string | null | undefined): Promise<void> {
+    if (!monsterKey) return;
+    await Promise.allSettled([
+      this.getOrFetchAsset(`assets/monsters/${monsterKey}/atlas.json`),
+      this.getOrFetchAsset(`assets/monsters/${monsterKey}/atlas.webp`),
+      this.getOrFetchAsset(`assets/monsters/${monsterKey}/thumb.png`),
+    ]);
+  }
+
+  /**
+   * Baixa e instala no disco da VPS o pacote completo de sprites de um Pet (atlas.json, atlas.webp, thumb.png).
+   */
+  public async mirrorPetAssets(petKey: string | null | undefined): Promise<void> {
+    if (!petKey) return;
+    await Promise.allSettled([
+      this.getOrFetchAsset(`assets/pets/${petKey}/atlas.json`),
+      this.getOrFetchAsset(`assets/pets/${petKey}/atlas.webp`),
+      this.getOrFetchAsset(`assets/pets/${petKey}/thumb.png`),
+    ]);
+  }
+
+  /**
+   * Baixa e instala no disco da VPS o pacote completo de sprites de uma Montaria (atlas.json, atlas.webp, thumb.png).
+   */
+  public async mirrorMountAssets(mountKey: string | null | undefined): Promise<void> {
+    if (!mountKey) return;
+    await Promise.allSettled([
+      this.getOrFetchAsset(`assets/mounts/${mountKey}/atlas.json`),
+      this.getOrFetchAsset(`assets/mounts/${mountKey}/atlas.webp`),
+      this.getOrFetchAsset(`assets/mounts/${mountKey}/thumb.png`),
+    ]);
+  }
+
+  /**
+   * Baixa e instala no disco da VPS o ícone de um Item ou Equipamento.
+   */
+  public async mirrorItemIcon(iconKey: string | null | undefined): Promise<void> {
+    if (!iconKey) return;
+    const rel = this.normalizeRelPath(iconKey);
+    if (rel) {
+      await this.getOrFetchAsset(rel);
+    }
+  }
+
+  /**
+   * Baixa e instala no disco da VPS o ícone e o pacote VFX (atlas.json, atlas.webp, thumb.png) de uma Habilidade ou Efeito de Status.
+   */
+  public async mirrorSkillOrEffectAssets(iconKey?: string | null, vfxKey?: string | null): Promise<void> {
+    const tasks: Promise<unknown>[] = [];
+    if (iconKey) {
+      const rel = this.normalizeRelPath(iconKey);
+      if (rel) tasks.push(this.getOrFetchAsset(rel));
+    }
+    if (vfxKey && String(vfxKey).trim()) {
+      const vk = String(vfxKey).trim();
+      tasks.push(
+        this.getOrFetchAsset(`assets/effects/${vk}/atlas.json`),
+        this.getOrFetchAsset(`assets/effects/${vk}/atlas.webp`),
+        this.getOrFetchAsset(`assets/effects/${vk}/thumb.png`)
+      );
+    }
+    await Promise.allSettled(tasks);
   }
 }

@@ -124,3 +124,17 @@ Quando mais de uma IA estiver atuando no projeto (em revezamento de turnos, inst
   3. Se o `schema.prisma` mudou, rodar `npx prisma db push --schema=packages/database/prisma/schema.prisma` (nunca usar `--force-reset` ou `--accept-data-loss`) e `npx prisma generate --schema=packages/database/prisma/schema.prisma`.
   4. Rodar `npm run build:packages && npm --workspace=@etheria/server run build` e `sudo systemctl restart etheria-campus`, validando `HTTP 200` em `/admin` e `/play`.
 * **9.3 Rollback Garantido:** Graças aos commits atômicos no Git e aos backups preventivos de snapshot/PostgreSQL antes de alterações sensíveis, qualquer regressão em produção pode ser revertida rapidamente restaurando o snapshot/commit estável anterior. *(Nunca gravar senhas ou chaves SSH em texto claro no repositório).*
+
+---
+
+### 10. Arquitetura Sagrada de Assets: Isolamento Estrito Client-Servidor & Espelhamento Automático no Salvar
+* **10.1 Papel Estrito do Repositório GitHub (`mcrework`):**
+  * O repositório remoto de assets no GitHub serve **exclusivamente** para alimentar a interface do Administrador (`/admin`) durante os processos de criação, edição e consulta de catálogos (mostrar miniaturas e galerias visuais disponíveis para o admin escolher ao cadastrar entidades).
+* **10.2 Espelhamento e Instalação Imediata no Servidor no Momento do Salvamento:**
+  * No exato momento em que o admin clica em **Salvar** qualquer entidade nas tabelas do banco de dados (Mapas, Personagens/Classes, NPCs, Monstros, Pets, Montarias, Equipamentos, Itens, Habilidades ou Efeitos de Status), o servidor do jogo **baixa e instala imediatamente** no disco local permanente da VPS (`apps/server/cache/mcrework/`) todos os arquivos vinculados (imagens de mapa, arquivos `atlas.json`, `atlas.webp`, `thumb.png`/`thumb.webp`, ícones e pastas de efeitos VFX), caso ainda não estejam presentes.
+* **10.3 Comunicação Estrita e Exclusiva do Client (`/play`) com o Servidor do Jogo:**
+  * O cliente do jogo (`/play`) **NUNCA** faz requisições diretas para o GitHub. Ele comunica-se **estrita e exclusivamente** com o servidor do jogo (endpoints `/api/assets/mcrework/*`, `/api/assets/map-image/:id` e `/api/play/*`).
+  * O carregamento de assets pelo client é feito 100% a partir do servidor do jogo e do seu cache local no navegador (`PlayAssetDownloader.js` / Cache Storage).
+* **10.4 Comunicação do Admin (`/admin`):**
+  * A rota `/admin` comunica-se com o servidor do jogo para todas as operações de banco de dados, regras e persistência, e comunica-se com o GitHub apenas para listar os assets brutos disponíveis nas galerias durante a autoria; ao salvar, o servidor se encarrega de instalar o asset selecionado localmente.
+

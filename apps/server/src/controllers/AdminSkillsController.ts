@@ -11,6 +11,7 @@
 
 import { PrismaClient } from '@prisma/client';
 import { SnapshotManager } from '@etheria/database';
+import type { AssetMirrorService } from './AssetMirrorService.js';
 
 export interface StatusEffectDto {
   namePtBr: string;
@@ -68,10 +69,12 @@ export class AdminSkillsController {
   private readonly mcreworkRawBaseUrl = 'https://raw.githubusercontent.com/SeytaniR/mcrework/main/web';
   private readonly mcreworkPagesBaseUrl = 'https://seytanir.github.io/mcrework';
   private cachedSkillAssets: { icons: any[]; vfxList: any[] } | null = null;
+  private readonly assetMirrorService?: AssetMirrorService;
 
-  constructor(prisma: PrismaClient) {
+  constructor(prisma: PrismaClient, assetMirrorService?: AssetMirrorService) {
     this.prisma = prisma;
     this.snapshotManager = new SnapshotManager(prisma);
+    this.assetMirrorService = assetMirrorService;
   }
 
   /**
@@ -252,6 +255,9 @@ export class AdminSkillsController {
     });
 
     await this.snapshotManager.exportToDisk();
+    if (this.assetMirrorService) {
+      await this.assetMirrorService.mirrorSkillOrEffectAssets(created.iconKey, created.mcreworkVfxKey);
+    }
     return created;
   }
 
@@ -320,6 +326,9 @@ export class AdminSkillsController {
     });
 
     await this.snapshotManager.exportToDisk();
+    if (this.assetMirrorService) {
+      await this.assetMirrorService.mirrorSkillOrEffectAssets(updated.iconKey, updated.mcreworkVfxKey);
+    }
     return updated;
   }
 
@@ -416,6 +425,9 @@ export class AdminSkillsController {
     });
 
     await this.snapshotManager.exportToDisk();
+    if (this.assetMirrorService) {
+      await this.assetMirrorService.mirrorSkillOrEffectAssets(created.mcreworkIconKey, created.mcreworkVfxKey);
+    }
     return created;
   }
 
@@ -481,6 +493,9 @@ export class AdminSkillsController {
     });
 
     await this.snapshotManager.exportToDisk();
+    if (this.assetMirrorService) {
+      await this.assetMirrorService.mirrorSkillOrEffectAssets(updated.mcreworkIconKey, updated.mcreworkVfxKey);
+    }
     return updated;
   }
 
