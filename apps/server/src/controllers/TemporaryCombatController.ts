@@ -38,8 +38,12 @@ export interface CombatUnit {
   mp: number;
   maxMp: number;
   atk: number;
+  physAtk?: number;
+  magAtk?: number;
+  healPower?: number;
   def: number;
   magDef?: number;
+  skillIds?: number[];
   critRate?: number;
   critDmg?: number;
   attackSpeed?: number;
@@ -92,6 +96,9 @@ export interface TemporaryBattleState {
   monsters: CombatUnit[];
   pets?: CombatUnit[];
   elementMatchups?: ElementMatchupEntry[];
+  classSkills?: any[];
+  skillCatalog?: any[];
+  statusCatalog?: any[];
   combatLog: string[];
   isFinished: boolean;
   winner: 'PLAYER' | 'MONSTERS' | null;
@@ -366,6 +373,7 @@ export class TemporaryCombatController {
     const intMagAtkRatio = getRatio('INT', 'MAG_ATK', 2.5);
     const vitDefRatio = getRatio('VIT', 'PHYS_DEF', 1.5);
     const wisMagDefRatio = getRatio('WIS', 'MAG_DEF', 1.8);
+    const wisHealPowerRatio = getRatio('WIS', 'HEAL_POWER', 2.0);
     const agiSpdRatio = getRatio('AGI', 'SPEED', 1.5);
     const agiMoveRatio = getRatio('AGI', 'BATTLE_MOVE_SPEED', 0.5);
 
@@ -376,12 +384,10 @@ export class TemporaryCombatController {
 
     const playerMaxHp = Math.round(charBaseStats.VIT * vitHpRatio + charLevel * 20);
     const playerMaxMp = Math.round(charBaseStats.INT * intMpRatio + charLevel * 10);
-    const playerAtk = Math.round(
-      (isPlayerMagical
-        ? charBaseStats.INT * intMagAtkRatio
-        : charBaseStats.STR * strPhysAtkRatio + charBaseStats.AGI * agiPhysAtkRatio) +
-        charLevel * 4
-    );
+    const playerPhysAtk = Math.round(charBaseStats.STR * strPhysAtkRatio + charBaseStats.AGI * agiPhysAtkRatio + charLevel * 4);
+    const playerMagAtk = Math.round(charBaseStats.INT * intMagAtkRatio + charLevel * 4);
+    const playerHealPower = Math.round(charBaseStats.WIS * wisHealPowerRatio + charLevel * 3);
+    const playerAtk = isPlayerMagical ? playerMagAtk : playerPhysAtk;
     const playerDef = Math.round(charBaseStats.VIT * vitDefRatio + charLevel * 2.5);
     const playerMagDef = Math.round(charBaseStats.WIS * wisMagDefRatio + charLevel * 2.0);
     const playerSpeed = Math.round(charBaseStats.AGI * agiSpdRatio + charLevel);
@@ -402,8 +408,12 @@ export class TemporaryCombatController {
       mp: playerMaxMp,
       maxMp: playerMaxMp,
       atk: playerAtk,
+      physAtk: playerPhysAtk,
+      magAtk: playerMagAtk,
+      healPower: playerHealPower,
       def: playerDef,
       magDef: playerMagDef,
+      skillIds: Array.isArray(pc?.classTemplate?.skillIdsJson) ? pc.classTemplate.skillIdsJson.map(Number).filter(Number.isFinite) : [],
       critRate: Math.min(0.80, (Number(classCb.CRIT_RATE) || 5) / 100 + pDexCrit),
       critDmg: Math.min(3.00, (Number(classCb.CRIT_DMG) || 150) / 100 + pStrCritDmg),
       attackSpeed: Number(classCb.ATTACK_SPEED) || 1.0,
@@ -512,6 +522,39 @@ export class TemporaryCombatController {
       });
     });
 
+    const [allSkills, allStatuses, allI18n] = await Promise.all([
+      this.prisma.skillTemplate ? this.prisma.skillTemplate.findMany({ where: { isActive: true }, orderBy: { id: 'asc' } }) : Promise.resolve([]),
+      this.prisma.statusEffectTemplate ? this.prisma.statusEffectTemplate.findMany({ where: { isActive: true }, orderBy: { id: 'asc' } }) : Promise.resolve([]),
+      I18nCache.getTranslations(this.prisma, 'pt-BR'),
+    ]);
+
+    const resolveIcon = (key?: string | null) =>
+      key ? (key.startsWith('http') ? key : `${this.mcreworkPagesBaseUrl}/${key.replace(/^\/+/, '')}`) : `${this.mcreworkPagesBaseUrl}/assets/skills/icons/100156.png`;
+
+    const skillCatalog = (allSkills || []).map((sk: any) => ({
+      ...sk,
+      namePtBr: allI18n.get(sk.nameI18nKey) ?? sk.code,
+      descriptionPtBr: sk.descriptionI18nKey ? (allI18n.get(sk.descriptionI18nKey) ?? '') : '',
+      iconUrl: resolveIcon(sk.mcreworkIconKey),
+      vfxThumbUrl: sk.mcreworkVfxKey ? `${this.mcreworkPagesBaseUrl}/assets/effects/${sk.mcreworkVfxKey}/thumb.png` : '',
+      vfxAtlasJsonUrl: sk.mcreworkVfxKey ? `${this.mcreworkPagesBaseUrl}/assets/effects/${sk.mcreworkVfxKey}/atlas.json` : '',
+      vfxAtlasWebpUrl: sk.mcreworkVfxKey ? `${this.mcreworkPagesBaseUrl}/assets/effects/${sk.mcreworkVfxKey}/atlas.webp` : '',
+    }));
+
+    const statusCatalog = (allStatuses || []).map((st: any) => ({
+      ...st,
+      namePtBr: allI18n.get(st.nameI18nKey) ?? st.code,
+      descriptionPtBr: st.descriptionI18nKey ? (allI18n.get(st.descriptionI18nKey) ?? '') : '',
+      iconUrl: resolveIcon(st.iconKey),
+      vfxThumbUrl: st.mcreworkVfxKey ? `${this.mcreworkPagesBaseUrl}/assets/effects/${st.mcreworkVfxKey}/thumb.png` : '',
+      vfxAtlasJsonUrl: st.mcreworkVfxKey ? `${this.mcreworkPagesBaseUrl}/assets/effects/${st.mcreworkVfxKey}/atlas.json` : '',
+      vfxAtlasWebpUrl: st.mcreworkVfxKey ? `${this.mcreworkPagesBaseUrl}/assets/effects/${st.mcreworkVfxKey}/atlas.webp` : '',
+    }));
+
+    const skillMap = new Map<number, any>(skillCatalog.map((s: any) => [Number(s.id), s]));
+    const playerSkillIds: number[] = Array.isArray(playerUnit.skillIds) ? playerUnit.skillIds : [];
+    const classSkills = playerSkillIds.map((sid) => skillMap.get(Number(sid))).filter(Boolean).slice(0, 4);
+
     const battleId = randomUUID();
     const state: TemporaryBattleState = {
       battleId,
@@ -525,6 +568,9 @@ export class TemporaryCombatController {
       pets: petUnits,
       monsters: monsterUnits,
       elementMatchups: scalingCtx.elementMatchups,
+      classSkills,
+      skillCatalog,
+      statusCatalog,
       combatLog: [
         `⚔️ Batalha iniciada! [${charName}] (Nv.${charLevel} • ${charElementCode}) e aliados enfrentam ${monsterUnits.length} monstro(s)!`,
       ],

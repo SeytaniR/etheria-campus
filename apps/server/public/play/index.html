@@ -500,13 +500,15 @@
     }
     .action-buttons-cluster {
       position: absolute;
-      bottom: 16px;
-      right: 16px;
+      bottom: 14px;
+      right: 14px;
       display: grid;
-      grid-template-columns: repeat(2, 60px);
-      gap: 10px;
+      grid-template-columns: repeat(3, 56px);
+      gap: 8px;
       z-index: 10;
       pointer-events: auto;
+      align-items: center;
+      justify-items: center;
     }
     .action-circle-btn {
       width: 58px;
@@ -528,13 +530,32 @@
     }
     .action-circle-btn:active { transform: scale(0.92); }
     .action-btn-attack {
-      width: 68px;
-      height: 68px;
+      width: 62px;
+      height: 62px;
       background: radial-gradient(circle, #ef4444 0%, #991b1b 100%);
       border-color: #fca5a5;
-      grid-column: 2;
+      grid-column: 3;
       grid-row: 2;
-      font-size: 1.2rem;
+      font-size: 1.15rem;
+    }
+    .action-skill-icon-img {
+      width: 34px;
+      height: 34px;
+      object-fit: contain;
+      border-radius: 50%;
+      pointer-events: none;
+    }
+    .action-skill-key-badge {
+      position: absolute;
+      top: -4px;
+      left: -4px;
+      background: #0f172a;
+      border: 1px solid #38bdf8;
+      color: #fde047;
+      font-size: 0.62rem;
+      padding: 1px 5px;
+      border-radius: 99px;
+      font-weight: 800;
     }
     .action-btn-dash {
       background: radial-gradient(circle, #0284c7 0%, #075985 100%);
@@ -863,21 +884,33 @@
       <div id="actionJoystickThumb" class="action-joystick-thumb"></div>
     </div>
 
-    <!-- Botões de Ação Mobile (Ataque, Skills, Dash) -->
+    <!-- Botões de Ação Action (4 Slots da Classe, Dash e Ataque) -->
     <div class="action-buttons-cluster">
-      <button type="button" class="action-circle-btn action-btn-skill" id="btnActSkill1" onclick="PlayApp.actionArena.triggerSkill(1)" title="Turbilhão Arcana">
-        🌪️
+      <button type="button" class="action-circle-btn action-btn-skill" id="btnActSkill1" onclick="PlayApp.actionArena.triggerSkill(1)" title="Slot #1 (Tecla 1)">
+        <span class="action-skill-key-badge">1</span>
+        <span id="lblActSkill1">⚡</span>
         <div class="action-cooldown-overlay" id="cdOverlaySkill1"></div>
       </button>
-      <button type="button" class="action-circle-btn action-btn-skill" id="btnActSkill2" onclick="PlayApp.actionArena.triggerSkill(2)" title="Raio Perfurante">
-        ⚡
+      <button type="button" class="action-circle-btn action-btn-skill" id="btnActSkill2" onclick="PlayApp.actionArena.triggerSkill(2)" title="Slot #2 (Tecla 2)">
+        <span class="action-skill-key-badge">2</span>
+        <span id="lblActSkill2">🌀</span>
         <div class="action-cooldown-overlay" id="cdOverlaySkill2"></div>
       </button>
-      <button type="button" class="action-circle-btn action-btn-dash" id="btnActDash" onclick="PlayApp.actionArena.triggerDash()" title="Esquiva / Dash">
+      <button type="button" class="action-circle-btn action-btn-skill" id="btnActSkill3" onclick="PlayApp.actionArena.triggerSkill(3)" title="Slot #3 (Tecla 3)">
+        <span class="action-skill-key-badge">3</span>
+        <span id="lblActSkill3">🛡️</span>
+        <div class="action-cooldown-overlay" id="cdOverlaySkill3"></div>
+      </button>
+      <button type="button" class="action-circle-btn action-btn-skill" id="btnActSkill4" onclick="PlayApp.actionArena.triggerSkill(4)" title="Slot #4 Ultimate (Tecla 4)">
+        <span class="action-skill-key-badge">4</span>
+        <span id="lblActSkill4">💥</span>
+        <div class="action-cooldown-overlay" id="cdOverlaySkill4"></div>
+      </button>
+      <button type="button" class="action-circle-btn action-btn-dash" id="btnActDash" onclick="PlayApp.actionArena.triggerDash()" title="Esquiva / Dash (Shift / K)">
         💨
         <div class="action-cooldown-overlay" id="cdOverlayDash"></div>
       </button>
-      <button type="button" class="action-circle-btn action-btn-attack" id="btnActAttack" onclick="PlayApp.actionArena.triggerAttack()" title="Ataque">
+      <button type="button" class="action-circle-btn action-btn-attack" id="btnActAttack" onclick="PlayApp.actionArena.triggerAttack()" title="Ataque Básico (Espaço / J)">
         ⚔️
       </button>
     </div>
@@ -899,9 +932,11 @@
   <script src="/play/js/ClientPolygonMesh.js?v=20261108_p4"></script>
   <script src="/play/js/McreworkSpriteSheet.js?v=20261108_p4"></script>
   <script src="/play/js/VfxColorProcessor.js?v=20261111_vfx"></script>
-  <script src="/play/js/ArenaPhysicsSolver.js?v=20261111_ai"></script>
-  <script src="/play/js/ArenaUnitAiController.js?v=20261111_ai"></script>
-  <script src="/play/js/ActionCombatArena.js?v=20261111_ai"></script>
+  <script src="/play/js/ArenaPhysicsSolver.js?v=20261112_sk"></script>
+  <script src="/play/js/ActionVfxRenderer.js?v=20261112_sk"></script>
+  <script src="/play/js/ActionSkillEngine.js?v=20261112_sk"></script>
+  <script src="/play/js/ArenaUnitAiController.js?v=20261112_sk"></script>
+  <script src="/play/js/ActionCombatArena.js?v=20261112_sk"></script>
   <script src="/play/js/PlayLobbyController.js?v=20261108_p4"></script>
   <script src="/play/js/PlayGmController.js?v=20261108_p4"></script>
   <script src="/play/js/PlayBagController.js?v=20261111_meta"></script>

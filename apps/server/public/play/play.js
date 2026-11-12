@@ -885,6 +885,7 @@ class EtheriaPlayClient {
         }
         ctx.fillStyle = '#fde047'; ctx.font = 'bold 13px sans-serif'; ctx.textAlign = 'center';
         ctx.fillText(p.name, p.x, p.y - 66 + Math.round((p.groundOffsetY || 0) * 0.70));
+        this.actionCombatArena?.vfxRenderer?.drawUnitOverlays(ctx, p, p.y - 76 + Math.round((p.groundOffsetY || 0) * 0.70), now);
       } else if (item.type === 'COMBAT_MONSTER' || item.type === 'COMBAT_PET') {
         const ent = item.data;
         const isPet = item.type === 'COMBAT_PET';
@@ -901,13 +902,15 @@ class EtheriaPlayClient {
           ctx.fillStyle = isPet ? '#38bdf8' : '#ef4444'; ctx.fillRect(bx, by, bw * Math.max(0, Math.min(1, ent.hp / ent.maxHp)), bh);
           ctx.font = 'bold 11px sans-serif'; ctx.textAlign = 'center'; ctx.fillStyle = isPet ? '#bae6fd' : '#f8fafc';
           ctx.fillText(isPet ? `🐾 ${ent.name}` : ent.name, ent.x, by - 4);
+          this.actionCombatArena?.vfxRenderer?.drawUnitOverlays(ctx, ent, by - 14, now);
         }
         ctx.restore();
       }
     }
 
-    // 6. Textos Flutuantes da Arena de Combate
+    // 6. VFX Animados & Textos Flutuantes da Arena de Combate
     if (this.actionCombatArena?.isActive) {
+      this.actionCombatArena.renderActiveVfx(ctx, now);
       this.actionCombatArena.renderFloatingTexts(ctx);
     }
 

@@ -146,22 +146,38 @@ class AdminSkillsModalDom {
               </select>
             </div>
             <div class="field">
-              <label>Alcance na Arena</label>
-              <select id="skillTargetScopeSelect">
-                <option value="MELEE_FRONTLINE">🗡️ Corpo-a-Corpo (1 Inimigo)</option>
+              <label>Forma / Alvo Action</label>
+              <select id="skillTargetScopeSelect" onchange="AdminApp.triggerArenaPreviewNow && AdminApp.triggerArenaPreviewNow()">
+                <option value="MELEE_FRONTLINE">🗡️ Alvo Único Melee</option>
+                <option value="TARGET_PRIMARY">🎯 Alvo Único Selecionado</option>
                 <option value="RANGED_ANY">🏹 Distância Livre (1 Inimigo)</option>
-                <option value="ALL_ENEMIES">🌋 Área Total (Todos os Inimigos)</option>
-                <option value="ROW_FRONT">📏 Fileira Frontal Inimiga</option>
+                <option value="CONE_FRONTAL">📐 Cone Frontal (Arco)</option>
+                <option value="LINE_PIERCE">📏 Linha Perfurante</option>
+                <option value="AOE_SELF_AROUND">💥 AoE ao Redor do Conjurador</option>
+                <option value="AOE_CIRCLE">⭕ AoE Circular no Alvo</option>
+                <option value="GROUND_ZONE">🔥 Zona Persistente no Solo (AoE/s)</option>
+                <option value="ALL_ENEMIES">🌋 Todos os Inimigos</option>
                 <option value="SELF">🙋 Próprio Conjurador (Self)</option>
                 <option value="ALLY_SINGLE">💚 1 Aliado</option>
-                <option value="ALLY_ALL">✨ Todos os Aliados</option>
+                <option value="ALLY_LOWEST_HP_PCT">🩹 Aliado com Menor % HP</option>
+                <option value="ALLY_ALL">✨ Aliados na Área / Grupo</option>
               </select>
             </div>
             <div class="field"><label>Nº de Golpes (Hits)</label><input type="number" id="skillHitCountInput" value="1" min="1" max="10" /></div>
             <div class="field"><label>💧 Custo de MP</label><input type="number" id="skillMpCostInput" value="12" min="0" /></div>
             <div class="field"><label>⏳ Cooldown (Segundos)</label><input type="number" id="skillCooldownInput" value="3.0" min="0" step="0.5" /></div>
-            <div class="field"><label>🎯 Alcance (Pixels)</label><input type="number" id="skillCastRangeInput" value="160" min="0" step="10" /></div>
-            <div class="field"><label>💥 Raio de Área (AoE px)</label><input type="number" id="skillAoeRadiusInput" value="0" min="0" step="10" /></div>
+            <div class="field"><label>🎯 Alcance (Pixels)</label><input type="number" id="skillCastRangeInput" value="160" min="0" step="5" /></div>
+            <div class="field"><label>💥 Raio AoE (Pixels)</label><input type="number" id="skillAoeRadiusInput" value="0" min="0" step="5" /></div>
+            <div class="field"><label>📐 Ângulo Cone (°)</label><input type="number" id="skillConeAngleInput" value="90" min="15" max="360" step="5" /></div>
+            <div class="field"><label>📏 Largura Linha (px)</label><input type="number" id="skillLineWidthInput" value="48" min="12" max="240" step="4" /></div>
+            <div class="field"><label>🔥 Duração Zona Solo (s)</label><input type="number" id="skillGroundZoneDurInput" value="0" min="0" max="60" step="0.5" title="0 = impacto único; >0 = zona contínua no solo" /></div>
+            <div class="field"><label>⏱️ Pulso Zona Solo (s)</label><input type="number" id="skillGroundZoneTickInput" value="1.0" min="0.2" max="10" step="0.5" /></div>
+            <div class="field" style="display:flex; align-items:flex-end; padding-bottom:4px;">
+              <label style="display:flex; align-items:center; gap:6px; font-size:0.75rem; color:#fde047; font-weight:700; cursor:pointer; margin:0;">
+                <input type="checkbox" id="skillIgnoreEvasionCheck" style="width:16px; height:16px;" />
+                🎯 Inesquivável (Ignora Desvio)
+              </label>
+            </div>
           </div>
           <div style="display:flex; align-items:center; gap:8px; margin-top:10px; padding:6px 10px; background:rgba(2,6,23,0.8); border:1px solid #0284c7; border-radius:6px; flex-wrap:wrap;">
             <label style="display:flex; align-items:center; gap:6px; font-size:0.75rem; color:#fde047; font-weight:700; cursor:pointer; margin:0;">
@@ -192,6 +208,7 @@ class AdminSkillsModalDom {
               <button type="button" onclick="AdminApp.addVisualSkillBlock('STATUS')" style="padding:4px 9px; font-size:0.74rem; background:#6b21a8; color:#fff;">➕ 🧪 Aplicar Buff/Debuff</button>
               <button type="button" onclick="AdminApp.addVisualSkillBlock('SHIELD')" style="padding:4px 9px; font-size:0.74rem; background:#0369a1; color:#fff;">➕ 🛡️ Escudo</button>
               <button type="button" onclick="AdminApp.addVisualSkillBlock('CLEANSE_DISPEL')" style="padding:4px 9px; font-size:0.74rem; background:#0d9488; color:#fff;">➕ ✨ Limpar Debuffs</button>
+              <button type="button" onclick="AdminApp.addVisualSkillBlock('RESOURCE_COOLDOWN')" style="padding:4px 9px; font-size:0.74rem; background:#b45309; color:#fff;">➕ ⚡ Recurso / Cooldown</button>
             </div>
           </div>
           <div id="skillVisualBlocksContainer" style="display:flex; flex-direction:column; gap:8px;"></div>
@@ -232,8 +249,11 @@ class AdminSkillsModalDom {
                 <div>
                   <label style="font-size:0.72rem;">Movimento do Conjurador</label>
                   <select id="skillCastMovementSelect" onchange="AdminApp.triggerArenaPreviewNow()">
-                    <option value="MELEE_ADVANCE">🏃 Correr até a frente do Alvo</option>
-                    <option value="STAND_IN_PLACE">🧙 Conjurar parado no próprio Slot</option>
+                    <option value="MELEE_ADVANCE">🏃 Avançar até a frente do Alvo</option>
+                    <option value="STAND_IN_PLACE">🧙 Conjurar parado na Posição Atual</option>
+                    <option value="DASH_LINEAR">💨 Dash Linear até o Alvo</option>
+                    <option value="LEAP_AOE">🦅 Salto de Impacto AoE</option>
+                    <option value="TELEPORT_BACKSTAB">🌑 Teleporte nas Costas do Alvo</option>
                   </select>
                 </div>
                 <div>

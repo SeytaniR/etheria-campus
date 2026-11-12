@@ -15,6 +15,33 @@ class AdminStatusEffectsTab {
     app.selectedStatusVfxColorHex = null;
     app.selectedStatusVfxColorIntensity = 100;
     app.statusAssetPickerMode = 'icon';
+    app.editingStatusModifiers = [];
+
+    app.STATUS_MODIFIER_OPTIONS = [
+      { code: 'PHYS_ATK_PCT', label: '🗡️ Ataque Físico (PHYS_ATK %)' },
+      { code: 'MAG_ATK_PCT', label: '🔮 Ataque Mágico (MAG_ATK %)' },
+      { code: 'HEAL_POWER_PCT', label: '💚 Poder de Cura (HEAL_POWER %)' },
+      { code: 'PHYS_DEF_PCT', label: '🛡️ Defesa Física (PHYS_DEF %)' },
+      { code: 'MAG_DEF_PCT', label: '✨ Defesa Mágica (MAG_DEF %)' },
+      { code: 'ATTACK_SPEED_PCT', label: '⚡ Vel. de Ataque (ATTACK_SPEED %)' },
+      { code: 'BATTLE_MOVE_SPEED_PCT', label: '🏃 Vel. de Movimento (BATTLE_MOVE_SPEED %)' },
+      { code: 'PHYS_EVASION_PCT', label: '💨 Esquiva Física (PHYS_EVASION %)' },
+      { code: 'MAG_EVASION_PCT', label: '🌀 Esquiva Mágica (MAG_EVASION %)' },
+      { code: 'PHYS_ACCURACY_PCT', label: '🎯 Precisão Física (PHYS_ACCURACY %)' },
+      { code: 'MAG_ACCURACY_PCT', label: '🧿 Precisão Mágica (MAG_ACCURACY %)' },
+      { code: 'CRIT_RATE_PCT', label: '💥 Taxa Crítica (CRIT_RATE %)' },
+      { code: 'CRIT_DMG_PCT', label: '🔥 Dano Crítico (CRIT_DMG %)' },
+      { code: 'PHYS_PEN_PCT', label: '🔱 Perfuração Física (PHYS_PEN %)' },
+      { code: 'MAG_PEN_PCT', label: '🌌 Perfuração Mágica (MAG_PEN %)' },
+      { code: 'ATTACK_RANGE_FLAT', label: '🔭 Alcance de Ataque (px fixo)' },
+      { code: 'CONTROL_RESIST_PCT', label: '💎 Resistência a CC & Anomalias (%)' },
+      { code: 'HEAL_RECEIVED_PCT', label: '💔 Cura Recebida (% ex: -40)' },
+      { code: 'REFLECT_MELEE_PCT', label: '🛡️ Refletir Dano Melee (%)' },
+      { code: 'EXTRA_MP_COST_PCT', label: '💧 Dreno Extra de MP / Feitiço (%)' },
+      { code: 'ATK_PCT', label: '⚔️ ATK Geral (Legado %)' },
+      { code: 'DEF_PCT', label: '🛡️ DEF Geral (Legado %)' },
+      { code: 'SPEED_PCT', label: '⚡ SPD Geral (Legado %)' },
+    ];
 
     AdminStatusEffectsTab.injectModalDom();
 
@@ -45,17 +72,22 @@ class AdminStatusEffectsTab {
           const flags = Array.isArray(st.controlFlagsJson) ? st.controlFlagsJson : [];
 
           const summaryParts = [];
-          if (mods.ATK_PCT) summaryParts.push(`ATK ${mods.ATK_PCT > 0 ? '+' : ''}${mods.ATK_PCT}%`);
-          if (mods.DEF_PCT) summaryParts.push(`DEF ${mods.DEF_PCT > 0 ? '+' : ''}${mods.DEF_PCT}%`);
-          if (mods.SPEED_PCT) summaryParts.push(`SPD ${mods.SPEED_PCT > 0 ? '+' : ''}${mods.SPEED_PCT}%`);
-          if (dot.mode === 'DAMAGE') {
-            summaryParts.push(
-              `💥 Dano: ${dot.scalePct || 0}% ${dot.scaleStat || 'ATK'} + ${dot.flatAmount || 0} (${dot.elementCode || 'NEUTRAL'})`
-            );
-          } else if (dot.mode === 'HEAL') {
-            summaryParts.push(`💚 Cura: ${dot.scalePct || 0}% ${dot.scaleStat || 'MAX_HP'} + ${dot.flatAmount || 0}`);
+          for (const [k, v] of Object.entries(mods)) {
+            if (!Number(v)) continue;
+            const unit = k === 'ATTACK_RANGE_FLAT' ? 'px' : '%';
+            summaryParts.push(`${k.replace(/_PCT|_FLAT/g, '')} ${Number(v) > 0 ? '+' : ''}${v}${unit}`);
           }
-          if (flags.length > 0) summaryParts.push(`🔒 Controle: ${flags.join(', ')}`);
+          if (dot.mode === 'DAMAGE') {
+            summaryParts.push(`💥 DoT: ${dot.scalePct || 0}% ${dot.scaleStat || 'PHYS_ATK'} + ${dot.flatAmount || 0}`);
+          } else if (dot.mode === 'HEAL') {
+            summaryParts.push(`💚 HoT: ${dot.scalePct || 0}% ${dot.scaleStat || 'HEAL_POWER'} + ${dot.flatAmount || 0}`);
+          }
+          if (dot.reactiveStatusId) {
+            const rst = (this.statusEffectTemplates || []).find((x) => Number(x.id) === Number(dot.reactiveStatusId));
+            summaryParts.push(`🛡️ Retalia: [${rst ? rst.namePtBr : '#' + dot.reactiveStatusId}] (${dot.reactiveDurationSec || 1.5}s)`);
+          }
+          if (flags.length > 0) summaryParts.push(`🔒 ${flags.join(', ')}`);
+          if (st.breakOnDamage) summaryParts.push('💤 Quebra ao Dano');
 
           return `
           <tr>
@@ -78,8 +110,9 @@ class AdminStatusEffectsTab {
             </td>
             <td>
               <span style="padding:3px 9px; border-radius:99px; background:${st.isBuff ? 'rgba(34,197,94,0.18)' : 'rgba(239,68,68,0.18)'}; color:${st.isBuff ? '#86efac' : '#fca5a5'}; font-size:0.75rem; font-weight:800;">
-                ${st.isBuff ? '🟢 BUFF (Positivo)' : '🔴 DEBUFF (Negativo)'}
+                ${st.isBuff ? '🟢 BUFF' : '🔴 DEBUFF'}
               </span>
+              <div style="font-size:0.68rem; color:#94a3b8; margin-top:3px;">Cat: ${st.statusCategory || (st.isBuff ? 'BUFF' : 'ANOMALY')}</div>
             </td>
             <td>
               <div style="font-size:0.75rem; font-weight:700; color:#fde047;">${triggerLabels[st.triggerType] || st.triggerType}</div>
@@ -117,6 +150,12 @@ class AdminStatusEffectsTab {
         document.getElementById('statusNameInput').value = existing.namePtBr || '';
         document.getElementById('statusDescInput').value = existing.descriptionPtBr || '';
         document.getElementById('statusIsBuffSelect').value = existing.isBuff ? 'true' : 'false';
+        if (document.getElementById('statusCategorySelect')) {
+          document.getElementById('statusCategorySelect').value = existing.statusCategory || (existing.isBuff ? 'BUFF' : 'ANOMALY');
+        }
+        if (document.getElementById('statusBreakOnDamageCheck')) {
+          document.getElementById('statusBreakOnDamageCheck').checked = Boolean(existing.breakOnDamage);
+        }
         document.getElementById('statusTriggerSelect').value = existing.triggerType || 'CONTINUOUS_TICK';
         document.getElementById('statusDurationInput').value = String(existing.durationSeconds ?? (existing.defaultDurationTurns ? existing.defaultDurationTurns * 2.5 : 5.0));
         if (document.getElementById('statusTickIntervalInput')) {
@@ -125,16 +164,19 @@ class AdminStatusEffectsTab {
         document.getElementById('statusMaxStacksInput').value = String(existing.maxStacks || 1);
 
         const mods = existing.statModifiersJson || {};
-        document.getElementById('statusModAtkPct').value = String(mods.ATK_PCT || 0);
-        document.getElementById('statusModDefPct').value = String(mods.DEF_PCT || 0);
-        document.getElementById('statusModSpeedPct').value = String(mods.SPEED_PCT || 0);
+        this.editingStatusModifiers = Object.entries(mods)
+          .filter(([, v]) => Number(v) !== 0)
+          .map(([statCode, value]) => ({ statCode, value: Number(value) || 0 }));
 
         const dot = existing.dotHotFormulaJson || {};
         document.getElementById('statusDotModeSelect').value = dot.mode || 'NONE';
         document.getElementById('statusDotScaleStatSelect').value = dot.scaleStat || 'MAX_HP';
         document.getElementById('statusDotScalePctInput').value = String(dot.scalePct ?? 10);
-        document.getElementById('statusDotFlatInput').value = String(dot.flatAmount ?? 10);
+        document.getElementById('statusDotFlatInput').value = String(dot.flatAmount ?? 0);
         document.getElementById('statusDotElementSelect').value = dot.elementCode || 'FIRE';
+        this.populateStatusReactiveSelect(dot.reactiveStatusId || '');
+        if (document.getElementById('statusReactiveChanceInput')) document.getElementById('statusReactiveChanceInput').value = String(dot.reactiveChancePct ?? 100);
+        if (document.getElementById('statusReactiveDurInput')) document.getElementById('statusReactiveDurInput').value = String(dot.reactiveDurationSec ?? 1.5);
 
         const flags = new Set(Array.isArray(existing.controlFlagsJson) ? existing.controlFlagsJson : []);
         document.querySelectorAll('input[name="statusControlFlag"]').forEach((chk) => {
@@ -154,6 +196,8 @@ class AdminStatusEffectsTab {
         document.getElementById('statusNameInput').value = '';
         document.getElementById('statusDescInput').value = '';
         document.getElementById('statusIsBuffSelect').value = 'true';
+        if (document.getElementById('statusCategorySelect')) document.getElementById('statusCategorySelect').value = 'BUFF';
+        if (document.getElementById('statusBreakOnDamageCheck')) document.getElementById('statusBreakOnDamageCheck').checked = false;
         document.getElementById('statusTriggerSelect').value = 'CONTINUOUS_TICK';
         document.getElementById('statusDurationInput').value = '5.0';
         if (document.getElementById('statusTickIntervalInput')) {
@@ -161,15 +205,16 @@ class AdminStatusEffectsTab {
         }
         document.getElementById('statusMaxStacksInput').value = '1';
 
-        document.getElementById('statusModAtkPct').value = '0';
-        document.getElementById('statusModDefPct').value = '0';
-        document.getElementById('statusModSpeedPct').value = '0';
+        this.editingStatusModifiers = [];
 
         document.getElementById('statusDotModeSelect').value = 'NONE';
-        document.getElementById('statusDotScaleStatSelect').value = 'MAX_HP';
-        document.getElementById('statusDotScalePctInput').value = '10';
-        document.getElementById('statusDotFlatInput').value = '10';
+        document.getElementById('statusDotScaleStatSelect').value = 'PHYS_ATK';
+        document.getElementById('statusDotScalePctInput').value = '20';
+        document.getElementById('statusDotFlatInput').value = '0';
         document.getElementById('statusDotElementSelect').value = 'FIRE';
+        this.populateStatusReactiveSelect('');
+        if (document.getElementById('statusReactiveChanceInput')) document.getElementById('statusReactiveChanceInput').value = '100';
+        if (document.getElementById('statusReactiveDurInput')) document.getElementById('statusReactiveDurInput').value = '1.5';
 
         document.querySelectorAll('input[name="statusControlFlag"]').forEach((chk) => {
           chk.checked = false;
@@ -181,6 +226,7 @@ class AdminStatusEffectsTab {
         this.selectedStatusVfxColorIntensity = 100;
       }
 
+      this.renderStatusModifiersEditor();
       this.updateStatusVisualSummary();
       if (typeof this.syncVfxColorControls === 'function') {
         this.syncVfxColorControls('status', this.selectedStatusVfxColorHex, this.selectedStatusVfxColorIntensity);
@@ -192,6 +238,65 @@ class AdminStatusEffectsTab {
         () => `https://seytanir.github.io/mcrework/${this.selectedStatusIconKey.replace(/^\/+/, '')}`,
         () => ({ colorHex: this.selectedStatusVfxColorHex, intensity: this.selectedStatusVfxColorIntensity })
       );
+    };
+
+    app.populateStatusReactiveSelect = function (selectedId = '') {
+      const sel = document.getElementById('statusReactiveStatusSelect');
+      if (!sel) return;
+      const opts = (this.statusEffectTemplates || [])
+        .map((st) => `<option value="${st.id}" ${Number(selectedId) === Number(st.id) ? 'selected' : ''}>#${st.id} ${st.isBuff ? '🟢' : '🔴'} ${st.namePtBr}</option>`)
+        .join('');
+      sel.innerHTML = `<option value="">— Nenhum Contra-Efeito —</option>${opts}`;
+    };
+
+    app.addStatusModifierRow = function (statCode = null, value = null) {
+      const code = statCode || document.getElementById('statusModAddStatSelect')?.value || 'PHYS_ATK_PCT';
+      const val = value !== null ? Number(value) : (Number(document.getElementById('statusModAddValInput')?.value) || 0);
+      if (!Array.isArray(this.editingStatusModifiers)) this.editingStatusModifiers = [];
+      const existingIdx = this.editingStatusModifiers.findIndex((m) => m.statCode === code);
+      if (existingIdx >= 0) this.editingStatusModifiers[existingIdx].value = val;
+      else this.editingStatusModifiers.push({ statCode: code, value: val });
+      this.renderStatusModifiersEditor();
+    };
+
+    app.updateStatusModifierRow = function (idx, field, val) {
+      const row = this.editingStatusModifiers[idx];
+      if (!row) return;
+      if (field === 'statCode') row.statCode = val;
+      else row.value = Number(val) || 0;
+    };
+
+    app.removeStatusModifierRow = function (idx) {
+      this.editingStatusModifiers.splice(idx, 1);
+      this.renderStatusModifiersEditor();
+    };
+
+    app.renderStatusModifiersEditor = function () {
+      const addSel = document.getElementById('statusModAddStatSelect');
+      if (addSel && addSel.options.length === 0) {
+        addSel.innerHTML = this.STATUS_MODIFIER_OPTIONS
+          .map((o) => `<option value="${o.code}">${o.label}</option>`)
+          .join('');
+      }
+      const box = document.getElementById('statusModifiersRowsBox');
+      if (!box) return;
+      if (!this.editingStatusModifiers || this.editingStatusModifiers.length === 0) {
+        box.innerHTML = '<div style="font-size:0.74rem; color:#64748b; padding:6px;">Nenhum modificador de atributo adicionado (use o seletor acima para adicionar +ATK%, -DEF%, +CRIT_RATE%, +ATTACK_RANGE_FLAT, etc.).</div>';
+        return;
+      }
+      box.innerHTML = this.editingStatusModifiers
+        .map((m, idx) => {
+          const opts = this.STATUS_MODIFIER_OPTIONS
+            .map((o) => `<option value="${o.code}" ${o.code === m.statCode ? 'selected' : ''}>${o.label}</option>`)
+            .join('');
+          return `
+          <div style="display:grid; grid-template-columns:1fr 110px auto; gap:8px; align-items:center; background:#0f172a; padding:6px 8px; border-radius:6px; border:1px solid #334155;">
+            <select onchange="AdminApp.updateStatusModifierRow(${idx}, 'statCode', this.value)" style="font-size:0.75rem;">${opts}</select>
+            <input type="number" step="0.5" value="${m.value}" onchange="AdminApp.updateStatusModifierRow(${idx}, 'value', this.value)" style="font-size:0.78rem;" />
+            <button type="button" class="btn-danger" onclick="AdminApp.removeStatusModifierRow(${idx})" style="padding:4px 8px; font-size:0.72rem;">🗑️</button>
+          </div>`;
+        })
+        .join('');
     };
 
     app.updateStatusVisualSummary = function () {
@@ -297,18 +402,26 @@ class AdminStatusEffectsTab {
           return;
         }
 
-        const statModifiersJson = {
-          ATK_PCT: Number(document.getElementById('statusModAtkPct').value) || 0,
-          DEF_PCT: Number(document.getElementById('statusModDefPct').value) || 0,
-          SPEED_PCT: Number(document.getElementById('statusModSpeedPct').value) || 0,
-        };
+        const statusCategory = document.getElementById('statusCategorySelect')?.value || (isBuff ? 'BUFF' : 'ANOMALY');
+        const breakOnDamage = Boolean(document.getElementById('statusBreakOnDamageCheck')?.checked);
 
+        const statModifiersJson = {};
+        for (const m of this.editingStatusModifiers || []) {
+          if (m.statCode && Number.isFinite(Number(m.value)) && Number(m.value) !== 0) {
+            statModifiersJson[m.statCode] = Number(m.value);
+          }
+        }
+
+        const reactiveStatusId = Number(document.getElementById('statusReactiveStatusSelect')?.value) || null;
         const dotHotFormulaJson = {
           mode: document.getElementById('statusDotModeSelect').value || 'NONE',
           scaleStat: document.getElementById('statusDotScaleStatSelect').value || 'MAX_HP',
           scalePct: Number(document.getElementById('statusDotScalePctInput').value) || 0,
           flatAmount: Number(document.getElementById('statusDotFlatInput').value) || 0,
           elementCode: document.getElementById('statusDotElementSelect').value || 'FIRE',
+          reactiveStatusId,
+          reactiveChancePct: reactiveStatusId ? (Number(document.getElementById('statusReactiveChanceInput')?.value) || 100) : 0,
+          reactiveDurationSec: reactiveStatusId ? (Number(document.getElementById('statusReactiveDurInput')?.value) || 1.5) : 0,
         };
 
         const controlFlagsJson = Array.from(document.querySelectorAll('input[name="statusControlFlag"]:checked')).map(
@@ -323,6 +436,8 @@ class AdminStatusEffectsTab {
           vfxColorHex: this.selectedStatusVfxColorHex || null,
           vfxColorIntensity: this.selectedStatusVfxColorIntensity ?? 100,
           isBuff,
+          statusCategory,
+          breakOnDamage,
           triggerType,
           durationSeconds,
           tickIntervalSeconds,
@@ -385,6 +500,15 @@ class AdminStatusEffectsTab {
               </select>
             </div>
             <div class="field">
+              <label>Família / Categoria (Cleanse)</label>
+              <select id="statusCategorySelect">
+                <option value="BUFF">🟢 BUFF / Postura / Escudo</option>
+                <option value="HARD_CC">⚡ CONTROL_HIT (Hard CC)</option>
+                <option value="ANOMALY">☣️ ANOMALY_HIT (DoT / Debuff)</option>
+                <option value="SLOW">🕸️ SLOW (Lentidão)</option>
+              </select>
+            </div>
+            <div class="field">
               <label style="color:#fde047; font-weight:700;">⚡ Gatilho do Buff/Debuff</label>
               <select id="statusTriggerSelect">
                 <option value="CONTINUOUS_TICK">⏱️ A cada Segundo / Tick Periódico</option>
@@ -406,11 +530,14 @@ class AdminStatusEffectsTab {
         </div>
 
         <div style="background:rgba(15,23,42,0.75); border:1px solid #334155; border-radius:10px; padding:12px; margin-bottom:12px;">
-          <div style="font-size:0.8rem; font-weight:700; color:#fde047; margin-bottom:8px;">2️⃣ Construtor Visual de Efeitos (Atributos, Dano/Cura por Gatilho & Controle)</div>
-          <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:10px; margin-bottom:10px;">
-            <div><label style="font-size:0.72rem; color:#f87171;">🗡️ Modificador de ATK (%)</label><input type="number" id="statusModAtkPct" value="0" /></div>
-            <div><label style="font-size:0.72rem; color:#38bdf8;">🛡️ Modificador de DEF (%)</label><input type="number" id="statusModDefPct" value="0" /></div>
-            <div><label style="font-size:0.72rem; color:#fde047;">⚡ Modificador de SPEED (%)</label><input type="number" id="statusModSpeedPct" value="0" /></div>
+          <div style="font-size:0.8rem; font-weight:700; color:#fde047; margin-bottom:8px;">2️⃣ Construtor Visual Dinâmico (Modificadores, DoT/HoT, Retaliação & CC)</div>
+          <div style="background:#020617; padding:10px; border-radius:8px; border:1px solid var(--border); margin-bottom:10px;">
+            <div style="display:grid; grid-template-columns:1fr 120px auto; gap:8px; align-items:end; margin-bottom:8px;">
+              <div><label style="font-size:0.72rem; color:#7dd3fc;">➕ Adicionar Modificador de Atributo</label><select id="statusModAddStatSelect"></select></div>
+              <div><label style="font-size:0.72rem;">Valor (+ ou -)</label><input type="number" id="statusModAddValInput" step="0.5" value="20" /></div>
+              <button type="button" class="btn-primary" onclick="AdminApp.addStatusModifierRow()" style="padding:7px 12px; font-size:0.76rem; font-weight:700;">➕ Adicionar</button>
+            </div>
+            <div id="statusModifiersRowsBox" style="display:flex; flex-direction:column; gap:6px;"></div>
           </div>
 
           <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(145px, 1fr)); gap:8px; background:#020617; padding:10px; border-radius:8px; border:1px solid var(--border);">
@@ -425,17 +552,21 @@ class AdminStatusEffectsTab {
             <div>
               <label style="font-size:0.72rem;">Escalar por Atributo</label>
               <select id="statusDotScaleStatSelect" onchange="AdminApp.updateStatusVisualSummary()">
+                <option value="PHYS_ATK">🗡️ Ataque Físico (PHYS_ATK)</option>
+                <option value="MAG_ATK">🔮 Ataque Mágico (MAG_ATK)</option>
+                <option value="HEAL_POWER">💚 Poder de Cura (HEAL_POWER)</option>
                 <option value="MAX_HP">❤️ HP Máximo do Alvo</option>
-                <option value="ATK">🗡️ Ataque (ATK)</option>
+                <option value="MAX_MP">💧 MP Máximo</option>
+                <option value="ATK">⚔️ ATK Geral</option>
               </select>
             </div>
             <div>
               <label style="font-size:0.72rem;">Multiplicador (%)</label>
-              <input type="number" id="statusDotScalePctInput" value="10" oninput="AdminApp.updateStatusVisualSummary()" />
+              <input type="number" id="statusDotScalePctInput" value="20" oninput="AdminApp.updateStatusVisualSummary()" />
             </div>
             <div>
               <label style="font-size:0.72rem;">+ Valor Fixo</label>
-              <input type="number" id="statusDotFlatInput" value="10" oninput="AdminApp.updateStatusVisualSummary()" />
+              <input type="number" id="statusDotFlatInput" value="0" oninput="AdminApp.updateStatusVisualSummary()" />
             </div>
             <div>
               <label style="font-size:0.72rem;">Elemento do Efeito</label>
@@ -448,13 +579,25 @@ class AdminStatusEffectsTab {
               </select>
             </div>
           </div>
+          <div style="display:grid; grid-template-columns:1fr 90px 90px; gap:8px; align-items:end; background:#020617; padding:8px 10px; border-radius:8px; border:1px solid var(--border); margin-top:8px;">
+            <div><label style="font-size:0.71rem; color:#c084fc;">🛡️ Contra-Efeito Reativo ao Receber Golpe (ex: Confusão)</label><select id="statusReactiveStatusSelect"></select></div>
+            <div><label style="font-size:0.71rem;">Chance (%)</label><input type="number" id="statusReactiveChanceInput" min="1" max="100" value="100" /></div>
+            <div><label style="font-size:0.71rem;">Duração (s)</label><input type="number" id="statusReactiveDurInput" min="0.5" max="30" step="0.5" value="1.5" /></div>
+          </div>
           <div id="statusVisualFormulaPreview" style="font-size:0.75rem; color:#86efac; margin-top:6px; font-weight:600;"></div>
 
-          <div style="display:flex; gap:14px; flex-wrap:wrap; margin-top:10px; padding-top:8px; border-top:1px solid var(--border);">
+          <div style="display:flex; gap:12px; flex-wrap:wrap; margin-top:10px; padding-top:8px; border-top:1px solid var(--border); align-items:center;">
             <span style="font-size:0.75rem; color:var(--text-muted); font-weight:700;">Controles de Grupo (CC):</span>
-            <label style="display:flex; align-items:center; gap:5px; font-size:0.76rem; cursor:pointer;"><input type="checkbox" name="statusControlFlag" value="STUN" /> 💫 Atordoar (Impede agir)</label>
-            <label style="display:flex; align-items:center; gap:5px; font-size:0.76rem; cursor:pointer;"><input type="checkbox" name="statusControlFlag" value="SILENCE" /> 🤐 Silenciar (Bloqueia Skills)</label>
-            <label style="display:flex; align-items:center; gap:5px; font-size:0.76rem; cursor:pointer;"><input type="checkbox" name="statusControlFlag" value="FREEZE" /> ❄️ Congelar</label>
+            <label style="display:flex; align-items:center; gap:4px; font-size:0.75rem; cursor:pointer;"><input type="checkbox" name="statusControlFlag" value="STUN" /> 💫 Atordoar</label>
+            <label style="display:flex; align-items:center; gap:4px; font-size:0.75rem; cursor:pointer;"><input type="checkbox" name="statusControlFlag" value="PARALYSIS" /> ⚡ Paralisia</label>
+            <label style="display:flex; align-items:center; gap:4px; font-size:0.75rem; cursor:pointer;"><input type="checkbox" name="statusControlFlag" value="SILENCE" /> 🤐 Silêncio</label>
+            <label style="display:flex; align-items:center; gap:4px; font-size:0.75rem; cursor:pointer;"><input type="checkbox" name="statusControlFlag" value="FREEZE" /> ❄️ Congelar</label>
+            <label style="display:flex; align-items:center; gap:4px; font-size:0.75rem; cursor:pointer;"><input type="checkbox" name="statusControlFlag" value="CONFUSION" /> 🌀 Confusão</label>
+            <label style="display:flex; align-items:center; gap:4px; font-size:0.75rem; cursor:pointer;"><input type="checkbox" name="statusControlFlag" value="SLEEP" /> 💤 Sono</label>
+            <label style="display:flex; align-items:center; gap:4px; font-size:0.75rem; cursor:pointer;"><input type="checkbox" name="statusControlFlag" value="TAUNT" /> 📢 Provocar (Taunt)</label>
+            <label style="display:flex; align-items:center; gap:4px; font-size:0.75rem; cursor:pointer;"><input type="checkbox" name="statusControlFlag" value="SLOW" /> 🕸️ Lentidão</label>
+            <label style="display:flex; align-items:center; gap:4px; font-size:0.75rem; cursor:pointer;"><input type="checkbox" name="statusControlFlag" value="BLIND" /> 🕶️ Cegueira</label>
+            <label style="display:flex; align-items:center; gap:4px; font-size:0.75rem; cursor:pointer; color:#fde047; margin-left:auto;"><input type="checkbox" id="statusBreakOnDamageCheck" /> 💤 Quebrar ao sofrer dano</label>
           </div>
         </div>
 

@@ -35,6 +35,9 @@ class AdminSkillsAndBuffsTab {
     if (window.AdminSkillsAutoLink) {
       window.AdminSkillsAutoLink.attach(app);
     }
+    if (window.AdminSkillBlocksEditor) {
+      window.AdminSkillBlocksEditor.attach(app);
+    }
 
     if (window.AdminSkillsModalDom) {
       window.AdminSkillsModalDom.injectTabsAndModalsDom();
@@ -192,34 +195,9 @@ class AdminSkillsAndBuffsTab {
       return Array.from(box.querySelectorAll('input.entity-skill-checkbox:checked')).map((c) => Number(c.value));
     };
 
-    app.formatSkillBlocksSummary = function (blocks) {
-      if (!Array.isArray(blocks) || blocks.length === 0) return '<em>Sem blocos</em>';
-      return blocks
-        .map((b) => {
-          if (b.blockType === 'DAMAGE') {
-            return `💥 Dano (${b.damageType || 'PHYSICAL'}): ${b.scalePct || 100}% ${b.scaleStat || 'ATK'} + ${b.flatAmount || 0}`;
-          }
-          if (b.blockType === 'HEAL') {
-            return `💚 Cura: ${b.scalePct || 20}% ${b.scaleStat || 'MAX_HP'} + ${b.flatAmount || 0}`;
-          }
-          if (b.blockType === 'STATUS') {
-            const st = (this.statusEffectTemplates || []).find((s) => s.id === Number(b.statusEffectId));
-            const dur = b.durationSeconds ?? b.durationTurns ?? (st?.durationSeconds ?? st?.defaultDurationTurns ?? 5);
-            return `🧪 Aplica [${st ? st.namePtBr : `Status #${b.statusEffectId}`}] (${b.applyChancePct ?? 100}%, ${dur}s)`;
-          }
-          if (b.blockType === 'SHIELD') {
-            const dur = b.durationSeconds ?? b.durationTurns ?? 5;
-            return `🛡️ Escudo: ${b.scalePct || 15}% ${b.scaleStat || 'MAX_HP'} (${dur}s)`;
-          }
-          if (b.blockType === 'CLEANSE_DISPEL' || b.blockType === 'CLEANSE') {
-            const qtyTxt = Number(b.maxDebuffs) > 0 ? `até ${b.maxDebuffs}` : 'Todos';
-            const healTxt = Number(b.healPerDebuffPct) > 0 ? `, +${b.healPerDebuffPct}% HP/debuff` : '';
-            return `✨ Limpar Debuffs (${qtyTxt}, ${b.cleanseChancePct ?? 100}%${healTxt})`;
-          }
-          return b.blockType;
-        })
-        .join('<br/>');
-    };
+    if (typeof app.formatSkillBlocksSummary !== 'function') {
+      app.formatSkillBlocksSummary = () => '';
+    }
 
     app.renderSkillsCrudTable = function () {
       const tbody = document.getElementById('skillsTableBody');
@@ -304,6 +282,11 @@ class AdminSkillsAndBuffsTab {
         if (document.getElementById('skillAoeRadiusInput')) {
           document.getElementById('skillAoeRadiusInput').value = String(existing.aoeRadius ?? 0);
         }
+        if (document.getElementById('skillConeAngleInput')) document.getElementById('skillConeAngleInput').value = String(existing.coneAngleDeg ?? 90);
+        if (document.getElementById('skillLineWidthInput')) document.getElementById('skillLineWidthInput').value = String(existing.lineWidthPx ?? 48);
+        if (document.getElementById('skillGroundZoneDurInput')) document.getElementById('skillGroundZoneDurInput').value = String(existing.groundZoneDurationSec ?? 0);
+        if (document.getElementById('skillGroundZoneTickInput')) document.getElementById('skillGroundZoneTickInput').value = String(existing.groundZoneTickSec ?? 1.0);
+        if (document.getElementById('skillIgnoreEvasionCheck')) document.getElementById('skillIgnoreEvasionCheck').checked = Boolean(existing.ignoreEvasion);
         document.getElementById('skillCastMovementSelect').value = existing.castMovement || 'MELEE_ADVANCE';
         document.getElementById('skillCastActionSelect').value = String(existing.castActionId || 3);
 
@@ -337,6 +320,11 @@ class AdminSkillsAndBuffsTab {
         document.getElementById('skillCooldownInput').value = '3.0';
         if (document.getElementById('skillCastRangeInput')) document.getElementById('skillCastRangeInput').value = '160';
         if (document.getElementById('skillAoeRadiusInput')) document.getElementById('skillAoeRadiusInput').value = '0';
+        if (document.getElementById('skillConeAngleInput')) document.getElementById('skillConeAngleInput').value = '90';
+        if (document.getElementById('skillLineWidthInput')) document.getElementById('skillLineWidthInput').value = '48';
+        if (document.getElementById('skillGroundZoneDurInput')) document.getElementById('skillGroundZoneDurInput').value = '0';
+        if (document.getElementById('skillGroundZoneTickInput')) document.getElementById('skillGroundZoneTickInput').value = '1.0';
+        if (document.getElementById('skillIgnoreEvasionCheck')) document.getElementById('skillIgnoreEvasionCheck').checked = false;
         document.getElementById('skillCastMovementSelect').value = 'MELEE_ADVANCE';
         document.getElementById('skillCastActionSelect').value = '3';
 
@@ -375,54 +363,10 @@ class AdminSkillsAndBuffsTab {
     };
 
     app.addVisualSkillBlock = function (blockType) {
-      if (blockType === 'DAMAGE') {
-        this.editingSkillBlocks.push({
-          blockType: 'DAMAGE',
-          damageType: 'PHYSICAL',
-          elementCode: 'INHERIT',
-          scaleStat: 'ATK',
-          scalePct: 140,
-          flatAmount: 15,
-          critBonusPct: 10,
-          lifestealPct: 0,
-        });
-      } else if (blockType === 'HEAL') {
-        this.editingSkillBlocks.push({
-          blockType: 'HEAL',
-          scaleStat: 'MAX_HP',
-          scalePct: 20,
-          flatAmount: 25,
-          targetSelf: false,
-        });
-      } else if (blockType === 'STATUS') {
-        const firstStatusId = this.statusEffectTemplates?.[0]?.id || 1;
-        this.editingSkillBlocks.push({
-          blockType: 'STATUS',
-          statusEffectId: firstStatusId,
-          applyChancePct: 100,
-          durationSeconds: 5.0,
-          durationTurns: 5,
-          targetSelf: false,
-        });
-      } else if (blockType === 'SHIELD') {
-        this.editingSkillBlocks.push({
-          blockType: 'SHIELD',
-          scaleStat: 'MAX_HP',
-          scalePct: 20,
-          flatAmount: 30,
-          durationSeconds: 5.0,
-          durationTurns: 5,
-        });
-      } else if (blockType === 'CLEANSE_DISPEL') {
-        this.editingSkillBlocks.push({
-          blockType: 'CLEANSE_DISPEL',
-          cleanseTarget: 'SELF',
-          targetSelf: true,
-          maxDebuffs: 0,
-          cleanseChancePct: 100,
-          healPerDebuffPct: 0,
-        });
-      }
+      const blk = typeof this.buildDefaultSkillBlock === 'function'
+        ? this.buildDefaultSkillBlock(blockType)
+        : { blockType };
+      this.editingSkillBlocks.push(blk);
       this.renderVisualSkillBlocks();
     };
 
@@ -453,161 +397,9 @@ class AdminSkillsAndBuffsTab {
         return;
       }
 
-      const statusOptionsHtml = (this.statusEffectTemplates || [])
-        .map(
-          (st) =>
-            `<option value="${st.id}">#${st.id} ${st.isBuff ? '🟢 [BUFF]' : '🔴 [DEBUFF]'} ${st.namePtBr}</option>`
-        )
-        .join('');
-
       container.innerHTML = this.editingSkillBlocks
-        .map((blk, i) => {
-          if (blk.blockType === 'DAMAGE') {
-            return `
-            <div style="background:#020617; border:1px solid #f43f5e; border-radius:8px; padding:10px; display:flex; flex-direction:column; gap:8px;">
-              <div style="display:flex; justify-content:space-between; align-items:center;">
-                <strong style="color:#fb7185; font-size:0.82rem;">💥 Bloco #${i + 1}: Causar Dano (Modo Visual)</strong>
-                <button type="button" class="btn-danger" onclick="AdminApp.removeVisualSkillBlock(${i})" style="padding:2px 8px; font-size:0.72rem;">🗑️ Remover</button>
-              </div>
-              <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(135px, 1fr)); gap:8px;">
-                <div>
-                  <label style="font-size:0.7rem;">Natureza do Dano</label>
-                  <select onchange="AdminApp.updateVisualSkillBlockField(${i}, 'damageType', this.value)">
-                    <option value="PHYSICAL" ${blk.damageType === 'PHYSICAL' ? 'selected' : ''}>🗡️ Físico</option>
-                    <option value="MAGICAL" ${blk.damageType === 'MAGICAL' ? 'selected' : ''}>🔮 Mágico</option>
-                    <option value="TRUE" ${blk.damageType === 'TRUE' ? 'selected' : ''}>⚡ Verdadeiro (Ignora Def)</option>
-                  </select>
-                </div>
-                <div>
-                  <label style="font-size:0.7rem;">Elemento</label>
-                  <select onchange="AdminApp.updateVisualSkillBlockField(${i}, 'elementCode', this.value)">
-                    <option value="INHERIT" ${blk.elementCode === 'INHERIT' ? 'selected' : ''}>🔄 Herdar do Conjurador</option>
-                    <option value="FIRE" ${blk.elementCode === 'FIRE' ? 'selected' : ''}>🔥 Fogo</option>
-                    <option value="WATER" ${blk.elementCode === 'WATER' ? 'selected' : ''}>💧 Água</option>
-                    <option value="EARTH" ${blk.elementCode === 'EARTH' ? 'selected' : ''}>🪨 Terra</option>
-                    <option value="AIR" ${blk.elementCode === 'AIR' ? 'selected' : ''}>🌪️ Ar</option>
-                    <option value="NEUTRAL" ${blk.elementCode === 'NEUTRAL' ? 'selected' : ''}>⚪ Neutro</option>
-                  </select>
-                </div>
-                <div>
-                  <label style="font-size:0.7rem;">Atributo Escalador</label>
-                  <select onchange="AdminApp.updateVisualSkillBlockField(${i}, 'scaleStat', this.value)">
-                    <option value="ATK" ${blk.scaleStat === 'ATK' ? 'selected' : ''}>🗡️ Ataque Total (ATK)</option>
-                    <option value="MAX_HP" ${blk.scaleStat === 'MAX_HP' ? 'selected' : ''}>❤️ Vida Máxima (MAX_HP)</option>
-                    <option value="DEF" ${blk.scaleStat === 'DEF' ? 'selected' : ''}>🛡️ Defesa (DEF)</option>
-                    <option value="SPEED" ${blk.scaleStat === 'SPEED' ? 'selected' : ''}>⚡ Velocidade (SPEED)</option>
-                  </select>
-                </div>
-                <div>
-                  <label style="font-size:0.7rem;">Multiplicador (%)</label>
-                  <input type="number" value="${blk.scalePct ?? 150}" onchange="AdminApp.updateVisualSkillBlockField(${i}, 'scalePct', this.value, true)" />
-                </div>
-                <div>
-                  <label style="font-size:0.7rem;">+ Dano Fixo Base</label>
-                  <input type="number" value="${blk.flatAmount ?? 15}" onchange="AdminApp.updateVisualSkillBlockField(${i}, 'flatAmount', this.value, true)" />
-                </div>
-                <div>
-                  <label style="font-size:0.7rem;">Bônus Crítico (%)</label>
-                  <input type="number" value="${blk.critBonusPct ?? 10}" onchange="AdminApp.updateVisualSkillBlockField(${i}, 'critBonusPct', this.value, true)" />
-                </div>
-              </div>
-              <div style="font-size:0.74rem; color:#fde047; background:rgba(253,224,71,0.08); padding:4px 8px; border-radius:4px;">
-                📐 <strong>Resumo Visual:</strong> Causa <strong>${blk.scalePct ?? 150}% de ${blk.scaleStat || 'ATK'} + ${blk.flatAmount ?? 0}</strong> de dano ${blk.damageType || 'PHYSICAL'} (${blk.elementCode || 'INHERIT'})
-              </div>
-            </div>`;
-          }
-
-          if (blk.blockType === 'HEAL') {
-            return `
-            <div style="background:#020617; border:1px solid #22c55e; border-radius:8px; padding:10px; display:flex; flex-direction:column; gap:8px;">
-              <div style="display:flex; justify-content:space-between; align-items:center;">
-                <strong style="color:#86efac; font-size:0.82rem;">💚 Bloco #${i + 1}: Restaurar Vida (Cura Visual)</strong>
-                <button type="button" class="btn-danger" onclick="AdminApp.removeVisualSkillBlock(${i})" style="padding:2px 8px; font-size:0.72rem;">🗑️ Remover</button>
-              </div>
-              <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(140px, 1fr)); gap:8px;">
-                <div>
-                  <label style="font-size:0.7rem;">Quem Recebe a Cura?</label>
-                  <select onchange="AdminApp.updateVisualSkillBlockField(${i}, 'targetSelf', this.value, false, true)">
-                    <option value="false" ${!blk.targetSelf ? 'selected' : ''}>🎯 Alvo da Habilidade</option>
-                    <option value="true" ${blk.targetSelf ? 'selected' : ''}>🙋 Próprio Conjurador</option>
-                  </select>
-                </div>
-                <div>
-                  <label style="font-size:0.7rem;">Atributo Escalador</label>
-                  <select onchange="AdminApp.updateVisualSkillBlockField(${i}, 'scaleStat', this.value)">
-                    <option value="MAX_HP" ${blk.scaleStat === 'MAX_HP' ? 'selected' : ''}>❤️ HP Máximo</option>
-                    <option value="ATK" ${blk.scaleStat === 'ATK' ? 'selected' : ''}>✨ Poder / Ataque</option>
-                  </select>
-                </div>
-                <div>
-                  <label style="font-size:0.7rem;">Multiplicador (%)</label>
-                  <input type="number" value="${blk.scalePct ?? 20}" onchange="AdminApp.updateVisualSkillBlockField(${i}, 'scalePct', this.value, true)" />
-                </div>
-                <div>
-                  <label style="font-size:0.7rem;">+ Cura Fixa Base</label>
-                  <input type="number" value="${blk.flatAmount ?? 25}" onchange="AdminApp.updateVisualSkillBlockField(${i}, 'flatAmount', this.value, true)" />
-                </div>
-              </div>
-            </div>`;
-          }
-
-          if (blk.blockType === 'STATUS') {
-            return `
-            <div style="background:#020617; border:1px solid #c084fc; border-radius:8px; padding:10px; display:flex; flex-direction:column; gap:8px;">
-              <div style="display:flex; justify-content:space-between; align-items:center;">
-                <strong style="color:#d8b4fe; font-size:0.82rem;">🧪 Bloco #${i + 1}: Aplicar Buff ou Debuff da Tabela</strong>
-                <button type="button" class="btn-danger" onclick="AdminApp.removeVisualSkillBlock(${i})" style="padding:2px 8px; font-size:0.72rem;">🗑️ Remover</button>
-              </div>
-              <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(150px, 1fr)); gap:8px;">
-                <div>
-                  <label style="font-size:0.7rem;">Buff / Debuff a Aplicar</label>
-                  <select onchange="AdminApp.updateVisualSkillBlockField(${i}, 'statusEffectId', this.value, true)">
-                    ${statusOptionsHtml}
-                  </select>
-                </div>
-                <div>
-                  <label style="font-size:0.7rem;">Aplicar em Quem?</label>
-                  <select onchange="AdminApp.updateVisualSkillBlockField(${i}, 'targetSelf', this.value, false, true)">
-                    <option value="false" ${!blk.targetSelf ? 'selected' : ''}>🎯 No Alvo da Skill</option>
-                    <option value="true" ${blk.targetSelf ? 'selected' : ''}>🙋 No Próprio Conjurador</option>
-                  </select>
-                </div>
-                <div>
-                  <label style="font-size:0.7rem;">Chance de Aplicar (%)</label>
-                  <input type="number" min="1" max="100" value="${blk.applyChancePct ?? 100}" onchange="AdminApp.updateVisualSkillBlockField(${i}, 'applyChancePct', this.value, true)" />
-                </div>
-                <div>
-                  <label style="font-size:0.7rem;">Duração (Segundos)</label>
-                  <input type="number" min="0.5" max="60" step="0.5" value="${blk.durationSeconds ?? blk.durationTurns ?? 5}" onchange="AdminApp.updateVisualSkillBlockField(${i}, 'durationSeconds', this.value, true); AdminApp.updateVisualSkillBlockField(${i}, 'durationTurns', Math.round(Number(this.value)), true);" />
-                </div>
-              </div>
-            </div>`;
-          }
-
-          if (blk.blockType === 'CLEANSE_DISPEL' || blk.blockType === 'CLEANSE') {
-            return typeof this.renderCleanseSkillBlockCard === 'function'
-              ? this.renderCleanseSkillBlockCard(blk, i)
-              : '';
-          }
-
-          return `
-          <div style="background:#020617; border:1px solid #38bdf8; border-radius:8px; padding:10px; display:flex; justify-content:space-between; align-items:center;">
-            <strong style="color:#7dd3fc; font-size:0.82rem;">🛡️ Bloco #${i + 1}: Escudo Protetor (${blk.scalePct || 20}% MAX_HP + ${blk.flatAmount || 25})</strong>
-            <button type="button" class="btn-danger" onclick="AdminApp.removeVisualSkillBlock(${i})" style="padding:2px 8px; font-size:0.72rem;">🗑️ Remover</button>
-          </div>`;
-        })
+        .map((blk, i) => (typeof this.renderSingleSkillBlockCard === 'function' ? this.renderSingleSkillBlockCard(blk, i) : ''))
         .join('');
-
-      this.editingSkillBlocks.forEach((blk, i) => {
-        if (blk.blockType === 'STATUS') {
-          const selects = container.querySelectorAll('select');
-          selects.forEach((s) => {
-            if (s.getAttribute('onchange')?.includes(`(${i}, 'statusEffectId'`)) {
-              s.value = String(blk.statusEffectId || 1);
-            }
-          });
-        }
-      });
     };
 
     app.switchSkillAssetPicker = function (mode) {
@@ -692,6 +484,11 @@ class AdminSkillsAndBuffsTab {
         const cooldownVal = Number(document.getElementById('skillCooldownInput').value) || 0;
         const castRange = Number(document.getElementById('skillCastRangeInput')?.value) || 160;
         const aoeRadius = Number(document.getElementById('skillAoeRadiusInput')?.value) || 0;
+        const coneAngleDeg = Number(document.getElementById('skillConeAngleInput')?.value) || 90;
+        const lineWidthPx = Number(document.getElementById('skillLineWidthInput')?.value) || 48;
+        const groundZoneDurationSec = Number(document.getElementById('skillGroundZoneDurInput')?.value) || 0;
+        const groundZoneTickSec = Number(document.getElementById('skillGroundZoneTickInput')?.value) || 1.0;
+        const ignoreEvasion = Boolean(document.getElementById('skillIgnoreEvasionCheck')?.checked);
         const castMovement = document.getElementById('skillCastMovementSelect').value || 'MELEE_ADVANCE';
         const castActionId = Number(document.getElementById('skillCastActionSelect').value) || 3;
 
@@ -719,6 +516,11 @@ class AdminSkillsAndBuffsTab {
           cooldownTurns: Math.round(cooldownVal),
           castRange,
           aoeRadius,
+          coneAngleDeg,
+          lineWidthPx,
+          groundZoneDurationSec,
+          groundZoneTickSec,
+          ignoreEvasion,
           effectBlocksJson: this.editingSkillBlocks,
         };
 

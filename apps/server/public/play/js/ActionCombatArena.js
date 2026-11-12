@@ -32,7 +32,12 @@ class ActionCombatArena {
     this.pets = [];
     this.floatingTexts = [];
     this.projectiles = [];
+    this.groundZones = [];
+    this.classSkills = [];
+    this.skillCatalog = [];
+    this.statusCatalog = [];
     this.selectedTargetMob = null;
+    this.vfxRenderer = window.ActionVfxRenderer ? new window.ActionVfxRenderer() : null;
 
     // Submódulo de IA Tática e Controle de Recálculo Periódico
     this.aiController = window.ArenaUnitAiController ? new window.ArenaUnitAiController() : null;
@@ -52,6 +57,8 @@ class ActionCombatArena {
       attack: 0,
       skill1: 0,
       skill2: 0,
+      skill3: 0,
+      skill4: 0,
       dash: 0,
     };
 
@@ -79,6 +86,8 @@ class ActionCombatArena {
       if (e.key === ' ' || e.key.toLowerCase() === 'j') this.triggerAttack();
       else if (e.key === '1') this.triggerSkill(1);
       else if (e.key === '2') this.triggerSkill(2);
+      else if (e.key === '3') this.triggerSkill(3);
+      else if (e.key === '4') this.triggerSkill(4);
       else if (e.key.toLowerCase() === 'k' || e.key === 'Shift') this.triggerDash();
       else if (e.key === 'Escape') this.fleeBattle();
     });
@@ -185,6 +194,12 @@ class ActionCombatArena {
     );
 
     this.projectiles = [];
+    this.groundZones = [];
+    this.vfxRenderer?.reset();
+    this.classSkills = Array.isArray(battleState.classSkills) ? battleState.classSkills : [];
+    this.skillCatalog = Array.isArray(battleState.skillCatalog) ? battleState.skillCatalog : [];
+    this.statusCatalog = Array.isArray(battleState.statusCatalog) ? battleState.statusCatalog : [];
+    this.skillCooldowns = { attack: 0, skill1: 0, skill2: 0, skill3: 0, skill4: 0, dash: 0 };
     this.selectedTargetMob = null;
 
     this.player = {
@@ -195,7 +210,15 @@ class ActionCombatArena {
       bodyRadiusY: 17,
       x: spawns.px, y: spawns.py, speed: battleSpeed, dir: pDir, action: 0, isAlive: true,
       hp: pState.hp || 500, maxHp: pState.maxHp || 500, mp: pState.mp || 200, maxMp: pState.maxMp || 200,
-      atk: pState.atk || 75, def: pState.def || 40, magDef: pState.magDef || pState.def || 40,
+      atk: pState.atk || 75,
+      physAtk: pState.physAtk || pState.atk || 75,
+      magAtk: pState.magAtk || pState.atk || 75,
+      healPower: pState.healPower || pState.atk || 50,
+      def: pState.def || 40,
+      magDef: pState.magDef || pState.def || 40,
+      activeStatuses: [],
+      shieldHp: 0,
+      shieldMaxHp: 0,
       name: pState.name || this.client?.activeChar?.name || 'Herói',
       level: Number(pState.level || this.client?.activeChar?.level) || 1,
       elementCode: pState.elementCode || this.client?.activeChar?.elementCode || 'NEUTRAL',
@@ -289,7 +312,27 @@ class ActionCombatArena {
       life: 2.2,
     });
 
+    this.renderSkillButtonsHud();
     this.updateHud();
+  }
+
+  renderSkillButtonsHud() {
+    const fallbackIcons = ['⚡', '🌀', '🛡️', '💥'];
+    for (let i = 1; i <= 4; i++) {
+      const btn = document.getElementById(`btnActSkill${i}`);
+      const lbl = document.getElementById(`lblActSkill${i}`);
+      const sk = (this.classSkills || [])[i - 1];
+      if (!btn || !lbl) continue;
+      if (sk) {
+        btn.title = `${sk.namePtBr} (${sk.mpCost || 0} MP • ${sk.cooldownSeconds ?? 0}s) [Tecla ${i}]`;
+        lbl.innerHTML = sk.iconUrl ? `<img class="action-skill-icon-img" src="${sk.iconUrl}" alt="${sk.namePtBr}" />` : fallbackIcons[i - 1];
+        btn.style.opacity = '1';
+      } else {
+        btn.title = `Slot #${i} (Sem habilidade vinculada)`;
+        lbl.textContent = fallbackIcons[i - 1];
+        btn.style.opacity = '0.6';
+      }
+    }
   }
 
   toggleReady() {
@@ -356,6 +399,8 @@ class ActionCombatArena {
     const now = performance.now();
     this.updateCooldownOverlay('cdOverlaySkill1', this.skillCooldowns.skill1, now);
     this.updateCooldownOverlay('cdOverlaySkill2', this.skillCooldowns.skill2, now);
+    this.updateCooldownOverlay('cdOverlaySkill3', this.skillCooldowns.skill3, now);
+    this.updateCooldownOverlay('cdOverlaySkill4', this.skillCooldowns.skill4, now);
     this.updateCooldownOverlay('cdOverlayDash', this.skillCooldowns.dash, now);
   }
 
@@ -388,29 +433,9 @@ class ActionCombatArena {
   }
 
   cleanseUnitDebuffs(unit, maxDebuffs = 0, healPerDebuffPct = 0, cleanseChancePct = 100) {
-    if (!unit || !unit.isAlive) return 0;
-    if (Math.random() * 100 > (Number(cleanseChancePct) || 100)) return 0;
-    const statuses = Array.isArray(unit.activeStatuses) ? unit.activeStatuses : [];
-    const limit = Number(maxDebuffs) > 0 ? Number(maxDebuffs) : Infinity;
-    let removed = 0;
-    unit.activeStatuses = statuses.filter((st) => {
-      if (!st.isBuff && removed < limit) {
-        removed += 1;
-        return false;
-      }
-      return true;
-    });
-    if (removed > 0) {
-      const healPct = Math.max(0, Number(healPerDebuffPct) || 0);
-      if (healPct > 0) {
-        const healAmt = Math.round(unit.maxHp * (healPct / 100) * removed);
-        unit.hp = Math.min(unit.maxHp, unit.hp + healAmt);
-      }
-      this.floatingTexts.push({
-        x: unit.x, y: unit.y - 54, text: `PURIFICADO (-${removed})`, color: '#2dd4bf', life: 1.25,
-      });
-    }
-    return removed;
+    return window.ActionSkillEngine
+      ? window.ActionSkillEngine.cleanseUnitWithFilter(this, unit, 'ALL', maxDebuffs, healPerDebuffPct, cleanseChancePct)
+      : 0;
   }
 
   getLockedTarget() {
@@ -430,10 +455,14 @@ class ActionCombatArena {
     if (!this.isActive || this.combatState !== 'FIGHTING' || !this.player || !this.player.isAlive || this.player.isAttacking) {
       return;
     }
+    if (window.ActionSkillEngine && window.ActionSkillEngine.isActionBlocked(this.player)) {
+      return;
+    }
     const now = performance.now();
     if (now < this.skillCooldowns.attack) return;
 
-    const aspd = this.player.attackSpeed || 1.0;
+    const pEff = window.ActionSkillEngine ? window.ActionSkillEngine.getEffectiveStats(this.player) : this.player;
+    const aspd = pEff.attackSpeed || this.player.attackSpeed || 1.0;
     const intervalMs = Math.max(280, Math.round(380 / aspd));
     this.skillCooldowns.attack = now + intervalMs;
 
@@ -445,7 +474,7 @@ class ActionCombatArena {
     const target = this.getLockedTarget();
     if (target) {
       const dist = Math.hypot(target.x - this.player.x, target.y - this.player.y);
-      const maxRange = this.player.attackRange || (this.player.combatStyle === 'RANGED' ? 220 : 60);
+      const maxRange = (pEff && pEff.attackRange) || this.player.attackRange || (this.player.combatStyle === 'RANGED' ? 220 : 60);
       if (dist > maxRange + 25) {
         this.floatingTexts.push({ x: this.player.x, y: this.player.y - 45, text: 'FORA DE ALCANCE', color: '#fde047', life: 0.7 });
         return;
@@ -463,14 +492,30 @@ class ActionCombatArena {
   triggerSkill(skillNum) {
     if (!this.isActive || this.combatState !== 'FIGHTING' || !this.player || !this.player.isAlive) return;
     const now = performance.now();
-    const target = this.getLockedTarget();
-    if (!target) return;
+    const cdKey = `skill${skillNum}`;
+    if (now < (this.skillCooldowns[cdKey] || 0)) return;
 
-    if (skillNum === 1) {
-      this.executeHomingSkill(target, 20, 3800, 'TARGET_AOE', 150, 1.85, '🌪️', '#a78bfa', true, now, 'skill1');
-    } else if (skillNum === 2) {
-      this.executeHomingSkill(target, 35, 5800, 'GLOBAL_AOE', 0, 2.25, '⚡', '#38bdf8', true, now, 'skill2');
+    const realSkill = (this.classSkills || [])[skillNum - 1];
+    const target = this.getLockedTarget();
+
+    if (realSkill && window.ActionSkillEngine) {
+      const needsEnemy = !['SELF', 'ALLY_SINGLE', 'ALLY_LOWEST_HP_PCT', 'ALLY_ALL', 'AOE_SELF_AROUND'].includes(realSkill.targetScope);
+      if (needsEnemy && !target) return;
+      if (target && needsEnemy && ['TARGET_PRIMARY', 'MELEE_FRONTLINE', 'RANGED_ANY', 'AOE_CIRCLE'].includes(realSkill.targetScope)) {
+        const dist = Math.hypot(target.x - this.player.x, target.y - this.player.y);
+        const maxRange = (Number(realSkill.castRange) || 160) + (realSkill.castMovement === 'MELEE_ADVANCE' || realSkill.castMovement === 'DASH_LINEAR' || realSkill.castMovement === 'LEAP_AOE' || realSkill.castMovement === 'TELEPORT_BACKSTAB' ? 95 : 24);
+        if (dist > maxRange) {
+          this.floatingTexts.push({ x: this.player.x, y: this.player.y - 45, text: 'FORA DE ALCANCE', color: '#fde047', life: 0.7 });
+          return;
+        }
+      }
+      window.ActionSkillEngine.executeSkill(this, this.player, realSkill, target, now, cdKey);
+      return;
     }
+
+    if (!target) return;
+    if (skillNum === 1) this.executeHomingSkill(target, 20, 3800, 'TARGET_AOE', 150, 1.85, '🌪️', '#a78bfa', true, now, 'skill1');
+    else if (skillNum === 2) this.executeHomingSkill(target, 35, 5800, 'GLOBAL_AOE', 0, 2.25, '⚡', '#38bdf8', true, now, 'skill2');
   }
 
   executeHomingSkill(target, mpCost, cdMs, skillType, aoeRadius, dmgMultiplier, emoji, color, isMagical, now, cdKey) {
@@ -558,47 +603,27 @@ class ActionCombatArena {
   }
 
   applyDamageWithHitEvasionRoll(defender, p, attackerAcc, now) {
-    if (!defender || !defender.isAlive) return;
-    if (defender.isPlayer && defender.isDashing) {
-      this.floatingTexts.push({ x: defender.x, y: defender.y - 45, text: 'DESVIO', color: '#38bdf8', life: 0.9 });
-      return;
+    if (window.ActionSkillEngine) {
+      window.ActionSkillEngine.applyProjectileHit(this, defender, p, attackerAcc, now);
     }
-    const atkUnit = p.attackerUnit || this.player || {};
-    const eva = p.isMagical ? (defender.magEvasion || 5) : (defender.physEvasion || 5);
-    const defStat = p.isMagical ? (defender.magDef || defender.def || 25) : (defender.def || 25);
-    const Calc = window.CombatDamageCalculator;
-    const res = Calc ? Calc.calculateHitDamage({
-      attackerAtk: p.dmg ?? atkUnit.atk ?? 40,
-      attackerLevel: Number(atkUnit.level) || 1,
-      attackerElementCode: atkUnit.elementCode || 'NEUTRAL',
-      attackerCritRate: atkUnit.critRate ?? 0.08,
-      attackerCritDmg: p.critDmgMult || atkUnit.critDmg || 1.5,
-      attackerAccuracy: attackerAcc,
-      defenderDef: defStat,
-      defenderElementCode: defender.elementCode || 'NEUTRAL',
-      defenderEvasion: eva,
-      skillMultiplier: p.skillMultiplier ?? 1.0,
-      elementMatchups: this.elementMatchups,
-    }) : { isHit: Math.random() * 100 <= this.calculateHitRate(attackerAcc, eva), isCrit: false, finalDamage: Math.max(4, Math.round(p.dmg || 40)), elementRelation: 'NORMAL' };
-
-    if (!res.isHit) {
-      this.floatingTexts.push({ x: defender.x, y: defender.y - 48, text: 'DESVIO', color: '#38bdf8', life: 1.05 });
-      return;
-    }
-    const text = res.isCrit ? `CRÍTICO -${res.finalDamage}` : `-${res.finalDamage}`;
-    const color = res.isCrit
-      ? '#fde047'
-      : (res.elementRelation === 'ADVANTAGE'
-        ? '#fb923c'
-        : (defender.team === 'ALLY' ? '#f87171' : (p.color || '#ffffff')));
-    this.dealDamageToUnit(defender, res.finalDamage, text, color, now);
   }
 
   /**
    * Executa ataque de Pet ou Monstro (suportando disparo à distância Ranged ou golpe Melee/Corpo a Corpo).
    */
   executeAiUnitAttack(attacker, target, isCloseBrawl, now) {
-    const aspd = Number(attacker.attackSpeed) || 1.0;
+    if (window.ActionSkillEngine && !window.ActionSkillEngine.isActionBlocked(attacker) && !window.ActionSkillEngine.isSilenced(attacker) && Array.isArray(attacker.skillIds) && attacker.skillIds.length > 0 && Math.random() < 0.28) {
+      const skId = attacker.skillIds[Math.floor(Math.random() * attacker.skillIds.length)];
+      const sk = (this.skillCatalog || []).find((s) => Number(s.id) === Number(skId) && s.skillType !== 'PASSIVE');
+      if (sk && attacker.mp >= (Number(sk.mpCost) || 0)) {
+        const aspd = Number(attacker.attackSpeed) || 1.0;
+        attacker.nextAttackTime = now + Math.round(1600 / aspd);
+        window.ActionSkillEngine.executeSkill(this, attacker, sk, target, now, null);
+        return;
+      }
+    }
+    const effAtt = window.ActionSkillEngine ? window.ActionSkillEngine.getEffectiveStats(attacker) : attacker;
+    const aspd = Number(effAtt.attackSpeed || attacker.attackSpeed) || 1.0;
     const baseCd = attacker.team === 'ALLY' ? 1400 : 1550;
     attacker.nextAttackTime = now + Math.round(baseCd / aspd) + Math.random() * 350;
     attacker.attackTimer = 0.34;
@@ -732,7 +757,12 @@ class ActionCombatArena {
       if (dist <= 8) { this.client.moveTargetX = null; this.client.moveTargetY = null; } else { vx = dx / dist; vy = dy / dist; }
     }
 
-    let curSpeed = this.player.speed;
+    if (window.ActionSkillEngine && window.ActionSkillEngine.isActionBlocked(this.player)) {
+      this.player.action = 0;
+      return;
+    }
+    const pEffMove = window.ActionSkillEngine ? window.ActionSkillEngine.getEffectiveStats(this.player).moveSpeedMult : 1.0;
+    let curSpeed = this.player.speed * pEffMove;
     if (this.player.isDashing) {
       this.player.dashTimer -= dt;
       if (this.player.dashTimer <= 0) this.player.isDashing = false; else curSpeed *= 2.3;
@@ -809,6 +839,9 @@ class ActionCombatArena {
       return;
     }
 
+    if (window.ActionSkillEngine) {
+      window.ActionSkillEngine.tickStatusesAndZones(this, now);
+    }
     this.updateProjectiles(dt, now);
     this.updatePlayerMovement(dt);
 
@@ -901,54 +934,12 @@ class ActionCombatArena {
 
   drawArenaRingOnFloor(ctx, now, zoom) {
     if (!this.isActive) return;
-    const cx = this.arenaCenterX;
-    const cy = this.arenaCenterY;
-    const rx = this.arenaRadiusX;
-    const ry = this.arenaRadiusY;
-
-    ctx.save();
-    const pulse = 0.85 + 0.15 * Math.sin(now / 260);
-    ctx.beginPath();
-    ctx.ellipse(cx, cy, rx, ry, 0, 0, Math.PI * 2);
-    ctx.strokeStyle = `rgba(56, 189, 248, ${0.50 * pulse})`;
-    ctx.lineWidth = 2.5 / zoom;
-    ctx.shadowColor = '#38bdf8';
-    ctx.shadowBlur = 8;
-    ctx.stroke();
-
-    for (let i = 0; i < 8; i++) {
-      const ang = (i * Math.PI) / 4;
-      const gx = cx + Math.cos(ang) * rx;
-      const gy = cy + Math.sin(ang) * ry;
-      ctx.beginPath();
-      ctx.arc(gx, gy, 4.5 / zoom, 0, Math.PI * 2);
-      ctx.fillStyle = '#38bdf8';
-      ctx.fill();
-    }
-
-    const target = this.getLockedTarget();
-    if (target && target.isAlive) {
-      const pPulse = 1 + 0.12 * Math.sin(now / 150);
-      ctx.beginPath();
-      ctx.ellipse(target.x, target.y - 8, 22 * pPulse, 12 * pPulse, 0, 0, Math.PI * 2);
-      ctx.strokeStyle = '#ef4444';
-      ctx.lineWidth = 2.5 / zoom;
-      ctx.shadowColor = '#ef4444';
-      ctx.shadowBlur = 10;
-      ctx.stroke();
-    }
-
-    this.renderProjectiles(ctx, zoom);
-    ctx.restore();
+    this.vfxRenderer?.drawArenaFloorAndProjectiles(ctx, this, now, zoom);
   }
 
-  renderProjectiles(ctx, zoom = 1.0) {
-    if (!this.isActive || !this.projectiles || this.projectiles.length === 0) return;
-    for (const p of this.projectiles) {
-      ctx.save(); ctx.beginPath(); ctx.arc(p.x, p.y, 6.5 / zoom, 0, Math.PI * 2);
-      ctx.fillStyle = p.color || '#fde047'; ctx.shadowColor = p.color || '#fde047'; ctx.shadowBlur = 10;
-      ctx.fill(); ctx.restore();
-    }
+  renderActiveVfx(ctx, now) {
+    if (!this.isActive) return;
+    this.vfxRenderer?.drawActiveBursts(ctx, now);
   }
 
   populateRenderQueue(renderQueue, now) {
@@ -963,17 +954,7 @@ class ActionCombatArena {
   }
 
   renderFloatingTexts(ctx) {
-    for (const f of this.floatingTexts) {
-      ctx.save();
-      ctx.font = 'bold 13px system-ui, -apple-system, sans-serif';
-      ctx.textAlign = 'center';
-      ctx.fillStyle = f.color || '#fff';
-      ctx.shadowColor = 'rgba(0, 0, 0, 0.9)';
-      ctx.shadowBlur = 3;
-      ctx.globalAlpha = Math.max(0, Math.min(1, f.life));
-      ctx.fillText(f.text, f.x, f.y);
-      ctx.restore();
-    }
+    this.vfxRenderer?.drawFloatingTexts(ctx, this.floatingTexts);
   }
 }
 

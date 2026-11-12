@@ -5,6 +5,20 @@ Qualquer IA trabalhando neste repositório **DEVE** incrementar a versão e regi
 
 ---
 
+## [v0.12.0] - 2026-11-12
+### Arsenal Completo No-Code de Habilidades Action (12 Classes / 48 Skills), Buffs/Debuffs & Arena 4 Slots
+* **Adicionado & Expandido (Schema + Backend + Calculadora Compartilhada):**
+  * **`CombatDamageCalculator` (`packages/shared/src/CombatDamageCalculator.ts`):** Adicionados `armorPenPct` (`PHYS_PEN` / `MAG_PEN`), `ignoreEvasion` (disparo inesquivável), `flatCritRateBonus` e `bonusDamageMultiplier`.
+  * **`SkillTemplate` & `StatusEffectTemplate` (`schema.prisma`, `AdminSkillsController.ts`):** Novos campos `coneAngleDeg`, `lineWidthPx`, `groundZoneDurationSec`, `groundZoneTickSec`, `ignoreEvasion`, `statusCategory` (`BUFF`, `HARD_CC`, `ANOMALY`, `SLOW`) e `breakOnDamage`.
+  * **`TemporaryCombatController.ts` & `MonsterCombatBuilder.ts`:** Unidades carregam `physAtk`, `magAtk`, `healPower`, `classSkills` (Slots `#1..#4`), `skillCatalog` e `statusCatalog` para o motor Action.
+* **Adicionado (Estúdio `/admin` Low/No-Code):**
+  * **`AdminSkillBlocksEditor.js` & `AdminSkillsModalDom.js` & `AdminSkillsAndBuffsTab.js`:** Suporte completo para movimentos Action (`DASH_LINEAR`, `LEAP_AOE`, `TELEPORT_BACKSTAB`), geometrias (`CONE_FRONTAL`, `LINE_PIERCE`, `AOE_SELF_AROUND`, `AOE_CIRCLE`, `GROUND_ZONE`, `ALLY_LOWEST_HP_PCT`), fórmulas compostas (2º escalador opcional com `PHYS_ATK`, `MAG_ATK`, `HEAL_POWER`, `PHYS_DEF`, `MAG_DEF`, `MAX_HP`, `MAX_MP`), editor completo de `SHIELD`, bloco `RESOURCE_COOLDOWN`, `armorPenPct`, `lifestealPct`, bônus por anomalia no alvo, execução por `% HP`, redução de CD no crítico, cura por inimigo atingido e `Cleanse` tipado (`HARD_CC_AND_DOT`, `SLOW`, `HARD_CC`, `ANOMALY_DOT`).
+  * **`AdminStatusEffectsTab.js` & `AdminArenaPreview.js`:** Construtor dinâmico de 23 modificadores de atributos (`ATTACK_SPEED_PCT`, `BATTLE_MOVE_SPEED_PCT`, `PHYS/MAG_EVASION_PCT`, `PHYS/MAG_ACCURACY_PCT`, `CRIT_RATE/DMG_PCT`, `PHYS/MAG_PEN_PCT`, `ATTACK_RANGE_FLAT`, `CONTROL_RESIST_PCT`, `HEAL_RECEIVED_PCT`, `REFLECT_MELEE_PCT`, `EXTRA_MP_COST_PCT`, etc.), 9 Controles de Grupo (`STUN`, `PARALYSIS`, `SILENCE`, `FREEZE`, `CONFUSION`, `SLEEP`, `TAUNT`, `SLOW`, `BLIND`), DoT/HoT multi-escalador e contra-efeito reativo (`ON_HIT_TAKEN`).
+* **Adicionado (Combate Action `/play`):**
+  * **`ActionSkillEngine.js`, `ActionVfxRenderer.js`, `ActionCombatArena.js`, `ArenaUnitAiController.js` e `play/index.html`:** Barra/teclas de **4 Slots de Habilidade da Classe (`1–4`)**, execução em tempo real de todas as geometrias/movimentos Action, zonas persistentes no solo, escudos absorventes, VFX animados do `mcrework` recolorizados (`VfxColorProcessor`) e ícones de Buffs/Debuffs com stacks acima das unidades.
+
+---
+
 ## [v0.11.0] - 2026-11-12
 ### Correção de Bugs na Tabela de Itens, Duplicação de Item, Itens Não Comercializáveis, Passivos & Stack Padrão 999
 * **Corrigido (`AdminItemsTab.js` & `AdminItemsController.ts`):**

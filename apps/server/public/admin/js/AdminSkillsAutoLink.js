@@ -38,12 +38,19 @@ class AdminSkillsAutoLink {
 
     app.getScopeLabel = function (scope) {
       switch (scope) {
-        case 'MELEE_FRONTLINE': return '🗡️ Melee';
-        case 'RANGED_ANY': return '🏹 Distância';
+        case 'TARGET_PRIMARY':
+        case 'MELEE_FRONTLINE': return '🗡️ Alvo Único';
+        case 'RANGED_ANY': return '🏹 Alvo à Distância';
+        case 'CONE_FRONTAL': return '📐 Cone Frontal';
+        case 'LINE_PIERCE': return '📏 Linha Perfurante';
+        case 'AOE_SELF_AROUND': return '💥 AoE ao Redor';
+        case 'AOE_CIRCLE': return '⭕ AoE no Alvo';
+        case 'GROUND_ZONE': return '🔥 Zona no Solo (Contínua)';
         case 'ALL_ENEMIES': return '🌋 Área Total';
         case 'ROW_FRONT': return '📏 Linha Frente';
         case 'SELF': return '🙋 Conjurador';
         case 'ALLY_SINGLE': return '💚 1 Aliado';
+        case 'ALLY_LOWEST_HP_PCT': return '🩹 Aliado Menor % HP';
         case 'ALLY_ALL': return '✨ Todos Aliados';
         default: return scope || '🎯 Alvo';
       }
@@ -86,12 +93,15 @@ class AdminSkillsAutoLink {
 
     app.renderCleanseSkillBlockCard = function (blk, i) {
       const targetMode = blk.cleanseTarget || (blk.targetSelf === false ? 'TARGET' : 'SELF');
+      const filterMode = blk.cleanseFilter || 'ALL';
       const maxDebuffs = Number(blk.maxDebuffs) || 0;
       const chancePct = blk.cleanseChancePct ?? 100;
       const healPct = Number(blk.healPerDebuffPct) || 0;
       const targetDesc =
         targetMode === 'ALL_ALLIES'
           ? 'Todos os Aliados'
+          : targetMode === 'ALLY_LOWEST_HP_PCT'
+          ? 'Aliado c/ Menor % HP'
           : targetMode === 'TARGET'
           ? 'Alvo da Habilidade'
           : 'Próprio Conjurador';
@@ -105,19 +115,30 @@ class AdminSkillsAutoLink {
         <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(145px, 1fr)); gap:8px;">
           <div>
             <label style="font-size:0.7rem;">Quem Tem os Debuffs Limpos?</label>
-            <select onchange="AdminApp.updateVisualSkillBlockField(${i}, 'cleanseTarget', this.value); AdminApp.updateVisualSkillBlockField(${i}, 'targetSelf', this.value !== 'TARGET', false, true);">
+            <select onchange="AdminApp.updateVisualSkillBlockField(${i}, 'cleanseTarget', this.value); AdminApp.updateVisualSkillBlockField(${i}, 'targetSelf', this.value === 'SELF', false, true);">
               <option value="SELF" ${targetMode === 'SELF' ? 'selected' : ''}>🙋 Próprio Conjurador</option>
               <option value="TARGET" ${targetMode === 'TARGET' ? 'selected' : ''}>🎯 Alvo da Habilidade</option>
+              <option value="ALLY_LOWEST_HP_PCT" ${targetMode === 'ALLY_LOWEST_HP_PCT' ? 'selected' : ''}>🩹 Aliado Menor % HP</option>
               <option value="ALL_ALLIES" ${targetMode === 'ALL_ALLIES' ? 'selected' : ''}>✨ Todos os Aliados</option>
             </select>
           </div>
           <div>
-            <label style="font-size:0.7rem;">Qtd. de Debuffs Removidos</label>
+            <label style="font-size:0.7rem;">Filtro de Família</label>
+            <select onchange="AdminApp.updateVisualSkillBlockField(${i}, 'cleanseFilter', this.value)">
+              <option value="ALL" ${filterMode === 'ALL' ? 'selected' : ''}>🧹 Todos os Debuffs</option>
+              <option value="HARD_CC_AND_DOT" ${filterMode === 'HARD_CC_AND_DOT' ? 'selected' : ''}>💎 N Hard CC + N DoT (Ex: 1+1)</option>
+              <option value="HARD_CC" ${filterMode === 'HARD_CC' ? 'selected' : ''}>⚡ Apenas Hard CC (CONTROL_HIT)</option>
+              <option value="ANOMALY_DOT" ${filterMode === 'ANOMALY_DOT' ? 'selected' : ''}>☣️ Apenas DoT/Anomalia (ANOMALY_HIT)</option>
+              <option value="SLOW" ${filterMode === 'SLOW' ? 'selected' : ''}>🕸️ Apenas Lentidões (SLOW)</option>
+            </select>
+          </div>
+          <div>
+            <label style="font-size:0.7rem;">Qtd. por Categoria/Total</label>
             <select onchange="AdminApp.updateVisualSkillBlockField(${i}, 'maxDebuffs', this.value, true)">
-              <option value="0" ${maxDebuffs === 0 ? 'selected' : ''}>🧹 Todos os Debuffs Ativos</option>
-              <option value="1" ${maxDebuffs === 1 ? 'selected' : ''}>1 Debuff</option>
-              <option value="2" ${maxDebuffs === 2 ? 'selected' : ''}>Até 2 Debuffs</option>
-              <option value="3" ${maxDebuffs === 3 ? 'selected' : ''}>Até 3 Debuffs</option>
+              <option value="0" ${maxDebuffs === 0 ? 'selected' : ''}>🧹 Todos os Ativos</option>
+              <option value="1" ${maxDebuffs === 1 ? 'selected' : ''}>1</option>
+              <option value="2" ${maxDebuffs === 2 ? 'selected' : ''}>Até 2</option>
+              <option value="3" ${maxDebuffs === 3 ? 'selected' : ''}>Até 3</option>
             </select>
           </div>
           <div>

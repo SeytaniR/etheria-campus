@@ -129,6 +129,13 @@ class ArenaUnitAiController {
     const aliveEnemies = enemies.filter((e) => e && e.isAlive);
     if (aliveEnemies.length === 0) return { target: null, interceptPos: null };
 
+    if (window.ActionSkillEngine) {
+      const taunter = window.ActionSkillEngine.getTaunter(unit);
+      if (taunter && aliveEnemies.includes(taunter)) {
+        return { target: taunter, interceptPos: null };
+      }
+    }
+
     const range = Math.max(48, Number(unit.attackRange) || (unit.combatStyle === 'RANGED' ? 220 : 60));
 
     // A) Papel TANK_PROTECTOR: intercepta inimigos se aproximando dos Rangeds aliados
@@ -319,7 +326,8 @@ class ArenaUnitAiController {
     }
 
     const sLen = Math.hypot(steerX, steerY) || 1;
-    const step = (Number(unit.speed) || 140) * speedScale * dt;
+    const statusSpeedMult = window.ActionSkillEngine ? window.ActionSkillEngine.getEffectiveStats(unit).moveSpeedMult : 1.0;
+    const step = (Number(unit.speed) || 140) * speedScale * statusSpeedMult * dt;
     const nextX = unit.x + (steerX / sLen) * step;
     const nextY = unit.y + (steerY / sLen) * step;
 
@@ -343,6 +351,11 @@ class ArenaUnitAiController {
       if (unit && unit.fadeAlpha > 0) {
         unit.fadeAlpha = Math.max(0, unit.fadeAlpha - dt * 1.1);
       }
+      return;
+    }
+
+    if (window.ActionSkillEngine && window.ActionSkillEngine.isActionBlocked(unit)) {
+      unit.action = 0;
       return;
     }
 

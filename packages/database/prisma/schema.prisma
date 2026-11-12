@@ -364,12 +364,17 @@ model SkillTemplate {
   apCost             Int     @default(2) @map("ap_cost") /// Custo de stamina/estamina de ação
   cooldownSeconds    Float   @default(0.0) @map("cooldown_seconds") /// Tempo de recarga em segundos (ex: 2.5s, 6.0s)
   cooldownTurns      Int     @default(0) @map("cooldown_turns") /// Compatibilidade legada
-  castRange          Int     @default(160) @map("cast_range") /// Alcance máximo de conjuração em pixels
-  aoeRadius          Int     @default(0) @map("aoe_radius") /// Raio de área de impacto em pixels (0 = alvo único)
-  targetScope        String  @default("TARGET_PRIMARY") @map("target_scope") /// TARGET_PRIMARY, RANGED_ANY, ALL_ENEMIES, SELF, ALLY_SINGLE, ALLY_ALL, AOE_CIRCLE
-  hitCount           Int     @default(1) @map("hit_count")
-  effectBlocksJson   Json    @default("[]") @map("effect_blocks_json") /// Lista visual de blocos: DAMAGE, HEAL, SHIELD, STATUS, MOVE_SLOT, CLEANSE_DISPEL, RESOURCE
-  isActive           Boolean @default(true) @map("is_active")
+  castRange             Int     @default(160) @map("cast_range") /// Alcance máximo de conjuração em pixels
+  aoeRadius             Int     @default(0) @map("aoe_radius") /// Raio de área de impacto em pixels (0 = alvo único)
+  coneAngleDeg          Int     @default(90) @map("cone_angle_deg") /// Ângulo de abertura frontal para CONE_FRONTAL
+  lineWidthPx           Int     @default(48) @map("line_width_px") /// Largura da faixa para LINE_PIERCE
+  groundZoneDurationSec Float   @default(0.0) @map("ground_zone_duration_sec") /// Duração da zona persistente no solo (0 = instantânea)
+  groundZoneTickSec     Float   @default(1.0) @map("ground_zone_tick_sec") /// Intervalo entre pulsos da zona no solo
+  ignoreEvasion         Boolean @default(false) @map("ignore_evasion") /// Golpe inesquivável (ignora evasão do alvo)
+  targetScope           String  @default("TARGET_PRIMARY") @map("target_scope") /// TARGET_PRIMARY, RANGED_ANY, CONE_FRONTAL, LINE_PIERCE, AOE_SELF_AROUND, AOE_CIRCLE, GROUND_ZONE, SELF, ALLY_SINGLE, ALLY_LOWEST_HP_PCT, ALLY_ALL, ALL_ENEMIES
+  hitCount              Int     @default(1) @map("hit_count")
+  effectBlocksJson      Json    @default("[]") @map("effect_blocks_json") /// Lista visual de blocos: DAMAGE, HEAL, SHIELD, STATUS, CLEANSE_DISPEL, RESOURCE_COOLDOWN
+  isActive              Boolean @default(true) @map("is_active")
 
   @@map("skill_templates")
 }
@@ -386,6 +391,8 @@ model StatusEffectTemplate {
   vfxColorHex          String? @map("vfx_color_hex") /// Cor Hex (#RRGGBB) opcional para recolorir partículas transparentes (null = cor original)
   vfxColorIntensity    Int     @default(100) @map("vfx_color_intensity") /// Intensidade da recoloração sobre a partícula (0..100%)
   isBuff               Boolean @default(true) @map("is_buff") /// true = Buff, false = Debuff
+  statusCategory       String  @default("ANOMALY") @map("status_category") /// BUFF, HARD_CC, ANOMALY, SLOW, SHIELD
+  breakOnDamage        Boolean @default(false) @map("break_on_damage") /// Remove o efeito ao sofrer dano (ex: Sono)
   triggerType          String  @default("CONTINUOUS_TICK") @map("trigger_type") /// CONTINUOUS_TICK, WHILE_ACTIVE, ON_APPLY, ON_HIT_TAKEN, ON_ATTACK, ON_EXPIRE
   maxStacks            Int     @default(1) @map("max_stacks")
   durationSeconds      Float   @default(5.0) @map("duration_seconds") /// Duração total do efeito em segundos

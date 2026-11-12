@@ -8,9 +8,9 @@
 ---
 
 ## 📌 Status Atual do Projeto
-* **Versão Atual:** `v0.11.0`
+* **Versão Atual:** `v0.12.0`
 * **Última Atualização:** `2026-11-12`
-* **Fase Atual:** **Tabela de Itens Blindada + Duplicar Item + Não Comercializáveis + Passivos/Crafting + Stack Padrão 999 (`v0.11.0`)** — Corrigidos os bugs de sobrescrita na edição de itens (`selectMcreworkItemByIndex`, ordenação estável por `id ASC`, checagem prévia de `code` antes do `upsert` i18n, preservação de campos passivos e sanitização numérica), adicionada coluna `is_tradable` em `ItemTemplate` e botão `📋 Duplicar`.
+* **Fase Atual:** **Arsenal Completo No-Code de Habilidades Action + Buffs/Debuffs + Motor Action de 4 Slots & VFX (`v0.12.0`)** — Sem inserir/editar dados das tabelas do usuário, todas as ferramentas visuais e de combate em tempo real necessárias para criar as 48 habilidades das 12 classes foram liberadas em `/admin` e `/play`.
 * **Repositório Oficial:** `https://github.com/SeytaniR/etheria-campus`
 * **Fonte Bruta de Assets:** `https://github.com/SeytaniR/mcrework` (`https://seytanir.github.io/mcrework/`)
 

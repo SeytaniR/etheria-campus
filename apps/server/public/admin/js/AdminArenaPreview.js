@@ -338,10 +338,19 @@ class AdminArenaPreview {
           isSelfTarget =
             targetScope === 'SELF' ||
             targetScope === 'ALLY_SINGLE' ||
+            targetScope === 'ALLY_LOWEST_HP_PCT' ||
             targetScope === 'ALLY_ALL' ||
             triggerVal === 'ON_DEBUFF_RECEIVED' ||
+            triggerVal === 'INTERVAL_TICK_CLEANSE' ||
             triggerVal === 'ON_TURN_START_CLEANSE';
-          isAoETarget = targetScope === 'ALL_ENEMIES' || targetScope === 'ROW_FRONT';
+          isAoETarget =
+            targetScope === 'ALL_ENEMIES' ||
+            targetScope === 'ROW_FRONT' ||
+            targetScope === 'CONE_FRONTAL' ||
+            targetScope === 'LINE_PIERCE' ||
+            targetScope === 'AOE_SELF_AROUND' ||
+            targetScope === 'AOE_CIRCLE' ||
+            targetScope === 'GROUND_ZONE';
 
           for (const blk of this.editingSkillBlocks || []) {
             if (blk.blockType === 'DAMAGE') {
@@ -351,7 +360,9 @@ class AdminArenaPreview {
               const healEst = Math.round((Number(blk.scalePct) || 20) * 1.5 + (Number(blk.flatAmount) || 0));
               floatingTexts.push({ text: `💚 +${healEst}`, color: '#4ade80', onSelf: Boolean(blk.targetSelf || isSelfTarget) });
             } else if (blk.blockType === 'SHIELD') {
-              floatingTexts.push({ text: `🛡️ +Escudo`, color: '#38bdf8', onSelf: true });
+              floatingTexts.push({ text: `🛡️ +Escudo`, color: '#38bdf8', onSelf: blk.targetMode !== 'ALLY_SINGLE' });
+            } else if (blk.blockType === 'RESOURCE_COOLDOWN') {
+              floatingTexts.push({ text: `⚡ +${blk.amount || 15}${blk.resourceAction === 'RESTORE_MP_PCT' ? '% MP' : ' CD'}`, color: '#fbbf24', onSelf: blk.resourceTarget !== 'TARGET' });
             } else if (blk.blockType === 'CLEANSE_DISPEL' || blk.blockType === 'CLEANSE') {
               const cleanseOnSelf = (blk.cleanseTarget || 'SELF') !== 'TARGET' || isSelfTarget;
               const sampleDebuff = (this.statusEffectTemplates || []).find((s) => !s.isBuff);
@@ -406,13 +417,9 @@ class AdminArenaPreview {
           } else if (dotMode === 'HEAL') {
             floatingTexts.push({ text: `💚 +${dotPct * 8 + dotFlat} (HoT)`, color: '#4ade80', onSelf: false });
           } else {
-            const atkMod = Number(document.getElementById('statusModAtkPct')?.value) || 0;
-            const defMod = Number(document.getElementById('statusModDefPct')?.value) || 0;
-            const spdMod = Number(document.getElementById('statusModSpeedPct')?.value) || 0;
-            const parts = [];
-            if (atkMod) parts.push(`${atkMod > 0 ? '+' : ''}${atkMod}% ATK`);
-            if (defMod) parts.push(`${defMod > 0 ? '+' : ''}${defMod}% DEF`);
-            if (spdMod) parts.push(`${spdMod > 0 ? '+' : ''}${spdMod}% SPD`);
+            const parts = (this.editingStatusModifiers || []).slice(0, 3).map((m) =>
+              `${m.value > 0 ? '+' : ''}${m.value}${m.statCode === 'ATTACK_RANGE_FLAT' ? 'px' : '%'} ${m.statCode.replace(/_PCT|_FLAT/g, '')}`
+            );
             floatingTexts.push({
               text: parts.length > 0 ? `🧪 ${parts.join(' ')}` : `🧪 ${bannerTitle}`,
               color: isBuff ? '#4ade80' : '#c084fc',
@@ -427,31 +434,40 @@ class AdminArenaPreview {
         let casterY = casterSlot.y;
         let casterAction = 0;
 
-        const isMeleeAdvance = isSkillModal && castMovement === 'MELEE_ADVANCE' && !isSelfTarget;
-        const strikeFrontX = primaryEnemySlot.x - 56;
+        const isAdvancingMove = isSkillModal && !isSelfTarget && (castMovement === 'MELEE_ADVANCE' || castMovement === 'DASH_LINEAR' || castMovement === 'LEAP_AOE' || castMovement === 'TELEPORT_BACKSTAB');
+        const strikeFrontX = castMovement === 'TELEPORT_BACKSTAB' ? primaryEnemySlot.x + 56 : primaryEnemySlot.x - 56;
         const strikeFrontY = primaryEnemySlot.y;
+        const isTeleport = castMovement === 'TELEPORT_BACKSTAB';
 
         if (cycleElapsed < 500) {
-          if (isMeleeAdvance) {
-            const t = cycleElapsed / 500;
-            casterX = Math.round(casterSlot.x + (strikeFrontX - casterSlot.x) * t);
-            casterY = Math.round(casterSlot.y + (strikeFrontY - casterSlot.y) * t);
-            casterAction = 1; // Correndo até o alvo
+          if (isAdvancingMove) {
+            if (isTeleport && cycleElapsed > 260) {
+              casterX = strikeFrontX; casterY = strikeFrontY; casterAction = 0;
+            } else if (!isTeleport) {
+              const t = cycleElapsed / 500;
+              casterX = Math.round(casterSlot.x + (strikeFrontX - casterSlot.x) * t);
+              casterY = Math.round(casterSlot.y + (strikeFrontY - casterSlot.y) * t);
+              casterAction = 1;
+            }
           } else {
             casterAction = 0;
           }
         } else if (cycleElapsed < 1450) {
-          if (isMeleeAdvance) {
+          if (isAdvancingMove) {
             casterX = strikeFrontX;
             casterY = strikeFrontY;
           }
-          casterAction = castActionId; // Golpe (3), Magia (7) ou Guarda (4)
+          casterAction = castActionId;
         } else if (cycleElapsed < 1900) {
-          if (isMeleeAdvance) {
-            const t = (cycleElapsed - 1450) / 450;
-            casterX = Math.round(strikeFrontX + (casterSlot.x - strikeFrontX) * t);
-            casterY = Math.round(strikeFrontY + (casterSlot.y - strikeFrontY) * t);
-            casterAction = 1; // Retornando ao slot
+          if (isAdvancingMove) {
+            if (isTeleport) {
+              casterX = casterSlot.x; casterY = casterSlot.y; casterAction = 0;
+            } else {
+              const t = (cycleElapsed - 1450) / 450;
+              casterX = Math.round(strikeFrontX + (casterSlot.x - strikeFrontX) * t);
+              casterY = Math.round(strikeFrontY + (casterSlot.y - strikeFrontY) * t);
+              casterAction = 1;
+            }
           } else {
             casterAction = 0;
           }
@@ -477,7 +493,7 @@ class AdminArenaPreview {
             role: 'CASTER',
             x: casterX,
             y: casterY,
-            dir: 6, // 6 = Leste / Direita (olhando para os inimigos)
+            dir: (isTeleport && casterX > primaryEnemySlot.x) ? 2 : 6,
             action: casterAction,
             unit: casterUnit,
             isTargeted: isSelfTarget,

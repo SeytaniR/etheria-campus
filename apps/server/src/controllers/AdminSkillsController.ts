@@ -20,6 +20,8 @@ export interface StatusEffectDto {
   vfxColorHex?: string | null;
   vfxColorIntensity?: number;
   isBuff: boolean;
+  statusCategory?: string;
+  breakOnDamage?: boolean;
   triggerType: string;
   maxStacks?: number;
   durationSeconds?: number;
@@ -49,6 +51,11 @@ export interface SkillTemplateDto {
   cooldownTurns?: number;
   castRange?: number;
   aoeRadius?: number;
+  coneAngleDeg?: number;
+  lineWidthPx?: number;
+  groundZoneDurationSec?: number;
+  groundZoneTickSec?: number;
+  ignoreEvasion?: boolean;
   targetScope: string;
   hitCount?: number;
   effectBlocksJson?: any[];
@@ -229,6 +236,8 @@ export class AdminSkillsController {
         vfxColorHex: this.normalizeVfxColorHex(dto.vfxColorHex),
         vfxColorIntensity: this.clampVfxColorIntensity(dto.vfxColorIntensity, 100),
         isBuff: dto.isBuff !== false,
+        statusCategory: dto.statusCategory || (dto.isBuff !== false ? 'BUFF' : 'ANOMALY'),
+        breakOnDamage: Boolean(dto.breakOnDamage),
         triggerType: dto.triggerType || 'CONTINUOUS_TICK',
         maxStacks: Math.max(1, Number(dto.maxStacks) || 1),
         durationSeconds: dto.durationSeconds !== undefined ? Math.max(0.1, Number(dto.durationSeconds)) : (dto.defaultDurationTurns ? dto.defaultDurationTurns * 2.5 : 5.0),
@@ -282,6 +291,8 @@ export class AdminSkillsController {
         vfxColorHex: dto.vfxColorHex !== undefined ? this.normalizeVfxColorHex(dto.vfxColorHex) : existing.vfxColorHex,
         vfxColorIntensity: dto.vfxColorIntensity !== undefined ? this.clampVfxColorIntensity(dto.vfxColorIntensity, existing.vfxColorIntensity) : existing.vfxColorIntensity,
         isBuff: dto.isBuff !== undefined ? Boolean(dto.isBuff) : existing.isBuff,
+        statusCategory: dto.statusCategory || (existing as any).statusCategory || (existing.isBuff ? 'BUFF' : 'ANOMALY'),
+        breakOnDamage: dto.breakOnDamage !== undefined ? Boolean(dto.breakOnDamage) : Boolean((existing as any).breakOnDamage),
         triggerType: dto.triggerType || existing.triggerType,
         maxStacks: dto.maxStacks !== undefined ? Math.max(1, Number(dto.maxStacks) || 1) : existing.maxStacks,
         durationSeconds:
@@ -392,6 +403,11 @@ export class AdminSkillsController {
         cooldownTurns: Math.max(0, Number(dto.cooldownTurns) ?? 0),
         castRange: dto.castRange !== undefined ? Math.max(10, Number(dto.castRange)) : 160,
         aoeRadius: dto.aoeRadius !== undefined ? Math.max(0, Number(dto.aoeRadius)) : 0,
+        coneAngleDeg: dto.coneAngleDeg !== undefined ? Math.max(15, Math.min(360, Number(dto.coneAngleDeg) || 90)) : 90,
+        lineWidthPx: dto.lineWidthPx !== undefined ? Math.max(12, Math.min(300, Number(dto.lineWidthPx) || 48)) : 48,
+        groundZoneDurationSec: dto.groundZoneDurationSec !== undefined ? Math.max(0, Number(dto.groundZoneDurationSec) || 0) : 0,
+        groundZoneTickSec: dto.groundZoneTickSec !== undefined ? Math.max(0.2, Number(dto.groundZoneTickSec) || 1.0) : 1.0,
+        ignoreEvasion: Boolean(dto.ignoreEvasion),
         targetScope: dto.targetScope || 'MELEE_FRONTLINE',
         hitCount: Math.max(1, Number(dto.hitCount) || 1),
         effectBlocksJson: Array.isArray(dto.effectBlocksJson) ? dto.effectBlocksJson : [],
@@ -450,6 +466,11 @@ export class AdminSkillsController {
           dto.cooldownTurns !== undefined ? Math.max(0, Number(dto.cooldownTurns)) : existing.cooldownTurns,
         castRange: dto.castRange !== undefined ? Math.max(10, Number(dto.castRange)) : ((existing as any).castRange ?? 160),
         aoeRadius: dto.aoeRadius !== undefined ? Math.max(0, Number(dto.aoeRadius)) : ((existing as any).aoeRadius ?? 0),
+        coneAngleDeg: dto.coneAngleDeg !== undefined ? Math.max(15, Math.min(360, Number(dto.coneAngleDeg) || 90)) : ((existing as any).coneAngleDeg ?? 90),
+        lineWidthPx: dto.lineWidthPx !== undefined ? Math.max(12, Math.min(300, Number(dto.lineWidthPx) || 48)) : ((existing as any).lineWidthPx ?? 48),
+        groundZoneDurationSec: dto.groundZoneDurationSec !== undefined ? Math.max(0, Number(dto.groundZoneDurationSec) || 0) : ((existing as any).groundZoneDurationSec ?? 0),
+        groundZoneTickSec: dto.groundZoneTickSec !== undefined ? Math.max(0.2, Number(dto.groundZoneTickSec) || 1.0) : ((existing as any).groundZoneTickSec ?? 1.0),
+        ignoreEvasion: dto.ignoreEvasion !== undefined ? Boolean(dto.ignoreEvasion) : Boolean((existing as any).ignoreEvasion),
         targetScope: dto.targetScope || existing.targetScope,
         hitCount: dto.hitCount !== undefined ? Math.max(1, Number(dto.hitCount) || 1) : existing.hitCount,
         effectBlocksJson: Array.isArray(dto.effectBlocksJson)

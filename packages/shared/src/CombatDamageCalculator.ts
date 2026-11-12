@@ -29,6 +29,10 @@ export interface DamageCalculationInput {
   defenderElementCode?: string | null;
   defenderEvasion?: number;
   skillMultiplier?: number;
+  armorPenPct?: number;
+  ignoreEvasion?: boolean;
+  flatCritRateBonus?: number;
+  bonusDamageMultiplier?: number;
   elementMatchups?: ElementMatchupEntry[];
   skipDefenseMitigation?: boolean;
   forceHit?: boolean;
@@ -132,18 +136,24 @@ export class CombatDamageCalculator {
    * Calcula um impacto completo (acerto, mitigação por defesa/nível, vantagem elemental, crítico e variação).
    */
   public static calculateHitDamage(input: DamageCalculationInput): DamageCalculationResult {
-    const hitRate = this.calculateEffectiveHitRate(input.attackerAccuracy, input.defenderEvasion);
+    const effectiveEva = input.ignoreEvasion ? 0 : input.defenderEvasion;
+    const hitRate = input.ignoreEvasion || input.forceHit
+      ? 100
+      : this.calculateEffectiveHitRate(input.attackerAccuracy, effectiveEva);
     const elementMultiplier = this.resolveElementMultiplier(
       input.attackerElementCode,
       input.defenderElementCode,
       input.elementMatchups
     );
     const elementRelation = this.classifyElementRelation(elementMultiplier, input.attackerElementCode);
+
+    const armorPen = Math.max(0, Math.min(100, Number(input.armorPenPct) || 0));
+    const effectiveDef = Math.max(0, (Number(input.defenderDef) || 0) * (1 - armorPen / 100));
     const defenseMultiplier = input.skipDefenseMitigation
       ? 1.0
-      : this.computeDefenseMultiplier(input.defenderDef, input.attackerLevel);
+      : this.computeDefenseMultiplier(effectiveDef, input.attackerLevel);
 
-    if (!input.forceHit && Math.random() * 100 > hitRate) {
+    if (!input.forceHit && !input.ignoreEvasion && Math.random() * 100 > hitRate) {
       return {
         isHit: false,
         isCrit: false,
@@ -156,16 +166,19 @@ export class CombatDamageCalculator {
     }
 
     const baseAtk = Math.max(1, Number(input.attackerAtk) || 10);
-    const skillMult = Math.max(0.1, Number(input.skillMultiplier) || 1.0);
+    const skillMult = Math.max(0.05, Number(input.skillMultiplier) || 1.0);
+    const bonusMult = Math.max(0.1, Number(input.bonusDamageMultiplier) || 1.0);
     const vMin = input.varianceMin ?? 0.92;
     const vMax = input.varianceMax ?? 1.08;
     const variance = vMin + Math.random() * Math.max(0, vMax - vMin);
 
-    const critRate = Math.max(0, Math.min(0.8, Number(input.attackerCritRate) || 0.05));
-    const critDmg = Math.max(1.1, Math.min(3.0, Number(input.attackerCritDmg) || 1.5));
+    const rawBonusCrit = Number(input.flatCritRateBonus) || 0;
+    const normBonusCrit = rawBonusCrit > 1 ? rawBonusCrit / 100 : rawBonusCrit;
+    const critRate = Math.max(0, Math.min(0.95, (Number(input.attackerCritRate) || 0.05) + normBonusCrit));
+    const critDmg = Math.max(1.1, Math.min(3.5, Number(input.attackerCritDmg) || 1.5));
     const isCrit = input.forceCrit !== undefined ? input.forceCrit : Math.random() < critRate;
 
-    let raw = baseAtk * skillMult * defenseMultiplier * elementMultiplier * variance;
+    let raw = baseAtk * skillMult * bonusMult * defenseMultiplier * elementMultiplier * variance;
     if (isCrit) {
       raw *= critDmg;
     }

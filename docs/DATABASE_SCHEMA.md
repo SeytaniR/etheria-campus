@@ -117,10 +117,10 @@ Os parâmetros de **Dominação**, **Spawn de Monstros** e **Regra de PvP** são
 
 ## 3. Bloco C — Habilidades (Blocos de Efeito), Formações 10x10 e Itens
 
-* **`skill_templates`:**
-  * `id`, `name_i18n_key`, `description_i18n_key`, `mcrework_icon_key`, `cast_action_id`, `mcrework_vfx_key`, `vfx_color_hex`, `vfx_color_intensity`, `skill_type` (`ACTIVE` | `PASSIVE`), `trigger_type` (`MANUAL_AP`, `PASSIVE_ALWAYS`, `ON_TURN_START`, `ON_HIT`, `ON_CRIT`, `ON_DAMAGE_TAKEN`, `ON_KILL`), `ap_cost`, `cooldown_turns`, `target_scope` (`MELEE_FRONTLINE`, `RANGED_SINGLE`, `ROW_FRONT`, `ROW_BACK`, `COLUMN_PIERCE`, `CROSS`, `ALL_ENEMIES`, `SELF`, `ALLY_SINGLE`, `ALLY_ALL`), `effect_blocks_json` (Lista dos 7 blocos: `DAMAGE`, `HEAL`, `SHIELD`, `STATUS`, `MOVE_SLOT`, `CLEANSE_DISPEL`, `RESOURCE`).
+* **`skill_templates` (Habilidades Action & No-Code):**
+  * `id`, `code`, `name_i18n_key`, `description_i18n_key`, `mcrework_icon_key`, `cast_action_id`, `cast_movement` (`MELEE_ADVANCE`, `STAND_IN_PLACE`, `DASH_LINEAR`, `LEAP_AOE`, `TELEPORT_BACKSTAB`), `mcrework_vfx_key`, `vfx_color_hex`, `vfx_color_intensity`, `skill_type` (`ACTIVE` | `PASSIVE`), `trigger_type`, `mp_cost`, `cooldown_seconds`, `cast_range`, `aoe_radius`, `cone_angle_deg`, `line_width_px`, `ground_zone_duration_sec`, `ground_zone_tick_sec`, `ignore_evasion`, `target_scope` (`TARGET_PRIMARY`, `RANGED_ANY`, `CONE_FRONTAL`, `LINE_PIERCE`, `AOE_SELF_AROUND`, `AOE_CIRCLE`, `GROUND_ZONE`, `SELF`, `ALLY_SINGLE`, `ALLY_LOWEST_HP_PCT`, `ALLY_ALL`, `ALL_ENEMIES`), `effect_blocks_json` (`DAMAGE`, `HEAL`, `SHIELD`, `STATUS`, `CLEANSE_DISPEL`, `RESOURCE_COOLDOWN`).
 * **`status_effect_templates` (Buffs e Debuffs):**
-  * `id`, `code`, `name_i18n_key`, `icon_key`, `mcrework_vfx_key`, `vfx_color_hex`, `vfx_color_intensity`, `is_buff` (boolean), `max_stacks`, `default_duration_turns`, `stat_modifiers_json`, `dot_hot_formula_json`, `control_flags_json` (`STUN`, `SILENCE`, `FREEZE`, `ROOT`).
+  * `id`, `code`, `name_i18n_key`, `icon_key`, `mcrework_vfx_key`, `vfx_color_hex`, `vfx_color_intensity`, `is_buff` (boolean), `status_category` (`BUFF`, `HARD_CC`, `ANOMALY`, `SLOW`, `SHIELD`), `break_on_damage` (boolean), `max_stacks`, `duration_seconds`, `tick_interval_seconds`, `stat_modifiers_json`, `dot_hot_formula_json`, `control_flags_json` (`STUN`, `PARALYSIS`, `SILENCE`, `FREEZE`, `CONFUSION`, `SLEEP`, `TAUNT`, `SLOW`, `BLIND`).
 * **`arena_formations` (10 Slots por Equipe):**
   * `id`, `owner_id`, `slot_1`..`slot_5` (Vanguarda), `slot_6`..`slot_10` (Retaguarda).
 * **`equipment_slots` (16 Slots de Personagem + 6 Slots de Pet):**

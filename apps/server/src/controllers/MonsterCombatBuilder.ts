@@ -141,14 +141,15 @@ export class MonsterCombatBuilder {
     const damageType: 'PHYSICAL' | 'MAGICAL' =
       String(template.damageType || 'PHYSICAL').toUpperCase() === 'MAGICAL' ? 'MAGICAL' : 'PHYSICAL';
 
-    const rawAtk =
-      damageType === 'MAGICAL'
-        ? effStats.INT * intMagAtkRatio
-        : effStats.STR * strPhysAtkRatio + effStats.AGI * agiPhysAtkRatio;
+    const physAtk = Math.max(8, Math.round((effStats.STR * strPhysAtkRatio + effStats.AGI * agiPhysAtkRatio) * rarity.atk));
+    const magAtk = Math.max(8, Math.round(effStats.INT * intMagAtkRatio * rarity.atk));
+    const healPowerRatio = this.getConversionRatio(ctx, 'WIS', 'HEAL_POWER', 2.0);
+    const healPower = Math.max(8, Math.round(effStats.WIS * healPowerRatio * rarity.atk));
+    const rawAtk = damageType === 'MAGICAL' ? magAtk : physAtk;
 
     const maxHp = Math.max(50, Math.round(effStats.VIT * vitHpRatio * rarity.hp));
     const maxMp = Math.max(20, Math.round(effStats.INT * intMpRatio * rarity.hp));
-    const atk = Math.max(8, Math.round(rawAtk * rarity.atk));
+    const atk = Math.max(8, Math.round(rawAtk));
     const def = Math.max(5, Math.round(effStats.VIT * vitDefRatio * rarity.def));
     const magDef = Math.max(5, Math.round(effStats.WIS * wisMagDefRatio * rarity.def));
     const speed = Math.max(10, Math.round(effStats.AGI * agiSpdRatio));
@@ -178,8 +179,12 @@ export class MonsterCombatBuilder {
       mp: maxMp,
       maxMp,
       atk,
+      physAtk,
+      magAtk,
+      healPower,
       def,
       magDef,
+      skillIds: Array.isArray(template.skillIdsJson) ? template.skillIdsJson.map(Number).filter(Number.isFinite) : [],
       critRate: Math.min(0.80, (Number(cb.CRIT_RATE) || 5) / 100 + dexCritBonus + rarityCritBonus),
       critDmg: Math.min(3.00, (Number(cb.CRIT_DMG) || 150) / 100 + strCritDmgBonus),
       attackSpeed: Number(cb.ATTACK_SPEED) || 1.0,
