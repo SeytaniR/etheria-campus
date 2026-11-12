@@ -126,8 +126,8 @@ Os parâmetros de **Dominação**, **Spawn de Monstros** e **Regra de PvP** são
 * **`equipment_slots` (16 Slots de Personagem + 6 Slots de Pet):**
   * **Personagem (16 Slots):** `SHOULDER` (Ombro), `HEAD` (Cabeça), `CHEST` (Peito), `BELT` (Cinto), `LEGS` (Pernas), `FEET` (Pés), `ORNAMENT_1` (Adorno 1), `ORNAMENT_2` (Adorno 2), `RING` (Anel), `NECKLACE` (Colar), `WEAPON_1` (Arma 1), `WEAPON_2` (Arma 2), `FISHING_ROD` (Vara de Pesca), `FLYING_MOUNT` (Montaria Voadora), `WINGS` (Asas), `FASHION` (Moda).
   * **Pet (6 Slots):** `PET_EQUIP_1`, `PET_EQUIP_2`, `PET_EQUIP_3`, `PET_EQUIP_4`, `PET_EQUIP_5`, `PET_EQUIP_6`.
-* **`item_templates` (Armas, Equipamentos, Consumíveis, Troca de Elemento):**
-  * `id`, `name_i18n_key`, `mcrework_icon_key`, `target_entity_type` (`CHARACTER` | `PET` | `BOTH`), `equipment_slot_code` (FK para `equipment_slots`, nullable se consumível), `item_category` (`EQUIPMENT`, `CONSUMABLE`, `ELEMENT_CHANGER`, `MATERIAL`), `required_level`, `stat_bonuses_json`, `special_effect_json`.
+* **`item_templates` (Armas, Equipamentos, Consumíveis, Troca de Elemento, Materiais & Missão):**
+  * `id`, `code`, `name_i18n_key`, `description_i18n_key`, `mcrework_icon_key`, `equipment_slot_code` (FK para `equipment_slots`, nullable se não-equipamento), `item_category` (`CHARACTER_EQUIPMENT`, `PET_EQUIPMENT`, `CONSUMABLE`, `ELEMENT_CHANGER`, `MATERIAL`, `QUEST`, `SPECIAL`), `required_level`, `is_tradable` (`@default(true)`), `price_gold`, `max_stack` (`@default(999)`), `cooldown_sec`, `target_type`, `effect_type`, `effect_value`, `base_stat_bonuses_json`, `combat_stat_bonuses_json`, `special_effect_json`.
 
 ---
 

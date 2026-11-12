@@ -8,9 +8,9 @@
 ---
 
 ## 📌 Status Atual do Projeto
-* **Versão Atual:** `v0.10.1`
-* **Última Atualização:** `2026-11-11`
-* **Fase Atual:** **Spawn Proporcional de Monstros (Solo 1-7, +Pet 3-10, +Extras 6-16) & Textos Flutuantes Discretos sem Emoji (`v0.10.1`)** — Base unificada com Tabela de Drops em Monstros & Rolagem em Combate (`v0.10.0`) — Cada monstro agora possui editor completo de `lootTableJson` no `/admin` (`Item`, `Qtd Mín/Máx`, `Chance %`), com rolagem real em combate e crédito automático na mochila básica (`character_inventory_items`).**
+* **Versão Atual:** `v0.11.0`
+* **Última Atualização:** `2026-11-12`
+* **Fase Atual:** **Tabela de Itens Blindada + Duplicar Item + Não Comercializáveis + Passivos/Crafting + Stack Padrão 999 (`v0.11.0`)** — Corrigidos os bugs de sobrescrita na edição de itens (`selectMcreworkItemByIndex`, ordenação estável por `id ASC`, checagem prévia de `code` antes do `upsert` i18n, preservação de campos passivos e sanitização numérica), adicionada coluna `is_tradable` em `ItemTemplate` e botão `📋 Duplicar`.
 * **Repositório Oficial:** `https://github.com/SeytaniR/etheria-campus`
 * **Fonte Bruta de Assets:** `https://github.com/SeytaniR/mcrework` (`https://seytanir.github.io/mcrework/`)
 

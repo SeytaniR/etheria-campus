@@ -422,8 +422,9 @@ model ItemTemplate {
   equipmentSlotCode     String?        @map("equipment_slot_code")
   rarityTier            String         @default("COMMON") @map("rarity_tier") /// SS, S, A, B, C, D, F, COMMON
   requiredLevel         Int            @default(1) @map("required_level")
+  isTradable            Boolean        @default(true) @map("is_tradable") /// true = comercializável (tem valor em ouro); false = intransferível/sem valor
   priceGold             Int            @default(0) @map("price_gold")
-  maxStack              Int            @default(99) @map("max_stack") /// Quantidade máxima por pilha (1..99999)
+  maxStack              Int            @default(999) @map("max_stack") /// Quantidade máxima por pilha (1..99999)
   cooldownSec           Float          @default(0.0) @map("cooldown_sec") /// Tempo de recarga do item em segundos
   targetType            String         @default("SELF") @map("target_type") /// SELF, ALLY, ENEMY, PET, NONE
   effectType            String?        @map("effect_type") /// HEAL_HP, RESTORE_MP, BUFF_STATS, CHANGE_ELEMENT, TELEPORT, CATCH_PET, GRANT_EXP, MATERIAL, OPEN_CHEST

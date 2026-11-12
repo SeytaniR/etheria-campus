@@ -20,6 +20,7 @@ export interface ItemTemplateDto {
   itemCategory: string; // CONSUMABLE | ELEMENT_CHANGER | MATERIAL | QUEST | SPECIAL
   rarityTier?: string; // SS, S, A, B, C, D, F, COMMON
   requiredLevel?: number;
+  isTradable?: boolean;
   priceGold?: number;
   maxStack?: number;
   cooldownSec?: number;
@@ -128,7 +129,7 @@ export class AdminItemsController {
 
     const items = await this.prisma.itemTemplate.findMany({
       where,
-      orderBy: [{ requiredLevel: 'asc' }, { id: 'asc' }],
+      orderBy: [{ id: 'asc' }],
     });
 
     const i18nKeys = items.flatMap((i) => [i.nameI18nKey, i.descriptionI18nKey]);
@@ -149,6 +150,7 @@ export class AdminItemsController {
         itemCategory: item.itemCategory,
         rarityTier: item.rarityTier,
         requiredLevel: item.requiredLevel,
+        isTradable: item.isTradable !== false,
         priceGold: item.priceGold,
         maxStack: item.maxStack,
         cooldownSec: item.cooldownSec,
@@ -163,6 +165,98 @@ export class AdminItemsController {
     });
   }
 
+  private toFiniteInt(raw: unknown, fallback: number, min: number, max: number): number {
+    if (raw === undefined || raw === null || raw === '') return fallback;
+    const num = Number(raw);
+    if (!Number.isFinite(num)) return fallback;
+    return Math.max(min, Math.min(max, Math.round(num)));
+  }
+
+  private toFiniteFloat(raw: unknown, fallback: number, min: number, max: number): number {
+    if (raw === undefined || raw === null || raw === '') return fallback;
+    const num = Number(raw);
+    if (!Number.isFinite(num)) return fallback;
+    return Math.max(min, Math.min(max, num));
+  }
+
+  private isPassiveItemEffect(itemCategory: string, effectType: string | null): boolean {
+    if (effectType === null || effectType === 'NONE' || effectType === 'MATERIAL' || effectType === 'QUEST_ITEM') {
+      return true;
+    }
+    return itemCategory === 'MATERIAL' && !effectType;
+  }
+
+  private normalizeItemFields(dto: Partial<ItemTemplateDto>, base?: any) {
+    const itemCategory = dto.itemCategory !== undefined ? String(dto.itemCategory) : (base?.itemCategory ?? 'CONSUMABLE');
+    const isTradable = dto.isTradable !== undefined ? dto.isTradable !== false : (base ? base.isTradable !== false : true);
+    const requiredLevel = this.toFiniteInt(dto.requiredLevel, base?.requiredLevel ?? 1, 1, 9999);
+    const maxStack = this.toFiniteInt(dto.maxStack, base?.maxStack ?? 999, 1, 99999);
+    const rawPrice = this.toFiniteInt(dto.priceGold, base?.priceGold ?? 0, 0, 2000000000);
+    const priceGold = isTradable ? rawPrice : 0;
+
+    let rawEffect: string | null = dto.effectType !== undefined
+      ? (dto.effectType === '' || dto.effectType === 'NONE' ? null : String(dto.effectType))
+      : (base ? (base.effectType ?? null) : null);
+
+    if (itemCategory === 'MATERIAL' && dto.effectType === undefined && !base) {
+      rawEffect = 'MATERIAL';
+    }
+
+    const isPassive = this.isPassiveItemEffect(itemCategory, rawEffect);
+    const effectType = rawEffect === 'NONE' ? null : rawEffect;
+    const targetType = isPassive
+      ? 'NONE'
+      : (dto.targetType !== undefined ? String(dto.targetType || 'SELF') : (base?.targetType || 'SELF'));
+    const cooldownSec = isPassive
+      ? 0.0
+      : this.toFiniteFloat(dto.cooldownSec, base?.cooldownSec ?? 0.0, 0, 86400);
+    const effectValue = isPassive
+      ? 0.0
+      : this.toFiniteFloat(dto.effectValue, base?.effectValue ?? 0.0, 0, 1000000000);
+
+    return {
+      mcreworkIconKey: dto.mcreworkIconKey !== undefined ? (dto.mcreworkIconKey || null) : (base?.mcreworkIconKey ?? null),
+      itemCategory,
+      rarityTier: dto.rarityTier !== undefined ? String(dto.rarityTier || 'COMMON') : (base?.rarityTier ?? 'COMMON'),
+      requiredLevel,
+      isTradable,
+      priceGold,
+      maxStack,
+      cooldownSec,
+      targetType,
+      effectType,
+      effectValue,
+      specialEffectJson: dto.specialEffectJson !== undefined ? (dto.specialEffectJson as any) : (base?.specialEffectJson ?? {}),
+      isActive: dto.isActive !== undefined ? Boolean(dto.isActive) : (base ? Boolean(base.isActive) : true),
+    };
+  }
+
+  private async resolveUniqueItemCode(namePtBr: string, requestedCode?: string): Promise<string> {
+    if (requestedCode && requestedCode.trim()) {
+      const explicitCode = requestedCode.trim();
+      const collision = await this.prisma.itemTemplate.findUnique({ where: { code: explicitCode }, select: { id: true } });
+      if (collision) {
+        throw new Error(`Já existe outro item com o código "${explicitCode}". Deixe em branco para gerar um código único.`);
+      }
+      return explicitCode;
+    }
+
+    const slug = namePtBr
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/[^a-z0-9]+/g, '_')
+      .replace(/^_+|_+$/g, '') || 'item';
+
+    for (let attempt = 0; attempt < 8; attempt++) {
+      const randSuffix = Math.random().toString(36).substring(2, 7);
+      const candidate = `item_${slug}_${randSuffix}`;
+      const existing = await this.prisma.itemTemplate.findUnique({ where: { code: candidate }, select: { id: true } });
+      if (!existing) return candidate;
+    }
+    return `item_${slug}_${Date.now().toString(36)}`;
+  }
+
   /**
    * Cadastra um novo item não-equipamento no PostgreSQL.
    */
@@ -175,18 +269,10 @@ export class AdminItemsController {
     }
 
     const cleanName = dto.namePtBr.trim();
-    const slug = cleanName
-      .toLowerCase()
-      .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '')
-      .replace(/[^a-z0-9]+/g, '_')
-      .replace(/^_+|_+$/g, '');
-
-    const randSuffix = Math.random().toString(36).substring(2, 7);
-    const code = dto.code && dto.code.trim() ? dto.code.trim() : `item_${slug}_${randSuffix}`;
-
+    const code = await this.resolveUniqueItemCode(cleanName, dto.code);
     const nameI18nKey = `item.${code}.name`;
     const descI18nKey = `item.${code}.desc`;
+    const fields = this.normalizeItemFields(dto);
 
     await this.prisma.i18nTranslation.upsert({
       where: { key_locale: { key: nameI18nKey, locale: 'pt-BR' } },
@@ -194,32 +280,19 @@ export class AdminItemsController {
       create: { key: nameI18nKey, locale: 'pt-BR', text: cleanName },
     });
 
-    if (dto.descriptionPtBr) {
-      await this.prisma.i18nTranslation.upsert({
-        where: { key_locale: { key: descI18nKey, locale: 'pt-BR' } },
-        update: { text: dto.descriptionPtBr.trim() },
-        create: { key: descI18nKey, locale: 'pt-BR', text: dto.descriptionPtBr.trim() },
-      });
-    }
+    await this.prisma.i18nTranslation.upsert({
+      where: { key_locale: { key: descI18nKey, locale: 'pt-BR' } },
+      update: { text: (dto.descriptionPtBr || '').trim() },
+      create: { key: descI18nKey, locale: 'pt-BR', text: (dto.descriptionPtBr || '').trim() },
+    });
 
     const created = await this.prisma.itemTemplate.create({
       data: {
         code,
         nameI18nKey,
         descriptionI18nKey: descI18nKey,
-        mcreworkIconKey: dto.mcreworkIconKey || null,
-        itemCategory: dto.itemCategory,
         equipmentSlotCode: null,
-        rarityTier: dto.rarityTier || 'COMMON',
-        requiredLevel: dto.requiredLevel ?? 1,
-        priceGold: dto.priceGold ?? 0,
-        maxStack: dto.maxStack ?? 99,
-        cooldownSec: dto.cooldownSec ?? 0.0,
-        targetType: dto.targetType || 'SELF',
-        effectType: dto.effectType || null,
-        effectValue: dto.effectValue ?? 0.0,
-        specialEffectJson: dto.specialEffectJson || {},
-        isActive: dto.isActive !== undefined ? dto.isActive : true,
+        ...fields,
       },
     });
 
@@ -228,7 +301,7 @@ export class AdminItemsController {
   }
 
   /**
-   * Atualiza um item não-equipamento existente.
+   * Atualiza um item não-equipamento existente sem afetar nenhum outro registro.
    */
   public async updateItemTemplate(id: number, dto: Partial<ItemTemplateDto>) {
     const existing = await this.prisma.itemTemplate.findUnique({ where: { id } });
@@ -252,22 +325,11 @@ export class AdminItemsController {
       });
     }
 
+    const fields = this.normalizeItemFields(dto, existing);
+
     const updated = await this.prisma.itemTemplate.update({
       where: { id },
-      data: {
-        mcreworkIconKey: dto.mcreworkIconKey !== undefined ? dto.mcreworkIconKey : existing.mcreworkIconKey,
-        itemCategory: dto.itemCategory !== undefined ? dto.itemCategory : existing.itemCategory,
-        rarityTier: dto.rarityTier !== undefined ? dto.rarityTier : existing.rarityTier,
-        requiredLevel: dto.requiredLevel !== undefined ? dto.requiredLevel : existing.requiredLevel,
-        priceGold: dto.priceGold !== undefined ? dto.priceGold : existing.priceGold,
-        maxStack: dto.maxStack !== undefined ? dto.maxStack : existing.maxStack,
-        cooldownSec: dto.cooldownSec !== undefined ? dto.cooldownSec : existing.cooldownSec,
-        targetType: dto.targetType !== undefined ? dto.targetType : existing.targetType,
-        effectType: dto.effectType !== undefined ? dto.effectType : existing.effectType,
-        effectValue: dto.effectValue !== undefined ? dto.effectValue : existing.effectValue,
-        specialEffectJson: dto.specialEffectJson !== undefined ? (dto.specialEffectJson as any) : existing.specialEffectJson,
-        isActive: dto.isActive !== undefined ? dto.isActive : existing.isActive,
-      },
+      data: fields,
     });
 
     await this.snapshotManager.exportToDisk();

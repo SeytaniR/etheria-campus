@@ -5,6 +5,19 @@ Qualquer IA trabalhando neste repositório **DEVE** incrementar a versão e regi
 
 ---
 
+## [v0.11.0] - 2026-11-12
+### Correção de Bugs na Tabela de Itens, Duplicação de Item, Itens Não Comercializáveis, Passivos & Stack Padrão 999
+* **Corrigido (`AdminItemsTab.js` & `AdminItemsController.ts`):**
+  * **Blindagem contra sobrescritas na edição de itens:** Removido comportamento em que clicar num ícone da galeria `mcrework` sobrescrevia `categoria`, `efeito`, `alvo`, `maxStack` e `priceGold` durante a edição/criação, bem como o fallback forçado de `effectType || 'HEAL_HP'` em itens passivos.
+  * **Ordenação estável & proteção de `i18n`:** Listagem de itens ordenada de forma determinística por `id ASC` (evitando embaralhamento de linhas ao alterar `requiredLevel`), validação prévia de unicidade de `code` antes do `upsert` de traduções `i18n` (impedindo colisão cruzada entre itens), trava anti-duplo clique em `saveItemTemplate`, índice seguro na galeria (`selectMcreworkItemByIndex`) e remoção do teto artificial `max="100"` em `requiredLevel`.
+* **Adicionado:**
+  * **Duplicar Item (`openDuplicateItemModal`):** Botão `📋 Duplicar` por linha na tabela de itens abrindo o modal pré-preenchido como novo cadastro (`Nome (Cópia)`, código inédito auto-gerado) sem afetar o item original.
+  * **Itens Não Comercializáveis (`ItemTemplate.isTradable` em `schema.prisma`):** Opção `Comercializável?` no modal de itens que desabilita e zera o preço em ouro quando marcado como `Não Comercializável`, exibindo `🚫 Não comercializável` na tabela.
+  * **Modo Passivo / Recurso / Crafting:** Efeito `NONE` (`Sem Efeito Ativo`) e `MATERIAL`/`QUEST_ITEM` desabilitam automaticamente valor numérico, tempo de recarga e alvo (`0` / `NONE`).
+  * **Stack Padrão `999`:** `maxStack` padronizado em `999` no `schema.prisma`, `AdminItemsController.ts` e `AdminItemsTab.js`.
+
+---
+
 ## [v0.10.1] - 2026-11-11
 ### Spawn Proporcional de Monstros por Combatentes Aliados & Textos Flutuantes Discretos sem Emoji
 * **Adicionado / Modificado (`TemporaryCombatController.ts`):**

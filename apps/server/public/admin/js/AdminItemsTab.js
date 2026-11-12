@@ -16,6 +16,9 @@ class AdminItemsTab {
     app.itemRarityFilter = 'ALL';
     app.itemGallerySearchQuery = '';
     app.itemGalleryCategoryFilter = 'ALL';
+    app.filteredMcreworkItems = [];
+    app.itemDuplicatingMode = false;
+    app.itemSavingInProgress = false;
 
     AdminItemsTab.injectTabAndModalDom();
 
@@ -60,57 +63,138 @@ class AdminItemsTab {
       this.renderItemGallery();
     };
 
+    app.populateItemModalForm = function (mode, item = null) {
+      const isEdit = mode === 'edit' && item;
+      const isDuplicate = mode === 'duplicate' && item;
+      this.itemDuplicatingMode = isDuplicate;
+
+      document.getElementById('itemEditIdInput').value = isEdit ? String(item.id) : '';
+      const codeInput = document.getElementById('itemCodeInput');
+      codeInput.value = isEdit ? (item.code || '') : '';
+      codeInput.disabled = !!isEdit;
+      codeInput.title = isEdit ? 'Código único imutável após criação' : 'Opcional — auto-gerado se vazio';
+
+      const titleEl = document.getElementById('itemModalTitle');
+      if (isEdit) titleEl.textContent = `✏️ Editar Item #${item.id}: ${item.namePtBr}`;
+      else if (isDuplicate) titleEl.textContent = `📋 Duplicar Item (base: #${item.id} ${item.namePtBr})`;
+      else titleEl.textContent = '📦 Cadastrar Novo Item';
+
+      const source = item || {
+        namePtBr: '',
+        descriptionPtBr: '',
+        itemCategory: 'CONSUMABLE',
+        rarityTier: 'COMMON',
+        requiredLevel: 1,
+        isTradable: true,
+        priceGold: 25,
+        maxStack: 999,
+        cooldownSec: 3.0,
+        targetType: 'SELF',
+        effectType: 'HEAL_HP',
+        effectValue: 150,
+        isActive: true,
+        mcreworkIconKey: 'assets/items/icons/item_normal_060009.png',
+      };
+
+      const nameVal = isDuplicate ? `${source.namePtBr || ''} (Cópia)`.trim() : (source.namePtBr || '');
+      document.getElementById('itemNameInput').value = nameVal;
+      document.getElementById('itemDescriptionInput').value = source.descriptionPtBr || '';
+      document.getElementById('itemCategorySelect').value = source.itemCategory || 'CONSUMABLE';
+      document.getElementById('itemRaritySelect').value = source.rarityTier || 'COMMON';
+      document.getElementById('itemReqLevelInput').value = String(source.requiredLevel ?? 1);
+      document.getElementById('itemTradableSelect').value = source.isTradable !== false ? 'true' : 'false';
+      document.getElementById('itemPriceInput').value = String(source.isTradable === false ? 0 : (source.priceGold ?? 0));
+      document.getElementById('itemMaxStackInput').value = String(source.maxStack ?? 999);
+      document.getElementById('itemCooldownInput').value = String(source.cooldownSec ?? 0.0);
+
+      const effVal = source.effectType ? source.effectType : 'NONE';
+      const effSelect = document.getElementById('itemEffectSelect');
+      effSelect.value = effVal;
+      if (effSelect.value !== effVal) effSelect.value = 'NONE';
+
+      const tgtVal = source.targetType || (effSelect.value === 'NONE' || effSelect.value === 'MATERIAL' ? 'NONE' : 'SELF');
+      document.getElementById('itemTargetSelect').value = tgtVal;
+      document.getElementById('itemEffectValueInput').value = String(source.effectValue ?? 0);
+      document.getElementById('itemActiveSelect').value = String(source.isActive ?? true);
+
+      const iconKey = source.mcreworkIconKey || 'assets/items/icons/item_normal_060009.png';
+      document.getElementById('itemIconKeyInput').value = iconKey;
+      this.updateItemIconPreview(iconKey);
+      this.syncItemModalFieldStates();
+    };
+
+    app.syncItemModalFieldStates = function () {
+      const tradable = document.getElementById('itemTradableSelect')?.value !== 'false';
+      const priceInput = document.getElementById('itemPriceInput');
+      const priceHint = document.getElementById('itemPriceHint');
+      if (priceInput) {
+        priceInput.disabled = !tradable;
+        if (!tradable) priceInput.value = '0';
+      }
+      if (priceHint) {
+        priceHint.style.display = tradable ? 'none' : 'block';
+      }
+
+      const effectType = document.getElementById('itemEffectSelect')?.value || 'NONE';
+      const isPassive = effectType === 'NONE' || effectType === 'MATERIAL' || effectType === 'QUEST_ITEM';
+      const valInput = document.getElementById('itemEffectValueInput');
+      const cdInput = document.getElementById('itemCooldownInput');
+      const tgtSelect = document.getElementById('itemTargetSelect');
+      const passiveHint = document.getElementById('itemPassiveHint');
+
+      if (valInput) {
+        valInput.disabled = isPassive;
+        if (isPassive) valInput.value = '0';
+      }
+      if (cdInput) {
+        cdInput.disabled = isPassive;
+        if (isPassive) cdInput.value = '0';
+      }
+      if (tgtSelect) {
+        tgtSelect.disabled = isPassive;
+        if (isPassive) tgtSelect.value = 'NONE';
+      }
+      if (passiveHint) {
+        passiveHint.style.display = isPassive ? 'block' : 'none';
+      }
+    };
+
+    app.onItemCategoryChanged = function () {
+      const cat = document.getElementById('itemCategorySelect')?.value || 'CONSUMABLE';
+      const effSel = document.getElementById('itemEffectSelect');
+      if (cat === 'MATERIAL' && effSel) {
+        effSel.value = 'MATERIAL';
+      } else if (cat === 'QUEST' && effSel) {
+        effSel.value = 'NONE';
+      }
+      this.syncItemModalFieldStates();
+    };
+
     app.openCreateItemModal = async function () {
       await this.loadMcreworkItems();
-
-      document.getElementById('itemEditIdInput').value = '';
-      document.getElementById('itemModalTitle').textContent = '📦 Cadastrar Novo Item';
-      document.getElementById('itemNameInput').value = '';
-      document.getElementById('itemDescriptionInput').value = '';
-      document.getElementById('itemCodeInput').value = '';
-      document.getElementById('itemCategorySelect').value = 'CONSUMABLE';
-      document.getElementById('itemRaritySelect').value = 'COMMON';
-      document.getElementById('itemReqLevelInput').value = '1';
-      document.getElementById('itemPriceInput').value = '25';
-      document.getElementById('itemMaxStackInput').value = '99';
-      document.getElementById('itemCooldownInput').value = '3.0';
-      document.getElementById('itemTargetSelect').value = 'SELF';
-      document.getElementById('itemEffectSelect').value = 'HEAL_HP';
-      document.getElementById('itemEffectValueInput').value = '150';
-      document.getElementById('itemActiveSelect').value = 'true';
-      document.getElementById('itemIconKeyInput').value = 'assets/items/icons/item_normal_060009.png';
-      this.updateItemIconPreview('assets/items/icons/item_normal_060009.png');
-
+      this.populateItemModalForm('create', null);
       this.renderItemGallery();
       document.getElementById('itemModal').style.display = 'flex';
     };
 
     app.openEditItemModal = async function (id) {
       await this.loadMcreworkItems();
-
-      const item = (this.itemTemplates || []).find((i) => i.id === id);
+      const item = (this.itemTemplates || []).find((i) => Number(i.id) === Number(id));
       if (!item) return;
-
-      document.getElementById('itemEditIdInput').value = item.id;
-      document.getElementById('itemModalTitle').textContent = `✏️ Editar Item: ${item.namePtBr}`;
-      document.getElementById('itemNameInput').value = item.namePtBr || '';
-      document.getElementById('itemDescriptionInput').value = item.descriptionPtBr || '';
-      document.getElementById('itemCodeInput').value = item.code || '';
-      document.getElementById('itemCategorySelect').value = item.itemCategory || 'CONSUMABLE';
-      document.getElementById('itemRaritySelect').value = item.rarityTier || 'COMMON';
-      document.getElementById('itemReqLevelInput').value = item.requiredLevel ?? 1;
-      document.getElementById('itemPriceInput').value = item.priceGold ?? 0;
-      document.getElementById('itemMaxStackInput').value = item.maxStack ?? 99;
-      document.getElementById('itemCooldownInput').value = item.cooldownSec ?? 0.0;
-      document.getElementById('itemTargetSelect').value = item.targetType || 'SELF';
-      document.getElementById('itemEffectSelect').value = item.effectType || 'HEAL_HP';
-      document.getElementById('itemEffectValueInput').value = item.effectValue ?? 0.0;
-      document.getElementById('itemActiveSelect').value = String(item.isActive ?? true);
-      document.getElementById('itemIconKeyInput').value = item.mcreworkIconKey || '';
-      this.updateItemIconPreview(item.mcreworkIconKey);
-
+      this.populateItemModalForm('edit', item);
       this.renderItemGallery();
       document.getElementById('itemModal').style.display = 'flex';
+    };
+
+    app.openDuplicateItemModal = async function (id) {
+      await this.loadMcreworkItems();
+      const item = (this.itemTemplates || []).find((i) => Number(i.id) === Number(id));
+      if (!item) return;
+      this.populateItemModalForm('duplicate', item);
+      this.renderItemGallery();
+      document.getElementById('itemModal').style.display = 'flex';
+      const nameInp = document.getElementById('itemNameInput');
+      if (nameInp) { nameInp.focus(); nameInp.select(); }
     };
 
     app.updateItemIconPreview = function (iconKey) {
@@ -123,33 +207,24 @@ class AdminItemsTab {
       if (badge) badge.textContent = clean;
     };
 
-    app.selectMcreworkItem = function (item) {
+    app.selectMcreworkItemByIndex = function (idx) {
+      const item = (this.filteredMcreworkItems || [])[idx];
+      if (!item) return;
       document.getElementById('itemIconKeyInput').value = item.mcreworkIconKey;
       this.updateItemIconPreview(item.mcreworkIconKey);
 
+      const isEditingExisting = !!document.getElementById('itemEditIdInput')?.value;
+      if (isEditingExisting || this.itemDuplicatingMode) {
+        return;
+      }
+
       const nameInp = document.getElementById('itemNameInput');
-      if (!nameInp.value || nameInp.value.trim() === '') {
+      if (nameInp && !nameInp.value.trim() && item.name) {
         nameInp.value = item.name;
       }
       const descInp = document.getElementById('itemDescriptionInput');
-      if (!descInp.value || descInp.value.trim() === '') {
+      if (descInp && !descInp.value.trim() && (item.info || item.description)) {
         descInp.value = item.info || item.description || '';
-      }
-
-      if (item.suggestedCategory) {
-        document.getElementById('itemCategorySelect').value = item.suggestedCategory;
-      }
-      if (item.suggestedEffect) {
-        document.getElementById('itemEffectSelect').value = item.suggestedEffect;
-      }
-      if (item.suggestedTarget) {
-        document.getElementById('itemTargetSelect').value = item.suggestedTarget;
-      }
-      if (item.stackMax) {
-        document.getElementById('itemMaxStackInput').value = Math.min(item.stackMax, 999);
-      }
-      if (item.price) {
-        document.getElementById('itemPriceInput').value = item.price;
       }
     };
 
@@ -176,34 +251,49 @@ class AdminItemsTab {
         return;
       }
 
-      grid.innerHTML = filtered.slice(0, 160).map((item) => `
-        <div onclick='AdminApp.selectMcreworkItem(${JSON.stringify(item).replace(/'/g, "&apos;")})'
-             title="${item.name} (${item.category}) - ${item.info || item.description}"
+      this.filteredMcreworkItems = filtered.slice(0, 160);
+      grid.innerHTML = this.filteredMcreworkItems.map((item, idx) => `
+        <div onclick="AdminApp.selectMcreworkItemByIndex(${idx})"
+             title="${this.escapeHtml(item.name)} (${this.escapeHtml(item.category)}) - ${this.escapeHtml(item.info || item.description || '')}"
              style="cursor:pointer; display:flex; flex-direction:column; align-items:center; gap:4px; padding:6px; background:rgba(30,41,59,0.7); border:1px solid #334155; border-radius:8px; transition:all 0.15s ease;"
              onmouseover="this.style.borderColor='#38bdf8'; this.style.transform='scale(1.05)';"
              onmouseout="this.style.borderColor='#334155'; this.style.transform='scale(1)';"
         >
-          <img src="${item.iconUrl}" alt="${item.name}" loading="lazy" style="width:36px; height:36px; object-fit:contain;" />
-          <span style="font-size:0.65rem; color:#cbd5e1; text-align:center; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:80px;">${item.name}</span>
-          <span style="font-size:0.60rem; color:#38bdf8;">${item.category}</span>
+          <img src="${item.iconUrl}" alt="${this.escapeHtml(item.name)}" loading="lazy" style="width:36px; height:36px; object-fit:contain;" />
+          <span style="font-size:0.65rem; color:#cbd5e1; text-align:center; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:80px;">${this.escapeHtml(item.name)}</span>
+          <span style="font-size:0.60rem; color:#38bdf8;">${this.escapeHtml(item.category)}</span>
         </div>
       `).join('');
     };
 
     app.saveItemTemplate = async function () {
-      const editId = document.getElementById('itemEditIdInput').value;
+      if (this.itemSavingInProgress) return;
+      const editId = document.getElementById('itemEditIdInput').value.trim();
       const namePtBr = document.getElementById('itemNameInput').value.trim();
       const descriptionPtBr = document.getElementById('itemDescriptionInput').value.trim();
       const code = document.getElementById('itemCodeInput').value.trim();
       const itemCategory = document.getElementById('itemCategorySelect').value;
       const rarityTier = document.getElementById('itemRaritySelect').value;
-      const requiredLevel = parseInt(document.getElementById('itemReqLevelInput').value, 10) || 1;
-      const priceGold = parseInt(document.getElementById('itemPriceInput').value, 10) || 0;
-      const maxStack = parseInt(document.getElementById('itemMaxStackInput').value, 10) || 99;
-      const cooldownSec = parseFloat(document.getElementById('itemCooldownInput').value) || 0.0;
-      const targetType = document.getElementById('itemTargetSelect').value;
-      const effectType = document.getElementById('itemEffectSelect').value;
-      const effectValue = parseFloat(document.getElementById('itemEffectValueInput').value) || 0.0;
+
+      const parsedLvl = parseInt(document.getElementById('itemReqLevelInput').value, 10);
+      const requiredLevel = Number.isFinite(parsedLvl) && parsedLvl >= 1 ? parsedLvl : 1;
+
+      const isTradable = document.getElementById('itemTradableSelect').value !== 'false';
+      const parsedPrice = parseInt(document.getElementById('itemPriceInput').value, 10);
+      const priceGold = isTradable && Number.isFinite(parsedPrice) && parsedPrice >= 0 ? parsedPrice : 0;
+
+      const parsedStack = parseInt(document.getElementById('itemMaxStackInput').value, 10);
+      const maxStack = Number.isFinite(parsedStack) && parsedStack >= 1 ? parsedStack : 999;
+
+      const effectType = document.getElementById('itemEffectSelect').value || 'NONE';
+      const isPassive = effectType === 'NONE' || effectType === 'MATERIAL' || effectType === 'QUEST_ITEM';
+
+      const parsedCd = parseFloat(document.getElementById('itemCooldownInput').value);
+      const cooldownSec = isPassive ? 0.0 : (Number.isFinite(parsedCd) && parsedCd >= 0 ? parsedCd : 0.0);
+      const targetType = isPassive ? 'NONE' : (document.getElementById('itemTargetSelect').value || 'SELF');
+      const parsedEffVal = parseFloat(document.getElementById('itemEffectValueInput').value);
+      const effectValue = isPassive ? 0.0 : (Number.isFinite(parsedEffVal) && parsedEffVal >= 0 ? parsedEffVal : 0.0);
+
       const isActive = document.getElementById('itemActiveSelect').value === 'true';
       const mcreworkIconKey = document.getElementById('itemIconKeyInput').value.trim();
 
@@ -213,22 +303,24 @@ class AdminItemsTab {
       }
 
       const payload = {
-        code: code || undefined,
+        code: editId ? undefined : (code || undefined),
         namePtBr,
         descriptionPtBr,
         itemCategory,
         rarityTier,
         requiredLevel,
+        isTradable,
         priceGold,
         maxStack,
         cooldownSec,
         targetType,
-        effectType,
+        effectType: effectType === 'NONE' ? null : effectType,
         effectValue,
         isActive,
         mcreworkIconKey,
       };
 
+      this.itemSavingInProgress = true;
       try {
         if (editId) {
           await this.api(`/api/admin/items/${editId}`, {
@@ -245,11 +337,15 @@ class AdminItemsTab {
         await this.loadItemTemplates();
       } catch (err) {
         alert(`Erro ao salvar Item: ${err.message}`);
+      } finally {
+        this.itemSavingInProgress = false;
       }
     };
 
-    app.deleteItemTemplate = async function (id, name) {
-      if (!confirm(`Deseja realmente excluir o item "${name}" (#${id})?`)) return;
+    app.deleteItemTemplateById = async function (id) {
+      const item = (this.itemTemplates || []).find((i) => Number(i.id) === Number(id));
+      const label = item ? item.namePtBr : `#${id}`;
+      if (!confirm(`Deseja realmente excluir o item "${label}" (#${id})?`)) return;
       try {
         await this.api(`/api/admin/items/${id}`, { method: 'DELETE' });
         await this.loadItemTemplates();
@@ -298,6 +394,7 @@ class AdminItemsTab {
       };
 
       const effectLabels = {
+        NONE: () => `⚪ Passivo / Sem Efeito Ativo`,
         HEAL_HP: (v) => `💚 Cura +${v} HP`,
         RESTORE_MP: (v) => `💧 Restaura +${v} MP`,
         BUFF_STATS: (v) => `⚡ Buff Temporário (+${v})`,
@@ -305,7 +402,9 @@ class AdminItemsTab {
         TELEPORT: () => `🌌 Teleporte Instantâneo`,
         CATCH_PET: (v) => `🐾 Captura de Pet (+${v}%)`,
         GRANT_EXP: (v) => `✨ Concede +${v} EXP`,
-        MATERIAL: () => `⚒️ Recurso de Criação`,
+        MATERIAL: () => `⚒️ Recurso Passivo / Crafting`,
+        QUEST_ITEM: () => `📜 Item de Missão (Passivo)`,
+        LEARN_SKILL: () => `📖 Aprender Habilidade`,
         OPEN_CHEST: () => `🎁 Recompensa / Baú`,
       };
 
@@ -327,44 +426,53 @@ class AdminItemsTab {
           <tbody>
             ${filtered.map((item) => {
               const rColor = rarityColors[item.rarityTier] || '#94a3b8';
-              const effectFn = effectLabels[item.effectType] || ((v) => `${item.effectType || '-'} (${v})`);
+              const effKey = item.effectType || 'NONE';
+              const isPassive = effKey === 'NONE' || effKey === 'MATERIAL' || effKey === 'QUEST_ITEM';
+              const effectFn = effectLabels[effKey] || ((v) => `${effKey} (${v})`);
               const effectText = effectFn(item.effectValue);
+              const priceHtml = item.isTradable === false
+                ? '<span style="color:#94a3b8; font-weight:600;">🚫 Não comercializável</span>'
+                : `<strong style="color:#fde047;">🪙 ${item.priceGold || 0}</strong>`;
+              const cdHtml = isPassive
+                ? '<span style="color:#94a3b8;">⏱️ Sem recarga</span>'
+                : `⏱️ CD: ${item.cooldownSec ? item.cooldownSec + 's' : '0s'}`;
 
               return `
                 <tr style="border-bottom:1px solid rgba(51,65,85,0.4);">
                   <td style="padding:8px 10px;">
-                    <img src="${item.iconUrl}" alt="${item.namePtBr}" style="width:38px; height:38px; object-fit:contain; border-radius:6px; background:rgba(15,23,42,0.8); border:1px solid #334155;" />
+                    <img src="${item.iconUrl}" alt="${this.escapeHtml(item.namePtBr)}" style="width:38px; height:38px; object-fit:contain; border-radius:6px; background:rgba(15,23,42,0.8); border:1px solid #334155;" />
                   </td>
                   <td style="padding:8px 10px;">
-                    <strong style="color:#f8fafc; font-size:0.88rem;">${item.namePtBr}</strong>
-                    <div style="font-size:0.72rem; color:var(--text-muted); font-family:monospace;">${item.code}</div>
+                    <strong style="color:#f8fafc; font-size:0.88rem;">#${item.id} &bull; ${this.escapeHtml(item.namePtBr)}</strong>
+                    <div style="font-size:0.72rem; color:var(--text-muted); font-family:monospace;">${this.escapeHtml(item.code)}</div>
                   </td>
                   <td style="padding:8px 10px;">
-                    ${categoryLabels[item.itemCategory] || item.itemCategory}
+                    ${categoryLabels[item.itemCategory] || this.escapeHtml(item.itemCategory)}
                   </td>
                   <td style="padding:8px 10px;">
                     <span style="font-weight:700; color:${rColor}; border:1px solid ${rColor}; padding:2px 8px; border-radius:4px; font-size:0.75rem;">
-                      ${item.rarityTier}
+                      ${this.escapeHtml(item.rarityTier)}
                     </span>
                   </td>
                   <td style="padding:8px 10px; font-weight:600; color:#38bdf8;">
                     ${effectText}
-                    <div style="font-size:0.72rem; color:var(--text-muted);">Alvo: ${item.targetType || 'SELF'}</div>
+                    <div style="font-size:0.72rem; color:var(--text-muted);">${isPassive ? 'Modo: Passivo' : 'Alvo: ' + this.escapeHtml(item.targetType || 'SELF')}</div>
                   </td>
                   <td style="padding:8px 10px; font-size:0.75rem; color:#cbd5e1; font-family:monospace;">
-                    📦 Max: ${item.maxStack || 99}<br/>
-                    ⏱️ CD: ${item.cooldownSec ? item.cooldownSec + 's' : '0s'}
+                    📦 Max: ${item.maxStack ?? 999}<br/>
+                    ${cdHtml}
                   </td>
                   <td style="padding:8px 10px; font-size:0.75rem; color:#cbd5e1;">
                     Nv. ${item.requiredLevel}<br/>
-                    <strong style="color:#fde047;">🪙 ${item.priceGold || 0}</strong>
+                    ${priceHtml}
                   </td>
                   <td style="padding:8px 10px;">
                     ${item.isActive ? '<span style="color:#4ade80; font-weight:700;">🟢 Ativo</span>' : '<span style="color:#f87171;">🔴 Inativo</span>'}
                   </td>
                   <td style="padding:8px 10px; text-align:right; white-space:nowrap;">
                     <button class="btn-primary" style="padding:4px 8px; font-size:0.75rem; margin-right:4px;" onclick="AdminApp.openEditItemModal(${item.id})">✏️ Editar</button>
-                    <button class="btn-danger" style="padding:4px 8px; font-size:0.75rem;" onclick="AdminApp.deleteItemTemplate(${item.id}, '${item.namePtBr}')">🗑️</button>
+                    <button class="btn-secondary" style="padding:4px 8px; font-size:0.75rem; margin-right:4px; background:#0284c7; color:#fff; border:none; border-radius:4px; cursor:pointer;" onclick="AdminApp.openDuplicateItemModal(${item.id})" title="Criar cópia baseada neste item">📋 Duplicar</button>
+                    <button class="btn-danger" style="padding:4px 8px; font-size:0.75rem;" onclick="AdminApp.deleteItemTemplateById(${item.id})">🗑️</button>
                   </td>
                 </tr>
               `;
@@ -489,10 +597,10 @@ class AdminItemsTab {
             </div>
             <div class="field">
               <label>Categoria do Item *</label>
-              <select id="itemCategorySelect">
+              <select id="itemCategorySelect" onchange="AdminApp.onItemCategoryChanged()">
                 <option value="CONSUMABLE">🧪 Consumível (Poções, Comidas)</option>
                 <option value="ELEMENT_CHANGER">🔮 Trocador Elemental (Pedras)</option>
-                <option value="MATERIAL">🪵 Material de Crafting</option>
+                <option value="MATERIAL">🪵 Material de Crafting / Recurso</option>
                 <option value="QUEST">📜 Item de Missão</option>
                 <option value="SPECIAL">📦 Especial (Cápsulas, Baús)</option>
               </select>
@@ -512,15 +620,23 @@ class AdminItemsTab {
             </div>
             <div class="field">
               <label>Nível Mínimo Requerido</label>
-              <input type="number" id="itemReqLevelInput" value="1" min="1" max="100" />
+              <input type="number" id="itemReqLevelInput" value="1" min="1" max="9999" />
+            </div>
+            <div class="field">
+              <label>Comercializável?</label>
+              <select id="itemTradableSelect" onchange="AdminApp.syncItemModalFieldStates()">
+                <option value="true">🪙 Sim — Tem valor em Ouro</option>
+                <option value="false">🚫 Não Comercializável (Sem valor)</option>
+              </select>
             </div>
             <div class="field">
               <label>Preço em Ouro (🪙)</label>
               <input type="number" id="itemPriceInput" value="25" min="0" />
+              <div id="itemPriceHint" style="display:none; font-size:0.68rem; color:#94a3b8; margin-top:3px;">Item não comercializável — sem valor em ouro.</div>
             </div>
             <div class="field">
               <label>Pilha Máxima (maxStack)</label>
-              <input type="number" id="itemMaxStackInput" value="99" min="1" max="999" />
+              <input type="number" id="itemMaxStackInput" value="999" min="1" max="99999" />
             </div>
             <div class="field">
               <label>Status</label>
@@ -538,11 +654,17 @@ class AdminItemsTab {
 
         <!-- BLOCO 2: MECÂNICA DE USO & EFEITOS -->
         <div style="background:rgba(15,23,42,0.75); border:1px solid #334155; border-radius:10px; padding:12px; margin-bottom:12px;">
-          <div style="font-size:0.80rem; font-weight:700; color:#4ade80; margin-bottom:8px;">2️⃣ Mecânica de Uso, Efeito Prático & Recarga</div>
+          <div style="font-size:0.80rem; font-weight:700; color:#4ade80; margin-bottom:4px;">2️⃣ Mecânica de Uso, Efeito Prático & Recarga</div>
+          <div id="itemPassiveHint" style="display:none; font-size:0.74rem; color:#fde047; background:rgba(234,179,8,0.12); border:1px solid rgba(234,179,8,0.35); border-radius:6px; padding:6px 10px; margin-bottom:8px;">
+            ⚪ Item Passivo / Recurso / Crafting: não precisa de efeito ativo nem tempo de recarga.
+          </div>
           <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:10px;">
             <div class="field">
               <label>Tipo de Efeito Prático</label>
-              <select id="itemEffectSelect">
+              <select id="itemEffectSelect" onchange="AdminApp.syncItemModalFieldStates()">
+                <option value="NONE">⚪ Sem Efeito Ativo (Passivo / Crafting)</option>
+                <option value="MATERIAL">⚒️ Recurso Passivo / Material</option>
+                <option value="QUEST_ITEM">📜 Item de Missão (Passivo)</option>
                 <option value="HEAL_HP">💚 Cura de Pontos de Vida (HP)</option>
                 <option value="RESTORE_MP">💧 Restauração de Mana (MP)</option>
                 <option value="BUFF_STATS">⚡ Buff Temporário de Atributos</option>
@@ -550,7 +672,7 @@ class AdminItemsTab {
                 <option value="TELEPORT">🌌 Teleporte para Ponto de Retorno</option>
                 <option value="CATCH_PET">🐾 Captura de Monstro / Domesticar Pet</option>
                 <option value="GRANT_EXP">✨ Concessão Direta de Experiência</option>
-                <option value="MATERIAL">⚒️ Recurso Passivo / Material</option>
+                <option value="LEARN_SKILL">📖 Aprender Habilidade / Tomo</option>
                 <option value="OPEN_CHEST">🎁 Abertura de Baú / Recompensa</option>
               </select>
             </div>
