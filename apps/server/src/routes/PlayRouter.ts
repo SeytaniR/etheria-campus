@@ -82,6 +82,13 @@ export class PlayRouter {
       return true;
     }
 
+    // 1.1 Manifesto público de download local de assets
+    if (pathname === '/api/play/assets-manifest' && method === 'GET') {
+      const manifest = await this.deps.assetMirrorService.buildPlayAssetsManifest(this.deps.prisma);
+      this.deps.sendJson(res, 200, manifest);
+      return true;
+    }
+
     // 2. Proteção de Sessão JWT para jogadores
     const session = this.deps.authService.verifyPlayToken(req);
     if (!session) {
@@ -97,12 +104,6 @@ export class PlayRouter {
     }
 
     // --- Bootstrap do Jogo (Personagens do Usuário, Mapas, Classes e Offset) ---
-    if (pathname === '/api/play/assets-manifest' && method === 'GET') {
-      const manifest = await this.deps.assetMirrorService.buildPlayAssetsManifest(this.deps.prisma);
-      this.deps.sendJson(res, 200, manifest);
-      return true;
-    }
-
     if (pathname === '/api/play/bootstrap' && method === 'GET') {
       const data = await this.deps.playController.getPlayBootstrap(userAccountId);
       this.deps.sendJson(res, 200, {
