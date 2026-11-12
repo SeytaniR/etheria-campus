@@ -10,7 +10,7 @@
 ## 📌 Status Atual do Projeto
 * **Versão Atual:** `v0.16.0`
 * **Última Atualização:** `2026-11-12`
-* **Fase Atual:** **Interface Principal do Jogador Mobile Portrait (HUD Fiel à Referência & Modular) (`v0.16.0`)** — Corrigida a câmera para nunca exibir o vazio preto fora do mapa, limitada a movimentação estritamente à borda da imagem (`[18, mapW - 18]`), resolvido o bug de portal teleportando de volta (imunidade de aterrissagem + afastamento obrigatório), adicionado espelho e cache em disco local na VPS (`AssetMirrorService`) e gerenciador de download local no client (`PlayAssetDownloader` com CacheStorage).
+* **Fase Atual:** **Interface Principal do Jogador Mobile Portrait (HUD Fiel à Referência & Modular) (`v0.16.0`)** — Implementada a interface mobile vertical seguindo 100% o posicionamento e hierarquia visual da imagem de referência: Topo-Esquerdo (Avatar circular, Nível, Barras HP/MP/XP, Moedas Ouro e Cristal); Topo-Direito (Minimapa com bússola, cone direcional, coordenadas dinâmicas e engrenagem de configurações); Lateral Esquerda (Barra com 6 atalhos rápidos); Lateral Direita (HUD de até 3 pets equipados, ocultada se 0 pets); Inferior-Direito (Joystick virtual com botão de interação central); Barra Inferior (6 botões de menu temáticos sem texto). 21 assets gráficos gerados em alta resolução, testados e validados no emulador mobile com capturas de tela reais.
 * **Repositório Oficial:** `https://github.com/SeytaniR/etheria-campus`
 * **Fonte Bruta de Assets:** `https://github.com/SeytaniR/mcrework` (`https://seytanir.github.io/mcrework/`)
 
