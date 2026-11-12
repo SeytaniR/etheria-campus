@@ -316,6 +316,32 @@ export class AssetMirrorService {
     urls.add('/assets/worldmap/world_map_2_base.png');
     urls.add('/assets/worldmap/etheria_campus_logo.png');
 
+    // Assets Visuais da HUD Principal Mobile
+    const hudFiles = [
+      '/play/assets/hud/player_avatar_frame.png',
+      '/play/assets/hud/minimap_frame.png',
+      '/play/assets/hud/settings_gear_icon.png',
+      '/play/assets/hud/gold_coin_icon.png',
+      '/play/assets/hud/crystal_gem_icon.png',
+      '/play/assets/hud/joystick_center_interact.png',
+      '/play/assets/hud/joystick_outer_ring.png',
+      '/play/assets/hud/pet_avatar_frame.png',
+      '/play/assets/hud/shortcut_slot_bg.png',
+      '/play/assets/hud/menu_shop.png',
+      '/play/assets/hud/menu_pets.png',
+      '/play/assets/hud/menu_character.png',
+      '/play/assets/hud/menu_inventory.png',
+      '/play/assets/hud/menu_quests.png',
+      '/play/assets/hud/menu_events.png',
+      '/play/assets/hud/shortcut_potion_hp.png',
+      '/play/assets/hud/shortcut_potion_mp.png',
+      '/play/assets/hud/shortcut_food_bread.png',
+      '/play/assets/hud/shortcut_scroll_teleport.png',
+      '/play/assets/hud/shortcut_potion_antidote.png',
+      '/play/assets/hud/shortcut_potion_buff.png',
+    ];
+    for (const h of hudFiles) urls.add(h);
+
     return {
       version: 'v0.15.0',
       totalCount: urls.size,

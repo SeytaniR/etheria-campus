@@ -7,6 +7,30 @@ Qualquer IA trabalhando neste repositório **DEVE** incrementar a versão e regi
 
 ---
 
+## [v0.16.0] - 2026-11-12
+### Interface Principal do Jogador Mobile Portrait (HUD Fiel à Referência & Modular)
+* **Adicionado (Assets Gráficos em `apps/server/public/play/assets/hud/`):**
+  * Moldura ornamental circular do avatar do personagem (`player_avatar_frame.png`).
+  * Moldura ornamental de bússola para o minimapa (`minimap_frame.png`).
+  * Ícone discreto de engrenagem para configurações (`settings_gear_icon.png`).
+  * Moedas de Ouro (`gold_coin_icon.png`) e Cristais mágicos facetados (`crystal_gem_icon.png`).
+  * Botão de interação central com balão de fala (`joystick_center_interact.png`) e anel de bússola (`joystick_outer_ring.png`).
+  * Moldura de avatar dos pets (`pet_avatar_frame.png`) e slots de atalho (`shortcut_slot_bg.png`).
+  * 6 Ícones dos botões de menu inferior sem texto (`menu_shop.png`, `menu_pets.png`, `menu_character.png`, `menu_inventory.png`, `menu_quests.png`, `menu_events.png`).
+  * 6 Ícones de itens de atalho (`shortcut_potion_hp.png`, `shortcut_potion_mp.png`, `shortcut_food_bread.png`, `shortcut_scroll_teleport.png`, `shortcut_potion_antidote.png`, `shortcut_potion_buff.png`).
+* **Adicionado & Integrado (`PlayHudController.js` & `play_hud.css`):**
+  * **Controlador Modular:** Arquitetura orientada a objetos gerenciando posição, visibilidade, estado dos pets e binding de dados reativo.
+  * **Topo-Esquerdo:** Avatar do jogador (recorte circular da thumb do personagem + moldura dourada), Nível, barras estilizadas de HP/MP/XP com gradiente e contadores de Ouro e Cristal.
+  * **Topo-Direito:** Mini Mapa dinâmico em tempo real exibindo a fatia do mapa centrada no jogador com marcador ciano direcional, coordenadas dinâmicas e engrenagem de configurações.
+  * **Lateral Esquerda:** Coluna vertical com 6 slots de atalho rápido para uso de poções e itens.
+  * **Lateral Direita:** HUD de pets equipados com regra estrita: exibida SOMENTE quando houver pet equipado (0 oculto, 1, 2 ou 3).
+  * **Canto Inferior Direito:** Joystick virtual analógico com dial bússola e botão de interação central para NPCs, portais e ações.
+  * **Barra Inferior:** 6 botões de menu sem texto com ícones destacados e feedback tátil.
+* **Integrado no Backend (`GamePlayController.ts` & `AssetMirrorService.ts`):**
+  * Inclusão e serialização de `pets` no bootstrap do jogador e inclusão dos 21 assets da HUD no manifesto de download local (`/api/play/assets-manifest`).
+
+---
+
 ## [v0.15.0] - 2026-11-12
 ### Arquitetura Sagrada de Assets: Isolamento Estrito Client-Servidor & Espelhamento Automático no Salvar
 * **Arquitetura & Governança de Assets (`AGENTS.md` Cláusula 10, `docs/ARCHITECTURE.md`, `docs/HANDOFF.md`):**

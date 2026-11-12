@@ -161,7 +161,15 @@ export class GamePlayController {
       await this.prisma.playerCharacter.findMany({
         where: { userAccountId },
         orderBy: { id: 'asc' },
-        include: { classTemplate: true },
+        include: {
+          classTemplate: true,
+          pets: {
+            include: {
+              petTemplate: true,
+              monsterTemplate: true,
+            },
+          },
+        },
       })
     ).map((c) => this.serializeCharacter(c, i18nMap, mapNameById));
 
@@ -254,6 +262,19 @@ export class GamePlayController {
       posX: c.posX,
       posY: c.posY,
       isCriminal: c.isCriminal,
+      equippedPets: (c.pets || []).slice(0, 3).map((cp: any) => {
+        const petKey = cp.petTemplate?.mcreworkPetKey || cp.monsterTemplate?.mcreworkMonsterKey || 'PET_000001';
+        const petName = cp.nickname || (cp.petTemplate ? (i18nMap.get(cp.petTemplate.nameI18nKey) ?? cp.petTemplate.code) : `Pet #${cp.id}`);
+        return {
+          id: cp.id,
+          nickname: petName,
+          level: cp.level || 1,
+          hpPct: 100,
+          mpPct: 100,
+          xpPct: 60,
+          thumbUrl: `/api/assets/mcrework/assets/pets/${petKey}/thumb.png`,
+        };
+      }),
     };
   }
 

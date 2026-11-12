@@ -8,9 +8,9 @@
 ---
 
 ## 📌 Status Atual do Projeto
-* **Versão Atual:** `v0.15.0`
+* **Versão Atual:** `v0.16.0`
 * **Última Atualização:** `2026-11-12`
-* **Fase Atual:** **Arquitetura Sagrada de Assets: Isolamento Estrito Client-Servidor & Espelhamento Automático no Salvar (`v0.15.0`)** — Corrigida a câmera para nunca exibir o vazio preto fora do mapa, limitada a movimentação estritamente à borda da imagem (`[18, mapW - 18]`), resolvido o bug de portal teleportando de volta (imunidade de aterrissagem + afastamento obrigatório), adicionado espelho e cache em disco local na VPS (`AssetMirrorService`) e gerenciador de download local no client (`PlayAssetDownloader` com CacheStorage).
+* **Fase Atual:** **Interface Principal do Jogador Mobile Portrait (HUD Fiel à Referência & Modular) (`v0.16.0`)** — Corrigida a câmera para nunca exibir o vazio preto fora do mapa, limitada a movimentação estritamente à borda da imagem (`[18, mapW - 18]`), resolvido o bug de portal teleportando de volta (imunidade de aterrissagem + afastamento obrigatório), adicionado espelho e cache em disco local na VPS (`AssetMirrorService`) e gerenciador de download local no client (`PlayAssetDownloader` com CacheStorage).
 * **Repositório Oficial:** `https://github.com/SeytaniR/etheria-campus`
 * **Fonte Bruta de Assets:** `https://github.com/SeytaniR/mcrework` (`https://seytanir.github.io/mcrework/`)
 

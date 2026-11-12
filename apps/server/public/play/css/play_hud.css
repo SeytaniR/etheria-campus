@@ -1,0 +1,628 @@
+/**
+ * @file apps/server/public/play/css/play_hud.css
+ * @module @etheria/client/css
+ * @description Estilização Visual da Interface Principal Mobile (Portrait) do Etheria Campus.
+ *   Fidelidade absoluta de posicionamento e proporções baseada na referência do usuário:
+ *   - Molduras douradas ornamentadas, barras com gradientes brilhantes, bússola do minimap,
+ *     atalhos de poções, HUD de pets equipados, joystick virtual com interação e botões de menu sem texto.
+ */
+
+/* ==========================================================================
+   CONTAINER PRINCIPAL DA HUD MOBILE (100% Responsivo e Não Bloqueante)
+   ========================================================================== */
+.play-mobile-hud {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 25;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  overflow: hidden;
+}
+
+.play-mobile-hud * {
+  box-sizing: border-box;
+}
+
+/* ==========================================================================
+   1. TOPO-ESQUERDO: AVATAR, NÍVEL, BARRAS E MOEDAS
+   ========================================================================== */
+.hud-player-section {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  pointer-events: auto;
+  user-select: none;
+}
+
+.hud-avatar-wrapper {
+  position: relative;
+  width: 72px;
+  height: 72px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.6));
+}
+
+.hud-avatar-img {
+  width: 58px;
+  height: 58px;
+  border-radius: 50%;
+  object-fit: cover;
+  background: #111827;
+  cursor: pointer;
+  transition: transform 0.15s ease;
+}
+
+.hud-avatar-img:active {
+  transform: scale(0.95);
+}
+
+.hud-avatar-frame {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  object-fit: contain;
+}
+
+.hud-level-badge {
+  position: absolute;
+  bottom: -6px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: linear-gradient(180deg, #3d2614, #1f1208);
+  border: 1.5px solid #eab308;
+  color: #ffffff;
+  font-size: 0.72rem;
+  font-weight: 900;
+  padding: 1px 8px;
+  border-radius: 999px;
+  white-space: nowrap;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.7);
+  letter-spacing: 0.5px;
+}
+
+.hud-player-bars-col {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: 2px;
+}
+
+/* Barras de Estatísticas HP / MP / XP */
+.hud-stat-bar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.hud-stat-label {
+  font-size: 0.72rem;
+  font-weight: 900;
+  width: 22px;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9);
+}
+
+.hud-stat-hp .hud-stat-label { color: #f87171; }
+.hud-stat-mp .hud-stat-label { color: #38bdf8; }
+.hud-stat-xp .hud-stat-label { color: #fbbf24; }
+
+.hud-bar-track {
+  width: 125px;
+  height: 14px;
+  background: rgba(15, 23, 42, 0.85);
+  border: 1.5px solid #1e293b;
+  border-radius: 999px;
+  overflow: hidden;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.8), 0 2px 5px rgba(0, 0, 0, 0.4);
+  position: relative;
+}
+
+.hud-bar-fill {
+  height: 100%;
+  border-radius: 999px;
+  transition: width 0.3s ease;
+  position: relative;
+}
+
+.hud-bar-fill::after {
+  content: '';
+  position: absolute;
+  top: 1px;
+  left: 4px;
+  right: 4px;
+  height: 35%;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.55), rgba(255, 255, 255, 0));
+  border-radius: 999px;
+}
+
+.hud-fill-hp {
+  background: linear-gradient(180deg, #ef4444, #991b1b);
+}
+
+.hud-fill-mp {
+  background: linear-gradient(180deg, #0284c7, #0369a1);
+}
+
+.hud-fill-xp {
+  background: linear-gradient(180deg, #f59e0b, #b45309);
+}
+
+/* Moedas de Ouro e Cristais */
+.hud-currencies-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.hud-currency-badge {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  background: rgba(15, 23, 42, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  padding: 2px 8px 2px 4px;
+  border-radius: 999px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
+}
+
+.hud-currency-badge img {
+  width: 18px;
+  height: 18px;
+  object-fit: contain;
+}
+
+.hud-currency-badge span {
+  font-size: 0.74rem;
+  font-weight: 800;
+  font-family: monospace;
+  letter-spacing: 0.5px;
+}
+
+.hud-gold-badge span { color: #fde047; }
+.hud-crystal-badge span { color: #67e8f9; }
+
+/* ==========================================================================
+   2. TOPO-DIREITO: MINI MAPA & CONFIGURAÇÕES (ENGRENAGEM)
+   ========================================================================== */
+.hud-minimap-section {
+  position: absolute;
+  top: 10px;
+  right: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  pointer-events: auto;
+  user-select: none;
+}
+
+.hud-minimap-wrapper {
+  position: relative;
+  width: 98px;
+  height: 98px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.7));
+}
+
+#hudMinimapCanvas {
+  width: 82px;
+  height: 82px;
+  border-radius: 50%;
+  background: #0f172a;
+  display: block;
+}
+
+.hud-minimap-frame {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  object-fit: contain;
+}
+
+.hud-settings-btn {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.7));
+  transition: transform 0.15s ease;
+}
+
+.hud-settings-btn img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.hud-settings-btn:active {
+  transform: scale(0.9) rotate(20deg);
+}
+
+.hud-coords-badge {
+  margin-top: 3px;
+  font-size: 0.76rem;
+  font-weight: 900;
+  color: #ffffff;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.95), 0 0 8px rgba(0, 0, 0, 0.8);
+  font-family: monospace;
+  letter-spacing: 0.5px;
+}
+
+/* ==========================================================================
+   3. LATERAL ESQUERDA: BARRA DE ATALHOS RÁPIDOS (6 SLOTS)
+   ========================================================================== */
+.hud-shortcuts-section {
+  position: absolute;
+  left: 10px;
+  bottom: 84px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  pointer-events: auto;
+  user-select: none;
+}
+
+.hud-shortcut-slot {
+  position: relative;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  filter: drop-shadow(0 3px 6px rgba(0, 0, 0, 0.6));
+  transition: transform 0.1s ease;
+}
+
+.hud-shortcut-slot:active,
+.hud-shortcut-slot.hud-slot-pressed {
+  transform: scale(0.92);
+}
+
+.hud-slot-bg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  pointer-events: none;
+}
+
+.hud-slot-icon {
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
+  position: relative;
+  z-index: 2;
+  filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.5));
+}
+
+/* ==========================================================================
+   4. LATERAL DIREITA: HUD DOS PETS EQUIPADOS (0 A 3)
+   ========================================================================== */
+.hud-pets-section {
+  position: absolute;
+  right: 10px;
+  top: 140px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  pointer-events: auto;
+  user-select: none;
+}
+
+.hud-pet-entry {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(15, 23, 42, 0.75);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  padding: 3px 6px 3px 3px;
+  border-radius: 999px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
+}
+
+.hud-pet-avatar-wrapper {
+  position: relative;
+  width: 42px;
+  height: 42px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.hud-pet-avatar-img {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  object-fit: cover;
+  background: #1e293b;
+}
+
+.hud-pet-avatar-frame {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  object-fit: contain;
+}
+
+.hud-pet-level-badge {
+  position: absolute;
+  bottom: -4px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: linear-gradient(180deg, #3d2614, #1f1208);
+  border: 1px solid #eab308;
+  color: #ffffff;
+  font-size: 0.58rem;
+  font-weight: 900;
+  padding: 0 5px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+.hud-pet-bars-col {
+  display: flex;
+  flex-direction: column;
+  gap: 2.5px;
+}
+
+.hud-pet-stat-bar {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.hud-pet-stat-label {
+  font-size: 0.58rem;
+  font-weight: 900;
+  width: 14px;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
+}
+
+.hud-pet-bar-hp .hud-pet-stat-label { color: #f87171; }
+.hud-pet-bar-mp .hud-pet-stat-label { color: #38bdf8; }
+.hud-pet-bar-xp .hud-pet-stat-label { color: #fbbf24; }
+
+.hud-pet-bar-track {
+  width: 58px;
+  height: 8px;
+  background: rgba(10, 15, 25, 0.9);
+  border: 1px solid #334155;
+  border-radius: 999px;
+  overflow: hidden;
+  position: relative;
+}
+
+.hud-pet-bar-fill {
+  height: 100%;
+  border-radius: 999px;
+}
+
+.hud-pet-fill-hp { background: linear-gradient(180deg, #ef4444, #991b1b); }
+.hud-pet-fill-mp { background: linear-gradient(180deg, #0284c7, #0369a1); }
+.hud-pet-fill-xp { background: linear-gradient(180deg, #f59e0b, #b45309); }
+
+/* ==========================================================================
+   5. CANTO INFERIOR DIREITO: JOYSTICK VIRTUAL & BOTÃO DE AÇÃO CENTRAL
+   ========================================================================== */
+.hud-joystick-section {
+  position: absolute;
+  right: 18px;
+  bottom: 84px;
+  width: 136px;
+  height: 136px;
+  pointer-events: auto;
+  user-select: none;
+  touch-action: none;
+}
+
+.hud-joystick-dial {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  touch-action: none;
+}
+
+.hud-joystick-ring {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  pointer-events: none;
+  filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.7));
+}
+
+.hud-joystick-stick {
+  position: absolute;
+  width: 64px;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.05s linear;
+  touch-action: none;
+}
+
+.hud-joystick-interact-btn {
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.6));
+  transition: transform 0.12s ease;
+}
+
+.hud-joystick-interact-btn img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.hud-joystick-interact-btn:active,
+.hud-joystick-interact-btn.hud-btn-pressed {
+  transform: scale(0.92);
+}
+
+/* ==========================================================================
+   6. BARRA INFERIOR: 6 BOTÕES DE MENU (SEM TEXTO, APENAS ÍCONES)
+   ========================================================================== */
+.hud-bottom-menu-section {
+  position: absolute;
+  bottom: 6px;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: space-evenly;
+  align-items: flex-end;
+  padding: 0 4px;
+  pointer-events: auto;
+  user-select: none;
+  z-index: 30;
+}
+
+.hud-menu-btn {
+  width: 48px;
+  height: 50px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.7));
+  transition: transform 0.12s ease, filter 0.12s ease;
+}
+
+.hud-menu-btn img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  pointer-events: none;
+}
+
+.hud-menu-btn:hover {
+  transform: translateY(-2px);
+  filter: drop-shadow(0 6px 12px rgba(255, 215, 0, 0.4));
+}
+
+.hud-menu-btn:active {
+  transform: translateY(1px) scale(0.94);
+}
+
+/* Botão em destaque (Mochila / Inventário central) */
+.hud-menu-btn-prominent {
+  width: 56px;
+  height: 58px;
+  transform: translateY(-4px);
+}
+
+.hud-menu-btn-prominent:hover {
+  transform: translateY(-6px);
+}
+
+/* ==========================================================================
+   MODAIS COMPLEMENTARES DA HUD (CONFIGURAÇÕES E PETS)
+   ========================================================================== */
+.hud-modal-dialog {
+  background: #0f172a;
+  border: 2px solid #eab308;
+  border-radius: 16px;
+  width: 90%;
+  max-width: 380px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.9);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  animation: hudModalPop 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes hudModalPop {
+  from { opacity: 0; transform: scale(0.92); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.hud-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  background: linear-gradient(180deg, #1e293b, #0f172a);
+  border-bottom: 1px solid #334155;
+}
+
+.hud-modal-header h3 {
+  margin: 0;
+  font-size: 1.05rem;
+  color: #fde047;
+}
+
+.hud-modal-close {
+  background: none;
+  border: none;
+  color: #94a3b8;
+  font-size: 1.2rem;
+  cursor: pointer;
+  padding: 0 4px;
+}
+
+.hud-modal-close:hover { color: #ffffff; }
+
+.hud-modal-body {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.hud-settings-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.88rem;
+  color: #e2e8f0;
+}
+
+.hud-pet-dialog-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: rgba(30, 41, 59, 0.6);
+  border: 1px solid #334155;
+  border-radius: 12px;
+  padding: 8px 12px;
+}

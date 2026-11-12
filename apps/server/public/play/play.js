@@ -88,6 +88,9 @@ class EtheriaPlayClient {
 
   async init() {
     this.setupWorldEvents();
+    if (window.PlayHudController) {
+      window.PlayHudController.init(this);
+    }
     if (window.ActionCombatArena) {
       this.actionCombatArena = new ActionCombatArena(this);
       this.actionArena = this.actionCombatArena;
@@ -338,9 +341,24 @@ class EtheriaPlayClient {
       OPEN_PVP: '⚔️ PvP: Aberto',
     };
     const mt = this.currentMap.mapType || {};
-    document.getElementById('hudMapRules').textContent = `${mt.namePtBr || ''} • ${pvpLabels[mt.pvpRule] || ''} • ${
-      mt.allowMonsterSpawn ? '👹 Spawna Monstros' : '🕊️ Zona Segura'
-    }`;
+    const rulesEl = document.getElementById('hudMapRules');
+    if (rulesEl) {
+      rulesEl.textContent = `${mt.namePtBr || ''} • ${pvpLabels[mt.pvpRule] || ''} • ${
+        mt.allowMonsterSpawn ? '👹 Spawna Monstros' : '🕊️ Zona Segura'
+      }`;
+    }
+
+    // Atualiza a nova HUD Mobile Vertical (PlayHudController)
+    if (window.PlayHudController) {
+      window.PlayHudController.updatePlayer(this.activeChar);
+      window.PlayHudController.updateMinimap(
+        this.currentMap,
+        this.mapBgImage,
+        this.playerX,
+        this.playerY,
+        this.playerDir
+      );
+    }
   }
 
   // ==========================================================================
@@ -991,6 +1009,18 @@ class EtheriaPlayClient {
     }
 
     ctx.restore();
+
+    // 7. Atualização fluida do Minimapa na HUD a cada ~90ms
+    if (window.PlayHudController && (!this._lastMinimapUpdate || now - this._lastMinimapUpdate > 90)) {
+      this._lastMinimapUpdate = now;
+      window.PlayHudController.updateMinimap(
+        this.currentMap,
+        this.mapBgImage,
+        this.playerX,
+        this.playerY,
+        this.playerDir
+      );
+    }
   }
 }
 

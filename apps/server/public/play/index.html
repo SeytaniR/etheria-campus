@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <link rel="stylesheet" href="/play/css/play_hud.css?v=20261112_hud" />
   <title>Etheria Campus — Jogo (/play) & Painel GM (/gm)</title>
   <style>
     :root {
@@ -71,6 +72,11 @@
       border-radius: 8px;
       font-size: 0.88rem;
       width: 100%;
+    }
+
+    /* Oculta controles legados substituídos pela nova HUD Mobile */
+    .world-top-nav, .touch-dpad, .hud-bottom-right {
+      display: none !important;
     }
 
     /* ==========================================================================
@@ -942,6 +948,7 @@
   <script src="/play/js/PlayBagController.js?v=20261111_meta"></script>
   <script src="/play/js/PlayQuestsController.js?v=20261111_meta"></script>
   <script src="/play/js/PlayAssetDownloader.js?v=20261112_v14"></script>
+  <script src="/play/js/PlayHudController.js?v=20261112_hud"></script>
   <script src="/play/play.js?v=20261112_v14"></script>
 </body>
 </html>
