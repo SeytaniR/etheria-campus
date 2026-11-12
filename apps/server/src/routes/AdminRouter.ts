@@ -21,6 +21,7 @@ import type { AdminSkillsController } from '../controllers/AdminSkillsController
 import type { AdminQuestsController } from '../controllers/AdminQuestsController.js';
 import type { AdminAttributesController } from '../controllers/AdminAttributesController.js';
 import type { AdminExperienceController } from '../controllers/AdminExperienceController.js';
+import type { AdminWorldMapsController } from '../controllers/AdminWorldMapsController.js';
 
 export interface AdminRouterDeps {
   prisma: PrismaClient;
@@ -36,6 +37,7 @@ export interface AdminRouterDeps {
   questsController: AdminQuestsController;
   attributesController: AdminAttributesController;
   experienceController: AdminExperienceController;
+  worldMapsController: AdminWorldMapsController;
   sendJson: (res: http.ServerResponse, statusCode: number, data: unknown) => void;
   readJsonBody: <T = any>(req: http.IncomingMessage) => Promise<T>;
 }
@@ -271,6 +273,20 @@ export class AdminRouter {
       if (!this.enforceTablePermission(res, session, 'MAPS', 'READ_WRITE') && !this.enforceTablePermission(res, session, 'NPCS', 'READ_WRITE')) return true;
       const placementId = Number(mapNpcDeleteMatch[1]);
       this.deps.sendJson(res, 200, await this.deps.mapsController.deleteMapNpc(placementId));
+      return true;
+    }
+
+    // --- Mapas Gerais / Mundo (Continentes + Pontos + Logo Transparente) ---
+    if (pathname === '/api/admin/world-maps' && method === 'GET') {
+      if (this.enforceTablePermission(res, session, 'MAPS', 'READ')) {
+        this.deps.sendJson(res, 200, await this.deps.worldMapsController.getWorldMapsBootstrap());
+      }
+      return true;
+    }
+    if (pathname === '/api/admin/world-maps' && method === 'POST') {
+      if (this.enforceTablePermission(res, session, 'MAPS', 'READ_WRITE')) {
+        this.deps.sendJson(res, 200, await this.deps.worldMapsController.saveWorldMap(await this.deps.readJsonBody(req)));
+      }
       return true;
     }
 

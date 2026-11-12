@@ -113,6 +113,7 @@ class AdminAuth {
 
       const tabMap = {
         maps: 'MAPS',
+        'world-maps': 'MAPS',
         npcs: 'NPCS',
         classes: 'CLASSES',
         monsters: 'MONSTERS',
@@ -130,6 +131,7 @@ class AdminAuth {
 
       const btnMap = {
         maps: document.getElementById('tabBtnMaps'),
+        'world-maps': document.getElementById('tabBtnWorldMaps'),
         npcs: document.getElementById('tabBtnNpcs'),
         classes: document.getElementById('tabBtnClasses'),
         monsters: document.getElementById('tabBtnMonsters'),
@@ -184,6 +186,7 @@ class AdminAuth {
 
       const tabs = [
         { id: 'tabMaps', btn: 'tabBtnMaps', key: 'maps', code: 'MAPS' },
+        { id: 'tabWorldMaps', btn: 'tabBtnWorldMaps', key: 'world-maps', code: 'MAPS' },
         { id: 'tabNpcs', btn: 'tabBtnNpcs', key: 'npcs', code: 'NPCS' },
         { id: 'tabQuests', btn: 'tabBtnQuests', key: 'quests', code: 'QUESTS' },
         { id: 'tabClasses', btn: 'tabBtnClasses', key: 'classes', code: 'CLASSES' },
@@ -251,6 +254,9 @@ class AdminAuth {
       if (tab === 'attributes' && typeof this.renderAttributesTabContent === 'function') {
         this.renderAttributesTabContent();
       }
+      if (tab === 'world-maps' && typeof this.loadWorldMapsData === 'function') {
+        this.loadWorldMapsData();
+      }
     };
 
     /**
@@ -267,6 +273,7 @@ class AdminAuth {
 
       const tabMap = {
         maps: 'MAPS',
+        'world-maps': 'MAPS',
         npcs: 'NPCS',
         classes: 'CLASSES',
         monsters: 'MONSTERS',
@@ -287,6 +294,7 @@ class AdminAuth {
       if (perm === 'READ') {
         const containerMap = {
           maps: document.getElementById('tabMaps'),
+          'world-maps': document.getElementById('tabWorldMaps'),
           npcs: document.getElementById('tabNpcs'),
           classes: document.getElementById('tabClasses'),
           monsters: document.getElementById('tabMonsters'),

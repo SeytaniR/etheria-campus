@@ -678,3 +678,29 @@ model LevelExperienceTemplate {
 
   @@map("level_experience_templates")
 }
+
+/// Mapas Gerais dos Continentes (Tabela de Mapas Gerais / Mundo na Rota /admin).
+/// Armazena a arte base limpa, posição/tamanho ajustável do logotipo do jogo,
+/// linhas de rota e pontos clicáveis vinculados aos mapas cadastrados (`GameMap`).
+model WorldMapTemplate {
+  id              Int      @id @default(autoincrement())
+  code            String   @unique /// Ex: continent_1, continent_2
+  namePtBr        String   @map("name_pt_br")
+  baseImageUrl    String   @map("base_image_url")
+  canvasWidth     Int      @default(1264) @map("canvas_width")
+  canvasHeight    Int      @default(848) @map("canvas_height")
+  logoImageUrl    String?  @map("logo_image_url")
+  logoX           Float    @default(42) @map("logo_x")
+  logoY           Float    @default(30) @map("logo_y")
+  logoWidth       Float    @default(270) @map("logo_width")
+  logoHeight      Float    @default(185) @map("logo_height")
+  logoVisible     Boolean  @default(true) @map("logo_visible")
+  pointsJson      Json     @default("[]") @map("points_json")
+  routesJson      Json     @default("[]") @map("routes_json")
+  showRoutesLayer Boolean  @default(true) @map("show_routes_layer")
+  showPointsLayer Boolean  @default(true) @map("show_points_layer")
+  isActive        Boolean  @default(true) @map("is_active")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  @@map("world_map_templates")
+}

@@ -5,6 +5,17 @@ Qualquer IA trabalhando neste repositório **DEVE** incrementar a versão e regi
 
 ---
 
+## [v0.13.0] - 2026-11-12
+### Mapas Gerais dos Continentes (Tabela Mundo `/admin`), Pontos Vinculáveis a Mapas & Logo Transparente Ajustável
+* **Adicionado (Banco de Dados & Assets):**
+  * **`WorldMapTemplate` (`schema.prisma`, `SnapshotManager.ts`):** Nova tabela `world_map_templates` com backup/restauração automática no `SnapshotManager`, armazenando imagem limpa do continente, camada separada de pontos/rotas (`pointsJson`, `routesJson`), visibilidade das camadas e geometria configurável do logo (`logoX`, `logoY`, `logoWidth`, `logoHeight`, `logoVisible`).
+  * **Assets Limpos (`apps/server/public/assets/worldmap/`):** Instalados `world_map_1_base.png` (`1264x848`), `world_map_2_base.png` (`1264x848`) sem textos/logos/linhas originais e `etheria_campus_logo.png` (`640x438`) com fundo branco removido em transparência RGBA limpa.
+* **Adicionado (API & Estúdio `/admin`):**
+  * **`AdminWorldMapsController.ts`, `AdminWorldMapsSeeds.ts`, `AdminRouter.ts`:** Rotas `GET/POST /api/admin/world-maps` protegidas pela permissão `MAPS`, inicializando os 2 continentes com 44 + 8 pontos e 49 + 3 rotas calibradas e retornando os `GameMap` reais cadastrados para vínculo.
+  * **`AdminWorldMapsTab.js`, `AdminAuth.js`, `admin/index.html`:** Nova aba **`🌍 Mapas Gerais`** no `/admin` com visualização interativa dos 2 continentes, camadas independentes (Base, Linhas SVG, Pontos e Logo), seleção de qualquer ponto para vincular/desvincular mapas existentes da Tabela de Mapas (com rótulo opcional e filtro rápido), e manipulação direta do logotipo `Etheria Campus` (arrastar, redimensionar pelo canto `↘`, slider e coordenadas exatas X/Y).
+
+---
+
 ## [v0.12.0] - 2026-11-12
 ### Arsenal Completo No-Code de Habilidades Action (12 Classes / 48 Skills), Buffs/Debuffs & Arena 4 Slots
 * **Adicionado & Expandido (Schema + Backend + Calculadora Compartilhada):**

@@ -29,6 +29,7 @@ import { AdminSkillsController } from './controllers/AdminSkillsController.js';
 import { AdminQuestsController } from './controllers/AdminQuestsController.js';
 import { AdminAttributesController } from './controllers/AdminAttributesController.js';
 import { AdminExperienceController } from './controllers/AdminExperienceController.js';
+import { AdminWorldMapsController } from './controllers/AdminWorldMapsController.js';
 import { TemporaryCombatController } from './controllers/TemporaryCombatController.js';
 import { AdminRouter } from './routes/AdminRouter.js';
 import { PlayRouter } from './routes/PlayRouter.js';
@@ -76,6 +77,7 @@ export class EtheriaServerApp {
   private readonly questsController: AdminQuestsController;
   private readonly attributesController: AdminAttributesController;
   private readonly experienceController: AdminExperienceController;
+  private readonly worldMapsController: AdminWorldMapsController;
   private readonly combatController: TemporaryCombatController;
   private readonly adminRouter: AdminRouter;
   private readonly playRouter: PlayRouter;
@@ -99,6 +101,7 @@ export class EtheriaServerApp {
     this.questsController = new AdminQuestsController(this.prisma, snapshotManager);
     this.attributesController = new AdminAttributesController(this.prisma);
     this.experienceController = new AdminExperienceController(this.prisma);
+    this.worldMapsController = new AdminWorldMapsController(this.prisma, snapshotManager);
     this.combatController = new TemporaryCombatController(this.prisma);
     this.publicDir = path.resolve(__dirname, '../public');
 
@@ -119,6 +122,7 @@ export class EtheriaServerApp {
       questsController: this.questsController,
       attributesController: this.attributesController,
       experienceController: this.experienceController,
+      worldMapsController: this.worldMapsController,
       sendJson,
       readJsonBody,
     });
@@ -416,6 +420,7 @@ export class EtheriaServerApp {
       void this.itemsController.seedInitialItemsIfEmpty();
       void this.mountsController.seedInitialFlyingMountsIfEmpty();
       void this.experienceController.seedInitialLevelExperienceIfEmpty();
+      void this.worldMapsController.seedInitialWorldMapsIfEmpty();
     });
     return server;
   }

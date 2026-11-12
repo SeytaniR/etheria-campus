@@ -48,6 +48,7 @@ export interface LowCodeDatabaseSnapshot {
   petTemplates?: any[];
   flyingMountTemplates?: any[];
   levelExperienceTemplates?: any[];
+  worldMapTemplates?: any[];
 }
 
 /**
@@ -108,6 +109,7 @@ export class SnapshotManager {
         experienceToNext: l.experienceToNext.toString(),
         totalExperience: l.totalExperience.toString(),
       })),
+      worldMapTemplates: await this.prisma.worldMapTemplate.findMany({ orderBy: { id: 'asc' } }),
     };
 
     await fs.writeFile(this.snapshotFilePath, JSON.stringify(snapshot, null, 2), 'utf-8');
@@ -212,6 +214,50 @@ export class SnapshotManager {
               damageType: m.damageType || 'PHYSICAL',
               rarityTier: m.rarityTier, fixedElementCode: m.fixedElementCode,
               baseAttributesJson: m.baseAttributesJson, lootTableJson: m.lootTableJson,
+            },
+          });
+        }
+      }
+
+      // 5. Mapas Gerais (Continentes / Mundo)
+      if (Array.isArray(snapshot.worldMapTemplates)) {
+        for (const wm of snapshot.worldMapTemplates) {
+          await this.prisma.worldMapTemplate.upsert({
+            where: { code: wm.code },
+            create: {
+              code: wm.code,
+              namePtBr: wm.namePtBr,
+              baseImageUrl: wm.baseImageUrl,
+              canvasWidth: wm.canvasWidth ?? 1264,
+              canvasHeight: wm.canvasHeight ?? 848,
+              logoImageUrl: wm.logoImageUrl ?? null,
+              logoX: wm.logoX ?? 42,
+              logoY: wm.logoY ?? 30,
+              logoWidth: wm.logoWidth ?? 270,
+              logoHeight: wm.logoHeight ?? 185,
+              logoVisible: wm.logoVisible ?? true,
+              pointsJson: wm.pointsJson ?? [],
+              routesJson: wm.routesJson ?? [],
+              showRoutesLayer: wm.showRoutesLayer ?? true,
+              showPointsLayer: wm.showPointsLayer ?? true,
+              isActive: wm.isActive ?? true,
+            },
+            update: {
+              namePtBr: wm.namePtBr,
+              baseImageUrl: wm.baseImageUrl,
+              canvasWidth: wm.canvasWidth ?? 1264,
+              canvasHeight: wm.canvasHeight ?? 848,
+              logoImageUrl: wm.logoImageUrl ?? null,
+              logoX: wm.logoX ?? 42,
+              logoY: wm.logoY ?? 30,
+              logoWidth: wm.logoWidth ?? 270,
+              logoHeight: wm.logoHeight ?? 185,
+              logoVisible: wm.logoVisible ?? true,
+              pointsJson: wm.pointsJson ?? [],
+              routesJson: wm.routesJson ?? [],
+              showRoutesLayer: wm.showRoutesLayer ?? true,
+              showPointsLayer: wm.showPointsLayer ?? true,
+              isActive: wm.isActive ?? true,
             },
           });
         }

@@ -8,9 +8,9 @@
 ---
 
 ## 📌 Status Atual do Projeto
-* **Versão Atual:** `v0.12.0`
+* **Versão Atual:** `v0.13.0`
 * **Última Atualização:** `2026-11-12`
-* **Fase Atual:** **Arsenal Completo No-Code de Habilidades Action + Buffs/Debuffs + Motor Action de 4 Slots & VFX (`v0.12.0`)** — Sem inserir/editar dados das tabelas do usuário, todas as ferramentas visuais e de combate em tempo real necessárias para criar as 48 habilidades das 12 classes foram liberadas em `/admin` e `/play`.
+* **Fase Atual:** **Tabela de Mapas Gerais dos Continentes (`🌍 Mapas Gerais`) + Vínculo de Pontos + Logo Transparente Arrastável/Redimensionável (`v0.13.0`)** — Instalados os 2 continentes com base limpa (`1264x848`), camada interativa de pontos e rotas, vínculo direto a qualquer `GameMap` cadastrado e posicionamento/dimensionamento livre do logotipo transparente `Etheria Campus` em `/admin`. (Incluindo o seeding prévio das 48 habilidades e 31 buffs/debuffs do PDF na VPS live).
 * **Repositório Oficial:** `https://github.com/SeytaniR/etheria-campus`
 * **Fonte Bruta de Assets:** `https://github.com/SeytaniR/mcrework` (`https://seytanir.github.io/mcrework/`)
 
