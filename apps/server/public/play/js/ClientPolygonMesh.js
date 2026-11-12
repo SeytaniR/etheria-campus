@@ -69,6 +69,8 @@ class ClientPolygonMesh {
     this.navCols = 0;
     this.navRows = 0;
     this.navGrid = null;
+    this.mapWidth = 0;
+    this.mapHeight = 0;
   }
 
   compileBounds(polygons) {
@@ -119,6 +121,11 @@ class ClientPolygonMesh {
   }
 
   isPointBlocked(x, y) {
+    if (this.mapWidth > 0 && this.mapHeight > 0) {
+      if (x < 16 || x > this.mapWidth - 16 || y < 20 || y > this.mapHeight - 16) {
+        return true;
+      }
+    }
     for (let i = 0; i < this.collisionPolygons.length; i++) {
       if (ClientPolygonMesh.isPointInCompiledPolygon(x, y, this.collisionPolygons[i])) {
         return true;
@@ -129,6 +136,16 @@ class ClientPolygonMesh {
 
   isPointInCollision(x, y) {
     return this.isPointBlocked(x, y);
+  }
+
+  isPointBlockedWithBody(x, y, rx = 6, ry = 4) {
+    return (
+      this.isPointBlocked(x, y) ||
+      this.isPointBlocked(x - rx, y) ||
+      this.isPointBlocked(x + rx, y) ||
+      this.isPointBlocked(x, y - ry) ||
+      this.isPointBlocked(x, y + ry)
+    );
   }
 
   getCharacterOpacityAt(x, y) {
@@ -161,15 +178,17 @@ class ClientPolygonMesh {
    * Constrói a grade espacial binária (Uint8Array) para A* ultrarrápido (<1ms).
    */
   initNavGrid(mapWidth, mapHeight) {
-    let maxW = Number(mapWidth) || 0;
-    let maxH = Number(mapHeight) || 0;
+    let maxW = Number(mapWidth) || this.mapWidth || 0;
+    let maxH = Number(mapHeight) || this.mapHeight || 0;
+    if (maxW > 0) this.mapWidth = maxW;
+    if (maxH > 0) this.mapHeight = maxH;
 
     for (const p of this.collisionPolygons) {
       if (p.maxX > maxW) maxW = p.maxX + 120;
       if (p.maxY > maxH) maxH = p.maxY + 120;
     }
-    maxW = Math.max(maxW, 2200);
-    maxH = Math.max(maxH, 1600);
+    maxW = this.mapWidth > 0 ? this.mapWidth : Math.max(maxW, 2000);
+    maxH = this.mapHeight > 0 ? this.mapHeight : Math.max(maxH, 1500);
 
     const cs = this.navCellSize;
     this.navCols = Math.ceil(maxW / cs);

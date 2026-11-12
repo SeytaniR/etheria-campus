@@ -28,12 +28,8 @@ export interface GrantedQuestDropSummary {
 
 export class CharacterInventoryService {
   private static resolveIconUrl(mcreworkIconKey: string | null | undefined): string {
-    const pagesBaseUrl = (process.env.MCREWORK_PAGES_URL ?? 'https://seytanir.github.io/mcrework').replace(
-      /\/+$/,
-      '',
-    );
     const key = mcreworkIconKey || 'assets/items/icons/item_normal_060009.png';
-    return `${pagesBaseUrl}/${key.replace(/^\/+/, '')}`;
+    return `/api/assets/mcrework/${key.replace(/^\/+/, '')}`;
   }
 
   /**

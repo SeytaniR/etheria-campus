@@ -23,7 +23,7 @@ class ActionVfxRenderer {
     const entry = { key, ready: false, atlasData: null, image: null };
     this.vfxCache.set(key, entry);
 
-    fetch(`https://seytanir.github.io/mcrework/assets/effects/${key}/atlas.json`)
+    fetch(`/api/assets/mcrework/assets/effects/${key}/atlas.json`)
       .then((r) => (r.ok ? r.json() : Promise.reject(new Error(`HTTP ${r.status}`))))
       .then((json) => {
         entry.atlasData = json;
@@ -33,7 +33,7 @@ class ActionVfxRenderer {
           entry.image = img;
           entry.ready = true;
         };
-        img.src = `https://seytanir.github.io/mcrework/assets/effects/${key}/atlas.webp`;
+        img.src = `/api/assets/mcrework/assets/effects/${key}/atlas.webp`;
       })
       .catch(() => {});
 

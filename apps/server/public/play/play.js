@@ -55,6 +55,10 @@ class EtheriaPlayClient {
 
     // Cooldown de Portal e Sincronização com o Servidor
     this.portalCooldownUntil = 0;
+    this.isTraversingPortal = false;
+    this.arrivedAtPortalId = null;
+    this.camX = 0;
+    this.camY = 0;
     this.lastSyncedX = 0;
     this.lastSyncedY = 0;
     this.lastSyncTime = 0;
@@ -76,6 +80,7 @@ class EtheriaPlayClient {
     if (window.PlayGmController) window.PlayGmController.attach(this);
     if (window.PlayQuestsController) window.PlayQuestsController.attach(this);
     if (window.PlayBagController) window.PlayBagController.attach(this);
+    if (window.PlayAssetDownloader) window.PlayAssetDownloader.attach(this);
 
     this.lastFrameTime = performance.now();
     this.init();
@@ -93,7 +98,7 @@ class EtheriaPlayClient {
       try {
         await this.loadPlayBootstrap();
         this.showLobby();
-        return;
+    
       } catch {
         // Se o token antigo expirou, mostra tela de login
       }
@@ -193,7 +198,13 @@ class EtheriaPlayClient {
     return this.spriteCache.get(key);
   }
 
-  async loadMapIntoWorld(mapId, startX, startY) {
+  getMapBounds() {
+    const w = this.mapBgImage?.naturalWidth || this.currentMap?.width || 2000;
+    const h = this.mapBgImage?.naturalHeight || this.currentMap?.height || 1500;
+    return { width: Math.max(200, Number(w)), height: Math.max(200, Number(h)) };
+  }
+
+  async loadMapIntoWorld(mapId, startX, startY, arrivedAtPortalId = null) {
     try {
       const mapData = await this.api(`/api/play/map/${mapId}`);
       this.currentMap = mapData;
@@ -207,7 +218,21 @@ class EtheriaPlayClient {
       this.playerY = startY !== undefined ? Number(startY) : Number(mapData.spawnY);
       this.moveTargetX = null;
       this.moveTargetY = null;
-      this.portalCooldownUntil = performance.now() + 1800;
+      this.isTraversingPortal = true;
+      this.currentPath = null;
+      this.moveTargetX = null;
+      this.moveTargetY = null;
+      this.targetDestX = null;
+      this.targetDestY = null;
+      this.arrivedAtPortalId = arrivedAtPortalId ?? null;
+      if (mapData.width && mapData.height) {
+        this.mesh?.initNavGrid(mapData.width, mapData.height);
+      }
+      const initialW = mapData.width || 2000;
+      const initialH = mapData.height || 1500;
+      this.playerX = Math.max(20, Math.min(initialW - 20, this.playerX));
+      this.playerY = Math.max(24, Math.min(initialH - 20, this.playerY));
+      this.portalCooldownUntil = performance.now() + 5000;
 
       // Carrega a imagem base limpa do mapa via proxy local ou remoto com fallback automático
       let rawBg = (mapData.bgImageUrl || mapData.mcreworkMapImage || '').trim();
@@ -244,6 +269,8 @@ class EtheriaPlayClient {
       }
     } catch (err) {
       alert(`Erro ao carregar mapa #${mapId}: ${err.message}`);
+    } finally {
+      this.isTraversingPortal = false;
     }
   }
 
@@ -258,6 +285,9 @@ class EtheriaPlayClient {
         if (this.currentMap && Number(this.currentMap.id) === Number(mapId)) {
           this.mapBgImage = img;
           this.mesh?.initNavGrid(img.naturalWidth, img.naturalHeight);
+          const b = this.getMapBounds();
+          this.playerX = Math.max(18, Math.min(b.width - 18, this.playerX));
+          this.playerY = Math.max(20, Math.min(b.height - 18, this.playerY));
         }
       };
       img.onerror = (err) => {
@@ -275,6 +305,9 @@ class EtheriaPlayClient {
         if (this.currentMap && Number(this.currentMap.id) === Number(mapId)) {
           this.mapBgImage = img;
           this.mesh?.initNavGrid(img.naturalWidth, img.naturalHeight);
+          const b = this.getMapBounds();
+          this.playerX = Math.max(18, Math.min(b.width - 18, this.playerX));
+          this.playerY = Math.max(20, Math.min(b.height - 18, this.playerY));
         }
       }
     };
@@ -364,6 +397,9 @@ class EtheriaPlayClient {
       const sx = e.clientX - rect.left;
       const sy = e.clientY - rect.top;
       const worldPt = this.screenToWorld(sx, sy);
+      const bounds = this.getMapBounds();
+      worldPt.x = Math.max(18, Math.min(bounds.width - 18, worldPt.x));
+      worldPt.y = Math.max(20, Math.min(bounds.height - 18, worldPt.y));
 
       // Em batalha na arena: clique sobre monstro seleciona alvo de ataque teleguiado
       if (this.actionCombatArena?.isActive) {
@@ -377,7 +413,7 @@ class EtheriaPlayClient {
         const playerDist = Math.hypot(this.playerX - npc.posX, this.playerY - npc.posY);
         if (clickDist <= 42 && playerDist <= 95 && typeof this.openNpcQuestModal === 'function') {
           void this.openNpcQuestModal(npc);
-          return;
+      
         }
       }
 
@@ -453,8 +489,8 @@ class EtheriaPlayClient {
     const canvas = document.getElementById('gameCanvas');
     const focusX = this.actionCombatArena?.isActive ? this.actionCombatArena.getCamFocusX() : this.playerX;
     const focusY = this.actionCombatArena?.isActive ? this.actionCombatArena.getCamFocusY() : this.playerY;
-    const camX = canvas.width / 2 - focusX * this.zoom;
-    const camY = canvas.height / 2 - focusY * this.zoom;
+    const camX = this.camX !== undefined ? this.camX : Math.round(canvas.width / 2 - focusX * this.zoom);
+    const camY = this.camY !== undefined ? this.camY : Math.round(canvas.height / 2 - focusY * this.zoom);
     return {
       x: Math.round((sx - camX) / this.zoom),
       y: Math.round((sy - camY) / this.zoom),
@@ -531,9 +567,15 @@ class EtheriaPlayClient {
     if (vx !== 0 || vy !== 0) {
       this.isMoving = true;
       this.playerDir = this.calculateDirection8(vx, vy);
+      const bounds = this.getMapBounds();
+      const pad = 18;
+      const clampX = (x) => Math.max(pad, Math.min(bounds.width - pad, x));
+      const clampY = (y) => Math.max(pad, Math.min(bounds.height - pad, y));
+      this.playerX = clampX(this.playerX);
+      this.playerY = clampY(this.playerY);
       const speed = this.baseMoveSpeed * this.gmSpeedMultiplier;
-      const nextX = this.playerX + vx * speed * dt;
-      const nextY = this.playerY + vy * speed * dt;
+      const nextX = clampX(this.playerX + vx * speed * dt);
+      const nextY = clampY(this.playerY + vy * speed * dt);
       const prevX = this.playerX;
       const prevY = this.playerY;
 
@@ -606,10 +648,10 @@ class EtheriaPlayClient {
       !this.activeChar ||
       now < this.encounterCooldownUntil
     ) {
-      return;
+  
     }
     if (!this.currentMap.mapType?.allowMonsterSpawn || this.currentMap.canSpawnMonsters === false) {
-      return;
+  
     }
     const rate = Number(this.currentMap.encounterRatePct) || 0;
     if (rate > 0 && Math.random() * 100 < rate) {
@@ -625,7 +667,7 @@ class EtheriaPlayClient {
       !this.currentMap.mapType?.allowMonsterSpawn ||
       this.currentMap.canSpawnMonsters === false
     ) {
-      return;
+  
     }
     this.isEncounterLoading = true;
     this.moveTargetX = null;
@@ -673,15 +715,22 @@ class EtheriaPlayClient {
     const textEl = document.getElementById('interactionText');
     const btnEl = document.getElementById('interactionBtn');
 
-    if (!this.currentMap || this.actionCombatArena?.isActive) {
+    if (!this.currentMap || this.actionCombatArena?.isActive || this.isTraversingPortal) {
       if (prompt) prompt.style.display = 'none';
-      return;
+  
     }
 
     // 1. Verifica proximidade de Portais Pareados
     for (const p of this.currentMap.portals || []) {
       const dist = Math.hypot(this.playerX - p.sourceX, this.playerY - p.sourceY);
       const radius = Number(p.triggerRadius) || 48;
+      if (this.arrivedAtPortalId === p.id) {
+        if (dist > radius + 22) {
+          this.arrivedAtPortalId = null;
+        } else {
+          continue;
+        }
+      }
       if (dist <= radius + 14) {
         prompt.style.display = 'flex';
         textEl.textContent = `🌀 ${p.label}`;
@@ -690,10 +739,10 @@ class EtheriaPlayClient {
 
         // Travessia automática ao pisar no núcleo do portal (se já passou o cooldown de saída)
         if (dist <= radius * 0.7 && p.targetMapId && now > this.portalCooldownUntil) {
-          this.portalCooldownUntil = now + 2500;
+          this.portalCooldownUntil = now + 4000;
           void this.traversePortal(p.id);
         }
-        return;
+    
       }
     }
 
@@ -707,7 +756,7 @@ class EtheriaPlayClient {
         textEl.textContent = `🧙 ${n.namePtBr}`;
         btnEl.textContent = stateLabels[qInd?.state] || '💬 Conversar';
         btnEl.onclick = () => { if (typeof this.openNpcQuestModal === 'function') void this.openNpcQuestModal(n); };
-        return;
+    
       }
     }
 
@@ -715,7 +764,8 @@ class EtheriaPlayClient {
   }
 
   async traversePortal(portalId) {
-    if (!this.activeChar) return;
+    if (!this.activeChar || this.isTraversingPortal) return;
+    this.isTraversingPortal = true;
     try {
       const res = await this.api(`/api/play/characters/${this.activeChar.id}/traverse-portal`, {
         method: 'POST',
@@ -724,9 +774,11 @@ class EtheriaPlayClient {
       this.activeChar.currentMapId = res.currentMapId;
       this.activeChar.posX = res.posX;
       this.activeChar.posY = res.posY;
-      await this.loadMapIntoWorld(res.currentMapId, res.posX, res.posY);
+      await this.loadMapIntoWorld(res.currentMapId, res.posX, res.posY, res.arrivedAtPortalId);
     } catch (err) {
       alert(`🌀 Portal: ${err.message}`);
+    } finally {
+      this.isTraversingPortal = false;
     }
   }
 
@@ -759,8 +811,32 @@ class EtheriaPlayClient {
 
     const focusX = this.actionCombatArena?.isActive ? this.actionCombatArena.getCamFocusX() : this.playerX;
     const focusY = this.actionCombatArena?.isActive ? this.actionCombatArena.getCamFocusY() : this.playerY;
-    const camX = Math.round(canvas.width / 2 - focusX * this.zoom);
-    const camY = Math.round(canvas.height / 2 - focusY * this.zoom);
+    const bounds = this.getMapBounds();
+    const mapW = bounds.width;
+    const mapH = bounds.height;
+    let camX = Math.round(canvas.width / 2 - focusX * this.zoom);
+    let camY = Math.round(canvas.height / 2 - focusY * this.zoom);
+
+    // LIMITA A CÂMERA À BORDA DO MAPA (Sem jamais mostrar área preta vazia)
+    const totalRenderedW = mapW * this.zoom;
+    const totalRenderedH = mapH * this.zoom;
+
+    if (totalRenderedW <= canvas.width) {
+      camX = Math.round((canvas.width - totalRenderedW) / 2);
+    } else {
+      const minCamX = Math.round(canvas.width - totalRenderedW);
+      camX = Math.max(minCamX, Math.min(0, camX));
+    }
+
+    if (totalRenderedH <= canvas.height) {
+      camY = Math.round((canvas.height - totalRenderedH) / 2);
+    } else {
+      const minCamY = Math.round(canvas.height - totalRenderedH);
+      camY = Math.max(minCamY, Math.min(0, camY));
+    }
+
+    this.camX = camX;
+    this.camY = camY;
 
     ctx.save();
     ctx.translate(camX, camY);

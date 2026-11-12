@@ -31,6 +31,7 @@ import { AdminAttributesController } from './controllers/AdminAttributesControll
 import { AdminExperienceController } from './controllers/AdminExperienceController.js';
 import { AdminWorldMapsController } from './controllers/AdminWorldMapsController.js';
 import { TemporaryCombatController } from './controllers/TemporaryCombatController.js';
+import { AssetMirrorService } from './controllers/AssetMirrorService.js';
 import { AdminRouter } from './routes/AdminRouter.js';
 import { PlayRouter } from './routes/PlayRouter.js';
 
@@ -79,6 +80,7 @@ export class EtheriaServerApp {
   private readonly experienceController: AdminExperienceController;
   private readonly worldMapsController: AdminWorldMapsController;
   private readonly combatController: TemporaryCombatController;
+  private readonly assetMirrorService: AssetMirrorService;
   private readonly adminRouter: AdminRouter;
   private readonly playRouter: PlayRouter;
   private readonly publicDir: string;
@@ -88,10 +90,11 @@ export class EtheriaServerApp {
   constructor() {
     this.prisma = new PrismaClient();
     const snapshotManager = new SnapshotManager(this.prisma);
+    this.assetMirrorService = new AssetMirrorService();
     this.authService = new AdminAuthService(this.prisma);
     this.usersController = new AdminUsersController(this.prisma);
     this.mapsController = new AdminMapsController(this.prisma);
-    this.playController = new GamePlayController(this.prisma);
+    this.playController = new GamePlayController(this.prisma, this.assetMirrorService);
     this.monstersController = new AdminMonstersController(this.prisma);
     this.petsController = new AdminPetsController(this.prisma);
     this.equipmentsController = new AdminEquipmentsController(this.prisma);
@@ -133,6 +136,7 @@ export class EtheriaServerApp {
       playController: this.playController,
       combatController: this.combatController,
       questsController: this.questsController,
+      assetMirrorService: this.assetMirrorService,
       sendJson,
       readJsonBody,
     });
@@ -240,12 +244,16 @@ export class EtheriaServerApp {
       const ext = path.extname(fullPath).toLowerCase();
       const contentType = EtheriaServerApp.MIME_TYPES[ext] || 'application/octet-stream';
       const fileData = await fs.readFile(fullPath);
-      res.writeHead(200, {
+      const headers: Record<string, string> = {
         'Content-Type': contentType,
         'Cache-Control': 'no-cache, no-store, must-revalidate, max-age=0',
         'Pragma': 'no-cache',
         'Expires': '0',
-      });
+      };
+      if (safeRel === 'play/sw.js' || safeRel === 'play\\sw.js') {
+        headers['Service-Worker-Allowed'] = '/';
+      }
+      res.writeHead(200, headers);
       res.end(fileData);
       return true;
     } catch {
@@ -254,21 +262,20 @@ export class EtheriaServerApp {
   }
 
   /**
-   * Proxy reverso resiliente e de alta performance para imagens de mapas.
-   * Evita bloqueios de CORS e requisições cross-domain, servindo via same-origin com cache em memória RAM.
-   * Implementa expulsão FIFO para respeitar o limite máximo de imagens simultâneas em memória.
+   * Proxy reverso resiliente para imagens de mapas via cache persistente em disco + RAM.
    */
-  private async handleMapImageAsset(mapId: number, res: http.ServerResponse): Promise<void> {
+  private async handleMapImageAsset(mapId: number, res: http.ServerResponse, method: string = 'GET'): Promise<void> {
     try {
       const cached = this.mapImageCache.get(mapId);
       if (cached) {
         res.writeHead(200, {
           'Content-Type': cached.contentType,
           'Content-Length': cached.buffer.length,
-          'Cache-Control': 'public, max-age=604800, stale-while-revalidate=86400',
+          'Cache-Control': 'public, max-age=31536000, immutable',
           'Access-Control-Allow-Origin': '*',
         });
-        res.end(cached.buffer);
+        if (method === 'HEAD') res.end();
+        else res.end(cached.buffer);
         return;
       }
 
@@ -282,76 +289,36 @@ export class EtheriaServerApp {
         return;
       }
 
-      let targetUrl = map.mcreworkMapImage.trim();
-      if (!targetUrl.startsWith('http://') && !targetUrl.startsWith('https://')) {
-        targetUrl = `https://seytanir.github.io/mcrework/${targetUrl.replace(/^\/+/, '')}`;
-      }
-
-      const upstream = await globalThis.fetch(targetUrl);
-      if (!upstream.ok) {
-        this.sendJson(res, upstream.status, { error: `Erro upstream ao baixar imagem do mapa: HTTP ${upstream.status}` });
+      const asset = await this.assetMirrorService.getOrFetchAsset(map.mcreworkMapImage);
+      if (!asset) {
+        this.sendJson(res, 502, { error: `Falha ao baixar imagem do mapa #${mapId} no mirror local.` });
         return;
       }
 
-      const contentType = upstream.headers.get('content-type') || 'image/jpeg';
-      const arrayBuf = await upstream.arrayBuffer();
-      const buffer = Buffer.from(arrayBuf);
-
-      // Limita o tamanho do cache em memória com eviction FIFO
       if (this.mapImageCache.size >= EtheriaServerApp.MAX_CACHED_MAP_IMAGES && !this.mapImageCache.has(mapId)) {
         const oldestKey = this.mapImageCache.keys().next().value;
-        if (oldestKey !== undefined) {
-          this.mapImageCache.delete(oldestKey);
-        }
+        if (oldestKey !== undefined) this.mapImageCache.delete(oldestKey);
       }
-
-      this.mapImageCache.set(mapId, { buffer, contentType });
+      this.mapImageCache.set(mapId, { buffer: asset.buffer, contentType: asset.contentType });
 
       res.writeHead(200, {
-        'Content-Type': contentType,
-        'Content-Length': buffer.length,
-        'Cache-Control': 'public, max-age=604800, stale-while-revalidate=86400',
+        'Content-Type': asset.contentType,
+        'Content-Length': asset.buffer.length,
+        'Cache-Control': 'public, max-age=31536000, immutable',
         'Access-Control-Allow-Origin': '*',
       });
-      res.end(buffer);
+      if (method === 'HEAD') res.end();
+      else res.end(asset.buffer);
     } catch (err: any) {
       this.sendJson(res, 500, { error: `Falha interna no proxy da imagem do mapa: ${err?.message || err}` });
     }
   }
 
   /**
-   * Pré-carrega de forma assíncrona as imagens de fundo dos primeiros 5 mapas na memória RAM,
-   * garantindo respostas com latência zero (0ms) no boot sem sobrecarregar a memória em ARM64.
+   * Pré-aquece no disco local da VPS todos os assets curados ativos (mapas, sprites, ícones e VFX).
    */
   public async prewarmMapImages(): Promise<void> {
-    try {
-      const maps = await this.prisma.gameMap.findMany({
-        where: { mcreworkMapImage: { not: '' } },
-        select: { id: true, mcreworkMapImage: true },
-        take: 5,
-        orderBy: { id: 'asc' },
-      });
-      for (const map of maps) {
-        if (!map.mcreworkMapImage) continue;
-        let targetUrl = map.mcreworkMapImage.trim();
-        if (!targetUrl.startsWith('http://') && !targetUrl.startsWith('https://')) {
-          targetUrl = `https://seytanir.github.io/mcrework/${targetUrl.replace(/^\/+/, '')}`;
-        }
-        try {
-          const upstream = await globalThis.fetch(targetUrl);
-          if (upstream.ok) {
-            const contentType = upstream.headers.get('content-type') || 'image/jpeg';
-            const arrayBuf = await upstream.arrayBuffer();
-            this.mapImageCache.set(map.id, { buffer: Buffer.from(arrayBuf), contentType });
-          }
-        } catch {
-          // Fallback silencioso; se falhar no boot, carrega sob demanda
-        }
-      }
-      console.log(`🗺️ [AssetCache] ${this.mapImageCache.size} imagem(ns) de mapas pré-carregadas em memória RAM.`);
-    } catch (err: any) {
-      console.warn(`[AssetCache] Falha ao pré-aquecer cache de mapas: ${err?.message || err}`);
-    }
+    await this.assetMirrorService.prewarmCuratedAssets(this.prisma);
   }
 
   /**
@@ -363,11 +330,30 @@ export class EtheriaServerApp {
       const pathname = urlObj.pathname;
       const method = req.method ?? 'GET';
 
-      // 0. Asset Proxy Público (Imagens de Fundo dos Mapas em Cache RAM com Limite de Memória)
+      // 0a. Asset Proxy Público para mapas (/api/assets/map-image/:id)
       const mapAssetMatch = pathname.match(/^\/api\/assets\/map-image\/(\d+)$/);
       if (mapAssetMatch && (method === 'GET' || method === 'HEAD')) {
         const mapId = Number(mapAssetMatch[1]);
-        await this.handleMapImageAsset(mapId, res);
+        await this.handleMapImageAsset(mapId, res, method);
+        return;
+      }
+
+      // 0b. Asset Mirror Persistente em Disco para qualquer asset curado (/api/assets/mcrework/assets/...)
+      const mcreworkAssetMatch = pathname.match(/^\/api\/assets\/mcrework\/(assets\/.+)$/);
+      if (mcreworkAssetMatch && (method === 'GET' || method === 'HEAD')) {
+        const asset = await this.assetMirrorService.getOrFetchAsset(mcreworkAssetMatch[1]);
+        if (!asset) {
+          this.sendJson(res, 404, { error: `Asset não encontrado: ${mcreworkAssetMatch[1]}` });
+          return;
+        }
+        res.writeHead(200, {
+          'Content-Type': asset.contentType,
+          'Content-Length': asset.buffer.length,
+          'Cache-Control': 'public, max-age=31536000, immutable',
+          'Access-Control-Allow-Origin': '*',
+        });
+        if (method === 'HEAD') res.end();
+        else res.end(asset.buffer);
         return;
       }
 

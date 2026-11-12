@@ -13,6 +13,7 @@ import type { AdminAuthService } from '../security/AdminAuthService.js';
 import type { GamePlayController } from '../controllers/GamePlayController.js';
 import type { TemporaryCombatController } from '../controllers/TemporaryCombatController.js';
 import type { AdminQuestsController } from '../controllers/AdminQuestsController.js';
+import type { AssetMirrorService } from '../controllers/AssetMirrorService.js';
 
 export interface PlayRouterDeps {
   prisma: PrismaClient;
@@ -20,6 +21,7 @@ export interface PlayRouterDeps {
   playController: GamePlayController;
   combatController: TemporaryCombatController;
   questsController: AdminQuestsController;
+  assetMirrorService: AssetMirrorService;
   sendJson: (res: http.ServerResponse, statusCode: number, data: unknown) => void;
   readJsonBody: <T = any>(req: http.IncomingMessage) => Promise<T>;
 }
@@ -95,6 +97,12 @@ export class PlayRouter {
     }
 
     // --- Bootstrap do Jogo (Personagens do Usuário, Mapas, Classes e Offset) ---
+    if (pathname === '/api/play/assets-manifest' && method === 'GET') {
+      const manifest = await this.deps.assetMirrorService.buildPlayAssetsManifest(this.deps.prisma);
+      this.deps.sendJson(res, 200, manifest);
+      return true;
+    }
+
     if (pathname === '/api/play/bootstrap' && method === 'GET') {
       const data = await this.deps.playController.getPlayBootstrap(userAccountId);
       this.deps.sendJson(res, 200, {

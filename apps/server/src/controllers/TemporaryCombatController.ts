@@ -111,7 +111,7 @@ export interface TemporaryBattleState {
 
 export class TemporaryCombatController {
   private readonly prisma: PrismaClient;
-  private readonly mcreworkPagesBaseUrl = 'https://seytanir.github.io/mcrework';
+  private readonly mcreworkPagesBaseUrl = '/api/assets/mcrework';
   private readonly activeBattles: Map<string, TemporaryBattleState> = new Map();
 
   constructor(prisma: PrismaClient) {

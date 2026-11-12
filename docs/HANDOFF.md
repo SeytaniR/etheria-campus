@@ -8,9 +8,9 @@
 ---
 
 ## 📌 Status Atual do Projeto
-* **Versão Atual:** `v0.13.0`
+* **Versão Atual:** `v0.14.0`
 * **Última Atualização:** `2026-11-12`
-* **Fase Atual:** **Tabela de Mapas Gerais dos Continentes (`🌍 Mapas Gerais`) + Vínculo de Pontos + Logo Transparente Arrastável/Redimensionável (`v0.13.0`)** — Instalados os 2 continentes com base limpa (`1264x848`), camada interativa de pontos e rotas, vínculo direto a qualquer `GameMap` cadastrado e posicionamento/dimensionamento livre do logotipo transparente `Etheria Campus` em `/admin`. (Incluindo o seeding prévio das 48 habilidades e 31 buffs/debuffs do PDF na VPS live).
+* **Fase Atual:** **Câmera e Movimento Limitados à Borda do Mapa (Zero Área Preta) + Correção de Portais/Bouncing + Download e Cache Local de Assets (`v0.14.0`)** — Corrigida a câmera para nunca exibir o vazio preto fora do mapa, limitada a movimentação estritamente à borda da imagem (`[18, mapW - 18]`), resolvido o bug de portal teleportando de volta (imunidade de aterrissagem + afastamento obrigatório), adicionado espelho e cache em disco local na VPS (`AssetMirrorService`) e gerenciador de download local no client (`PlayAssetDownloader` com CacheStorage).
 * **Repositório Oficial:** `https://github.com/SeytaniR/etheria-campus`
 * **Fonte Bruta de Assets:** `https://github.com/SeytaniR/mcrework` (`https://seytanir.github.io/mcrework/`)
 

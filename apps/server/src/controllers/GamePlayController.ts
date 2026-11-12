@@ -18,6 +18,7 @@ import { PrismaClient, SnapshotManager, I18nCache } from '@etheria/database';
 import { MapPolygonMesh, type MapPolygon } from '@etheria/shared';
 import { MapSpawnResolver } from './MapSpawnResolver.js';
 import { CharacterInventoryService } from './CharacterInventoryService.js';
+import { AssetMirrorService } from './AssetMirrorService.js';
 
 export interface CreateCharacterDto {
   name: string;
@@ -40,7 +41,8 @@ export interface GmTeleportDto {
 export class GamePlayController {
   private readonly prisma: PrismaClient;
   private readonly snapshotManager: SnapshotManager;
-  private readonly mcreworkPagesBaseUrl = 'https://seytanir.github.io/mcrework';
+  private readonly assetMirrorService: AssetMirrorService;
+  private readonly mcreworkPagesBaseUrl = '/api/assets/mcrework';
 
   /**
    * Velocidade de movimento base autoritária dos jogadores no mapa 2.5D (em pixels por segundo).
@@ -53,9 +55,10 @@ export class GamePlayController {
    */
   private readonly lastSyncTimes = new Map<number, number>();
 
-  constructor(prisma: PrismaClient) {
+  constructor(prisma: PrismaClient, assetMirrorService?: AssetMirrorService) {
     this.prisma = prisma;
     this.snapshotManager = new SnapshotManager(prisma);
+    this.assetMirrorService = assetMirrorService ?? new AssetMirrorService();
   }
 
   /**
@@ -373,9 +376,9 @@ export class GamePlayController {
       throw new Error('Nenhum mapa cadastrado no banco de dados.');
     }
 
-    const bgUrl = map.mcreworkMapImage.startsWith('http://') || map.mcreworkMapImage.startsWith('https://')
-      ? map.mcreworkMapImage
-      : `${this.mcreworkPagesBaseUrl}/${map.mcreworkMapImage.replace(/^\/+/, '')}`;
+    const asset = await this.assetMirrorService.getOrFetchAsset(map.mcreworkMapImage);
+    const dims = asset ? AssetMirrorService.getImageDimensions(asset.buffer) : null;
+    const bgUrl = `/api/assets/map-image/${map.id}`;
 
     const effectiveEncounterRate = MapSpawnResolver.resolveEffectiveEncounterRate(
       map.mapType.allowMonsterSpawn,
@@ -391,6 +394,8 @@ export class GamePlayController {
       namePtBr: i18nMap.get(map.nameI18nKey) ?? map.code,
       mcreworkMapImage: map.mcreworkMapImage,
       bgImageUrl: bgUrl,
+      width: dims?.width ?? null,
+      height: dims?.height ?? null,
       requiredLevel: map.requiredLevel,
       encounterRatePct: effectiveEncounterRate,
       canSpawnMonsters: Boolean(
@@ -470,8 +475,28 @@ export class GamePlayController {
       throw new Error('Mapa não encontrado.');
     }
 
-    const posX = Math.round(Number(dto.posX) || map.spawnX);
-    const posY = Math.round(Number(dto.posY) || map.spawnY);
+    // Impede que requisições atrasadas do mapa anterior sobrescrevam uma travessia de portal concluída
+    if (char.currentMapId && char.currentMapId !== map.id) {
+      return {
+        ok: false,
+        staleMapIgnored: true,
+        blocked: false,
+        speedClamped: false,
+        currentMapId: char.currentMapId,
+        posX: char.posX,
+        posY: char.posY,
+      };
+    }
+
+    const asset = await this.assetMirrorService.getOrFetchAsset(map.mcreworkMapImage);
+    const dims = asset ? AssetMirrorService.getImageDimensions(asset.buffer) : null;
+    const clampBoundX = (val: number) =>
+      dims ? Math.max(16, Math.min(dims.width - 16, val)) : Math.max(16, val);
+    const clampBoundY = (val: number) =>
+      dims ? Math.max(20, Math.min(dims.height - 16, val)) : Math.max(20, val);
+
+    const posX = clampBoundX(Math.round(Number(dto.posX) || map.spawnX));
+    const posY = clampBoundY(Math.round(Number(dto.posY) || map.spawnY));
     const isGmNoClip = Boolean(dto.noClip) && (userRole === 'ADMIN' || userRole === 'GM');
 
     // Validação autoritária de velocidade: impede speedhack em contas normais
@@ -489,8 +514,8 @@ export class GamePlayController {
       const maxAllowedDist = GamePlayController.AUTHORITATIVE_BASE_MOVE_SPEED * elapsedSec * 1.5 + 40;
       if (dist > maxAllowedDist) {
         const ratio = maxAllowedDist / dist;
-        finalPosX = Math.round(char.posX + (posX - char.posX) * ratio);
-        finalPosY = Math.round(char.posY + (posY - char.posY) * ratio);
+        finalPosX = clampBoundX(Math.round(char.posX + (posX - char.posX) * ratio));
+        finalPosY = clampBoundY(Math.round(char.posY + (posY - char.posY) * ratio));
         speedClamped = true;
       }
     }
@@ -547,9 +572,15 @@ export class GamePlayController {
       throw new Error('Portal não encontrado.');
     }
 
+    if (char.currentMapId && portal.sourceMapId !== char.currentMapId) {
+      throw new Error('Este portal pertence a outro mapa.');
+    }
+
     let destMapId = portal.targetMapId;
     let destX = portal.targetX;
     let destY = portal.targetY;
+    let partnerPortalId: number | null = portal.linkedPortalId ?? null;
+    let arrivalRadius = portal.triggerRadius || 48;
 
     // Se possui linkedPortalId, busca a posição exata do portal par no mapa de destino
     if (portal.linkedPortalId) {
@@ -560,6 +591,8 @@ export class GamePlayController {
         destMapId = partner.sourceMapId;
         destX = partner.sourceX;
         destY = partner.sourceY;
+        partnerPortalId = partner.id;
+        arrivalRadius = partner.triggerRadius || 48;
       }
     }
 
@@ -569,19 +602,65 @@ export class GamePlayController {
       );
     }
 
+    const destMap = await this.prisma.gameMap.findUnique({ where: { id: destMapId } });
+    if (!destMap) {
+      throw new Error(`Mapa de destino #${destMapId} não encontrado.`);
+    }
+
+    // Calcula ponto seguro de aterrissagem fora do núcleo do portal de chegada para impedir loop de volta
+    const asset = await this.assetMirrorService.getOrFetchAsset(destMap.mcreworkMapImage);
+    const dims = asset ? AssetMirrorService.getImageDimensions(asset.buffer) : null;
+    const collisionPolys = Array.isArray(destMap.collisionMeshJson)
+      ? (destMap.collisionMeshJson as unknown as MapPolygon[])
+      : [];
+    const mesh = new MapPolygonMesh(collisionPolys);
+
+    const clampX = (v: number) => (dims ? Math.max(24, Math.min(dims.width - 24, v)) : Math.max(24, v));
+    const clampY = (v: number) => (dims ? Math.max(28, Math.min(dims.height - 24, v)) : Math.max(28, v));
+
+    let safeX = clampX(destX);
+    let safeY = clampY(destY);
+
+    if (partnerPortalId) {
+      const stepDist = Math.max(62, arrivalRadius + 18);
+      const baseAngle = Math.atan2(destMap.spawnY - destY, destMap.spawnX - destX);
+      const candidateAngles = [
+        baseAngle,
+        baseAngle + Math.PI / 4,
+        baseAngle - Math.PI / 4,
+        baseAngle + Math.PI / 2,
+        baseAngle - Math.PI / 2,
+        0,
+        Math.PI / 2,
+        Math.PI,
+        -Math.PI / 2,
+      ];
+      for (const ang of candidateAngles) {
+        const cx = clampX(Math.round(destX + Math.cos(ang) * stepDist));
+        const cy = clampY(Math.round(destY + Math.sin(ang) * stepDist));
+        if (!mesh.containsPoint(cx, cy)) {
+          safeX = cx;
+          safeY = cy;
+          break;
+        }
+      }
+    }
+
+    this.lastSyncTimes.delete(characterId);
     await this.prisma.playerCharacter.update({
       where: { id: characterId },
       data: {
         currentMapId: destMapId,
-        posX: destX,
-        posY: destY,
+        posX: safeX,
+        posY: safeY,
       },
     });
 
     return {
       currentMapId: destMapId,
-      posX: destX,
-      posY: destY,
+      posX: safeX,
+      posY: safeY,
+      arrivedAtPortalId: partnerPortalId,
     };
   }
 
@@ -599,6 +678,7 @@ export class GamePlayController {
     const spawnX = map ? map.spawnX : 500;
     const spawnY = map ? map.spawnY : 500;
 
+    this.lastSyncTimes.delete(characterId);
     await this.prisma.playerCharacter.update({
       where: { id: characterId },
       data: {
@@ -643,6 +723,7 @@ export class GamePlayController {
     const posX = dto.targetX !== undefined ? Number(dto.targetX) : targetMap.spawnX;
     const posY = dto.targetY !== undefined ? Number(dto.targetY) : targetMap.spawnY;
 
+    this.lastSyncTimes.delete(characterId);
     await this.prisma.playerCharacter.update({
       where: { id: characterId },
       data: {

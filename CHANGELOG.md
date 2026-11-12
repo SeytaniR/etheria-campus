@@ -5,6 +5,22 @@ Qualquer IA trabalhando neste repositório **DEVE** incrementar a versão e regi
 
 ---
 
+---
+
+## [v0.14.0] - 2026-11-12
+### Limite Estrito de Bordas do Mapa e Câmera (Zero Área Preta), Imunidade Anti-Loop de Portais & Download Local de Assets
+* **Corrigido & Aprimorado (Câmera & Bordas do Mapa em `/play`):**
+  * **Trava de Câmera nas Bordas (`play.js`):** `camX` e `camY` passam a ser estritamente limitados à área da imagem (`[canvas.width - mapW * zoom, 0]` e `[canvas.height - mapH * zoom, 0]`), ou perfeitamente centralizados caso o mapa renderizado seja menor que a janela do navegador. Eliminação completa de faixas pretas ou visão do vazio ao redor dos mapas.
+  * **Trava de Movimento nas Bordas (`play.js` & `ClientPolygonMesh.js`):** O personagem e o destino do clique agora são travados dentro dos limites reais da imagem (`[18, mapWidth - 18]` e `[20, mapHeight - 18]`), e `ClientPolygonMesh.isPointBlocked(x, y)` bloqueia ativamente qualquer coordenada externa, impedindo que o jogador caminhe no vazio fora da imagem.
+* **Corrigido (Travessia de Portais & Eliminação de Bouncing/Loop):**
+  * **Ponto Seguro de Aterrissagem (`GamePlayController.traversePortal`):** Ao atravessar um portal, o personagem não mais nasce exatamente em cima do portal de destino; o servidor projeta um ponto seguro afastado da área de ativação (na direção do spawn/centro do mapa) fora de colisões e retorna `arrivedAtPortalId`.
+  * **Imunidade de Chegada & Exigência de Afastamento (`play.js`):** O portal de aterrissagem fica imune e desabilitado para o jogador recém-chegado até que ele dê passos e saia fisicamente de seu raio (`arrivedAtPortalId = null`), somado a um cooldown inicial de 5.000ms após o mapa carregar. Rejeição de updates desatualizados de `syncPosition` durante a transição.
+* **Adicionado (Cache Persistente na VPS & Download no Client):**
+  * **`AssetMirrorService.ts` (`apps/server/src/controllers/AssetMirrorService.ts`):** Servidor agora espelha e grava todos os assets curados em disco local permanente (`apps/server/cache/mcrework/`), servindo mapas (`/api/assets/map-image/:id`), sprites, VFX e ícones (`/api/assets/mcrework/assets/...`) com latência de 0ms e cabeçalhos `Cache-Control: public, max-age=31536000, immutable`.
+  * **Download Manager no Client (`PlayAssetDownloader.js`):** Endpoint `/api/play/assets-manifest` e gerenciador com barra de progresso no Lobby do jogo (`#lobbyScreen`) utilizando a `CacheStorage` API do navegador (`caches.open('etheria-campus-assets-v1')`), permitindo baixar todos os arquivos para o dispositivo do jogador, eliminando dependência do GitHub, falhas de rede e mapas pretos.
+
+---
+
 ## [v0.13.0] - 2026-11-12
 ### Mapas Gerais dos Continentes (Tabela Mundo `/admin`), Pontos Vinculáveis a Mapas & Logo Transparente Ajustável
 * **Adicionado (Banco de Dados & Assets):**
