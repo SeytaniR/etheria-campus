@@ -545,7 +545,11 @@ class PlayHudController {
     if (avatarImg) {
       const thumb =
         charData.thumbUrl ||
-        (charData.mcreworkCharKey ? `/api/assets/mcrework/assets/characters/${charData.mcreworkCharKey}/thumb.webp` : '/play/assets/hud/player_avatar_frame.png');
+        charData.avatarUrl ||
+        charData.classTemplate?.avatarUrl ||
+        (charData.mcreworkCharKey ? `/api/assets/mcrework/assets/characters/${charData.mcreworkCharKey}/thumb.webp` : null) ||
+        (charData.classTemplate?.mcreworkCharKey ? `/api/assets/mcrework/assets/characters/${charData.classTemplate.mcreworkCharKey}/thumb.webp` : null) ||
+        '/play/assets/hud/menu_character.png';
       avatarImg.src = thumb;
     }
 
@@ -558,7 +562,7 @@ class PlayHudController {
     // 3. Barras de Vida, Mana e Experiência
     const fillHp = document.getElementById('hudFillHp');
     if (fillHp) {
-      const curHp = charData.hp !== undefined ? charData.hp : 100;
+      const curHp = charData.currentHp !== undefined ? charData.currentHp : (charData.hp !== undefined ? charData.hp : 100);
       const maxHp = charData.maxHp || 100;
       const pct = Math.max(0, Math.min(100, Math.round((curHp / maxHp) * 100)));
       fillHp.style.width = `${pct}%`;
@@ -566,7 +570,7 @@ class PlayHudController {
 
     const fillMp = document.getElementById('hudFillMp');
     if (fillMp) {
-      const curMp = charData.mp !== undefined ? charData.mp : 100;
+      const curMp = charData.currentMp !== undefined ? charData.currentMp : (charData.mp !== undefined ? charData.mp : 100);
       const maxMp = charData.maxMp || 100;
       const pct = Math.max(0, Math.min(100, Math.round((curMp / maxMp) * 100)));
       fillMp.style.width = `${pct}%`;
@@ -574,20 +578,21 @@ class PlayHudController {
 
     const fillXp = document.getElementById('hudFillXp');
     if (fillXp) {
-      const curXp = charData.experience !== undefined ? charData.experience : 0;
+      const curXp = charData.currentXp !== undefined ? charData.currentXp : (charData.experience !== undefined ? charData.experience : 0);
       const maxXp = charData.maxXp || 1000;
       const pct = Math.max(0, Math.min(100, Math.round((curXp / maxXp) * 100)));
       fillXp.style.width = `${pct}%`;
     }
 
     // 4. Moedas (Ouro e Cristais)
-    if (charData.gold !== undefined) {
-      this.updateCurrencies(charData.gold, this.state.diamonds);
-    }
+    const gold = charData.gold !== undefined ? charData.gold : this.state.gold;
+    const diamonds = charData.diamonds !== undefined ? charData.diamonds : this.state.diamonds;
+    this.updateCurrencies(gold, diamonds);
 
     // 5. Pets equipados vinculados ao personagem
-    if (Array.isArray(charData.equippedPets)) {
-      this.updatePets(charData.equippedPets);
+    const pets = charData.equippedPets || charData.pets;
+    if (Array.isArray(pets)) {
+      this.updatePets(pets);
     }
   }
 
@@ -632,37 +637,44 @@ class PlayHudController {
 
     petsSection.style.display = 'flex';
     petsSection.innerHTML = safeList
-      .map(
-        (pet) => `
-      <div class="hud-pet-entry" data-pet-id="${pet.id}" title="${pet.nickname} (Nv.${pet.level})">
+      .map((pet) => {
+        const nickname = pet.nickname || pet.name || pet.petTemplate?.namePtBr || pet.monsterTemplate?.namePtBr || 'Pet';
+        const thumbUrl = pet.thumbUrl || pet.iconUrl || pet.petTemplate?.iconUrl || pet.monsterTemplate?.thumbUrl || '/play/assets/hud/menu_pets.png';
+        const level = pet.level || 1;
+        const hpPct = pet.hpPct !== undefined ? pet.hpPct : (pet.maxHp ? Math.min(100, Math.max(0, Math.round((pet.currentHp / pet.maxHp) * 100))) : 100);
+        const mpPct = pet.mpPct !== undefined ? pet.mpPct : (pet.maxMp ? Math.min(100, Math.max(0, Math.round((pet.currentMp / pet.maxMp) * 100))) : 100);
+        const xpPct = pet.xpPct !== undefined ? pet.xpPct : (pet.maxXp ? Math.min(100, Math.max(0, Math.round((pet.currentXp / pet.maxXp) * 100))) : 60);
+
+        return `
+      <div class="hud-pet-entry" data-pet-id="${pet.id || ''}" title="${nickname} (Nv.${level})">
         <div class="hud-pet-avatar-wrapper">
-          <img class="hud-pet-avatar-img" src="${pet.thumbUrl}" alt="${pet.nickname}" onerror="this.src='/play/assets/hud/menu_pets.png'" />
+          <img class="hud-pet-avatar-img" src="${thumbUrl}" alt="${nickname}" onerror="this.src='/play/assets/hud/menu_pets.png'" />
           <img class="hud-pet-avatar-frame" src="/play/assets/hud/pet_avatar_frame.png" alt="Frame" />
-          <div class="hud-pet-level-badge">Nv. ${pet.level}</div>
+          <div class="hud-pet-level-badge">Nv. ${level}</div>
         </div>
         <div class="hud-pet-bars-col">
           <div class="hud-pet-stat-bar hud-pet-bar-hp">
             <span class="hud-pet-stat-label">HP</span>
             <div class="hud-pet-bar-track">
-              <div class="hud-pet-bar-fill hud-pet-fill-hp" style="width: ${pet.hpPct || 100}%;"></div>
+              <div class="hud-pet-bar-fill hud-pet-fill-hp" style="width: ${hpPct}%;"></div>
             </div>
           </div>
           <div class="hud-pet-stat-bar hud-pet-bar-mp">
             <span class="hud-pet-stat-label">MP</span>
             <div class="hud-pet-bar-track">
-              <div class="hud-pet-bar-fill hud-pet-fill-mp" style="width: ${pet.mpPct || 100}%;"></div>
+              <div class="hud-pet-bar-fill hud-pet-fill-mp" style="width: ${mpPct}%;"></div>
             </div>
           </div>
           <div class="hud-pet-stat-bar hud-pet-bar-xp">
             <span class="hud-pet-stat-label">XP</span>
             <div class="hud-pet-bar-track">
-              <div class="hud-pet-bar-fill hud-pet-fill-xp" style="width: ${pet.xpPct || 50}%;"></div>
+              <div class="hud-pet-bar-fill hud-pet-fill-xp" style="width: ${xpPct}%;"></div>
             </div>
           </div>
         </div>
       </div>
-    `
-      )
+    `;
+      })
       .join('');
   }
 
