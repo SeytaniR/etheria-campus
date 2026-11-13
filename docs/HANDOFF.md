@@ -8,9 +8,9 @@
 ---
 
 ## 📌 Status Atual do Projeto
-* **Versão Atual:** `v0.21.0`
+* **Versão Atual:** `v0.22.0`
 * **Última Atualização:** `2026-11-13`
-* **Fase Atual:** **Integração dos Assets Gráficos Oficiais da HUD do Jogador com Recorte de Precisão, Transparência RGBA e Aberturas Ópticas (`v0.21.0`)** — Processadas as duas imagens de arte originais enviadas pelo usuário (`media_1794587354286_e7e3e630.jpg` e `media_1794587355904_97ef9782.jpg`); extraídos 9 elementos oficiais com fundo transparente, anti-aliasing e unmultiplication defringing (`menu_shop.png`, `menu_pets.png`, `menu_character.png`, `menu_inventory.png`, `menu_quests.png`, `menu_events.png`, `settings_gear_icon.png`, `minimap_frame.png` e `player_avatar_frame.png`); perfurados os centros das molduras de minimapa e avatar para permitir visualização concêntrica do mapa dinâmico e da foto real do personagem; calibrado o CSS da HUD (`play_hud.css`) para mobile portrait vertical; deploy efetuado e verificado com sucesso no VPS Azure (`40.65.63.193`, HTTP 200).
+* **Fase Atual:** **Refinamento da HUD Mobile: Dock Inferior Unificado com Ícones Homogêneos, Atalhos Elegantes sem Mocks, Cabeçalho Integrado, Minimapa Ampliado e Modais de Mapa Local/Mundo (`v0.22.0`)** — Menu inferior unificado no dock `.hud-bottom-dock` eliminando o espaçamento transparente e padronizando os 6 ícones em 46x46px; dock de atalhos da esquerda limpo com 6 caixas elegantes numeradas e sem poções fictícias; avatar do jogador colado diretamente na placa de barras de HP/MP/XP (`margin-left: -14px`) e encolhido à esquerda (`left: 6px; top: 8px;`); minimapa ampliado para 126x126px com canvas de 78px; toque no minimapa abre o modal `#hudExpandedMapModal` com mapa local em alta resolução, pino do jogador (`🟢 Você`), todos os NPCs plotados com pin `💬` e coordenadas, portais `🌀` e gaveta de chips interativos; botão `🗺️ Mapa Mundo` integrado com visualização dos continentes (`WorldMapTemplate`), abas de continentes, rotas SVG, pontos e destaque do setor onde o jogador está (`📍 VOCÊ ESTÁ AQUI`); deploy efetuado e verificado com sucesso no VPS Azure (`40.65.63.193`, HTTP 200).
 * **Repositório Oficial:** `https://github.com/SeytaniR/etheria-campus`
 * **Fonte Bruta de Assets:** `https://github.com/SeytaniR/mcrework` (`https://seytanir.github.io/mcrework/`)
 

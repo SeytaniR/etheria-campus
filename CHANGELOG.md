@@ -5,6 +5,28 @@ Qualquer IA trabalhando neste repositório **DEVE** incrementar a versão e regi
 
 ---
 
+## [v0.22.0] - 2026-11-13
+### Refinamento da HUD Mobile: Dock Inferior Unificado com Ícones Homogêneos, Atalhos Elegantes sem Mocks, Cabeçalho Integrado, Minimapa Ampliado e Modais de Mapa Local/Mundo
+* **Adicionado & Integrado (`PlayMapModalController.js` - 402 linhas):**
+  * **Mapa Local Expandido com NPCs:** Toque no mini mapa abre o modal `#hudExpandedMapModal` exibindo o mapa atual em alta resolução com o pino pulsante do jogador (`🟢 Você`), todos os NPCs do mapa plotados com pin de diálogo `💬` e coordenadas, portais com `🌀` e gaveta inferior de chips de NPCs com scroll suave até o alvo.
+  * **Mapa Mundo Geral dos Continentes:** Botão `🗺️ Mapa Mundo` abre o modal `#hudWorldMapModal` consumindo o novo endpoint `/api/play/world-maps`. Renderiza abas dos continentes (ex: Continente 1 e Continente 2), imagem base limpa, logotipo Etheria Campus, linhas de rotas em SVG e nós de pontos com destaque em beacon dourado (`📍 VOCÊ ESTÁ AQUI`) para o setor onde o jogador está. Botão de retorno rápido ao mapa local.
+* **Modificado & Otimizado (Menu Inferior & Atalhos):**
+  * **Dock Inferior Unificado (`.hud-bottom-dock`):** Eliminado o espaçamento transparente desconexo entre os ícones. Os 6 botões de menu agora ficam abrigados em uma barra console com moldura dourada e fundo escuro refinado.
+  * **Tamanho 100% Homogêneo:** Removida a disparidade de tamanho entre a mochila e os demais ícones; todos os 6 botões foram padronizados rigorosamente em `46x46px`.
+  * **Dock de Atalhos Rápidos da Esquerda (`.hud-shortcuts-dock`):** Removidas as poções fictícias. Os 6 slots agora iniciam vazios e numerados (`1` a `6`), com gravação ornamental `❖` e molduras com relevo radial, sem gaps flutuantes transparentes.
+* **Modificado & Posicionado (Cabeçalho & Minimapa):**
+  * **Perfil e Barras Colados Harmoniosamente:** O avatar alado agora se conecta diretamente à placa das barras de HP/MP/XP (`margin-left: -14px`), com as barras emergindo suavemente por trás da asa dourada da moldura. Seção encolhida à esquerda (`left: 6px; top: 8px;`).
+  * **Minimapa Ampliado:** Redimensionado de 106px para `126x126px` (canvas de `78x78px` com resolução interna de 160x160 para nitidez em telas retina), botão de engrenagem de 34px e coordenadas centralizadas.
+* **Endpoint de Servidor (`PlayRouter.ts`):**
+  * Adicionado `GET /api/play/world-maps` com autenticação de sessão do jogador para entrega dos dados de continentes, rotas e pontos cadastrados em `world_map_templates`.
+* **Auditoria de Linhas (Regra #7):**
+  * `PlayHudController.js`: 806 linhas.
+  * `PlayMapModalController.js`: 402 linhas.
+  * `play.js`: 919 linhas.
+  * `PlayRouter.ts`: 410 linhas.
+
+---
+
 ## [v0.21.0] - 2026-11-13
 ### Integração dos Assets Gráficos Oficiais da HUD do Jogador com Recorte de Precisão, Transparência RGBA e Aberturas Ópticas
 * **Adicionado & Integrado (`scripts/crop_hud_assets.py` & `apps/server/public/play/assets/hud/`):**
