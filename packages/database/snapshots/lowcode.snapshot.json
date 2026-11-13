@@ -1,6 +1,6 @@
 {
   "version": "0.2.0",
-  "exportedAt": "2026-11-13T01:04:57.388Z",
+  "exportedAt": "2026-11-13T01:42:57.729Z",
   "i18nTranslations": [
     {
       "id": 1,
@@ -50333,12 +50333,52 @@
       "logoWidth": 196,
       "logoHeight": 134,
       "logoVisible": true,
-      "pointsJson": [],
-      "routesJson": [],
+      "pointsJson": [
+        {
+          "x": 480,
+          "y": 270,
+          "id": "pt_1794533813642_370",
+          "refId": 1,
+          "isCity": true,
+          "refLabel": "Ponto #1",
+          "gameMapId": 1,
+          "customLabel": "Vila Izumo"
+        },
+        {
+          "x": 660,
+          "y": 320,
+          "id": "pt_1794533813644_209",
+          "refId": 2,
+          "isCity": false,
+          "refLabel": "Ponto #2",
+          "gameMapId": 2,
+          "customLabel": "Floresta dos Bambus"
+        },
+        {
+          "x": 380,
+          "y": 430,
+          "id": "pt_1794533813645_698",
+          "refId": 3,
+          "isCity": false,
+          "refLabel": "Ponto #3",
+          "gameMapId": 3,
+          "customLabel": "Costa Tempestuosa"
+        }
+      ],
+      "routesJson": [
+        {
+          "to": "pt_1794533813644_209",
+          "from": "pt_1794533813642_370"
+        },
+        {
+          "to": "pt_1794533813645_698",
+          "from": "pt_1794533813642_370"
+        }
+      ],
       "showRoutesLayer": true,
       "showPointsLayer": true,
       "isActive": true,
-      "updatedAt": "2026-11-12T23:42:15.888Z"
+      "updatedAt": "2026-11-13T01:42:57.725Z"
     },
     {
       "id": 2,

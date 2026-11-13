@@ -7,12 +7,14 @@ ssh.connect('40.65.63.193', port=22, username='azureuser', password='Dev%9517530
 deploy_cmd = """
 set -e
 cd /home/azureuser/etheria-campus
+git checkout -- packages/database/snapshots/lowcode.snapshot.json || true
 git pull origin main
-npm run build --workspaces || true
+npm run build:packages
+npm --workspace=@etheria/server run build
 sudo systemctl restart etheria-campus.service
 sleep 2
 systemctl is-active etheria-campus.service
-curl -s -o /dev/null -w "HTTP_STATUS=%{http_code}\\n" https://40-65-63-193.sslip.io/play
+curl -s -o /dev/null -w "HTTP_STATUS=%{http_code}\\n" https://40-65-63-193.sslip.io/admin
 """
 
 stdin, stdout, stderr = ssh.exec_command(deploy_cmd)
