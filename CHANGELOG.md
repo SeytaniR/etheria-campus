@@ -5,6 +5,31 @@ Qualquer IA trabalhando neste repositório **DEVE** incrementar a versão e regi
 
 ---
 
+## [v0.23.0] - 2026-11-13
+### Moldura e Perfil do Jogador Ampliados, Botões Discretos de Recolhimento dos Docks e Joystick de Alto Contraste com Affordance de Movimento e Ação
+* **Modificado & Ampliado (Perfil e Moldura do Jogador no Topo Esquerdo):**
+  * **Moldura Dourada Alada Ampliada:** Redimensionada de 76x76px para `96x96px` (`.hud-avatar-wrapper`), elevando o destaque heroico do personagem na interface mobile.
+  * **Foto de Perfil Real em 50x50px:** Ajustada concêntrica e precisamente na abertura óptica circular da moldura (`margin-top: -2px`), sem arestas vazadas.
+  * **Conexão com as Barras de Status:** Placa integrada (`.hud-player-bars-col`) ajustada com `margin-left: -20px` para emergir debaixo da asa da moldura com tracks de HP/MP/XP em `130x14.5px` e badge de nível reposicionada na base da gema inferior.
+* **Adicionado & Integrado (Botões Discretos de Recolhimento dos Menus e Atalhos):**
+  * **Recolhimento dos Atalhos Esquerdos (`#hudCollapseShortcutsBtn`):** Mini aba vertical dourada (`17x42px`) anexada à direita da barra de atalhos. Ao tocar, aplica transição suave recolhendo a doca para a margem esquerda (`transform: translateX(-58px); opacity: 0; pointer-events: none;`) e alternando o glifo de `◀` para `▶`. Ao expandir, desliza de volta para a tela.
+  * **Recolhimento do Menu Inferior (`#hudCollapseBottomMenuBtn`):** Mini aba horizontal dourada (`44x16px`) centralizada sobre o dock inferior. Ao tocar, recolhe os 6 botões para fora da tela (`transform: translateY(70px); opacity: 0; pointer-events: none;`) e alterna o glifo de `▼` para `▲`. Permite ao jogador desobstruir 100% da parte inferior da tela para combate e navegação.
+* **Adicionado, Otimizado & Integrado (Joystick Virtual de Alto Contraste com Affordance de Ação):**
+  * **Novos Assets Gráficos em Supersampling:**
+    * `joystick_outer_ring.png` (256x256): Disco de fundo escuro, anel concêntrico dourado gravado e 8 chevrons direcionais luminescentes de alta visibilidade sobre grama, areia, masmorras ou água.
+    * `joystick_center_interact.png` (180x180): Botão 3D dourado/âmbar com anel recartilhado de pegada, 4 setas internas e balão de fala/interação `💬` em alto relevo.
+  * **Halo de Contraste e Badge Informativa:**
+    * Adicionado `.hud-joystick-glow-halo` com gradiente radial escuro e halo dourado para contraste absoluto em qualquer terreno.
+    * Adicionada badge flutuante `.hud-joystick-hint-badge` com o texto `● MOVER | AÇÃO 💬` informando com clareza imediata que o controle serve tanto para movimentação direcional quanto para interação.
+    * Dial ampliado para `154x154px` e botão central para `74x74px` com animação sutil de pulso `joystickPulse`.
+  * **Diferenciação Robusta Arraste vs. Clique:** Inserida trava de arraste (`this.joystickDragged`) para assegurar que movimentar o joystick nunca dispare ações acidentais de interação no momento em que o dedo é liberado.
+* **Auditoria de Linhas (Regra #7):**
+  * `PlayHudController.js`: 847 linhas (estritamente < 1.000 linhas).
+  * `PlayMapModalController.js`: 402 linhas.
+  * `play.js`: 919 linhas.
+
+---
+
 ## [v0.22.0] - 2026-11-13
 ### Refinamento da HUD Mobile: Dock Inferior Unificado com Ícones Homogêneos, Atalhos Elegantes sem Mocks, Cabeçalho Integrado, Minimapa Ampliado e Modais de Mapa Local/Mundo
 * **Adicionado & Integrado (`PlayMapModalController.js` - 402 linhas):**
