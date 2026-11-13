@@ -414,3 +414,92 @@ table.crud-table th, table.crud-table td {
   padding: 8px 6px;
   text-align: left;
 }
+
+/* ==========================================================================
+   MONSTERS CRUD RESPONSIVE ADAPTIVE LAYOUT (MOBILE VERTICAL & DESKTOP)
+   ========================================================================== */
+.monsters-mobile-view {
+  display: none;
+}
+.monsters-desktop-view {
+  display: block;
+}
+
+@media (max-width: 860px) {
+  .monsters-desktop-view {
+    display: none !important;
+  }
+  .monsters-mobile-view {
+    display: flex !important;
+    flex-direction: column;
+    gap: 12px;
+  }
+}
+
+.monster-mobile-card {
+  background: rgba(15, 23, 42, 0.88);
+  border: 1px solid #334155;
+  border-radius: 10px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  transition: border-color 0.15s ease, transform 0.1s ease;
+}
+
+.monster-mobile-card:hover {
+  border-color: #64748b;
+}
+
+.monster-mobile-card-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.monster-mobile-card-thumb {
+  width: 58px;
+  height: 58px;
+  object-fit: contain;
+  background: #020617;
+  border-radius: 8px;
+  border: 1.5px solid #f43f5e;
+  flex-shrink: 0;
+}
+
+.monster-mobile-card-title {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+  min-width: 0;
+}
+
+.monster-mobile-card-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 6px;
+  background: #020617;
+  padding: 8px 10px;
+  border-radius: 6px;
+  border: 1px solid #1e293b;
+  font-size: 0.73rem;
+}
+
+.monster-mobile-card-actions {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.monster-mobile-card-actions button {
+  min-height: 42px;
+  font-weight: 700;
+  font-size: 0.84rem;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}

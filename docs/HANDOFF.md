@@ -8,9 +8,9 @@
 ---
 
 ## 📌 Status Atual do Projeto
-* **Versão Atual:** `v0.17.0`
-* **Última Atualização:** `2026-11-12`
-* **Fase Atual:** **Mapas Gerais: Criação Livre de Pontos e Linhas, Vínculo com Mapas & Layout Mobile Vertical (`v0.17.0`)** — Excluídos todos os pontos e linhas legados em ambos os continentes (banco e snapshot); criado sistema interativo completo de criação de pontos (`ADD_POINT`), arrasto/reposicionamento (`SELECT`), traçado de rotas/ligações (`CONNECT`), exclusão pontual (`DELETE`) e limpeza global; vínculo de qualquer ponto a mapas existentes da Tabela de Mapas com rótulo customizado; layout responsivo adaptado para mobile vertical com zoom/pan e botões touch-friendly; arquitetura modular dividida entre `AdminWorldMapsDom.js` e `AdminWorldMapsTab.js` (ambos sob o limite de 1.000 linhas).
+* **Versão Atual:** `v0.18.0`
+* **Última Atualização:** `2026-11-13`
+* **Fase Atual:** **Revisão Profunda da Tabela de Monstros: Atributos Base de Combate & Layout Adaptativo Mobile Vertical e Desktop (`v0.18.0`)** — Atributos base de combate (velocidade de movimento em batalha, velocidade de ataque, taxa e dano crítico, precisão física/mágica e esquiva física/mágica) adicionados ao `MonsterTemplate` no Prisma PostgreSQL, persistência em snapshot e controle dinâmico em `MonsterCombatBuilder.ts`. Interface totalmente adaptativa com visão em tabela completa no Desktop e visão em cards touch-friendly no Mobile Vertical portrait (`min-height: 42px`), com filtros por nome, rank e elemento. Arquitetura modular mantida abaixo de 1.000 linhas via `AdminMonsterModalDom.js`.** — Excluídos todos os pontos e linhas legados em ambos os continentes (banco e snapshot); criado sistema interativo completo de criação de pontos (`ADD_POINT`), arrasto/reposicionamento (`SELECT`), traçado de rotas/ligações (`CONNECT`), exclusão pontual (`DELETE`) e limpeza global; vínculo de qualquer ponto a mapas existentes da Tabela de Mapas com rótulo customizado; layout responsivo adaptado para mobile vertical com zoom/pan e botões touch-friendly; arquitetura modular dividida entre `AdminWorldMapsDom.js` e `AdminWorldMapsTab.js` (ambos sob o limite de 1.000 linhas).
 * **Repositório Oficial:** `https://github.com/SeytaniR/etheria-campus`
 * **Fonte Bruta de Assets:** `https://github.com/SeytaniR/mcrework` (`https://seytanir.github.io/mcrework/`)
 

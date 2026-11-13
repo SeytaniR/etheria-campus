@@ -7,6 +7,29 @@ Qualquer IA trabalhando neste repositório **DEVE** incrementar a versão e regi
 
 ---
 
+## [v0.18.0] - 2026-11-13
+### Revisão Profunda da Tabela de Monstros: Atributos Base de Combate & Layout Adaptativo Mobile Vertical e Desktop
+* **Adicionado & Integrado no Banco de Dados (Schema & Snapshot):**
+  * Campo `baseCombatAttributesJson Json? @default("{}") @map("base_combat_attributes_json")` adicionado ao model `MonsterTemplate` em `packages/database/prisma/schema.prisma`.
+  * Sincronização em `packages/database/src/SnapshotManager.ts` garantindo preservação de atributos de combate na exportação/importação de snapshots JSON para o Git.
+* **Adicionado (Edição Completa de Atributos Base de Combate de Monstros):**
+  * Novos campos de configuração no modal de Monstros (`AdminMonsterModalDom.js`):
+    * 🏃 **Velocidade de Movimento em Batalha (`BATTLE_MOVE_SPEED`):** padrão 160 px/s (80 a 400 px/s).
+    * ⚔️ **Velocidade de Ataque (`ATTACK_SPEED`):** padrão 1.0 atks/s (0.2 a 3.5 atks/s).
+    * 💥 **Taxa de Crítico (`CRIT_RATE`):** padrão 5% (0 a 80%).
+    * ⚡ **Dano Crítico (`CRIT_DMG`):** padrão 150% (100 a 300%).
+    * 🎯 **Precisão Física (`PHYS_ACCURACY`):** padrão 95% (20 a 125%).
+    * 💨 **Esquiva Física (`PHYS_EVASION`):** padrão 5% (0 a 75%).
+    * 🔮 **Precisão Mágica (`MAG_ACCURACY`):** padrão 95% (20 a 125%).
+    * ✨ **Esquiva Mágica (`MAG_EVASION`):** padrão 5% (0 a 75%).
+  * Backend (`MonsterCombatBuilder.ts` e `AdminMonstersController.ts`) integrado para aplicar `BATTLE_MOVE_SPEED` como piso não-derivado antes do escalonamento de AGI e ler `ATTACK_SPEED`, precisões e esquivas diretamente nas batalhas in-game e simuladas.
+* **Adicionado & Aprimorado (Layout Adaptativo Mobile Vertical e Desktop):**
+  * **Visão Desktop:** Tabela ampla e elegante com coluna dedicada de **Atributos de Combate** exibindo Velocidade de Movimento, Velocidade de Ataque, Crítico, Precisão e Desvio ao lado dos Atributos Base e Drops.
+  * **Visão Mobile Vertical:** Grid adaptativo de cards touch-friendly (`.monster-mobile-card`) otimizado para celulares em modo retrato (`@media (max-width: 860px)`), com botões de toque generosos (`min-height: 42px`), chips de raça, elemento, estilo e estatísticas em destaque.
+  * Barra de busca rápida em tempo real por nome/código/lore e filtros instantâneos por **Rank de Raridade** (SS a F) e **Elemento**.
+* **Arquitetura Modular (Regra #7):**
+  * Modal desacoplado no submódulo [`AdminMonsterModalDom.js`](file:///C:/Users/Dell/.gemini/antigravity/scratch/etheria-campus/apps/server/public/admin/js/AdminMonsterModalDom.js) (307 linhas) e lógica central em [`AdminMonstersTab.js`](file:///C:/Users/Dell/.gemini/antigravity/scratch/etheria-campus/apps/server/public/admin/js/AdminMonstersTab.js) (842 linhas), mantendo ambos rigorosamente abaixo do limite mandatório de 1.000 linhas.
+
 ## [v0.17.0] - 2026-11-12
 ### Mapas Gerais: Criação Livre de Pontos e Linhas, Vínculo com Mapas & Layout Mobile Vertical
 * **Modificado & Limpo (Pontos e Linhas Anteriores Excluídos):**

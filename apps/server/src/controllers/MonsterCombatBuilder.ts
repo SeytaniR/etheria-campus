@@ -153,9 +153,10 @@ export class MonsterCombatBuilder {
     const def = Math.max(5, Math.round(effStats.VIT * vitDefRatio * rarity.def));
     const magDef = Math.max(5, Math.round(effStats.WIS * wisMagDefRatio * rarity.def));
     const speed = Math.max(10, Math.round(effStats.AGI * agiSpdRatio));
-    const battleMoveSpeed = Math.round(ctx.globalDefaultMoveSpeed + Math.min(120, effStats.AGI * agiMoveRatio));
 
     const cb = (template.baseCombatAttributesJson as any) || {};
+    const baseMoveSpeed = Number(cb.BATTLE_MOVE_SPEED) || ctx.globalDefaultMoveSpeed;
+    const battleMoveSpeed = Math.round(baseMoveSpeed + Math.min(120, effStats.AGI * agiMoveRatio));
     const dexCritBonus = Math.max(0, effStats.DEX - 10) * this.getConversionRatio(ctx, 'DEX', 'CRIT_RATE', 0.002);
     const strCritDmgBonus = Math.max(0, effStats.STR - 10) * this.getConversionRatio(ctx, 'STR', 'CRIT_DMG', 0.003);
     const agiEvaBonusPct = Math.max(0, effStats.AGI - 10) * (this.getConversionRatio(ctx, 'AGI', 'PHYS_EVASION', 0.002) * 100);

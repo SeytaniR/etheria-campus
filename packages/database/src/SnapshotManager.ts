@@ -205,7 +205,9 @@ export class SnapshotManager {
               raceCode: m.raceCode, combatStyle: m.combatStyle || 'MELEE', attackRange: m.attackRange || 60,
               damageType: m.damageType || 'PHYSICAL',
               rarityTier: m.rarityTier, fixedElementCode: m.fixedElementCode,
-              baseAttributesJson: m.baseAttributesJson, lootTableJson: m.lootTableJson,
+              baseAttributesJson: m.baseAttributesJson,
+              baseCombatAttributesJson: m.baseCombatAttributesJson ?? {},
+              lootTableJson: m.lootTableJson,
             },
             update: {
               code: m.code, nameI18nKey: m.nameI18nKey, descriptionI18nKey: m.descriptionI18nKey,
@@ -213,7 +215,9 @@ export class SnapshotManager {
               raceCode: m.raceCode, combatStyle: m.combatStyle || 'MELEE', attackRange: m.attackRange || 60,
               damageType: m.damageType || 'PHYSICAL',
               rarityTier: m.rarityTier, fixedElementCode: m.fixedElementCode,
-              baseAttributesJson: m.baseAttributesJson, lootTableJson: m.lootTableJson,
+              baseAttributesJson: m.baseAttributesJson,
+              baseCombatAttributesJson: m.baseCombatAttributesJson ?? {},
+              lootTableJson: m.lootTableJson,
             },
           });
         }

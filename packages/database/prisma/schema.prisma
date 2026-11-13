@@ -316,7 +316,8 @@ model MonsterTemplate {
   attackRange        Int            @default(60) @map("attack_range") /// Distância padrão de alcance do ataque em pixels
   damageType         String         @default("PHYSICAL") @map("damage_type") /// PHYSICAL (Dano Físico) ou MAGICAL (Dano Mágico)
   isTamableAsPet     Boolean        @default(true) @map("is_tamable_as_pet")
-  baseAttributesJson Json           @map("base_attributes_json") /// Pesos de VIT, STR, INT, WIS, AGI, DEX no Nv.1
+  baseAttributesJson       Json           @map("base_attributes_json") /// Pesos de VIT, STR, INT, WIS, AGI, DEX no Nv.1
+  baseCombatAttributesJson Json?          @default("{}") @map("base_combat_attributes_json") /// Atributos de combate base não-derivados (ex: BATTLE_MOVE_SPEED: 160, ATTACK_SPEED: 1.0)
   skillIdsJson       Json           @default("[]") @map("skill_ids_json")
   lootTableJson      Json           @default("[]") @map("loot_table_json")
   isActive           Boolean        @default(true) @map("is_active")

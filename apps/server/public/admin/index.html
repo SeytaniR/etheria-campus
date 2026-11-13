@@ -221,35 +221,67 @@
         </div>
       </div>
     </div>
-    <!-- ABA: CRUD DE MONSTROS / MOBS -->
-    <div id="tabMonsters" style="display:none; padding:16px; max-width:1200px; margin:0 auto; width:100%; gap:16px; flex-direction:column;">
-      <div class="panel">
-        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
+    <!-- ABA: CRUD DE MONSTROS / MOBS (ADAPTATIVO MOBILE VERTICAL & DESKTOP) -->
+    <div id="tabMonsters" style="display:none; padding:14px; max-width:1300px; margin:0 auto; width:100%; gap:14px; flex-direction:column; box-sizing:border-box;">
+      <div class="panel" style="padding:14px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
           <div>
-            <h3>🐉 Tabela de Monstros & Pets (Templates no PostgreSQL)</h3>
-            <p style="font-size:0.8rem; color:var(--text-muted); margin:0;">
-              Gerencie criaturas, atributos base, biomas de spawn, calibração de solo e domesticabilidade como Pet.
+            <h3 style="margin:0; font-size:1.05rem; color:#f43f5e;">🐉 Tabela de Monstros & Pets (Templates no PostgreSQL)</h3>
+            <p style="font-size:0.78rem; color:var(--text-muted); margin:4px 0 0 0;">
+              Gerencie criaturas, atributos base, atributos de combate (velocidade de ataque/movimento), biomas de spawn, calibração de solo e domesticabilidade.
             </p>
           </div>
-          <button class="btn-primary" onclick="AdminApp.openMonsterTemplateModal()">➕ Novo Monstro do mcrework</button>
+          <button class="btn-primary" onclick="AdminApp.openMonsterTemplateModal()" style="min-height:40px; font-weight:700; padding:8px 16px; border-radius:6px;">
+            ➕ Novo Monstro do mcrework
+          </button>
         </div>
-        <div style="overflow-x:auto; margin-top:12px;">
-          <table class="crud-table">
+
+        <!-- Barra de Busca e Filtros Rápidos Adaptativa -->
+        <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap; margin-top:12px; background:rgba(15,23,42,0.6); padding:8px 10px; border-radius:8px; border:1px solid #334155;">
+          <input type="text" id="monsterCrudSearchInput" placeholder="🔍 Buscar por nome, código ou ID (ex: Sa Tặc, monster_1)..." oninput="AdminApp.filterMonstersCrudTable()" style="flex:1; min-width:180px; padding:7px 10px; font-size:0.82rem;" />
+          <select id="monsterCrudRankFilterSelect" onchange="AdminApp.filterMonstersCrudTable()" style="width:140px; padding:7px; font-size:0.8rem;">
+            <option value="ALL">Todos os Ranks</option>
+            <option value="SS">👑 Rank SS</option>
+            <option value="S">🌟 Rank S</option>
+            <option value="A">💎 Rank A</option>
+            <option value="B">🔷 Rank B</option>
+            <option value="C">🟢 Rank C</option>
+            <option value="D">🟡 Rank D</option>
+            <option value="F">⚪ Rank F</option>
+          </select>
+          <select id="monsterCrudElementFilterSelect" onchange="AdminApp.filterMonstersCrudTable()" style="width:130px; padding:7px; font-size:0.8rem;">
+            <option value="ALL">Todos Elementos</option>
+            <option value="FIRE">🔥 Fogo</option>
+            <option value="WATER">💧 Água</option>
+            <option value="EARTH">🪨 Terra</option>
+            <option value="AIR">🌪️ Ar</option>
+            <option value="NEUTRAL">⚪ Neutro</option>
+          </select>
+          <span style="font-size:0.75rem; color:var(--text-muted); font-weight:600;">(<span id="monsterCrudCountBadge">0</span> monstros)</span>
+        </div>
+
+        <!-- VISÃO DESKTOP (Tabela Completa com Atributos de Combate) -->
+        <div class="monsters-desktop-view" style="overflow-x:auto; margin-top:12px;">
+          <table class="crud-table" style="min-width:1040px;">
             <thead>
               <tr>
-                <th>ID / Código</th>
-                <th>Visual (mcrework)</th>
-                <th>Nome & Descrição (PT-BR)</th>
-                <th>Raça / Elemento</th>
-                <th>Raridade & Pet</th>
-                <th>Atributos Base</th>
-                <th>Drops</th>
-                <th>Ações</th>
+                <th style="width:90px;">ID / Código</th>
+                <th style="width:75px;">Visual</th>
+                <th>Nome & Lore</th>
+                <th style="width:110px;">Raça / Elemento</th>
+                <th style="width:135px;">Raridade & Estilo</th>
+                <th style="width:170px;">Atributos Base (Nv.1)</th>
+                <th style="width:190px; color:#38bdf8;">⚔️ Atributos Combate</th>
+                <th style="width:140px;">Drops</th>
+                <th style="width:110px; text-align:center;">Ações</th>
               </tr>
             </thead>
             <tbody id="monstersTableBody"></tbody>
           </table>
         </div>
+
+        <!-- VISÃO MOBILE VERTICAL (Cards Adaptativos Touch-Friendly) -->
+        <div class="monsters-mobile-view" id="monstersCardsContainer" style="margin-top:12px;"></div>
       </div>
     </div>
     <!-- ABA: CRUD DE PETS COMPANHEIROS -->
@@ -567,6 +599,7 @@
   <script src="/admin/js/AdminAttributesTab.js"></script>
   <script src="/admin/js/AdminClassModalTemplate.js"></script>
   <script src="/admin/js/AdminClassesTab.js"></script>
+  <script src="/admin/js/AdminMonsterModalDom.js"></script>
   <script src="/admin/js/AdminMonstersTab.js"></script>
   <script src="/admin/js/AdminPetsTab.js"></script>
   <script src="/admin/js/AdminEquipmentsTab.js"></script>

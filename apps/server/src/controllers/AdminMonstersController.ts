@@ -45,6 +45,17 @@ export interface MonsterTemplateDto {
     AGI: number;
     DEX: number;
   };
+  baseCombatAttributesJson?: {
+    BATTLE_MOVE_SPEED?: number;
+    ATTACK_SPEED?: number;
+    CRIT_RATE?: number;
+    CRIT_DMG?: number;
+    PHYS_ACCURACY?: number;
+    PHYS_EVASION?: number;
+    MAG_ACCURACY?: number;
+    MAG_EVASION?: number;
+    [key: string]: any;
+  };
 }
 
 export class AdminMonstersController {
@@ -129,6 +140,18 @@ export class AdminMonstersController {
       const normalizedLoot = this.normalizeLootTable(mt.lootTableJson);
       return {
       ...mt,
+      baseCombatAttributesJson: (mt.baseCombatAttributesJson && typeof mt.baseCombatAttributesJson === 'object' && Object.keys(mt.baseCombatAttributesJson as any).length > 0)
+        ? mt.baseCombatAttributesJson
+        : {
+            BATTLE_MOVE_SPEED: 160,
+            ATTACK_SPEED: 1.0,
+            CRIT_RATE: 5,
+            CRIT_DMG: 150,
+            PHYS_ACCURACY: 95,
+            PHYS_EVASION: 5,
+            MAG_ACCURACY: 95,
+            MAG_EVASION: 5,
+          },
       lootTableJson: normalizedLoot,
       lootTableResolved: normalizedLoot.map((entry) => ({
         ...entry,
@@ -251,6 +274,16 @@ export class AdminMonstersController {
           AGI: 10,
           DEX: 10,
         },
+        baseCombatAttributesJson: dto.baseCombatAttributesJson ?? {
+          BATTLE_MOVE_SPEED: 160,
+          ATTACK_SPEED: 1.0,
+          CRIT_RATE: 5,
+          CRIT_DMG: 150,
+          PHYS_ACCURACY: 95,
+          PHYS_EVASION: 5,
+          MAG_ACCURACY: 95,
+          MAG_EVASION: 5,
+        },
       },
     });
 
@@ -312,6 +345,9 @@ export class AdminMonstersController {
         skillIdsJson: Array.isArray(dto.skillIdsJson) ? (dto.skillIdsJson as any) : (existing.skillIdsJson as any),
         lootTableJson: validatedLoot as any,
         baseAttributesJson: dto.baseAttributesJson ?? (existing.baseAttributesJson as any),
+        baseCombatAttributesJson: dto.baseCombatAttributesJson !== undefined
+          ? dto.baseCombatAttributesJson
+          : (existing.baseCombatAttributesJson as any),
       },
     });
 
