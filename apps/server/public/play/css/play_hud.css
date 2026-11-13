@@ -24,28 +24,35 @@
 }
 
 /* ==========================================================================
-   1. TOPO-ESQUERDO: AVATAR, NÍVEL, BARRAS E MOEDAS
+   1. TOPO-ESQUERDO: AVATAR, NÍVEL, BARRAS E MOEDAS (INTEGRADOS EM PLACA)
    ========================================================================== */
 .hud-player-section {
   position: absolute;
-  top: 12px;
-  left: 12px;
+  top: 8px;
+  left: 6px;
   display: flex;
-  align-items: flex-start;
-  gap: 10px;
+  align-items: center;
   pointer-events: auto;
   user-select: none;
+  z-index: 20;
+}
+
+.hud-player-header-card {
+  display: flex;
+  align-items: center;
+  position: relative;
 }
 
 .hud-avatar-wrapper {
   position: relative;
-  width: 78px;
-  height: 78px;
+  width: 76px;
+  height: 76px;
   flex-shrink: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.6));
+  filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.7));
+  z-index: 5;
 }
 
 .hud-avatar-img {
@@ -73,26 +80,35 @@
 
 .hud-level-badge {
   position: absolute;
-  bottom: -6px;
+  bottom: -4px;
   left: 50%;
   transform: translateX(-50%);
   background: linear-gradient(180deg, #3d2614, #1f1208);
   border: 1.5px solid #eab308;
   color: #ffffff;
-  font-size: 0.72rem;
+  font-size: 0.68rem;
   font-weight: 900;
-  padding: 1px 8px;
+  padding: 1px 7px;
   border-radius: 999px;
   white-space: nowrap;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.7);
   letter-spacing: 0.5px;
+  z-index: 6;
 }
 
+/* Placa integrada que se conecta perfeitamente sob a moldura alada do avatar */
 .hud-player-bars-col {
   display: flex;
   flex-direction: column;
-  gap: 4px;
-  margin-top: 2px;
+  gap: 3px;
+  margin-left: -14px;
+  background: linear-gradient(90deg, rgba(15, 23, 42, 0.95), rgba(15, 23, 42, 0.82));
+  border: 1px solid rgba(234, 179, 8, 0.45);
+  border-left: none;
+  border-radius: 0 14px 14px 0;
+  padding: 4px 10px 4px 18px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.65), inset 0 1px 0 rgba(255, 255, 255, 0.12);
+  z-index: 2;
 }
 
 /* Barras de Estatísticas HP / MP / XP */
@@ -190,32 +206,43 @@
 .hud-crystal-badge span { color: #67e8f9; }
 
 /* ==========================================================================
-   2. TOPO-DIREITO: MINI MAPA & CONFIGURAÇÕES (ENGRENAGEM)
+   2. TOPO-DIREITO: MINI MAPA AMPLIADO & CONFIGURAÇÕES (ENGRENAGEM)
    ========================================================================== */
 .hud-minimap-section {
   position: absolute;
-  top: 10px;
-  right: 12px;
+  top: 8px;
+  right: 8px;
   display: flex;
   flex-direction: column;
   align-items: center;
   pointer-events: auto;
   user-select: none;
+  z-index: 20;
 }
 
 .hud-minimap-wrapper {
   position: relative;
-  width: 106px;
-  height: 106px;
+  width: 126px;
+  height: 126px;
   display: flex;
   align-items: center;
   justify-content: center;
-  filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.7));
+  filter: drop-shadow(0 4px 14px rgba(0, 0, 0, 0.8));
+  cursor: pointer;
+  transition: transform 0.15s ease;
+}
+
+.hud-minimap-wrapper:hover {
+  transform: scale(1.03);
+}
+
+.hud-minimap-wrapper:active {
+  transform: scale(0.97);
 }
 
 #hudMinimapCanvas {
-  width: 64px;
-  height: 64px;
+  width: 78px;
+  height: 78px;
   border-radius: 50%;
   background: #0f172a;
   display: block;
@@ -232,10 +259,10 @@
 
 .hud-settings-btn {
   position: absolute;
-  top: 0px;
-  right: 0px;
-  width: 32px;
-  height: 32px;
+  top: 2px;
+  right: 2px;
+  width: 34px;
+  height: 34px;
   padding: 0;
   border: none;
   background: transparent;
@@ -266,51 +293,76 @@
 }
 
 /* ==========================================================================
-   3. LATERAL ESQUERDA: BARRA DE ATALHOS RÁPIDOS (6 SLOTS)
+   3. LATERAL ESQUERDA: DOCK DE ATALHOS RÁPIDOS (CAIXAS ELEGANTES SEM GAPS)
    ========================================================================== */
 .hud-shortcuts-section {
   position: absolute;
-  left: 10px;
+  left: 8px;
   bottom: 84px;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
   pointer-events: auto;
   user-select: none;
+  z-index: 20;
+}
+
+.hud-shortcuts-dock {
+  background: linear-gradient(180deg, rgba(20, 26, 38, 0.94), rgba(10, 15, 25, 0.97));
+  border: 1.5px solid rgba(234, 179, 8, 0.55);
+  border-radius: 12px;
+  padding: 4px 3px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.8), inset 0 1px 0 rgba(254, 240, 138, 0.2);
+  display: flex;
+  flex-direction: column;
+  gap: 3.5px;
 }
 
 .hud-shortcut-slot {
   position: relative;
-  width: 44px;
-  height: 44px;
+  width: 38px;
+  height: 38px;
   padding: 0;
-  border: none;
-  background: transparent;
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  border-radius: 7px;
+  background: radial-gradient(circle at center, rgba(30, 41, 59, 0.85), rgba(15, 23, 42, 0.95));
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.7);
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  filter: drop-shadow(0 3px 6px rgba(0, 0, 0, 0.6));
-  transition: transform 0.1s ease;
+  transition: transform 0.1s ease, border-color 0.15s ease, background 0.15s ease;
+}
+
+.hud-shortcut-slot:hover {
+  border-color: rgba(234, 179, 8, 0.6);
+  background: radial-gradient(circle at center, rgba(45, 58, 82, 0.9), rgba(17, 24, 39, 0.98));
 }
 
 .hud-shortcut-slot:active,
 .hud-shortcut-slot.hud-slot-pressed {
   transform: scale(0.92);
+  border-color: #f59e0b;
 }
 
-.hud-slot-bg {
+.hud-slot-num {
   position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
+  top: 1px;
+  left: 3px;
+  font-size: 0.52rem;
+  font-weight: 800;
+  color: rgba(234, 179, 8, 0.7);
   pointer-events: none;
+  font-family: monospace;
+}
+
+.hud-slot-empty-icon {
+  font-size: 0.82rem;
+  color: rgba(148, 163, 184, 0.35);
+  pointer-events: none;
+  user-select: none;
 }
 
 .hud-slot-icon {
-  width: 32px;
-  height: 32px;
+  width: 28px;
+  height: 28px;
   object-fit: contain;
   position: relative;
   z-index: 2;
@@ -498,34 +550,46 @@
 }
 
 /* ==========================================================================
-   6. BARRA INFERIOR: 6 BOTÕES DE MENU (SEM TEXTO, APENAS ÍCONES)
+   6. BARRA INFERIOR: DOCK UNIFICADO DE MENUS (SEM GAPS TRANSPARENTES, ÍCONES UNIFORMES)
    ========================================================================== */
 .hud-bottom-menu-section {
   position: absolute;
-  bottom: 6px;
+  bottom: 8px;
   left: 0;
   right: 0;
   display: flex;
-  justify-content: space-evenly;
-  align-items: flex-end;
-  padding: 0 4px;
+  justify-content: center;
+  align-items: center;
   pointer-events: auto;
   user-select: none;
   z-index: 30;
 }
 
+.hud-bottom-dock {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  background: linear-gradient(180deg, rgba(26, 33, 49, 0.96), rgba(11, 15, 25, 0.98));
+  border: 1.5px solid rgba(234, 179, 8, 0.65);
+  border-radius: 14px;
+  padding: 3px 6px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.85), inset 0 1px 0 rgba(254, 240, 138, 0.25);
+}
+
 .hud-menu-btn {
-  width: 48px;
-  height: 50px;
-  padding: 0;
-  border: none;
-  background: transparent;
+  width: 46px;
+  height: 46px;
+  padding: 2px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.02);
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.7));
-  transition: transform 0.12s ease, filter 0.12s ease;
+  filter: drop-shadow(0 3px 6px rgba(0, 0, 0, 0.6));
+  transition: transform 0.12s ease, background 0.15s ease, border-color 0.15s ease, filter 0.15s ease;
 }
 
 .hud-menu-btn img {
@@ -536,23 +600,14 @@
 }
 
 .hud-menu-btn:hover {
-  transform: translateY(-2px);
-  filter: drop-shadow(0 6px 12px rgba(255, 215, 0, 0.4));
+  transform: translateY(-2px) scale(1.06);
+  background: rgba(234, 179, 8, 0.12);
+  border-color: rgba(234, 179, 8, 0.45);
+  filter: drop-shadow(0 4px 10px rgba(234, 179, 8, 0.35));
 }
 
 .hud-menu-btn:active {
   transform: translateY(1px) scale(0.94);
-}
-
-/* Botão em destaque (Mochila / Inventário central) */
-.hud-menu-btn-prominent {
-  width: 56px;
-  height: 58px;
-  transform: translateY(-4px);
-}
-
-.hud-menu-btn-prominent:hover {
-  transform: translateY(-6px);
 }
 
 /* ==========================================================================
@@ -626,4 +681,422 @@
   border: 1px solid #334155;
   border-radius: 12px;
   padding: 8px 12px;
+}
+
+/* ==========================================================================
+   MODAIS DE MAPA (LOCAL EXPANDIDO COM NPCS & MAPA MUNDO DOS CONTINENTES)
+   ========================================================================== */
+.hud-map-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(6, 10, 18, 0.88);
+  backdrop-filter: blur(6px);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px;
+  user-select: none;
+}
+
+.hud-map-modal-dialog {
+  background: #0b1120;
+  border: 2px solid #eab308;
+  border-radius: 16px;
+  width: 100%;
+  max-width: 520px;
+  height: 94vh;
+  max-height: 820px;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.95);
+  overflow: hidden;
+  position: relative;
+}
+
+.hud-map-modal-header {
+  padding: 10px 14px;
+  background: linear-gradient(180deg, #1e293b, #0f172a);
+  border-bottom: 1.5px solid rgba(234, 179, 8, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.hud-map-title-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.hud-map-icon {
+  font-size: 1.4rem;
+}
+
+.hud-map-title {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: #fde047;
+}
+
+.hud-map-subtitle {
+  font-size: 0.72rem;
+  color: #94a3b8;
+}
+
+.hud-map-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.hud-btn-world-map {
+  background: linear-gradient(180deg, #ca8a04, #854d0e);
+  border: 1.5px solid #fde047;
+  color: #ffffff;
+  padding: 4px 10px;
+  border-radius: 8px;
+  font-size: 0.8rem;
+  font-weight: 800;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.6);
+  transition: transform 0.12s ease;
+}
+
+.hud-btn-world-map:hover {
+  transform: scale(1.04);
+}
+
+.hud-map-close-btn {
+  background: none;
+  border: none;
+  color: #94a3b8;
+  font-size: 1.3rem;
+  cursor: pointer;
+  padding: 0 6px;
+  font-weight: 900;
+}
+
+.hud-map-close-btn:hover { color: #ffffff; }
+
+.hud-map-info-bar {
+  padding: 6px 14px;
+  background: #080d19;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.74rem;
+  color: #cbd5e1;
+}
+
+.hud-map-coord-badge strong {
+  color: #38bdf8;
+  font-family: monospace;
+}
+
+.hud-map-legend {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.legend-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+.dot-player { background: #22c55e; box-shadow: 0 0 6px #22c55e; }
+.dot-npc { background: #38bdf8; box-shadow: 0 0 6px #38bdf8; }
+.dot-portal { background: #a855f7; box-shadow: 0 0 6px #a855f7; }
+
+/* Viewport com Rolagem / Zoom do Mapa */
+.hud-map-viewport-container {
+  flex: 1;
+  overflow: auto;
+  position: relative;
+  background: #050811;
+  touch-action: pan-x pan-y;
+}
+
+.hud-map-stage {
+  position: relative;
+}
+
+.hud-map-bg-img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+/* Pins do Mapa Expandido */
+.hud-map-pin {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  pointer-events: auto;
+  cursor: pointer;
+  z-index: 10;
+}
+
+.pin-marker {
+  font-size: 1.1rem;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.9));
+}
+
+.pin-label {
+  background: rgba(15, 23, 42, 0.88);
+  border: 1px solid rgba(234, 179, 8, 0.6);
+  color: #fde047;
+  font-size: 0.62rem;
+  padding: 1px 6px;
+  border-radius: 6px;
+  margin-top: 2px;
+  white-space: nowrap;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.7);
+}
+
+.pin-player {
+  z-index: 20;
+}
+
+.pin-player .pin-label {
+  background: rgba(34, 197, 94, 0.9);
+  color: #ffffff;
+  border-color: #ffffff;
+}
+
+.pin-pulse {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(34, 197, 94, 0.4);
+  transform: translate(-50%, -50%);
+  animation: mapPinPulse 1.8s infinite ease-out;
+  pointer-events: none;
+}
+
+@keyframes mapPinPulse {
+  0% { transform: translate(-50%, -50%) scale(0.6); opacity: 1; }
+  100% { transform: translate(-50%, -50%) scale(2.2); opacity: 0; }
+}
+
+.pin-highlighted .pin-marker {
+  animation: pinBounce 0.5s 3 ease-in-out;
+}
+
+@keyframes pinBounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+/* Gaveta Inferior de NPCs */
+.hud-map-npcs-drawer {
+  background: #0a0f1d;
+  border-top: 1.5px solid rgba(234, 179, 8, 0.4);
+  padding: 8px 12px;
+  max-height: 120px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.hud-map-drawer-header {
+  font-size: 0.72rem;
+  font-weight: 800;
+  color: #94a3b8;
+}
+
+.hud-map-npc-chips {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+}
+
+.hud-npc-chip {
+  background: #1e293b;
+  border: 1px solid rgba(56, 189, 248, 0.4);
+  color: #e2e8f0;
+  padding: 3px 8px;
+  border-radius: 8px;
+  font-size: 0.7rem;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.hud-npc-chip:hover {
+  background: #0284c7;
+  border-color: #38bdf8;
+  color: #ffffff;
+}
+
+.chip-coords {
+  color: #94a3b8;
+  font-size: 0.62rem;
+}
+
+/* Modal do Mapa Mundo Geral */
+.hud-world-map-dialog {
+  max-width: 680px;
+}
+
+.hud-world-tabs-bar {
+  padding: 6px 12px;
+  background: #080d19;
+  border-bottom: 1px solid rgba(234, 179, 8, 0.3);
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+}
+
+.hud-continent-tab {
+  background: #1e293b;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #94a3b8;
+  padding: 4px 12px;
+  border-radius: 8px;
+  font-size: 0.78rem;
+  font-weight: 800;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.15s ease;
+}
+
+.hud-continent-tab.active {
+  background: linear-gradient(180deg, #eab308, #ca8a04);
+  border-color: #fef08a;
+  color: #1a1a1a;
+}
+
+.hud-world-viewport {
+  flex: 1;
+  overflow: auto;
+  position: relative;
+  background: #050811;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.hud-world-canvas-wrapper {
+  position: relative;
+}
+
+.hud-world-base-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.hud-world-logo-img {
+  position: absolute;
+  pointer-events: none;
+  z-index: 5;
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.7));
+}
+
+.hud-world-routes-svg {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 6;
+}
+
+.hud-world-points-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  pointer-events: none;
+}
+
+.hud-world-point-node {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  pointer-events: auto;
+  cursor: pointer;
+}
+
+.point-icon-gem {
+  font-size: 1.2rem;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.9));
+}
+
+.point-name-tag {
+  background: rgba(15, 23, 42, 0.92);
+  border: 1.5px solid #eab308;
+  color: #fde047;
+  font-size: 0.68rem;
+  padding: 1px 7px;
+  border-radius: 6px;
+  margin-top: 2px;
+  white-space: nowrap;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.8);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.tag-here {
+  background: #22c55e;
+  color: #ffffff;
+  font-size: 0.52rem;
+  font-weight: 900;
+  padding: 0 4px;
+  border-radius: 4px;
+  margin-top: 1px;
+}
+
+.point-player-here .point-icon-gem {
+  transform: scale(1.3);
+}
+
+.point-player-pulse {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: rgba(234, 179, 8, 0.45);
+  transform: translate(-50%, -50%);
+  animation: mapPinPulse 1.6s infinite ease-out;
+  pointer-events: none;
+}
+
+.hud-world-footer-bar {
+  padding: 8px 14px;
+  background: #080d19;
+  border-top: 1px solid rgba(234, 179, 8, 0.3);
+  font-size: 0.75rem;
+  color: #94a3b8;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }

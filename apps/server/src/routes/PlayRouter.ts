@@ -117,6 +117,16 @@ export class PlayRouter {
       return true;
     }
 
+    // --- Mapas Gerais / Mundo dos Continentes (Visualização do Jogador) ---
+    if (pathname === '/api/play/world-maps' && method === 'GET') {
+      const worldMaps = await this.deps.prisma.worldMapTemplate.findMany({
+        where: { isActive: true },
+        orderBy: { id: 'asc' },
+      });
+      this.deps.sendJson(res, 200, { worldMaps });
+      return true;
+    }
+
     // --- Criação e Deleção de Personagens ---
     if (pathname === '/api/play/characters' && method === 'POST') {
       const dto = await this.deps.readJsonBody(req);

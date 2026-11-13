@@ -47,14 +47,9 @@ class PlayHudController {
       equippedPets: [],
       gold: 0,
       diamonds: 1500,
-      shortcuts: [
-        { id: 1, icon: '/play/assets/hud/shortcut_potion_hp.png', name: 'Poção de Vida', type: 'HEAL_HP' },
-        { id: 2, icon: '/play/assets/hud/shortcut_potion_mp.png', name: 'Poção de Mana', type: 'RESTORE_MP' },
-        { id: 3, icon: '/play/assets/hud/shortcut_food_bread.png', name: 'Pão de Centeio', type: 'FOOD' },
-        { id: 4, icon: '/play/assets/hud/shortcut_scroll_teleport.png', name: 'Pergaminho de Retorno', type: 'TELEPORT' },
-        { id: 5, icon: '/play/assets/hud/shortcut_potion_antidote.png', name: 'Antídoto', type: 'CLEANSE' },
-        { id: 6, icon: '/play/assets/hud/shortcut_potion_buff.png', name: 'Elixir de Poder', type: 'BUFF' },
-      ],
+      shortcuts: Array(6)
+        .fill(null)
+        .map((_, i) => ({ id: i + 1, slotNum: i + 1, item: null, name: `Slot #${i + 1} (Vazio)` })),
     };
   }
 
@@ -85,49 +80,51 @@ class PlayHudController {
     this.container.className = 'play-mobile-hud';
 
     this.container.innerHTML = `
-      <!-- 1. Topo-Esquerdo: Avatar, Nível, HP/MP/XP e Moedas -->
+      <!-- 1. Topo-Esquerdo: Avatar, Nível, HP/MP/XP e Moedas Colados em Placa Harmoniosa -->
       <div id="hudPlayerSection" class="hud-player-section">
-        <div class="hud-avatar-wrapper">
-          <img id="hudPlayerAvatarImg" class="hud-avatar-img" src="/play/assets/hud/menu_character.png" alt="Avatar" />
-          <img class="hud-avatar-frame" src="/play/assets/hud/player_avatar_frame.png" alt="Moldura" />
-          <div id="hudPlayerLevelBadge" class="hud-level-badge">Nv. 1</div>
-        </div>
-        <div class="hud-player-bars-col">
-          <div class="hud-stat-bar hud-stat-hp">
-            <span class="hud-stat-label">HP</span>
-            <div class="hud-bar-track">
-              <div id="hudFillHp" class="hud-bar-fill hud-fill-hp" style="width: 100%;"></div>
-            </div>
+        <div class="hud-player-header-card">
+          <div class="hud-avatar-wrapper">
+            <img id="hudPlayerAvatarImg" class="hud-avatar-img" src="/play/assets/hud/menu_character.png" alt="Avatar" />
+            <img class="hud-avatar-frame" src="/play/assets/hud/player_avatar_frame.png" alt="Moldura" />
+            <div id="hudPlayerLevelBadge" class="hud-level-badge">Nv. 1</div>
           </div>
-          <div class="hud-stat-bar hud-stat-mp">
-            <span class="hud-stat-label">MP</span>
-            <div class="hud-bar-track">
-              <div id="hudFillMp" class="hud-bar-fill hud-fill-mp" style="width: 100%;"></div>
+          <div class="hud-player-bars-col">
+            <div class="hud-stat-bar hud-stat-hp">
+              <span class="hud-stat-label">HP</span>
+              <div class="hud-bar-track">
+                <div id="hudFillHp" class="hud-bar-fill hud-fill-hp" style="width: 100%;"></div>
+              </div>
             </div>
-          </div>
-          <div class="hud-stat-bar hud-stat-xp">
-            <span class="hud-stat-label">XP</span>
-            <div class="hud-bar-track">
-              <div id="hudFillXp" class="hud-bar-fill hud-fill-xp" style="width: 0%;"></div>
+            <div class="hud-stat-bar hud-stat-mp">
+              <span class="hud-stat-label">MP</span>
+              <div class="hud-bar-track">
+                <div id="hudFillMp" class="hud-bar-fill hud-fill-mp" style="width: 100%;"></div>
+              </div>
             </div>
-          </div>
-          <div class="hud-currencies-row">
-            <div class="hud-currency-badge hud-gold-badge" title="Ouro">
-              <img src="/play/assets/hud/gold_coin_icon.png" alt="Ouro" />
-              <span id="hudGoldAmount">0</span>
+            <div class="hud-stat-bar hud-stat-xp">
+              <span class="hud-stat-label">XP</span>
+              <div class="hud-bar-track">
+                <div id="hudFillXp" class="hud-bar-fill hud-fill-xp" style="width: 0%;"></div>
+              </div>
             </div>
-            <div class="hud-currency-badge hud-crystal-badge" title="Cristais">
-              <img src="/play/assets/hud/crystal_gem_icon.png" alt="Cristal" />
-              <span id="hudCrystalAmount">1,500</span>
+            <div class="hud-currencies-row">
+              <div class="hud-currency-badge hud-gold-badge" title="Ouro">
+                <img src="/play/assets/hud/gold_coin_icon.png" alt="Ouro" />
+                <span id="hudGoldAmount">0</span>
+              </div>
+              <div class="hud-currency-badge hud-crystal-badge" title="Cristais">
+                <img src="/play/assets/hud/crystal_gem_icon.png" alt="Cristal" />
+                <span id="hudCrystalAmount">1,500</span>
+              </div>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- 2. Topo-Direito: Mini Mapa, Bússola, Coordenadas e Engrenagem -->
-      <div id="hudMinimapSection" class="hud-minimap-section">
-        <div class="hud-minimap-wrapper">
-          <canvas id="hudMinimapCanvas" width="112" height="112"></canvas>
+      <!-- 2. Topo-Direito: Mini Mapa Ampliado, Bússola, Coordenadas e Engrenagem -->
+      <div id="hudMinimapSection" class="hud-minimap-section" title="Toque no mapa para expandir e ver NPCs e Mapa Mundo">
+        <div class="hud-minimap-wrapper" id="hudMinimapWrapper">
+          <canvas id="hudMinimapCanvas" width="160" height="160"></canvas>
           <img class="hud-minimap-frame" src="/play/assets/hud/minimap_frame.png" alt="Bússola" />
           <button id="hudSettingsBtn" class="hud-settings-btn" title="Configurações do Jogo">
             <img src="/play/assets/hud/settings_gear_icon.png" alt="Configurações" />
@@ -136,18 +133,20 @@ class PlayHudController {
         <div id="hudCoordinatesBadge" class="hud-coords-badge">0, 0</div>
       </div>
 
-      <!-- 3. Lateral Esquerda: Barra de 6 Atalhos Rápidos -->
+      <!-- 3. Lateral Esquerda: Barra de 6 Atalhos Rápidos com Caixas Elegantes Sem Falsos Ícones -->
       <div id="hudShortcutsSection" class="hud-shortcuts-section">
-        ${this.state.shortcuts
-          .map(
-            (s, idx) => `
-          <button type="button" class="hud-shortcut-slot" data-index="${idx}" title="${s.name}">
-            <img class="hud-slot-bg" src="/play/assets/hud/shortcut_slot_bg.png" alt="Slot" />
-            <img class="hud-slot-icon" src="${s.icon}" alt="${s.name}" />
-          </button>
-        `
-          )
-          .join('')}
+        <div class="hud-shortcuts-dock">
+          ${this.state.shortcuts
+            .map(
+              (s, idx) => `
+            <button type="button" class="hud-shortcut-slot ${!s.item ? 'slot-empty' : ''}" data-index="${idx}" title="${s.item ? s.item.name : `Slot de Atalho #${idx + 1} (Vazio)`}">
+              <span class="hud-slot-num">${idx + 1}</span>
+              ${s.item ? `<img class="hud-slot-icon" src="${s.item.icon}" alt="${s.item.name}" />` : `<span class="hud-slot-empty-icon">❖</span>`}
+            </button>
+          `
+            )
+            .join('')}
+        </div>
       </div>
 
       <!-- 4. Lateral Direita: HUD dos Pets Equipados (0 a 3) -->
@@ -165,26 +164,28 @@ class PlayHudController {
         </div>
       </div>
 
-      <!-- 6. Barra Inferior: 6 Botões de Menu (SEM texto, apenas ícones) -->
+      <!-- 6. Barra Inferior: 6 Botões de Menu Uniformes Integrados em Dock Sem Espaçamento Transparente -->
       <nav id="hudBottomMenuSection" class="hud-bottom-menu-section">
-        <button type="button" class="hud-menu-btn" data-action="shop" title="Loja">
-          <img src="/play/assets/hud/menu_shop.png" alt="Loja" />
-        </button>
-        <button type="button" class="hud-menu-btn" data-action="pets" title="Pets">
-          <img src="/play/assets/hud/menu_pets.png" alt="Pets" />
-        </button>
-        <button type="button" class="hud-menu-btn" data-action="character" title="Personagem">
-          <img src="/play/assets/hud/menu_character.png" alt="Personagem" />
-        </button>
-        <button type="button" class="hud-menu-btn hud-menu-btn-prominent" data-action="inventory" title="Mochila / Inventário">
-          <img src="/play/assets/hud/menu_inventory.png" alt="Inventário" />
-        </button>
-        <button type="button" class="hud-menu-btn" data-action="quests" title="Missões">
-          <img src="/play/assets/hud/menu_quests.png" alt="Quests" />
-        </button>
-        <button type="button" class="hud-menu-btn" data-action="events" title="Eventos">
-          <img src="/play/assets/hud/menu_events.png" alt="Eventos" />
-        </button>
+        <div class="hud-bottom-dock">
+          <button type="button" class="hud-menu-btn" data-action="shop" title="Loja">
+            <img src="/play/assets/hud/menu_shop.png" alt="Loja" />
+          </button>
+          <button type="button" class="hud-menu-btn" data-action="pets" title="Pets">
+            <img src="/play/assets/hud/menu_pets.png" alt="Pets" />
+          </button>
+          <button type="button" class="hud-menu-btn" data-action="character" title="Personagem">
+            <img src="/play/assets/hud/menu_character.png" alt="Personagem" />
+          </button>
+          <button type="button" class="hud-menu-btn" data-action="inventory" title="Mochila / Inventário">
+            <img src="/play/assets/hud/menu_inventory.png" alt="Inventário" />
+          </button>
+          <button type="button" class="hud-menu-btn" data-action="quests" title="Missões">
+            <img src="/play/assets/hud/menu_quests.png" alt="Quests" />
+          </button>
+          <button type="button" class="hud-menu-btn" data-action="events" title="Eventos">
+            <img src="/play/assets/hud/menu_events.png" alt="Eventos" />
+          </button>
+        </div>
       </nav>
     `;
 
@@ -220,7 +221,25 @@ class PlayHudController {
       });
     });
 
-    // 3. Botão de Configurações (Engrenagem)
+    // 3. Mini Mapa: Clique abre o Mapa Local Expandido com NPCs e Botão de Mapa Mundo
+    const minimapWrapper = document.getElementById('hudMinimapWrapper');
+    if (minimapWrapper) {
+      minimapWrapper.addEventListener('click', (ev) => {
+        if (ev.target.closest('#hudSettingsBtn')) return;
+        ev.stopPropagation();
+        if (window.PlayMapModalController) {
+          window.PlayMapModalController.openExpandedMap(
+            this.playApp,
+            this.state.map,
+            this.mapBgImage,
+            this.state.playerX,
+            this.state.playerY
+          );
+        }
+      });
+    }
+
+    // 4. Botão de Configurações (Engrenagem)
     const settingsBtn = document.getElementById('hudSettingsBtn');
     if (settingsBtn) {
       settingsBtn.addEventListener('click', (ev) => {
@@ -229,7 +248,7 @@ class PlayHudController {
       });
     }
 
-    // 4. Clique / Tap no Avatar do Jogador (abre atributos)
+    // 5. Clique / Tap no Avatar do Jogador (abre atributos)
     const avatar = document.getElementById('hudPlayerAvatarImg');
     if (avatar) {
       avatar.addEventListener('click', () => {
@@ -239,7 +258,7 @@ class PlayHudController {
       });
     }
 
-    // 5. Botão Central de Ação do Joystick
+    // 6. Botão Central de Ação do Joystick
     const interactBtn = document.getElementById('hudJoystickInteractBtn');
     if (interactBtn) {
       interactBtn.addEventListener('click', (ev) => {
@@ -412,16 +431,23 @@ class PlayHudController {
    * Dispara o uso de um item do slot de atalhos.
    */
   triggerShortcut(idx, slotEl) {
-    const item = this.state.shortcuts[idx];
-    if (!item) return;
+    const slot = this.state.shortcuts[idx];
+    if (!slot) return;
 
     // Feedback tátil visual
     slotEl.classList.add('hud-slot-pressed');
     setTimeout(() => slotEl.classList.remove('hud-slot-pressed'), 200);
 
-    console.log(`[PlayHudController] Atalho #${idx + 1} ativado: ${item.name}`);
+    if (!slot.item) {
+      if (this.playApp && typeof this.playApp.showNotification === 'function') {
+        this.playApp.showNotification(`Slot de atalho #${idx + 1} vazio. Equipe poções e consumíveis pela mochila!`, 'info');
+      }
+      return;
+    }
+
+    console.log(`[PlayHudController] Atalho #${idx + 1} ativado: ${slot.item.name}`);
     if (this.playApp && typeof this.playApp.showNotification === 'function') {
-      this.playApp.showNotification(`Usou ${item.name}`, 'info');
+      this.playApp.showNotification(`Usou ${slot.item.name}`, 'info');
     }
   }
 
@@ -684,6 +710,7 @@ class PlayHudController {
    */
   updateMinimap(currentMap, mapImage, playerX, playerY, playerDir = 0) {
     this.state.map = currentMap;
+    this.mapBgImage = mapImage;
     this.state.playerX = playerX;
     this.state.playerY = playerY;
     this.state.playerDir = playerDir;
