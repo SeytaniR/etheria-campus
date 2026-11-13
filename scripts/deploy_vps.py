@@ -9,10 +9,14 @@ set -e
 cd /home/azureuser/etheria-campus
 git checkout -- packages/database/snapshots/lowcode.snapshot.json || true
 git pull origin main
+cd packages/database
+npx prisma generate
+npx prisma db push --skip-generate
+cd ../..
 npm run build:packages
 npm --workspace=@etheria/server run build
 sudo systemctl restart etheria-campus.service
-sleep 2
+sleep 3
 systemctl is-active etheria-campus.service
 curl -s -o /dev/null -w "HTTP_STATUS=%{http_code}\\n" https://40-65-63-193.sslip.io/admin
 """
