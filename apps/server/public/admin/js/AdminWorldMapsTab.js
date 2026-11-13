@@ -2,10 +2,10 @@
  * @file apps/server/public/admin/js/AdminWorldMapsTab.js
  * @module @etheria/server
  * @description Submódulo da Aba `🌍 Mapas Gerais` na Rota `/admin`.
- *   - Exibe os dois Continentes com base limpa (`world_map_1_base.png` / `world_map_2_base.png`),
- *     camada vetorial separada de linhas e pontos, e o logotipo transparente `Etheria Campus`.
- *   - Permite clicar em qualquer ponto no mapa para vincular um mapa já cadastrado na Tabela de Mapas (`GameMap`).
- *   - Permite arrastar e redimensionar livremente o logotipo `Etheria Campus` sobre cada mapa geral.
+ *   - Gerenciamento completo dos Continentes / Mapas Gerais com base limpa e logotipo transparente.
+ *   - Criação interativa livre de Pontos e Linhas/Ligações entre cidades e regiões.
+ *   - Vínculo direto de qualquer ponto a mapas cadastrados na Tabela de Mapas (`GameMap`).
+ *   - Layout 100% responsivo para Mobile Vertical (Portrait) e Desktop com controles touch-friendly.
  */
 
 class AdminWorldMapsTab {
@@ -15,11 +15,14 @@ class AdminWorldMapsTab {
     app.worldMapsList = [];
     app.worldMapAvailableMaps = [];
     app.activeWorldMapCode = 'continent_1';
+    app.activeToolMode = 'SELECT'; // SELECT | ADD_POINT | CONNECT | DELETE
     app.selectedWorldPointId = null;
-    app.worldMapPointsFilter = 'ALL'; // ALL | LINKED | UNLINKED
-    app.worldMapAllowPointDrag = false;
+    app.connectSourcePointId = null;
+    app.worldMapPointsFilter = 'ALL'; // ALL | LINKED | UNLINKED | CITIES
     app.worldMapDirty = false;
     app.worldMapInteraction = null;
+    app.worldMapZoom = 1.0;
+    app.worldMapPan = { x: 0, y: 0 };
 
     AdminWorldMapsTab.injectDom();
     AdminWorldMapsTab.bindStageEvents(app);
@@ -34,6 +37,38 @@ class AdminWorldMapsTab {
       if (badge) {
         badge.style.display = isDirty ? 'inline-flex' : 'none';
       }
+    };
+
+    app.setWorldMapToolMode = function (mode) {
+      this.activeToolMode = mode;
+      if (mode !== 'CONNECT') {
+        this.connectSourcePointId = null;
+      }
+      this.updateToolButtonsVisual();
+      this.renderWorldMapSvgOverlay();
+      this.updateWorldMapModeBanner();
+    };
+
+    app.updateToolButtonsVisual = function () {
+      const mode = this.activeToolMode;
+      document.querySelectorAll('.wm-tool-btn').forEach((btn) => {
+        const btnMode = btn.getAttribute('data-tool-mode');
+        btn.className = btnMode === mode ? 'btn-primary wm-tool-btn' : 'btn-secondary wm-tool-btn';
+      });
+    };
+
+    app.updateWorldMapModeBanner = function () {
+      const banner = document.getElementById('wmModeHintBanner');
+      if (!banner) return;
+      const hints = {
+        SELECT: '👆 <strong>Modo Selecionar / Mover:</strong> Clique num ponto para editar ou arraste para reposicionar.',
+        ADD_POINT: '➕ <strong>Modo Criar Ponto:</strong> Clique em qualquer local do mapa para criar um novo ponto.',
+        CONNECT: this.connectSourcePointId
+          ? '🔗 <strong>Origem selecionada:</strong> Agora clique no ponto de destino para traçar a ligação.'
+          : '🔗 <strong>Modo Criar Linha:</strong> Clique no primeiro ponto e depois no segundo para ligá-los.',
+        DELETE: '🗑️ <strong>Modo Excluir:</strong> Clique em qualquer ponto ou linha para remover.',
+      };
+      banner.innerHTML = hints[this.activeToolMode] || '';
     };
 
     app.loadWorldMapsData = async function () {
@@ -58,6 +93,7 @@ class AdminWorldMapsTab {
       }
       this.activeWorldMapCode = code;
       this.selectedWorldPointId = null;
+      this.connectSourcePointId = null;
       this.markWorldMapDirty(false);
       this.renderWorldMapsWorkspace();
     };
@@ -116,6 +152,89 @@ class AdminWorldMapsTab {
       this.renderWorldMapPointsQuickList();
     };
 
+    app.addNewWorldPoint = function (x, y) {
+      const wm = this.getActiveWorldMap();
+      if (!wm) return;
+      if (!Array.isArray(wm.pointsJson)) wm.pointsJson = [];
+
+      const nextNum = wm.pointsJson.length + 1;
+      const newPt = {
+        id: `pt_${Date.now()}_${Math.floor(Math.random() * 1000)}`,
+        refId: nextNum,
+        refLabel: `Ponto #${nextNum}`,
+        x: Math.round(Math.max(15, Math.min((wm.canvasWidth || 1264) - 15, x)) * 10) / 10,
+        y: Math.round(Math.max(15, Math.min((wm.canvasHeight || 848) - 15, y)) * 10) / 10,
+        isCity: false,
+        gameMapId: null,
+        customLabel: '',
+      };
+
+      wm.pointsJson.push(newPt);
+      this.markWorldMapDirty(true);
+      this.selectWorldMapPoint(newPt.id);
+    };
+
+    app.deleteWorldPoint = function (pointId) {
+      const wm = this.getActiveWorldMap();
+      if (!wm) return;
+      const pt = (wm.pointsJson || []).find((p) => p.id === pointId);
+      if (!pt) return;
+
+      if (!confirm(`Excluir o ponto "${pt.customLabel || pt.refLabel}" e todas as suas ligações?`)) {
+        return;
+      }
+
+      wm.pointsJson = (wm.pointsJson || []).filter((p) => p.id !== pointId);
+      wm.routesJson = (wm.routesJson || []).filter((r) => r.from !== pointId && r.to !== pointId);
+
+      if (this.selectedWorldPointId === pointId) {
+        this.selectedWorldPointId = null;
+      }
+      if (this.connectSourcePointId === pointId) {
+        this.connectSourcePointId = null;
+      }
+
+      this.markWorldMapDirty(true);
+      this.renderWorldMapSvgOverlay();
+      this.renderWorldMapPointInspector();
+      this.renderWorldMapPointsQuickList();
+    };
+
+    app.toggleWorldRoute = function (fromId, toId) {
+      const wm = this.getActiveWorldMap();
+      if (!wm || !fromId || !toId || fromId === toId) return;
+      if (!Array.isArray(wm.routesJson)) wm.routesJson = [];
+
+      const existsIdx = wm.routesJson.findIndex(
+        (r) => (r.from === fromId && r.to === toId) || (r.from === toId && r.to === fromId)
+      );
+
+      if (existsIdx >= 0) {
+        wm.routesJson.splice(existsIdx, 1);
+      } else {
+        wm.routesJson.push({ from: fromId, to: toId });
+      }
+
+      this.markWorldMapDirty(true);
+      this.renderWorldMapSvgOverlay();
+      this.renderWorldMapPointInspector();
+    };
+
+    app.clearAllWorldPointsAndRoutes = function () {
+      const wm = this.getActiveWorldMap();
+      if (!wm) return;
+      if (!confirm(`⚠️ Deseja realmente EXCLUIR TODOS os pontos e linhas do "${wm.namePtBr}"?\nVocê poderá criar seus próprios pontos e rotas do zero.`)) {
+        return;
+      }
+
+      wm.pointsJson = [];
+      wm.routesJson = [];
+      this.selectedWorldPointId = null;
+      this.connectSourcePointId = null;
+      this.markWorldMapDirty(true);
+      this.renderWorldMapsWorkspace();
+    };
+
     app.linkSelectedMapToWorldPoint = function () {
       const wm = this.getActiveWorldMap();
       if (!wm || !this.selectedWorldPointId) return;
@@ -125,11 +244,15 @@ class AdminWorldMapsTab {
       const selectEl = document.getElementById('wmAssignMapSelect');
       const customLabelEl = document.getElementById('wmPointCustomLabelInput');
       const isCityEl = document.getElementById('wmPointIsCityInput');
+      const coordXEl = document.getElementById('wmPointCoordXInput');
+      const coordYEl = document.getElementById('wmPointCoordYInput');
 
       const chosenMapId = selectEl && selectEl.value ? Number(selectEl.value) : null;
       pt.gameMapId = chosenMapId;
       pt.customLabel = customLabelEl ? customLabelEl.value.trim() : '';
       if (isCityEl) pt.isCity = Boolean(isCityEl.checked);
+      if (coordXEl && coordXEl.value) pt.x = Math.max(10, Math.min((wm.canvasWidth || 1264) - 10, Number(coordXEl.value) || pt.x));
+      if (coordYEl && coordYEl.value) pt.y = Math.max(10, Math.min((wm.canvasHeight || 848) - 10, Number(coordYEl.value) || pt.y));
 
       this.markWorldMapDirty(true);
       this.renderWorldMapSvgOverlay();
@@ -143,7 +266,6 @@ class AdminWorldMapsTab {
       const pt = (wm.pointsJson || []).find((p) => p.id === this.selectedWorldPointId);
       if (!pt) return;
       pt.gameMapId = null;
-      pt.customLabel = '';
       this.markWorldMapDirty(true);
       this.renderWorldMapSvgOverlay();
       this.renderWorldMapPointInspector();
@@ -168,8 +290,8 @@ class AdminWorldMapsTab {
             logoVisible: wm.logoVisible,
             showRoutesLayer: wm.showRoutesLayer,
             showPointsLayer: wm.showPointsLayer,
-            pointsJson: wm.pointsJson,
-            routesJson: wm.routesJson,
+            pointsJson: wm.pointsJson || [],
+            routesJson: wm.routesJson || [],
           }),
         });
         const idx = this.worldMapsList.findIndex((x) => x.code === saved.code);
@@ -180,6 +302,28 @@ class AdminWorldMapsTab {
       } catch (err) {
         alert(`Erro ao salvar Mapa Geral: ${err.message}`);
       }
+    };
+
+    app.setWorldMapZoom = function (delta) {
+      if (delta === 0) {
+        this.worldMapZoom = 1.0;
+        this.worldMapPan = { x: 0, y: 0 };
+      } else {
+        this.worldMapZoom = Math.max(1.0, Math.min(3.0, this.worldMapZoom + delta));
+      }
+      this.applyWorldMapTransform();
+    };
+
+    app.applyWorldMapTransform = function () {
+      const stage = document.getElementById('wmInteractiveStage');
+      if (!stage) return;
+      const z = this.worldMapZoom;
+      const px = this.worldMapPan.x;
+      const py = this.worldMapPan.y;
+      stage.style.transform = `scale(${z}) translate(${px}px, ${py}px)`;
+      stage.style.transformOrigin = 'center center';
+      const zoomBadge = document.getElementById('wmZoomBadge');
+      if (zoomBadge) zoomBadge.textContent = `${Math.round(z * 100)}%`;
     };
 
     app.renderWorldMapsWorkspace = function () {
@@ -193,8 +337,8 @@ class AdminWorldMapsTab {
             const totalCount = (item.pointsJson || []).length;
             return `
               <button type="button"
-                class="${active ? 'btn-primary' : ''}"
-                style="padding:7px 14px; font-size:0.82rem; font-weight:700;"
+                class="${active ? 'btn-primary' : 'btn-secondary'}"
+                style="padding:8px 14px; font-size:0.84rem; font-weight:700; border-radius:6px; min-height:40px;"
                 onclick="AdminApp.selectWorldMapContinent('${this.escapeHtml(item.code)}')">
                 ${item.code === 'continent_1' ? '🗺️' : '🏝️'} ${this.escapeHtml(item.namePtBr)}
                 <span style="opacity:0.85; font-weight:500;">(${linkedCount}/${totalCount})</span>
@@ -216,6 +360,8 @@ class AdminWorldMapsTab {
       if (chkPoints) chkPoints.checked = Boolean(wm.showPointsLayer);
       if (chkLogo) chkLogo.checked = Boolean(wm.logoVisible);
 
+      this.updateToolButtonsVisual();
+      this.updateWorldMapModeBanner();
       this.renderWorldMapCanvasLayers();
       this.syncWorldMapLogoInputs();
       this.renderWorldMapPointInspector();
@@ -275,58 +421,76 @@ class AdminWorldMapsTab {
       const ptById = new Map(points.map((p) => [p.id, p]));
       const mapById = new Map((this.worldMapAvailableMaps || []).map((m) => [m.id, m]));
 
+      // Renderiza as Linhas / Rotas
       const routesHtml = wm.showRoutesLayer
         ? routes
             .map((r) => {
               const a = ptById.get(r.from);
               const b = ptById.get(r.to);
               if (!a || !b) return '';
-              return `<line x1="${a.x}" y1="${a.y}" x2="${b.x}" y2="${b.y}" stroke="#7dd3fc" stroke-width="3.2" stroke-linecap="round" opacity="0.9" />`;
+              const isDeleteMode = this.activeToolMode === 'DELETE';
+              return `
+                <g class="wm-route-group" data-from="${this.escapeHtml(r.from)}" data-to="${this.escapeHtml(r.to)}" style="cursor:${isDeleteMode ? 'not-allowed' : 'pointer'};">
+                  <title>Linha entre ${this.escapeHtml(a.customLabel || a.refLabel)} e ${this.escapeHtml(b.customLabel || b.refLabel)} (Clique para remover no modo Excluir)</title>
+                  <line x1="${a.x}" y1="${a.y}" x2="${b.x}" y2="${b.y}" stroke="#0284c7" stroke-width="6.5" stroke-linecap="round" opacity="0.4" />
+                  <line x1="${a.x}" y1="${a.y}" x2="${b.x}" y2="${b.y}" stroke="#38bdf8" stroke-width="3.5" stroke-linecap="round" opacity="0.95" />
+                  <line x1="${a.x}" y1="${a.y}" x2="${b.x}" y2="${b.y}" stroke="#f0f9ff" stroke-width="1.2" stroke-dasharray="6 4" stroke-linecap="round" />
+                </g>
+              `;
             })
             .join('')
         : '';
 
+      // Linha guia temporária durante conexão ativa
+      let connectGuideHtml = '';
+      if (this.activeToolMode === 'CONNECT' && this.connectSourcePointId) {
+        const src = ptById.get(this.connectSourcePointId);
+        if (src) {
+          connectGuideHtml = `
+            <circle cx="${src.x}" cy="${src.y}" r="22" fill="none" stroke="#eab308" stroke-width="3" stroke-dasharray="5 4">
+              <animateTransform attributeName="transform" type="rotate" from="0 ${src.x} ${src.y}" to="360 ${src.x} ${src.y}" dur="4s" repeatCount="indefinite" />
+            </circle>
+          `;
+        }
+      }
+
+      // Renderiza os Pontos
       const pointsHtml = wm.showPointsLayer
         ? points
             .map((pt) => {
               const isSelected = pt.id === this.selectedWorldPointId;
+              const isConnectSrc = pt.id === this.connectSourcePointId;
               const linkedMap = pt.gameMapId ? mapById.get(Number(pt.gameMapId)) : null;
               const isLinked = Boolean(linkedMap);
-              const labelText = pt.customLabel?.trim() || (linkedMap ? linkedMap.namePtBr : '');
+              const labelText = pt.customLabel?.trim() || (linkedMap ? linkedMap.namePtBr : pt.refLabel);
 
-              const outerR = pt.isCity ? 9.5 : 7.5;
-              const innerR = pt.isCity ? 4.5 : 3.4;
-              const ringFill = isLinked ? '#dcfce7' : pt.isCity ? '#fef08a' : '#ffffff';
-              const ringStroke = isLinked ? '#15803d' : pt.isCity ? '#92400e' : '#581c87';
-              const coreFill = isLinked ? '#22c55e' : pt.isCity ? '#f59e0b' : '#d946ef';
+              const outerR = pt.isCity ? 13 : 9;
+              const innerR = pt.isCity ? 6.5 : 4.5;
+              const ringFill = isConnectSrc ? '#fef08a' : isLinked ? '#dcfce7' : pt.isCity ? '#fef3c7' : '#ffffff';
+              const ringStroke = isConnectSrc ? '#ca8a04' : isLinked ? '#15803d' : pt.isCity ? '#b45309' : '#4338ca';
+              const coreFill = isConnectSrc ? '#eab308' : isLinked ? '#22c55e' : pt.isCity ? '#f59e0b' : '#6366f1';
 
               const selectHalo = isSelected
-                ? `<circle cx="${pt.x}" cy="${pt.y}" r="${outerR + 7}" fill="none" stroke="#38bdf8" stroke-width="3" stroke-dasharray="4 3" />`
+                ? `<circle cx="${pt.x}" cy="${pt.y}" r="${outerR + 9}" fill="none" stroke="#38bdf8" stroke-width="3.5" stroke-dasharray="4 3" />`
                 : '';
 
-              const badgeLabel = labelText
-                ? `
-                  <g pointer-events="none" transform="translate(${pt.x}, ${pt.y + outerR + 14})">
-                    <rect x="${-Math.min(120, Math.max(46, labelText.length * 3.8 + 10))}" y="-10"
-                      width="${Math.min(240, Math.max(92, labelText.length * 7.6 + 20))}" height="18" rx="5"
-                      fill="rgba(15, 23, 42, 0.88)" stroke="${isSelected ? '#38bdf8' : '#4ade80'}" stroke-width="1.2" />
-                    <text text-anchor="middle" y="3" fill="#f8fafc" font-size="11.5" font-weight="700" font-family="system-ui, sans-serif">
-                      ${this.escapeHtml(labelText)}
-                    </text>
-                  </g>
-                `
-                : '';
-
-              const tooltip = linkedMap
-                ? `${pt.refLabel} → #${linkedMap.id} ${linkedMap.namePtBr}`
-                : `${pt.refLabel} (Clique para vincular um mapa)`;
+              const badgeLabel = `
+                <g pointer-events="none" transform="translate(${pt.x}, ${pt.y + outerR + 15})">
+                  <rect x="${-Math.min(140, Math.max(50, labelText.length * 4.2 + 12))}" y="-11"
+                    width="${Math.min(280, Math.max(100, labelText.length * 8.4 + 24))}" height="20" rx="6"
+                    fill="rgba(15, 23, 42, 0.92)" stroke="${isSelected ? '#38bdf8' : isLinked ? '#4ade80' : '#64748b'}" stroke-width="${isSelected ? 2 : 1.2}" />
+                  <text text-anchor="middle" y="4" fill="#f8fafc" font-size="12" font-weight="700" font-family="system-ui, sans-serif">
+                    ${this.escapeHtml(labelText)}
+                  </text>
+                </g>
+              `;
 
               return `
                 <g class="wm-point-node" data-point-id="${this.escapeHtml(pt.id)}" style="cursor:pointer;">
-                  <title>${this.escapeHtml(tooltip)}</title>
+                  <title>${this.escapeHtml(labelText)} (${Math.round(pt.x)}, ${Math.round(pt.y)})</title>
                   ${selectHalo}
-                  <circle cx="${pt.x}" cy="${pt.y}" r="${outerR + 5}" fill="transparent" />
-                  <circle cx="${pt.x}" cy="${pt.y}" r="${outerR}" fill="${ringFill}" stroke="${ringStroke}" stroke-width="2.2" />
+                  <circle cx="${pt.x}" cy="${pt.y}" r="${outerR + 10}" fill="transparent" />
+                  <circle cx="${pt.x}" cy="${pt.y}" r="${outerR}" fill="${ringFill}" stroke="${ringStroke}" stroke-width="3" />
                   <circle cx="${pt.x}" cy="${pt.y}" r="${innerR}" fill="${coreFill}" />
                   ${badgeLabel}
                 </g>
@@ -346,6 +510,7 @@ class AdminWorldMapsTab {
           </filter>
         </defs>
         <g id="wmRoutesGroup" filter="url(#wmGlowFilter)">${routesHtml}</g>
+        <g id="wmGuideGroup">${connectGuideHtml}</g>
         <g id="wmPointsGroup">${pointsHtml}</g>
       `;
     };
@@ -355,11 +520,7 @@ class AdminWorldMapsTab {
       if (!box) return;
       const wm = this.getActiveWorldMap();
       if (!wm || !this.selectedWorldPointId) {
-        box.innerHTML = `
-          <div style="font-size:0.78rem; color:var(--text-muted); background:rgba(15,23,42,0.65); border:1px dashed #334155; padding:12px; border-radius:8px;">
-            👆 Clique diretamente em qualquer <strong>ponto colorido</strong> no mapa ao lado (ou escolha na lista abaixo) para vincular um mapa já existente da <strong>Tabela de Mapas</strong>.
-          </div>
-        `;
+        box.innerHTML = AdminWorldMapsDom.renderEmptyInspectorHtml();
         return;
       }
 
@@ -369,70 +530,58 @@ class AdminWorldMapsTab {
       const available = this.worldMapAvailableMaps || [];
       const linkedMap = pt.gameMapId ? available.find((m) => m.id === Number(pt.gameMapId)) : null;
 
-      // Verifica em quais pontos cada GameMap já foi usado neste continente
-      const usedInPoints = new Map();
-      for (const p of wm.pointsJson || []) {
-        if (p.gameMapId) usedInPoints.set(Number(p.gameMapId), p.id);
-      }
+      // Descobre todas as ligações deste ponto
+      const connectedPointIds = new Set();
+      (wm.routesJson || []).forEach((r) => {
+        if (r.from === pt.id) connectedPointIds.add(r.to);
+        if (r.to === pt.id) connectedPointIds.add(r.from);
+      });
 
-      const mapOptions = available
-        .map((m) => {
-          const usedBy = usedInPoints.get(m.id);
-          const usedTag = usedBy && usedBy !== pt.id ? ' [Já vinculado]' : '';
-          const draftTag = m.isActive ? '' : ' [Rascunho]';
-          const selected = Number(pt.gameMapId) === m.id ? 'selected' : '';
-          return `<option value="${m.id}" ${selected}>#${m.id} ${this.escapeHtml(m.namePtBr)} (Lv.${m.requiredLevel} • ${this.escapeHtml(m.mapTypeName)})${draftTag}${usedTag}</option>`;
+      const ptById = new Map((wm.pointsJson || []).map((p) => [p.id, p]));
+      const connectedListHtml = Array.from(connectedPointIds)
+        .map((cid) => {
+          const targetPt = ptById.get(cid);
+          if (!targetPt) return '';
+          const targetName = targetPt.customLabel || targetPt.refLabel;
+          return `
+            <div style="display:flex; justify-content:space-between; align-items:center; background:rgba(15,23,42,0.7); border:1px solid #334155; border-radius:6px; padding:4px 8px; font-size:0.75rem;">
+              <span>🔗 ${this.escapeHtml(targetName)}</span>
+              <button type="button" class="btn-danger" style="padding:1px 6px; font-size:0.68rem;" title="Remover ligação" onclick="AdminApp.toggleWorldRoute('${pt.id}', '${cid}')">✕</button>
+            </div>
+          `;
         })
         .join('');
 
-      box.innerHTML = `
-        <div style="display:flex; flex-direction:column; gap:8px;">
-          <div style="display:flex; justify-content:space-between; align-items:center; gap:6px; flex-wrap:wrap;">
-            <strong style="color:#38bdf8; font-size:0.84rem;">${this.escapeHtml(pt.refLabel || pt.id)}</strong>
-            <span style="font-size:0.70rem; color:var(--text-muted);">Coord: (${Math.round(pt.x)}, ${Math.round(pt.y)})</span>
-          </div>
-          <div style="font-size:0.75rem; padding:6px 8px; border-radius:6px; background:${linkedMap ? 'rgba(34,197,94,0.12)' : 'rgba(245,158,11,0.12)'}; border:1px solid ${linkedMap ? '#22c55e' : '#f59e0b'}; color:${linkedMap ? '#86efac' : '#fde68a'};">
-            ${
-              linkedMap
-                ? `✅ Vinculado ao Mapa <strong>#${linkedMap.id} ${this.escapeHtml(linkedMap.namePtBr)}</strong>`
-                : '⚠️ Ponto ainda sem mapa vinculado'
-            }
-          </div>
-          <div class="field" style="margin:0;">
-            <label>Filtrar Mapas Existentes</label>
-            <input type="text" id="wmMapSearchFilter" placeholder="🔍 Digite nome ou ID do mapa..." oninput="AdminApp.filterWorldMapAssignOptions()" style="font-size:0.78rem;" />
-          </div>
-          <div class="field" style="margin:0;">
-            <label>Mapa da Tabela de Mapas *</label>
-            <select id="wmAssignMapSelect" style="font-size:0.78rem;">
-              <option value="">— Nenhum mapa vinculado —</option>
-              ${mapOptions}
-            </select>
-          </div>
-          <div class="field" style="margin:0;">
-            <label>Rótulo no Mapa Geral (opcional — vazio usa o nome do mapa)</label>
-            <input type="text" id="wmPointCustomLabelInput" value="${this.escapeHtml(pt.customLabel || '')}" placeholder="${linkedMap ? this.escapeHtml(linkedMap.namePtBr) : 'Ex: Cidade Inicial'}" style="font-size:0.78rem;" />
-          </div>
-          <label style="display:flex; align-items:center; gap:6px; font-size:0.76rem; cursor:pointer;">
-            <input type="checkbox" id="wmPointIsCityInput" ${pt.isCity ? 'checked' : ''} />
-            <span>🏰 Destacar pino como Cidade / Vila Principal</span>
-          </label>
-          <label style="display:flex; align-items:center; gap:6px; font-size:0.76rem; cursor:pointer; color:#fde047;">
-            <input type="checkbox" ${this.worldMapAllowPointDrag ? 'checked' : ''} onchange="AdminApp.worldMapAllowPointDrag = this.checked;" />
-            <span>✋ Permitir arrastar este pino livremente no mapa</span>
-          </label>
-          <div style="display:flex; gap:6px; margin-top:4px;">
-            <button type="button" class="btn-success" style="flex:1; font-size:0.78rem; font-weight:700;" onclick="AdminApp.linkSelectedMapToWorldPoint()">
-              🔗 Aplicar Vínculo
-            </button>
-            ${
-              linkedMap
-                ? `<button type="button" class="btn-danger" style="font-size:0.78rem;" onclick="AdminApp.unlinkWorldPointMap()">✂️ Desvincular</button>`
-                : ''
-            }
-          </div>
-        </div>
-      `;
+      // Opções para conectar com outro ponto rapidamente via select
+      const otherPointsOptions = (wm.pointsJson || [])
+        .filter((p) => p.id !== pt.id && !connectedPointIds.has(p.id))
+        .map((p) => `<option value="${p.id}">${this.escapeHtml(p.customLabel || p.refLabel)}</option>`)
+        .join('');
+
+      // Opções de GameMap
+      const mapOptions = available
+        .map((m) => {
+          const draftTag = m.isActive ? '' : ' [Rascunho]';
+          const selected = Number(pt.gameMapId) === m.id ? 'selected' : '';
+          return `<option value="${m.id}" ${selected}>#${m.id} ${this.escapeHtml(m.namePtBr)} (Lv.${m.requiredLevel} • ${this.escapeHtml(m.mapTypeName)})${draftTag}</option>`;
+        })
+        .join('');
+
+      box.innerHTML = AdminWorldMapsDom.renderPointInspectorHtml({
+        pt,
+        linkedMap,
+        connectedListHtml,
+        connectedCount: connectedPointIds.size,
+        otherPointsOptions,
+        mapOptions,
+        escapeHtml: (s) => this.escapeHtml(s),
+      });
+    };
+
+    app.handleQuickConnectClick = function (sourceId) {
+      const sel = document.getElementById('wmQuickConnectTargetSelect');
+      if (!sel || !sel.value) return;
+      this.toggleWorldRoute(sourceId, sel.value);
     };
 
     app.filterWorldMapAssignOptions = function () {
@@ -458,15 +607,16 @@ class AdminWorldMapsTab {
       const pts = (wm.pointsJson || []).filter((p) => {
         if (this.worldMapPointsFilter === 'LINKED') return Boolean(p.gameMapId);
         if (this.worldMapPointsFilter === 'UNLINKED') return !p.gameMapId;
+        if (this.worldMapPointsFilter === 'CITIES') return Boolean(p.isCity);
         return true;
       });
 
       document.querySelectorAll('.wm-pt-filter-btn').forEach((btn) => {
-        btn.className = btn.dataset.filter === this.worldMapPointsFilter ? 'btn-primary wm-pt-filter-btn' : 'wm-pt-filter-btn';
+        btn.className = btn.dataset.filter === this.worldMapPointsFilter ? 'btn-primary wm-pt-filter-btn' : 'btn-secondary wm-pt-filter-btn';
       });
 
       if (pts.length === 0) {
-        listEl.innerHTML = `<div style="font-size:0.75rem; color:var(--text-muted); padding:8px;">Nenhum ponto nesta categoria.</div>`;
+        listEl.innerHTML = `<div style="font-size:0.78rem; color:var(--text-muted); padding:10px; text-align:center;">Nenhum ponto cadastrado. Use o botão <strong>➕ Criar Ponto</strong> acima.</div>`;
         return;
       }
 
@@ -474,15 +624,15 @@ class AdminWorldMapsTab {
         .map((pt) => {
           const linked = pt.gameMapId ? mapById.get(Number(pt.gameMapId)) : null;
           const active = pt.id === this.selectedWorldPointId;
-          const label = pt.customLabel?.trim() || (linked ? `#${linked.id} ${linked.namePtBr}` : 'Sem vínculo');
+          const label = pt.customLabel?.trim() || (linked ? `#${linked.id} ${linked.namePtBr}` : pt.refLabel);
           return `
             <div onclick="AdminApp.selectWorldMapPoint('${this.escapeHtml(pt.id)}')"
-              style="display:flex; justify-content:space-between; align-items:center; gap:6px; padding:6px 8px; border-radius:6px; cursor:pointer; font-size:0.75rem; background:${active ? 'rgba(56,189,248,0.18)' : 'rgba(15,23,42,0.7)'}; border:1px solid ${active ? '#38bdf8' : 'var(--border)'};">
+              style="display:flex; justify-content:space-between; align-items:center; gap:6px; padding:7px 10px; border-radius:6px; cursor:pointer; font-size:0.78rem; background:${active ? 'rgba(56,189,248,0.18)' : 'rgba(15,23,42,0.7)'}; border:1px solid ${active ? '#38bdf8' : 'var(--border)'};">
               <div>
-                <span style="color:${linked ? '#4ade80' : '#fbbf24'}; font-weight:700;">${pt.isCity ? '🏰' : '📍'} #${pt.refId}</span>
-                <span style="color:#f8fafc;">${this.escapeHtml(label)}</span>
+                <span style="color:${linked ? '#4ade80' : pt.isCity ? '#f59e0b' : '#38bdf8'}; font-weight:700;">${pt.isCity ? '🏰' : '📍'}</span>
+                <span style="color:#f8fafc; font-weight:600;">${this.escapeHtml(label)}</span>
               </div>
-              <span style="font-size:0.68rem; color:${linked ? '#86efac' : '#94a3b8'};">${linked ? 'Vinculado' : 'Livre'}</span>
+              <span style="font-size:0.70rem; color:${linked ? '#86efac' : '#94a3b8'};">${linked ? 'Vinculado' : 'Sem mapa'}</span>
             </div>
           `;
         })
@@ -502,14 +652,17 @@ class AdminWorldMapsTab {
       const rect = stage.getBoundingClientRect();
       const cw = wm?.canvasWidth || 1264;
       const ch = wm?.canvasHeight || 848;
+      const clientX = evt.clientX !== undefined ? evt.clientX : evt.touches?.[0]?.clientX || 0;
+      const clientY = evt.clientY !== undefined ? evt.clientY : evt.touches?.[0]?.clientY || 0;
       return {
-        x: ((evt.clientX - rect.left) / Math.max(1, rect.width)) * cw,
-        y: ((evt.clientY - rect.top) / Math.max(1, rect.height)) * ch,
+        x: ((clientX - rect.left) / Math.max(1, rect.width)) * cw,
+        y: ((clientY - rect.top) / Math.max(1, rect.height)) * ch,
         cw,
         ch,
       };
     };
 
+    // Redimensionamento do Logo
     resizeHandle.addEventListener('pointerdown', (e) => {
       e.preventDefault();
       e.stopPropagation();
@@ -524,8 +677,10 @@ class AdminWorldMapsTab {
       resizeHandle.setPointerCapture?.(e.pointerId);
     });
 
+    // Arraste do Logo
     logoBox.addEventListener('pointerdown', (e) => {
       if (e.target === resizeHandle) return;
+      if (app.activeToolMode !== 'SELECT') return;
       e.preventDefault();
       e.stopPropagation();
       const wm = app.getActiveWorldMap();
@@ -541,26 +696,83 @@ class AdminWorldMapsTab {
       logoBox.setPointerCapture?.(e.pointerId);
     });
 
-    svg.addEventListener('pointerdown', (e) => {
-      const node = e.target.closest?.('.wm-point-node');
-      if (!node) return;
-      const ptId = node.getAttribute('data-point-id');
-      if (!ptId) return;
-      app.selectWorldMapPoint(ptId);
-      if (app.worldMapAllowPointDrag) {
-        const wm = app.getActiveWorldMap();
-        const pt = (wm?.pointsJson || []).find((p) => p.id === ptId);
-        if (pt) {
-          const pos = getCanvasCoords(e);
-          app.worldMapInteraction = {
-            mode: 'DRAG_POINT',
-            pointId: ptId,
-            startX: pos.x,
-            startY: pos.y,
-            origX: Number(pt.x),
-            origY: Number(pt.y),
-          };
-          svg.setPointerCapture?.(e.pointerId);
+    // Clique e Interação no Palco do Mapa
+    stage.addEventListener('pointerdown', (e) => {
+      if (e.target === resizeHandle || (e.target.closest && e.target.closest('#wmLogoDraggableBox') && app.activeToolMode === 'SELECT')) {
+        return;
+      }
+
+      const wm = app.getActiveWorldMap();
+      if (!wm) return;
+
+      const pointNode = e.target.closest?.('.wm-point-node');
+      const ptId = pointNode?.getAttribute('data-point-id');
+
+      const routeGroup = e.target.closest?.('.wm-route-group');
+      const routeFrom = routeGroup?.getAttribute('data-from');
+      const routeTo = routeGroup?.getAttribute('data-to');
+
+      // 1. MODO ADICIONAR PONTO
+      if (app.activeToolMode === 'ADD_POINT') {
+        e.preventDefault();
+        const pos = getCanvasCoords(e);
+        app.addNewWorldPoint(pos.x, pos.y);
+        return;
+      }
+
+      // 2. MODO EXCLUIR
+      if (app.activeToolMode === 'DELETE') {
+        e.preventDefault();
+        if (ptId) {
+          app.deleteWorldPoint(ptId);
+          return;
+        }
+        if (routeFrom && routeTo) {
+          app.toggleWorldRoute(routeFrom, routeTo);
+          return;
+        }
+        return;
+      }
+
+      // 3. MODO CRIAR LIGAÇÃO (CONECTAR)
+      if (app.activeToolMode === 'CONNECT') {
+        e.preventDefault();
+        if (ptId) {
+          if (!app.connectSourcePointId) {
+            app.connectSourcePointId = ptId;
+            app.updateWorldMapModeBanner();
+            app.renderWorldMapSvgOverlay();
+          } else if (app.connectSourcePointId === ptId) {
+            app.connectSourcePointId = null;
+            app.updateWorldMapModeBanner();
+            app.renderWorldMapSvgOverlay();
+          } else {
+            app.toggleWorldRoute(app.connectSourcePointId, ptId);
+            app.connectSourcePointId = ptId; // Permite encadear conexões!
+            app.updateWorldMapModeBanner();
+          }
+        }
+        return;
+      }
+
+      // 4. MODO SELECIONAR / MOVER
+      if (app.activeToolMode === 'SELECT') {
+        if (ptId) {
+          e.preventDefault();
+          app.selectWorldMapPoint(ptId);
+          const pt = (wm.pointsJson || []).find((p) => p.id === ptId);
+          if (pt) {
+            const pos = getCanvasCoords(e);
+            app.worldMapInteraction = {
+              mode: 'DRAG_POINT',
+              pointId: ptId,
+              startX: pos.x,
+              startY: pos.y,
+              origX: Number(pt.x),
+              origY: Number(pt.y),
+            };
+            stage.setPointerCapture?.(e.pointerId);
+          }
         }
       }
     });
@@ -624,117 +836,9 @@ class AdminWorldMapsTab {
     section.style.display = 'none';
     section.style.flexDirection = 'column';
     section.style.gap = '12px';
-    section.style.padding = '14px';
+    section.style.padding = '12px';
 
-    section.innerHTML = `
-      <div class="panel" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; padding:12px 16px;">
-        <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
-          <h3 style="margin:0;">🌍 Mapas Gerais dos Continentes</h3>
-          <div id="wmContinentTabs" style="display:flex; gap:6px; flex-wrap:wrap;"></div>
-        </div>
-        <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap; font-size:0.78rem;">
-          <label style="display:flex; align-items:center; gap:5px; cursor:pointer;">
-            <input type="checkbox" id="wmToggleRoutesChk" checked onchange="AdminApp.toggleWorldMapLayer('showRoutesLayer', this.checked)" />
-            <span>Camada: Linhas</span>
-          </label>
-          <label style="display:flex; align-items:center; gap:5px; cursor:pointer;">
-            <input type="checkbox" id="wmTogglePointsChk" checked onchange="AdminApp.toggleWorldMapLayer('showPointsLayer', this.checked)" />
-            <span>Camada: Pontos</span>
-          </label>
-          <label style="display:flex; align-items:center; gap:5px; cursor:pointer;">
-            <input type="checkbox" id="wmToggleLogoChk" checked onchange="AdminApp.updateWorldMapLogoControls({ logoVisible: this.checked })" />
-            <span>Camada: Logo</span>
-          </label>
-          <span id="wmDirtyBadge" style="display:none; background:rgba(245,158,11,0.2); border:1px solid #f59e0b; color:#fde047; padding:3px 8px; border-radius:999px; font-weight:700;">
-            ● Alterações pendentes
-          </span>
-          <button type="button" class="btn-success" style="padding:8px 16px; font-weight:700;" onclick="AdminApp.saveActiveWorldMap()">
-            💾 Salvar Mapa Geral
-          </button>
-        </div>
-      </div>
-
-      <div style="display:grid; grid-template-columns:minmax(0, 1fr) 370px; gap:14px; align-items:start;">
-        <!-- PALCO DO MAPA GERAL COM CAMADAS SEPARADAS + LOGO ARRASTÁVEL/REDIMENSIONÁVEL -->
-        <div class="panel" style="padding:10px;">
-          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; font-size:0.75rem; color:var(--text-muted); flex-wrap:wrap; gap:6px;">
-            <span>🖱️ Clique em qualquer <strong>ponto</strong> para vincular a um mapa existente. Arraste o <strong>Logo Etheria Campus</strong> ou puxe o canto ↘ para ajustar o tamanho.</span>
-            <span>Resolução base: 1264×848</span>
-          </div>
-          <div id="wmInteractiveStage" style="position:relative; width:100%; aspect-ratio:1264 / 848; background:#090d16; border-radius:10px; overflow:hidden; border:1px solid var(--border); user-select:none; touch-action:none;">
-            <img id="wmBaseImage" src="" alt="Mapa Geral Base" draggable="false"
-              style="position:absolute; inset:0; width:100%; height:100%; object-fit:fill; display:block; pointer-events:none;" />
-            <svg id="wmVectorOverlaySvg" viewBox="0 0 1264 848"
-              style="position:absolute; inset:0; width:100%; height:100%; display:block; z-index:2;"></svg>
-            <div id="wmLogoDraggableBox"
-              style="position:absolute; z-index:3; cursor:move; border:1.5px dashed rgba(56,189,248,0.65); border-radius:6px; transition:border-color 0.15s;"
-              title="Arraste para mover o logo | Puxe o canto inferior direito para redimensionar">
-              <img id="wmLogoImg" src="/assets/worldmap/etheria_campus_logo.png" alt="Logo Etheria Campus" draggable="false"
-                style="width:100%; height:auto; display:block; pointer-events:none; filter:drop-shadow(0 3px 8px rgba(0,0,0,0.65));" />
-              <div id="wmLogoResizeHandle"
-                title="Arraste para ajustar o tamanho do logo"
-                style="position:absolute; right:-7px; bottom:-7px; width:16px; height:16px; background:#38bdf8; border:2px solid #0f172a; border-radius:4px; cursor:nwse-resize; display:flex; align-items:center; justify-content:center; font-size:10px; color:#0f172a; font-weight:900;">
-                ↘
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- PAINEL LATERAL: AJUSTE DO LOGO + VÍNCULO DE MAPA NO PONTO SELECIONADO -->
-        <aside style="display:flex; flex-direction:column; gap:12px;">
-          <div class="panel" style="padding:12px;">
-            <h4 style="margin:0 0 8px 0; color:#fde047; font-size:0.9rem;">🎨 Logo Etheria Campus (Fundo Transparente)</h4>
-            <div style="display:flex; flex-direction:column; gap:8px; font-size:0.78rem;">
-              <label style="display:flex; align-items:center; gap:6px; cursor:pointer;">
-                <input type="checkbox" id="wmLogoVisibleInput" checked onchange="AdminApp.updateWorldMapLogoControls({ logoVisible: this.checked })" />
-                <span>Exibir logo neste Continente</span>
-              </label>
-              <div>
-                <div style="display:flex; justify-content:space-between; margin-bottom:2px;">
-                  <span>Tamanho (Largura px):</span>
-                  <input type="number" id="wmLogoWidthInput" min="60" max="720" style="width:76px; padding:2px 6px; font-size:0.76rem;"
-                    onchange="AdminApp.updateWorldMapLogoControls({ logoWidth: this.value })" />
-                </div>
-                <input type="range" id="wmLogoWidthSlider" min="80" max="620" value="270" style="width:100%;"
-                  oninput="AdminApp.updateWorldMapLogoControls({ logoWidth: this.value })" />
-              </div>
-              <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
-                <div class="field" style="margin:0;">
-                  <label>Posição X (px)</label>
-                  <input type="number" id="wmLogoXInput" onchange="AdminApp.updateWorldMapLogoControls({ logoX: this.value })" />
-                </div>
-                <div class="field" style="margin:0;">
-                  <label>Posição Y (px)</label>
-                  <input type="number" id="wmLogoYInput" onchange="AdminApp.updateWorldMapLogoControls({ logoY: this.value })" />
-                </div>
-              </div>
-              <div style="display:flex; gap:6px;">
-                <button type="button" style="flex:1; font-size:0.73rem;" onclick="AdminApp.resetWorldMapLogoPosition('TOP_LEFT')">↖ Sup. Esquerdo</button>
-                <button type="button" style="flex:1; font-size:0.73rem;" onclick="AdminApp.resetWorldMapLogoPosition('TOP_CENTER')">⬆️ Topo Centro</button>
-              </div>
-            </div>
-          </div>
-
-          <div class="panel" style="padding:12px;">
-            <h4 style="margin:0 0 8px 0; color:#38bdf8; font-size:0.9rem;">📍 Ponto Selecionado & Vínculo de Mapa</h4>
-            <div id="wmPointInspectorBody"></div>
-          </div>
-
-          <div class="panel" style="padding:12px;">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-              <strong style="font-size:0.84rem; color:#86efac;">📋 Pontos do Continente</strong>
-              <div style="display:flex; gap:4px;">
-                <button type="button" class="btn-primary wm-pt-filter-btn" data-filter="ALL" style="font-size:0.68rem; padding:2px 6px;" onclick="AdminApp.setWorldMapPointsFilter('ALL')">Todos</button>
-                <button type="button" class="wm-pt-filter-btn" data-filter="LINKED" style="font-size:0.68rem; padding:2px 6px;" onclick="AdminApp.setWorldMapPointsFilter('LINKED')">Vinculados</button>
-                <button type="button" class="wm-pt-filter-btn" data-filter="UNLINKED" style="font-size:0.68rem; padding:2px 6px;" onclick="AdminApp.setWorldMapPointsFilter('UNLINKED')">Livres</button>
-              </div>
-            </div>
-            <div id="wmPointsQuickList" style="display:flex; flex-direction:column; gap:5px; max-height:260px; overflow-y:auto;"></div>
-          </div>
-        </aside>
-      </div>
-    `;
-
+    section.innerHTML = AdminWorldMapsDom.getSectionHtml();
     adminApp.appendChild(section);
   }
 }

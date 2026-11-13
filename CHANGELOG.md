@@ -7,6 +7,27 @@ Qualquer IA trabalhando neste repositório **DEVE** incrementar a versão e regi
 
 ---
 
+## [v0.17.0] - 2026-11-12
+### Mapas Gerais: Criação Livre de Pontos e Linhas, Vínculo com Mapas & Layout Mobile Vertical
+* **Modificado & Limpo (Pontos e Linhas Anteriores Excluídos):**
+  * Pontos e rotas prévios excluídos em ambos os continentes no PostgreSQL e no snapshot oficial (`lowcode.snapshot.json`).
+  * `AdminWorldMapsSeeds.ts` atualizado com arrays vazios (`pointsJson: []`, `routesJson: []`), deixando a tela limpa para o administrador desenhar seu próprio mundo.
+* **Adicionado (Sistema Interativo Livre de Criação & Edição de Pontos e Ligações):**
+  * **Modo Selecionar / Mover (`SELECT`):** Clicar em qualquer ponto para inspecionar, editar ou arrastar livremente pelo mapa em tempo real com atualização contínua de coordenadas e linhas conectadas.
+  * **Modo Criar Ponto (`ADD_POINT`):** Clique direto em qualquer coordenada do mapa para criar instantaneamente um novo ponto com auto-incremento de ID, seleção imediata e foco no formulário de nome e vínculo de mapa.
+  * **Modo Criar Ligação (`CONNECT`):** Clique no ponto de origem e em seguida no ponto de destino para traçar a rota vetorial entre eles com suporte a encadeamento sequencial e linha guia de orientação.
+  * **Modo Excluir (`DELETE`):** Exclusão com um clique diretamente no ponto (removendo também todas as linhas associadas) ou exclusão de rotas individuais clicando nas linhas do mapa.
+  * **Botão "Limpar Todos":** Permite resetar todos os pontos e rotas do continente selecionado com diálogo de confirmação.
+* **Adicionado (Inspetor de Ponto & Vínculo com GameMap):**
+  * Edição de nome/rótulo customizado no mapa.
+  * Destacar ponto como Cidade/Vila Principal (`isCity = true`, com halo dourado e proporções maiores) ou Campo/Região de Passagem.
+  * Vínculo a mapas existentes da Tabela de Mapas com busca e filtro em tempo real por nome/ID.
+  * Lista de ligações ativas do ponto com botão de remoção rápida `✕` para cada rota conectada.
+* **Adicionado & Aprimorado (Layout Mobile Vertical & Modularização):**
+  * Layout responsivo em coluna única (`@media (max-width: 960px)`) com botões de toque generosos (`min-height: 38px`), mantendo o mapa no topo e painéis empilhados verticalmente no mobile.
+  * Controles de Zoom in/out e Reset (`100%`) no mapa para edição cirúrgica em telas móveis verticais.
+  * Divisão estrita em responsabilidade única com o submódulo [`AdminWorldMapsDom.js`](file:///C:/Users/Dell/.gemini/antigravity/scratch/etheria-campus/apps/server/public/admin/js/AdminWorldMapsDom.js) e [`AdminWorldMapsTab.js`](file:///C:/Users/Dell/.gemini/antigravity/scratch/etheria-campus/apps/server/public/admin/js/AdminWorldMapsTab.js), mantendo ambos rigorosamente abaixo do limite de 1.000 linhas da Regra #7.
+
 ## [v0.16.0] - 2026-11-12
 ### Interface Principal do Jogador Mobile Portrait (HUD Fiel à Referência & Modular)
 * **Adicionado (Assets Gráficos em `apps/server/public/play/assets/hud/`):**

@@ -8,9 +8,9 @@
 ---
 
 ## 📌 Status Atual do Projeto
-* **Versão Atual:** `v0.16.0`
+* **Versão Atual:** `v0.17.0`
 * **Última Atualização:** `2026-11-12`
-* **Fase Atual:** **Interface Principal do Jogador Mobile Portrait (HUD Fiel à Referência & Modular) (`v0.16.0`)** — Implementada a interface mobile vertical seguindo 100% o posicionamento e hierarquia visual da imagem de referência: Topo-Esquerdo (Avatar circular, Nível, Barras HP/MP/XP, Moedas Ouro e Cristal); Topo-Direito (Minimapa com bússola, cone direcional, coordenadas dinâmicas e engrenagem de configurações); Lateral Esquerda (Barra com 6 atalhos rápidos); Lateral Direita (HUD de até 3 pets equipados, ocultada se 0 pets); Inferior-Direito (Joystick virtual com botão de interação central); Barra Inferior (6 botões de menu temáticos sem texto). 21 assets gráficos gerados em alta resolução, testados e validados no emulador mobile com capturas de tela reais.
+* **Fase Atual:** **Mapas Gerais: Criação Livre de Pontos e Linhas, Vínculo com Mapas & Layout Mobile Vertical (`v0.17.0`)** — Excluídos todos os pontos e linhas legados em ambos os continentes (banco e snapshot); criado sistema interativo completo de criação de pontos (`ADD_POINT`), arrasto/reposicionamento (`SELECT`), traçado de rotas/ligações (`CONNECT`), exclusão pontual (`DELETE`) e limpeza global; vínculo de qualquer ponto a mapas existentes da Tabela de Mapas com rótulo customizado; layout responsivo adaptado para mobile vertical com zoom/pan e botões touch-friendly; arquitetura modular dividida entre `AdminWorldMapsDom.js` e `AdminWorldMapsTab.js` (ambos sob o limite de 1.000 linhas).
 * **Repositório Oficial:** `https://github.com/SeytaniR/etheria-campus`
 * **Fonte Bruta de Assets:** `https://github.com/SeytaniR/mcrework` (`https://seytanir.github.io/mcrework/`)
 
