@@ -1,6 +1,6 @@
 {
   "version": "0.2.0",
-  "exportedAt": "2026-11-13T13:37:37.399Z",
+  "exportedAt": "2026-11-13T13:39:33.164Z",
   "i18nTranslations": [
     {
       "id": 1,
@@ -2282,14 +2282,14 @@
       "key": "item.equip_espada_ferro_recruta.name",
       "locale": "pt-BR",
       "text": "Espada de Ferro do Recruta",
-      "updatedAt": "2026-11-10T02:39:40.469Z"
+      "updatedAt": "2026-11-13T13:39:33.150Z"
     },
     {
       "id": 582,
       "key": "item.equip_espada_ferro_recruta.desc",
       "locale": "pt-BR",
       "text": "Lâmina afiada forjada para novos aventureiros de Etheria.",
-      "updatedAt": "2026-11-10T02:39:40.577Z"
+      "updatedAt": "2026-11-13T13:39:33.157Z"
     },
     {
       "id": 583,
@@ -52459,14 +52459,16 @@
       "reqClassCodesJson": [],
       "baseStatBonusesJson": {},
       "combatStatBonusesJson": {
-        "PHYS_ATK": 15,
-        "ATTACK_RANGE": 65,
-        "ATTACK_SPEED": 0.05
+        "CRIT_DMG": 25,
+        "PHYS_ATK": 28,
+        "CRIT_RATE": 8,
+        "ATTACK_RANGE": 70,
+        "ATTACK_SPEED": 0.15
       },
       "specialEffectJson": {},
       "isActive": true,
       "createdAt": "2026-11-10T02:39:40.591Z",
-      "updatedAt": "2026-11-13T13:37:37.359Z"
+      "updatedAt": "2026-11-13T13:39:33.160Z"
     },
     {
       "id": 2,
