@@ -21,10 +21,11 @@ class PlayLobbyController {
         myCharsContainer.innerHTML = this.myCharacters
           .map((c) => {
             const el = this.getElementStyle(c.elementCode);
+            const avatarSrc = c.classCode ? `/play/assets/hud/avatars/${c.classCode}.png` : c.thumbUrl;
             return `
           <div class="char-card">
             <div style="display:flex; align-items:center; gap:12px;">
-              <img src="${c.thumbUrl}" alt="${c.name}" style="width:56px; height:56px; object-fit:contain; background:#020617; border-radius:8px; border:1px solid var(--border);" />
+              <img src="${avatarSrc}" alt="${c.name}" style="width:56px; height:56px; object-fit:cover; background:#020617; border-radius:50%; border:1.5px solid var(--accent-amber); box-shadow:0 3px 8px rgba(0,0,0,0.7);" />
               <div>
                 <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
                   <strong style="font-size:0.95rem; color:#fde047;">${c.name}</strong>
@@ -63,9 +64,10 @@ class PlayLobbyController {
         classesGrid.innerHTML = this.classTemplates
           .map((ct) => {
             const isSel = ct.id === this.selectedClassIdForCreation ? 'selected' : '';
+            const officialClassThumb = ct.code ? `/play/assets/hud/avatars/${ct.code}.png` : ct.thumbUrl;
             return `
           <div class="class-card ${isSel}" onclick="PlayApp.selectClassForCreation(${ct.id})">
-            <img src="${ct.thumbUrl}" alt="${ct.namePtBr}" />
+            <img src="${officialClassThumb}" alt="${ct.namePtBr}" style="border-radius:50%; border:1px solid rgba(234,179,8,0.4);" />
             <strong style="font-size:0.8rem;">${ct.namePtBr}</strong>
             <span style="font-size:0.7rem; color:var(--accent);">${ct.code} &bull; ${ct.raceNamePtBr}</span>
           </div>`;

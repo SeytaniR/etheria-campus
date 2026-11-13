@@ -84,7 +84,7 @@ class PlayHudController {
       <div id="hudPlayerSection" class="hud-player-section">
         <div class="hud-player-header-card">
           <div class="hud-avatar-wrapper">
-            <img id="hudPlayerAvatarImg" class="hud-avatar-img" src="/play/assets/hud/menu_character.png" alt="Avatar" />
+            <img id="hudPlayerAvatarImg" class="hud-avatar-img" src="/play/assets/hud/avatars/class_1.png" alt="Avatar" />
             <img class="hud-avatar-frame" src="/play/assets/hud/player_avatar_frame.png" alt="Moldura" />
             <div id="hudPlayerLevelBadge" class="hud-level-badge">Nv. 1</div>
           </div>
@@ -607,16 +607,21 @@ class PlayHudController {
     if (!charData) return;
     this.state.character = charData;
 
-    // 1. Avatar do Personagem (imagem real do perfil)
+    // 1. Avatar do Personagem (imagem oficial recortada dos 12 heróis com máximo preenchimento)
     const avatarImg = document.getElementById('hudPlayerAvatarImg');
     if (avatarImg) {
+      const classId = charData.classTemplateId || charData.classTemplate?.id;
+      const classCode = charData.classCode || (classId ? `class_${classId}` : null) || charData.classTemplate?.code;
+      const officialAvatar = classCode ? `/play/assets/hud/avatars/${classCode}.png` : null;
+
       const thumb =
-        charData.thumbUrl ||
+        officialAvatar ||
         charData.avatarUrl ||
+        charData.thumbUrl ||
         charData.classTemplate?.avatarUrl ||
         (charData.mcreworkCharKey ? `/api/assets/mcrework/assets/characters/${charData.mcreworkCharKey}/thumb.webp` : null) ||
         (charData.classTemplate?.mcreworkCharKey ? `/api/assets/mcrework/assets/characters/${charData.classTemplate.mcreworkCharKey}/thumb.webp` : null) ||
-        '/play/assets/hud/menu_character.png';
+        '/play/assets/hud/avatars/class_1.png';
       avatarImg.src = thumb;
     }
 
