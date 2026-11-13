@@ -236,6 +236,20 @@ class ActionSkillEngine {
     caster.action = Number(skill.castActionId) || 7;
     caster.attackTimer = 0.38;
 
+    // FASE 2 e 5: Desacoplamento de Mira e Auto-Attack Reset
+    if (primaryTarget) {
+      caster.dir = arena.compute8Direction(primaryTarget.x - caster.x, primaryTarget.y - caster.y);
+      if (caster.isPlayer && arena.motionEngine) {
+        arena.motionEngine.lockAimTowards(caster, primaryTarget.x, primaryTarget.y, 0.38);
+      }
+    }
+    if (caster.isPlayer && arena.motionEngine) {
+      arena.motionEngine.cancelBackswing('SKILL_EXEC');
+      if (skill.resetsAutoAttack || skill.castMovement === 'DASH_LINEAR' || skill.castMovement === 'MELEE_ADVANCE') {
+        arena.motionEngine.resetAutoAttackTimer();
+      }
+    }
+
     ActionSkillEngine.performCastMovement(arena, caster, primaryTarget, skill);
 
     const dx = primaryTarget ? primaryTarget.x - caster.x : 1;

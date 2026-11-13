@@ -152,6 +152,90 @@ class ArenaPhysicsSolver {
   }
 
   /**
+   * Executa deslocamento contínuo de alta fluidez com projeção tangencial de vetor (Vector Slide).
+   * Impede que a unidade trave a seco ao colidir contra a borda elíptica da arena ou polígonos.
+   * Projeta o vetor de movimento na tangente da superfície de colisão, mantendo a componente de deslize.
+   */
+  static moveWithContinuousSlide(unit, targetX, targetY, cx, cy, rx, ry, isBlockedFn) {
+    const blocked = (x, y) => typeof isBlockedFn === 'function' && isBlockedFn(x, y);
+    const startX = unit.x;
+    const startY = unit.y;
+    let dx = targetX - startX;
+    let dy = targetY - startY;
+
+    if (Math.abs(dx) < 0.001 && Math.abs(dy) < 0.001) return false;
+
+    // 1. Projeção tangencial na borda da elipse da arena
+    const margin = 0.96;
+    const effRx = rx * margin;
+    const effRy = ry * margin;
+    const normX = (targetX - cx) / Math.max(1, effRx);
+    const normY = (targetY - cy) / Math.max(1, effRy);
+    const distSq = normX * normX + normY * normY;
+
+    if (distSq > 1.0) {
+      // O movimento tentaria sair da elipse. Calcula a normal da elipse na posição atual:
+      const currNormX = (startX - cx) / Math.max(1, effRx);
+      const currNormY = (startY - cy) / Math.max(1, effRy);
+      let gradX = currNormX / Math.max(1, effRx);
+      let gradY = currNormY / Math.max(1, effRy);
+      const gradLen = Math.hypot(gradX, gradY);
+      if (gradLen > 0.0001) {
+        gradX /= gradLen;
+        gradY /= gradLen;
+
+        const dot = dx * gradX + dy * gradY;
+        if (dot > 0) {
+          dx -= dot * gradX;
+          dy -= dot * gradY;
+        }
+      }
+    }
+
+    let candX = startX + dx;
+    let candY = startY + dy;
+
+    const clamped = this.clampToArenaEllipse(candX, candY, cx, cy, rx, ry, margin);
+    candX = clamped.x;
+    candY = clamped.y;
+
+    // 2. Verificação de obstáculos/bloqueios no mapa
+    if (!blocked(candX, candY)) {
+      unit.x = candX;
+      unit.y = candY;
+      return true;
+    }
+
+    if (!blocked(candX, startY)) {
+      unit.x = candX;
+      return true;
+    }
+    if (!blocked(startX, candY)) {
+      unit.y = candY;
+      return true;
+    }
+
+    // Tenta desvios tangenciais angulares (±35° e ±55°) com passo suave
+    const moveLen = Math.hypot(dx, dy);
+    if (moveLen > 0.5) {
+      const baseAng = Math.atan2(dy, dx);
+      for (const offsetAng of [Math.PI / 5, -Math.PI / 5, Math.PI / 3, -Math.PI / 3]) {
+        const testAng = baseAng + offsetAng;
+        const testX = startX + Math.cos(testAng) * (moveLen * 0.85);
+        const testY = startY + Math.sin(testAng) * (moveLen * 0.85);
+        const testClamped = this.clampToArenaEllipse(testX, testY, cx, cy, rx, ry, margin);
+        if (!blocked(testClamped.x, testClamped.y)) {
+          unit.x = testClamped.x;
+          unit.y = testClamped.y;
+          return true;
+        }
+      }
+    }
+
+    return false;
+  }
+
+  /**
    * Encontra o ponto livre mais próximo de (targetX, targetY) respeitando colisão de mapa,
    * borda da arena e separação mínima de outras unidades já posicionadas.
    */

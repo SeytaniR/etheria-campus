@@ -5,6 +5,25 @@ Qualquer IA trabalhando neste repositório **DEVE** incrementar a versão e regi
 
 ---
 
+## [v0.20.0] - 2026-11-13
+### Motor de Combate Fluido (Action MOBA Engine): 5 Fases de Fluidez, Ciclo de Ataque Tríplice (Windup, Cast Point, Backswing Cancel / Kiting), Desacoplamento de Mira, Input Buffering, Cinemática com Deslize Vetorial e Auto-Attack Resets
+* **Adicionado & Integrado (`ActionMotionEngine.js` - 478 linhas):**
+  * **Fase 1: Ciclo de Ataque Tríplice:** Divisão do ataque em **Windup** (preparação pré-ataque proporcional a `attackSpeed`), **Cast Point** (momento exato onde o projétil/dano nasce) e **Backswing** (recuperação pós-disparo). Projéteis nunca mais nascem no frame zero.
+  * **Fase 1: Orb-Walking & Kiting:** Cancelamento imediato do backswing por qualquer ordem de movimento ou habilidade assim que o Cast Point é atingido, permitindo que o jogador se mova livremente enquanto o projétil viaja pelo ar sem perder cadência de dano.
+  * **Fase 2: Desacoplamento de Mira e Facing Lock:** O personagem trava a rotação e postura de frente para o alvo durante o Windup e Cast Point (`facingDir`), impedindo terminantemente que o loop de física sobrescreva a direção com o vetor de corrida (`vx, vy`). Adeus tiros de costas!
+  * **Fase 3: Input Buffering (Janela de Tolerância de 160ms):** Cliques de auto-ataque, skills (1 a 4) e dash realizados em micro-intervalos de cooldown ou recuperação são enfileirados em buffer e executados no primeiro frame livre, eliminando cliques perdidos e engasgos de comando.
+  * **Fase 4: Cinemática Suave e Deslize Vetorial Contínuo (`ArenaPhysicsSolver.moveWithContinuousSlide`):**
+    * Adicionada aceleração progressiva (`ACCELERATION_RATE = 24.0`) e desaceleração suave (`DECELERATION_RATE = 28.0`) via lerp responsivo.
+    * Substituído o bloqueio axial seco por **projeção tangencial de velocidade na normal da elipse da arena e em obstáculos** (`v_tangent = v - (v · normal) * normal`), permitindo deslize fluido ao longo de bordas sem prender o personagem.
+  * **Fase 5: Auto-Attack Resets e Combos Mecânicos:** Dash e habilidades instantâneas agora reiniciam o temporizador de auto-ataque e cancelam o backswing, habilitando combos fluidos de alto teto de habilidade motora (`Auto-Ataque -> Cast Point -> Dash -> Auto-Ataque Imediato`).
+* **Modularização & Arquitetura (Regra #7):**
+  * `ActionMotionEngine.js`: 478 linhas.
+  * `ActionCombatArena.js`: 961 linhas (refatorado e mantido estritamente abaixo de 1.000 linhas).
+  * `ActionSkillEngine.js`: 683 linhas.
+  * `ArenaPhysicsSolver.js`: 471 linhas.
+* **Testes & Validação:**
+  * Teste unitário completo em `tests/test_action_motion_engine.mjs` cobrindo as 5 fases com 100% de sucesso.
+
 ---
 
 ## [v0.19.0] - 2026-11-13

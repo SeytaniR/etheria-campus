@@ -45,6 +45,9 @@ class ActionCombatArena {
     this.allyTeamTactics = { enemyCentroid: { x: 0, y: 0, count: 0 } };
     this.enemyTeamTactics = { enemyCentroid: { x: 0, y: 0, count: 0 } };
 
+    // Motor de Movimento, Windup/CastPoint, Input Buffering, Desacoplamento e Deslize Vetorial
+    this.motionEngine = window.ActionMotionEngine ? new window.ActionMotionEngine(this) : null;
+
     // Inputs e Controles
     this.keysDown = new Set();
     this.joystickActive = false;
@@ -196,6 +199,7 @@ class ActionCombatArena {
     this.projectiles = [];
     this.groundZones = [];
     this.vfxRenderer?.reset();
+    this.motionEngine?.reset();
     this.classSkills = Array.isArray(battleState.classSkills) ? battleState.classSkills : [];
     this.skillCatalog = Array.isArray(battleState.skillCatalog) ? battleState.skillCatalog : [];
     this.statusCatalog = Array.isArray(battleState.statusCatalog) ? battleState.statusCatalog : [];
@@ -452,51 +456,39 @@ class ActionCombatArena {
   }
 
   triggerAttack() {
-    if (!this.isActive || this.combatState !== 'FIGHTING' || !this.player || !this.player.isAlive || this.player.isAttacking) {
-      return;
-    }
-    if (window.ActionSkillEngine && window.ActionSkillEngine.isActionBlocked(this.player)) {
-      return;
-    }
+    if (!this.isActive || this.combatState !== 'FIGHTING' || !this.player || !this.player.isAlive) return;
     const now = performance.now();
-    if (now < this.skillCooldowns.attack) return;
-
-    const pEff = window.ActionSkillEngine ? window.ActionSkillEngine.getEffectiveStats(this.player) : this.player;
-    const aspd = pEff.attackSpeed || this.player.attackSpeed || 1.0;
-    const intervalMs = Math.max(280, Math.round(380 / aspd));
-    this.skillCooldowns.attack = now + intervalMs;
-
-    this.player.isAttacking = true;
-    this.player.attackTimer = 0.28;
-    this.player.actionStartTime = now;
-    this.player.action = 3;
-
     const target = this.getLockedTarget();
-    if (target) {
-      const dist = Math.hypot(target.x - this.player.x, target.y - this.player.y);
-      const maxRange = (pEff && pEff.attackRange) || this.player.attackRange || (this.player.combatStyle === 'RANGED' ? 220 : 60);
-      if (dist > maxRange + 25) {
-        this.floatingTexts.push({ x: this.player.x, y: this.player.y - 45, text: 'FORA DE ALCANCE', color: '#fde047', life: 0.7 });
-        return;
-      }
-      this.player.dir = this.compute8Direction(target.x - this.player.x, target.y - this.player.y);
-      const isMagical = this.player.damageType === 'MAGICAL';
-      const isRanged = this.player.combatStyle === 'RANGED';
-      const projectileEmoji = isMagical ? (isRanged ? '🔮' : '✨') : (isRanged ? '🏹' : '⚔️');
-      const projectileColor = isMagical ? '#c084fc' : '#fde047';
-      this.spawnHomingProjectile(target, 'SINGLE', 0, this.player.atk, false, projectileEmoji, projectileColor, isMagical, undefined, undefined, undefined, undefined, 'ALLY', this.player.critDmg, { attackerUnit: this.player, skillMultiplier: 1.0 });
+    if (this.motionEngine) {
+      this.motionEngine.requestAttack(this.player, target, now);
+      return;
     }
-    this.updateHud();
   }
 
   triggerSkill(skillNum) {
     if (!this.isActive || this.combatState !== 'FIGHTING' || !this.player || !this.player.isAlive) return;
     const now = performance.now();
     const cdKey = `skill${skillNum}`;
-    if (now < (this.skillCooldowns[cdKey] || 0)) return;
+    const cdExpire = this.skillCooldowns[cdKey] || 0;
+
+    // FASE 3: Enfileira no Input Buffer se cooldown restante <= 160ms
+    if (now < cdExpire) {
+      if (this.motionEngine && (cdExpire - now) <= this.motionEngine.BUFFER_WINDOW_MS) {
+        this.motionEngine.enqueueBufferedAction('SKILL', { skillNum }, now);
+      }
+      return;
+    }
 
     const realSkill = (this.classSkills || [])[skillNum - 1];
     const target = this.getLockedTarget();
+
+    // FASE 5: Cancelamento de Backswing e Auto-Attack Reset
+    if (this.motionEngine) {
+      this.motionEngine.cancelBackswing('SKILL_CAST');
+      if (realSkill && (realSkill.resetsAutoAttack || realSkill.castMovement === 'DASH_LINEAR')) {
+        this.motionEngine.resetAutoAttackTimer();
+      }
+    }
 
     if (realSkill && window.ActionSkillEngine) {
       const needsEnemy = !['SELF', 'ALLY_SINGLE', 'ALLY_LOWEST_HP_PCT', 'ALLY_ALL', 'AOE_SELF_AROUND'].includes(realSkill.targetScope);
@@ -669,8 +661,25 @@ class ActionCombatArena {
   triggerDash() {
     if (!this.isActive || this.combatState !== 'FIGHTING' || !this.player || !this.player.isAlive || this.player.isDashing) return;
     const now = performance.now();
-    if (now < this.skillCooldowns.dash) return;
-    this.skillCooldowns.dash = now + 1800; this.player.isDashing = true; this.player.dashTimer = 0.22;
+    const cdExpire = this.skillCooldowns.dash || 0;
+
+    // FASE 3: Enfileira Dash no buffer se cooldown restante <= 160ms
+    if (now < cdExpire) {
+      if (this.motionEngine && (cdExpire - now) <= this.motionEngine.BUFFER_WINDOW_MS) {
+        this.motionEngine.enqueueBufferedAction('DASH', null, now);
+      }
+      return;
+    }
+
+    this.skillCooldowns.dash = now + 1800;
+    this.player.isDashing = true;
+    this.player.dashTimer = 0.22;
+
+    // FASE 5: Dash cancela backswing e reseta o ciclo de auto-ataque para combo imediato
+    if (this.motionEngine) {
+      this.motionEngine.cancelBackswing('DASH');
+      this.motionEngine.resetAutoAttackTimer();
+    }
   }
 
   checkVictoryCondition() {
@@ -767,28 +776,18 @@ class ActionCombatArena {
       this.player.dashTimer -= dt;
       if (this.player.dashTimer <= 0) this.player.isDashing = false; else curSpeed *= 2.3;
     }
-    if (this.player.isAttacking) {
-      this.player.attackTimer -= dt;
-      if (this.player.attackTimer <= 0) { this.player.isAttacking = false; this.player.action = 0; }
+
+    // FASES 1, 2, 3 e 4: Cinemática Suave, Aceleração/Desaceleração, Deslize Vetorial e Windup/CastPoint
+    if (this.motionEngine) {
+      this.motionEngine.updatePlayerKinematics(this.player, vx, vy, curSpeed, dt, performance.now());
+      return;
     }
-    if (this.player.hitTimer > 0) this.player.hitTimer -= dt;
-
     if (vx !== 0 || vy !== 0) {
-      const targetX = this.player.x + vx * curSpeed * dt;
-      const targetY = this.player.y + vy * curSpeed * dt;
-      const isBlockedFn = (x, y) => this.isBlocked(x, y);
-
-      const moved = window.ArenaPhysicsSolver
-        ? window.ArenaPhysicsSolver.moveWithCollision(this.player, targetX, targetY, this.arenaCenterX, this.arenaCenterY, this.arenaRadiusX, this.arenaRadiusY, isBlockedFn)
-        : false;
-
-      if (!moved && this.client && (this.client.moveTargetX !== null || this.client.moveTargetY !== null)) {
-        this.client.moveTargetX = null; this.client.moveTargetY = null; this.client.currentPath = null;
-      }
-
+      this.player.x += vx * curSpeed * dt;
+      this.player.y += vy * curSpeed * dt;
       this.player.dir = this.compute8Direction(vx, vy);
-      if (!this.player.isAttacking) this.player.action = 1;
-    } else if (!this.player.isAttacking && this.player.hitTimer <= 0) {
+      this.player.action = 1;
+    } else {
       this.player.action = 0;
     }
   }
