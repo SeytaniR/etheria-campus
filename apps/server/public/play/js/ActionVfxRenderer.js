@@ -259,16 +259,23 @@ class ActionVfxRenderer {
       ctx.fill();
     }
 
+    // Anel de Alcance de Ataque do Jogador
+    if (arena.player && arena.player.isAlive) {
+      const pRange = arena.player.attackRange || 220;
+      ctx.save();
+      ctx.beginPath();
+      ctx.setLineDash([8, 8]);
+      ctx.ellipse(arena.player.x, arena.player.y, pRange, pRange * 0.74, 0, 0, Math.PI * 2);
+      ctx.strokeStyle = 'rgba(56, 189, 248, 0.20)';
+      ctx.lineWidth = 1.5 / zoom;
+      ctx.stroke();
+      ctx.restore();
+    }
+
+    // Retículo Dinâmico de Mira no Chão para o Alvo Travado
     const target = arena.getLockedTarget();
     if (target && target.isAlive) {
-      const pPulse = 1 + 0.12 * Math.sin(now / 150);
-      ctx.beginPath();
-      ctx.ellipse(target.x, target.y - 8, 22 * pPulse, 12 * pPulse, 0, 0, Math.PI * 2);
-      ctx.strokeStyle = '#ef4444';
-      ctx.lineWidth = 2.5 / zoom;
-      ctx.shadowColor = '#ef4444';
-      ctx.shadowBlur = 10;
-      ctx.stroke();
+      this.drawTargetReticleOnFloor(ctx, target, now, zoom);
     }
 
     this.drawGroundZonesAndTelegraphs(ctx, arena.groundZones, now);
@@ -282,6 +289,66 @@ class ActionVfxRenderer {
       ctx.fill();
       ctx.restore();
     }
+    ctx.restore();
+  }
+
+  /**
+   * Renderiza o retículo dinâmico de foco sob os pés do alvo que receberá o ataque.
+   */
+  drawTargetReticleOnFloor(ctx, target, now, zoom = 1.0) {
+    if (!target || !target.isAlive) return;
+    ctx.save();
+    const pulse = 0.90 + 0.10 * Math.sin(now / 160);
+    const rot = (now / 1100) % (Math.PI * 2);
+    const rx = Math.max(26, (target.bodyRadiusX || 24) * 1.35 * pulse);
+    const ry = Math.max(16, (target.bodyRadiusY || 17) * 1.35 * pulse);
+
+    // 1. Anel externo com brilho e borda em destaque
+    ctx.beginPath();
+    ctx.ellipse(target.x, target.y - 4, rx, ry, 0, 0, Math.PI * 2);
+    ctx.strokeStyle = 'rgba(239, 68, 68, 0.90)';
+    ctx.lineWidth = 2.4 / zoom;
+    ctx.shadowColor = '#f59e0b';
+    ctx.shadowBlur = 9;
+    ctx.stroke();
+
+    // 2. 4 Pips de mira em cruz giratória
+    for (let i = 0; i < 4; i++) {
+      const ang = rot + (i * Math.PI) / 2;
+      const px = target.x + Math.cos(ang) * (rx + 5);
+      const py = target.y - 4 + Math.sin(ang) * (ry + 4);
+      const inX = target.x + Math.cos(ang) * (rx - 6);
+      const inY = target.y - 4 + Math.sin(ang) * (ry - 5);
+      ctx.beginPath();
+      ctx.moveTo(px, py);
+      ctx.lineTo(inX, inY);
+      ctx.strokeStyle = '#fde047';
+      ctx.lineWidth = 2.6 / zoom;
+      ctx.stroke();
+    }
+
+    // 3. Ponto central sutil
+    ctx.beginPath();
+    ctx.arc(target.x, target.y - 4, 3, 0, Math.PI * 2);
+    ctx.fillStyle = '#ef4444';
+    ctx.fill();
+    ctx.restore();
+  }
+
+  /**
+   * Renderiza o indicador de foco aéreo (chevron pulsante) sobre o alvo.
+   */
+  drawMonsterTargetOverlays(ctx, target, headY, now) {
+    if (!target || !target.isAlive) return;
+    ctx.save();
+    const bounce = Math.sin(now / 140) * 3.5;
+    const cy = headY - 14 + bounce;
+    ctx.fillStyle = '#ef4444';
+    ctx.font = 'bold 15px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.shadowColor = '#f59e0b';
+    ctx.shadowBlur = 8;
+    ctx.fillText('▼', target.x, cy);
     ctx.restore();
   }
 

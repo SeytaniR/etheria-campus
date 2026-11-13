@@ -497,6 +497,10 @@ class ActionCombatArena {
         const dist = Math.hypot(target.x - this.player.x, target.y - this.player.y);
         const maxRange = (Number(realSkill.castRange) || 160) + (realSkill.castMovement === 'MELEE_ADVANCE' || realSkill.castMovement === 'DASH_LINEAR' || realSkill.castMovement === 'LEAP_AOE' || realSkill.castMovement === 'TELEPORT_BACKSTAB' ? 95 : 24);
         if (dist > maxRange) {
+          if (this.motionEngine) {
+            this.motionEngine.startApproach(this.player, target, maxRange, 'SKILL', { skillNum });
+            return;
+          }
           this.floatingTexts.push({ x: this.player.x, y: this.player.y - 45, text: 'FORA DE ALCANCE', color: '#fde047', life: 0.7 });
           return;
         }

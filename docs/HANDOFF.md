@@ -8,9 +8,9 @@
 ---
 
 ## 📌 Status Atual do Projeto
-* **Versão Atual:** `v0.20.0`
+* **Versão Atual:** `v0.20.1`
 * **Última Atualização:** `2026-11-13`
-* **Fase Atual:** **Motor de Combate Fluido (Action MOBA Engine): 5 Fases de Fluidez (`v0.20.0`)** — Implementação do novo `ActionMotionEngine.js` trazendo o Ciclo de Ataque Tríplice (Windup, Cast Point e Backswing), Kiting/Orb-Walking com cancelamento de animação pós-disparo, Facing Lock desacoplado impedindo tiros de costas, Input Buffering com janela de 160ms para ataques/skills/dash, Cinemática suave com Aceleração/Desaceleração lerp, Deslize Vetorial Contínuo (`moveWithContinuousSlide`) em paredes e bordas elípticas, e Auto-Attack Resets para combos mecânicos de alta habilidade. Todos os arquivos permanecem estritamente sob o teto da Regra #7 (< 1.000 linhas).
+* **Fase Atual:** **Refinamento do Motor de Combate: Priorização de Ataque sobre Joystick, Perseguição Automática (Estilo LoL) & Retículo Visual de Alvo (`v0.20.1`)** — Corrigida a prioridade de ataque sobre o movimento do joystick (o ataque agora executa o Windup e o Cast Point sem ser abortado pelo toque no joystick, retomando a corrida no Backswing); implementado o modo de perseguição automática quando o alvo está fora de alcance (o boneco caminha até o alcance e dispara automaticamente como no LoL); implementado retículo de mira animado no chão sob os pés do monstro, chevron aéreo `▼`, barra de vida com contorno dourado e anel sutil do alcance do jogador. Todos os arquivos permanecem rigorosamente sob o teto da Regra #7 (< 1.000 linhas).
 * **Repositório Oficial:** `https://github.com/SeytaniR/etheria-campus`
 * **Fonte Bruta de Assets:** `https://github.com/SeytaniR/mcrework` (`https://seytanir.github.io/mcrework/`)
 

@@ -5,7 +5,6 @@
  *   Gerencia autenticação, lobby de criação/seleção de personagens, loop 60 FPS, física,
  *   colisão poligonal suave, travessia de portais pareados e renderização com profundidade (Y-Sorting).
  */
-
 class EtheriaPlayClient {
   constructor() {
     // Reutiliza automaticamente o token do /admin se o usuário já estiver logado lá
@@ -14,7 +13,6 @@ class EtheriaPlayClient {
       localStorage.getItem('etheria_admin_token') ||
       '';
     this.session = null;
-
     // Dados do Bootstrap
     this.classTemplates = [];
     this.elements = [];
@@ -25,14 +23,12 @@ class EtheriaPlayClient {
     this.mapsList = [];
     this.myCharacters = [];
     this.selectedClassIdForCreation = null;
-
     // Estado do Personagem e Mapa Ativo no Mundo
     this.activeChar = null;
     this.currentMap = null;
     this.mesh = null;
     this.mapBgImage = null;
     this.spriteCache = new Map();
-
     // Posição, Direção e Movimento em Tempo Real
     this.playerX = 500;
     this.playerY = 500;
@@ -48,11 +44,9 @@ class EtheriaPlayClient {
     this.dpadDx = 0;
     this.dpadDy = 0;
     this.baseMoveSpeed = 168; // pixels por segundo (reduzido em 20% do valor anterior de 210)
-
     // Câmera do Mundo
     this.zoom = 1.0;
     this.lastPinchDist = 0;
-
     // Cooldown de Portal e Sincronização com o Servidor
     this.portalCooldownUntil = 0;
     this.isTraversingPortal = false;
@@ -62,30 +56,25 @@ class EtheriaPlayClient {
     this.lastSyncedX = 0;
     this.lastSyncedY = 0;
     this.lastSyncTime = 0;
-
     // Estado do Painel GM Integrado (`/gm`)
     this.gmXray = false;
     this.gmNoClip = false;
     this.gmSpeedMultiplier = 1;
-
     // Arena Instanciada com Combate Livre em Tempo Real e Encontros no Mapa
     this.stepDistanceAccumulator = 0;
     this.encounterCooldownUntil = 0;
     this.isEncounterLoading = false;
     this.actionCombatArena = null;
     this.actionArena = null;
-
     // Vincula módulos externos (Lobby, Painel GM, Ficha Procedural e Sistema de Quests)
     if (window.PlayLobbyController) window.PlayLobbyController.attach(this);
     if (window.PlayGmController) window.PlayGmController.attach(this);
     if (window.PlayQuestsController) window.PlayQuestsController.attach(this);
     if (window.PlayBagController) window.PlayBagController.attach(this);
     if (window.PlayAssetDownloader) window.PlayAssetDownloader.attach(this);
-
     this.lastFrameTime = performance.now();
     this.init();
   }
-
   async init() {
     this.setupWorldEvents();
     if (window.PlayHudController) {
@@ -96,19 +85,16 @@ class EtheriaPlayClient {
       this.actionArena = this.actionCombatArena;
     }
     requestAnimationFrame((t) => this.gameLoop(t));
-
     if (this.token) {
       try {
         await this.loadPlayBootstrap();
         this.showLobby();
-    
       } catch {
         // Se o token antigo expirou, mostra tela de login
       }
     }
     document.getElementById('playLoginScreen').style.display = 'flex';
   }
-
   async api(path, options = {}) {
     const headers = Object.assign({ 'Content-Type': 'application/json' }, options.headers || {});
     if (this.token) {
@@ -121,13 +107,11 @@ class EtheriaPlayClient {
     }
     return data;
   }
-
   async login() {
     const username = document.getElementById('playUsername').value.trim();
     const password = document.getElementById('playPassword').value;
     const errBox = document.getElementById('playLoginError');
     errBox.style.display = 'none';
-
     try {
       const res = await this.api('/api/play/auth/login', {
         method: 'POST',
@@ -142,7 +126,6 @@ class EtheriaPlayClient {
       errBox.style.display = 'block';
     }
   }
-
   logout() {
     this.token = '';
     localStorage.removeItem('etheria_play_token');
@@ -151,7 +134,6 @@ class EtheriaPlayClient {
     document.getElementById('lobbyScreen').style.display = 'none';
     document.getElementById('playLoginScreen').style.display = 'flex';
   }
-
   async loadPlayBootstrap() {
     const data = await this.api('/api/play/bootstrap');
     this.session = data.session;
@@ -166,23 +148,19 @@ class EtheriaPlayClient {
     this.elementMatchups = data.elementMatchups || [];
     this.mapsList = data.maps || [];
     this.myCharacters = data.characters || [];
-
     if (this.classTemplates.length > 0 && !this.selectedClassIdForCreation) {
       this.selectedClassIdForCreation = this.classTemplates[0].id;
     }
-
     this.renderLobby();
     if (typeof this.renderGmTeleportList === 'function') {
       this.renderGmTeleportList();
     }
   }
-
   showLobby() {
     document.getElementById('playLoginScreen').style.display = 'none';
     document.getElementById('worldScreen').style.display = 'none';
     document.getElementById('lobbyScreen').style.display = 'flex';
   }
-
   getElementStyle(elementCode) {
     const styles = {
       FIRE: { icon: '🔥', color: '#fca5a5', bg: 'rgba(239, 68, 68, 0.2)' },
@@ -193,20 +171,17 @@ class EtheriaPlayClient {
     };
     return styles[elementCode] || styles.NEUTRAL;
   }
-
   getOrCreateSprite(key, atlasJsonUrl, atlasWebpUrl, thumbUrl) {
     if (!this.spriteCache.has(key)) {
       this.spriteCache.set(key, new McreworkSpriteSheet(atlasJsonUrl, atlasWebpUrl, thumbUrl));
     }
     return this.spriteCache.get(key);
   }
-
   getMapBounds() {
     const w = this.mapBgImage?.naturalWidth || this.currentMap?.width || 2000;
     const h = this.mapBgImage?.naturalHeight || this.currentMap?.height || 1500;
     return { width: Math.max(200, Number(w)), height: Math.max(200, Number(h)) };
   }
-
   async loadMapIntoWorld(mapId, startX, startY, arrivedAtPortalId = null) {
     try {
       const mapData = await this.api(`/api/play/map/${mapId}`);
@@ -216,7 +191,6 @@ class EtheriaPlayClient {
         mapData.overlapMeshJson,
         mapData.overlapOpacity
       );
-
       this.playerX = startX !== undefined ? Number(startX) : Number(mapData.spawnX);
       this.playerY = startY !== undefined ? Number(startY) : Number(mapData.spawnY);
       this.moveTargetX = null;
@@ -236,7 +210,6 @@ class EtheriaPlayClient {
       this.playerX = Math.max(20, Math.min(initialW - 20, this.playerX));
       this.playerY = Math.max(24, Math.min(initialH - 20, this.playerY));
       this.portalCooldownUntil = performance.now() + 5000;
-
       // Carrega a imagem base limpa do mapa via proxy local ou remoto com fallback automático
       let rawBg = (mapData.bgImageUrl || mapData.mcreworkMapImage || '').trim();
       let finalBgUrl = rawBg;
@@ -244,7 +217,6 @@ class EtheriaPlayClient {
         finalBgUrl = `https://seytanir.github.io/mcrework/${finalBgUrl.replace(/^\/+/, '')}`;
       }
       this.loadMapBackground(mapData.id, finalBgUrl);
-
       // Pré-aquece os sprites do personagem e dos NPCs do mapa
       if (this.activeChar) {
         this.getOrCreateSprite(
@@ -262,7 +234,6 @@ class EtheriaPlayClient {
           npc.thumbUrl
         ).load();
       }
-
       this.updateHudInfo();
       if (typeof this.renderGmTeleportList === 'function') {
         this.renderGmTeleportList();
@@ -276,11 +247,9 @@ class EtheriaPlayClient {
       this.isTraversingPortal = false;
     }
   }
-
   loadMapBackground(mapId, remoteBgUrl) {
     this.mapBgImage = null;
     const localProxyUrl = `/api/assets/map-image/${mapId}`;
-
     const tryLoad = (srcUrl, isFallback) => {
       const img = new Image();
       // Não define crossOrigin para evitar bloqueios de CORS e cache em redes móveis
@@ -314,11 +283,9 @@ class EtheriaPlayClient {
         }
       }
     };
-
     // Prioriza o proxy local (same-origin, multiplexado no Cloudflare Tunnel e com cache em RAM)
     tryLoad(localProxyUrl, false);
   }
-
   updateHudInfo() {
     if (!this.activeChar || !this.currentMap) return;
     const el = this.getElementStyle(this.activeChar.elementCode);
@@ -326,15 +293,12 @@ class EtheriaPlayClient {
     document.getElementById('hudCharClass').textContent = `• ${this.activeChar.classNamePtBr}`;
     const goldEl = document.getElementById('hudGoldBadge');
     if (goldEl) goldEl.textContent = `🪙 ${Number(this.activeChar.gold || 0).toLocaleString('pt-BR')}`;
-
     const badge = document.getElementById('hudElementBadge');
     badge.textContent = `${el.icon} ${this.activeChar.elementNamePtBr}`;
     badge.style.background = el.bg;
     badge.style.color = el.color;
-
     document.getElementById('hudMapName').textContent = `🗺️ #${this.currentMap.id} ${this.currentMap.namePtBr} (Nv.${this.currentMap.requiredLevel})`;
     document.getElementById('hudCoords').textContent = `X:${Math.round(this.playerX)} Y:${Math.round(this.playerY)}`;
-
     const pvpLabels = {
       DUEL_ONLY: '🤝 PvP: Duelo',
       FORCED_PK: '⚠️ PvP: PK Forçado',
@@ -347,7 +311,6 @@ class EtheriaPlayClient {
         mt.allowMonsterSpawn ? '👹 Spawna Monstros' : '🕊️ Zona Segura'
       }`;
     }
-
     // Atualiza a nova HUD Mobile Vertical (PlayHudController)
     if (window.PlayHudController) {
       window.PlayHudController.updatePlayer(this.activeChar);
@@ -360,11 +323,9 @@ class EtheriaPlayClient {
       );
     }
   }
-
   // ==========================================================================
   // MOVIMENTAÇÃO, COLISÃO POLIGONAL, PORTAIS E LOOP DE RENDERIZAÇÃO 60 FPS
   // ==========================================================================
-
   /**
    * Fórmula Matemática Oficial do mcrework para 8 Direções:
    * 0: Sul (Frente), 1: Sudeste, 2: Leste (Direita), 3: Nordeste,
@@ -375,7 +336,6 @@ class EtheriaPlayClient {
     const sector = Math.round((90 - angle) / 45);
     return ((sector % 8) + 8) % 8;
   }
-
   setDpad(dx, dy) {
     this.dpadDx = dx;
     this.dpadDy = dy;
@@ -383,18 +343,14 @@ class EtheriaPlayClient {
       this.currentPath = null; this.moveTargetX = null; this.moveTargetY = null; this.targetDestX = null; this.targetDestY = null;
     }
   }
-
   changeZoom(factor) {
     this.zoom = Math.min(2.6, Math.max(0.3, this.zoom * factor));
   }
-
   centerCameraOnPlayer() {
     this.zoom = 1.0;
   }
-
   setupWorldEvents() {
     window.addEventListener('resize', () => this.resizeCanvas());
-
     window.addEventListener('keydown', (e) => {
       if (['INPUT', 'SELECT', 'TEXTAREA'].includes(document.activeElement?.tagName)) return;
       const k = e.key.toLowerCase();
@@ -403,11 +359,8 @@ class EtheriaPlayClient {
         this.currentPath = null; this.moveTargetX = null; this.moveTargetY = null; this.targetDestX = null; this.targetDestY = null;
       }
     });
-
     window.addEventListener('keyup', (e) => { this.keysDown.delete(e.key.toLowerCase()); });
-
     const canvas = document.getElementById('gameCanvas');
-
     canvas.addEventListener('pointerdown', (e) => {
       e.preventDefault();
       if (!this.activeChar || !this.currentMap) return;
@@ -418,27 +371,22 @@ class EtheriaPlayClient {
       const bounds = this.getMapBounds();
       worldPt.x = Math.max(18, Math.min(bounds.width - 18, worldPt.x));
       worldPt.y = Math.max(20, Math.min(bounds.height - 18, worldPt.y));
-
       // Em batalha na arena: clique sobre monstro seleciona alvo de ataque teleguiado
       if (this.actionCombatArena?.isActive) {
         const mob = (this.actionCombatArena.monsters || []).find((m) => m.isAlive && Math.hypot(m.x - worldPt.x, m.y - 20 - worldPt.y) <= 45);
         if (mob) { this.actionCombatArena.selectedTargetMob = mob; return; }
       }
-
       // Se o jogador tocar diretamente sobre um NPC e já estiver próximo, abre o modal de Quest/Diálogo
       for (const npc of this.currentMap.npcs || []) {
         const clickDist = Math.hypot(worldPt.x - npc.posX, worldPt.y - (npc.posY - 28));
         const playerDist = Math.hypot(this.playerX - npc.posX, this.playerY - npc.posY);
         if (clickDist <= 42 && playerDist <= 95 && typeof this.openNpcQuestModal === 'function') {
           void this.openNpcQuestModal(npc);
-      
         }
       }
-
       this.targetDestX = worldPt.x;
       this.targetDestY = worldPt.y;
       this.lastRepathTime = 0;
-
       if (this.mesh && !this.gmNoClip) {
         const path = this.mesh.findPath(this.playerX, this.playerY, worldPt.x, worldPt.y);
         if (path && path.length > 0) {
@@ -456,7 +404,6 @@ class EtheriaPlayClient {
         this.moveTargetY = worldPt.y;
       }
     });
-
     canvas.addEventListener(
       'wheel',
       (e) => {
@@ -465,7 +412,6 @@ class EtheriaPlayClient {
       },
       { passive: false }
     );
-
     canvas.addEventListener(
       'touchstart',
       (e) => {
@@ -478,7 +424,6 @@ class EtheriaPlayClient {
       },
       { passive: true }
     );
-
     canvas.addEventListener(
       'touchmove',
       (e) => {
@@ -495,14 +440,12 @@ class EtheriaPlayClient {
       { passive: true }
     );
   }
-
   resizeCanvas() {
     const canvas = document.getElementById('gameCanvas');
     if (!canvas) return;
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
   }
-
   screenToWorld(sx, sy) {
     const canvas = document.getElementById('gameCanvas');
     const focusX = this.actionCombatArena?.isActive ? this.actionCombatArena.getCamFocusX() : this.playerX;
@@ -514,11 +457,9 @@ class EtheriaPlayClient {
       y: Math.round((sy - camY) / this.zoom),
     };
   }
-
   gameLoop(now) {
     const dt = Math.min(0.05, (now - this.lastFrameTime) / 1000);
     this.lastFrameTime = now;
-
     if (this.activeChar && this.currentMap) {
       if (this.actionCombatArena?.isActive) {
         this.actionCombatArena.updatePhysics(dt, now);
@@ -528,25 +469,20 @@ class EtheriaPlayClient {
       }
       this.renderWorld(now);
     }
-
     requestAnimationFrame((t) => this.gameLoop(t));
   }
-
   updatePhysics(dt, now) {
     let vx = this.dpadDx;
     let vy = this.dpadDy;
-
     if (this.keysDown.has('w') || this.keysDown.has('arrowup')) vy -= 1;
     if (this.keysDown.has('s') || this.keysDown.has('arrowdown')) vy += 1;
     if (this.keysDown.has('a') || this.keysDown.has('arrowleft')) vx -= 1;
     if (this.keysDown.has('d') || this.keysDown.has('arrowright')) vx += 1;
-
     if (vx === 0 && vy === 0 && this.currentPath && this.currentPath.length > 0) {
       const wp = this.currentPath[0];
       const dx = wp.x - this.playerX;
       const dy = wp.y - this.playerY;
       const dist = Math.hypot(dx, dy);
-
       if (dist <= 14) {
         this.currentPath.shift();
         if (this.currentPath.length > 0) {
@@ -581,7 +517,6 @@ class EtheriaPlayClient {
       vx /= len;
       vy /= len;
     }
-
     if (vx !== 0 || vy !== 0) {
       this.isMoving = true;
       this.playerDir = this.calculateDirection8(vx, vy);
@@ -596,7 +531,6 @@ class EtheriaPlayClient {
       const nextY = clampY(this.playerY + vy * speed * dt);
       const prevX = this.playerX;
       const prevY = this.playerY;
-
       if (this.gmNoClip || !this.mesh) {
         this.playerX = nextX;
         this.playerY = nextY;
@@ -638,7 +572,6 @@ class EtheriaPlayClient {
           }
         }
       }
-
       // Acumula passos (~50px cada) para sortear encontro com monstros
       const stepDist = Math.hypot(this.playerX - prevX, this.playerY - prevY);
       if (stepDist > 0 && !this.gmNoClip) {
@@ -648,16 +581,13 @@ class EtheriaPlayClient {
           this.checkRandomEncounter(now);
         }
       }
-
       document.getElementById('hudCoords').textContent = `X:${Math.round(this.playerX)} Y:${Math.round(this.playerY)}`;
     } else {
       this.isMoving = false;
     }
-
     this.checkPortalsAndNpcs(now);
     this.syncPositionPeriodically(now);
   }
-
   checkRandomEncounter(now) {
     if (
       this.actionCombatArena?.isActive ||
@@ -666,17 +596,14 @@ class EtheriaPlayClient {
       !this.activeChar ||
       now < this.encounterCooldownUntil
     ) {
-  
     }
     if (!this.currentMap.mapType?.allowMonsterSpawn || this.currentMap.canSpawnMonsters === false) {
-  
     }
     const rate = Number(this.currentMap.encounterRatePct) || 0;
     if (rate > 0 && Math.random() * 100 < rate) {
       void this.triggerMapEncounter();
     }
   }
-
   async triggerMapEncounter() {
     if (
       this.isEncounterLoading ||
@@ -685,7 +612,6 @@ class EtheriaPlayClient {
       !this.currentMap.mapType?.allowMonsterSpawn ||
       this.currentMap.canSpawnMonsters === false
     ) {
-  
     }
     this.isEncounterLoading = true;
     this.moveTargetX = null;
@@ -697,7 +623,6 @@ class EtheriaPlayClient {
     this.dpadDx = 0;
     this.dpadDy = 0;
     this.keysDown.clear();
-
     try {
       const battleState = await this.api('/api/play/combat/encounter', {
         method: 'POST',
@@ -706,7 +631,6 @@ class EtheriaPlayClient {
           mapId: this.currentMap.id,
         }),
       });
-
       if (!this.actionCombatArena && window.ActionCombatArena) {
         this.actionCombatArena = new ActionCombatArena(this);
         this.actionArena = this.actionCombatArena;
@@ -727,17 +651,13 @@ class EtheriaPlayClient {
       this.isEncounterLoading = false;
     }
   }
-
   checkPortalsAndNpcs(now) {
     const prompt = document.getElementById('interactionPrompt');
     const textEl = document.getElementById('interactionText');
     const btnEl = document.getElementById('interactionBtn');
-
     if (!this.currentMap || this.actionCombatArena?.isActive || this.isTraversingPortal) {
       if (prompt) prompt.style.display = 'none';
-  
     }
-
     // 1. Verifica proximidade de Portais Pareados
     for (const p of this.currentMap.portals || []) {
       const dist = Math.hypot(this.playerX - p.sourceX, this.playerY - p.sourceY);
@@ -754,16 +674,13 @@ class EtheriaPlayClient {
         textEl.textContent = `🌀 ${p.label}`;
         btnEl.textContent = p.targetMapNamePtBr ? `Ir para ${p.targetMapNamePtBr} (${p.targetX}, ${p.targetY})` : 'Sem portal par vinculado ainda';
         btnEl.onclick = () => this.traversePortal(p.id);
-
         // Travessia automática ao pisar no núcleo do portal (se já passou o cooldown de saída)
         if (dist <= radius * 0.7 && p.targetMapId && now > this.portalCooldownUntil) {
           this.portalCooldownUntil = now + 4000;
           void this.traversePortal(p.id);
         }
-    
       }
     }
-
     // 2. Verifica proximidade de NPCs Interativos e Indicadores de Quest
     for (const n of this.currentMap.npcs || []) {
       const dist = Math.hypot(this.playerX - n.posX, this.playerY - n.posY);
@@ -774,13 +691,10 @@ class EtheriaPlayClient {
         textEl.textContent = `🧙 ${n.namePtBr}`;
         btnEl.textContent = stateLabels[qInd?.state] || '💬 Conversar';
         btnEl.onclick = () => { if (typeof this.openNpcQuestModal === 'function') void this.openNpcQuestModal(n); };
-    
       }
     }
-
     prompt.style.display = 'none';
   }
-
   async traversePortal(portalId) {
     if (!this.activeChar || this.isTraversingPortal) return;
     this.isTraversingPortal = true;
@@ -799,18 +713,14 @@ class EtheriaPlayClient {
       this.isTraversingPortal = false;
     }
   }
-
   syncPositionPeriodically(now) {
     if (!this.activeChar || !this.currentMap) return;
     if (now - this.lastSyncTime < 1500) return;
-
     const dist = Math.hypot(this.playerX - this.lastSyncedX, this.playerY - this.lastSyncedY);
     if (dist < 8) return;
-
     this.lastSyncTime = now;
     this.lastSyncedX = this.playerX;
     this.lastSyncedY = this.playerY;
-
     void this.api(`/api/play/characters/${this.activeChar.id}/sync-position`, {
       method: 'POST',
       body: JSON.stringify({
@@ -821,12 +731,10 @@ class EtheriaPlayClient {
       }),
     }).catch(() => {});
   }
-
   renderWorld(now) {
     const canvas = document.getElementById('gameCanvas');
     const ctx = canvas.getContext('2d');
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-
     const focusX = this.actionCombatArena?.isActive ? this.actionCombatArena.getCamFocusX() : this.playerX;
     const focusY = this.actionCombatArena?.isActive ? this.actionCombatArena.getCamFocusY() : this.playerY;
     const bounds = this.getMapBounds();
@@ -834,32 +742,26 @@ class EtheriaPlayClient {
     const mapH = bounds.height;
     let camX = Math.round(canvas.width / 2 - focusX * this.zoom);
     let camY = Math.round(canvas.height / 2 - focusY * this.zoom);
-
     // LIMITA A CÂMERA À BORDA DO MAPA (Sem jamais mostrar área preta vazia)
     const totalRenderedW = mapW * this.zoom;
     const totalRenderedH = mapH * this.zoom;
-
     if (totalRenderedW <= canvas.width) {
       camX = Math.round((canvas.width - totalRenderedW) / 2);
     } else {
       const minCamX = Math.round(canvas.width - totalRenderedW);
       camX = Math.max(minCamX, Math.min(0, camX));
     }
-
     if (totalRenderedH <= canvas.height) {
       camY = Math.round((canvas.height - totalRenderedH) / 2);
     } else {
       const minCamY = Math.round(canvas.height - totalRenderedH);
       camY = Math.max(minCamY, Math.min(0, camY));
     }
-
     this.camX = camX;
     this.camY = camY;
-
     ctx.save();
     ctx.translate(camX, camY);
     ctx.scale(this.zoom, this.zoom);
-
     // 1. Imagem de Fundo Limpa do Mapa (`mcreworkMapImage`)
     if (this.mapBgImage) {
       ctx.drawImage(this.mapBgImage, 0, 0);
@@ -871,12 +773,10 @@ class EtheriaPlayClient {
       ctx.fillStyle = '#38bdf8'; ctx.font = 'bold 16px sans-serif'; ctx.textAlign = 'center';
       ctx.fillText('🗺️ Carregando imagem do mapa...', this.playerX, this.playerY - 40);
     }
-
     // 1.1 Barreira Rúnica da Arena no Chão do Mapa Real
     if (this.actionCombatArena?.isActive) {
       this.actionCombatArena.drawArenaRingOnFloor(ctx, now, this.zoom);
     }
-
     // 2. Se o Modo Raio-X GM estiver ligado, desenha Malhas de Colisão, Sobreposição e Spawn
     if (this.gmXray && this.currentMap) {
       const drawPolyMesh = (list, fill, stroke) => {
@@ -896,7 +796,6 @@ class EtheriaPlayClient {
       };
       drawPolyMesh(this.currentMap.collisionMeshJson, 'rgba(239, 68, 68, 0.30)', '#ef4444');
       drawPolyMesh(this.currentMap.overlapMeshJson, 'rgba(56, 189, 248, 0.28)', '#38bdf8');
-
       ctx.beginPath();
       ctx.arc(this.currentMap.spawnX, this.currentMap.spawnY, 32, 0, Math.PI * 2);
       ctx.fillStyle = 'rgba(245, 158, 11, 0.35)'; ctx.fill();
@@ -904,7 +803,6 @@ class EtheriaPlayClient {
       ctx.fillStyle = '#fef08a'; ctx.font = 'bold 13px sans-serif';
       ctx.fillText(`⭐ SPAWN (${this.currentMap.spawnX}, ${this.currentMap.spawnY})`, this.currentMap.spawnX - 50, this.currentMap.spawnY - 38);
     }
-
     // 3. Desenha Portais Pareados (`map_portals`) com anel energético pulsante (ocultos na arena de combate)
     if (!this.actionCombatArena?.isActive) {
       const pulse = 0.85 + 0.15 * Math.sin(now / 220);
@@ -919,19 +817,15 @@ class EtheriaPlayClient {
         ctx.fillText(`🌀 ${p.label}${p.targetMapNamePtBr ? ` ➔ ${p.targetMapNamePtBr}` : ''}`, p.sourceX, p.sourceY - r * 0.65 - 8);
       }
     }
-
     // 4. Indicador de destino do clique no chão
     const destX = this.targetDestX !== null ? this.targetDestX : ((this.currentPath && this.currentPath.length > 0) ? this.currentPath[this.currentPath.length - 1].x : this.moveTargetX);
     const destY = this.targetDestY !== null ? this.targetDestY : ((this.currentPath && this.currentPath.length > 0) ? this.currentPath[this.currentPath.length - 1].y : this.moveTargetY);
-
     if (destX !== null && destY !== null) {
       ctx.beginPath(); ctx.arc(destX, destY, 10, 0, Math.PI * 2);
       ctx.strokeStyle = '#38bdf8'; ctx.lineWidth = 2.5 / this.zoom; ctx.stroke();
     }
-
     // 5. Ordenação de Profundidade 2.5D (Y-Sorting)
     const renderQueue = [];
-
     if (this.actionCombatArena?.isActive) {
       // Arena Instanciada: NPCs e outros jogadores são omitidos da tela para isolamento visual total
       this.actionCombatArena.populateRenderQueue(renderQueue, now);
@@ -943,7 +837,6 @@ class EtheriaPlayClient {
           data: npc,
         });
       }
-
       if (this.activeChar) {
         renderQueue.push({
           type: 'PLAYER',
@@ -952,9 +845,7 @@ class EtheriaPlayClient {
         });
       }
     }
-
     renderQueue.sort((a, b) => a.y - b.y);
-
     for (const item of renderQueue) {
       if (item.type === 'NPC') {
         const npc = item.data;
@@ -991,25 +882,27 @@ class EtheriaPlayClient {
           ent.sprite.draw(ctx, ent.x, ent.y, ent.action, ent.dir, elapsed, this.mesh, ent.groundOffsetY || 0, isPet ? 0.62 : 0.70, ent.action === 6, ent.shadowOffsetX || 0, ent.shadowOffsetY || 0);
         }
         if (ent.isAlive) {
-          const bw = isPet ? 46 : 50, bh = 5, bx = ent.x - bw / 2, by = ent.y - (isPet ? 60 : 68);
+          const isTarget = !isPet && (this.actionCombatArena?.selectedTargetMob === ent);
+          const bw = isPet ? 46 : (isTarget ? 58 : 50), bh = isTarget ? 6 : 5, bx = ent.x - bw / 2, by = ent.y - (isPet ? 60 : 68);
           ctx.fillStyle = 'rgba(2, 6, 23, 0.85)'; ctx.fillRect(bx - 1, by - 1, bw + 2, bh + 2);
-          ctx.fillStyle = isPet ? '#38bdf8' : '#ef4444'; ctx.fillRect(bx, by, bw * Math.max(0, Math.min(1, ent.hp / ent.maxHp)), bh);
-          ctx.font = 'bold 11px sans-serif'; ctx.textAlign = 'center'; ctx.fillStyle = isPet ? '#bae6fd' : '#f8fafc';
-          ctx.fillText(isPet ? `🐾 ${ent.name}` : ent.name, ent.x, by - 4);
+          if (isTarget) {
+            ctx.strokeStyle = '#f59e0b'; ctx.lineWidth = 1.8; ctx.strokeRect(bx - 1, by - 1, bw + 2, bh + 2);
+          }
+          ctx.fillStyle = isPet ? '#38bdf8' : (isTarget ? '#fbbf24' : '#ef4444'); ctx.fillRect(bx, by, bw * Math.max(0, Math.min(1, ent.hp / ent.maxHp)), bh);
+          ctx.font = isTarget ? 'bold 12px sans-serif' : 'bold 11px sans-serif'; ctx.textAlign = 'center'; ctx.fillStyle = isPet ? '#bae6fd' : (isTarget ? '#fde047' : '#f8fafc');
+          ctx.fillText(isTarget ? `🎯 ${ent.name}` : (isPet ? `🐾 ${ent.name}` : ent.name), ent.x, by - 4);
+          if (isTarget) this.actionCombatArena?.vfxRenderer?.drawMonsterTargetOverlays(ctx, ent, by, now);
           this.actionCombatArena?.vfxRenderer?.drawUnitOverlays(ctx, ent, by - 14, now);
         }
         ctx.restore();
       }
     }
-
     // 6. VFX Animados & Textos Flutuantes da Arena de Combate
     if (this.actionCombatArena?.isActive) {
       this.actionCombatArena.renderActiveVfx(ctx, now);
       this.actionCombatArena.renderFloatingTexts(ctx);
     }
-
     ctx.restore();
-
     // 7. Atualização fluida do Minimapa na HUD a cada ~90ms
     if (window.PlayHudController && (!this._lastMinimapUpdate || now - this._lastMinimapUpdate > 90)) {
       this._lastMinimapUpdate = now;
@@ -1023,5 +916,4 @@ class EtheriaPlayClient {
     }
   }
 }
-
 window.PlayApp = new EtheriaPlayClient();

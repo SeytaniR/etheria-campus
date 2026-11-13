@@ -45,6 +45,13 @@ class ActionMotionEngine {
 
     // FASE 5: Flags de Combos
     this.canCancelBackswingWithMove = true;
+
+    // APROXIMAÇÃO / PERSEGUIÇÃO AUTOMÁTICA (Estilo League of Legends)
+    this.isApproaching = false;
+    this.approachTarget = null;
+    this.approachDesiredRange = 0;
+    this.approachActionType = null; // 'ATTACK' | 'SKILL'
+    this.approachActionPayload = null;
   }
 
   /**
@@ -61,6 +68,32 @@ class ActionMotionEngine {
     this.bufferedAction = null;
     this.currentVx = 0;
     this.currentVy = 0;
+    this.cancelApproach();
+  }
+
+  /**
+   * Inicia o modo de aproximação até que o personagem entre no alcance de ataque ou habilidade.
+   */
+  startApproach(player, target, desiredRange, actionType = 'ATTACK', payload = null) {
+    if (!target || !target.isAlive) return false;
+    this.isApproaching = true;
+    this.approachTarget = target;
+    this.approachDesiredRange = Math.max(40, Number(desiredRange) || 60);
+    this.approachActionType = actionType;
+    this.approachActionPayload = payload;
+    this.cancelWindup('APPROACH_START');
+    return true;
+  }
+
+  /**
+   * Cancela o modo de aproximação automática.
+   */
+  cancelApproach() {
+    this.isApproaching = false;
+    this.approachTarget = null;
+    this.approachDesiredRange = 0;
+    this.approachActionType = null;
+    this.approachActionPayload = null;
   }
 
   /* =========================================================================
@@ -122,21 +155,17 @@ class ActionMotionEngine {
       this.cancelBackswing('NEW_ATTACK');
     }
 
-    // Valida alcance até o alvo
+    // Valida alcance até o alvo: se estiver fora de alcance, inicia perseguição automática (estilo LoL)
     if (target) {
       const dist = Math.hypot(target.x - player.x, target.y - player.y);
       const maxRange = (pEff && pEff.attackRange) || player.attackRange || (player.combatStyle === 'RANGED' ? 220 : 60);
-      if (dist > maxRange + 25) {
-        this.arena.floatingTexts.push({
-          x: player.x,
-          y: player.y - 45,
-          text: 'FORA DE ALCANCE',
-          color: '#fde047',
-          life: 0.6,
-        });
-        return false;
+      if (dist > maxRange + 15) {
+        this.startApproach(player, target, maxRange, 'ATTACK', options);
+        return true;
       }
     }
+    // Estando em alcance, cancela qualquer modo de perseguição
+    this.cancelApproach();
 
     // Inicia a Fase 1: WINDUP
     this.attackState = 'WINDUP';
@@ -344,6 +373,37 @@ class ActionMotionEngine {
   updatePlayerKinematics(player, rawVx, rawVy, curSpeed, dt, now) {
     if (!player || !player.isAlive) return;
 
+    // 0. Modo de Perseguição / Aproximação ao Alvo (Estilo League of Legends)
+    if (this.isApproaching) {
+      const target = this.approachTarget;
+      if (!target || !target.isAlive) {
+        this.cancelApproach();
+      } else {
+        const dist = Math.hypot(target.x - player.x, target.y - player.y);
+        if (dist <= this.approachDesiredRange + 5) {
+          // Entrou no alcance de ataque ou habilidade!
+          const actType = this.approachActionType;
+          const actPayload = this.approachActionPayload;
+          this.cancelApproach();
+          if (actType === 'ATTACK') {
+            this.requestAttack(player, target, now, actPayload);
+          } else if (actType === 'SKILL' && actPayload?.skillNum) {
+            this.arena.triggerSkill(actPayload.skillNum);
+          }
+          rawVx = 0;
+          rawVy = 0;
+        } else {
+          // Conduz o personagem suavemente em direção ao alvo
+          const adx = target.x - player.x;
+          const ady = target.y - player.y;
+          const alen = Math.hypot(adx, ady) || 1;
+          rawVx = adx / alen;
+          rawVy = ady / alen;
+          player.dir = this.arena.compute8Direction(adx, ady);
+        }
+      }
+    }
+
     // 1. Atualização dos cronômetros do ciclo de ataque
     if (this.attackRecoveryTimer > 0) {
       this.attackRecoveryTimer = Math.max(0, this.attackRecoveryTimer - dt);
@@ -351,19 +411,15 @@ class ActionMotionEngine {
 
     if (this.attackState === 'WINDUP') {
       this.windupTimer -= dt;
-
-      // Se o jogador emitir input direcional ativo durante o windup:
-      // Pode cancelar o windup (abortando o ataque) para priorizar a fuga (regra de ouro de MOBA)
-      const hasMoveInput = rawVx !== 0 || rawVy !== 0;
-      if (hasMoveInput && this.windupTimer > 0.04) {
-        this.cancelWindup('MOVE_INTERRUPT');
-      } else if (this.windupTimer <= 0) {
+      // PRIORIZA O ATAQUE: Durante o windup, o ataque é executado com foco total.
+      // O joystick não cancela o disparo prematuramente; o boneco planta os pés e solta o golpe.
+      if (this.windupTimer <= 0) {
         this.executeCastPoint(now);
       }
     } else if (this.attackState === 'BACKSWING') {
       this.backswingTimer -= dt;
 
-      // KITING: Se o jogador se mover durante o backswing, cancela o backswing imediatamente!
+      // KITING / ORB-WALKING: O movimento cancela imediatamente o backswing pós-disparo!
       const hasMoveInput = rawVx !== 0 || rawVy !== 0;
       if (hasMoveInput && this.canCancelBackswingWithMove) {
         this.cancelBackswing('ORB_WALK_MOVE');

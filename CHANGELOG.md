@@ -5,6 +5,28 @@ Qualquer IA trabalhando neste repositório **DEVE** incrementar a versão e regi
 
 ---
 
+## [v0.20.1] - 2026-11-13
+### Refinamento do Combate: Priorização de Ataque sobre Joystick, Perseguição Automática (Estilo LoL) & Retículo Visual de Alvo
+* **Modificado & Otimizado (Prioridade de Ataque sobre Joystick):**
+  * Corrigido o cancelamento prematuro de ataque durante a locomoção com o joystick virtual. O toque em ataque ou habilidade agora assume **prioridade total** sobre o movimento contínuo: o personagem planta os pés durante o Windup (~0.18s), executa o disparo no Cast Point e retoma automaticamente a locomoção na direção do joystick no Backswing (Kiting tátil e responsivo).
+* **Adicionado (Modo de Perseguição Automática ao Alvo fora de Alcance - Estilo LoL):**
+  * Ao solicitar um auto-ataque ou habilidade em um alvo que esteja além do alcance máximo, o jogo não exibe mais "FORA DE ALCANCE". Em vez disso, o motor ativa o modo `startApproach`, direcionando o personagem suavemente até o alvo e disparando o ataque no exato milissegundo em que entrar na distância válida.
+* **Adicionado & Renderizado (Identificação Visual Completa do Alvo Travado):**
+  * **Retículo Dinâmico no Solo:** Desenhado sob os pés do monstro focado com anel pulsante carmesim (`rgba(239, 68, 68, 0.90)`), sombra âmbar e 4 pips de mira em cruz giratória.
+  * **Indicador Aéreo de Foco:** Chevron tridimensional `▼` com animação vertical flutuante sobre a cabeça do alvo.
+  * **Barra de Vida Destacada:** Contorno dourado brilhante (`#f59e0b`), barra amarela de foco e prefixo `🎯 [Nome]` no topo da criatura.
+  * **Anel de Alcance do Jogador:** Anel circular tracejado sutil (`rgba(56, 189, 248, 0.20)`) indicando com precisão o raio de ação ofensiva do personagem.
+  * **Toque Direto em Monstros:** Área de toque ampliada na tela para seleção tátil de alvos na arena mobile.
+* **Auditoria de Linhas (Regra #7):**
+  * `ActionMotionEngine.js`: 534 linhas.
+  * `ActionCombatArena.js`: 965 linhas.
+  * `ActionSkillEngine.js`: 683 linhas.
+  * `ActionVfxRenderer.js`: 371 linhas.
+  * `play.js`: 920 linhas.
+  * `ArenaPhysicsSolver.js`: 471 linhas.
+
+---
+
 ## [v0.20.0] - 2026-11-13
 ### Motor de Combate Fluido (Action MOBA Engine): 5 Fases de Fluidez, Ciclo de Ataque Tríplice (Windup, Cast Point, Backswing Cancel / Kiting), Desacoplamento de Mira, Input Buffering, Cinemática com Deslize Vetorial e Auto-Attack Resets
 * **Adicionado & Integrado (`ActionMotionEngine.js` - 478 linhas):**
