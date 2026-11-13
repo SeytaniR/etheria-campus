@@ -135,7 +135,7 @@ class PlayHudController {
 
       <!-- 3. Lateral Esquerda: Barra de 6 Atalhos Rápidos com Caixas Elegantes Sem Falsos Ícones -->
       <div id="hudShortcutsSection" class="hud-shortcuts-section">
-        <div class="hud-shortcuts-dock">
+        <div id="hudShortcutsDock" class="hud-shortcuts-dock">
           ${this.state.shortcuts
             .map(
               (s, idx) => `
@@ -147,17 +147,24 @@ class PlayHudController {
             )
             .join('')}
         </div>
+        <button type="button" id="hudCollapseShortcutsBtn" class="hud-dock-collapse-btn hud-collapse-shortcuts-btn" title="Recolher Atalhos" aria-label="Recolher Atalhos">
+          <span id="hudShortcutsCollapseIcon" class="hud-collapse-icon">◀</span>
+        </button>
       </div>
 
       <!-- 4. Lateral Direita: HUD dos Pets Equipados (0 a 3) -->
       <div id="hudPetsSection" class="hud-pets-section" style="display: none;"></div>
 
-      <!-- 5. Canto Inferior Direito: Joystick Virtual com Botão de Interação Central -->
+      <!-- 5. Canto Inferior Direito: Joystick Virtual de Alto Contraste com Botão de Interação Central -->
       <div id="hudJoystickSection" class="hud-joystick-section">
+        <div class="hud-joystick-glow-halo"></div>
+        <div class="hud-joystick-hint-badge">
+          <span class="hint-bullet">●</span> MOVER <span class="hint-sep">|</span> AÇÃO <span class="hint-icon">💬</span>
+        </div>
         <div id="hudJoystickDial" class="hud-joystick-dial">
           <img class="hud-joystick-ring" src="/play/assets/hud/joystick_outer_ring.png" alt="Dial" />
           <div id="hudJoystickStick" class="hud-joystick-stick">
-            <button type="button" id="hudJoystickInteractBtn" class="hud-joystick-interact-btn" title="Interagir / Conversar / Coletar">
+            <button type="button" id="hudJoystickInteractBtn" class="hud-joystick-interact-btn" title="Mover ou Tocar para Interagir / Conversar / Coletar">
               <img src="/play/assets/hud/joystick_center_interact.png" alt="Ação" />
             </button>
           </div>
@@ -166,7 +173,10 @@ class PlayHudController {
 
       <!-- 6. Barra Inferior: 6 Botões de Menu Uniformes Integrados em Dock Sem Espaçamento Transparente -->
       <nav id="hudBottomMenuSection" class="hud-bottom-menu-section">
-        <div class="hud-bottom-dock">
+        <button type="button" id="hudCollapseBottomMenuBtn" class="hud-dock-collapse-btn hud-collapse-bottom-btn" title="Recolher Menu" aria-label="Recolher Menu">
+          <span id="hudBottomCollapseIcon" class="hud-collapse-icon">▼</span>
+        </button>
+        <div id="hudBottomDock" class="hud-bottom-dock">
           <button type="button" class="hud-menu-btn" data-action="shop" title="Loja">
             <img src="/play/assets/hud/menu_shop.png" alt="Loja" />
           </button>
@@ -263,7 +273,36 @@ class PlayHudController {
     if (interactBtn) {
       interactBtn.addEventListener('click', (ev) => {
         ev.stopPropagation();
+        if (this.joystickDragged) return; // Evita disparar ação se foi apenas movimento
         this.triggerInteraction();
+      });
+    }
+
+    // 7. Botão Discreto de Recolher/Expandir Atalhos Esquerdos
+    const collapseShortcutsBtn = document.getElementById('hudCollapseShortcutsBtn');
+    const shortcutsDock = document.getElementById('hudShortcutsDock');
+    const shortcutsIcon = document.getElementById('hudShortcutsCollapseIcon');
+    if (collapseShortcutsBtn && shortcutsDock) {
+      collapseShortcutsBtn.addEventListener('click', (ev) => {
+        ev.stopPropagation();
+        const isCollapsed = shortcutsDock.classList.toggle('is-collapsed');
+        collapseShortcutsBtn.classList.toggle('is-collapsed', isCollapsed);
+        if (shortcutsIcon) shortcutsIcon.textContent = isCollapsed ? '▶' : '◀';
+        collapseShortcutsBtn.title = isCollapsed ? 'Expandir Atalhos' : 'Recolher Atalhos';
+      });
+    }
+
+    // 8. Botão Discreto de Recolher/Expandir Menu Inferior
+    const collapseBottomBtn = document.getElementById('hudCollapseBottomMenuBtn');
+    const bottomDock = document.getElementById('hudBottomDock');
+    const bottomIcon = document.getElementById('hudBottomCollapseIcon');
+    if (collapseBottomBtn && bottomDock) {
+      collapseBottomBtn.addEventListener('click', (ev) => {
+        ev.stopPropagation();
+        const isCollapsed = bottomDock.classList.toggle('is-collapsed');
+        collapseBottomBtn.classList.toggle('is-collapsed', isCollapsed);
+        if (bottomIcon) bottomIcon.textContent = isCollapsed ? '▲' : '▼';
+        collapseBottomBtn.title = isCollapsed ? 'Expandir Menu' : 'Recolher Menu';
       });
     }
   }
@@ -276,15 +315,13 @@ class PlayHudController {
     const stick = document.getElementById('hudJoystickStick');
     if (!dial || !stick) return;
 
-    const maxRadius = 45; // limite máximo de arraste a partir do centro
+    const maxRadius = 46; // limite de arraste proporcional ao dial ampliado
+    this.joystickDragged = false;
 
     const onPointerDown = (ev) => {
-      // Se clicou diretamente no botão de interação, deixa o click disparar ação
-      if (ev.target.closest('#hudJoystickInteractBtn') && !this.joystickActive) {
-        // pode ser arraste ou clique
-      }
       this.joystickActive = true;
       this.joystickPointerId = ev.pointerId;
+      this.joystickDragged = false;
       dial.setPointerCapture(ev.pointerId);
 
       const rect = dial.getBoundingClientRect();
@@ -300,6 +337,10 @@ class PlayHudController {
       const dy = clientY - this.joystickCenter.y;
       const dist = Math.hypot(dx, dy);
 
+      if (dist > 10) {
+        this.joystickDragged = true;
+      }
+
       if (dist === 0) {
         stick.style.transform = `translate(0px, 0px)`;
         this.setMoveVector(0, 0);
@@ -313,7 +354,7 @@ class PlayHudController {
 
       stick.style.transform = `translate(${thumbX}px, ${thumbY}px)`;
 
-      // Normaliza para [-1, 1] com zona morta de 10%
+      // Normaliza para [-1, 1] com zona morta de 8px
       const deadZone = 8;
       if (dist < deadZone) {
         this.setMoveVector(0, 0);
