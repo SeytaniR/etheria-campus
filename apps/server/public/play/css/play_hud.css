@@ -118,18 +118,18 @@
   flex-direction: column;
   justify-content: space-between;
   gap: 3px;
-  margin-left: -48px;
-  min-width: 176px;
-  max-width: 184px;
-  height: 84px;
-  background: linear-gradient(135deg, rgba(22, 30, 48, 0.97) 0%, rgba(12, 16, 28, 0.96) 55%, rgba(6, 9, 17, 0.98) 100%);
-  border-top: 1.5px solid rgba(245, 158, 11, 0.85);
-  border-right: 2px solid rgba(217, 119, 6, 0.9);
-  border-bottom: 1.5px solid rgba(180, 83, 9, 0.8);
+  margin-left: -50px;
+  min-width: 202px;
+  max-width: 208px;
+  height: 82px;
+  background: linear-gradient(135deg, #151e33 0%, #0d1424 50%, #060913 100%);
+  border-top: 2px solid #eab308;
+  border-right: 2px solid #d97706;
+  border-bottom: 2px solid #b45309;
   border-left: none;
-  border-radius: 0 16px 10px 0;
-  padding: 5px 10px 5px 50px;
-  box-shadow: inset 0 1px 0 rgba(254, 240, 138, 0.35), inset -1px 0 0 rgba(254, 240, 138, 0.15), inset 0 -1px 0 rgba(0, 0, 0, 0.7);
+  border-radius: 0 14px 6px 0;
+  padding: 5px 10px 5px 54px;
+  box-shadow: inset 0 1px 0 #fde047, inset 0 0 12px rgba(234, 179, 8, 0.15), inset 0 -1px 0 rgba(0, 0, 0, 0.8), 0 8px 20px rgba(0, 0, 0, 0.85);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
   z-index: 2;
@@ -140,16 +140,16 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 6px;
+  gap: 4px;
   padding-bottom: 1px;
 }
 
 .hud-player-name {
   font-size: 0.78rem;
-  font-weight: 800;
+  font-weight: 900;
   color: #ffffff;
-  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9), 0 0 6px rgba(245, 158, 11, 0.3);
-  max-width: 106px;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.95), 0 0 6px rgba(245, 158, 11, 0.4);
+  max-width: 95px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -157,13 +157,13 @@
 }
 
 .hud-player-class-tag {
-  font-size: 0.60rem;
+  font-size: 0.56rem;
   font-weight: 800;
-  color: #fef08a;
-  background: linear-gradient(180deg, rgba(180, 83, 9, 0.45), rgba(120, 53, 15, 0.65));
-  border: 1px solid rgba(245, 158, 11, 0.55);
-  border-radius: 4px;
-  padding: 0.5px 5px;
+  color: #fde047;
+  background: linear-gradient(180deg, rgba(180, 83, 9, 0.55), rgba(120, 53, 15, 0.75));
+  border: 1px solid rgba(245, 158, 11, 0.6);
+  border-radius: 3px;
+  padding: 1px 4px;
   text-transform: uppercase;
   letter-spacing: 0.4px;
   white-space: nowrap;
@@ -193,16 +193,17 @@
   position: relative;
   flex: 1;
   height: 11.5px;
-  background: rgba(5, 8, 15, 0.95);
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(4, 7, 14, 0.96);
+  border: 1px solid rgba(234, 179, 8, 0.35);
   border-radius: 4px;
   overflow: hidden;
-  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.9);
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.95);
 }
 
 .hud-track-xp {
   height: 5px;
   border-radius: 3px;
+  border-color: rgba(234, 179, 8, 0.25);
 }
 
 .hud-bar-fill {
@@ -218,7 +219,7 @@
   left: 0;
   right: 0;
   height: 45%;
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.5) 0%, rgba(255, 255, 255, 0) 100%);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.55) 0%, rgba(255, 255, 255, 0) 100%);
   border-radius: 3px 3px 0 0;
   pointer-events: none;
 }
@@ -229,8 +230,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 0.55rem;
-  font-weight: 800;
+  font-size: 0.56rem;
+  font-weight: 900;
   font-family: monospace;
   color: #ffffff;
   text-shadow: 0 1px 2px #000, 0 0 3px #000;
@@ -239,17 +240,17 @@
 }
 
 .hud-fill-hp {
-  background: linear-gradient(180deg, #f87171 0%, #dc2626 55%, #991b1b 100%);
-  box-shadow: 0 0 5px rgba(239, 68, 68, 0.4);
+  background: linear-gradient(180deg, #f87171 0%, #ef4444 30%, #b91c1c 70%, #7f1d1d 100%);
+  box-shadow: 0 0 6px rgba(239, 68, 68, 0.5);
 }
 
 .hud-fill-mp {
-  background: linear-gradient(180deg, #38bdf8 0%, #0284c7 55%, #0369a1 100%);
-  box-shadow: 0 0 5px rgba(56, 189, 248, 0.4);
+  background: linear-gradient(180deg, #67e8f9 0%, #38bdf8 30%, #0284c7 70%, #075985 100%);
+  box-shadow: 0 0 6px rgba(56, 189, 248, 0.5);
 }
 
 .hud-fill-xp {
-  background: linear-gradient(180deg, #fde047 0%, #eab308 55%, #a16207 100%);
+  background: linear-gradient(180deg, #fef08a 0%, #fde047 30%, #d97706 70%, #92400e 100%);
 }
 
 /* Bandeja de Economia Integrada (Ouro e Cristais) na Base da Placa */
@@ -258,20 +259,20 @@
   align-items: center;
   justify-content: space-between;
   gap: 4px;
-  margin-top: 2px;
-  padding-top: 2.5px;
-  border-top: 1px solid rgba(245, 158, 11, 0.22);
+  margin-top: 1px;
+  padding-top: 2px;
+  border-top: 1px solid rgba(245, 158, 11, 0.3);
 }
 
 .hud-currency-badge {
   display: flex;
   align-items: center;
   gap: 3.5px;
-  background: rgba(4, 7, 14, 0.65);
+  background: rgba(3, 6, 12, 0.7);
   border: 1px solid rgba(255, 255, 255, 0.08);
-  padding: 1px 5px 1px 3px;
+  padding: 1px 6px 1px 3px;
   border-radius: 4px;
-  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.6);
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.7);
 }
 
 .hud-currency-badge img {
