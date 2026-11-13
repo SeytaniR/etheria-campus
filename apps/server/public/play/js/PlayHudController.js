@@ -88,7 +88,7 @@ class PlayHudController {
       <!-- 1. Topo-Esquerdo: Avatar, Nível, HP/MP/XP e Moedas -->
       <div id="hudPlayerSection" class="hud-player-section">
         <div class="hud-avatar-wrapper">
-          <img id="hudPlayerAvatarImg" class="hud-avatar-img" src="/play/assets/hud/player_avatar_frame.png" alt="Avatar" />
+          <img id="hudPlayerAvatarImg" class="hud-avatar-img" src="/play/assets/hud/menu_character.png" alt="Avatar" />
           <img class="hud-avatar-frame" src="/play/assets/hud/player_avatar_frame.png" alt="Moldura" />
           <div id="hudPlayerLevelBadge" class="hud-level-badge">Nv. 1</div>
         </div>

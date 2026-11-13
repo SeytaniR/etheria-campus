@@ -39,8 +39,8 @@
 
 .hud-avatar-wrapper {
   position: relative;
-  width: 72px;
-  height: 72px;
+  width: 78px;
+  height: 78px;
   flex-shrink: 0;
   display: flex;
   align-items: center;
@@ -49,8 +49,8 @@
 }
 
 .hud-avatar-img {
-  width: 58px;
-  height: 58px;
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
   object-fit: cover;
   background: #111827;
@@ -205,8 +205,8 @@
 
 .hud-minimap-wrapper {
   position: relative;
-  width: 98px;
-  height: 98px;
+  width: 106px;
+  height: 106px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -214,8 +214,8 @@
 }
 
 #hudMinimapCanvas {
-  width: 82px;
-  height: 82px;
+  width: 64px;
+  height: 64px;
   border-radius: 50%;
   background: #0f172a;
   display: block;
@@ -232,8 +232,8 @@
 
 .hud-settings-btn {
   position: absolute;
-  top: -4px;
-  right: -4px;
+  top: 0px;
+  right: 0px;
   width: 32px;
   height: 32px;
   padding: 0;
@@ -242,6 +242,7 @@
   cursor: pointer;
   filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.7));
   transition: transform 0.15s ease;
+  z-index: 5;
 }
 
 .hud-settings-btn img {
