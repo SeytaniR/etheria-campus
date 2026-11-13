@@ -5,6 +5,35 @@ Qualquer IA trabalhando neste repositório **DEVE** incrementar a versão e regi
 
 ---
 
+## [v0.24.0] - 2026-11-13
+### Integração dos 12 Avatares Oficiais de Personagens com Recorte de Precisão, Maximização de Enquadramento Facial e Suporte no HUD e Lobby
+* **Adicionado & Integrado (`scripts/crop_character_portraits.py` & `apps/server/public/play/assets/hud/avatars/`):**
+  * **Processamento dos 12 Heróis da Imagem Oficial:** Recorte de alta resolução dos 12 personagens seguindo fielmente a ordem oficial:
+    1. `class_2` / `ladina.png`: Ladina (tranças espirais roxas, sorriso confiante).
+    2. `class_1` / `espadachim.png`: Espadachim (cabelos prateados espetados, gola de armadura azul/rosa).
+    3. `class_9` / `mago.png`: Mago (cabelos escuros, tiara dourada, manto verde cerimonial).
+    4. `class_4` / `curandeira.png`: Curandeira (cabelos brancos, laço vermelho monumental com pena azul).
+    5. `class_5` / `cacadora.png`: Caçadora (cabelos magenta com flor botânica tropical e olhos rubi).
+    6. `class_10` / `paladino.png`: Paladino (cabelos azuis celestes, ombreira alada dourada de paladino).
+    7. `class_7` / `barda.png`: Barda (chanel loiro com tiara floral, olhos violeta).
+    8. `class_12` / `necromante.png`: Necromante (cabelos brancos, bandana rubi estampada e cachecol esmeralda).
+    9. `class_11` / `atirador.png`: Atirador (cabelos lilás, máscara shinobi cobrindo o rosto e armadura azul marinho).
+    10. `class_6` / `assassina.png`: Assassina (cabelos fúcsia com laço rosa, máscara amarela e ombreira espinhosa dourada).
+    11. `class_3` / `guerreira.png`: Guerreira (coque tribal roxo com folhas, colar de ossos ancestrais e túnica verde).
+    12. `class_8` / `lanceiro.png`: Lanceiro (cabelos carmesim espetados, faixa de combate e ombreira de crânio).
+  * **Isolamento via BFS Flood-Fill & Anti-Halo Defringing:** Remoção de fundo branco exterior preservando 100% dos cabelos brancos (Espadachim, Curandeira, Necromante) e detalhes internos sem erosão.
+  * **Maximização Concêntrica na Moldura:** Cada avatar foi enquadrado com foco na cabeça, olhos e expressão facial preenchendo 94% da área circular útil da moldura, assentado sobre um gradiente radial escuro e luxuoso (`#1f2c42` $\rightarrow$ `#070b14`).
+* **Modificado & Integrado (`PlayHudController.js` & `PlayLobbyController.js` & `play_hud.css`):**
+  * **HUD do Jogador:** `updatePlayer` agora carrega automaticamente a imagem oficial correspondente à classe (`/play/assets/hud/avatars/${classCode}.png`), substituindo os antigos ícones de spritesheet.
+  * **Moldura de 96px com Avatar de 54px:** Diâmetro do avatar expandido para `54x54px` (`box-shadow: inset 0 2px 6px rgba(0,0,0,0.8)`), preenchendo o limite máximo da abertura sem nenhum vazamento nas asas da moldura.
+  * **Lobby e Seleção de Classes:** Os cards dos personagens existentes e o grid de criação de novas classes agora exibem as ilustrações oficiais circulares com bordas douradas.
+* **Auditoria de Linhas (Regra #7):**
+  * `PlayHudController.js`: 852 linhas (estritamente < 1.000 linhas).
+  * `PlayLobbyController.js`: 157 linhas (estritamente < 1.000 linhas).
+  * `play.js`: 919 linhas.
+
+---
+
 ## [v0.23.0] - 2026-11-13
 ### Moldura e Perfil do Jogador Ampliados, Botões Discretos de Recolhimento dos Docks e Joystick de Alto Contraste com Affordance de Movimento e Ação
 * **Modificado & Ampliado (Perfil e Moldura do Jogador no Topo Esquerdo):**

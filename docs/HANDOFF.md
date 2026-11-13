@@ -8,9 +8,9 @@
 ---
 
 ## 📌 Status Atual do Projeto
-* **Versão Atual:** `v0.23.0`
+* **Versão Atual:** `v0.24.0`
 * **Última Atualização:** `2026-11-13`
-* **Fase Atual:** **Moldura e Perfil do Jogador Ampliados, Botões Discretos de Recolhimento dos Docks e Joystick de Alto Contraste com Affordance de Movimento e Ação (`v0.23.0`)** — Moldura dourada alada do avatar ampliada para 96x96px com foto de perfil em 50x50px e barras HP/MP/XP estendidas para 130px; mini abas discretas douradas para recolher e expandir o dock de atalhos esquerdos (`#hudCollapseShortcutsBtn` com `◀`/`▶`) e o dock do menu inferior (`#hudCollapseBottomMenuBtn` com `▼`/`▲`); joystick virtual totalmente modernizado com dial ampliado (154px), thumb button de interação (74px), halo radial de alto contraste sobre qualquer terreno de mapa, novos assets gráficos em supersampling (dial com 8 chevrons luminescentes e botão 3D com pegada recartilhada e balão `💬`), badge informativa `● MOVER | AÇÃO 💬` e trava anti-clique acidental durante corridas; deploy efetuado e verificado com sucesso no VPS Azure (`40.65.63.193`, HTTP 200).
+* **Fase Atual:** **Integração dos 12 Avatares Oficiais de Personagens com Recorte de Precisão, Maximização de Enquadramento Facial e Suporte no HUD e Lobby (`v0.24.0`)** — Processamento da imagem oficial com os 12 heróis (Ladina, Espadachim, Mago, Curandeira, Caçadora, Paladino, Barda, Necromante, Atirador, Assassina, Guerreira, Lanceiro); remoção de fundo branco exterior via BFS flood-fill com defringing preservando cabelos brancos e detalhes finos; enquadramento concêntrico maximizando 94% da área circular útil do rosto sobre gradiente radial escuro e luxuoso (`#1f2c42` $\rightarrow$ `#070b14`); avatar no HUD ampliado para 54x54px selado sob a moldura dourada alada de 96px sem arestas vazadas; carregamento reativo automático por classe no `PlayHudController` e integração no Lobby de seleção/criação (`PlayLobbyController`); deploy efetuado e verificado com sucesso no VPS Azure (`40.65.63.193`, HTTP 200).
 * **Repositório Oficial:** `https://github.com/SeytaniR/etheria-campus`
 * **Fonte Bruta de Assets:** `https://github.com/SeytaniR/mcrework` (`https://seytanir.github.io/mcrework/`)
 
