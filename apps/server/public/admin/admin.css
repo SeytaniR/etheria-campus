@@ -503,3 +503,92 @@ table.crud-table th, table.crud-table td {
   align-items: center;
   justify-content: center;
 }
+
+/* ==========================================================================
+   EQUIPMENTS CRUD RESPONSIVE ADAPTIVE LAYOUT (MOBILE VERTICAL & DESKTOP)
+   ========================================================================== */
+.equipments-mobile-view {
+  display: none;
+}
+.equipments-desktop-view {
+  display: block;
+}
+
+@media (max-width: 860px) {
+  .equipments-desktop-view {
+    display: none !important;
+  }
+  .equipments-mobile-view {
+    display: flex !important;
+    flex-direction: column;
+    gap: 12px;
+  }
+}
+
+.equipment-mobile-card {
+  background: rgba(15, 23, 42, 0.88);
+  border: 1px solid #334155;
+  border-radius: 10px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  transition: border-color 0.15s ease, transform 0.1s ease;
+}
+
+.equipment-mobile-card:hover {
+  border-color: #38bdf8;
+}
+
+.equipment-mobile-card-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.equipment-mobile-card-thumb {
+  width: 50px;
+  height: 50px;
+  object-fit: contain;
+  background: #020617;
+  border-radius: 8px;
+  border: 1.5px solid #38bdf8;
+  flex-shrink: 0;
+  padding: 2px;
+}
+
+.equipment-mobile-card-title {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+  min-width: 0;
+}
+
+.equipment-mobile-card-stats-box {
+  background: #020617;
+  padding: 8px 10px;
+  border-radius: 6px;
+  border: 1px solid #1e293b;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.equipment-mobile-card-actions {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.equipment-mobile-card-actions button {
+  min-height: 42px;
+  font-weight: 700;
+  font-size: 0.84rem;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}

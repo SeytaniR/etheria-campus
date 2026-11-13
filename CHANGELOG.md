@@ -7,6 +7,24 @@ Qualquer IA trabalhando neste repositório **DEVE** incrementar a versão e regi
 
 ---
 
+## [v0.19.0] - 2026-11-13
+### Revisão da Tabela de Equipamentos e Armas: Atributos Exclusivos de Combate, Remoção de Preço em Ouro & Layout Adaptativo
+* **Modificado & Refinado (Atributos Exclusivos de Combate na Arena Action):**
+  * Equipamentos e armas configurados para conceder **exclusivamente bônus diretos de combate** (`combatStatBonusesJson`), sem bônus de atributos base (`baseStatBonusesJson: {}`).
+  * Modal reformulado com 16 atributos de combate divididos em 4 famílias intuitivas:
+    * ⚔️ **Poder Ofensivo & Alcance:** Ataque Físico (`PHYS_ATK`), Ataque Mágico (`MAG_ATK`), Poder de Cura (`HEAL_POWER`), Alcance do Ataque (`ATTACK_RANGE`).
+    * 🛡️ **Sobrevivência & Sustentação:** Vida Máxima (`MAX_HP`), Mana Máxima (`MAX_MP`), Defesa Física (`PHYS_DEF`), Defesa Mágica (`MAG_DEF`).
+    * ⚡ **Velocidade & Crítico:** Vel. Batalha (`BATTLE_MOVE_SPEED`), Vel. Ataque (`ATTACK_SPEED`), Taxa Crítica (`CRIT_RATE`), Dano Crítico (`CRIT_DMG`).
+    * 🎯 **Precisão & Esquiva:** Precisão Física (`PHYS_ACCURACY`), Esquiva Física (`PHYS_EVASION`), Precisão Mágica (`MAG_ACCURACY`), Esquiva Mágica (`MAG_EVASION`).
+* **Removido (Valor em Moedas de Ouro):**
+  * Campo de preço em ouro (`priceGold`) removido do formulário de cadastro/edição, da tabela desktop e dos cards móveis (equipamentos não serão comercializados pelo jogo).
+* **Adicionado & Aprimorado (Layout Adaptativo Mobile Vertical e Desktop):**
+  * **Visão Desktop:** Tabela ampla e limpa sem colunas obsoletas de ouro ou atributos base, com coluna dedicada destacando todos os bônus de combate ativos em tags coloridas.
+  * **Visão Mobile Vertical:** Grid adaptativo de cards touch-friendly (`.equipment-mobile-card`) otimizado para celulares em modo retrato (`@media (max-width: 860px)`), com botões com área de toque mínima de 42px, tags estilizadas de slot e bônus de combate em destaque.
+  * Barra de busca rápida em tempo real por nome/código/lore e filtros instantâneos por **Slot de Equipamento**, **Categoria** (Personagem / Pet) e **Raridade**.
+* **Arquitetura Modular (Regra #7):**
+  * Modal desacoplado no submódulo [`AdminEquipmentModalDom.js`](file:///C:/Users/Dell/.gemini/antigravity/scratch/etheria-campus/apps/server/public/admin/js/AdminEquipmentModalDom.js) (238 linhas) e lógica central em [`AdminEquipmentsTab.js`](file:///C:/Users/Dell/.gemini/antigravity/scratch/etheria-campus/apps/server/public/admin/js/AdminEquipmentsTab.js) (637 linhas), mantendo ambos estritamente abaixo do limite de 1.000 linhas.
+
 ## [v0.18.0] - 2026-11-13
 ### Revisão Profunda da Tabela de Monstros: Atributos Base de Combate & Layout Adaptativo Mobile Vertical e Desktop
 * **Adicionado & Integrado no Banco de Dados (Schema & Snapshot):**
