@@ -1,6 +1,6 @@
 {
   "version": "0.2.0",
-  "exportedAt": "2026-11-13T13:00:27.884Z",
+  "exportedAt": "2026-11-13T13:37:37.399Z",
   "i18nTranslations": [
     {
       "id": 1,
@@ -1358,14 +1358,14 @@
       "key": "monster.monster_1.name",
       "locale": "pt-BR",
       "text": "Duende Ladrão",
-      "updatedAt": "2026-11-13T13:00:27.870Z"
+      "updatedAt": "2026-11-13T13:20:14.149Z"
     },
     {
       "id": 218,
       "key": "monster.monster_1.description",
       "locale": "pt-BR",
       "text": "Bandido nômade que ronda as dunas e desfiladeiros áridos atacando caravanas.",
-      "updatedAt": "2026-11-13T13:00:27.874Z"
+      "updatedAt": "2026-11-13T13:20:14.152Z"
     },
     {
       "id": 219,
@@ -48426,22 +48426,22 @@
       "damageType": "PHYSICAL",
       "isTamableAsPet": true,
       "baseAttributesJson": {
-        "AGI": 15,
-        "DEX": 15,
+        "AGI": 8,
+        "DEX": 7,
         "INT": 5,
-        "STR": 25,
-        "VIT": 30,
-        "WIS": 10
+        "STR": 10,
+        "VIT": 15,
+        "WIS": 15
       },
       "baseCombatAttributesJson": {
-        "CRIT_DMG": 175,
-        "CRIT_RATE": 12,
+        "CRIT_DMG": 150,
+        "CRIT_RATE": 10,
         "MAG_EVASION": 5,
-        "ATTACK_SPEED": 1.4,
-        "MAG_ACCURACY": 95,
+        "ATTACK_SPEED": 0.8,
+        "MAG_ACCURACY": 100,
         "PHYS_EVASION": 10,
-        "PHYS_ACCURACY": 105,
-        "BATTLE_MOVE_SPEED": 210
+        "PHYS_ACCURACY": 100,
+        "BATTLE_MOVE_SPEED": 160
       },
       "skillIdsJson": [],
       "lootTableJson": [
@@ -52450,16 +52450,14 @@
       "rarityTier": "COMMON",
       "requiredLevel": 1,
       "isTradable": true,
-      "priceGold": 50,
+      "priceGold": 0,
       "maxStack": 99,
       "cooldownSec": 0,
       "targetType": "SELF",
       "effectType": null,
       "effectValue": 0,
       "reqClassCodesJson": [],
-      "baseStatBonusesJson": {
-        "STR": 3
-      },
+      "baseStatBonusesJson": {},
       "combatStatBonusesJson": {
         "PHYS_ATK": 15,
         "ATTACK_RANGE": 65,
@@ -52468,7 +52466,7 @@
       "specialEffectJson": {},
       "isActive": true,
       "createdAt": "2026-11-10T02:39:40.591Z",
-      "updatedAt": "2026-11-10T02:39:40.591Z"
+      "updatedAt": "2026-11-13T13:37:37.359Z"
     },
     {
       "id": 2,
@@ -52481,7 +52479,7 @@
       "rarityTier": "B",
       "requiredLevel": 10,
       "isTradable": true,
-      "priceGold": 350,
+      "priceGold": 0,
       "maxStack": 99,
       "cooldownSec": 0,
       "targetType": "SELF",
@@ -52491,10 +52489,7 @@
         "MAGE",
         "CLERIC"
       ],
-      "baseStatBonusesJson": {
-        "INT": 8,
-        "WIS": 5
-      },
+      "baseStatBonusesJson": {},
       "combatStatBonusesJson": {
         "MAG_ATK": 35,
         "ATTACK_RANGE": 220,
@@ -52503,7 +52498,7 @@
       "specialEffectJson": {},
       "isActive": true,
       "createdAt": "2026-11-10T02:39:40.795Z",
-      "updatedAt": "2026-11-10T02:39:40.795Z"
+      "updatedAt": "2026-11-13T13:37:37.364Z"
     },
     {
       "id": 3,
@@ -52516,7 +52511,7 @@
       "rarityTier": "COMMON",
       "requiredLevel": 1,
       "isTradable": true,
-      "priceGold": 60,
+      "priceGold": 0,
       "maxStack": 99,
       "cooldownSec": 0,
       "targetType": "SELF",
@@ -52526,9 +52521,7 @@
         "WARRIOR",
         "PALADIN"
       ],
-      "baseStatBonusesJson": {
-        "VIT": 4
-      },
+      "baseStatBonusesJson": {},
       "combatStatBonusesJson": {
         "MAG_DEF": 8,
         "PHYS_DEF": 12,
@@ -52537,7 +52530,7 @@
       "specialEffectJson": {},
       "isActive": true,
       "createdAt": "2026-11-10T02:39:40.944Z",
-      "updatedAt": "2026-11-10T02:39:40.944Z"
+      "updatedAt": "2026-11-13T13:37:37.368Z"
     },
     {
       "id": 4,
@@ -52550,16 +52543,14 @@
       "rarityTier": "COMMON",
       "requiredLevel": 5,
       "isTradable": true,
-      "priceGold": 120,
+      "priceGold": 0,
       "maxStack": 99,
       "cooldownSec": 0,
       "targetType": "SELF",
       "effectType": null,
       "effectValue": 0,
       "reqClassCodesJson": [],
-      "baseStatBonusesJson": {
-        "VIT": 5
-      },
+      "baseStatBonusesJson": {},
       "combatStatBonusesJson": {
         "MAG_DEF": 10,
         "PHYS_DEF": 25,
@@ -52568,7 +52559,7 @@
       "specialEffectJson": {},
       "isActive": true,
       "createdAt": "2026-11-10T02:39:41.097Z",
-      "updatedAt": "2026-11-10T02:39:41.097Z"
+      "updatedAt": "2026-11-13T13:37:37.372Z"
     },
     {
       "id": 5,
@@ -52581,17 +52572,14 @@
       "rarityTier": "B",
       "requiredLevel": 10,
       "isTradable": true,
-      "priceGold": 400,
+      "priceGold": 0,
       "maxStack": 99,
       "cooldownSec": 0,
       "targetType": "SELF",
       "effectType": null,
       "effectValue": 0,
       "reqClassCodesJson": [],
-      "baseStatBonusesJson": {
-        "INT": 6,
-        "WIS": 6
-      },
+      "baseStatBonusesJson": {},
       "combatStatBonusesJson": {
         "MAG_DEF": 30,
         "PHYS_DEF": 12,
@@ -52600,7 +52588,7 @@
       "specialEffectJson": {},
       "isActive": true,
       "createdAt": "2026-11-10T02:39:41.262Z",
-      "updatedAt": "2026-11-10T02:39:41.262Z"
+      "updatedAt": "2026-11-13T13:37:37.376Z"
     },
     {
       "id": 6,
@@ -52613,17 +52601,14 @@
       "rarityTier": "C",
       "requiredLevel": 8,
       "isTradable": true,
-      "priceGold": 180,
+      "priceGold": 0,
       "maxStack": 99,
       "cooldownSec": 0,
       "targetType": "SELF",
       "effectType": null,
       "effectValue": 0,
       "reqClassCodesJson": [],
-      "baseStatBonusesJson": {
-        "STR": 2,
-        "VIT": 4
-      },
+      "baseStatBonusesJson": {},
       "combatStatBonusesJson": {
         "MAG_DEF": 6,
         "PHYS_DEF": 15
@@ -52631,7 +52616,7 @@
       "specialEffectJson": {},
       "isActive": true,
       "createdAt": "2026-11-10T02:39:41.412Z",
-      "updatedAt": "2026-11-10T02:39:41.412Z"
+      "updatedAt": "2026-11-13T13:37:37.379Z"
     },
     {
       "id": 7,
@@ -52644,17 +52629,14 @@
       "rarityTier": "A",
       "requiredLevel": 15,
       "isTradable": true,
-      "priceGold": 850,
+      "priceGold": 0,
       "maxStack": 99,
       "cooldownSec": 0,
       "targetType": "SELF",
       "effectType": null,
       "effectValue": 0,
       "reqClassCodesJson": [],
-      "baseStatBonusesJson": {
-        "AGI": 10,
-        "DEX": 6
-      },
+      "baseStatBonusesJson": {},
       "combatStatBonusesJson": {
         "ATTACK_SPEED": 0.1,
         "PHYS_EVASION": 12,
@@ -52663,7 +52645,7 @@
       "specialEffectJson": {},
       "isActive": true,
       "createdAt": "2026-11-10T02:39:41.580Z",
-      "updatedAt": "2026-11-10T02:39:41.580Z"
+      "updatedAt": "2026-11-13T13:37:37.382Z"
     },
     {
       "id": 8,
@@ -52676,16 +52658,14 @@
       "rarityTier": "A",
       "requiredLevel": 12,
       "isTradable": true,
-      "priceGold": 700,
+      "priceGold": 0,
       "maxStack": 99,
       "cooldownSec": 0,
       "targetType": "SELF",
       "effectType": null,
       "effectValue": 0,
       "reqClassCodesJson": [],
-      "baseStatBonusesJson": {
-        "STR": 6
-      },
+      "baseStatBonusesJson": {},
       "combatStatBonusesJson": {
         "PHYS_ATK": 12,
         "CRIT_CHANCE_PCT": 5,
@@ -52694,7 +52674,7 @@
       "specialEffectJson": {},
       "isActive": true,
       "createdAt": "2026-11-10T02:39:41.723Z",
-      "updatedAt": "2026-11-10T02:39:41.723Z"
+      "updatedAt": "2026-11-13T13:37:37.388Z"
     },
     {
       "id": 9,
@@ -52707,18 +52687,14 @@
       "rarityTier": "S",
       "requiredLevel": 20,
       "isTradable": true,
-      "priceGold": 2500,
+      "priceGold": 0,
       "maxStack": 99,
       "cooldownSec": 0,
       "targetType": "SELF",
       "effectType": null,
       "effectValue": 0,
       "reqClassCodesJson": [],
-      "baseStatBonusesJson": {
-        "AGI": 12,
-        "DEX": 8,
-        "VIT": 12
-      },
+      "baseStatBonusesJson": {},
       "combatStatBonusesJson": {
         "MAG_EVASION": 15,
         "ATTACK_SPEED": 0.15,
@@ -52728,7 +52704,7 @@
       "specialEffectJson": {},
       "isActive": true,
       "createdAt": "2026-11-10T02:39:41.868Z",
-      "updatedAt": "2026-11-10T02:39:41.868Z"
+      "updatedAt": "2026-11-13T13:37:37.392Z"
     },
     {
       "id": 10,
@@ -52741,17 +52717,14 @@
       "rarityTier": "C",
       "requiredLevel": 1,
       "isTradable": true,
-      "priceGold": 200,
+      "priceGold": 0,
       "maxStack": 99,
       "cooldownSec": 0,
       "targetType": "SELF",
       "effectType": null,
       "effectValue": 0,
       "reqClassCodesJson": [],
-      "baseStatBonusesJson": {
-        "STR": 5,
-        "VIT": 5
-      },
+      "baseStatBonusesJson": {},
       "combatStatBonusesJson": {
         "PHYS_ATK": 18,
         "PHYS_DEF": 14,
@@ -52760,7 +52733,7 @@
       "specialEffectJson": {},
       "isActive": true,
       "createdAt": "2026-11-10T02:39:42.007Z",
-      "updatedAt": "2026-11-10T02:39:42.007Z"
+      "updatedAt": "2026-11-13T13:37:37.395Z"
     },
     {
       "id": 26,
