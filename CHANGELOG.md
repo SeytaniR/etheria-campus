@@ -5,6 +5,35 @@ Qualquer IA trabalhando neste repositório **DEVE** incrementar a versão e regi
 
 ---
 
+## [v0.21.0] - 2026-11-13
+### Integração dos Assets Gráficos Oficiais da HUD do Jogador com Recorte de Precisão, Transparência RGBA e Aberturas Ópticas
+* **Adicionado & Integrado (`scripts/crop_hud_assets.py` & `apps/server/public/play/assets/hud/`):**
+  * **Recorte Computacional de Precisão Subpixel:** Processamento das 2 imagens oficiais enviadas pelo usuário (`media_1794587354286_e7e3e630.jpg` e `media_1794587355904_97ef9782.jpg`) utilizando Pillow e NumPy.
+  * **Matte Alpha e Defringing:** Remoção de fundo branco exterior através de BFS flood-fill conectado (preservando brancos e reflexos internos nos metais, pergaminhos e listras da barraca), com unmultiplication para eliminação completa de halos brancos sobre qualquer superfície.
+  * **Abertura Central (Aperture) nas Molduras:**
+    * `minimap_frame.png`: Abertura circular no centro da bússola com antialiasing para exibição transparente e contínua do canvas do mini mapa/radar dinâmico.
+    * `player_avatar_frame.png`: Abertura circular no centro do brasão alado para enquadramento perfeito da foto real do personagem/classe.
+  * **9 Assets Oficiais Exportados e Integrados:**
+    1. `menu_shop.png` (Banca de mercado com baú de moedas de ouro).
+    2. `menu_pets.png` (Medalhão de ouro com pata e gemas coloridas).
+    3. `menu_character.png` (Elmo de cavaleiro alado sobre brasão azul).
+    4. `menu_inventory.png` (Mochila de aventureiro em couro com fivelas).
+    5. `menu_quests.png` (Pergaminho de missões com selo de cera vermelho e fitas).
+    6. `menu_events.png` (Caixa de presente festiva com laço dourado e partículas de confete).
+    7. `settings_gear_icon.png` (Engrenagem dourada com gema azul central para configurações).
+    8. `minimap_frame.png` (Moldura circular ornamental de bússola dourada com asas e gemas).
+    9. `player_avatar_frame.png` (Moldura circular alada com topo rubi e gema inferior).
+* **Modificado & Ajustado (`play_hud.css` & `PlayHudController.js`):**
+  * `.hud-avatar-wrapper` e `.hud-avatar-img`: Redimensionamento concêntrico (78x78px / 40x40px) para que a foto do jogador fique perfeitamente selada dentro da janela da moldura alada, sem arestas vazadas.
+  * `.hud-minimap-wrapper` e `#hudMinimapCanvas`: Redimensionamento proporcional (106x106px / 64x64px) com canvas centralizado sob a bússola dourada e botão da engrenagem alinhado no canto superior.
+  * `.hud-bottom-menu-section`: Ícones com transparência pura, drop-shadow dinâmico e mochila destacada ao centro em layout mobile vertical.
+  * `PlayHudController.js`: Fallback inicial do avatar atualizado de `player_avatar_frame.png` para `menu_character.png`.
+* **Deploy & Validação Live no VPS Azure (`40.65.63.193`):**
+  * Sincronizado via Git e deploy automatizado no VPS com serviço `etheria-campus.service` ativo (`HTTP 200`).
+  * Inspeção e captura de viewport em mobile portrait (390x844px) realizadas com sucesso no Chrome DevTools MCP.
+
+---
+
 ## [v0.20.1] - 2026-11-13
 ### Refinamento do Combate: Priorização de Ataque sobre Joystick, Perseguição Automática (Estilo LoL) & Retículo Visual de Alvo
 * **Modificado & Otimizado (Prioridade de Ataque sobre Joystick):**

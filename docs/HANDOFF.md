@@ -8,9 +8,9 @@
 ---
 
 ## 📌 Status Atual do Projeto
-* **Versão Atual:** `v0.20.1`
+* **Versão Atual:** `v0.21.0`
 * **Última Atualização:** `2026-11-13`
-* **Fase Atual:** **Refinamento do Motor de Combate: Priorização de Ataque sobre Joystick, Perseguição Automática (Estilo LoL) & Retículo Visual de Alvo (`v0.20.1`)** — Corrigida a prioridade de ataque sobre o movimento do joystick (o ataque agora executa o Windup e o Cast Point sem ser abortado pelo toque no joystick, retomando a corrida no Backswing); implementado o modo de perseguição automática quando o alvo está fora de alcance (o boneco caminha até o alcance e dispara automaticamente como no LoL); implementado retículo de mira animado no chão sob os pés do monstro, chevron aéreo `▼`, barra de vida com contorno dourado e anel sutil do alcance do jogador. Todos os arquivos permanecem rigorosamente sob o teto da Regra #7 (< 1.000 linhas).
+* **Fase Atual:** **Integração dos Assets Gráficos Oficiais da HUD do Jogador com Recorte de Precisão, Transparência RGBA e Aberturas Ópticas (`v0.21.0`)** — Processadas as duas imagens de arte originais enviadas pelo usuário (`media_1794587354286_e7e3e630.jpg` e `media_1794587355904_97ef9782.jpg`); extraídos 9 elementos oficiais com fundo transparente, anti-aliasing e unmultiplication defringing (`menu_shop.png`, `menu_pets.png`, `menu_character.png`, `menu_inventory.png`, `menu_quests.png`, `menu_events.png`, `settings_gear_icon.png`, `minimap_frame.png` e `player_avatar_frame.png`); perfurados os centros das molduras de minimapa e avatar para permitir visualização concêntrica do mapa dinâmico e da foto real do personagem; calibrado o CSS da HUD (`play_hud.css`) para mobile portrait vertical; deploy efetuado e verificado com sucesso no VPS Azure (`40.65.63.193`, HTTP 200).
 * **Repositório Oficial:** `https://github.com/SeytaniR/etheria-campus`
 * **Fonte Bruta de Assets:** `https://github.com/SeytaniR/mcrework` (`https://seytanir.github.io/mcrework/`)
 
