@@ -80,33 +80,56 @@ class PlayHudController {
     this.container.className = 'play-mobile-hud';
 
     this.container.innerHTML = `
-      <!-- 1. Topo-Esquerdo: Avatar, Nível, HP/MP/XP e Moedas Colados em Placa Harmoniosa -->
+      <!-- 1. Topo-Esquerdo: Placa Real Unificada do Jogador (Avatar, Nome, Nível, HP/MP/XP e Economia) -->
       <div id="hudPlayerSection" class="hud-player-section">
         <div class="hud-player-header-card">
+          <!-- Cuna do Avatar e Moldura Dourada -->
           <div class="hud-avatar-wrapper">
+            <div class="hud-avatar-glow"></div>
             <img id="hudPlayerAvatarImg" class="hud-avatar-img" src="/play/assets/hud/avatars/class_1.png" alt="Avatar" />
             <img class="hud-avatar-frame" src="/play/assets/hud/player_avatar_frame.png" alt="Moldura" />
             <div id="hudPlayerLevelBadge" class="hud-level-badge">Nv. 1</div>
           </div>
+
+          <!-- Placa de Status Esculpida e Integrada -->
           <div class="hud-player-bars-col">
+            <!-- Linha do Nome do Personagem e Classe -->
+            <div class="hud-player-meta-row">
+              <span id="hudPlayerName" class="hud-player-name">Aventureiro</span>
+              <span id="hudPlayerClass" class="hud-player-class-tag">Guerreiro</span>
+            </div>
+
+            <!-- Barra de HP (Vida) -->
             <div class="hud-stat-bar hud-stat-hp">
-              <span class="hud-stat-label">HP</span>
+              <span class="hud-stat-pill">HP</span>
               <div class="hud-bar-track">
-                <div id="hudFillHp" class="hud-bar-fill hud-fill-hp" style="width: 100%;"></div>
+                <div id="hudFillHp" class="hud-bar-fill hud-fill-hp" style="width: 100%;">
+                  <span class="hud-bar-sheen"></span>
+                </div>
+                <span id="hudTextHp" class="hud-bar-numeric-text">100%</span>
               </div>
             </div>
+
+            <!-- Barra de MP (Mana) -->
             <div class="hud-stat-bar hud-stat-mp">
-              <span class="hud-stat-label">MP</span>
+              <span class="hud-stat-pill">MP</span>
               <div class="hud-bar-track">
-                <div id="hudFillMp" class="hud-bar-fill hud-fill-mp" style="width: 100%;"></div>
+                <div id="hudFillMp" class="hud-bar-fill hud-fill-mp" style="width: 100%;">
+                  <span class="hud-bar-sheen"></span>
+                </div>
+                <span id="hudTextMp" class="hud-bar-numeric-text">100%</span>
               </div>
             </div>
+
+            <!-- Barra de XP (Experiência) -->
             <div class="hud-stat-bar hud-stat-xp">
-              <span class="hud-stat-label">XP</span>
-              <div class="hud-bar-track">
+              <span class="hud-stat-pill">XP</span>
+              <div class="hud-bar-track hud-track-xp">
                 <div id="hudFillXp" class="hud-bar-fill hud-fill-xp" style="width: 0%;"></div>
               </div>
             </div>
+
+            <!-- Bandeja de Economia Integrada (Ouro e Cristais) -->
             <div class="hud-currencies-row">
               <div class="hud-currency-badge hud-gold-badge" title="Ouro">
                 <img src="/play/assets/hud/gold_coin_icon.png" alt="Ouro" />
@@ -625,7 +648,18 @@ class PlayHudController {
       avatarImg.src = thumb;
     }
 
-    // 2. Nível
+    // 2. Metadados do Jogador (Nome, Classe e Nível)
+    const nameEl = document.getElementById('hudPlayerName');
+    if (nameEl) {
+      nameEl.textContent = charData.name || 'Aventureiro';
+    }
+
+    const classEl = document.getElementById('hudPlayerClass');
+    if (classEl) {
+      const clsName = charData.classNamePtBr || charData.className || charData.classTemplate?.name || 'Guerreiro';
+      classEl.textContent = clsName;
+    }
+
     const lvlBadge = document.getElementById('hudPlayerLevelBadge');
     if (lvlBadge) {
       lvlBadge.textContent = `Nv. ${charData.level || 1}`;
@@ -633,19 +667,23 @@ class PlayHudController {
 
     // 3. Barras de Vida, Mana e Experiência
     const fillHp = document.getElementById('hudFillHp');
+    const textHp = document.getElementById('hudTextHp');
     if (fillHp) {
       const curHp = charData.currentHp !== undefined ? charData.currentHp : (charData.hp !== undefined ? charData.hp : 100);
       const maxHp = charData.maxHp || 100;
       const pct = Math.max(0, Math.min(100, Math.round((curHp / maxHp) * 100)));
       fillHp.style.width = `${pct}%`;
+      if (textHp) textHp.textContent = `${pct}%`;
     }
 
     const fillMp = document.getElementById('hudFillMp');
+    const textMp = document.getElementById('hudTextMp');
     if (fillMp) {
       const curMp = charData.currentMp !== undefined ? charData.currentMp : (charData.mp !== undefined ? charData.mp : 100);
       const maxMp = charData.maxMp || 100;
       const pct = Math.max(0, Math.min(100, Math.round((curMp / maxMp) * 100)));
       fillMp.style.width = `${pct}%`;
+      if (textMp) textMp.textContent = `${pct}%`;
     }
 
     const fillXp = document.getElementById('hudFillXp');

@@ -24,7 +24,7 @@
 }
 
 /* ==========================================================================
-   1. TOPO-ESQUERDO: AVATAR, NÍVEL, BARRAS E MOEDAS (INTEGRADOS EM PLACA)
+   1. TOPO-ESQUERDO: PLACA REAL UNIFICADA DO JOGADOR (AVATAR + STATUS + ECONOMIA)
    ========================================================================== */
 .hud-player-section {
   position: absolute;
@@ -41,30 +41,43 @@
   display: flex;
   align-items: center;
   position: relative;
+  filter: drop-shadow(0 6px 18px rgba(0, 0, 0, 0.85));
 }
 
+/* Cuna do Avatar com Moldura Dourada Alada */
 .hud-avatar-wrapper {
   position: relative;
-  width: 96px;
-  height: 96px;
+  width: 92px;
+  height: 92px;
   flex-shrink: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.75));
-  z-index: 5;
+  z-index: 6;
+}
+
+.hud-avatar-glow {
+  position: absolute;
+  width: 82px;
+  height: 82px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(234, 179, 8, 0.32) 0%, rgba(217, 119, 6, 0.12) 55%, transparent 75%);
+  pointer-events: none;
+  z-index: 1;
 }
 
 .hud-avatar-img {
-  width: 54px;
-  height: 54px;
+  position: relative;
+  width: 52px;
+  height: 52px;
   border-radius: 50%;
   object-fit: cover;
   background: radial-gradient(circle at center, #1e293b 0%, #0f172a 75%, #020617 100%);
   cursor: pointer;
   transition: transform 0.15s ease, filter 0.15s ease;
   margin-top: -2px;
-  box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.8);
+  box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.85), 0 0 10px rgba(0, 0, 0, 0.6);
+  z-index: 2;
 }
 
 .hud-avatar-img:active {
@@ -78,134 +91,210 @@
   height: 100%;
   pointer-events: none;
   object-fit: contain;
+  z-index: 3;
 }
 
 .hud-level-badge {
   position: absolute;
-  bottom: 0px;
+  bottom: 1px;
   left: 50%;
   transform: translateX(-50%);
-  background: linear-gradient(180deg, #3d2614, #1f1208);
-  border: 1.5px solid #eab308;
+  background: linear-gradient(180deg, #38200f 0%, #1a0d05 100%);
+  border: 1.5px solid #f59e0b;
   color: #ffffff;
-  font-size: 0.70rem;
+  font-size: 0.68rem;
   font-weight: 900;
-  padding: 1.5px 8px;
+  padding: 1px 7px;
   border-radius: 999px;
   white-space: nowrap;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.7);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.9), inset 0 1px 0 rgba(254, 240, 138, 0.4);
   letter-spacing: 0.5px;
-  z-index: 6;
+  z-index: 7;
 }
 
-/* Placa integrada que se conecta perfeitamente sob a moldura alada do avatar */
+/* Placa Heraldica Esculpida e Homogenea (Encaixe sob a asa da moldura) */
 .hud-player-bars-col {
   display: flex;
   flex-direction: column;
+  justify-content: center;
   gap: 3.5px;
-  margin-left: -20px;
-  background: linear-gradient(90deg, rgba(15, 23, 42, 0.96), rgba(15, 23, 42, 0.85));
-  border: 1.5px solid rgba(234, 179, 8, 0.5);
+  margin-left: -26px;
+  min-width: 146px;
+  max-width: 154px;
+  background: linear-gradient(135deg, rgba(24, 32, 52, 0.96) 0%, rgba(13, 18, 32, 0.95) 50%, rgba(7, 10, 18, 0.97) 100%);
+  border-top: 1.5px solid rgba(245, 158, 11, 0.8);
+  border-right: 2px solid rgba(217, 119, 6, 0.85);
+  border-bottom: 1.5px solid rgba(180, 83, 9, 0.75);
   border-left: none;
-  border-radius: 0 16px 16px 0;
-  padding: 5px 12px 5px 24px;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.7), inset 0 1px 0 rgba(255, 255, 255, 0.14);
+  border-radius: 0 14px 10px 0;
+  padding: 5px 10px 5px 28px;
+  box-shadow: inset 0 1px 0 rgba(254, 240, 138, 0.35), inset -1px 0 0 rgba(254, 240, 138, 0.15), inset 0 -1px 0 rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   z-index: 2;
+}
+
+/* Linha Superior: Nome do Personagem e Tag de Classe */
+.hud-player-meta-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  padding-bottom: 1px;
+}
+
+.hud-player-name {
+  font-size: 0.75rem;
+  font-weight: 800;
+  color: #f8fafc;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9), 0 0 6px rgba(245, 158, 11, 0.25);
+  max-width: 80px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  letter-spacing: 0.3px;
+}
+
+.hud-player-class-tag {
+  font-size: 0.60rem;
+  font-weight: 800;
+  color: #fef08a;
+  background: linear-gradient(180deg, rgba(180, 83, 9, 0.45), rgba(120, 53, 15, 0.65));
+  border: 1px solid rgba(245, 158, 11, 0.55);
+  border-radius: 4px;
+  padding: 0.5px 4.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  white-space: nowrap;
 }
 
 /* Barras de Estatísticas HP / MP / XP */
 .hud-stat-bar {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 4px;
 }
 
-.hud-stat-label {
-  font-size: 0.72rem;
+.hud-stat-pill {
+  font-size: 0.60rem;
   font-weight: 900;
-  width: 22px;
-  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9);
+  width: 17px;
+  text-align: right;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.95);
+  letter-spacing: 0.3px;
 }
 
-.hud-stat-hp .hud-stat-label { color: #f87171; }
-.hud-stat-mp .hud-stat-label { color: #38bdf8; }
-.hud-stat-xp .hud-stat-label { color: #fbbf24; }
+.hud-stat-hp .hud-stat-pill { color: #f87171; }
+.hud-stat-mp .hud-stat-pill { color: #38bdf8; }
+.hud-stat-xp .hud-stat-pill { color: #fbbf24; }
 
 .hud-bar-track {
-  width: 130px;
-  height: 14.5px;
-  background: rgba(15, 23, 42, 0.88);
-  border: 1.5px solid #1e293b;
-  border-radius: 999px;
-  overflow: hidden;
-  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.8), 0 2px 5px rgba(0, 0, 0, 0.4);
   position: relative;
+  flex: 1;
+  height: 11.5px;
+  background: rgba(5, 8, 15, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 4px;
+  overflow: hidden;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.9);
+}
+
+.hud-track-xp {
+  height: 5px;
+  border-radius: 3px;
 }
 
 .hud-bar-fill {
-  height: 100%;
-  border-radius: 999px;
-  transition: width 0.3s ease;
   position: relative;
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.3s ease;
 }
 
-.hud-bar-fill::after {
-  content: '';
+.hud-bar-sheen {
   position: absolute;
-  top: 1px;
-  left: 4px;
-  right: 4px;
-  height: 35%;
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.55), rgba(255, 255, 255, 0));
-  border-radius: 999px;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 45%;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.5) 0%, rgba(255, 255, 255, 0) 100%);
+  border-radius: 3px 3px 0 0;
+  pointer-events: none;
+}
+
+.hud-bar-numeric-text {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.55rem;
+  font-weight: 800;
+  font-family: monospace;
+  color: #ffffff;
+  text-shadow: 0 1px 2px #000, 0 0 3px #000;
+  pointer-events: none;
+  z-index: 2;
 }
 
 .hud-fill-hp {
-  background: linear-gradient(180deg, #ef4444, #991b1b);
+  background: linear-gradient(180deg, #f87171 0%, #dc2626 55%, #991b1b 100%);
+  box-shadow: 0 0 5px rgba(239, 68, 68, 0.4);
 }
 
 .hud-fill-mp {
-  background: linear-gradient(180deg, #0284c7, #0369a1);
+  background: linear-gradient(180deg, #38bdf8 0%, #0284c7 55%, #0369a1 100%);
+  box-shadow: 0 0 5px rgba(56, 189, 248, 0.4);
 }
 
 .hud-fill-xp {
-  background: linear-gradient(180deg, #f59e0b, #b45309);
+  background: linear-gradient(180deg, #fde047 0%, #eab308 55%, #a16207 100%);
 }
 
-/* Moedas de Ouro e Cristais */
+/* Bandeja de Economia Integrada (Ouro e Cristais) na Base da Placa */
 .hud-currencies-row {
   display: flex;
   align-items: center;
-  gap: 8px;
-  margin-top: 4px;
+  justify-content: space-between;
+  gap: 4px;
+  margin-top: 3px;
+  padding-top: 3px;
+  border-top: 1px solid rgba(245, 158, 11, 0.22);
 }
 
 .hud-currency-badge {
   display: flex;
   align-items: center;
-  gap: 5px;
-  background: rgba(15, 23, 42, 0.85);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  padding: 2px 8px 2px 4px;
-  border-radius: 999px;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
+  gap: 3.5px;
+  background: rgba(4, 7, 14, 0.65);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 1px 5px 1px 3px;
+  border-radius: 4px;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.6);
 }
 
 .hud-currency-badge img {
-  width: 18px;
-  height: 18px;
+  width: 13px;
+  height: 13px;
   object-fit: contain;
 }
 
 .hud-currency-badge span {
-  font-size: 0.74rem;
+  font-size: 0.66rem;
   font-weight: 800;
   font-family: monospace;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.3px;
 }
 
-.hud-gold-badge span { color: #fde047; }
-.hud-crystal-badge span { color: #67e8f9; }
+.hud-gold-badge span {
+  color: #fde047;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.9);
+}
+
+.hud-crystal-badge span {
+  color: #67e8f9;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.9);
+}
 
 /* ==========================================================================
    2. TOPO-DIREITO: MINI MAPA AMPLIADO & CONFIGURAÇÕES (ENGRENAGEM)

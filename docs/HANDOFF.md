@@ -8,9 +8,9 @@
 ---
 
 ## 📌 Status Atual do Projeto
-* **Versão Atual:** `v0.24.0`
+* **Versão Atual:** `v0.25.0`
 * **Última Atualização:** `2026-11-13`
-* **Fase Atual:** **Integração dos 12 Avatares Oficiais de Personagens com Recorte de Precisão, Maximização de Enquadramento Facial e Suporte no HUD e Lobby (`v0.24.0`)** — Processamento da imagem oficial com os 12 heróis (Ladina, Espadachim, Mago, Curandeira, Caçadora, Paladino, Barda, Necromante, Atirador, Assassina, Guerreira, Lanceiro); remoção de fundo branco exterior via BFS flood-fill com defringing preservando cabelos brancos e detalhes finos; enquadramento concêntrico maximizando 94% da área circular útil do rosto sobre gradiente radial escuro e luxuoso (`#1f2c42` $\rightarrow$ `#070b14`); avatar no HUD ampliado para 54x54px selado sob a moldura dourada alada de 96px sem arestas vazadas; carregamento reativo automático por classe no `PlayHudController` e integração no Lobby de seleção/criação (`PlayLobbyController`); deploy efetuado e verificado com sucesso no VPS Azure (`40.65.63.193`, HTTP 200).
+* **Fase Atual:** **Placa Real Unificada do Jogador: Homogeneização Esculpida de Avatar, Moldura Alada, Barras de HP/MP/XP, Metadados e Bandeja de Economia (`v0.25.0`)** — Unificação arquitetônica da HUD no canto superior esquerdo: eliminação de elementos flutuantes desconectados com encaixe profundo da coluna de status sob a asa direita da moldura (`margin-left: -26px; padding-left: 28px`); acabamento premium em vidro naval obsidiana com chanfro de ouro trabalhado contínuo (`border-top: 1.5px solid rgba(245, 158, 11, 0.8)`, `border-right: 2px solid rgba(217, 119, 6, 0.85)`, `border-bottom: 1.5px solid rgba(180, 83, 9, 0.75)`); incorporação do Nome (`#hudPlayerName`) e Tag de Classe (`#hudPlayerClass`); medidores com canaletas metálicas, reflexo vítreo e percentual numérico (`#hudTextHp`, `#hudTextMp`); e bandeja de economia na base com divisor dourado sutil; testado, verificado no Chrome DevTools MCP e deploy efetuado com sucesso no VPS Azure (`40.65.63.193`, HTTP 200).
 * **Repositório Oficial:** `https://github.com/SeytaniR/etheria-campus`
 * **Fonte Bruta de Assets:** `https://github.com/SeytaniR/mcrework` (`https://seytanir.github.io/mcrework/`)
 

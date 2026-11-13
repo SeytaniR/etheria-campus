@@ -5,6 +5,24 @@ Qualquer IA trabalhando neste repositório **DEVE** incrementar a versão e regi
 
 ---
 
+## [v0.25.0] - 2026-11-13
+### Placa Real Unificada do Jogador: Homogeneização Esculpida de Avatar, Moldura Alada, Barras de HP/MP/XP, Metadados e Bandeja de Economia
+* **Modificado & Esculpido (`play_hud.css` & `PlayHudController.js`):**
+  * **Design Homogêneo e Esculpido de Peça Única:** Eliminação da separação visual entre avatar e barras. A coluna de status foi encaixada profundamente sob a asa direita da moldura (`margin-left: -26px; padding-left: 28px`), formando um único artefato heráldico contínuo.
+  * **Acabamento Premium em Vidro Obsidiana e Ouro:** Fundo em gradiente suave de vidro naval escuro (`rgba(24, 32, 52, 0.96) -> rgba(7, 10, 18, 0.97)`), com bordas chanfradas em ouro trabalhado (`border-top: 1.5px solid rgba(245, 158, 11, 0.8)`, `border-right: 2px solid rgba(217, 119, 6, 0.85)`, `border-bottom: 1.5px solid rgba(180, 83, 9, 0.75)`), e chanfro interno (`box-shadow: inset 0 1px 0 rgba(254, 240, 138, 0.35)`).
+  * **Linha Superior de Metadados Integrada:** Adicionado o Nome do Jogador (`#hudPlayerName`) em tipografia nobre com text-shadow dourado sutil, acompanhado de tag estilizada da Classe (`#hudPlayerClass`).
+  * **Medidores Joia com Brilho de Cristal e Indicadores Numéricos:**
+    * Pílulas de identificação compactas e de alto contraste (`HP`, `MP`, `XP`).
+    * Medidores escavados com reflexo vítreo (`.hud-bar-sheen`).
+    * Indicadores percentuais numéricos nítidos (`#hudTextHp`, `#hudTextMp`).
+  * **Bandeja de Economia Integrada (Ouro & Cristais):** Ouro e Cristais agora repousam em um pedestal rebaixado esculpido na base da placa com divisor dourado sutil, eliminando qualquer aspecto de botões flutuantes soltos.
+  * **Halo Sutil no Avatar (`.hud-avatar-glow`):** Gradiente radial áureo concêntrico sob a moldura alada que amarra a cuna circular à placa lateral.
+* **Auditoria de Linhas (Regra #7):**
+  * `PlayHudController.js`: 890 linhas (estritamente < 1.000 linhas).
+  * `play.js`: 919 linhas (estritamente < 1.000 linhas).
+
+---
+
 ## [v0.24.0] - 2026-11-13
 ### Integração dos 12 Avatares Oficiais de Personagens com Recorte de Precisão, Maximização de Enquadramento Facial e Suporte no HUD e Lobby
 * **Adicionado & Integrado (`scripts/crop_character_portraits.py` & `apps/server/public/play/assets/hud/avatars/`):**
