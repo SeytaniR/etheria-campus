@@ -633,7 +633,7 @@ export class QuestProgressService {
       if (Array.isArray(rewards.rewardItems)) expectedNewSlots += rewards.rewardItems.length;
 
       if (expectedNewSlots > 0) {
-        const freeSlots = await CharacterInventoryService.countFreeSlots(tx, pc.id, 50);
+        const freeSlots = await CharacterInventoryService.countFreeSlots(tx, pc.id);
         if (freeSlots < expectedNewSlots) {
           throw new Error(`Mochila cheia! É necessário ter pelo menos ${expectedNewSlots} slot(s) livre(s) para receber as recompensas da missão (Você tem ${freeSlots}).`);
         }

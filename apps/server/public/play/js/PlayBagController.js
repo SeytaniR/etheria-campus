@@ -166,7 +166,7 @@ const PlayBagController = {
     const bag = this.currentBag;
     const slots = bag.slots || [];
     const occupied = bag.occupiedSlotsCount || 0;
-    const unlocked = bag.unlockedSlotsCount || 50;
+    const unlocked = bag.unlockedSlotsCount || 100;
 
     const filterCategory = this.activeCategory;
     const filterRarity = this.activeRarity;
@@ -223,30 +223,30 @@ const PlayBagController = {
 
       <!-- Container da Grade com Scroll Vertical -->
       <div id="bagGridScrollArea" style="max-height:360px; overflow-y:auto; padding-right:3px; display:flex; flex-direction:column; gap:8px;">
-        <!-- Seção 1: Mochila Nível 1 (Slots 0 a 49) -->
+        <!-- Seção 1: Mochila Nível 1 (Slots 0 a 99 - 100 Slots Desbloqueados) -->
         <div class="bag-slots-grid" style="display:grid; grid-template-columns:repeat(5, 1fr); gap:6px;">
-          ${slots.slice(0, 50).map((s) => this.renderSlotHtml(s, query, filterCategory, filterRarity)).join('')}
+          ${slots.slice(0, 100).map((s) => this.renderSlotHtml(s, query, filterCategory, filterRarity)).join('')}
         </div>
 
-        <!-- Seção 2: Mochila Nível 2 (Slots 50 a 99 - Bloqueado) -->
+        <!-- Seção 2: Mochila Nível 2 (Slots 100 a 199 - Bloqueado) -->
         <div style="margin-top:6px; border-top:1px dashed #334155; padding-top:6px;">
           <div style="display:flex; align-items:center; gap:6px; margin-bottom:5px; color:#64748b; font-size:0.72rem; font-weight:700;">
             <svg viewBox="0 0 24 24" width="13" height="13" fill="#000000"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg>
             <span>Mochila Nível 2 — Bloqueado (Libera na mochila nível 2)</span>
           </div>
           <div class="bag-slots-grid" style="display:grid; grid-template-columns:repeat(5, 1fr); gap:6px;">
-            ${slots.slice(50, 100).map((s) => this.renderSlotHtml(s)).join('')}
+            ${slots.slice(100, 200).map((s) => this.renderSlotHtml(s)).join('')}
           </div>
         </div>
 
-        <!-- Seção 3: Mochila Nível 3 (Slots 100 a 149 - Bloqueado) -->
+        <!-- Seção 3: Mochila Nível 3 (Slots 200 a 299 - Bloqueado) -->
         <div style="margin-top:6px; border-top:1px dashed #334155; padding-top:6px;">
           <div style="display:flex; align-items:center; gap:6px; margin-bottom:5px; color:#64748b; font-size:0.72rem; font-weight:700;">
             <svg viewBox="0 0 24 24" width="13" height="13" fill="#000000"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg>
             <span>Mochila Nível 3 — Bloqueado (Libera na mochila nível 3)</span>
           </div>
           <div class="bag-slots-grid" style="display:grid; grid-template-columns:repeat(5, 1fr); gap:6px;">
-            ${slots.slice(100, 150).map((s) => this.renderSlotHtml(s)).join('')}
+            ${slots.slice(200, 300).map((s) => this.renderSlotHtml(s)).join('')}
           </div>
         </div>
       </div>
@@ -326,16 +326,85 @@ const PlayBagController = {
         const slotIdx = Number(el.getAttribute('data-slot-index'));
         this.draggedSlot = slotIdx;
         e.dataTransfer.setData('text/plain', String(slotIdx));
+        e.dataTransfer.effectAllowed = 'move';
+
+        const img = el.querySelector('img');
+        if (img) {
+          // Cria o avatar visual para acompanhar o arrasto
+          let ghost = document.getElementById('bagDragGhostElement');
+          if (!ghost) {
+            ghost = document.createElement('div');
+            ghost.id = 'bagDragGhostElement';
+            document.body.appendChild(ghost);
+          }
+          ghost.style.cssText = `
+            position: fixed;
+            top: -9999px;
+            left: -9999px;
+            width: 48px;
+            height: 48px;
+            border-radius: 8px;
+            background: #0f172a;
+            border: 2px solid #38bdf8;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.7), 0 0 10px rgba(56,189,248,0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            pointer-events: none;
+            z-index: 999999;
+          `;
+          ghost.innerHTML = `<img src="${img.src}" style="width:82%; height:82%; object-fit:contain;" />`;
+          e.dataTransfer.setDragImage(ghost, 24, 24);
+
+          // Ativa o seguidor flutuante visual em tempo real
+          this.showFloatingFollower(img.src, e.clientX, e.clientY);
+        }
+
+        el.style.opacity = '0.35';
+      });
+
+      el.addEventListener('dragend', () => {
+        el.style.opacity = '1';
+        this.hideFloatingFollower();
+        document.querySelectorAll('.bag-slots-grid .bag-slot').forEach((z) => {
+          z.style.outline = '';
+          z.style.boxShadow = '';
+        });
+        const ghost = document.getElementById('bagDragGhostElement');
+        if (ghost) ghost.remove();
       });
     });
+
+    // Registra listener global para atualizar a posição do ícone flutuante
+    if (!this.hasDragMoveListener) {
+      this.hasDragMoveListener = true;
+      document.addEventListener('dragover', (e) => {
+        if (this.draggedSlot !== null) {
+          this.updateFloatingFollower(e.clientX, e.clientY);
+        }
+      });
+      document.addEventListener('drop', () => {
+        this.hideFloatingFollower();
+      });
+    }
 
     const dropZones = document.querySelectorAll('.bag-slots-grid .bag-slot');
     dropZones.forEach((zone) => {
       zone.addEventListener('dragover', (e) => {
         e.preventDefault();
+        e.dataTransfer.dropEffect = 'move';
+        zone.style.outline = '2px solid #38bdf8';
+        zone.style.boxShadow = '0 0 10px rgba(56,189,248,0.6)';
+      });
+      zone.addEventListener('dragleave', () => {
+        zone.style.outline = '';
+        zone.style.boxShadow = '';
       });
       zone.addEventListener('drop', async (e) => {
         e.preventDefault();
+        zone.style.outline = '';
+        zone.style.boxShadow = '';
+        this.hideFloatingFollower();
         const from = this.draggedSlot;
         const to = Number(zone.getAttribute('data-slot-index'));
         this.draggedSlot = null;
@@ -344,6 +413,47 @@ const PlayBagController = {
         }
       });
     });
+  },
+
+  showFloatingFollower(iconSrc, x, y) {
+    let follower = document.getElementById('bagFloatingFollower');
+    if (!follower) {
+      follower = document.createElement('div');
+      follower.id = 'bagFloatingFollower';
+      follower.style.cssText = `
+        position: fixed;
+        width: 48px;
+        height: 48px;
+        border-radius: 8px;
+        background: rgba(15, 23, 42, 0.95);
+        border: 2px solid #38bdf8;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.75), 0 0 14px rgba(56, 189, 248, 0.7);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        pointer-events: none;
+        z-index: 100000;
+        transform: translate(-50%, -50%);
+      `;
+      document.body.appendChild(follower);
+    }
+    follower.innerHTML = `<img src="${iconSrc}" style="width:82%; height:82%; object-fit:contain; pointer-events:none;" />`;
+    follower.style.display = 'flex';
+    follower.style.left = `${x}px`;
+    follower.style.top = `${y}px`;
+  },
+
+  updateFloatingFollower(x, y) {
+    const follower = document.getElementById('bagFloatingFollower');
+    if (follower && follower.style.display !== 'none' && x > 0 && y > 0) {
+      follower.style.left = `${x}px`;
+      follower.style.top = `${y}px`;
+    }
+  },
+
+  hideFloatingFollower() {
+    const follower = document.getElementById('bagFloatingFollower');
+    if (follower) follower.style.display = 'none';
   },
 
   async onSlotClick(slotIndex) {

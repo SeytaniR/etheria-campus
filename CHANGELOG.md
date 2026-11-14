@@ -5,6 +5,22 @@ Qualquer IA trabalhando neste repositório **DEVE** incrementar a versão e regi
 
 ---
 
+## [v0.42.0] - 2026-11-14
+### Expansão da Mochila (100 / 200 / 300 Slots) e Ícone Seguidor no Arraste (Drag & Drop)
+* **Expansão Autoritária dos Slots da Mochila (`CharacterInventoryService.ts`):**
+  * Capacidade da mochila expandida para 300 slots no total:
+    * **Mochila Nível 1:** 100 slots desbloqueados (índices 0 a 99).
+    * **Mochila Nível 2:** 200 slots no total (100 slots adicionais bloqueados, índices 100 a 199, com aviso `"Libera na mochila nível 2"`).
+    * **Mochila Nível 3:** 300 slots no total (100 slots adicionais bloqueados, índices 200 a 299, com aviso `"Libera na mochila nível 3"`).
+  * Atualizado o cálculo padrão de slots livres (`countFreeSlots`) e busca de primeiro slot vazio (`findLowestEmptySlot`) para a base de 100 slots desbloqueados.
+  * Atualizadas todas as proteções autoritárias de capacidade (`CharacterEquipmentService.ts`, `ItemContainerOpeningService.ts`, `QuestProgressService.ts`).
+* **Melhorias no Drag & Drop e Experiência Visual (`PlayBagController.js`):**
+  * Grade da mochila reestruturada visualmente em 3 seções de 100 slots cada (Nível 1 desbloqueado e Níveis 2 e 3 com cadeado monocromático preto).
+  * **Ícone Flutuante Acompanhando o Cursor:** Criado elemento flutuante em tempo real (`#bagFloatingFollower`) e suporte ao preview nativo (`setDragImage`) para que o ícone do objeto arrastado acompanhe visivelmente a posição do cursor/toque durante todo o arraste.
+  * Efeito de destaque visual nos slots sobrevoores (borda azul clara ciano com glow), facilitando a identificação clara do slot de destino.
+
+---
+
 ## [v0.41.0] - 2026-11-14
 ### Sistema Autoritário de Inventário em Grade, Stacks Inteligentes, Drag & Drop e Blindagem de Equipamentos
 * **Estrutura de Banco de Dados e Migração Sem Perda (`packages/database`):**

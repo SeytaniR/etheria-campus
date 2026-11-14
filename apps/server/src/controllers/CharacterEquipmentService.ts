@@ -287,7 +287,7 @@ export class CharacterEquipmentService {
 
     await prisma.$transaction(async (tx) => {
       // 1. Valida se há espaço na mochila
-      const freeSlots = await CharacterInventoryService.countFreeSlots(tx, pc.id, 50);
+      const freeSlots = await CharacterInventoryService.countFreeSlots(tx, pc.id);
       if (freeSlots <= 0) {
         throw new Error('Mochila cheia! Libere um slot no inventário para desequipar este item.');
       }

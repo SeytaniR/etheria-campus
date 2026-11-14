@@ -12,8 +12,8 @@
 import { I18nCache } from '@etheria/database';
 
 export const INVENTORY_CONFIG = {
-  TOTAL_SLOTS: 150,
-  DEFAULT_UNLOCKED_SLOTS: 50,
+  TOTAL_SLOTS: 300,
+  DEFAULT_UNLOCKED_SLOTS: 100,
   MAX_STACK_DEFAULT: 999,
   MAX_STACK_EQUIPMENT: 1,
   NON_STACKABLE_CATEGORIES: [
@@ -136,7 +136,7 @@ export class CharacterInventoryService {
     const slots: InventorySlotDto[] = [];
     for (let i = 0; i < INVENTORY_CONFIG.TOTAL_SLOTS; i++) {
       const isLocked = i >= unlockedCount;
-      const lockedMessage = i >= 100 ? 'Libera na mochila nível 3' : (i >= 50 ? 'Libera na mochila nível 2' : null);
+      const lockedMessage = i >= 200 ? 'Libera na mochila nível 3' : (i >= 100 ? 'Libera na mochila nível 2' : null);
       slots.push({
         slotIndex: i,
         isLocked,
@@ -162,7 +162,7 @@ export class CharacterInventoryService {
   /**
    * Retorna a quantidade de slots livres disponíveis na área desbloqueada do inventário.
    */
-  public static async countFreeSlots(prismaOrTx: any, characterId: number, maxUnlocked: number = 50): Promise<number> {
+  public static async countFreeSlots(prismaOrTx: any, characterId: number, maxUnlocked: number = INVENTORY_CONFIG.DEFAULT_UNLOCKED_SLOTS): Promise<number> {
     const occupied = await prismaOrTx.characterInventoryItem.count({
       where: {
         characterId: Number(characterId),
@@ -176,7 +176,7 @@ export class CharacterInventoryService {
   /**
    * Encontra o menor índice de slot livre na área desbloqueada.
    */
-  public static async findLowestEmptySlot(prismaOrTx: any, characterId: number, maxUnlocked: number = 50): Promise<number | null> {
+  public static async findLowestEmptySlot(prismaOrTx: any, characterId: number, maxUnlocked: number = INVENTORY_CONFIG.DEFAULT_UNLOCKED_SLOTS): Promise<number | null> {
     const occupiedRows = await prismaOrTx.characterInventoryItem.findMany({
       where: {
         characterId: Number(characterId),

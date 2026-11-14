@@ -134,7 +134,7 @@ export class ItemContainerOpeningService {
       ? Math.max(1, Number(rawSpecial.rollCount) || 1)
       : entries.length;
 
-    const freeSlots = await CharacterInventoryService.countFreeSlots(prisma, safeCharId, 50);
+    const freeSlots = await CharacterInventoryService.countFreeSlots(prisma, safeCharId);
     const effectiveFreeSlots = Number(inventoryRow.quantity) === 1 ? freeSlots + 1 : freeSlots;
     if (effectiveFreeSlots < maxPossibleNewSlots) {
       const containerName = containerType === 'CAPSULE' ? 'esta cápsula' : (containerType === 'ROULETTE' ? 'esta roleta' : 'este baú');
