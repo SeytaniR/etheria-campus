@@ -1,6 +1,6 @@
 {
   "version": "0.2.0",
-  "exportedAt": "2026-11-14T00:23:38.207Z",
+  "exportedAt": "2026-11-14T01:15:22.262Z",
   "i18nTranslations": [
     {
       "id": 1,
@@ -1126,50 +1126,50 @@
       "id": 164,
       "key": "npc.npc_1.name",
       "locale": "pt-BR",
-      "text": "Receptora de Novatos",
-      "updatedAt": "2026-11-06T02:43:01.720Z"
+      "text": "Oficial Kaori (Acolhedora da Restauração)",
+      "updatedAt": "2026-11-14T01:15:22.076Z"
     },
     {
       "id": 166,
       "key": "npc.npc_2.name",
       "locale": "pt-BR",
-      "text": "Sábio de Izumo",
-      "updatedAt": "2026-11-06T02:22:56.898Z"
+      "text": "Arquivista Mestre Genpaku (Sábio do Templo Ancestral)",
+      "updatedAt": "2026-11-14T01:15:22.086Z"
     },
     {
       "id": 167,
       "key": "npc.npc_3.name",
       "locale": "pt-BR",
-      "text": "Armeiro John",
-      "updatedAt": "2026-11-06T02:23:35.818Z"
+      "text": "Armeiro Jinbei (Forjador de Véu)",
+      "updatedAt": "2026-11-14T01:15:22.090Z"
     },
     {
       "id": 168,
       "key": "npc.npc_4.name",
       "locale": "pt-BR",
-      "text": "Caçadora Lia",
-      "updatedAt": "2026-11-06T02:26:05.667Z"
+      "text": "Sentinela Ren (Batedora do Bosque)",
+      "updatedAt": "2026-11-14T01:15:22.097Z"
     },
     {
       "id": 169,
       "key": "npc.npc_5.name",
       "locale": "pt-BR",
-      "text": "Joalheiro Mou",
-      "updatedAt": "2026-11-06T02:27:23.560Z"
+      "text": "Lapidador Mou (Artífice de Essências)",
+      "updatedAt": "2026-11-14T01:15:22.102Z"
     },
     {
       "id": 171,
       "key": "npc.npc_6.name",
       "locale": "pt-BR",
-      "text": "Guarda Mike",
-      "updatedAt": "2026-11-06T02:31:44.867Z"
+      "text": "Comandante Daisuke (Capitão da Guarda)",
+      "updatedAt": "2026-11-14T01:15:22.106Z"
     },
     {
       "id": 172,
       "key": "npc.npc_7.name",
       "locale": "pt-BR",
-      "text": "Farmacêutico Smith",
-      "updatedAt": "2026-11-06T02:32:51.920Z"
+      "text": "Alquimista Koji (Boticário de Izumo)",
+      "updatedAt": "2026-11-14T01:15:22.109Z"
     },
     {
       "id": 174,
@@ -1358,70 +1358,70 @@
       "key": "monster.monster_1.name",
       "locale": "pt-BR",
       "text": "Duende Ladrão",
-      "updatedAt": "2026-11-13T13:20:14.149Z"
+      "updatedAt": "2026-11-14T01:09:20.169Z"
     },
     {
       "id": 218,
       "key": "monster.monster_1.description",
       "locale": "pt-BR",
       "text": "Bandido nômade que ronda as dunas e desfiladeiros áridos atacando caravanas.",
-      "updatedAt": "2026-11-13T13:20:14.152Z"
+      "updatedAt": "2026-11-14T01:09:20.172Z"
     },
     {
       "id": 219,
       "key": "monster.monster_2.name",
       "locale": "pt-BR",
       "text": "Galinha Colorida",
-      "updatedAt": "2026-11-13T00:32:25.372Z"
+      "updatedAt": "2026-11-14T01:09:25.862Z"
     },
     {
       "id": 220,
       "key": "monster.monster_2.description",
       "locale": "pt-BR",
       "text": "Criatura veloz e espalhafatosa das pradarias.",
-      "updatedAt": "2026-11-13T00:32:25.376Z"
+      "updatedAt": "2026-11-14T01:09:25.865Z"
     },
     {
       "id": 221,
       "key": "monster.monster_3.name",
       "locale": "pt-BR",
       "text": "Cacto Venenoso",
-      "updatedAt": "2026-11-13T00:36:39.965Z"
+      "updatedAt": "2026-11-14T01:09:11.184Z"
     },
     {
       "id": 222,
       "key": "monster.monster_3.description",
       "locale": "pt-BR",
       "text": "Vegetal animado e agressivo capaz de disparar espinhos com toxina paralisante.",
-      "updatedAt": "2026-11-13T00:36:39.969Z"
+      "updatedAt": "2026-11-14T01:09:11.187Z"
     },
     {
       "id": 223,
       "key": "monster.monster_4.name",
       "locale": "pt-BR",
       "text": "Estrela Demônio",
-      "updatedAt": "2026-11-13T00:33:17.657Z"
+      "updatedAt": "2026-11-14T01:09:55.358Z"
     },
     {
       "id": 224,
       "key": "monster.monster_4.description",
       "locale": "pt-BR",
       "text": "Uma estrela do Mar demoníaca.",
-      "updatedAt": "2026-11-13T00:33:17.661Z"
+      "updatedAt": "2026-11-14T01:09:55.362Z"
     },
     {
       "id": 225,
       "key": "monster.monster_5.name",
       "locale": "pt-BR",
       "text": "Polvo Esmeralda",
-      "updatedAt": "2026-11-13T00:33:05.107Z"
+      "updatedAt": "2026-11-14T01:09:37.120Z"
     },
     {
       "id": 226,
       "key": "monster.monster_5.description",
       "locale": "pt-BR",
       "text": "Criatura anfíbia curiosa com tentáculos elásticos e pele verde fluorescente.",
-      "updatedAt": "2026-11-13T00:33:05.111Z"
+      "updatedAt": "2026-11-14T01:09:37.125Z"
     },
     {
       "id": 238,
@@ -2278,146 +2278,6 @@
       "updatedAt": "2026-11-10T02:06:33.472Z"
     },
     {
-      "id": 581,
-      "key": "item.equip_espada_ferro_recruta.name",
-      "locale": "pt-BR",
-      "text": "Espada de Ferro do Recruta",
-      "updatedAt": "2026-11-13T13:39:33.150Z"
-    },
-    {
-      "id": 582,
-      "key": "item.equip_espada_ferro_recruta.desc",
-      "locale": "pt-BR",
-      "text": "Lâmina afiada forjada para novos aventureiros de Etheria.",
-      "updatedAt": "2026-11-13T13:39:33.157Z"
-    },
-    {
-      "id": 583,
-      "key": "item.equip_cajado_ventos_misticos.name",
-      "locale": "pt-BR",
-      "text": "Cajado dos Ventos Místicos",
-      "updatedAt": "2026-11-10T02:39:40.783Z"
-    },
-    {
-      "id": 584,
-      "key": "item.equip_cajado_ventos_misticos.desc",
-      "locale": "pt-BR",
-      "text": "Canaliza correntes arcanas velozes para acelerar conjurações.",
-      "updatedAt": "2026-11-10T02:39:40.788Z"
-    },
-    {
-      "id": 585,
-      "key": "item.equip_escudo_carvalho_reforcado.name",
-      "locale": "pt-BR",
-      "text": "Escudo de Carvalho Reforçado",
-      "updatedAt": "2026-11-10T02:39:40.931Z"
-    },
-    {
-      "id": 586,
-      "key": "item.equip_escudo_carvalho_reforcado.desc",
-      "locale": "pt-BR",
-      "text": "Madeira densa revestida em aros de ferro, bloqueia golpes físicos pesados.",
-      "updatedAt": "2026-11-10T02:39:40.936Z"
-    },
-    {
-      "id": 587,
-      "key": "item.equip_peitoral_malha_protetora.name",
-      "locale": "pt-BR",
-      "text": "Peitoral de Malha Protetora",
-      "updatedAt": "2026-11-10T02:39:41.081Z"
-    },
-    {
-      "id": 588,
-      "key": "item.equip_peitoral_malha_protetora.desc",
-      "locale": "pt-BR",
-      "text": "Elos entrelaçados que oferecem sólida proteção corporal em escaramuças.",
-      "updatedAt": "2026-11-10T02:39:41.087Z"
-    },
-    {
-      "id": 589,
-      "key": "item.equip_tunica_seda_fadas.name",
-      "locale": "pt-BR",
-      "text": "Túnica de Seda das Fadas",
-      "updatedAt": "2026-11-10T02:39:41.251Z"
-    },
-    {
-      "id": 590,
-      "key": "item.equip_tunica_seda_fadas.desc",
-      "locale": "pt-BR",
-      "text": "Tecido encantado leve como o ar, amplia a resistência mágica e a mobilidade.",
-      "updatedAt": "2026-11-10T02:39:41.255Z"
-    },
-    {
-      "id": 591,
-      "key": "item.equip_elmo_cavaleiro_bronze.name",
-      "locale": "pt-BR",
-      "text": "Elmo do Cavaleiro de Bronze",
-      "updatedAt": "2026-11-10T02:39:41.400Z"
-    },
-    {
-      "id": 592,
-      "key": "item.equip_elmo_cavaleiro_bronze.desc",
-      "locale": "pt-BR",
-      "text": "Capacete robusto com viseira reforçada contra ataques contundentes.",
-      "updatedAt": "2026-11-10T02:39:41.405Z"
-    },
-    {
-      "id": 593,
-      "key": "item.equip_botas_aladas_mensageiro.name",
-      "locale": "pt-BR",
-      "text": "Botas Aladas do Mensageiro",
-      "updatedAt": "2026-11-10T02:39:41.567Z"
-    },
-    {
-      "id": 594,
-      "key": "item.equip_botas_aladas_mensageiro.desc",
-      "locale": "pt-BR",
-      "text": "Botas encantadas que conferem passadas ligeiras e velocidade de esquiva na arena.",
-      "updatedAt": "2026-11-10T02:39:41.571Z"
-    },
-    {
-      "id": 595,
-      "key": "item.equip_anel_rubi_flamejante.name",
-      "locale": "pt-BR",
-      "text": "Anel de Rubi Flamejante",
-      "updatedAt": "2026-11-10T02:39:41.712Z"
-    },
-    {
-      "id": 596,
-      "key": "item.equip_anel_rubi_flamejante.desc",
-      "locale": "pt-BR",
-      "text": "Jóia incrustada com essência do fogo que faz cada golpe pulsar com poder crítico.",
-      "updatedAt": "2026-11-10T02:39:41.716Z"
-    },
-    {
-      "id": 597,
-      "key": "item.equip_asas_celestiais_aurora.name",
-      "locale": "pt-BR",
-      "text": "Asas Celestiais da Aurora",
-      "updatedAt": "2026-11-10T02:39:41.858Z"
-    },
-    {
-      "id": 598,
-      "key": "item.equip_asas_celestiais_aurora.desc",
-      "locale": "pt-BR",
-      "text": "Plumas místicas que elevam o herói e aumentam dramaticamente a presença em combate.",
-      "updatedAt": "2026-11-10T02:39:41.862Z"
-    },
-    {
-      "id": 599,
-      "key": "item.equip_selo_batalha_pet.name",
-      "locale": "pt-BR",
-      "text": "Selo de Batalha do Pet Guardião",
-      "updatedAt": "2026-11-10T02:39:41.996Z"
-    },
-    {
-      "id": 600,
-      "key": "item.equip_selo_batalha_pet.desc",
-      "locale": "pt-BR",
-      "text": "Amuleto energizado que potencializa o vigor e a força de ataque do pet companheiro.",
-      "updatedAt": "2026-11-10T02:39:42.000Z"
-    },
-    {
       "id": 629,
       "key": "mount.mount_passaro_alado_sangue.name",
       "locale": "pt-BR",
@@ -2492,112 +2352,112 @@
       "key": "monster.monster_7.name",
       "locale": "pt-BR",
       "text": "Polvo Gigante",
-      "updatedAt": "2026-11-13T00:33:38.824Z"
+      "updatedAt": "2026-11-14T01:10:11.584Z"
     },
     {
       "id": 656,
       "key": "monster.monster_7.description",
       "locale": "pt-BR",
       "text": "Um polvo maior que o normal, fica a beira de lagos aterrorizando pessoas.",
-      "updatedAt": "2026-11-13T00:33:38.827Z"
+      "updatedAt": "2026-11-14T01:10:11.587Z"
     },
     {
       "id": 657,
       "key": "monster.monster_8.name",
       "locale": "pt-BR",
       "text": "Caracol Tridente",
-      "updatedAt": "2026-11-13T00:34:14.016Z"
+      "updatedAt": "2026-11-14T01:10:31.018Z"
     },
     {
       "id": 658,
       "key": "monster.monster_8.description",
       "locale": "pt-BR",
       "text": "Um caracol selvagem humanoide, carrega um tridente como arma.",
-      "updatedAt": "2026-11-13T00:34:14.019Z"
+      "updatedAt": "2026-11-14T01:10:31.022Z"
     },
     {
       "id": 659,
       "key": "monster.monster_9.name",
       "locale": "pt-BR",
       "text": "Guarda Caracol",
-      "updatedAt": "2026-11-13T00:34:54.569Z"
+      "updatedAt": "2026-11-14T01:10:43.252Z"
     },
     {
       "id": 660,
       "key": "monster.monster_9.description",
       "locale": "pt-BR",
       "text": "Um guarda caracol que ataca a distância, seu foco é proteger seus aliados caracóis.",
-      "updatedAt": "2026-11-13T00:34:54.572Z"
+      "updatedAt": "2026-11-14T01:10:43.255Z"
     },
     {
       "id": 661,
       "key": "monster.monster_10.name",
       "locale": "pt-BR",
       "text": "Cogumelo Tóxico",
-      "updatedAt": "2026-11-13T00:36:21.327Z"
+      "updatedAt": "2026-11-14T01:11:04.090Z"
     },
     {
       "id": 662,
       "key": "monster.monster_10.description",
       "locale": "pt-BR",
       "text": "Um cogumelo Tóxico capaz de envenenar duas vítimas.",
-      "updatedAt": "2026-11-13T00:36:21.331Z"
+      "updatedAt": "2026-11-14T01:11:04.093Z"
     },
     {
       "id": 663,
       "key": "monster.monster_11.name",
       "locale": "pt-BR",
       "text": "Olho D'água",
-      "updatedAt": "2026-11-13T00:36:54.754Z"
+      "updatedAt": "2026-11-14T01:11:20.389Z"
     },
     {
       "id": 664,
       "key": "monster.monster_11.description",
       "locale": "pt-BR",
       "text": "Um demônio de água muito astuto e perverso.",
-      "updatedAt": "2026-11-13T00:36:54.758Z"
+      "updatedAt": "2026-11-14T01:11:20.392Z"
     },
     {
       "id": 665,
       "key": "monster.monster_12.name",
       "locale": "pt-BR",
       "text": "Troll da Montanha",
-      "updatedAt": "2026-11-13T00:37:24.103Z"
+      "updatedAt": "2026-11-14T01:11:40.162Z"
     },
     {
       "id": 666,
       "key": "monster.monster_12.description",
       "locale": "pt-BR",
       "text": "Uma pequena criatura que espreita e assalta acampamentos a noite.",
-      "updatedAt": "2026-11-13T00:37:24.106Z"
+      "updatedAt": "2026-11-14T01:11:40.165Z"
     },
     {
       "id": 667,
       "key": "monster.monster_13.name",
       "locale": "pt-BR",
       "text": "Ovelha-Tigre",
-      "updatedAt": "2026-11-13T00:37:42.073Z"
+      "updatedAt": "2026-11-14T01:11:58.767Z"
     },
     {
       "id": 668,
       "key": "monster.monster_13.description",
       "locale": "pt-BR",
       "text": "Todos sabem que é uma ovelha, mas sua força realmente é de um tigre.",
-      "updatedAt": "2026-11-13T00:37:42.076Z"
+      "updatedAt": "2026-11-14T01:11:58.771Z"
     },
     {
       "id": 669,
       "key": "monster.monster_14.name",
       "locale": "pt-BR",
       "text": "Lobo Ancião",
-      "updatedAt": "2026-11-13T00:37:53.778Z"
+      "updatedAt": "2026-11-14T01:12:25.017Z"
     },
     {
       "id": 670,
       "key": "monster.monster_14.description",
       "locale": "pt-BR",
       "text": "Um lobo velho, mas com garras afiadas",
-      "updatedAt": "2026-11-13T00:37:53.781Z"
+      "updatedAt": "2026-11-14T01:12:25.020Z"
     },
     {
       "id": 672,
@@ -2898,14 +2758,14 @@
       "key": "monster.monster_15.name",
       "locale": "pt-BR",
       "text": "Momo",
-      "updatedAt": "2026-11-13T00:38:05.706Z"
+      "updatedAt": "2026-11-14T01:13:15.560Z"
     },
     {
       "id": 778,
       "key": "monster.monster_15.description",
       "locale": "pt-BR",
       "text": "Está menina parece frágil, mas na verdade é um robô com alto poder de destruição e controle.",
-      "updatedAt": "2026-11-13T00:38:05.710Z"
+      "updatedAt": "2026-11-14T01:13:15.563Z"
     },
     {
       "id": 779,
@@ -4747,6 +4607,181 @@
       "locale": "pt-BR",
       "text": "Um tomo de batalha encadernado em placas rígidas com fecho metálico. Serve simultaneamente como foco arcano de concentração mágica e como broquel de bloqueio rápido para desviar golpes inimigos.",
       "updatedAt": "2026-11-14T00:23:38.103Z"
+    },
+    {
+      "id": 1254,
+      "key": "quest.quest_main_01.title",
+      "locale": "pt-BR",
+      "text": "O Chamado da Restauração",
+      "updatedAt": "2026-11-14T01:15:22.151Z"
+    },
+    {
+      "id": 1255,
+      "key": "quest.quest_main_01.desc",
+      "locale": "pt-BR",
+      "text": "Apresente-se à Oficial Kaori em Vila Izumo, receba o Conjunto Inicial do Aprendiz (12 peças) e encontre o Arquivista Mestre Genpaku no Templo Ancestral.",
+      "updatedAt": "2026-11-14T01:15:22.155Z"
+    },
+    {
+      "id": 1256,
+      "key": "quest.quest_main_01.dialogue_offer",
+      "locale": "pt-BR",
+      "text": "Respire fundo, recruta. Desde que o Conselho ruiu, fendas invisíveis sangram o éter bruto sobre nossas terras. Mas o Alto Curador assumiu a vigília da civilização. Aqui está sua comissão oficial e as doze peças do Conjunto do Aprendiz. Equipe-as em sua mochila e procure o Mestre Genpaku no Templo Ancestral!",
+      "updatedAt": "2026-11-14T01:15:22.159Z"
+    },
+    {
+      "id": 1257,
+      "key": "quest.quest_main_01.dialogue_active",
+      "locale": "pt-BR",
+      "text": "Vista seu equipamento completo em sua mochila e procure o Arquivista Mestre Genpaku no platô ao norte!",
+      "updatedAt": "2026-11-14T01:15:22.163Z"
+    },
+    {
+      "id": 1258,
+      "key": "quest.quest_main_01.dialogue_complete",
+      "locale": "pt-BR",
+      "text": "Aproxime-se, jovem restaurador... Deixe-me sentir a ressonância do seu éter. Sim, você carrega a marca do Primeiro Arquivista. Mas escute: o Véu está gemendo sob um peso nunca antes visto.",
+      "updatedAt": "2026-11-14T01:15:22.166Z"
+    },
+    {
+      "id": 1259,
+      "key": "quest.quest_main_02.title",
+      "locale": "pt-BR",
+      "text": "A Fenda e a Bolha Dimensional",
+      "updatedAt": "2026-11-14T01:15:22.177Z"
+    },
+    {
+      "id": 1260,
+      "key": "quest.quest_main_02.desc",
+      "locale": "pt-BR",
+      "text": "Aprenda os segredos do Véu com o Armeiro Jinbei e treine combate dimensional com a Sentinela Ren no bosque.",
+      "updatedAt": "2026-11-14T01:15:22.180Z"
+    },
+    {
+      "id": 1261,
+      "key": "quest.quest_main_02.dialogue_offer",
+      "locale": "pt-BR",
+      "text": "O Véu é uma bolha que nos protege do cataclismo. Tudo o que sangrar ou quebrar lá dentro não toca o mundo físico. Vá ao Armeiro Jinbei para afinar suas lâminas e procure a Sentinela Ren para seu batismo dimensional.",
+      "updatedAt": "2026-11-14T01:15:22.183Z"
+    },
+    {
+      "id": 1262,
+      "key": "quest.quest_main_02.dialogue_active",
+      "locale": "pt-BR",
+      "text": "Não hesite ao ser sugado pelo vácuo do Véu! Mantenha os pés ágeis, esquive dos golpes pesados e descarregue suas habilidades!",
+      "updatedAt": "2026-11-14T01:15:22.187Z"
+    },
+    {
+      "id": 1263,
+      "key": "quest.quest_main_02.dialogue_complete",
+      "locale": "pt-BR",
+      "text": "Excelente controle gravitacional! Veja como o espólio se materializou intacto no chão físico ao fechar a fenda. Essa é a magia do Véu: vitória isolada, espólio no plano real!",
+      "updatedAt": "2026-11-14T01:15:22.190Z"
+    },
+    {
+      "id": 1264,
+      "key": "quest.quest_main_03.title",
+      "locale": "pt-BR",
+      "text": "Ecos do Éter e os Resíduos Censurados",
+      "updatedAt": "2026-11-14T01:15:22.199Z"
+    },
+    {
+      "id": 1265,
+      "key": "quest.quest_main_03.desc",
+      "locale": "pt-BR",
+      "text": "Purifique anomalias na orla de Izumo, recolha amostras de resíduos etéreos e entregue para análise ao Lapidador Mou.",
+      "updatedAt": "2026-11-14T01:15:22.202Z"
+    },
+    {
+      "id": 1266,
+      "key": "quest.quest_main_03.dialogue_offer",
+      "locale": "pt-BR",
+      "text": "O Alto Curador ordenou o abate de feras da margem para recolher Resíduos de Véu e abastecer os motores da capital. Mas quando olhei nos olhos daquelas criaturas, não vi invasores... elas pareciam guardiãs sofrendo. Purifique 3 combates e leve os resíduos ao Lapidador Mou.",
+      "updatedAt": "2026-11-14T01:15:22.205Z"
+    },
+    {
+      "id": 1267,
+      "key": "quest.quest_main_03.dialogue_active",
+      "locale": "pt-BR",
+      "text": "Cuidado ao manusear esses resíduos na mochila! A ressonância deles é muito densa.",
+      "updatedAt": "2026-11-14T01:15:22.208Z"
+    },
+    {
+      "id": 1268,
+      "key": "quest.quest_main_03.dialogue_complete",
+      "locale": "pt-BR",
+      "text": "Pelos ancestrais... Isto não é lixo de aberração! Esta geometria hexagonal é uma matriz de contenção primordial! E este papiro censurado proibia drenar essas feras... O que o Curador está realmente nos mandando matar?!",
+      "updatedAt": "2026-11-14T01:15:22.211Z"
+    },
+    {
+      "id": 1269,
+      "key": "quest.quest_main_04.title",
+      "locale": "pt-BR",
+      "text": "O Sussurro da Dissidência",
+      "updatedAt": "2026-11-14T01:15:22.218Z"
+    },
+    {
+      "id": 1270,
+      "key": "quest.quest_main_04.desc",
+      "locale": "pt-BR",
+      "text": "Consulte o Comandante Daisuke sobre os relatórios rasurados, sobreviva à emboscada dos rebeldes no bambuzal e reporte o incidente.",
+      "updatedAt": "2026-11-14T01:15:22.221Z"
+    },
+    {
+      "id": 1271,
+      "key": "quest.quest_main_04.dialogue_offer",
+      "locale": "pt-BR",
+      "text": "Guarde esse papiro rasurado. Vá falar com o Comandante Daisuke no Portão Leste, mas passe discretamente pela trilha dos bambus. Sinto que há sombras nos vigiando desde que você cruzou a ponte.",
+      "updatedAt": "2026-11-14T01:15:22.224Z"
+    },
+    {
+      "id": 1272,
+      "key": "quest.quest_main_04.dialogue_active",
+      "locale": "pt-BR",
+      "text": "O que foi essa oscilação violenta nos bambuzais? Suas vestes estão chamuscadas de magia dissidente!",
+      "updatedAt": "2026-11-14T01:15:22.227Z"
+    },
+    {
+      "id": 1273,
+      "key": "quest.quest_main_04.dialogue_complete",
+      "locale": "pt-BR",
+      "text": "Dissidentes atacando dentro de Izumo?! Eles gritaram que você é um fantoche do Curador? Não dê ouvidos a fanáticos! Mas... olhe para o céu da arena: aquela borda roxa trincada não estava ali antes. Algo grave está acontecendo.",
+      "updatedAt": "2026-11-14T01:15:22.229Z"
+    },
+    {
+      "id": 1274,
+      "key": "quest.quest_main_05.title",
+      "locale": "pt-BR",
+      "text": "O Rompimento do Marco e a Passagem Proibida",
+      "updatedAt": "2026-11-14T01:15:22.235Z"
+    },
+    {
+      "id": 1275,
+      "key": "quest.quest_main_05.desc",
+      "locale": "pt-BR",
+      "text": "Abata o Guardião Alfa que bloqueia o Portal 1 de Izumo, liberte a rota para o Pantanal das Nuvens e receba sua consagração de Nível 10.",
+      "updatedAt": "2026-11-14T01:15:22.238Z"
+    },
+    {
+      "id": 1276,
+      "key": "quest.quest_main_05.dialogue_offer",
+      "locale": "pt-BR",
+      "text": "Chegou sua hora, Restaurador! O portal para o Pantanal das Nuvens está bloqueado por uma tempestade etérea colossal. O Alto Curador ordenou a drenagem total do monstro alfa. Adentre o Véu, abata o guardião e liberte a passagem!",
+      "updatedAt": "2026-11-14T01:15:22.241Z"
+    },
+    {
+      "id": 1277,
+      "key": "quest.quest_main_05.dialogue_active",
+      "locale": "pt-BR",
+      "text": "O chão tremeu quando a fenda se abriu! Você conseguiu derrotar a fera colossal do marco?",
+      "updatedAt": "2026-11-14T01:15:22.244Z"
+    },
+    {
+      "id": 1278,
+      "key": "quest.quest_main_05.dialogue_complete",
+      "locale": "pt-BR",
+      "text": "Você conseguiu! O portal para o Pantanal das Nuvens finalmente se estabilizou e está liberado para você! Em nome da Ordem da Restauração, eu o consagro Agente de Campo de Nível 10! As terras do Pantanal o aguardam!",
+      "updatedAt": "2026-11-14T01:15:22.246Z"
     }
   ],
   "biomes": [
@@ -45812,16 +45847,24 @@
       "code": "npc_3",
       "mcreworkNpcKey": "npc_000024",
       "nameI18nKey": "npc.npc_3.name",
-      "isDecorationOnly": true,
-      "triggersJson": []
+      "isDecorationOnly": false,
+      "triggersJson": [
+        {
+          "type": "QUEST"
+        }
+      ]
     },
     {
       "id": 4,
       "code": "npc_4",
       "mcreworkNpcKey": "npc_000030",
       "nameI18nKey": "npc.npc_4.name",
-      "isDecorationOnly": true,
-      "triggersJson": []
+      "isDecorationOnly": false,
+      "triggersJson": [
+        {
+          "type": "QUEST"
+        }
+      ]
     },
     {
       "id": 5,
@@ -48609,7 +48652,7 @@
         "MAG_ACCURACY": 100,
         "PHYS_EVASION": 10,
         "PHYS_ACCURACY": 100,
-        "BATTLE_MOVE_SPEED": 160
+        "BATTLE_MOVE_SPEED": 120
       },
       "skillIdsJson": [],
       "lootTableJson": [
@@ -48637,14 +48680,23 @@
       "damageType": "PHYSICAL",
       "isTamableAsPet": true,
       "baseAttributesJson": {
-        "AGI": 15,
-        "DEX": 14,
-        "INT": 10,
-        "STR": 10,
+        "AGI": 5,
+        "DEX": 3,
+        "INT": 2,
+        "STR": 6,
         "VIT": 12,
-        "WIS": 10
+        "WIS": 3
       },
-      "baseCombatAttributesJson": {},
+      "baseCombatAttributesJson": {
+        "CRIT_DMG": 150,
+        "CRIT_RATE": 5,
+        "MAG_EVASION": 5,
+        "ATTACK_SPEED": 0.8,
+        "MAG_ACCURACY": 95,
+        "PHYS_EVASION": 5,
+        "PHYS_ACCURACY": 95,
+        "BATTLE_MOVE_SPEED": 125
+      },
       "skillIdsJson": [],
       "lootTableJson": [
         {
@@ -48671,14 +48723,23 @@
       "damageType": "MAGICAL",
       "isTamableAsPet": true,
       "baseAttributesJson": {
-        "AGI": 8,
-        "DEX": 10,
-        "INT": 12,
-        "STR": 11,
-        "VIT": 16,
-        "WIS": 11
+        "AGI": 6,
+        "DEX": 7,
+        "INT": 7,
+        "STR": 5,
+        "VIT": 12,
+        "WIS": 5
       },
-      "baseCombatAttributesJson": {},
+      "baseCombatAttributesJson": {
+        "CRIT_DMG": 150,
+        "CRIT_RATE": 5,
+        "MAG_EVASION": 5,
+        "ATTACK_SPEED": 1,
+        "MAG_ACCURACY": 95,
+        "PHYS_EVASION": 5,
+        "PHYS_ACCURACY": 95,
+        "BATTLE_MOVE_SPEED": 100
+      },
       "skillIdsJson": [],
       "lootTableJson": [
         {
@@ -48705,14 +48766,23 @@
       "damageType": "PHYSICAL",
       "isTamableAsPet": true,
       "baseAttributesJson": {
-        "AGI": 12,
-        "DEX": 13,
-        "INT": 14,
-        "STR": 11,
+        "AGI": 2,
+        "DEX": 3,
+        "INT": 4,
+        "STR": 4,
         "VIT": 13,
-        "WIS": 13
+        "WIS": 3
       },
-      "baseCombatAttributesJson": {},
+      "baseCombatAttributesJson": {
+        "CRIT_DMG": 150,
+        "CRIT_RATE": 5,
+        "MAG_EVASION": 5,
+        "ATTACK_SPEED": 1,
+        "MAG_ACCURACY": 95,
+        "PHYS_EVASION": 5,
+        "PHYS_ACCURACY": 95,
+        "BATTLE_MOVE_SPEED": 115
+      },
       "skillIdsJson": [
         5
       ],
@@ -48741,14 +48811,23 @@
       "damageType": "PHYSICAL",
       "isTamableAsPet": true,
       "baseAttributesJson": {
-        "AGI": 7,
-        "DEX": 9,
-        "INT": 11,
-        "STR": 14,
+        "AGI": 2,
+        "DEX": 4,
+        "INT": 4,
+        "STR": 3,
         "VIT": 18,
-        "WIS": 12
+        "WIS": 1
       },
-      "baseCombatAttributesJson": {},
+      "baseCombatAttributesJson": {
+        "CRIT_DMG": 150,
+        "CRIT_RATE": 5,
+        "MAG_EVASION": 5,
+        "ATTACK_SPEED": 1,
+        "MAG_ACCURACY": 95,
+        "PHYS_EVASION": 5,
+        "PHYS_ACCURACY": 95,
+        "BATTLE_MOVE_SPEED": 95
+      },
       "skillIdsJson": [
         5
       ],
@@ -48777,14 +48856,23 @@
       "damageType": "PHYSICAL",
       "isTamableAsPet": true,
       "baseAttributesJson": {
-        "AGI": 10,
-        "DEX": 10,
-        "INT": 10,
-        "STR": 12,
+        "AGI": 5,
+        "DEX": 6,
+        "INT": 7,
+        "STR": 8,
         "VIT": 14,
-        "WIS": 10
+        "WIS": 6
       },
-      "baseCombatAttributesJson": {},
+      "baseCombatAttributesJson": {
+        "CRIT_DMG": 150,
+        "CRIT_RATE": 5,
+        "MAG_EVASION": 5,
+        "ATTACK_SPEED": 1,
+        "MAG_ACCURACY": 95,
+        "PHYS_EVASION": 5,
+        "PHYS_ACCURACY": 95,
+        "BATTLE_MOVE_SPEED": 125
+      },
       "skillIdsJson": [
         5
       ],
@@ -48817,10 +48905,19 @@
         "DEX": 10,
         "INT": 10,
         "STR": 12,
-        "VIT": 14,
+        "VIT": 23,
         "WIS": 10
       },
-      "baseCombatAttributesJson": {},
+      "baseCombatAttributesJson": {
+        "CRIT_DMG": 150,
+        "CRIT_RATE": 5,
+        "MAG_EVASION": 5,
+        "ATTACK_SPEED": 1,
+        "MAG_ACCURACY": 95,
+        "PHYS_EVASION": 5,
+        "PHYS_ACCURACY": 95,
+        "BATTLE_MOVE_SPEED": 80
+      },
       "skillIdsJson": [],
       "lootTableJson": [
         {
@@ -48849,12 +48946,21 @@
       "baseAttributesJson": {
         "AGI": 10,
         "DEX": 10,
-        "INT": 10,
-        "STR": 12,
-        "VIT": 14,
+        "INT": 15,
+        "STR": 15,
+        "VIT": 12,
         "WIS": 10
       },
-      "baseCombatAttributesJson": {},
+      "baseCombatAttributesJson": {
+        "CRIT_DMG": 150,
+        "CRIT_RATE": 5,
+        "MAG_EVASION": 5,
+        "ATTACK_SPEED": 1,
+        "MAG_ACCURACY": 95,
+        "PHYS_EVASION": 5,
+        "PHYS_ACCURACY": 95,
+        "BATTLE_MOVE_SPEED": 70
+      },
       "skillIdsJson": [
         6
       ],
@@ -48885,12 +48991,21 @@
       "baseAttributesJson": {
         "AGI": 6,
         "DEX": 6,
-        "INT": 6,
-        "STR": 8,
-        "VIT": 10,
-        "WIS": 6
+        "INT": 11,
+        "STR": 5,
+        "VIT": 8,
+        "WIS": 5
       },
-      "baseCombatAttributesJson": {},
+      "baseCombatAttributesJson": {
+        "CRIT_DMG": 150,
+        "CRIT_RATE": 5,
+        "MAG_EVASION": 5,
+        "ATTACK_SPEED": 1,
+        "MAG_ACCURACY": 95,
+        "PHYS_EVASION": 5,
+        "PHYS_ACCURACY": 95,
+        "BATTLE_MOVE_SPEED": 125
+      },
       "skillIdsJson": [],
       "lootTableJson": [
         {
@@ -48917,14 +49032,23 @@
       "damageType": "MAGICAL",
       "isTamableAsPet": true,
       "baseAttributesJson": {
-        "AGI": 10,
-        "DEX": 10,
-        "INT": 10,
-        "STR": 12,
-        "VIT": 14,
-        "WIS": 10
+        "AGI": 6,
+        "DEX": 5,
+        "INT": 11,
+        "STR": 6,
+        "VIT": 9,
+        "WIS": 9
       },
-      "baseCombatAttributesJson": {},
+      "baseCombatAttributesJson": {
+        "CRIT_DMG": 150,
+        "CRIT_RATE": 5,
+        "MAG_EVASION": 5,
+        "ATTACK_SPEED": 1,
+        "MAG_ACCURACY": 95,
+        "PHYS_EVASION": 5,
+        "PHYS_ACCURACY": 95,
+        "BATTLE_MOVE_SPEED": 105
+      },
       "skillIdsJson": [
         5
       ],
@@ -48949,18 +49073,27 @@
       "fixedElementCode": "EARTH",
       "rarityTier": "D",
       "combatStyle": "MELEE",
-      "attackRange": 30,
+      "attackRange": 45,
       "damageType": "PHYSICAL",
       "isTamableAsPet": true,
       "baseAttributesJson": {
-        "AGI": 10,
-        "DEX": 10,
-        "INT": 10,
-        "STR": 12,
-        "VIT": 14,
-        "WIS": 10
+        "AGI": 3,
+        "DEX": 4,
+        "INT": 5,
+        "STR": 10,
+        "VIT": 15,
+        "WIS": 3
       },
-      "baseCombatAttributesJson": {},
+      "baseCombatAttributesJson": {
+        "CRIT_DMG": 150,
+        "CRIT_RATE": 5,
+        "MAG_EVASION": 5,
+        "ATTACK_SPEED": 1,
+        "MAG_ACCURACY": 95,
+        "PHYS_EVASION": 5,
+        "PHYS_ACCURACY": 95,
+        "BATTLE_MOVE_SPEED": 135
+      },
       "skillIdsJson": [],
       "lootTableJson": [
         {
@@ -48994,7 +49127,16 @@
         "VIT": 14,
         "WIS": 10
       },
-      "baseCombatAttributesJson": {},
+      "baseCombatAttributesJson": {
+        "CRIT_DMG": 150,
+        "CRIT_RATE": 5,
+        "MAG_EVASION": 5,
+        "ATTACK_SPEED": 1.1,
+        "MAG_ACCURACY": 95,
+        "PHYS_EVASION": 5,
+        "PHYS_ACCURACY": 95,
+        "BATTLE_MOVE_SPEED": 145
+      },
       "skillIdsJson": [
         6
       ],
@@ -49023,14 +49165,23 @@
       "damageType": "PHYSICAL",
       "isTamableAsPet": true,
       "baseAttributesJson": {
-        "AGI": 10,
-        "DEX": 10,
-        "INT": 10,
-        "STR": 12,
-        "VIT": 14,
-        "WIS": 10
+        "AGI": 5,
+        "DEX": 8,
+        "INT": 8,
+        "STR": 15,
+        "VIT": 15,
+        "WIS": 6
       },
-      "baseCombatAttributesJson": {},
+      "baseCombatAttributesJson": {
+        "CRIT_DMG": 150,
+        "CRIT_RATE": 5,
+        "MAG_EVASION": 5,
+        "ATTACK_SPEED": 0.9,
+        "MAG_ACCURACY": 95,
+        "PHYS_EVASION": 5,
+        "PHYS_ACCURACY": 95,
+        "BATTLE_MOVE_SPEED": 155
+      },
       "skillIdsJson": [],
       "lootTableJson": [
         {
@@ -49057,18 +49208,24 @@
       "damageType": "MAGICAL",
       "isTamableAsPet": true,
       "baseAttributesJson": {
-        "AGI": 25,
-        "DEX": 25,
-        "INT": 20,
-        "STR": 15,
-        "VIT": 30,
-        "WIS": 25
+        "AGI": 8,
+        "DEX": 10,
+        "INT": 10,
+        "STR": 10,
+        "VIT": 25,
+        "WIS": 8
       },
-      "baseCombatAttributesJson": {},
-      "skillIdsJson": [
-        5,
-        6
-      ],
+      "baseCombatAttributesJson": {
+        "CRIT_DMG": 150,
+        "CRIT_RATE": 5,
+        "MAG_EVASION": 15,
+        "ATTACK_SPEED": 0.8,
+        "MAG_ACCURACY": 105,
+        "PHYS_EVASION": 5,
+        "PHYS_ACCURACY": 95,
+        "BATTLE_MOVE_SPEED": 150
+      },
+      "skillIdsJson": [],
       "lootTableJson": [
         {
           "maxQty": 1,
@@ -52608,304 +52765,6 @@
   ],
   "itemTemplates": [
     {
-      "id": 1,
-      "code": "equip_espada_ferro_recruta",
-      "nameI18nKey": "item.equip_espada_ferro_recruta.name",
-      "descriptionI18nKey": "item.equip_espada_ferro_recruta.desc",
-      "mcreworkIconKey": "assets/equipment/icons/equip_normal_100001.png",
-      "itemCategory": "CHARACTER_EQUIPMENT",
-      "equipmentSlotCode": "WEAPON_1",
-      "rarityTier": "COMMON",
-      "requiredLevel": 1,
-      "isTradable": true,
-      "priceGold": 0,
-      "maxStack": 99,
-      "cooldownSec": 0,
-      "targetType": "SELF",
-      "effectType": null,
-      "effectValue": 0,
-      "reqClassCodesJson": [],
-      "baseStatBonusesJson": {},
-      "combatStatBonusesJson": {
-        "CRIT_DMG": 25,
-        "PHYS_ATK": 28,
-        "CRIT_RATE": 8,
-        "ATTACK_RANGE": 70,
-        "ATTACK_SPEED": 0.15
-      },
-      "specialEffectJson": {},
-      "isActive": true,
-      "createdAt": "2026-11-10T02:39:40.591Z",
-      "updatedAt": "2026-11-13T13:39:33.160Z"
-    },
-    {
-      "id": 2,
-      "code": "equip_cajado_ventos_misticos",
-      "nameI18nKey": "item.equip_cajado_ventos_misticos.name",
-      "descriptionI18nKey": "item.equip_cajado_ventos_misticos.desc",
-      "mcreworkIconKey": "assets/equipment/icons/equip_normal_100005.png",
-      "itemCategory": "CHARACTER_EQUIPMENT",
-      "equipmentSlotCode": "WEAPON_1",
-      "rarityTier": "B",
-      "requiredLevel": 10,
-      "isTradable": true,
-      "priceGold": 0,
-      "maxStack": 99,
-      "cooldownSec": 0,
-      "targetType": "SELF",
-      "effectType": null,
-      "effectValue": 0,
-      "reqClassCodesJson": [
-        "MAGE",
-        "CLERIC"
-      ],
-      "baseStatBonusesJson": {},
-      "combatStatBonusesJson": {
-        "MAG_ATK": 35,
-        "ATTACK_RANGE": 220,
-        "MAG_ACCURACY": 10
-      },
-      "specialEffectJson": {},
-      "isActive": true,
-      "createdAt": "2026-11-10T02:39:40.795Z",
-      "updatedAt": "2026-11-13T13:37:37.364Z"
-    },
-    {
-      "id": 3,
-      "code": "equip_escudo_carvalho_reforcado",
-      "nameI18nKey": "item.equip_escudo_carvalho_reforcado.name",
-      "descriptionI18nKey": "item.equip_escudo_carvalho_reforcado.desc",
-      "mcreworkIconKey": "assets/equipment/icons/equip_normal_110001.png",
-      "itemCategory": "CHARACTER_EQUIPMENT",
-      "equipmentSlotCode": "WEAPON_2",
-      "rarityTier": "COMMON",
-      "requiredLevel": 1,
-      "isTradable": true,
-      "priceGold": 0,
-      "maxStack": 99,
-      "cooldownSec": 0,
-      "targetType": "SELF",
-      "effectType": null,
-      "effectValue": 0,
-      "reqClassCodesJson": [
-        "WARRIOR",
-        "PALADIN"
-      ],
-      "baseStatBonusesJson": {},
-      "combatStatBonusesJson": {
-        "MAG_DEF": 8,
-        "PHYS_DEF": 12,
-        "PHYS_EVASION": 5
-      },
-      "specialEffectJson": {},
-      "isActive": true,
-      "createdAt": "2026-11-10T02:39:40.944Z",
-      "updatedAt": "2026-11-13T13:37:37.368Z"
-    },
-    {
-      "id": 4,
-      "code": "equip_peitoral_malha_protetora",
-      "nameI18nKey": "item.equip_peitoral_malha_protetora.name",
-      "descriptionI18nKey": "item.equip_peitoral_malha_protetora.desc",
-      "mcreworkIconKey": "assets/equipment/icons/equip_normal_210001.png",
-      "itemCategory": "CHARACTER_EQUIPMENT",
-      "equipmentSlotCode": "CHEST",
-      "rarityTier": "COMMON",
-      "requiredLevel": 5,
-      "isTradable": true,
-      "priceGold": 0,
-      "maxStack": 99,
-      "cooldownSec": 0,
-      "targetType": "SELF",
-      "effectType": null,
-      "effectValue": 0,
-      "reqClassCodesJson": [],
-      "baseStatBonusesJson": {},
-      "combatStatBonusesJson": {
-        "MAG_DEF": 10,
-        "PHYS_DEF": 25,
-        "BATTLE_MOVE_SPEED": -5
-      },
-      "specialEffectJson": {},
-      "isActive": true,
-      "createdAt": "2026-11-10T02:39:41.097Z",
-      "updatedAt": "2026-11-13T13:37:37.372Z"
-    },
-    {
-      "id": 5,
-      "code": "equip_tunica_seda_fadas",
-      "nameI18nKey": "item.equip_tunica_seda_fadas.name",
-      "descriptionI18nKey": "item.equip_tunica_seda_fadas.desc",
-      "mcreworkIconKey": "assets/equipment/icons/equip_normal_210003.png",
-      "itemCategory": "CHARACTER_EQUIPMENT",
-      "equipmentSlotCode": "CHEST",
-      "rarityTier": "B",
-      "requiredLevel": 10,
-      "isTradable": true,
-      "priceGold": 0,
-      "maxStack": 99,
-      "cooldownSec": 0,
-      "targetType": "SELF",
-      "effectType": null,
-      "effectValue": 0,
-      "reqClassCodesJson": [],
-      "baseStatBonusesJson": {},
-      "combatStatBonusesJson": {
-        "MAG_DEF": 30,
-        "PHYS_DEF": 12,
-        "BATTLE_MOVE_SPEED": 10
-      },
-      "specialEffectJson": {},
-      "isActive": true,
-      "createdAt": "2026-11-10T02:39:41.262Z",
-      "updatedAt": "2026-11-13T13:37:37.376Z"
-    },
-    {
-      "id": 6,
-      "code": "equip_elmo_cavaleiro_bronze",
-      "nameI18nKey": "item.equip_elmo_cavaleiro_bronze.name",
-      "descriptionI18nKey": "item.equip_elmo_cavaleiro_bronze.desc",
-      "mcreworkIconKey": "assets/equipment/icons/equip_normal_200001.png",
-      "itemCategory": "CHARACTER_EQUIPMENT",
-      "equipmentSlotCode": "HEAD",
-      "rarityTier": "C",
-      "requiredLevel": 8,
-      "isTradable": true,
-      "priceGold": 0,
-      "maxStack": 99,
-      "cooldownSec": 0,
-      "targetType": "SELF",
-      "effectType": null,
-      "effectValue": 0,
-      "reqClassCodesJson": [],
-      "baseStatBonusesJson": {},
-      "combatStatBonusesJson": {
-        "MAG_DEF": 6,
-        "PHYS_DEF": 15
-      },
-      "specialEffectJson": {},
-      "isActive": true,
-      "createdAt": "2026-11-10T02:39:41.412Z",
-      "updatedAt": "2026-11-13T13:37:37.379Z"
-    },
-    {
-      "id": 7,
-      "code": "equip_botas_aladas_mensageiro",
-      "nameI18nKey": "item.equip_botas_aladas_mensageiro.name",
-      "descriptionI18nKey": "item.equip_botas_aladas_mensageiro.desc",
-      "mcreworkIconKey": "assets/equipment/icons/equip_normal_230001.png",
-      "itemCategory": "CHARACTER_EQUIPMENT",
-      "equipmentSlotCode": "FEET",
-      "rarityTier": "A",
-      "requiredLevel": 15,
-      "isTradable": true,
-      "priceGold": 0,
-      "maxStack": 99,
-      "cooldownSec": 0,
-      "targetType": "SELF",
-      "effectType": null,
-      "effectValue": 0,
-      "reqClassCodesJson": [],
-      "baseStatBonusesJson": {},
-      "combatStatBonusesJson": {
-        "ATTACK_SPEED": 0.1,
-        "PHYS_EVASION": 12,
-        "BATTLE_MOVE_SPEED": 25
-      },
-      "specialEffectJson": {},
-      "isActive": true,
-      "createdAt": "2026-11-10T02:39:41.580Z",
-      "updatedAt": "2026-11-13T13:37:37.382Z"
-    },
-    {
-      "id": 8,
-      "code": "equip_anel_rubi_flamejante",
-      "nameI18nKey": "item.equip_anel_rubi_flamejante.name",
-      "descriptionI18nKey": "item.equip_anel_rubi_flamejante.desc",
-      "mcreworkIconKey": "assets/equipment/icons/equip_normal_400001.png",
-      "itemCategory": "CHARACTER_EQUIPMENT",
-      "equipmentSlotCode": "RING",
-      "rarityTier": "A",
-      "requiredLevel": 12,
-      "isTradable": true,
-      "priceGold": 0,
-      "maxStack": 99,
-      "cooldownSec": 0,
-      "targetType": "SELF",
-      "effectType": null,
-      "effectValue": 0,
-      "reqClassCodesJson": [],
-      "baseStatBonusesJson": {},
-      "combatStatBonusesJson": {
-        "PHYS_ATK": 12,
-        "CRIT_CHANCE_PCT": 5,
-        "CRIT_DAMAGE_PCT": 15
-      },
-      "specialEffectJson": {},
-      "isActive": true,
-      "createdAt": "2026-11-10T02:39:41.723Z",
-      "updatedAt": "2026-11-13T13:37:37.388Z"
-    },
-    {
-      "id": 9,
-      "code": "equip_asas_celestiais_aurora",
-      "nameI18nKey": "item.equip_asas_celestiais_aurora.name",
-      "descriptionI18nKey": "item.equip_asas_celestiais_aurora.desc",
-      "mcreworkIconKey": "assets/equipment/icons/equip_normal_500001.png",
-      "itemCategory": "CHARACTER_EQUIPMENT",
-      "equipmentSlotCode": "WINGS",
-      "rarityTier": "S",
-      "requiredLevel": 20,
-      "isTradable": true,
-      "priceGold": 0,
-      "maxStack": 99,
-      "cooldownSec": 0,
-      "targetType": "SELF",
-      "effectType": null,
-      "effectValue": 0,
-      "reqClassCodesJson": [],
-      "baseStatBonusesJson": {},
-      "combatStatBonusesJson": {
-        "MAG_EVASION": 15,
-        "ATTACK_SPEED": 0.15,
-        "PHYS_EVASION": 15,
-        "BATTLE_MOVE_SPEED": 35
-      },
-      "specialEffectJson": {},
-      "isActive": true,
-      "createdAt": "2026-11-10T02:39:41.868Z",
-      "updatedAt": "2026-11-13T13:37:37.392Z"
-    },
-    {
-      "id": 10,
-      "code": "equip_selo_batalha_pet",
-      "nameI18nKey": "item.equip_selo_batalha_pet.name",
-      "descriptionI18nKey": "item.equip_selo_batalha_pet.desc",
-      "mcreworkIconKey": "assets/equipment/icons/equip_normal_600001.png",
-      "itemCategory": "PET_EQUIPMENT",
-      "equipmentSlotCode": "PET_EQUIP_2",
-      "rarityTier": "C",
-      "requiredLevel": 1,
-      "isTradable": true,
-      "priceGold": 0,
-      "maxStack": 99,
-      "cooldownSec": 0,
-      "targetType": "SELF",
-      "effectType": null,
-      "effectValue": 0,
-      "reqClassCodesJson": [],
-      "baseStatBonusesJson": {},
-      "combatStatBonusesJson": {
-        "PHYS_ATK": 18,
-        "PHYS_DEF": 14,
-        "BATTLE_MOVE_SPEED": 10
-      },
-      "specialEffectJson": {},
-      "isActive": true,
-      "createdAt": "2026-11-10T02:39:42.007Z",
-      "updatedAt": "2026-11-13T13:37:37.395Z"
-    },
-    {
       "id": 26,
       "code": "item_pocao_de_cura_menor_agp6s",
       "nameI18nKey": "item.item_pocao_de_cura_menor_agp6s.name",
@@ -53791,7 +53650,8 @@
       "rewardsJson": {
         "exp": 120,
         "gold": 50,
-        "statPoints": 2
+        "statPoints": 0,
+        "freePointsBonus": 0
       },
       "metaConfigJson": null,
       "isActive": true
@@ -53840,7 +53700,8 @@
       "rewardsJson": {
         "exp": 180,
         "gold": 80,
-        "statPoints": 2
+        "statPoints": 0,
+        "freePointsBonus": 0
       },
       "metaConfigJson": null,
       "isActive": true
@@ -53888,7 +53749,8 @@
       "rewardsJson": {
         "exp": 350,
         "gold": 180,
-        "statPoints": 3
+        "statPoints": 0,
+        "freePointsBonus": 0
       },
       "metaConfigJson": null,
       "isActive": true
@@ -53937,7 +53799,8 @@
       "rewardsJson": {
         "exp": 420,
         "gold": 220,
-        "statPoints": 3
+        "statPoints": 0,
+        "freePointsBonus": 0
       },
       "metaConfigJson": null,
       "isActive": true
@@ -53984,7 +53847,8 @@
       "rewardsJson": {
         "exp": 600,
         "gold": 320,
-        "statPoints": 4
+        "statPoints": 0,
+        "freePointsBonus": 0
       },
       "metaConfigJson": null,
       "isActive": true
@@ -54033,7 +53897,8 @@
       "rewardsJson": {
         "exp": 150,
         "gold": 100,
-        "statPoints": 1
+        "statPoints": 0,
+        "freePointsBonus": 0
       },
       "metaConfigJson": null,
       "isActive": true
@@ -54080,7 +53945,8 @@
       "rewardsJson": {
         "exp": 400,
         "gold": 200,
-        "statPoints": 3
+        "statPoints": 0,
+        "freePointsBonus": 0
       },
       "metaConfigJson": null,
       "isActive": true
@@ -54127,8 +53993,282 @@
       "rewardsJson": {
         "exp": 1000,
         "gold": 500,
-        "statPoints": 5,
-        "triggerReborn": true
+        "statPoints": 0,
+        "triggerReborn": true,
+        "freePointsBonus": 0
+      },
+      "metaConfigJson": null,
+      "isActive": true
+    },
+    {
+      "id": 30,
+      "code": "quest_main_01",
+      "titleI18nKey": "quest.quest_main_01.title",
+      "descriptionI18nKey": "quest.quest_main_01.desc",
+      "dialogueOfferI18nKey": "quest.quest_main_01.dialogue_offer",
+      "dialogueActiveI18nKey": "quest.quest_main_01.dialogue_active",
+      "dialogueCompleteI18nKey": "quest.quest_main_01.dialogue_complete",
+      "questCategory": "MAIN",
+      "chapterOrder": 1,
+      "episodeOrder": 1,
+      "minLevel": 1,
+      "prerequisiteQuestId": null,
+      "repeatType": "ONCE",
+      "triggerType": "NPC_INTERACT",
+      "triggerConfigJson": {
+        "autoAcceptOnTrigger": false
+      },
+      "requirementsJson": {
+        "minLevel": 1
+      },
+      "giverNpcId": 1,
+      "giverMapId": null,
+      "turnInNpcId": 2,
+      "turnInMapId": null,
+      "objectivesJson": [
+        {
+          "type": "TALK_NPC",
+          "mapId": null,
+          "labelPtBr": "Aceitar a comissão com a Oficial Kaori",
+          "npcTemplateId": 1,
+          "requiredCount": 1
+        },
+        {
+          "type": "TALK_NPC",
+          "mapId": null,
+          "labelPtBr": "Apresentar-se ao Arquivista Mestre Genpaku",
+          "npcTemplateId": 2,
+          "requiredCount": 1
+        }
+      ],
+      "rewardsJson": {
+        "exp": 220,
+        "gold": 100,
+        "statPoints": 0,
+        "rewardItemTemplateIds": [
+          45,
+          46,
+          47,
+          48,
+          49,
+          50,
+          51,
+          52,
+          53,
+          54,
+          55,
+          56
+        ]
+      },
+      "metaConfigJson": null,
+      "isActive": true
+    },
+    {
+      "id": 31,
+      "code": "quest_main_02",
+      "titleI18nKey": "quest.quest_main_02.title",
+      "descriptionI18nKey": "quest.quest_main_02.desc",
+      "dialogueOfferI18nKey": "quest.quest_main_02.dialogue_offer",
+      "dialogueActiveI18nKey": "quest.quest_main_02.dialogue_active",
+      "dialogueCompleteI18nKey": "quest.quest_main_02.dialogue_complete",
+      "questCategory": "MAIN",
+      "chapterOrder": 1,
+      "episodeOrder": 2,
+      "minLevel": 2,
+      "prerequisiteQuestId": 30,
+      "repeatType": "ONCE",
+      "triggerType": "AUTO_ON_PREV_QUEST",
+      "triggerConfigJson": {
+        "autoAcceptOnTrigger": false
+      },
+      "requirementsJson": {
+        "minLevel": 2,
+        "prerequisiteQuestId": 30
+      },
+      "giverNpcId": 2,
+      "giverMapId": null,
+      "turnInNpcId": 4,
+      "turnInMapId": null,
+      "objectivesJson": [
+        {
+          "type": "TALK_NPC",
+          "mapId": null,
+          "labelPtBr": "Consultar o Armeiro Jinbei sobre afiação no vácuo",
+          "npcTemplateId": 3,
+          "requiredCount": 1
+        },
+        {
+          "type": "WIN_BATTLES",
+          "labelPtBr": "Vencer 2 combates de treino no Véu",
+          "requiredCount": 2
+        },
+        {
+          "type": "TALK_NPC",
+          "mapId": null,
+          "labelPtBr": "Reportar a estabilização à Sentinela Ren",
+          "npcTemplateId": 4,
+          "requiredCount": 1
+        }
+      ],
+      "rewardsJson": {
+        "exp": 750,
+        "gold": 250,
+        "statPoints": 0,
+        "rewardItems": [
+          {
+            "quantity": 5,
+            "itemTemplateId": 1
+          },
+          {
+            "quantity": 5,
+            "itemTemplateId": 2
+          }
+        ]
+      },
+      "metaConfigJson": null,
+      "isActive": true
+    },
+    {
+      "id": 32,
+      "code": "quest_main_03",
+      "titleI18nKey": "quest.quest_main_03.title",
+      "descriptionI18nKey": "quest.quest_main_03.desc",
+      "dialogueOfferI18nKey": "quest.quest_main_03.dialogue_offer",
+      "dialogueActiveI18nKey": "quest.quest_main_03.dialogue_active",
+      "dialogueCompleteI18nKey": "quest.quest_main_03.dialogue_complete",
+      "questCategory": "MAIN",
+      "chapterOrder": 1,
+      "episodeOrder": 3,
+      "minLevel": 4,
+      "prerequisiteQuestId": 31,
+      "repeatType": "ONCE",
+      "triggerType": "NPC_INTERACT",
+      "triggerConfigJson": {
+        "autoAcceptOnTrigger": false
+      },
+      "requirementsJson": {
+        "minLevel": 4,
+        "prerequisiteQuestId": 31
+      },
+      "giverNpcId": 4,
+      "giverMapId": null,
+      "turnInNpcId": 5,
+      "turnInMapId": null,
+      "objectivesJson": [
+        {
+          "type": "WIN_BATTLES",
+          "labelPtBr": "Vencer 3 batalhas contra anomalias no Véu",
+          "requiredCount": 3
+        },
+        {
+          "type": "TALK_NPC",
+          "mapId": null,
+          "labelPtBr": "Entregar os resíduos ao Lapidador Mou",
+          "npcTemplateId": 5,
+          "requiredCount": 1
+        }
+      ],
+      "rewardsJson": {
+        "exp": 1400,
+        "gold": 500,
+        "statPoints": 0
+      },
+      "metaConfigJson": null,
+      "isActive": true
+    },
+    {
+      "id": 33,
+      "code": "quest_main_04",
+      "titleI18nKey": "quest.quest_main_04.title",
+      "descriptionI18nKey": "quest.quest_main_04.desc",
+      "dialogueOfferI18nKey": "quest.quest_main_04.dialogue_offer",
+      "dialogueActiveI18nKey": "quest.quest_main_04.dialogue_active",
+      "dialogueCompleteI18nKey": "quest.quest_main_04.dialogue_complete",
+      "questCategory": "MAIN",
+      "chapterOrder": 1,
+      "episodeOrder": 4,
+      "minLevel": 6,
+      "prerequisiteQuestId": 32,
+      "repeatType": "ONCE",
+      "triggerType": "NPC_INTERACT",
+      "triggerConfigJson": {
+        "autoAcceptOnTrigger": false
+      },
+      "requirementsJson": {
+        "minLevel": 6,
+        "prerequisiteQuestId": 32
+      },
+      "giverNpcId": 5,
+      "giverMapId": null,
+      "turnInNpcId": 6,
+      "turnInMapId": null,
+      "objectivesJson": [
+        {
+          "type": "WIN_BATTLES",
+          "labelPtBr": "Sobreviver à emboscada e vencer 2 batalhas no Véu",
+          "requiredCount": 2
+        },
+        {
+          "type": "TALK_NPC",
+          "mapId": null,
+          "labelPtBr": "Reportar o ataque ao Comandante Daisuke",
+          "npcTemplateId": 6,
+          "requiredCount": 1
+        }
+      ],
+      "rewardsJson": {
+        "exp": 2100,
+        "gold": 800,
+        "statPoints": 0,
+        "unlockSkillId": 1
+      },
+      "metaConfigJson": null,
+      "isActive": true
+    },
+    {
+      "id": 34,
+      "code": "quest_main_05",
+      "titleI18nKey": "quest.quest_main_05.title",
+      "descriptionI18nKey": "quest.quest_main_05.desc",
+      "dialogueOfferI18nKey": "quest.quest_main_05.dialogue_offer",
+      "dialogueActiveI18nKey": "quest.quest_main_05.dialogue_active",
+      "dialogueCompleteI18nKey": "quest.quest_main_05.dialogue_complete",
+      "questCategory": "MAIN",
+      "chapterOrder": 1,
+      "episodeOrder": 5,
+      "minLevel": 8,
+      "prerequisiteQuestId": 33,
+      "repeatType": "ONCE",
+      "triggerType": "NPC_INTERACT",
+      "triggerConfigJson": {
+        "autoAcceptOnTrigger": false
+      },
+      "requirementsJson": {
+        "minLevel": 8,
+        "prerequisiteQuestId": 33
+      },
+      "giverNpcId": 6,
+      "giverMapId": null,
+      "turnInNpcId": 1,
+      "turnInMapId": null,
+      "objectivesJson": [
+        {
+          "type": "WIN_BATTLES",
+          "labelPtBr": "Derrotar anomalias e o Guardião Alfa no Véu",
+          "requiredCount": 3
+        },
+        {
+          "type": "TALK_NPC",
+          "mapId": null,
+          "labelPtBr": "Consagrar a abertura do portal com a Oficial Kaori",
+          "npcTemplateId": 1,
+          "requiredCount": 1
+        }
+      ],
+      "rewardsJson": {
+        "exp": 2800,
+        "gold": 1500,
+        "statPoints": 0
       },
       "metaConfigJson": null,
       "isActive": true
@@ -56598,8 +56738,8 @@
           "customLabel": "Espaço Zen"
         },
         {
-          "x": 539.6,
-          "y": 370.7,
+          "x": 550.8,
+          "y": 349.8,
           "id": "pt_1794550483009_378",
           "refId": 6,
           "isCity": false,
@@ -56608,8 +56748,8 @@
           "customLabel": "Lago Sol Norte"
         },
         {
-          "x": 479.9,
-          "y": 362.7,
+          "x": 496.6,
+          "y": 353,
           "id": "pt_1794550663989_882",
           "refId": 7,
           "isCity": false,
@@ -56618,8 +56758,8 @@
           "customLabel": ""
         },
         {
-          "x": 497.9,
-          "y": 423.1,
+          "x": 521.5,
+          "y": 407.8,
           "id": "pt_1794550671244_29",
           "refId": 8,
           "isCity": false,
@@ -56638,8 +56778,8 @@
           "customLabel": ""
         },
         {
-          "x": 508.4,
-          "y": 504.2,
+          "x": 511.2,
+          "y": 479.1,
           "id": "pt_1794550715366_673",
           "refId": 10,
           "isCity": false,
@@ -56698,8 +56838,8 @@
           "customLabel": ""
         },
         {
-          "x": 573.3,
-          "y": 444.5,
+          "x": 578.9,
+          "y": 423.6,
           "id": "pt_1794577166613_712",
           "refId": 16,
           "isCity": false,
@@ -56748,8 +56888,8 @@
           "customLabel": ""
         },
         {
-          "x": 781.4,
-          "y": 519.8,
+          "x": 792.5,
+          "y": 529.5,
           "id": "pt_1794577187610_541",
           "refId": 21,
           "isCity": false,
@@ -56758,8 +56898,8 @@
           "customLabel": ""
         },
         {
-          "x": 793,
-          "y": 564.2,
+          "x": 862.5,
+          "y": 572.6,
           "id": "pt_1794577188851_902",
           "refId": 22,
           "isCity": false,
@@ -56768,8 +56908,8 @@
           "customLabel": ""
         },
         {
-          "x": 827.6,
-          "y": 623,
+          "x": 802.6,
+          "y": 611.9,
           "id": "pt_1794577189383_312",
           "refId": 23,
           "isCity": false,
@@ -56784,6 +56924,206 @@
           "refId": 24,
           "isCity": false,
           "refLabel": "Ponto #24",
+          "gameMapId": null,
+          "customLabel": ""
+        },
+        {
+          "x": 546.5,
+          "y": 524.8,
+          "id": "pt_1794616301871_969",
+          "refId": 25,
+          "isCity": false,
+          "refLabel": "Ponto #25",
+          "gameMapId": null,
+          "customLabel": ""
+        },
+        {
+          "x": 597.9,
+          "y": 510.9,
+          "id": "pt_1794616302540_836",
+          "refId": 26,
+          "isCity": false,
+          "refLabel": "Ponto #26",
+          "gameMapId": null,
+          "customLabel": ""
+        },
+        {
+          "x": 518.7,
+          "y": 570.7,
+          "id": "pt_1794616314143_420",
+          "refId": 27,
+          "isCity": false,
+          "refLabel": "Ponto #27",
+          "gameMapId": null,
+          "customLabel": ""
+        },
+        {
+          "x": 468.6,
+          "y": 606.9,
+          "id": "pt_1794616318454_440",
+          "refId": 28,
+          "isCity": false,
+          "refLabel": "Ponto #28",
+          "gameMapId": null,
+          "customLabel": ""
+        },
+        {
+          "x": 485.3,
+          "y": 652.9,
+          "id": "pt_1794616322283_819",
+          "refId": 29,
+          "isCity": false,
+          "refLabel": "Ponto #29",
+          "gameMapId": null,
+          "customLabel": ""
+        },
+        {
+          "x": 527,
+          "y": 687.7,
+          "id": "pt_1794616323594_168",
+          "refId": 30,
+          "isCity": false,
+          "refLabel": "Ponto #30",
+          "gameMapId": null,
+          "customLabel": ""
+        },
+        {
+          "x": 560.4,
+          "y": 654.3,
+          "id": "pt_1794616328617_817",
+          "refId": 31,
+          "isCity": false,
+          "refLabel": "Ponto #31",
+          "gameMapId": null,
+          "customLabel": ""
+        },
+        {
+          "x": 617.4,
+          "y": 616.7,
+          "id": "pt_1794616331647_514",
+          "refId": 32,
+          "isCity": false,
+          "refLabel": "Ponto #32",
+          "gameMapId": null,
+          "customLabel": ""
+        },
+        {
+          "x": 392.1,
+          "y": 683.5,
+          "id": "pt_1794616338091_370",
+          "refId": 33,
+          "isCity": false,
+          "refLabel": "Ponto #33",
+          "gameMapId": null,
+          "customLabel": ""
+        },
+        {
+          "x": 440.8,
+          "y": 708.6,
+          "id": "pt_1794616338881_277",
+          "refId": 34,
+          "isCity": false,
+          "refLabel": "Ponto #34",
+          "gameMapId": null,
+          "customLabel": ""
+        },
+        {
+          "x": 449.1,
+          "y": 753.1,
+          "id": "pt_1794616339869_834",
+          "refId": 35,
+          "isCity": false,
+          "refLabel": "Ponto #35",
+          "gameMapId": null,
+          "customLabel": ""
+        },
+        {
+          "x": 383.8,
+          "y": 755.9,
+          "id": "pt_1794616340882_529",
+          "refId": 36,
+          "isCity": false,
+          "refLabel": "Ponto #36",
+          "gameMapId": null,
+          "customLabel": ""
+        },
+        {
+          "x": 642.4,
+          "y": 226.9,
+          "id": "pt_1794616366432_519",
+          "refId": 37,
+          "isCity": false,
+          "refLabel": "Ponto #37",
+          "gameMapId": null,
+          "customLabel": ""
+        },
+        {
+          "x": 724.5,
+          "y": 228.3,
+          "id": "pt_1794616368044_350",
+          "refId": 38,
+          "isCity": false,
+          "refLabel": "Ponto #38",
+          "gameMapId": null,
+          "customLabel": ""
+        },
+        {
+          "x": 824.6,
+          "y": 311.8,
+          "id": "pt_1794616368885_597",
+          "refId": 39,
+          "isCity": false,
+          "refLabel": "Ponto #39",
+          "gameMapId": null,
+          "customLabel": ""
+        },
+        {
+          "x": 727.3,
+          "y": 161.5,
+          "id": "pt_1794616369682_903",
+          "refId": 40,
+          "isCity": false,
+          "refLabel": "Ponto #40",
+          "gameMapId": null,
+          "customLabel": ""
+        },
+        {
+          "x": 757.8,
+          "y": 119.7,
+          "id": "pt_1794616374160_684",
+          "refId": 41,
+          "isCity": false,
+          "refLabel": "Ponto #41",
+          "gameMapId": null,
+          "customLabel": ""
+        },
+        {
+          "x": 680,
+          "y": 72.4,
+          "id": "pt_1794616374804_657",
+          "refId": 42,
+          "isCity": false,
+          "refLabel": "Ponto #42",
+          "gameMapId": null,
+          "customLabel": ""
+        },
+        {
+          "x": 628.5,
+          "y": 123.9,
+          "id": "pt_1794616375704_103",
+          "refId": 43,
+          "isCity": false,
+          "refLabel": "Ponto #43",
+          "gameMapId": null,
+          "customLabel": ""
+        },
+        {
+          "x": 552,
+          "y": 164.3,
+          "id": "pt_1794616376508_802",
+          "refId": 44,
+          "isCity": false,
+          "refLabel": "Ponto #44",
           "gameMapId": null,
           "customLabel": ""
         }
@@ -56868,12 +57208,96 @@
         {
           "to": "pt_1794577148965_23",
           "from": "pt_1794550677352_464"
+        },
+        {
+          "to": "pt_1794550752765_10",
+          "from": "pt_1794616338091_370"
+        },
+        {
+          "to": "pt_1794616338881_277",
+          "from": "pt_1794616338091_370"
+        },
+        {
+          "to": "pt_1794616340882_529",
+          "from": "pt_1794616339869_834"
+        },
+        {
+          "to": "pt_1794616338881_277",
+          "from": "pt_1794616339869_834"
+        },
+        {
+          "to": "pt_1794616331647_514",
+          "from": "pt_1794616328617_817"
+        },
+        {
+          "to": "pt_1794616323594_168",
+          "from": "pt_1794616328617_817"
+        },
+        {
+          "to": "pt_1794616323594_168",
+          "from": "pt_1794616322283_819"
+        },
+        {
+          "to": "pt_1794616318454_440",
+          "from": "pt_1794616322283_819"
+        },
+        {
+          "to": "pt_1794616301871_969",
+          "from": "pt_1794616314143_420"
+        },
+        {
+          "to": "pt_1794616318454_440",
+          "from": "pt_1794616314143_420"
+        },
+        {
+          "to": "pt_1794616302540_836",
+          "from": "pt_1794616301871_969"
+        },
+        {
+          "to": "pt_1794550715366_673",
+          "from": "pt_1794616301871_969"
+        },
+        {
+          "to": "pt_1794550671244_29",
+          "from": "pt_1794577166613_712"
+        },
+        {
+          "to": "pt_1794550715366_673",
+          "from": "pt_1794577166613_712"
+        },
+        {
+          "to": "pt_1794616366432_519",
+          "from": "pt_1794616368044_350"
+        },
+        {
+          "to": "pt_1794616368885_597",
+          "from": "pt_1794616368044_350"
+        },
+        {
+          "to": "pt_1794616369682_903",
+          "from": "pt_1794616368044_350"
+        },
+        {
+          "to": "pt_1794616369682_903",
+          "from": "pt_1794616374160_684"
+        },
+        {
+          "to": "pt_1794616374804_657",
+          "from": "pt_1794616374160_684"
+        },
+        {
+          "to": "pt_1794616376508_802",
+          "from": "pt_1794616375704_103"
+        },
+        {
+          "to": "pt_1794616374804_657",
+          "from": "pt_1794616375704_103"
         }
       ],
       "showRoutesLayer": true,
       "showPointsLayer": true,
       "isActive": true,
-      "updatedAt": "2026-11-13T13:58:11.529Z"
+      "updatedAt": "2026-11-14T00:35:07.869Z"
     },
     {
       "id": 2,
@@ -56888,12 +57312,106 @@
       "logoWidth": 195,
       "logoHeight": 133,
       "logoVisible": true,
-      "pointsJson": [],
-      "routesJson": [],
+      "pointsJson": [
+        {
+          "x": 418.6,
+          "y": 657,
+          "id": "pt_1794616522163_806",
+          "refId": 1,
+          "isCity": false,
+          "refLabel": "Ponto #1",
+          "gameMapId": null,
+          "customLabel": ""
+        },
+        {
+          "x": 454.7,
+          "y": 601.4,
+          "id": "pt_1794616522850_56",
+          "refId": 2,
+          "isCity": false,
+          "refLabel": "Ponto #2",
+          "gameMapId": null,
+          "customLabel": ""
+        },
+        {
+          "x": 560.4,
+          "y": 552.6,
+          "id": "pt_1794616525343_342",
+          "refId": 3,
+          "isCity": false,
+          "refLabel": "Ponto #3",
+          "gameMapId": null,
+          "customLabel": ""
+        },
+        {
+          "x": 774.5,
+          "y": 698.8,
+          "id": "pt_1794616528368_204",
+          "refId": 4,
+          "isCity": false,
+          "refLabel": "Ponto #4",
+          "gameMapId": null,
+          "customLabel": ""
+        },
+        {
+          "x": 670.2,
+          "y": 370.3,
+          "id": "pt_1794616531620_309",
+          "refId": 5,
+          "isCity": false,
+          "refLabel": "Ponto #5",
+          "gameMapId": null,
+          "customLabel": ""
+        },
+        {
+          "x": 802.3,
+          "y": 275.6,
+          "id": "pt_1794616534708_39",
+          "refId": 6,
+          "isCity": false,
+          "refLabel": "Ponto #6",
+          "gameMapId": null,
+          "customLabel": ""
+        },
+        {
+          "x": 596.5,
+          "y": 309,
+          "id": "pt_1794616537924_683",
+          "refId": 7,
+          "isCity": false,
+          "refLabel": "Ponto #7",
+          "gameMapId": null,
+          "customLabel": ""
+        },
+        {
+          "x": 525.6,
+          "y": 214.4,
+          "id": "pt_1794616538716_478",
+          "refId": 8,
+          "isCity": false,
+          "refLabel": "Ponto #8",
+          "gameMapId": null,
+          "customLabel": ""
+        }
+      ],
+      "routesJson": [
+        {
+          "to": "pt_1794616538716_478",
+          "from": "pt_1794616537924_683"
+        },
+        {
+          "to": "pt_1794616525343_342",
+          "from": "pt_1794616522850_56"
+        },
+        {
+          "to": "pt_1794616522163_806",
+          "from": "pt_1794616522850_56"
+        }
+      ],
       "showRoutesLayer": true,
       "showPointsLayer": true,
       "isActive": true,
-      "updatedAt": "2026-11-12T23:41:28.788Z"
+      "updatedAt": "2026-11-14T00:36:12.277Z"
     }
   ]
 }

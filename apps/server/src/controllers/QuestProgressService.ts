@@ -130,7 +130,7 @@ export class QuestProgressService {
           rew = {
             exp: stage.rewardExp,
             gold: stage.rewardGold,
-            statPoints: stage.rewardStatPoints,
+            statPoints: 0,
             rewardItemTemplateId: stage.rewardItemTemplateId,
             rewardItemQuantity: stage.rewardItemQuantity,
             triggerReborn: Boolean(stage.triggerReborn),
@@ -240,9 +240,11 @@ export class QuestProgressService {
           rewards: {
             exp: Number(rew.exp) || 0,
             gold: Number(rew.gold) || 0,
-            freePointsBonus: Number(rew.statPoints) || 0,
+            freePointsBonus: 0,
             rewardItemTemplateId: rewardItemId,
             rewardItemQuantity: rewardItemQty,
+            rewardItemTemplateIds: Array.isArray(rew.rewardItemTemplateIds) ? rew.rewardItemTemplateIds : [],
+            rewardItems: Array.isArray(rew.rewardItems) ? rew.rewardItems : [],
             rewardItemNamePtBr: rewardItemId ? (itemNameMap.get(rewardItemId) ?? `Item #${rewardItemId}`) : null,
             triggerReborn: Boolean(rew.triggerReborn),
           },
@@ -539,7 +541,9 @@ export class QuestProgressService {
     const rewards = quest.rewards || {};
     const expGain = Math.max(0, Number(rewards.exp) || 0);
     const goldGain = Math.max(0, Number(rewards.gold) || 0);
-    const statPointsGain = Math.max(0, Number(rewards.freePointsBonus ?? rewards.statPoints) || 0);
+    // REGRA SAGRADA MANDATÓRIA: Nenhuma missão pode conceder pontos livres de atributo para distribuir.
+    // Apenas a evolução de nível concede estritamente 5 pontos de atributo base por level up.
+    const statPointsGain = 0;
     const rewardItemTemplateId = rewards.rewardItemTemplateId ? Number(rewards.rewardItemTemplateId) : null;
     const rewardItemQuantity = rewardItemTemplateId ? Math.max(1, Number(rewards.rewardItemQuantity) || 1) : 0;
     const triggerReborn = Boolean(rewards.triggerReborn);
@@ -573,15 +577,28 @@ export class QuestProgressService {
         }
       }
 
-      // 2. Aplica EXP, Level Up, Pontos de Atributo, Reborn e Ouro
+      // 2. Aplica EXP, Level Up, Pontos de Atributo (Exclusivo Level Up), Reborn e Ouro
       let newExp = Number(pc.experience || 0) + expGain;
       let newLevel = pc.level || 1;
-      let newStatPoints = (pc.unspentStatPoints || 0) + statPointsGain;
+      let newStatPoints = Number(pc.unspentStatPoints || 0);
 
-      while (newExp >= newLevel * 200) {
-        newExp -= newLevel * 200;
-        newLevel += 1;
-        newStatPoints += 5;
+      const expLevels = await tx.levelExperienceTemplate.findMany({
+        where: { level: { gte: newLevel } },
+        orderBy: { level: 'asc' },
+      });
+      const expMap = new Map<number, number>(
+        expLevels.map((l: any) => [Number(l.level), Number(l.experienceToNext)])
+      );
+
+      while (true) {
+        const requiredExp = expMap.get(newLevel) ?? (newLevel * 200);
+        if (requiredExp > 0 && newExp >= requiredExp) {
+          newExp -= requiredExp;
+          newLevel += 1;
+          newStatPoints += 5; // Apenas Level Up concede rigorosamente 5 pontos base distribuíveis
+        } else {
+          break;
+        }
       }
 
       const newGold = BigInt(Math.max(0, Number(pc.gold || 0) + goldGain));
@@ -597,9 +614,25 @@ export class QuestProgressService {
         },
       });
 
-      // 3. Concede Item de Recompensa na Mochila Básica (se configurado neste estágio)
+      // 3. Concede Itens de Recompensa na Mochila Básica (Singular ou Múltiplos)
       if (rewardItemTemplateId && rewardItemQuantity > 0) {
         await CharacterInventoryService.addItem(tx, pc.id, rewardItemTemplateId, rewardItemQuantity);
+      }
+      if (Array.isArray(rewards.rewardItemTemplateIds)) {
+        for (const rId of rewards.rewardItemTemplateIds) {
+          const safeId = Number(rId);
+          if (safeId > 0) {
+            await CharacterInventoryService.addItem(tx, pc.id, safeId, 1);
+          }
+        }
+      } else if (Array.isArray(rewards.rewardItems)) {
+        for (const rItem of rewards.rewardItems) {
+          const rId = Number(rItem.itemTemplateId || rItem.id);
+          const rQty = Math.max(1, Number(rItem.quantity || rItem.qty) || 1);
+          if (rId > 0) {
+            await CharacterInventoryService.addItem(tx, pc.id, rId, rQty);
+          }
+        }
       }
 
       updatedCharSummary = {

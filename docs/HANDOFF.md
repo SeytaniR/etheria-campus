@@ -8,9 +8,9 @@
 ---
 
 ## 📌 Status Atual do Projeto
-* **Versão Atual:** `v0.27.0`
+* **Versão Atual:** `v0.28.0`
 * **Última Atualização:** `2026-11-14`
-* **Fase Atual:** **Interface de Batalha Mobile Vertical (Mobile Portrait): Ocultação da HUD de Exploração, Overhead Bars (HP/MP) no Canvas 2.5D, Controles Táteis Wild Rift & Fuga Segura (`v0.27.0`)** — Reformulação completa do modo de combate no cliente `/play`: ocultação limpa de mini mapa, menus, perfil, pets e atalhos de exploração durante combate; renderização dinâmica no Canvas 2.5D de barras de HP e MP sobre o modelo do jogador e pets acompanhando coordenadas de movimento; controles táteis ergonômicos no padrão Wild Rift (joystick esquerdo, botão grande de ataque, esquiva e leque radial de 4 habilidades à direita); integração dos 2 primeiros atalhos consumíveis (poções de HP e MP) com toque imediato em batalha; botão de engrenagem mantido no canto superior direito e fuga contextualizada dentro do modal de configurações. 100% em conformidade com o limite de 1.000 linhas da Regra #7, build verificado e sincronizado com a VPS Azure.
+* **Fase Atual:** **Lore Oficial de Vila Izumo: O Manto da Restauração (Lv 1 ao 10), Curadoria dos 7 NPCs e Blindagem Sagrada de Pontos de Atributos (`v0.28.0`)** — Implementação do Capítulo 1 completo com 5 missões principais conectando a trama central da Ordem da Restauração e o mistério cósmico do Véu. Entrega do Conjunto Inicial do Aprendiz completo (12 peças) no Nível 1. Curadoria e renomeação dos 7 NPCs de Izumo (Kaori, Genpaku, Jinbei, Ren, Mou, Daisuke e Koji). Blindagem mandatória e inviolável no motor do servidor: NENHUMA missão ou função externa concede pontos de atributos livres; apenas o Level Up confere exatamente 5 pontos distribuíveis por nível. Banco PostgreSQL da VPS Azure e snapshot sincronizados com zero violações.
 * **Repositório Oficial:** `https://github.com/SeytaniR/etheria-campus`
 * **Fonte Bruta de Assets:** `https://github.com/SeytaniR/mcrework` (`https://seytanir.github.io/mcrework/`)
 

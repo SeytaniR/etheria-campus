@@ -5,6 +5,35 @@ Qualquer IA trabalhando neste repositório **DEVE** incrementar a versão e regi
 
 ---
 
+## [v0.28.0] - 2026-11-14
+### Lore Oficial de Vila Izumo: O Manto da Restauração (Lv 1 ao 10), Curadoria dos 7 NPCs e Blindagem Sagrada de Pontos de Atributos
+* **Blindagem Sistêmica Sagrada de Pontos de Atributos (`QuestProgressService.ts`, `AdminQuestsController.ts`, `MetaQuestProceduralEngine.ts`):**
+  * **Regra Sagrada Mandatória Imposta pelo Usuário:** NADA no jogo concede pontos livres de atributo para distribuir além da evolução de nível (`Level Up`).
+  * Cada Level Up confere exatamente **5 pontos de atributo base** para o jogador distribuir livremente (`newStatPoints += 5`).
+  * Nenhuma missão (`MAIN`, `SIDE`, `EPIC`, `PROFICIENCY` ou `META`), item consumível ou função externa pode dar pontos livres de atributo (`statPointsGain = 0`, `freePointsBonus: 0`, `statPoints: 0`).
+  * Todas as quests existentes no banco de dados e no snapshot foram sanitizadas e travadas em `statPoints: 0`.
+  * Na conclusão de missões em `QuestProgressService.ts`, o motor consulta a curva matemática oficial de `levelExperienceTemplate` para progressão consistente de níveis.
+* **Arco Narrativo de 5 Missões Principais (Capítulo 1: Nível 1 ao 10 em Vila Izumo):**
+  * `quest_main_01`: **"O Chamado da Restauração"** (Cap 1, Ep 1, Nv 1, Kaori -> Genpaku). Recompensa: 220 EXP, 100 Ouro, 0 Pontos Livres e concessão integral das **12 peças do Conjunto Inicial do Aprendiz** (`equip_elmo_do_aprendiz` a `equip_foco_do_aprendiz`, IDs 45 a 56) diretamente na mochila.
+  * `quest_main_02`: **"A Fenda e a Bolha Dimensional"** (Cap 1, Ep 2, Nv 2, Genpaku -> Ren). Ensina a natureza do Véu e combate tátil. Recompensa: 750 EXP, 250 Ouro, 0 Pontos Livres e 5x Poções HP + 5x Poções MP.
+  * `quest_main_03`: **"Ecos do Éter e os Resíduos Censurados"** (Cap 1, Ep 3, Nv 4, Ren -> Mou). Introduz os resíduos etéreos e pistas de relatórios censurados do Conselho. Recompensa: 1.400 EXP, 500 Ouro, 0 Pontos Livres.
+  * `quest_main_04`: **"O Sussurro da Dissidência"** (Cap 1, Ep 4, Nv 6, Mou -> Daisuke). Emboscada rebelde revelando que as bestas caçadas são na verdade âncoras vivas que mantêm o Véu selado. Recompensa: 2.100 EXP, 800 Ouro, 1 Ponto de Habilidade e 0 Pontos Livres.
+  * `quest_main_05`: **"O Rompimento do Marco e a Passagem Proibida"** (Cap 1, Ep 5, Nv 8, Daisuke -> Kaori). Enfrentamento do Guardião Alfa de Izumo, abertura do portal para o Pantanal das Nuvens (`map_2`) e consagração como Agente de Nível 10 com 0 Pontos Livres.
+  * Progressão total acumulada de 8.150 EXP garantindo alcance seguro do Nível 10 (45 pontos distribuíveis concedidos naturalmente pelo motor de level up ao longo dos 9 níveis).
+* **Curadoria e Renomeação dos 7 NPCs de Vila Izumo (`i18n_translations` & `npc_templates`):**
+  * `npc_1`: **Oficial Kaori (Acolhedora da Restauração)** (`npc_000001`) — Ponto de acolhimento e entrega do conjunto inicial.
+  * `npc_2`: **Arquivista Mestre Genpaku (Sábio do Templo Ancestral)** (`npc_000014`) — Erudito cego do templo ancestral.
+  * `npc_3`: **Armeiro Jinbei (Forjador de Véu)** (`npc_000024`) — Forjador ativo para missões (`isDecorationOnly: false`).
+  * `npc_4`: **Sentinela Ren (Batedora do Bosque)** (`npc_000030`) — Batedora de fronteira ativa para missões (`isDecorationOnly: false`).
+  * `npc_5`: **Lapidador Mou (Artífice de Essências)** (`npc_000057`) — Perito em resíduos etéreos e lapidação.
+  * `npc_6`: **Comandante Daisuke (Capitão da Guarda)** (`npc_000010`) — Capitão da guarda do portão leste.
+  * `npc_7`: **Alquimista Koji (Boticário de Izumo)** (`npc_000029`) — Alquimista e boticário local.
+* **Persistência e Sincronização Autoritária:**
+  * Banco PostgreSQL na VPS Azure (`40.65.63.193`) atualizado via migração dedicada.
+  * Snapshot oficial `packages/database/snapshots/lowcode.snapshot.json` sincronizado com zero violações.
+
+---
+
 ## [v0.27.0] - 2026-11-14
 ### Interface de Batalha Mobile Vertical (Mobile Portrait): Ocultação da HUD de Exploração, Overhead Bars (HP/MP) no Canvas 2.5D, Controles Táteis Wild Rift & Fuga Segura
 * **Ocultação da HUD de Exploração ao Entrar em Batalha (`PlayHudController.js` & `play_hud.css`):**

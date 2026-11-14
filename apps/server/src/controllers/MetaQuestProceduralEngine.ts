@@ -110,7 +110,7 @@ export class MetaQuestProceduralEngine {
         requiredCount,
         rewardExp: this.computeScaledRewardValue(tracks.exp, s),
         rewardGold: this.computeScaledRewardValue(tracks.gold, s),
-        rewardStatPoints: this.computeScaledRewardValue(tracks.statPoints, s),
+        rewardStatPoints: 0, // REGRA SAGRADA: 0 pontos livres em quests (apenas Level Up concede pontos distribuíveis)
         rewardItemTemplateId: itemId,
         rewardItemQuantity: itemQty,
         triggerReborn: false,
@@ -183,7 +183,7 @@ export class MetaQuestProceduralEngine {
         requiredCount: reqCount,
         rewardExp: Math.max(0, Math.min(MetaQuestProceduralEngine.MAX_TARGET_COUNT, Math.round(Number(provided.rewardExp ?? fallback.rewardExp) || 0))),
         rewardGold: Math.max(0, Math.min(MetaQuestProceduralEngine.MAX_TARGET_COUNT, Math.round(Number(provided.rewardGold ?? fallback.rewardGold) || 0))),
-        rewardStatPoints: Math.max(0, Math.min(10000, Math.round(Number(provided.rewardStatPoints ?? fallback.rewardStatPoints) || 0))),
+        rewardStatPoints: 0, // REGRA SAGRADA: 0 pontos livres em quests
         rewardItemTemplateId,
         rewardItemQuantity,
         triggerReborn: Boolean(provided.triggerReborn),

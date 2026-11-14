@@ -55,6 +55,8 @@ export interface QuestRewardDto {
   grantPetMonsterId?: number | null;
   rewardItemTemplateId?: number | null;
   rewardItemQuantity?: number;
+  rewardItemTemplateIds?: number[];
+  rewardItems?: Array<{ itemTemplateId: number; quantity?: number }>;
   triggerReborn?: boolean;
 }
 
@@ -330,8 +332,10 @@ export class AdminQuestsController {
     let objectivesJson: QuestObjectiveBlockDto[] = Array.isArray(dto.objectivesJson) ? dto.objectivesJson : [];
     let rewardsJson: QuestRewardDto =
       dto.rewardsJson && typeof dto.rewardsJson === 'object'
-        ? dto.rewardsJson
+        ? { ...dto.rewardsJson, statPoints: 0 }
         : { exp: 100, gold: 50, statPoints: 0 };
+    // REGRA SAGRADA MANDATÓRIA: Nenhuma missão pode conceder pontos de atributos livres para distribuir.
+    rewardsJson.statPoints = 0;
 
     let metaConfigJson: MetaQuestConfigDto | null = null;
     if (questCategory === 'META') {
@@ -353,7 +357,7 @@ export class AdminQuestsController {
       rewardsJson = {
         exp: firstStage?.rewardExp || 0,
         gold: firstStage?.rewardGold || 0,
-        statPoints: firstStage?.rewardStatPoints || 0,
+        statPoints: 0,
         rewardItemTemplateId: firstStage?.rewardItemTemplateId || null,
         rewardItemQuantity: firstStage?.rewardItemQuantity || 0,
         triggerReborn: Boolean(firstStage?.triggerReborn),
