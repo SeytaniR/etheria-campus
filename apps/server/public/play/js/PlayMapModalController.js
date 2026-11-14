@@ -250,7 +250,7 @@
 
       // Carrega os templates de mapa mundo
       try {
-        const token = localStorage.getItem('etheria_token');
+        const token = this.playApp?.token || localStorage.getItem('etheria_play_token') || localStorage.getItem('etheria_admin_token') || '';
         const res = await fetch('/api/play/world-maps', {
           headers: token ? { Authorization: `Bearer ${token}` } : {},
         });

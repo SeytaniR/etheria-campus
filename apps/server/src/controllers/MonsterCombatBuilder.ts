@@ -202,6 +202,8 @@ export class MonsterCombatBuilder {
       combatStyle: (template.combatStyle as 'MELEE' | 'RANGED') || 'MELEE',
       attackRange: template.attackRange || 60,
       damageType,
+      basicAttackVfxKey: (template.combatStyle as 'MELEE' | 'RANGED') === 'RANGED' ? '10002' : '10008',
+      basicAttackVfxColorHex: (template.combatStyle as 'MELEE' | 'RANGED') === 'RANGED' ? '#f97316' : '#ef4444',
       physAccuracy: Math.min(125, Math.max(20, Math.round((Number(cb.PHYS_ACCURACY) || 95) + dexPhysAccBonusPct + rarityAccBonus))),
       physEvasion: Math.min(75, Math.max(0, Math.round((Number(cb.PHYS_EVASION) || 5) + agiEvaBonusPct))),
       magAccuracy: Math.min(125, Math.max(20, Math.round((Number(cb.MAG_ACCURACY) || 95) + dexMagAccBonusPct + rarityAccBonus))),

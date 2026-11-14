@@ -89,8 +89,9 @@ class EtheriaPlayClient {
       try {
         await this.loadPlayBootstrap();
         this.showLobby();
+        return;
       } catch {
-        // Se o token antigo expirou, mostra tela de login
+        // Se o token antigo expirou ou falhou, mostra tela de login
       }
     }
     document.getElementById('playLoginScreen').style.display = 'flex';

@@ -56,7 +56,7 @@ class ActionCombatArena {
     this.joystickVector = { x: 0, y: 0 };
 
     // Cooldowns das Habilidades do Jogador (ms)
-    this.skillCooldowns = { attack: 0, skill1: 0, skill2: 0, skill3: 0, skill4: 0, dash: 0 };
+    this.skillCooldowns = { attack: 0, skill1: 0, skill2: 0, skill3: 0, skill4: 0 };
 
     // Cache de spritesheets
     this.spriteCache = new Map();
@@ -84,7 +84,6 @@ class ActionCombatArena {
       else if (e.key === '2') this.triggerSkill(2);
       else if (e.key === '3') this.triggerSkill(3);
       else if (e.key === '4') this.triggerSkill(4);
-      else if (e.key.toLowerCase() === 'k' || e.key === 'Shift') this.triggerDash();
       else if (e.key.toLowerCase() === 'q') this.triggerCombatShortcut(0);
       else if (e.key.toLowerCase() === 'e') this.triggerCombatShortcut(1);
       else if (e.key === 'Escape') this.fleeBattle();
@@ -185,7 +184,7 @@ class ActionCombatArena {
     this.classSkills = Array.isArray(battleState.classSkills) ? battleState.classSkills : [];
     this.skillCatalog = Array.isArray(battleState.skillCatalog) ? battleState.skillCatalog : [];
     this.statusCatalog = Array.isArray(battleState.statusCatalog) ? battleState.statusCatalog : [];
-    this.skillCooldowns = { attack: 0, skill1: 0, skill2: 0, skill3: 0, skill4: 0, dash: 0 };
+    this.skillCooldowns = { attack: 0, skill1: 0, skill2: 0, skill3: 0, skill4: 0 };
     this.selectedTargetMob = null;
 
     this.player = {
@@ -429,7 +428,6 @@ class ActionCombatArena {
     this.updateCooldownOverlay('cdOverlaySkill2', this.skillCooldowns.skill2, now);
     this.updateCooldownOverlay('cdOverlaySkill3', this.skillCooldowns.skill3, now);
     this.updateCooldownOverlay('cdOverlaySkill4', this.skillCooldowns.skill4, now);
-    this.updateCooldownOverlay('cdOverlayDash', this.skillCooldowns.dash, now);
   }
 
   updateCooldownOverlay(elemId, expireTime, now) {
@@ -686,30 +684,6 @@ class ActionCombatArena {
     }
   }
 
-  triggerDash() {
-    if (!this.isActive || this.combatState !== 'FIGHTING' || !this.player || !this.player.isAlive || this.player.isDashing) return;
-    const now = performance.now();
-    const cdExpire = this.skillCooldowns.dash || 0;
-
-    // FASE 3: Enfileira Dash no buffer se cooldown restante <= 160ms
-    if (now < cdExpire) {
-      if (this.motionEngine && (cdExpire - now) <= this.motionEngine.BUFFER_WINDOW_MS) {
-        this.motionEngine.enqueueBufferedAction('DASH', null, now);
-      }
-      return;
-    }
-
-    this.skillCooldowns.dash = now + 1800;
-    this.player.isDashing = true;
-    this.player.dashTimer = 0.22;
-
-    // FASE 5: Dash cancela backswing e reseta o ciclo de auto-ataque para combo imediato
-    if (this.motionEngine) {
-      this.motionEngine.cancelBackswing('DASH');
-      this.motionEngine.resetAutoAttackTimer();
-    }
-  }
-
   checkVictoryCondition() {
     if (this.combatState !== 'FIGHTING') return;
     const aliveMobs = this.monsters.filter((m) => m.isAlive);
@@ -800,10 +774,6 @@ class ActionCombatArena {
     }
     const pEffMove = window.ActionSkillEngine ? window.ActionSkillEngine.getEffectiveStats(this.player).moveSpeedMult : 1.0;
     let curSpeed = this.player.speed * pEffMove;
-    if (this.player.isDashing) {
-      this.player.dashTimer -= dt;
-      if (this.player.dashTimer <= 0) this.player.isDashing = false; else curSpeed *= 2.3;
-    }
 
     // FASES 1, 2, 3 e 4: Cinemática Suave, Aceleração/Desaceleração, Deslize Vetorial e Windup/CastPoint
     if (this.motionEngine) {

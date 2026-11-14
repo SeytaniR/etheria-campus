@@ -546,25 +546,15 @@
       box-shadow: 0 0 16px rgba(239, 68, 68, 0.5), 0 4px 12px rgba(0, 0, 0, 0.7);
       z-index: 10;
     }
-    .action-btn-dash {
-      width: 48px;
-      height: 48px;
-      bottom: 20px;
-      right: 98px;
-      background: radial-gradient(circle, #0284c7 0%, #075985 100%);
-      border: 2px solid #7dd3fc;
-      font-size: 1.1rem;
-      z-index: 9;
-    }
     .action-btn-skill {
       background: radial-gradient(circle, #8b5cf6 0%, #5b21b6 100%);
       border: 2px solid #c4b5fd;
       z-index: 9;
     }
-    #btnActSkill1 { width: 50px; height: 50px; bottom: 78px; right: 106px; }
-    #btnActSkill2 { width: 50px; height: 50px; bottom: 132px; right: 86px; }
-    #btnActSkill3 { width: 50px; height: 50px; bottom: 160px; right: 44px; }
-    #btnActSkill4 { width: 52px; height: 52px; bottom: 136px; right: 2px; border-color: #fde047; box-shadow: 0 0 12px rgba(253, 224, 71, 0.4); }
+    #btnActSkill1 { width: 50px; height: 50px; bottom: 30px; right: 104px; }
+    #btnActSkill2 { width: 50px; height: 50px; bottom: 88px; right: 104px; }
+    #btnActSkill3 { width: 50px; height: 50px; bottom: 144px; right: 72px; }
+    #btnActSkill4 { width: 52px; height: 52px; bottom: 136px; right: 12px; border-color: #fde047; box-shadow: 0 0 12px rgba(253, 224, 71, 0.4); }
 
     .action-btn-item {
       width: 44px;
@@ -574,8 +564,8 @@
       box-shadow: 0 3px 10px rgba(0, 0, 0, 0.6);
       z-index: 8;
     }
-    #btnActShortcut1 { bottom: 74px; right: 162px; border-color: #22c55e; }
-    #btnActShortcut2 { bottom: 128px; right: 148px; border-color: #38bdf8; }
+    #btnActShortcut1 { bottom: 30px; right: 166px; border-color: #22c55e; }
+    #btnActShortcut2 { bottom: 88px; right: 166px; border-color: #38bdf8; }
     .action-item-icon-img { width: 26px; height: 26px; object-fit: contain; pointer-events: none; }
     .action-item-qty-badge { position: absolute; bottom: -4px; right: -2px; background: rgba(2, 6, 23, 0.9); border: 1px solid #334155; color: #fde047; font-size: 0.62rem; font-weight: 800; padding: 0 4px; border-radius: 6px; }
     .action-item-key-badge { position: absolute; top: -4px; left: -4px; background: #0f172a; border: 1px solid #38bdf8; color: #7dd3fc; font-size: 0.58rem; padding: 0 4px; border-radius: 99px; font-weight: 800; }
@@ -917,12 +907,6 @@
         <span class="action-skill-key-badge">4</span>
         <span id="lblActSkill4">💥</span>
         <div class="action-cooldown-overlay" id="cdOverlaySkill4"></div>
-      </button>
-
-      <!-- Esquiva / Dash -->
-      <button type="button" class="action-circle-btn action-btn-dash" id="btnActDash" onclick="PlayApp.actionArena.triggerDash()" title="Esquiva / Dash (Shift / K)">
-        💨
-        <div class="action-cooldown-overlay" id="cdOverlayDash"></div>
       </button>
 
       <!-- Botão de Ataque Básico Principal (Grande) -->

@@ -249,26 +249,51 @@ class ActionMotionEngine {
 
       const isMagical = player.damageType === 'MAGICAL';
       const isRanged = player.combatStyle === 'RANGED';
-      const projectileEmoji = isMagical ? (isRanged ? '🔮' : '✨') : (isRanged ? '🏹' : '⚔️');
-      const projectileColor = isMagical ? '#c084fc' : '#fde047';
 
-      this.arena.spawnHomingProjectile(
-        target,
-        'SINGLE',
-        0,
-        player.atk,
-        false,
-        projectileEmoji,
-        projectileColor,
-        isMagical,
-        undefined,
-        undefined,
-        undefined,
-        undefined,
-        'ALLY',
-        player.critDmg,
-        { attackerUnit: player, skillMultiplier: 1.0 }
-      );
+      if (isRanged) {
+        const projectileEmoji = isMagical ? '🔮' : '🏹';
+        const projectileColor = isMagical ? '#c084fc' : '#fde047';
+
+        this.arena.spawnHomingProjectile(
+          target,
+          'SINGLE',
+          0,
+          player.atk,
+          false,
+          projectileEmoji,
+          projectileColor,
+          isMagical,
+          undefined,
+          undefined,
+          undefined,
+          undefined,
+          'ALLY',
+          player.critDmg,
+          { attackerUnit: player, skillMultiplier: 1.0 }
+        );
+      } else {
+        // Melee: Não dispara projétil voador. Aplica dano direto e burst de impacto no inimigo
+        const acc = isMagical ? (player.magAccuracy || 95) : (player.physAccuracy || 95);
+        const payload = {
+          team: 'ALLY',
+          dmg: player.atk,
+          attackerUnit: player,
+          skillMultiplier: 1.0,
+          critDmgMult: player.critDmg || 1.5,
+          emoji: isMagical ? '✨' : '⚔️',
+          color: isMagical ? '#c084fc' : '#fde047',
+          isMagical,
+        };
+        this.arena.applyDamageWithHitEvasionRoll(target, payload, acc, now);
+
+        const vfxKey = player.attackVfxKey || (isMagical ? '10008' : '10009');
+        if (this.arena.vfxRenderer?.spawnBurst) {
+          this.arena.vfxRenderer.spawnBurst(vfxKey, target.x, target.y - 10, isMagical ? '#c084fc' : '#f59e0b', 100, 420, 0.75);
+        }
+
+        this.arena.updateHud();
+        this.arena.checkVictoryCondition();
+      }
     }
 
     this.pendingAttackTarget = null;
@@ -353,12 +378,6 @@ class ActionMotionEngine {
       if (now >= cdExpire) {
         this.clearBufferedAction();
         this.arena.triggerSkill(action.param.skillNum);
-      }
-    } else if (action.type === 'DASH') {
-      const dashExpire = this.arena?.skillCooldowns?.dash || 0;
-      if (now >= dashExpire) {
-        this.clearBufferedAction();
-        this.arena.triggerDash();
       }
     }
   }

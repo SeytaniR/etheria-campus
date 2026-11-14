@@ -240,6 +240,7 @@ export class GamePlayController {
       gold: Number(c.gold ?? 0),
       unspentStatPoints: c.unspentStatPoints,
       distributedStatsJson: c.distributedStatsJson,
+      equippedItemsJson: c.equippedItemsJson || {},
       baseAttributesJson: c.classTemplate?.baseAttributesJson ?? {
         VIT: 10,
         STR: 10,

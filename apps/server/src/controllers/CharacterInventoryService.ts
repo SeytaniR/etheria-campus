@@ -66,6 +66,8 @@ export class CharacterInventoryService {
         mcreworkIconKey: r.itemTemplate?.mcreworkIconKey ?? null,
         iconUrl: this.resolveIconUrl(r.itemTemplate?.mcreworkIconKey),
         itemCategory: r.itemTemplate?.itemCategory ?? 'MATERIAL',
+        equipmentSlotCode: r.itemTemplate?.equipmentSlotCode ?? null,
+        combatStatBonuses: r.itemTemplate?.combatStatBonusesJson ?? {},
         rarityTier: r.itemTemplate?.rarityTier ?? 'COMMON',
         quantity: Number(r.quantity) || 0,
       })),

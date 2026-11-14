@@ -8,9 +8,9 @@
 ---
 
 ## 📌 Status Atual do Projeto
-* **Versão Atual:** `v0.28.0`
+* **Versão Atual:** `v0.29.0`
 * **Última Atualização:** `2026-11-14`
-* **Fase Atual:** **Lore Oficial de Vila Izumo: O Manto da Restauração (Lv 1 ao 10), Curadoria dos 7 NPCs e Blindagem Sagrada de Pontos de Atributos (`v0.28.0`)** — Implementação do Capítulo 1 completo com 5 missões principais conectando a trama central da Ordem da Restauração e o mistério cósmico do Véu. Entrega do Conjunto Inicial do Aprendiz completo (12 peças) no Nível 1. Curadoria e renomeação dos 7 NPCs de Izumo (Kaori, Genpaku, Jinbei, Ren, Mou, Daisuke e Koji). Blindagem mandatória e inviolável no motor do servidor: NENHUMA missão ou função externa concede pontos de atributos livres; apenas o Level Up confere exatamente 5 pontos distribuíveis por nível. Banco PostgreSQL da VPS Azure e snapshot sincronizados com zero violações.
+* **Fase Atual:** **Interface de Equipamentos (Paperdoll 12 Slots), Batalha Tátil sem Dash, Impacto Melee/Ranged e Correções de Autenticação/Login (`v0.29.0`)** — Resolução de 5 frentes prioritárias do cliente `/play`: (1) Resolução de token autoritário em cascata no mapa mundo eliminando erro 401; (2) Remoção integral do botão e lógica de Dash/Esquiva na interface e motor de movimento; (3) Ataque básico diferenciado: Melee sem projétil com impacto direto e VFX no alvo vs Ranged balístico; (4) Paperdoll de 12 slots de equipamentos na aba Personagem e botão Equipar dinâmico na aba Mochila com comunicação via API; (5) Correção do fluxo de login e lobby eliminando sobreposição da tela de login. Linhas de código rigorosamente mantidas abaixo do limite de 1.000 linhas da Regra #7.
 * **Repositório Oficial:** `https://github.com/SeytaniR/etheria-campus`
 * **Fonte Bruta de Assets:** `https://github.com/SeytaniR/mcrework` (`https://seytanir.github.io/mcrework/`)
 

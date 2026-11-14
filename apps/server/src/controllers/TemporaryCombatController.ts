@@ -59,6 +59,8 @@ export interface CombatUnit {
   combatStyle?: 'MELEE' | 'RANGED';
   attackRange?: number;
   damageType?: 'PHYSICAL' | 'MAGICAL';
+  basicAttackVfxKey?: string;
+  basicAttackVfxColorHex?: string;
   battleMoveSpeed?: number;
   physAccuracy?: number;
   physEvasion?: number;
@@ -379,24 +381,45 @@ export class TemporaryCombatController {
 
     const classCb = (pc?.classTemplate as any)?.baseCombatAttributesJson || {};
     const classBaseSpeed = Number(classCb.BATTLE_MOVE_SPEED) || scalingCtx.globalDefaultMoveSpeed;
-    const playerMoveSpeed = Math.round(classBaseSpeed + charBaseStats.AGI * agiMoveRatio);
     const isPlayerMagical = String(pc?.classTemplate?.damageType || '').toUpperCase() === 'MAGICAL';
 
-    const playerMaxHp = Math.round(charBaseStats.VIT * vitHpRatio + charLevel * 20);
-    const playerMaxMp = Math.round(charBaseStats.INT * intMpRatio + charLevel * 10);
-    const playerPhysAtk = Math.round(charBaseStats.STR * strPhysAtkRatio + charBaseStats.AGI * agiPhysAtkRatio + charLevel * 4);
-    const playerMagAtk = Math.round(charBaseStats.INT * intMagAtkRatio + charLevel * 4);
-    const playerHealPower = Math.round(charBaseStats.WIS * wisHealPowerRatio + charLevel * 3);
-    const playerAtk = isPlayerMagical ? playerMagAtk : playerPhysAtk;
-    const playerDef = Math.round(charBaseStats.VIT * vitDefRatio + charLevel * 2.5);
-    const playerMagDef = Math.round(charBaseStats.WIS * wisMagDefRatio + charLevel * 2.0);
-    const playerSpeed = Math.round(charBaseStats.AGI * agiSpdRatio + charLevel);
+    // Bônus derivados de Equipamentos Ativos no Personagem
+    const equippedMap = (pc?.equippedItemsJson && typeof pc.equippedItemsJson === 'object'
+      ? (pc.equippedItemsJson as Record<string, number>)
+      : {}) as Record<string, number>;
+    const eqItemIds = Object.values(equippedMap).map(Number).filter((id) => Number.isInteger(id) && id > 0);
+    const eqItems = eqItemIds.length > 0
+      ? await this.prisma.itemTemplate.findMany({ where: { id: { in: eqItemIds } } })
+      : [];
 
-    const pDexCrit = Math.max(0, charBaseStats.DEX - 10) * getRatio('DEX', 'CRIT_RATE', 0.002);
-    const pStrCritDmg = Math.max(0, charBaseStats.STR - 10) * getRatio('STR', 'CRIT_DMG', 0.003);
-    const pDexAcc = Math.max(0, charBaseStats.DEX - 10) * (getRatio('DEX', 'PHYS_ACCURACY', 0.002) * 100);
-    const pAgiEva = Math.max(0, charBaseStats.AGI - 10) * (getRatio('AGI', 'PHYS_EVASION', 0.002) * 100);
-    const pWisEva = Math.max(0, charBaseStats.WIS - 10) * (getRatio('WIS', 'MAG_EVASION', 0.0015) * 100);
+    const eqBonuses: Record<string, number> = {};
+    for (const eq of eqItems) {
+      const bMap = (eq.combatStatBonusesJson && typeof eq.combatStatBonusesJson === 'object'
+        ? (eq.combatStatBonusesJson as Record<string, number>)
+        : {}) as Record<string, number>;
+      for (const [k, v] of Object.entries(bMap)) {
+        eqBonuses[k] = (eqBonuses[k] || 0) + (Number(v) || 0);
+      }
+    }
+
+    const playerMoveSpeed = Math.round(classBaseSpeed + charBaseStats.AGI * agiMoveRatio + (eqBonuses.BATTLE_MOVE_SPEED || 0));
+
+    const playerMaxHp = Math.round(charBaseStats.VIT * vitHpRatio + charLevel * 20 + (eqBonuses.MAX_HP || 0));
+    const playerMaxMp = Math.round(charBaseStats.INT * intMpRatio + charLevel * 10 + (eqBonuses.MAX_MP || 0));
+    const playerPhysAtk = Math.round(charBaseStats.STR * strPhysAtkRatio + charBaseStats.AGI * agiPhysAtkRatio + charLevel * 4 + (eqBonuses.PHYS_ATK || 0));
+    const playerMagAtk = Math.round(charBaseStats.INT * intMagAtkRatio + charLevel * 4 + (eqBonuses.MAG_ATK || 0));
+    const playerHealPower = Math.round(charBaseStats.WIS * wisHealPowerRatio + charLevel * 3 + (eqBonuses.HEAL_POWER || 0));
+    const playerAtk = isPlayerMagical ? playerMagAtk : playerPhysAtk;
+    const playerDef = Math.round(charBaseStats.VIT * vitDefRatio + charLevel * 2.5 + (eqBonuses.PHYS_DEF || 0));
+    const playerMagDef = Math.round(charBaseStats.WIS * wisMagDefRatio + charLevel * 2.0 + (eqBonuses.MAG_DEF || 0));
+    const playerSpeed = Math.round(charBaseStats.AGI * agiSpdRatio + charLevel + (eqBonuses.SPEED || 0));
+
+    const pDexCrit = Math.max(0, charBaseStats.DEX - 10) * getRatio('DEX', 'CRIT_RATE', 0.002) + (eqBonuses.CRIT_RATE || 0) / 100;
+    const pStrCritDmg = Math.max(0, charBaseStats.STR - 10) * getRatio('STR', 'CRIT_DMG', 0.003) + (eqBonuses.CRIT_DMG || 0) / 100;
+    const pDexAcc = Math.max(0, charBaseStats.DEX - 10) * (getRatio('DEX', 'PHYS_ACCURACY', 0.002) * 100) + (eqBonuses.PHYS_ACCURACY || 0);
+    const pAgiEva = Math.max(0, charBaseStats.AGI - 10) * (getRatio('AGI', 'PHYS_EVASION', 0.002) * 100) + (eqBonuses.PHYS_EVASION || 0);
+    const pWisEva = Math.max(0, charBaseStats.WIS - 10) * (getRatio('WIS', 'MAG_EVASION', 0.0015) * 100) + (eqBonuses.MAG_EVASION || 0);
+    const pMagAcc = (eqBonuses.MAG_ACCURACY || 0);
 
     const playerUnit: CombatUnit = {
       id: `player_${characterId || 1}`,
@@ -416,7 +439,7 @@ export class TemporaryCombatController {
       skillIds: Array.isArray(pc?.classTemplate?.skillIdsJson) ? pc.classTemplate.skillIdsJson.map(Number).filter(Number.isFinite) : [],
       critRate: Math.min(0.80, (Number(classCb.CRIT_RATE) || 5) / 100 + pDexCrit),
       critDmg: Math.min(3.00, (Number(classCb.CRIT_DMG) || 150) / 100 + pStrCritDmg),
-      attackSpeed: Number(classCb.ATTACK_SPEED) || 1.0,
+      attackSpeed: Math.round(((Number(classCb.ATTACK_SPEED) || 1.0) + (eqBonuses.ATTACK_SPEED || 0)) * 100) / 100,
       speed: playerSpeed,
       battleMoveSpeed: playerMoveSpeed,
       spriteKey: charSpriteKey,
@@ -427,11 +450,13 @@ export class TemporaryCombatController {
       elementCode: charElementCode,
       raceCode: charRaceCode,
       combatStyle: (pc?.classTemplate?.combatStyle as any) || 'MELEE',
-      attackRange: pc?.classTemplate?.attackRange || 60,
+      attackRange: (pc?.classTemplate?.attackRange || 60) + (eqBonuses.ATTACK_RANGE || 0),
       damageType: isPlayerMagical ? 'MAGICAL' : 'PHYSICAL',
+      basicAttackVfxKey: (pc?.classTemplate as any)?.basicAttackVfxKey || (classCb as any)?.basicAttackVfxKey || (((pc?.classTemplate?.combatStyle as any) || 'MELEE') === 'RANGED' ? '10002' : '10008'),
+      basicAttackVfxColorHex: (pc?.classTemplate as any)?.basicAttackVfxColorHex || (classCb as any)?.basicAttackVfxColorHex || (((pc?.classTemplate?.combatStyle as any) || 'MELEE') === 'RANGED' ? '#38bdf8' : '#fde047'),
       physAccuracy: Math.min(125, Math.max(20, Math.round((Number(classCb.PHYS_ACCURACY) || 95) + pDexAcc))),
       physEvasion: Math.min(75, Math.max(0, Math.round((Number(classCb.PHYS_EVASION) || 5) + pAgiEva))),
-      magAccuracy: Math.min(125, Math.max(20, Math.round((Number(classCb.MAG_ACCURACY) || 95) + pDexAcc))),
+      magAccuracy: Math.min(125, Math.max(20, Math.round((Number(classCb.MAG_ACCURACY) || 95) + pMagAcc))),
       magEvasion: Math.min(75, Math.max(0, Math.round((Number(classCb.MAG_EVASION) || 5) + pWisEva))),
       isAlive: true,
       activeStatuses: [],
@@ -512,6 +537,8 @@ export class TemporaryCombatController {
         combatStyle: p.style,
         attackRange: p.range,
         damageType: p.dmgType,
+        basicAttackVfxKey: p.style === 'RANGED' ? '10002' : '10008',
+        basicAttackVfxColorHex: p.style === 'RANGED' ? '#4ade80' : '#fde047',
         battleMoveSpeed: p.moveSpd,
         physAccuracy: Math.min(125, Math.max(20, p.pAcc)),
         physEvasion: Math.min(75, Math.max(0, p.pEva)),

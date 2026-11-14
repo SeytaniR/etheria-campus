@@ -14,6 +14,7 @@ import type { GamePlayController } from '../controllers/GamePlayController.js';
 import type { TemporaryCombatController } from '../controllers/TemporaryCombatController.js';
 import type { AdminQuestsController } from '../controllers/AdminQuestsController.js';
 import type { AssetMirrorService } from '../controllers/AssetMirrorService.js';
+import { CharacterEquipmentService } from '../controllers/CharacterEquipmentService.js';
 
 export interface PlayRouterDeps {
   prisma: PrismaClient;
@@ -89,6 +90,16 @@ export class PlayRouter {
       return true;
     }
 
+    // 1.2 Mapas Gerais / Mundo dos Continentes (Público / Não requer sessão para visualização rápida)
+    if (pathname === '/api/play/world-maps' && method === 'GET') {
+      const worldMaps = await this.deps.prisma.worldMapTemplate.findMany({
+        where: { isActive: true },
+        orderBy: { id: 'asc' },
+      });
+      this.deps.sendJson(res, 200, { worldMaps });
+      return true;
+    }
+
     // 2. Proteção de Sessão JWT para jogadores
     const session = this.deps.authService.verifyPlayToken(req);
     if (!session) {
@@ -117,16 +128,6 @@ export class PlayRouter {
       return true;
     }
 
-    // --- Mapas Gerais / Mundo dos Continentes (Visualização do Jogador) ---
-    if (pathname === '/api/play/world-maps' && method === 'GET') {
-      const worldMaps = await this.deps.prisma.worldMapTemplate.findMany({
-        where: { isActive: true },
-        orderBy: { id: 'asc' },
-      });
-      this.deps.sendJson(res, 200, { worldMaps });
-      return true;
-    }
-
     // --- Criação e Deleção de Personagens ---
     if (pathname === '/api/play/characters' && method === 'POST') {
       const dto = await this.deps.readJsonBody(req);
@@ -138,6 +139,49 @@ export class PlayRouter {
     if (charDeleteMatch && method === 'DELETE') {
       const charId = Number(charDeleteMatch[1]);
       this.deps.sendJson(res, 200, await this.deps.playController.deleteCharacter(userAccountId, charId));
+      return true;
+    }
+
+    // --- Gerenciamento Autoritário de Equipamentos do Jogador ---
+    const charEquipDetailsMatch = pathname.match(/^\/api\/play\/characters\/(\d+)\/equipment$/);
+    if (charEquipDetailsMatch && method === 'GET') {
+      const charId = Number(charEquipDetailsMatch[1]);
+      if (!(await this.verifyCharacterOwnership(userAccountId, session.role, charId))) {
+        this.deps.sendJson(res, 403, { error: 'Acesso negado: este personagem não pertence à sua conta.' });
+        return true;
+      }
+      this.deps.sendJson(res, 200, await CharacterEquipmentService.getCharacterEquippedDetails(this.deps.prisma, charId));
+      return true;
+    }
+
+    const charEquipItemMatch = pathname.match(/^\/api\/play\/characters\/(\d+)\/equipment\/equip$/);
+    if (charEquipItemMatch && method === 'POST') {
+      const charId = Number(charEquipItemMatch[1]);
+      const body = await this.deps.readJsonBody<{ itemTemplateId: number; slotCode?: string }>(req);
+      const result = await CharacterEquipmentService.equipItem(
+        this.deps.prisma,
+        userAccountId,
+        session.role,
+        charId,
+        Number(body.itemTemplateId),
+        body.slotCode
+      );
+      this.deps.sendJson(res, 200, result);
+      return true;
+    }
+
+    const charUnequipItemMatch = pathname.match(/^\/api\/play\/characters\/(\d+)\/equipment\/unequip$/);
+    if (charUnequipItemMatch && method === 'POST') {
+      const charId = Number(charUnequipItemMatch[1]);
+      const body = await this.deps.readJsonBody<{ slotCode: string }>(req);
+      const result = await CharacterEquipmentService.unequipItem(
+        this.deps.prisma,
+        userAccountId,
+        session.role,
+        charId,
+        body.slotCode
+      );
+      this.deps.sendJson(res, 200, result);
       return true;
     }
 

@@ -5,6 +5,30 @@ Qualquer IA trabalhando neste repositório **DEVE** incrementar a versão e regi
 
 ---
 
+## [v0.29.0] - 2026-11-14
+### Interface de Equipamentos (Paperdoll 12 Slots), Batalha Tátil sem Dash, Impacto Melee/Ranged e Correções de Autenticação/Login
+* **Correção do Erro 401 no Mapa Mundo (`PlayMapModalController.js`):**
+  * Atualização do cabeçalho de autenticação para resolução em cascata de tokens (`this.playApp?.token || localStorage.getItem('etheria_play_token') || localStorage.getItem('etheria_admin_token') || ''`).
+  * Requisições para `/api/play/world-maps` agora são enviadas com autorização válida, eliminando completamente respostas 401 Unauthorized.
+* **Remoção Completa da Esquiva/Dash (`ActionCombatArena.js`, `ActionMotionEngine.js`, `index.html`, `play_hud.css`):**
+  * Removido o botão `#btnActDash` da HUD de combate e limpas referências no layout em arco radial mobile.
+  * Removidos os atalhos de teclado ('k' / 'Shift') e o método `triggerDash()` em `ActionCombatArena.js`.
+  * Removido o branch `DASH` do buffer de inputs em `ActionMotionEngine.js`, mantendo movimentação e ataques focados no combate clássico.
+* **Visual Distinto do Ataque Básico na Batalha (Melee vs Ranged) (`ActionMotionEngine.js`):**
+  * **Melee (`combatStyle === 'MELEE'`):** Não dispara mais projétil voador no mapa. No cast point da animação de ataque, aplica o dano diretamente no alvo e aciona burst de VFX de impacto (`spawnBurst(vfxKey, target.x, target.y - 10)`) na posição do inimigo.
+  * **Ranged (`combatStyle === 'RANGED'`):** Dispara projétil via motor balístico com viagem linear/parabólica e detonação de impacto ao colidir.
+* **Interface de Equipamentos na Aba Personagem e Mochila (`PlayBagController.js` & `CharacterInventoryService.ts`):**
+  * **Aba Personagem (`👤 Personagem`):** Implementação de Paperdoll com 12 slots distribuídos ergonomicamente ao redor da silhueta do herói (Defesa à esquerda: Elmo, Ombreiras, Peitoral, Cinto, Calças, Botas; Centro: Modelo do personagem e ficha técnica; Armas/Acessórios à direita: Arma Principal, Arma Secundária, Amuleto, Anel, Ornamento 1, Ornamento 2).
+  * Exibição do ícone real de itens equipados e placeholders com moldura translúcida escura.
+  * Modal interativo ao clicar em slot equipado com detalhes e botão de "Desequipar" (`POST /api/play/characters/:id/equipment/unequip`).
+  * **Aba Mochila (`🎒 Mochila`):** Itens da categoria `CHARACTER_EQUIPMENT` exibem botão "⚔️ Equipar" com chamada a `POST /api/play/characters/:id/equipment/equip`, atualizando inventário e paperdoll em tempo real.
+  * `CharacterInventoryService.ts` enriquecido para retornar `equipmentSlotCode` e `combatStatBonuses` no inventário da bolsa.
+* **Correção da Tela de Login Duplicada (`play.js`):**
+  * No método `init()`, adicionado `return` imediato após o carregamento bem-sucedido do bootstrap e chamada a `showLobby()`.
+  * Previne a sobreposição indesejada de `#playLoginScreen` sobre o lobby ao autenticar ou restaurar sessão.
+
+---
+
 ## [v0.28.0] - 2026-11-14
 ### Lore Oficial de Vila Izumo: O Manto da Restauração (Lv 1 ao 10), Curadoria dos 7 NPCs e Blindagem Sagrada de Pontos de Atributos
 * **Blindagem Sistêmica Sagrada de Pontos de Atributos (`QuestProgressService.ts`, `AdminQuestsController.ts`, `MetaQuestProceduralEngine.ts`):**

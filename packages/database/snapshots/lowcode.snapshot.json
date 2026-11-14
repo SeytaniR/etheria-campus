@@ -1,6 +1,6 @@
 {
   "version": "0.2.0",
-  "exportedAt": "2026-11-14T01:15:22.262Z",
+  "exportedAt": "2026-11-14T01:39:52.045Z",
   "i18nTranslations": [
     {
       "id": 1,
@@ -1127,49 +1127,49 @@
       "key": "npc.npc_1.name",
       "locale": "pt-BR",
       "text": "Oficial Kaori (Acolhedora da Restauração)",
-      "updatedAt": "2026-11-14T01:15:22.076Z"
+      "updatedAt": "2026-11-14T01:39:51.894Z"
     },
     {
       "id": 166,
       "key": "npc.npc_2.name",
       "locale": "pt-BR",
       "text": "Arquivista Mestre Genpaku (Sábio do Templo Ancestral)",
-      "updatedAt": "2026-11-14T01:15:22.086Z"
+      "updatedAt": "2026-11-14T01:39:51.901Z"
     },
     {
       "id": 167,
       "key": "npc.npc_3.name",
       "locale": "pt-BR",
       "text": "Armeiro Jinbei (Forjador de Véu)",
-      "updatedAt": "2026-11-14T01:15:22.090Z"
+      "updatedAt": "2026-11-14T01:39:51.906Z"
     },
     {
       "id": 168,
       "key": "npc.npc_4.name",
       "locale": "pt-BR",
       "text": "Sentinela Ren (Batedora do Bosque)",
-      "updatedAt": "2026-11-14T01:15:22.097Z"
+      "updatedAt": "2026-11-14T01:39:51.911Z"
     },
     {
       "id": 169,
       "key": "npc.npc_5.name",
       "locale": "pt-BR",
       "text": "Lapidador Mou (Artífice de Essências)",
-      "updatedAt": "2026-11-14T01:15:22.102Z"
+      "updatedAt": "2026-11-14T01:39:51.914Z"
     },
     {
       "id": 171,
       "key": "npc.npc_6.name",
       "locale": "pt-BR",
       "text": "Comandante Daisuke (Capitão da Guarda)",
-      "updatedAt": "2026-11-14T01:15:22.106Z"
+      "updatedAt": "2026-11-14T01:39:51.917Z"
     },
     {
       "id": 172,
       "key": "npc.npc_7.name",
       "locale": "pt-BR",
       "text": "Alquimista Koji (Boticário de Izumo)",
-      "updatedAt": "2026-11-14T01:15:22.109Z"
+      "updatedAt": "2026-11-14T01:39:51.921Z"
     },
     {
       "id": 174,
@@ -4613,175 +4613,175 @@
       "key": "quest.quest_main_01.title",
       "locale": "pt-BR",
       "text": "O Chamado da Restauração",
-      "updatedAt": "2026-11-14T01:15:22.151Z"
+      "updatedAt": "2026-11-14T01:39:51.934Z"
     },
     {
       "id": 1255,
       "key": "quest.quest_main_01.desc",
       "locale": "pt-BR",
       "text": "Apresente-se à Oficial Kaori em Vila Izumo, receba o Conjunto Inicial do Aprendiz (12 peças) e encontre o Arquivista Mestre Genpaku no Templo Ancestral.",
-      "updatedAt": "2026-11-14T01:15:22.155Z"
+      "updatedAt": "2026-11-14T01:39:51.937Z"
     },
     {
       "id": 1256,
       "key": "quest.quest_main_01.dialogue_offer",
       "locale": "pt-BR",
       "text": "Respire fundo, recruta. Desde que o Conselho ruiu, fendas invisíveis sangram o éter bruto sobre nossas terras. Mas o Alto Curador assumiu a vigília da civilização. Aqui está sua comissão oficial e as doze peças do Conjunto do Aprendiz. Equipe-as em sua mochila e procure o Mestre Genpaku no Templo Ancestral!",
-      "updatedAt": "2026-11-14T01:15:22.159Z"
+      "updatedAt": "2026-11-14T01:39:51.940Z"
     },
     {
       "id": 1257,
       "key": "quest.quest_main_01.dialogue_active",
       "locale": "pt-BR",
       "text": "Vista seu equipamento completo em sua mochila e procure o Arquivista Mestre Genpaku no platô ao norte!",
-      "updatedAt": "2026-11-14T01:15:22.163Z"
+      "updatedAt": "2026-11-14T01:39:51.944Z"
     },
     {
       "id": 1258,
       "key": "quest.quest_main_01.dialogue_complete",
       "locale": "pt-BR",
       "text": "Aproxime-se, jovem restaurador... Deixe-me sentir a ressonância do seu éter. Sim, você carrega a marca do Primeiro Arquivista. Mas escute: o Véu está gemendo sob um peso nunca antes visto.",
-      "updatedAt": "2026-11-14T01:15:22.166Z"
+      "updatedAt": "2026-11-14T01:39:51.947Z"
     },
     {
       "id": 1259,
       "key": "quest.quest_main_02.title",
       "locale": "pt-BR",
       "text": "A Fenda e a Bolha Dimensional",
-      "updatedAt": "2026-11-14T01:15:22.177Z"
+      "updatedAt": "2026-11-14T01:39:51.956Z"
     },
     {
       "id": 1260,
       "key": "quest.quest_main_02.desc",
       "locale": "pt-BR",
       "text": "Aprenda os segredos do Véu com o Armeiro Jinbei e treine combate dimensional com a Sentinela Ren no bosque.",
-      "updatedAt": "2026-11-14T01:15:22.180Z"
+      "updatedAt": "2026-11-14T01:39:51.959Z"
     },
     {
       "id": 1261,
       "key": "quest.quest_main_02.dialogue_offer",
       "locale": "pt-BR",
       "text": "O Véu é uma bolha que nos protege do cataclismo. Tudo o que sangrar ou quebrar lá dentro não toca o mundo físico. Vá ao Armeiro Jinbei para afinar suas lâminas e procure a Sentinela Ren para seu batismo dimensional.",
-      "updatedAt": "2026-11-14T01:15:22.183Z"
+      "updatedAt": "2026-11-14T01:39:51.963Z"
     },
     {
       "id": 1262,
       "key": "quest.quest_main_02.dialogue_active",
       "locale": "pt-BR",
       "text": "Não hesite ao ser sugado pelo vácuo do Véu! Mantenha os pés ágeis, esquive dos golpes pesados e descarregue suas habilidades!",
-      "updatedAt": "2026-11-14T01:15:22.187Z"
+      "updatedAt": "2026-11-14T01:39:51.966Z"
     },
     {
       "id": 1263,
       "key": "quest.quest_main_02.dialogue_complete",
       "locale": "pt-BR",
       "text": "Excelente controle gravitacional! Veja como o espólio se materializou intacto no chão físico ao fechar a fenda. Essa é a magia do Véu: vitória isolada, espólio no plano real!",
-      "updatedAt": "2026-11-14T01:15:22.190Z"
+      "updatedAt": "2026-11-14T01:39:51.969Z"
     },
     {
       "id": 1264,
       "key": "quest.quest_main_03.title",
       "locale": "pt-BR",
       "text": "Ecos do Éter e os Resíduos Censurados",
-      "updatedAt": "2026-11-14T01:15:22.199Z"
+      "updatedAt": "2026-11-14T01:39:51.977Z"
     },
     {
       "id": 1265,
       "key": "quest.quest_main_03.desc",
       "locale": "pt-BR",
       "text": "Purifique anomalias na orla de Izumo, recolha amostras de resíduos etéreos e entregue para análise ao Lapidador Mou.",
-      "updatedAt": "2026-11-14T01:15:22.202Z"
+      "updatedAt": "2026-11-14T01:39:51.981Z"
     },
     {
       "id": 1266,
       "key": "quest.quest_main_03.dialogue_offer",
       "locale": "pt-BR",
       "text": "O Alto Curador ordenou o abate de feras da margem para recolher Resíduos de Véu e abastecer os motores da capital. Mas quando olhei nos olhos daquelas criaturas, não vi invasores... elas pareciam guardiãs sofrendo. Purifique 3 combates e leve os resíduos ao Lapidador Mou.",
-      "updatedAt": "2026-11-14T01:15:22.205Z"
+      "updatedAt": "2026-11-14T01:39:51.984Z"
     },
     {
       "id": 1267,
       "key": "quest.quest_main_03.dialogue_active",
       "locale": "pt-BR",
       "text": "Cuidado ao manusear esses resíduos na mochila! A ressonância deles é muito densa.",
-      "updatedAt": "2026-11-14T01:15:22.208Z"
+      "updatedAt": "2026-11-14T01:39:51.987Z"
     },
     {
       "id": 1268,
       "key": "quest.quest_main_03.dialogue_complete",
       "locale": "pt-BR",
       "text": "Pelos ancestrais... Isto não é lixo de aberração! Esta geometria hexagonal é uma matriz de contenção primordial! E este papiro censurado proibia drenar essas feras... O que o Curador está realmente nos mandando matar?!",
-      "updatedAt": "2026-11-14T01:15:22.211Z"
+      "updatedAt": "2026-11-14T01:39:51.990Z"
     },
     {
       "id": 1269,
       "key": "quest.quest_main_04.title",
       "locale": "pt-BR",
       "text": "O Sussurro da Dissidência",
-      "updatedAt": "2026-11-14T01:15:22.218Z"
+      "updatedAt": "2026-11-14T01:39:51.998Z"
     },
     {
       "id": 1270,
       "key": "quest.quest_main_04.desc",
       "locale": "pt-BR",
       "text": "Consulte o Comandante Daisuke sobre os relatórios rasurados, sobreviva à emboscada dos rebeldes no bambuzal e reporte o incidente.",
-      "updatedAt": "2026-11-14T01:15:22.221Z"
+      "updatedAt": "2026-11-14T01:39:52.001Z"
     },
     {
       "id": 1271,
       "key": "quest.quest_main_04.dialogue_offer",
       "locale": "pt-BR",
       "text": "Guarde esse papiro rasurado. Vá falar com o Comandante Daisuke no Portão Leste, mas passe discretamente pela trilha dos bambus. Sinto que há sombras nos vigiando desde que você cruzou a ponte.",
-      "updatedAt": "2026-11-14T01:15:22.224Z"
+      "updatedAt": "2026-11-14T01:39:52.004Z"
     },
     {
       "id": 1272,
       "key": "quest.quest_main_04.dialogue_active",
       "locale": "pt-BR",
       "text": "O que foi essa oscilação violenta nos bambuzais? Suas vestes estão chamuscadas de magia dissidente!",
-      "updatedAt": "2026-11-14T01:15:22.227Z"
+      "updatedAt": "2026-11-14T01:39:52.007Z"
     },
     {
       "id": 1273,
       "key": "quest.quest_main_04.dialogue_complete",
       "locale": "pt-BR",
       "text": "Dissidentes atacando dentro de Izumo?! Eles gritaram que você é um fantoche do Curador? Não dê ouvidos a fanáticos! Mas... olhe para o céu da arena: aquela borda roxa trincada não estava ali antes. Algo grave está acontecendo.",
-      "updatedAt": "2026-11-14T01:15:22.229Z"
+      "updatedAt": "2026-11-14T01:39:52.010Z"
     },
     {
       "id": 1274,
       "key": "quest.quest_main_05.title",
       "locale": "pt-BR",
       "text": "O Rompimento do Marco e a Passagem Proibida",
-      "updatedAt": "2026-11-14T01:15:22.235Z"
+      "updatedAt": "2026-11-14T01:39:52.018Z"
     },
     {
       "id": 1275,
       "key": "quest.quest_main_05.desc",
       "locale": "pt-BR",
       "text": "Abata o Guardião Alfa que bloqueia o Portal 1 de Izumo, liberte a rota para o Pantanal das Nuvens e receba sua consagração de Nível 10.",
-      "updatedAt": "2026-11-14T01:15:22.238Z"
+      "updatedAt": "2026-11-14T01:39:52.020Z"
     },
     {
       "id": 1276,
       "key": "quest.quest_main_05.dialogue_offer",
       "locale": "pt-BR",
       "text": "Chegou sua hora, Restaurador! O portal para o Pantanal das Nuvens está bloqueado por uma tempestade etérea colossal. O Alto Curador ordenou a drenagem total do monstro alfa. Adentre o Véu, abata o guardião e liberte a passagem!",
-      "updatedAt": "2026-11-14T01:15:22.241Z"
+      "updatedAt": "2026-11-14T01:39:52.024Z"
     },
     {
       "id": 1277,
       "key": "quest.quest_main_05.dialogue_active",
       "locale": "pt-BR",
       "text": "O chão tremeu quando a fenda se abriu! Você conseguiu derrotar a fera colossal do marco?",
-      "updatedAt": "2026-11-14T01:15:22.244Z"
+      "updatedAt": "2026-11-14T01:39:52.027Z"
     },
     {
       "id": 1278,
       "key": "quest.quest_main_05.dialogue_complete",
       "locale": "pt-BR",
       "text": "Você conseguiu! O portal para o Pantanal das Nuvens finalmente se estabilizou e está liberado para você! Em nome da Ordem da Restauração, eu o consagro Agente de Campo de Nível 10! As terras do Pantanal o aguardam!",
-      "updatedAt": "2026-11-14T01:15:22.246Z"
+      "updatedAt": "2026-11-14T01:39:52.030Z"
     }
   ],
   "biomes": [
@@ -53607,56 +53607,6 @@
   ],
   "questTemplates": [
     {
-      "id": 22,
-      "code": "quest_22",
-      "titleI18nKey": "quest.quest_22.title",
-      "descriptionI18nKey": "quest.quest_22.description",
-      "dialogueOfferI18nKey": "quest.quest_22.dialogue_offer",
-      "dialogueActiveI18nKey": "quest.quest_22.dialogue_active",
-      "dialogueCompleteI18nKey": "quest.quest_22.dialogue_complete",
-      "questCategory": "MAIN",
-      "chapterOrder": 1,
-      "episodeOrder": 1,
-      "minLevel": 1,
-      "prerequisiteQuestId": null,
-      "repeatType": "ONCE",
-      "triggerType": "NPC_INTERACT",
-      "triggerConfigJson": {
-        "triggerMapId": null,
-        "triggerMonsterId": null,
-        "autoAcceptOnTrigger": false
-      },
-      "requirementsJson": {
-        "minLevel": 1,
-        "requireReborn": false,
-        "requiredClassId": null,
-        "requiredElement": null,
-        "prerequisiteQuestId": null,
-        "requiredChapterCompleted": null
-      },
-      "giverNpcId": 1,
-      "giverMapId": null,
-      "turnInNpcId": 2,
-      "turnInMapId": null,
-      "objectivesJson": [
-        {
-          "type": "TALK_NPC",
-          "mapId": null,
-          "labelPtBr": "Conversar com o Sábio de Izumo",
-          "npcTemplateId": 2,
-          "requiredCount": 1
-        }
-      ],
-      "rewardsJson": {
-        "exp": 120,
-        "gold": 50,
-        "statPoints": 0,
-        "freePointsBonus": 0
-      },
-      "metaConfigJson": null,
-      "isActive": true
-    },
-    {
       "id": 23,
       "code": "quest_23",
       "titleI18nKey": "quest.quest_23.title",
@@ -53756,251 +53706,6 @@
       "isActive": true
     },
     {
-      "id": 25,
-      "code": "quest_25",
-      "titleI18nKey": "quest.quest_25.title",
-      "descriptionI18nKey": "quest.quest_25.description",
-      "dialogueOfferI18nKey": "quest.quest_25.dialogue_offer",
-      "dialogueActiveI18nKey": "quest.quest_25.dialogue_active",
-      "dialogueCompleteI18nKey": "quest.quest_25.dialogue_complete",
-      "questCategory": "MAIN",
-      "chapterOrder": 2,
-      "episodeOrder": 1,
-      "minLevel": 2,
-      "prerequisiteQuestId": 24,
-      "repeatType": "ONCE",
-      "triggerType": "NPC_INTERACT",
-      "triggerConfigJson": {
-        "triggerMapId": null,
-        "triggerMonsterId": null,
-        "autoAcceptOnTrigger": false
-      },
-      "requirementsJson": {
-        "minLevel": 2,
-        "requireReborn": false,
-        "requiredClassId": null,
-        "requiredElement": null,
-        "prerequisiteQuestId": 24,
-        "requiredChapterCompleted": 1
-      },
-      "giverNpcId": 2,
-      "giverMapId": null,
-      "turnInNpcId": 4,
-      "turnInMapId": null,
-      "objectivesJson": [
-        {
-          "type": "TALK_NPC",
-          "mapId": null,
-          "labelPtBr": "Investigar com o Joalheiro Pibu",
-          "npcTemplateId": 4,
-          "requiredCount": 1
-        }
-      ],
-      "rewardsJson": {
-        "exp": 420,
-        "gold": 220,
-        "statPoints": 0,
-        "freePointsBonus": 0
-      },
-      "metaConfigJson": null,
-      "isActive": true
-    },
-    {
-      "id": 26,
-      "code": "quest_26",
-      "titleI18nKey": "quest.quest_26.title",
-      "descriptionI18nKey": "quest.quest_26.description",
-      "dialogueOfferI18nKey": "quest.quest_26.dialogue_offer",
-      "dialogueActiveI18nKey": "quest.quest_26.dialogue_active",
-      "dialogueCompleteI18nKey": "quest.quest_26.dialogue_complete",
-      "questCategory": "MAIN",
-      "chapterOrder": 2,
-      "episodeOrder": 2,
-      "minLevel": 2,
-      "prerequisiteQuestId": 25,
-      "repeatType": "ONCE",
-      "triggerType": "AUTO_ON_PREV_QUEST",
-      "triggerConfigJson": {
-        "triggerMapId": null,
-        "triggerMonsterId": null,
-        "autoAcceptOnTrigger": false
-      },
-      "requirementsJson": {
-        "minLevel": 2,
-        "requireReborn": false,
-        "requiredClassId": null,
-        "requiredElement": null,
-        "prerequisiteQuestId": 25,
-        "requiredChapterCompleted": null
-      },
-      "giverNpcId": 4,
-      "giverMapId": null,
-      "turnInNpcId": 2,
-      "turnInMapId": null,
-      "objectivesJson": [
-        {
-          "type": "WIN_BATTLES",
-          "labelPtBr": "Vencer 2 Batalhas na Fronteira",
-          "requiredCount": 2
-        }
-      ],
-      "rewardsJson": {
-        "exp": 600,
-        "gold": 320,
-        "statPoints": 0,
-        "freePointsBonus": 0
-      },
-      "metaConfigJson": null,
-      "isActive": true
-    },
-    {
-      "id": 27,
-      "code": "quest_27",
-      "titleI18nKey": "quest.quest_27.title",
-      "descriptionI18nKey": "quest.quest_27.description",
-      "dialogueOfferI18nKey": "quest.quest_27.dialogue_offer",
-      "dialogueActiveI18nKey": "quest.quest_27.dialogue_active",
-      "dialogueCompleteI18nKey": "quest.quest_27.dialogue_complete",
-      "questCategory": "SIDE",
-      "chapterOrder": 1,
-      "episodeOrder": 1,
-      "minLevel": 1,
-      "prerequisiteQuestId": null,
-      "repeatType": "ONCE",
-      "triggerType": "NPC_INTERACT",
-      "triggerConfigJson": {
-        "triggerMapId": null,
-        "triggerMonsterId": null,
-        "autoAcceptOnTrigger": false
-      },
-      "requirementsJson": {
-        "minLevel": 1,
-        "requireReborn": false,
-        "requiredClassId": null,
-        "requiredElement": null,
-        "prerequisiteQuestId": null,
-        "requiredChapterCompleted": null
-      },
-      "giverNpcId": 3,
-      "giverMapId": null,
-      "turnInNpcId": 4,
-      "turnInMapId": null,
-      "objectivesJson": [
-        {
-          "type": "TALK_NPC",
-          "mapId": null,
-          "labelPtBr": "Entregar recado ao Joalheiro Pibu",
-          "npcTemplateId": 4,
-          "requiredCount": 1
-        }
-      ],
-      "rewardsJson": {
-        "exp": 150,
-        "gold": 100,
-        "statPoints": 0,
-        "freePointsBonus": 0
-      },
-      "metaConfigJson": null,
-      "isActive": true
-    },
-    {
-      "id": 28,
-      "code": "quest_28",
-      "titleI18nKey": "quest.quest_28.title",
-      "descriptionI18nKey": "quest.quest_28.description",
-      "dialogueOfferI18nKey": "quest.quest_28.dialogue_offer",
-      "dialogueActiveI18nKey": "quest.quest_28.dialogue_active",
-      "dialogueCompleteI18nKey": "quest.quest_28.dialogue_complete",
-      "questCategory": "PROFICIENCY",
-      "chapterOrder": 1,
-      "episodeOrder": 1,
-      "minLevel": 1,
-      "prerequisiteQuestId": null,
-      "repeatType": "REPEATABLE",
-      "triggerType": "NPC_INTERACT",
-      "triggerConfigJson": {
-        "triggerMapId": null,
-        "triggerMonsterId": null,
-        "autoAcceptOnTrigger": false
-      },
-      "requirementsJson": {
-        "minLevel": 1,
-        "requireReborn": false,
-        "requiredClassId": null,
-        "requiredElement": null,
-        "prerequisiteQuestId": null,
-        "requiredChapterCompleted": null
-      },
-      "giverNpcId": 3,
-      "giverMapId": null,
-      "turnInNpcId": 3,
-      "turnInMapId": null,
-      "objectivesJson": [
-        {
-          "type": "WIN_BATTLES",
-          "labelPtBr": "Vencer 3 Batalhas contra Monstros",
-          "requiredCount": 3
-        }
-      ],
-      "rewardsJson": {
-        "exp": 400,
-        "gold": 200,
-        "statPoints": 0,
-        "freePointsBonus": 0
-      },
-      "metaConfigJson": null,
-      "isActive": true
-    },
-    {
-      "id": 29,
-      "code": "quest_29",
-      "titleI18nKey": "quest.quest_29.title",
-      "descriptionI18nKey": "quest.quest_29.description",
-      "dialogueOfferI18nKey": "quest.quest_29.dialogue_offer",
-      "dialogueActiveI18nKey": "quest.quest_29.dialogue_active",
-      "dialogueCompleteI18nKey": "quest.quest_29.dialogue_complete",
-      "questCategory": "EPIC",
-      "chapterOrder": 2,
-      "episodeOrder": 1,
-      "minLevel": 3,
-      "prerequisiteQuestId": 24,
-      "repeatType": "ONCE",
-      "triggerType": "REACH_LEVEL",
-      "triggerConfigJson": {
-        "triggerMapId": null,
-        "triggerMonsterId": null,
-        "autoAcceptOnTrigger": false
-      },
-      "requirementsJson": {
-        "minLevel": 3,
-        "requireReborn": false,
-        "requiredClassId": null,
-        "requiredElement": null,
-        "prerequisiteQuestId": 24,
-        "requiredChapterCompleted": 1
-      },
-      "giverNpcId": 2,
-      "giverMapId": null,
-      "turnInNpcId": 2,
-      "turnInMapId": null,
-      "objectivesJson": [
-        {
-          "type": "WIN_BATTLES",
-          "labelPtBr": "Vencer 5 Batalhas para o Ritual Épico",
-          "requiredCount": 5
-        }
-      ],
-      "rewardsJson": {
-        "exp": 1000,
-        "gold": 500,
-        "statPoints": 0,
-        "triggerReborn": true,
-        "freePointsBonus": 0
-      },
-      "metaConfigJson": null,
-      "isActive": true
-    },
-    {
       "id": 30,
       "code": "quest_main_01",
       "titleI18nKey": "quest.quest_main_01.title",
@@ -54029,14 +53734,7 @@
         {
           "type": "TALK_NPC",
           "mapId": null,
-          "labelPtBr": "Aceitar a comissão com a Oficial Kaori",
-          "npcTemplateId": 1,
-          "requiredCount": 1
-        },
-        {
-          "type": "TALK_NPC",
-          "mapId": null,
-          "labelPtBr": "Apresentar-se ao Arquivista Mestre Genpaku",
+          "labelPtBr": "Apresentar-se ao Arquivista Mestre Genpaku no Templo Ancestral",
           "npcTemplateId": 2,
           "requiredCount": 1
         }
@@ -54074,15 +53772,15 @@
       "questCategory": "MAIN",
       "chapterOrder": 1,
       "episodeOrder": 2,
-      "minLevel": 2,
+      "minLevel": 1,
       "prerequisiteQuestId": 30,
       "repeatType": "ONCE",
-      "triggerType": "AUTO_ON_PREV_QUEST",
+      "triggerType": "NPC_INTERACT",
       "triggerConfigJson": {
         "autoAcceptOnTrigger": false
       },
       "requirementsJson": {
-        "minLevel": 2,
+        "minLevel": 1,
         "prerequisiteQuestId": 30
       },
       "giverNpcId": 2,
@@ -54139,7 +53837,7 @@
       "questCategory": "MAIN",
       "chapterOrder": 1,
       "episodeOrder": 3,
-      "minLevel": 4,
+      "minLevel": 1,
       "prerequisiteQuestId": 31,
       "repeatType": "ONCE",
       "triggerType": "NPC_INTERACT",
@@ -54147,7 +53845,7 @@
         "autoAcceptOnTrigger": false
       },
       "requirementsJson": {
-        "minLevel": 4,
+        "minLevel": 1,
         "prerequisiteQuestId": 31
       },
       "giverNpcId": 4,
@@ -54187,7 +53885,7 @@
       "questCategory": "MAIN",
       "chapterOrder": 1,
       "episodeOrder": 4,
-      "minLevel": 6,
+      "minLevel": 1,
       "prerequisiteQuestId": 32,
       "repeatType": "ONCE",
       "triggerType": "NPC_INTERACT",
@@ -54195,7 +53893,7 @@
         "autoAcceptOnTrigger": false
       },
       "requirementsJson": {
-        "minLevel": 6,
+        "minLevel": 1,
         "prerequisiteQuestId": 32
       },
       "giverNpcId": 5,
@@ -54236,7 +53934,7 @@
       "questCategory": "MAIN",
       "chapterOrder": 1,
       "episodeOrder": 5,
-      "minLevel": 8,
+      "minLevel": 1,
       "prerequisiteQuestId": 33,
       "repeatType": "ONCE",
       "triggerType": "NPC_INTERACT",
@@ -54244,7 +53942,7 @@
         "autoAcceptOnTrigger": false
       },
       "requirementsJson": {
-        "minLevel": 8,
+        "minLevel": 1,
         "prerequisiteQuestId": 33
       },
       "giverNpcId": 6,
