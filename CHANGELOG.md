@@ -5,6 +5,25 @@ Qualquer IA trabalhando neste repositório **DEVE** incrementar a versão e regi
 
 ---
 
+## [v0.36.0] - 2026-11-14
+### Novo Sistema de Escalonamento de Nível (-10 a +10, +20%/Nv), Multiplicadores de Rank (F..SS) e Hierarquia de Monstros (Básico, Líder e Boss)
+* **Variação de Nível de Monstros em Mapas (`MonsterCombatBuilder.resolveBalancedMapMonsterLevel`):**
+  * Os monstros nascem com variação de **`-10` a `+10`** em relação ao nível do mapa (`requiredLevel`), com mínimo nível 1 e sem teto artificial em 100 (ex: mapa nível 100 gera monstros entre nível **90 e 110**).
+* **Bônus de Atributos por Nível (`MonsterCombatBuilder.buildMonsterUnit`):**
+  * Cada nível acima de 1 aplica **`+20%` nos atributos base** do monstro (`1 + (mobLvl - 1) * 0.20`).
+* **Tabela Oficial de Multiplicadores e Bônus por Rank (`RARITY_PROFILES`):**
+  * **Rank F:** `1.0x` em tudo (HP/MP, Ataque Físico/Mágico, Defesa Física/Mágica), `+0%` Crítico, `+0` Precisão.
+  * **Rank D:** `1.3x` em tudo, `+0%` Crítico, `+0` Precisão.
+  * **Rank C:** `1.5x` em tudo, `+5%` Crítico, `+0` Precisão.
+  * **Rank B:** `1.8x` em tudo, `+5%` Crítico, `+5` Precisão.
+  * **Rank A:** `2.1x` em tudo, `+10%` Crítico, `+5` Precisão.
+  * **Rank S:** `2.7x` em tudo, `+15%` Crítico, `+5` Precisão.
+  * **Rank SS:** `4.0x` em tudo, `+20%` Crítico, `+10` Precisão.
+* **Hierarquia de Monstros em Encontros (`BÁSICO`, `LÍDER`, `BOSS` em `TemporaryCombatController.ts`, `CombatUtilityHelper.ts`, `CharacterInventoryService.ts`, `play.js`):**
+  * **Básico (`NORMAL`):** Atributos `1x`, tamanho original (`1.0x`) e recompensa `1x`.
+  * **Líder (`LEADER`):** `30%` de chance calculada individualmente para cada monstro spawnado (máximo de `2` por encontro quando não há Boss), **`2x` nos atributos base**, modelo levemente maior (`1.28x`), aura e nome em coloração diferenciada (`#38bdf8`) com tag `👑 [LÍDER]` e **`2x` mais recompensas** (Ouro, EXP e rolagens de Loot/Drops) ao ser derrotado.
+  * **Boss (`BOSS`):** `5%` de chance de spawnar (limite de `1` por encontro e impede o nascimento de Líderes junto com ele), **`4x` nos atributos/status**, modelo significativamente maior (`1.65x`), aura/coloração diferenciada (`#fb7185`) com tag `💀 [BOSS]` no nome e **`4x` mais recompensas** (Ouro, EXP e rolagens de Loot/Drops) ao ser derrotado.
+
 ## [v0.35.0] - 2026-11-14
 ### Editor Visual de HUDs na Engrenagem de Configurações do Cliente (/play) com Persistência Local
 * **Acesso Direto pelo Menu da Engrenagem (`#hudSettingsBtn` -> `#hudSettingsModal` em `PlayHudController.js`):**

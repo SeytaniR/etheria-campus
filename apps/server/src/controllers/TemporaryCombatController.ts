@@ -13,7 +13,7 @@ import { CombatDamageCalculator, type ElementMatchupEntry } from '@etheria/share
 import { randomUUID } from 'node:crypto';
 import { MapSpawnResolver } from './MapSpawnResolver.js';
 import { CombatUtilityHelper } from './CombatUtilityHelper.js';
-import { MonsterCombatBuilder, type MonsterScalingContext } from './MonsterCombatBuilder.js';
+import { MonsterCombatBuilder, type MonsterScalingContext, type MonsterVariantTier } from './MonsterCombatBuilder.js';
 
 export interface ActiveStatusInstance {
   code: string;
@@ -33,6 +33,10 @@ export interface CombatUnit {
   index: number;
   name: string;
   level: number;
+  variantTier?: MonsterVariantTier;
+  modelScale?: number;
+  nameColorHex?: string;
+  rewardMultiplier?: number;
   hp: number;
   maxHp: number;
   mp: number;
@@ -285,6 +289,14 @@ export class TemporaryCombatController {
       return candidateTemplates[candidateTemplates.length - 1];
     };
 
+    // Regra de Hierarquia de Monstros no Encontro (BÁSICO / LÍDER / BOSS):
+    // - Boss: 5% de chance de spawnar, limite de 1 e não podem nascer líderes com ele (status 4x, recompensa 4x).
+    // - Líder: se não houver Boss, cada monstro spawnado tem 30% de chance de ser Líder, até no máximo 2 (atributos base 2x, recompensa 2x).
+    // - Básico: sem alterações (1x).
+    const hasBossInEncounter = Math.random() < 0.05;
+    const bossSpawnIndex = hasBossInEncounter ? Math.floor(Math.random() * totalMonstersToSpawn) : -1;
+    let leadersSpawnedCount = 0;
+
     const monsterUnits: CombatUnit[] = [];
     for (let i = 0; i < totalMonstersToSpawn; i++) {
       const tmpl = pickWeightedCandidate();
@@ -297,14 +309,27 @@ export class TemporaryCombatController {
       const baseName = i18nMap.get(tmpl.nameI18nKey) || tmpl.code;
       const raritySuffix = rTier === 'SS' ? ' ⭐[SS]' : rTier === 'S' ? ' ⭐[S]' : '';
 
+      let variantTier: MonsterVariantTier = 'NORMAL';
+      if (hasBossInEncounter) {
+        if (i === bossSpawnIndex) variantTier = 'BOSS';
+      } else if (leadersSpawnedCount < 2 && Math.random() < 0.30) {
+        variantTier = 'LEADER';
+        leadersSpawnedCount += 1;
+      }
+
+      const tagPrefix =
+        variantTier === 'BOSS' ? '💀 [BOSS] ' : variantTier === 'LEADER' ? '👑 [LÍDER] ' : '';
+      const displayName = `${tagPrefix}${baseName} #${i + 1}${raritySuffix}`;
+
       monsterUnits.push(
         MonsterCombatBuilder.buildMonsterUnit(
           tmpl,
           mobLvl,
           i,
-          `${baseName} #${i + 1}${raritySuffix}`,
+          displayName,
           scalingCtx,
-          this.mcreworkPagesBaseUrl
+          this.mcreworkPagesBaseUrl,
+          variantTier
         )
       );
     }
@@ -669,8 +694,14 @@ export class TemporaryCombatController {
     if (aliveMonsters.length === 0) {
       battle.isFinished = true;
       battle.winner = 'PLAYER';
-      const totalExp = battle.monsters.reduce((acc, m) => acc + m.level * 45, 0);
-      const totalGold = battle.monsters.reduce((acc, m) => acc + Math.max(10, m.level * 18), 0);
+      const totalExp = battle.monsters.reduce(
+        (acc, m) => acc + (m.level || 1) * 45 * Math.max(1, Number(m.rewardMultiplier) || 1),
+        0
+      );
+      const totalGold = battle.monsters.reduce(
+        (acc, m) => acc + Math.max(10, (m.level || 1) * 18) * Math.max(1, Number(m.rewardMultiplier) || 1),
+        0
+      );
       battle.rewards = { exp: totalExp, gold: totalGold };
       battle.combatLog.unshift(`VITÓRIA! Todos os monstros foram derrotados! (+${totalExp} EXP, +${totalGold} Ouro)`);
       battle.lastEvents = events;
@@ -766,10 +797,18 @@ export class TemporaryCombatController {
       mob.hp = 0;
       mob.isAlive = false;
     }
-    const goldReward = battle.monsters.reduce((acc, m) => acc + Math.max(10, (m.level || 1) * 18), 0);
+    const expReward = battle.monsters.reduce(
+      (acc, m) => acc + (m.level || 1) * 65 * Math.max(1, Number(m.rewardMultiplier) || 1),
+      0
+    );
+    const goldReward = battle.monsters.reduce(
+      (acc, m) => acc + Math.max(10, (m.level || 1) * 18) * Math.max(1, Number(m.rewardMultiplier) || 1),
+      0
+    );
     return {
       characterId: Number(battle.characterId) || 1,
       defeatedMonsters: this.buildDefeatedBatch(battle),
+      expReward,
       goldReward,
     };
   }

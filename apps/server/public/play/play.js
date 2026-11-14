@@ -894,22 +894,46 @@ class EtheriaPlayClient {
       } else if (item.type === 'COMBAT_MONSTER' || item.type === 'COMBAT_PET') {
         const ent = item.data;
         const isPet = item.type === 'COMBAT_PET';
+        const vTier = !isPet ? (ent.variantTier || 'NORMAL') : 'NORMAL';
+        const mScale = !isPet ? (Number(ent.modelScale) || 1.0) : 1.0;
         ctx.save();
         ctx.globalAlpha = ent.fadeAlpha;
+        if (!isPet && ent.isAlive && (vTier === 'LEADER' || vTier === 'BOSS')) {
+          const auraR = Math.round(24 * mScale * (0.92 + 0.08 * Math.sin(now / 180)));
+          ctx.save();
+          ctx.beginPath();
+          ctx.ellipse(ent.x, ent.y, auraR, Math.round(auraR * 0.52), 0, 0, Math.PI * 2);
+          ctx.fillStyle = vTier === 'BOSS' ? 'rgba(244, 63, 94, 0.28)' : 'rgba(56, 189, 248, 0.22)';
+          ctx.fill();
+          ctx.strokeStyle = vTier === 'BOSS' ? '#fb7185' : '#38bdf8';
+          ctx.lineWidth = vTier === 'BOSS' ? 2.4 : 1.8;
+          ctx.stroke();
+          ctx.restore();
+        }
         if (ent.sprite) {
           const isTransient = (ent.action === 3 || ent.action === 5 || ent.action === 6 || ent.action === 7);
           const elapsed = (isTransient && ent.actionStartTime) ? (now - ent.actionStartTime) : now;
-          ent.sprite.draw(ctx, ent.x, ent.y, ent.action, ent.dir, elapsed, this.mesh, ent.groundOffsetY || 0, isPet ? 0.62 : 0.70, ent.action === 6, ent.shadowOffsetX || 0, ent.shadowOffsetY || 0);
+          ctx.save();
+          if (!isPet && vTier === 'BOSS') {
+            ctx.shadowColor = '#f43f5e'; ctx.shadowBlur = 14; ctx.filter = 'saturate(1.35) contrast(1.08)';
+          } else if (!isPet && vTier === 'LEADER') {
+            ctx.shadowColor = '#38bdf8'; ctx.shadowBlur = 9; ctx.filter = 'saturate(1.18)';
+          }
+          ent.sprite.draw(ctx, ent.x, ent.y, ent.action, ent.dir, elapsed, this.mesh, ent.groundOffsetY || 0, (isPet ? 0.62 : 0.70) * mScale, ent.action === 6, ent.shadowOffsetX || 0, ent.shadowOffsetY || 0);
+          ctx.restore();
         }
         if (ent.isAlive) {
           const isTarget = !isPet && (this.actionCombatArena?.selectedTargetMob === ent);
-          const bw = isPet ? 46 : (isTarget ? 58 : 50), bh = isTarget ? 6 : 5, bx = ent.x - bw / 2, by = ent.y - (isPet ? 60 : 68);
+          const bw = isPet ? 46 : (vTier === 'BOSS' ? 76 : vTier === 'LEADER' ? 62 : (isTarget ? 58 : 50));
+          const bh = vTier === 'BOSS' ? 7 : (isTarget || vTier === 'LEADER' ? 6 : 5);
+          const bx = ent.x - bw / 2, by = ent.y - Math.round((isPet ? 60 : 68) * mScale);
           ctx.fillStyle = 'rgba(2, 6, 23, 0.85)'; ctx.fillRect(bx - 1, by - 1, bw + 2, bh + 2);
-          if (isTarget) {
-            ctx.strokeStyle = '#f59e0b'; ctx.lineWidth = 1.8; ctx.strokeRect(bx - 1, by - 1, bw + 2, bh + 2);
+          if (isTarget || vTier === 'BOSS' || vTier === 'LEADER') {
+            ctx.strokeStyle = isTarget ? '#f59e0b' : (vTier === 'BOSS' ? '#fb7185' : '#38bdf8');
+            ctx.lineWidth = 1.8; ctx.strokeRect(bx - 1, by - 1, bw + 2, bh + 2);
           }
           const hpRatio = Math.max(0, Math.min(1, ent.hp / ent.maxHp));
-          ctx.fillStyle = isPet ? (hpRatio < 0.35 ? '#ef4444' : '#22c55e') : (isTarget ? '#fbbf24' : '#ef4444');
+          ctx.fillStyle = isPet ? (hpRatio < 0.35 ? '#ef4444' : '#22c55e') : (vTier === 'BOSS' ? '#e11d48' : vTier === 'LEADER' ? '#0ea5e9' : (isTarget ? '#fbbf24' : '#ef4444'));
           ctx.fillRect(bx, by, bw * hpRatio, bh);
           if (isPet) {
             const mpy = by + bh + 1;
@@ -917,8 +941,10 @@ class EtheriaPlayClient {
             ctx.fillStyle = 'rgba(2, 6, 23, 0.85)'; ctx.fillRect(bx - 1, mpy - 1, bw + 2, 4.5);
             ctx.fillStyle = '#38bdf8'; ctx.fillRect(bx, mpy, bw * mpRatio, 3);
           }
-          ctx.font = isTarget ? 'bold 12px sans-serif' : 'bold 11px sans-serif'; ctx.textAlign = 'center'; ctx.fillStyle = isPet ? '#bae6fd' : (isTarget ? '#fde047' : '#f8fafc');
-          ctx.fillText(isTarget ? `🎯 ${ent.name}` : (isPet ? `🐾 ${ent.name}` : ent.name), ent.x, by - 4);
+          ctx.font = vTier === 'BOSS' ? 'bold 13px sans-serif' : (isTarget || vTier === 'LEADER' ? 'bold 12px sans-serif' : 'bold 11px sans-serif');
+          ctx.textAlign = 'center';
+          ctx.fillStyle = isPet ? '#bae6fd' : (vTier !== 'NORMAL' ? (ent.nameColorHex || '#38bdf8') : (isTarget ? '#fde047' : '#f8fafc'));
+          ctx.fillText(isTarget ? `🎯 ${ent.name} (Nv.${ent.level})` : (isPet ? `🐾 ${ent.name}` : `${ent.name} (Nv.${ent.level})`), ent.x, by - 5);
           if (isTarget) this.actionCombatArena?.vfxRenderer?.drawMonsterTargetOverlays(ctx, ent, by, now);
           this.actionCombatArena?.vfxRenderer?.drawUnitOverlays(ctx, ent, by - 14, now);
         }

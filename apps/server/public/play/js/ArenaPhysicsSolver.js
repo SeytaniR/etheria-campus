@@ -37,12 +37,17 @@ class ArenaPhysicsSolver {
    * Fabrica o descritor unificado de unidade autônoma (Pet ou Monstro) para a Arena.
    */
   static createAiUnitModel(raw, idx, isEnemy, spawnX, spawnY, dir, fallbackSpeed, getSpriteFn, monsterTemplateId) {
+    const modelScale = isEnemy ? Math.max(0.5, Number(raw.modelScale) || 1.0) : 1.0;
     return {
       id: raw.id || `${isEnemy ? 'mob' : 'pet'}_${idx}`,
       isPlayer: false,
       team: isEnemy ? 'ENEMY' : 'ALLY',
-      bodyRadiusX: isEnemy ? 24 : 22,
-      bodyRadiusY: isEnemy ? 17 : 16,
+      variantTier: isEnemy ? (raw.variantTier || 'NORMAL') : 'NORMAL',
+      modelScale,
+      nameColorHex: raw.nameColorHex || (isEnemy ? '#f8fafc' : '#bae6fd'),
+      rewardMultiplier: Math.max(1, Number(raw.rewardMultiplier) || 1),
+      bodyRadiusX: Math.round((isEnemy ? 24 : 22) * modelScale),
+      bodyRadiusY: Math.round((isEnemy ? 17 : 16) * modelScale),
       templateId: isEnemy ? monsterTemplateId : undefined,
       name: raw.name || `${isEnemy ? 'Monstro' : 'Pet'} #${idx + 1}`,
       level: Number(raw.level) || 1,

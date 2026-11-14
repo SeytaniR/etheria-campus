@@ -6,13 +6,15 @@
  *   (`startBattle`), garantindo realidade idêntica nos dois ambientes.
  * @rules
  *   - Sem redutores artificiais sobre `attribute_conversions`: monstros usam 100% (1.0x) das razões do banco.
- *   - Escalonamento balanceado por nível do mapa (`baseStat * (1 + (mobLvl - 1) * 0.12)`).
- *   - Limite balanceado de variação positiva para mapas iniciais (Lv 1..3 em vez de saltos abruptos).
- *   - Tier de Raridade com buff extra em A, S e SS aplicados também em MAG_DEF.
- *   - Ataque mágico (`MAGICAL`) deriva de `INT -> MAG_ATK`; ataque físico (`PHYSICAL`) de `STR + AGI -> PHYS_ATK`.
+ *   - Escalonamento de +20% por nível nos atributos base do monstro (`baseStat * (1 + (mobLvl - 1) * 0.20)`).
+ *   - Variação de nível em mapas de -10 a +10 em relação ao nível do mapa (ex: mapa nível 100 -> 90 a 110).
+ *   - Multiplicadores de Rank F..SS aplicados em HP/MP, Ataque (Físico/Mágico), Defesa (Física/Mágica), Crítico e Precisão.
+ *   - Hierarquia de encontro: NORMAL (1x), LEADER (2x atributos base e 2x recompensas) e BOSS (4x atributos e 4x recompensas).
  */
 
 import type { ElementMatchupEntry } from '@etheria/shared';
+
+export type MonsterVariantTier = 'NORMAL' | 'LEADER' | 'BOSS';
 
 export interface MonsterScalingContext {
   conversions: Array<{
@@ -28,20 +30,31 @@ export interface RarityScalingProfile {
   hp: number;
   atk: number;
   def: number;
+  critBonus: number;
+  accBonus: number;
   spawnWeight: number;
 }
 
 export class MonsterCombatBuilder {
-  /** Multiplicadores por Raridade com buff reforçado nas classes A, S e SS. */
+  /**
+   * Multiplicadores oficiais por Rank:
+   * F = 1.0x em tudo, 0% crit, 0 prec
+   * D = 1.3x em tudo, 0% crit, 0 prec
+   * C = 1.5x em tudo, 5% crit, 0 prec
+   * B = 1.8x em tudo, 5% crit, 5 prec
+   * A = 2.1x em tudo, 10% crit, 5 prec
+   * S = 2.7x em tudo, 15% crit, 5 prec
+   * SS = 4.0x em tudo, 20% crit, 10 prec
+   */
   public static readonly RARITY_PROFILES: Record<string, RarityScalingProfile> = {
-    SS: { hp: 3.20, atk: 1.95, def: 1.70, spawnWeight: 1 },
-    S: { hp: 2.15, atk: 1.60, def: 1.45, spawnWeight: 4 },
-    A: { hp: 1.50, atk: 1.35, def: 1.25, spawnWeight: 15 },
-    B: { hp: 1.10, atk: 1.05, def: 1.00, spawnWeight: 35 },
-    C: { hp: 1.00, atk: 1.00, def: 1.00, spawnWeight: 70 },
-    D: { hp: 0.90, atk: 0.90, def: 0.90, spawnWeight: 110 },
-    F: { hp: 0.85, atk: 0.85, def: 0.85, spawnWeight: 140 },
-    COMMON: { hp: 0.85, atk: 0.85, def: 0.85, spawnWeight: 140 },
+    SS: { hp: 4.0, atk: 4.0, def: 4.0, critBonus: 0.20, accBonus: 10, spawnWeight: 1 },
+    S: { hp: 2.7, atk: 2.7, def: 2.7, critBonus: 0.15, accBonus: 5, spawnWeight: 4 },
+    A: { hp: 2.1, atk: 2.1, def: 2.1, critBonus: 0.10, accBonus: 5, spawnWeight: 15 },
+    B: { hp: 1.8, atk: 1.8, def: 1.8, critBonus: 0.05, accBonus: 5, spawnWeight: 35 },
+    C: { hp: 1.5, atk: 1.5, def: 1.5, critBonus: 0.05, accBonus: 0, spawnWeight: 70 },
+    D: { hp: 1.3, atk: 1.3, def: 1.3, critBonus: 0.00, accBonus: 0, spawnWeight: 110 },
+    F: { hp: 1.0, atk: 1.0, def: 1.0, critBonus: 0.00, accBonus: 0, spawnWeight: 140 },
+    COMMON: { hp: 1.0, atk: 1.0, def: 1.0, critBonus: 0.00, accBonus: 0, spawnWeight: 140 },
   };
 
   public static async loadScalingContext(prisma: any): Promise<MonsterScalingContext> {
@@ -80,28 +93,23 @@ export class MonsterCombatBuilder {
   }
 
   /**
-   * Sorteia o nível do monstro no mapa com proteção para níveis iniciais (evitando picos exagerados).
+   * Sorteia o nível do monstro no mapa com variação de -10 a +10 em relação ao nível do mapa
+   * (ex: se o mapa é nível 100, os monstros nascem com nível entre 90 e 110).
    */
   public static resolveBalancedMapMonsterLevel(
     requiredLevel: number,
-    levelVarianceMin?: number | null,
-    levelVarianceMax?: number | null
+    _levelVarianceMin?: number | null,
+    _levelVarianceMax?: number | null
   ): number {
-    const reqLvl = Math.max(1, Math.min(100, Number(requiredLevel) || 1));
-    const minVar = Number.isFinite(Number(levelVarianceMin)) ? Number(levelVarianceMin) : -2;
-    const rawMaxVar = Number.isFinite(Number(levelVarianceMax)) ? Number(levelVarianceMax) : 5;
-    // Em mapas iniciais (ex: Nv 1..10), limita a variação positiva proporcionalmente para manter curva justa
-    const balancedMaxVar =
-      rawMaxVar <= 2 ? rawMaxVar : Math.min(rawMaxVar, Math.max(2, Math.floor(reqLvl * 0.35)));
-    const safeMin = Math.min(minVar, balancedMaxVar);
-    const span = Math.max(0, balancedMaxVar - safeMin);
-    const rolledVar = safeMin + Math.floor(Math.random() * (span + 1));
-    return Math.max(1, Math.min(100, reqLvl + rolledVar));
+    const reqLvl = Math.max(1, Math.round(Number(requiredLevel) || 1));
+    const minLvl = Math.max(1, reqLvl - 10);
+    const maxLvl = Math.max(minLvl, reqLvl + 10);
+    return minLvl + Math.floor(Math.random() * (maxLvl - minLvl + 1));
   }
 
   /**
    * Constrói os atributos finais de combate de um Monstro usando 100% das conversões do banco,
-   * sem redutores artificiais, com escalonamento balanceado de nível e tier de raridade.
+   * escalonamento de +20% por nível, multiplicadores de Rank (F..SS) e hierarquia (NORMAL/LEADER/BOSS).
    */
   public static buildMonsterUnit(
     template: any,
@@ -109,20 +117,25 @@ export class MonsterCombatBuilder {
     index: number,
     displayName: string,
     ctx: MonsterScalingContext,
-    pagesBaseUrl: string
+    pagesBaseUrl: string,
+    variantTier: MonsterVariantTier = 'NORMAL'
   ) {
-    const mobLvl = Math.max(1, Math.min(100, Math.round(Number(monsterLevel) || 1)));
+    const mobLvl = Math.max(1, Math.round(Number(monsterLevel) || 1));
     const lvUps = Math.max(0, mobLvl - 1);
-    const levelStatFactor = 1 + lvUps * 0.12;
+    // Cada nível aplica um bônus de +20% nos atributos do monstro
+    const levelStatFactor = 1 + lvUps * 0.20;
+    // Bônus de Hierarquia: Básico = 1x, Líder = 2x atributos base, Boss = 4x status
+    const variantStatMultiplier = variantTier === 'BOSS' ? 4.0 : variantTier === 'LEADER' ? 2.0 : 1.0;
+    const combinedStatFactor = levelStatFactor * variantStatMultiplier;
 
     const rawBase = (template.baseAttributesJson as any) || {};
     const effStats = {
-      VIT: (Number(rawBase.VIT) || 12) * levelStatFactor,
-      STR: (Number(rawBase.STR) || 12) * levelStatFactor,
-      INT: (Number(rawBase.INT) || 10) * levelStatFactor,
-      WIS: (Number(rawBase.WIS) || 10) * levelStatFactor,
-      AGI: (Number(rawBase.AGI) || 10) * levelStatFactor,
-      DEX: (Number(rawBase.DEX) || 10) * levelStatFactor,
+      VIT: (Number(rawBase.VIT) || 12) * combinedStatFactor,
+      STR: (Number(rawBase.STR) || 12) * combinedStatFactor,
+      INT: (Number(rawBase.INT) || 10) * combinedStatFactor,
+      WIS: (Number(rawBase.WIS) || 10) * combinedStatFactor,
+      AGI: (Number(rawBase.AGI) || 10) * combinedStatFactor,
+      DEX: (Number(rawBase.DEX) || 10) * combinedStatFactor,
     };
 
     const rTier = String(template.rarityTier || 'F').trim().toUpperCase();
@@ -164,10 +177,13 @@ export class MonsterCombatBuilder {
     const dexPhysAccBonusPct = Math.max(0, effStats.DEX - 10) * (this.getConversionRatio(ctx, 'DEX', 'PHYS_ACCURACY', 0.002) * 100);
     const dexMagAccBonusPct = Math.max(0, effStats.DEX - 10) * (this.getConversionRatio(ctx, 'DEX', 'MAG_ACCURACY', 0.002) * 100);
 
-    const rarityAccBonus = rTier === 'SS' ? 12 : rTier === 'S' ? 8 : rTier === 'A' ? 4 : 0;
-    const rarityCritBonus = rTier === 'SS' ? 0.10 : rTier === 'S' ? 0.06 : rTier === 'A' ? 0.03 : 0;
+    const rarityAccBonus = rarity.accBonus;
+    const rarityCritBonus = rarity.critBonus;
 
     const mobKey = template.mcreworkMonsterKey;
+    const modelScale = variantTier === 'BOSS' ? 1.65 : variantTier === 'LEADER' ? 1.28 : 1.0;
+    const nameColorHex = variantTier === 'BOSS' ? '#fb7185' : variantTier === 'LEADER' ? '#38bdf8' : '#f8fafc';
+    const rewardMultiplier = variantTier === 'BOSS' ? 4 : variantTier === 'LEADER' ? 2 : 1;
 
     return {
       id: `mob_${template.id}_${index}`,
@@ -175,6 +191,10 @@ export class MonsterCombatBuilder {
       index,
       name: displayName,
       level: mobLvl,
+      variantTier,
+      modelScale,
+      nameColorHex,
+      rewardMultiplier,
       hp: maxHp,
       maxHp,
       mp: maxMp,
@@ -186,7 +206,7 @@ export class MonsterCombatBuilder {
       def,
       magDef,
       skillIds: Array.isArray(template.skillIdsJson) ? template.skillIdsJson.map(Number).filter(Number.isFinite) : [],
-      critRate: Math.min(0.80, (Number(cb.CRIT_RATE) || 5) / 100 + dexCritBonus + rarityCritBonus),
+      critRate: Math.min(0.85, (Number(cb.CRIT_RATE) || 5) / 100 + dexCritBonus + rarityCritBonus),
       critDmg: Math.min(3.00, (Number(cb.CRIT_DMG) || 150) / 100 + strCritDmgBonus),
       attackSpeed: Number(cb.ATTACK_SPEED) || 1.0,
       speed,
@@ -204,9 +224,9 @@ export class MonsterCombatBuilder {
       damageType,
       basicAttackVfxKey: (template.combatStyle as 'MELEE' | 'RANGED') === 'RANGED' ? '10002' : '10008',
       basicAttackVfxColorHex: (template.combatStyle as 'MELEE' | 'RANGED') === 'RANGED' ? '#f97316' : '#ef4444',
-      physAccuracy: Math.min(125, Math.max(20, Math.round((Number(cb.PHYS_ACCURACY) || 95) + dexPhysAccBonusPct + rarityAccBonus))),
+      physAccuracy: Math.min(135, Math.max(20, Math.round((Number(cb.PHYS_ACCURACY) || 95) + dexPhysAccBonusPct + rarityAccBonus))),
       physEvasion: Math.min(75, Math.max(0, Math.round((Number(cb.PHYS_EVASION) || 5) + agiEvaBonusPct))),
-      magAccuracy: Math.min(125, Math.max(20, Math.round((Number(cb.MAG_ACCURACY) || 95) + dexMagAccBonusPct + rarityAccBonus))),
+      magAccuracy: Math.min(135, Math.max(20, Math.round((Number(cb.MAG_ACCURACY) || 95) + dexMagAccBonusPct + rarityAccBonus))),
       magEvasion: Math.min(75, Math.max(0, Math.round((Number(cb.MAG_EVASION) || 5) + wisEvaBonusPct))),
       isAlive: true,
       activeStatuses: [],

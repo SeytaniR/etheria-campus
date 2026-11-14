@@ -18,6 +18,7 @@ export interface DefeatedMonsterDropUnit {
   monsterTemplateId: number;
   raceCode: string;
   count: number;
+  lootRollsCount?: number;
 }
 
 export interface GrantedQuestDropSummary {
@@ -323,7 +324,7 @@ export class CharacterInventoryService {
     for (const unit of defeatedMonsters) {
       const entries = lootByMobId.get(Number(unit.monsterTemplateId)) || [];
       if (entries.length === 0) continue;
-      const kills = Math.max(1, Math.round(Number(unit.count) || 1));
+      const kills = Math.max(1, Math.round(Number(unit.lootRollsCount ?? unit.count) || 1));
 
       for (let k = 0; k < kills; k++) {
         for (const entry of entries) {

@@ -414,13 +414,16 @@ export class QuestProgressService {
     );
 
     const normalizedUnits: DefeatedMonsterDropUnit[] = defeatedMonsters
-      .map((u) => {
+      .map((u: any) => {
         const mobId = Number(u.monsterTemplateId) || 0;
         const raceCode = String(u.raceCode || raceByMobId.get(mobId) || '').trim().toUpperCase();
+        const count = Math.max(1, Math.round(Number(u.count) || 1));
+        const lootRollsCount = Math.max(count, Math.round(Number(u.lootRollsCount ?? count) || count));
         return {
           monsterTemplateId: mobId,
           raceCode,
-          count: Math.max(1, Math.round(Number(u.count) || 1)),
+          count,
+          lootRollsCount,
         };
       })
       .filter((u) => u.monsterTemplateId > 0);

@@ -403,6 +403,7 @@ export class PlayRouter {
       );
       this.deps.sendJson(res, 200, {
         alreadyRecorded: false,
+        expGained: victoryData.expReward,
         goldGained: victoryData.goldReward,
         ...progressResult,
       });

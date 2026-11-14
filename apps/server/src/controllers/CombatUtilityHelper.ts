@@ -57,21 +57,30 @@ export class CombatUtilityHelper {
   }
 
   /**
-   * Agrupa monstros derrotados de uma batalha (inclusive encontros mistos) por ID e Raça.
+   * Agrupa monstros derrotados de uma batalha (inclusive encontros mistos) por ID e Raça,
+   * acumulando também `lootRollsCount` (1x Básico, 2x Líder, 4x Boss) para recompensas em dobro/quádruplo.
    */
   public static buildDefeatedBatch(
-    battle: { monsterTemplateId?: number; monsters?: Array<{ monsterTemplateId?: number; raceCode?: string }> }
-  ): Array<{ monsterTemplateId: number; raceCode: string; count: number }> {
-    const grouped = new Map<string, { monsterTemplateId: number; raceCode: string; count: number }>();
+    battle: {
+      monsterTemplateId?: number;
+      monsters?: Array<{ monsterTemplateId?: number; raceCode?: string; rewardMultiplier?: number }>;
+    }
+  ): Array<{ monsterTemplateId: number; raceCode: string; count: number; lootRollsCount: number }> {
+    const grouped = new Map<
+      string,
+      { monsterTemplateId: number; raceCode: string; count: number; lootRollsCount: number }
+    >();
     for (const mob of battle.monsters || []) {
       const mobId = Number(mob.monsterTemplateId || battle.monsterTemplateId || 1);
       const raceCode = String(mob.raceCode || 'BEAST').toUpperCase();
+      const rewardMult = Math.max(1, Math.round(Number(mob.rewardMultiplier) || 1));
       const key = `${mobId}:${raceCode}`;
       const existing = grouped.get(key);
       if (existing) {
         existing.count += 1;
+        existing.lootRollsCount += rewardMult;
       } else {
-        grouped.set(key, { monsterTemplateId: mobId, raceCode, count: 1 });
+        grouped.set(key, { monsterTemplateId: mobId, raceCode, count: 1, lootRollsCount: rewardMult });
       }
     }
     return Array.from(grouped.values());
