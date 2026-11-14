@@ -143,6 +143,18 @@ export class AdminItemsController {
 
     return items.map((item) => {
       const iconKey = item.mcreworkIconKey || 'assets/items/icons/item_normal_060009.png';
+      const spec = (item.specialEffectJson || {}) as any;
+      let containerSummaryPtBr: string | null = null;
+      if (item.effectType === 'OPEN_CHEST' || item.effectType === 'ROULETTE') {
+        const entries = Array.isArray(spec.entries) ? spec.entries : [];
+        if (item.effectType === 'ROULETTE') {
+          const totalChance = entries.reduce((acc: number, e: any) => acc + (Number(e.chancePct) || 0), 0);
+          containerSummaryPtBr = `🎰 Roleta: ${entries.length} prêmio(s) (${totalChance.toFixed(1)}% total, ${spec.rollCount || 1} giro(s))`;
+        } else {
+          containerSummaryPtBr = `🎁 ${spec.containerType === 'CAPSULE' ? 'Cápsula' : 'Baú'}: ${entries.length} item(ns) com chance configurada`;
+        }
+      }
+
       return {
         id: item.id,
         code: item.code,
@@ -161,6 +173,7 @@ export class AdminItemsController {
         effectType: item.effectType,
         effectValue: item.effectValue,
         specialEffectJson: item.specialEffectJson,
+        containerSummaryPtBr,
         isActive: item.isActive,
         createdAt: item.createdAt,
         updatedAt: item.updatedAt,
@@ -217,6 +230,46 @@ export class AdminItemsController {
       ? 0.0
       : this.toFiniteFloat(dto.effectValue, base?.effectValue ?? 0.0, 0, 1000000000);
 
+    let specialEffectJson: any =
+      dto.specialEffectJson !== undefined ? (dto.specialEffectJson as any) : (base?.specialEffectJson ?? {});
+
+    if (effectType === 'OPEN_CHEST' || effectType === 'ROULETTE') {
+      if (specialEffectJson && typeof specialEffectJson === 'object') {
+        const containerType =
+          effectType === 'ROULETTE'
+            ? 'ROULETTE'
+            : specialEffectJson.containerType === 'CAPSULE'
+            ? 'CAPSULE'
+            : 'CHEST';
+        const rawEntries = Array.isArray(specialEffectJson.entries) ? specialEffectJson.entries : [];
+        const cleanEntries = rawEntries
+          .map((e: any) => ({
+            itemTemplateId: Math.max(1, Math.round(Number(e.itemTemplateId) || 0)),
+            chancePct: Math.max(0.01, Math.min(100, Number(e.chancePct) || 0)),
+            minQty: Math.max(1, Math.round(Number(e.minQty ?? e.quantity ?? 1) || 1)),
+            maxQty: Math.max(
+              Math.max(1, Math.round(Number(e.minQty ?? e.quantity ?? 1) || 1)),
+              Math.round(Number(e.maxQty ?? e.quantity ?? 1) || 1),
+            ),
+          }))
+          .filter((e: any) => e.itemTemplateId > 0 && e.chancePct > 0);
+
+        specialEffectJson = {
+          containerType,
+          rollCount:
+            containerType === 'ROULETTE'
+              ? Math.max(1, Math.min(10, Math.round(Number(specialEffectJson.rollCount) || 1)))
+              : 1,
+          bonusGoldMin: Math.max(0, Math.round(Number(specialEffectJson.bonusGoldMin) || 0)),
+          bonusGoldMax: Math.max(
+            Math.max(0, Math.round(Number(specialEffectJson.bonusGoldMin) || 0)),
+            Math.round(Number(specialEffectJson.bonusGoldMax) || 0),
+          ),
+          entries: cleanEntries,
+        };
+      }
+    }
+
     return {
       mcreworkIconKey: dto.mcreworkIconKey !== undefined ? (dto.mcreworkIconKey || null) : (base?.mcreworkIconKey ?? null),
       itemCategory,
@@ -229,7 +282,7 @@ export class AdminItemsController {
       targetType,
       effectType,
       effectValue,
-      specialEffectJson: dto.specialEffectJson !== undefined ? (dto.specialEffectJson as any) : (base?.specialEffectJson ?? {}),
+      specialEffectJson,
       isActive: dto.isActive !== undefined ? Boolean(dto.isActive) : (base ? Boolean(base.isActive) : true),
     };
   }

@@ -71,6 +71,8 @@ export class CharacterInventoryService {
         equipmentSlotCode: r.itemTemplate?.equipmentSlotCode ?? null,
         combatStatBonuses: r.itemTemplate?.combatStatBonusesJson ?? {},
         rarityTier: r.itemTemplate?.rarityTier ?? 'COMMON',
+        effectType: r.itemTemplate?.effectType ?? null,
+        specialEffectJson: r.itemTemplate?.specialEffectJson ?? {},
         quantity: Number(r.quantity) || 0,
       })),
     };

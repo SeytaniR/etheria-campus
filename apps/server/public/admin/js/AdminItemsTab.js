@@ -20,6 +20,7 @@ class AdminItemsTab {
     app.itemDuplicatingMode = false;
     app.itemSavingInProgress = false;
 
+    if (window.AdminItemContainerPanel) window.AdminItemContainerPanel.attach(app);
     AdminItemsTab.injectTabAndModalDom();
 
     app.loadItemTemplates = async function () {
@@ -121,6 +122,9 @@ class AdminItemsTab {
       document.getElementById('itemIconKeyInput').value = iconKey;
       this.updateItemIconPreview(iconKey);
       this.syncItemModalFieldStates();
+      if (typeof this.loadContainerConfigIntoForm === 'function') {
+        this.loadContainerConfigIntoForm(item);
+      }
     };
 
     app.syncItemModalFieldStates = function () {
@@ -156,6 +160,9 @@ class AdminItemsTab {
       }
       if (passiveHint) {
         passiveHint.style.display = isPassive ? 'block' : 'none';
+      }
+      if (typeof this.onContainerEffectTypeChanged === 'function') {
+        this.onContainerEffectTypeChanged();
       }
     };
 
@@ -297,6 +304,16 @@ class AdminItemsTab {
       const isActive = document.getElementById('itemActiveSelect').value === 'true';
       const mcreworkIconKey = document.getElementById('itemIconKeyInput').value.trim();
 
+      let specialEffectJson = {};
+      try {
+        if (typeof this.buildContainerConfigDtoFromForm === 'function') {
+          specialEffectJson = this.buildContainerConfigDtoFromForm();
+        }
+      } catch (validationErr) {
+        alert(validationErr.message);
+        return;
+      }
+
       if (!namePtBr) {
         alert('Por favor, informe o nome do item em português.');
         return;
@@ -316,6 +333,7 @@ class AdminItemsTab {
         targetType,
         effectType: effectType === 'NONE' ? null : effectType,
         effectValue,
+        specialEffectJson,
         isActive,
         mcreworkIconKey,
       };
@@ -404,7 +422,8 @@ class AdminItemsTab {
         MATERIAL: () => `⚒️ Recurso Passivo / Crafting`,
         QUEST_ITEM: () => `📜 Item de Missão (Passivo)`,
         LEARN_SKILL: () => `📖 Aprender Habilidade`,
-        OPEN_CHEST: () => `🎁 Recompensa / Baú`,
+        OPEN_CHEST: (v, it) => it?.containerSummaryPtBr || (window.AdminApp?.formatContainerLabel ? window.AdminApp.formatContainerLabel(it) : '🎁 Baú / Cápsula'),
+        ROULETTE: (v, it) => it?.containerSummaryPtBr || (window.AdminApp?.formatContainerLabel ? window.AdminApp.formatContainerLabel(it) : '🎰 Roleta da Sorte'),
       };
 
       container.innerHTML = `
@@ -428,7 +447,7 @@ class AdminItemsTab {
               const effKey = item.effectType || 'NONE';
               const isPassive = effKey === 'NONE' || effKey === 'MATERIAL' || effKey === 'QUEST_ITEM';
               const effectFn = effectLabels[effKey] || ((v) => `${effKey} (${v})`);
-              const effectText = effectFn(item.effectValue);
+              const effectText = effectFn(item.effectValue, item);
               const priceHtml = item.isTradable === false
                 ? '<span style="color:#94a3b8; font-weight:600;">🚫 Não comercializável</span>'
                 : `<strong style="color:#fde047;">🪙 ${item.priceGold || 0}</strong>`;
@@ -564,6 +583,11 @@ class AdminItemsTab {
     // 3. Injeta Modal (#itemModal) no body
     if (document.getElementById('itemModal')) return;
 
+    const containerBuilderHtml =
+      typeof window.AdminItemContainerPanel?.getContainerBuilderHtml === 'function'
+        ? window.AdminItemContainerPanel.getContainerBuilderHtml()
+        : '';
+
     const modal = document.createElement('div');
     modal.id = 'itemModal';
     modal.className = 'modal-backdrop';
@@ -671,7 +695,8 @@ class AdminItemsTab {
                 <option value="TELEPORT">🌌 Teleporte para Ponto de Retorno</option>
                 <option value="GRANT_EXP">✨ Concessão Direta de Experiência</option>
                 <option value="LEARN_SKILL">📖 Aprender Habilidade / Tomo</option>
-                <option value="OPEN_CHEST">🎁 Abertura de Baú / Recompensa</option>
+                <option value="OPEN_CHEST">🎁 Baú / Cápsula de Recompensas</option>
+                <option value="ROULETTE">🎰 Roleta da Sorte (Sorteio %)</option>
               </select>
             </div>
             <div class="field">
@@ -694,6 +719,8 @@ class AdminItemsTab {
             </div>
           </div>
         </div>
+
+        ${containerBuilderHtml}
 
         <!-- BLOCO 3: GALERIA DE 6.468 ÍCONES DO MCREWORK & PRÉ-VISUALIZAÇÃO -->
         <div style="background:rgba(15,23,42,0.75); border:1px solid #334155; border-radius:10px; padding:12px; margin-bottom:12px;">

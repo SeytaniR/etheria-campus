@@ -5,6 +5,24 @@ Qualquer IA trabalhando neste repositório **DEVE** incrementar a versão e regi
 
 ---
 
+## [v0.39.0] - 2026-11-14
+### Sistema de Itens Baús/Cápsulas e Roleta da Sorte com Sorteio Autoritário e Interface Visual
+* **Configurador No-Code de Baú / Cápsula e Roleta no Estúdio de Itens (`AdminItemContainerPanel.js`, `AdminItemsTab.js`):**
+  * Adicionada a seção **`2.5 Configuração de Recompensas do Baú / Cápsula / Roleta`** ao selecionar os efeitos `OPEN_CHEST` ou `ROULETTE` no `/admin` -> `📦 Tabela de Itens`.
+  * **Baús e Cápsulas (`CHEST` / `CAPSULE`):**
+    * Permite configurar uma lista de itens entregues ao abrir, com probabilidade individual (0.01% a 100%, ex: 50% de 1 a 3 gemas, 100% de 1 arma de novato/equipamento) e quantidade mínima/máxima (ou fixa).
+  * **Roleta da Sorte (`ROULETTE`):**
+    * Permite configurar itens e fatias de probabilidade ponderadas somando até 100%, com barra de progresso em tempo real, aviso contra estouro de 100%, botão `⚖️ Distribuir Igualmente` e `🔄 Normalizar para 100%`.
+    * Configuração de `Nº de Giros/Prêmios por Uso` e quantidade fixa ou intervalo (mín/máx) do item escolhido.
+  * **Simulação Instantânea (`🎲 Testar Sorteio (Simulação)`):** Permite ao administrador testar e pré-visualizar rolagens imediatas diretamente no modal do admin antes de salvar.
+* **Serviço Autoritário de Abertura no Servidor (`ItemContainerOpeningService.ts`, `PlayRouter.ts`):**
+  * Rota segura `POST /api/play/characters/:charId/items/open-container` com validação estrita anti-BOLA/IDOR de posse de personagem.
+  * Transação atômica que consome 1 unidade do baú/roleta na mochila, executa o sorteio autoritário e credita os itens obtidos e ouro bônus na carteira e mochila do personagem.
+* **Modal Visual de Abertura e Roleta Animada no Cliente (`PlayContainerModal.js`, `PlayBagController.js`):**
+  * Botões contextuais `🎁 Abrir Baú`, `💊 Abrir Cápsula` e `🎰 Girar Roleta` diretamente na Mochila do jogador.
+  * Animação contínua da Roleta da Sorte com fita de itens desacelerando suavemente (ease-out) e parando exatamente no item premiado sob o marcador central.
+  * Cartões de recompensa destacados com as cores oficiais de cada raridade de item e atualização em tempo real do inventário.
+
 ## [v0.38.0] - 2026-11-14
 ### Configuração Customizada da Função "Entrar em Luta" por Missão (`questBattleConfig`) no Estúdio de Quests
 * **Painel Visual No-Code de Batalha Exclusiva da Missão (`AdminQuestBattlePanel.js`, `AdminQuestsModalDom.js`, `AdminQuestsTab.js`):**

@@ -16,6 +16,7 @@ import type { AdminQuestsController } from '../controllers/AdminQuestsController
 import type { AssetMirrorService } from '../controllers/AssetMirrorService.js';
 import { CharacterEquipmentService } from '../controllers/CharacterEquipmentService.js';
 import { MonsterCombatBuilder, type QuestBattleConfigDto } from '../controllers/MonsterCombatBuilder.js';
+import { ItemContainerOpeningService } from '../controllers/ItemContainerOpeningService.js';
 
 export interface PlayRouterDeps {
   prisma: PrismaClient;
@@ -319,6 +320,28 @@ export class PlayRouter {
         return true;
       }
       this.deps.sendJson(res, 200, await this.deps.playController.getCharacterInventory(charId));
+      return true;
+    }
+
+    // 🎁 Abertura Autoritária de Baú / Cápsula / Roleta da Sorte
+    const charOpenContainerMatch = pathname.match(/^\/api\/play\/characters\/(\d+)\/items\/open-container$/);
+    if (charOpenContainerMatch && method === 'POST') {
+      const charId = Number(charOpenContainerMatch[1]);
+      if (!(await this.verifyCharacterOwnership(userAccountId, session.role, charId))) {
+        this.deps.sendJson(res, 403, { error: 'Acesso negado: este personagem não pertence à sua conta.' });
+        return true;
+      }
+      const body = await this.deps.readJsonBody<{ itemTemplateId: number }>(req);
+      try {
+        const result = await ItemContainerOpeningService.openContainer(
+          this.deps.prisma,
+          charId,
+          Number(body.itemTemplateId),
+        );
+        this.deps.sendJson(res, 200, result);
+      } catch (err: any) {
+        this.deps.sendJson(res, 400, { error: err.message || 'Erro ao abrir item.' });
+      }
       return true;
     }
 

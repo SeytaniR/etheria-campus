@@ -49,6 +49,18 @@ const PlayBagController = {
           ? items
               .map((it) => {
                 const isEquip = it.itemCategory === 'CHARACTER_EQUIPMENT';
+                const isChest = it.effectType === 'OPEN_CHEST';
+                const isRoulette = it.effectType === 'ROULETTE';
+                let actionBtnHtml = '';
+                if (isEquip) {
+                  actionBtnHtml = `<button type="button" class="btn-primary" style="padding:5px 10px; font-size:0.75rem; border-radius:6px; white-space:nowrap;" onclick="window.PlayApp.equipInventoryItem(${it.itemTemplateId}, '${it.equipmentSlotCode || ''}')">⚔️ Equipar</button>`;
+                } else if (isChest) {
+                  const chestLabel = it.specialEffectJson?.containerType === 'CAPSULE' ? '💊 Abrir Cápsula' : '🎁 Abrir Baú';
+                  actionBtnHtml = `<button type="button" class="btn-success" style="padding:5px 10px; font-size:0.75rem; border-radius:6px; white-space:nowrap; background:#16a34a; font-weight:700;" onclick="window.PlayApp.openItemContainer(${it.itemTemplateId})">${chestLabel}</button>`;
+                } else if (isRoulette) {
+                  actionBtnHtml = `<button type="button" class="btn-primary" style="padding:5px 10px; font-size:0.75rem; border-radius:6px; white-space:nowrap; background:linear-gradient(135deg,#d97706,#b45309); border:1px solid #f59e0b; font-weight:700;" onclick="window.PlayApp.openItemContainer(${it.itemTemplateId})">🎰 Girar Roleta</button>`;
+                }
+
                 return `
               <div style="display:flex; align-items:center; justify-content:space-between; gap:10px; background:#0f172a; border:1px solid #334155; border-radius:8px; padding:8px 10px;">
                 <div style="display:flex; align-items:center; gap:8px;">
@@ -62,11 +74,7 @@ const PlayBagController = {
                 </div>
                 <div style="display:flex; align-items:center; gap:8px;">
                   <strong style="font-family:monospace; font-size:0.92rem; color:#fde047;">x${Number(it.quantity).toLocaleString('pt-BR')}</strong>
-                  ${
-                    isEquip
-                      ? `<button type="button" class="btn-primary" style="padding:5px 10px; font-size:0.75rem; border-radius:6px; white-space:nowrap;" onclick="window.PlayApp.equipInventoryItem(${it.itemTemplateId}, '${it.equipmentSlotCode || ''}')">⚔️ Equipar</button>`
-                      : ''
-                  }
+                  ${actionBtnHtml}
                 </div>
               </div>`;
               })
@@ -124,6 +132,25 @@ const PlayBagController = {
         await this.openCharacterModal();
       } catch (err) {
         alert(`Erro ao desequipar: ${err.message}`);
+      }
+    };
+
+    // 3.5 Ação de Abrir Baú / Cápsula / Roleta da Sorte
+    client.openItemContainer = async function (itemTemplateId) {
+      if (!this.activeChar) return;
+      try {
+        const res = await this.api(`/api/play/characters/${this.activeChar.id}/items/open-container`, {
+          method: 'POST',
+          body: JSON.stringify({ itemTemplateId: Number(itemTemplateId) }),
+        });
+        if (window.PlayContainerModal && typeof window.PlayContainerModal.showResult === 'function') {
+          window.PlayContainerModal.showResult(res);
+        } else {
+          alert('Item aberto com sucesso!');
+        }
+        await this.openBagModal();
+      } catch (err) {
+        alert(`Erro ao abrir item: ${err.message}`);
       }
     };
 
