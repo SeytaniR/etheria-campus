@@ -203,12 +203,11 @@ export class CharacterEquipmentService {
 
     await prisma.$transaction(async (tx) => {
       // 1. Valida se o item existe na mochila com quantidade >= 1
-      const invRow = await tx.characterInventoryItem.findUnique({
+      const invRow = await tx.characterInventoryItem.findFirst({
         where: {
-          characterId_itemTemplateId: {
-            characterId: pc.id,
-            itemTemplateId: item.id,
-          },
+          characterId: pc.id,
+          itemTemplateId: item.id,
+          quantity: { gt: 0 },
         },
       });
 
@@ -287,10 +286,16 @@ export class CharacterEquipmentService {
     }
 
     await prisma.$transaction(async (tx) => {
-      // 1. Devolve para a mochila
+      // 1. Valida se há espaço na mochila
+      const freeSlots = await CharacterInventoryService.countFreeSlots(tx, pc.id, 50);
+      if (freeSlots <= 0) {
+        throw new Error('Mochila cheia! Libere um slot no inventário para desequipar este item.');
+      }
+
+      // 2. Devolve para a mochila
       await CharacterInventoryService.addItem(tx, pc.id, itemId, 1);
 
-      // 2. Remove do mapa de equipamentos
+      // 3. Remove do mapa de equipamentos
       delete equippedMap[finalSlot];
 
       await tx.playerCharacter.update({

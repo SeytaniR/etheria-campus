@@ -524,19 +524,22 @@ model PlayerCharacter {
   @@map("player_characters")
 }
 
-/// Base Inicial de Inventário / Mochila do Personagem (INCOMPLETA — criada para coleta/entrega de quests e recompensas de itens; será expandida no módulo futuro de Economia, Slots & Drops).
+/// Inventário do Personagem com suporte a slots específicos em grade, separação de stacks e equipamentos únicos.
 model CharacterInventoryItem {
   id             Int             @id @default(autoincrement())
   characterId    Int             @map("character_id")
   itemTemplateId Int             @map("item_template_id")
+  slotIndex      Int             @default(0) @map("slot_index")
   quantity       Int             @default(1)
+  customDataJson Json?           @map("custom_data_json") /// Metadados individuais futuros (gemas, refinamento, durabilidade)
   createdAt      DateTime        @default(now()) @map("created_at")
   updatedAt      DateTime        @updatedAt @map("updated_at")
 
   character      PlayerCharacter @relation(fields: [characterId], references: [id], onDelete: Cascade)
   itemTemplate   ItemTemplate    @relation(fields: [itemTemplateId], references: [id], onDelete: Cascade)
 
-  @@unique([characterId, itemTemplateId])
+  @@unique([characterId, slotIndex])
+  @@index([characterId, itemTemplateId])
   @@map("character_inventory_items")
 }
 

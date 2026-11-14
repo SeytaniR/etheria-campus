@@ -15,6 +15,7 @@ import type { TemporaryCombatController, CombatUnit } from '../controllers/Tempo
 import type { AdminQuestsController } from '../controllers/AdminQuestsController.js';
 import type { AssetMirrorService } from '../controllers/AssetMirrorService.js';
 import { CharacterEquipmentService } from '../controllers/CharacterEquipmentService.js';
+import { CharacterInventoryService } from '../controllers/CharacterInventoryService.js';
 import { MonsterCombatBuilder, type QuestBattleConfigDto } from '../controllers/MonsterCombatBuilder.js';
 import { ItemContainerOpeningService } from '../controllers/ItemContainerOpeningService.js';
 import { CharacterProgressionService } from '../controllers/CharacterProgressionService.js';
@@ -321,6 +322,88 @@ export class PlayRouter {
         return true;
       }
       this.deps.sendJson(res, 200, await this.deps.playController.getCharacterInventory(charId));
+      return true;
+    }
+
+    // 🎒 Mover ou Trocar Slots no Inventário (Drag & Drop / Swap / Merge)
+    const charInvMoveMatch = pathname.match(/^\/api\/play\/characters\/(\d+)\/inventory\/move$/);
+    if (charInvMoveMatch && method === 'POST') {
+      const charId = Number(charInvMoveMatch[1]);
+      if (!(await this.verifyCharacterOwnership(userAccountId, session.role, charId))) {
+        this.deps.sendJson(res, 403, { error: 'Acesso negado: este personagem não pertence à sua conta.' });
+        return true;
+      }
+      const body = await this.deps.readJsonBody<{ fromSlot: number; toSlot: number }>(req);
+      try {
+        const bag = await CharacterInventoryService.moveOrSwapSlot(
+          this.deps.prisma,
+          charId,
+          Number(body.fromSlot),
+          Number(body.toSlot)
+        );
+        this.deps.sendJson(res, 200, bag);
+      } catch (err: any) {
+        this.deps.sendJson(res, 400, { error: err.message || 'Erro ao mover item.' });
+      }
+      return true;
+    }
+
+    // ✂️ Dividir Pilha de Itens Acumuláveis (Split Stack)
+    const charInvSplitMatch = pathname.match(/^\/api\/play\/characters\/(\d+)\/inventory\/split$/);
+    if (charInvSplitMatch && method === 'POST') {
+      const charId = Number(charInvSplitMatch[1]);
+      if (!(await this.verifyCharacterOwnership(userAccountId, session.role, charId))) {
+        this.deps.sendJson(res, 403, { error: 'Acesso negado: este personagem não pertence à sua conta.' });
+        return true;
+      }
+      const body = await this.deps.readJsonBody<{ fromSlot: number; splitQuantity: number; targetSlot?: number }>(req);
+      try {
+        const bag = await CharacterInventoryService.splitStack(
+          this.deps.prisma,
+          charId,
+          Number(body.fromSlot),
+          Number(body.splitQuantity),
+          body.targetSlot !== undefined ? Number(body.targetSlot) : undefined
+        );
+        this.deps.sendJson(res, 200, bag);
+      } catch (err: any) {
+        this.deps.sendJson(res, 400, { error: err.message || 'Erro ao dividir stack.' });
+      }
+      return true;
+    }
+
+    // 🔄 Organização Automática da Mochila (Auto-Sort)
+    const charInvSortMatch = pathname.match(/^\/api\/play\/characters\/(\d+)\/inventory\/sort$/);
+    if (charInvSortMatch && method === 'POST') {
+      const charId = Number(charInvSortMatch[1]);
+      if (!(await this.verifyCharacterOwnership(userAccountId, session.role, charId))) {
+        this.deps.sendJson(res, 403, { error: 'Acesso negado: este personagem não pertence à sua conta.' });
+        return true;
+      }
+      try {
+        const bag = await CharacterInventoryService.autoSort(this.deps.prisma, charId);
+        this.deps.sendJson(res, 200, bag);
+      } catch (err: any) {
+        this.deps.sendJson(res, 400, { error: err.message || 'Erro ao organizar mochila.' });
+      }
+      return true;
+    }
+
+    // 🗑️ Exclusão / Destruição de Item do Slot
+    const charInvDeleteSlotMatch = pathname.match(/^\/api\/play\/characters\/(\d+)\/inventory\/slots\/(\d+)$/);
+    if (charInvDeleteSlotMatch && method === 'DELETE') {
+      const charId = Number(charInvDeleteSlotMatch[1]);
+      const slotIndex = Number(charInvDeleteSlotMatch[2]);
+      if (!(await this.verifyCharacterOwnership(userAccountId, session.role, charId))) {
+        this.deps.sendJson(res, 403, { error: 'Acesso negado: este personagem não pertence à sua conta.' });
+        return true;
+      }
+      try {
+        const bag = await CharacterInventoryService.deleteSlotItem(this.deps.prisma, charId, slotIndex);
+        this.deps.sendJson(res, 200, bag);
+      } catch (err: any) {
+        this.deps.sendJson(res, 400, { error: err.message || 'Erro ao excluir item do slot.' });
+      }
       return true;
     }
 

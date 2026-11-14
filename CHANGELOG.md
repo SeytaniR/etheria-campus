@@ -5,6 +5,34 @@ Qualquer IA trabalhando neste repositório **DEVE** incrementar a versão e regi
 
 ---
 
+## [v0.41.0] - 2026-11-14
+### Sistema Autoritário de Inventário em Grade, Stacks Inteligentes, Drag & Drop e Blindagem de Equipamentos
+* **Estrutura de Banco de Dados e Migração Sem Perda (`packages/database`):**
+  * Atualizada a tabela `character_inventory_items` com a coluna `slot_index` e restrição única `@@unique([characterId, slotIndex])`, com índice auxiliar por `item_template_id`.
+  * Migrados com segurança todos os itens existentes dos personagens para slots sequenciais (`0, 1, 2...`) sem qualquer perda ou exclusão de dados.
+* **Serviço Autoritário de Inventário (`CharacterInventoryService.ts`):**
+  * Implementada a grade de 150 slots: **Nível 1 com 50 slots desbloqueados**, **50 slots bloqueados Nv. 2** e **50 slots bloqueados Nv. 3** (com cadeados pretos monocromáticos e avisos explicativos).
+  * **Regras de Stack Autoritárias:**
+    * Itens normais/consumíveis/materiais: empilham até **999** por slot. Ao exceder, transbordam automaticamente para novos slots livres.
+    * Armas, Equipamentos, Joias e Asas: **stack máximo estrito = 1** (cada item ocupa um slot individual exclusivo, blindando para futuros sistemas de gemas e refinamentos).
+  * **Operações de Manipulação de Slots:**
+    * `moveOrSwapSlot`: Drag & Drop autoritário para mover a slots vazios, juntar pilhas do mesmo item (até 999) ou trocar posições (swap).
+    * `splitStack`: Divisão de pilhas com alocação em novo slot livre.
+    * `deleteSlotItem`: Destruição definitiva com prévia confirmação no client.
+    * `autoSort`: Reorganização inteligente (funde stacks, ordena por Categoria > Raridade > Nome alfabético e compacta nos menores slots).
+* **Proteções e Blindagens de Capacidade:**
+  * **Abertura Segura de Baús e Cápsulas (`ItemContainerOpeningService.ts`):** Validação prévia pelo pior cenário (máximo absoluto de novos slots que o baú pode gerar); se `freeSlots < maxNewSlots`, a abertura é bloqueada e informa o motivo ao jogador.
+  * **Entrega de Missões (`QuestProgressService.ts`):** Bloqueia a conclusão de quests que entregam itens caso o jogador não possua slots livres suficientes para receber as recompensas.
+  * **Desequipar Itens (`CharacterEquipmentService.ts`):** Impede desequipar armas/armaduras se a mochila estiver com os 50 slots cheios.
+* **Interface Visual e Experiência do Usuário (`PlayBagController.js`):**
+  * Grade limpa exibindo o ícone e quantidade discreta no canto inferior direito.
+  * Borda colorida de acordo com a raridade: Comum/F (Branco), Incomum/D (Verde), Raro/C (Azul), Épico/B (Roxo), Lendário/A (Laranja), Mítico/S (Vermelho) e Cósmico/SS (Preto profundo com aura escura).
+  * Modal completo de detalhes ao tocar em qualquer item: exibe atributos de combate, categoria, rank, quantidade e ações contextuais ("Equipar", "Usar/Abrir", "Dividir", "Mover", "Destruir").
+  * Barra de busca instantânea por nome, abas de filtro por categoria (Todos, Equipamentos, Consumíveis, Materiais, Especiais) e seletor por raridade.
+  * Suporte híbrido para Desktop (arrastar nativo com mouse) e Mobile (toque para selecionar e toque no slot de destino para mover).
+
+---
+
 ## [v0.40.0] - 2026-11-14
 ### Sistema Centralizado de Progressão e Level Up do Jogador e Pets, Remoção de Itens de Teste e Ajuste de Interface
 * **Remoção de Elementos de Teste e Ajustes Visuais na HUD (`PlayHudController.js`, `index.html`):**

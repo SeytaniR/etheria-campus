@@ -626,7 +626,19 @@ export class QuestProgressService {
         },
       });
 
-      // 3. Concede Itens de Recompensa na Mochila Básica (Singular ou Múltiplos)
+      // 3. Valida capacidade da mochila e concede Itens de Recompensa
+      let expectedNewSlots = 0;
+      if (rewardItemTemplateId && rewardItemQuantity > 0) expectedNewSlots++;
+      if (Array.isArray(rewards.rewardItemTemplateIds)) expectedNewSlots += rewards.rewardItemTemplateIds.length;
+      if (Array.isArray(rewards.rewardItems)) expectedNewSlots += rewards.rewardItems.length;
+
+      if (expectedNewSlots > 0) {
+        const freeSlots = await CharacterInventoryService.countFreeSlots(tx, pc.id, 50);
+        if (freeSlots < expectedNewSlots) {
+          throw new Error(`Mochila cheia! É necessário ter pelo menos ${expectedNewSlots} slot(s) livre(s) para receber as recompensas da missão (Você tem ${freeSlots}).`);
+        }
+      }
+
       if (rewardItemTemplateId && rewardItemQuantity > 0) {
         await CharacterInventoryService.addItem(tx, pc.id, rewardItemTemplateId, rewardItemQuantity);
       }

@@ -80,12 +80,11 @@ export class ItemContainerOpeningService {
         where: { id: safeCharId },
         select: { id: true, name: true, level: true },
       }),
-      prisma.characterInventoryItem.findUnique({
+      prisma.characterInventoryItem.findFirst({
         where: {
-          characterId_itemTemplateId: {
-            characterId: safeCharId,
-            itemTemplateId: safeItemId,
-          },
+          characterId: safeCharId,
+          itemTemplateId: safeItemId,
+          quantity: { gt: 0 },
         },
         include: {
           itemTemplate: true,
@@ -128,6 +127,18 @@ export class ItemContainerOpeningService {
 
     if (entries.length === 0) {
       throw new Error('Este item não possui itens de recompensa configurados em sua tabela.');
+    }
+
+    // Valida previamente se o jogador possui espaço seguro na mochila no pior cenário
+    const maxPossibleNewSlots = containerType === 'ROULETTE'
+      ? Math.max(1, Number(rawSpecial.rollCount) || 1)
+      : entries.length;
+
+    const freeSlots = await CharacterInventoryService.countFreeSlots(prisma, safeCharId, 50);
+    const effectiveFreeSlots = Number(inventoryRow.quantity) === 1 ? freeSlots + 1 : freeSlots;
+    if (effectiveFreeSlots < maxPossibleNewSlots) {
+      const containerName = containerType === 'CAPSULE' ? 'esta cápsula' : (containerType === 'ROULETTE' ? 'esta roleta' : 'este baú');
+      throw new Error(`Mochila cheia! É necessário ter pelo menos ${maxPossibleNewSlots} slots livres para abrir ${containerName} com segurança (Disponíveis: ${effectiveFreeSlots}).`);
     }
 
     // 2. Busca todos os templates dos itens de recompensa para validar existência
