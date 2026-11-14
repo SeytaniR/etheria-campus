@@ -876,16 +876,16 @@
 
     <!-- Botões de Ação Wild Rift (Arco Radial + Atalhos Rápidos 1 e 2) -->
     <div class="action-buttons-cluster" id="actionButtonsCluster">
-      <!-- Atalho 1 e 2 de Exploração (Poções HP/MP com ícone real e quantidade) -->
-      <button type="button" class="action-circle-btn action-btn-item" id="btnActShortcut1" onclick="PlayApp.actionArena.triggerCombatShortcut(0)" title="Atalho 1 (Poção HP)">
+      <!-- Atalho 1 e 2 de Combate (Iniciam ocultos e são exibidos apenas quando houver item configurado) -->
+      <button type="button" class="action-circle-btn action-btn-item" id="btnActShortcut1" onclick="PlayApp.actionArena.triggerCombatShortcut(0)" style="display: none;" title="Atalho 1">
         <span class="action-item-key-badge">Q</span>
-        <img class="action-item-icon-img" id="imgActShortcut1" src="/play/assets/hud/shortcut_potion_hp.png" alt="HP" />
-        <span class="action-item-qty-badge" id="qtyActShortcut1">5</span>
+        <img class="action-item-icon-img" id="imgActShortcut1" src="" alt="Atalho 1" />
+        <span class="action-item-qty-badge" id="qtyActShortcut1"></span>
       </button>
-      <button type="button" class="action-circle-btn action-btn-item" id="btnActShortcut2" onclick="PlayApp.actionArena.triggerCombatShortcut(1)" title="Atalho 2 (Poção MP)">
+      <button type="button" class="action-circle-btn action-btn-item" id="btnActShortcut2" onclick="PlayApp.actionArena.triggerCombatShortcut(1)" style="display: none;" title="Atalho 2">
         <span class="action-item-key-badge">E</span>
-        <img class="action-item-icon-img" id="imgActShortcut2" src="/play/assets/hud/shortcut_potion_mp.png" alt="MP" />
-        <span class="action-item-qty-badge" id="qtyActShortcut2">5</span>
+        <img class="action-item-icon-img" id="imgActShortcut2" src="" alt="Atalho 2" />
+        <span class="action-item-qty-badge" id="qtyActShortcut2"></span>
       </button>
 
       <!-- 4 Habilidades da Classe em Arco Radial -->

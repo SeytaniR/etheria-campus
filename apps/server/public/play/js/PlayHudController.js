@@ -48,8 +48,8 @@ class PlayHudController {
       gold: 0,
       diamonds: 1500,
       shortcuts: [
-        { id: 1, slotNum: 1, item: { name: 'Poção de Vida', icon: '/play/assets/hud/shortcut_potion_hp.png', count: 5, type: 'HEAL_HP', value: 150 }, name: 'Poção de Vida' },
-        { id: 2, slotNum: 2, item: { name: 'Poção de Mana', icon: '/play/assets/hud/shortcut_potion_mp.png', count: 5, type: 'HEAL_MP', value: 80 }, name: 'Poção de Mana' },
+        { id: 1, slotNum: 1, item: null, name: 'Slot #1 (Vazio)' },
+        { id: 2, slotNum: 2, item: null, name: 'Slot #2 (Vazio)' },
         { id: 3, slotNum: 3, item: null, name: 'Slot #3 (Vazio)' },
         { id: 4, slotNum: 4, item: null, name: 'Slot #4 (Vazio)' },
         { id: 5, slotNum: 5, item: null, name: 'Slot #5 (Vazio)' },
@@ -185,12 +185,9 @@ class PlayHudController {
       <!-- 4. Lateral Direita: HUD dos Pets Equipados (0 a 3) -->
       <div id="hudPetsSection" class="hud-pets-section" style="display: none;"></div>
 
-      <!-- 5. Canto Inferior Direito: Joystick Virtual de Alto Contraste com Botão de Interação Central -->
+      <!-- 5. Canto Inferior Direito: Joystick Virtual com Botão Central de Interação -->
       <div id="hudJoystickSection" class="hud-joystick-section">
         <div class="hud-joystick-glow-halo"></div>
-        <div class="hud-joystick-hint-badge">
-          <span class="hint-bullet">●</span> MOVER <span class="hint-sep">|</span> AÇÃO <span class="hint-icon">💬</span>
-        </div>
         <div id="hudJoystickDial" class="hud-joystick-dial">
           <img class="hud-joystick-ring" src="/play/assets/hud/joystick_outer_ring.png" alt="Dial" />
           <div id="hudJoystickStick" class="hud-joystick-stick">
@@ -207,24 +204,12 @@ class PlayHudController {
           <span id="hudBottomCollapseIcon" class="hud-collapse-icon">▼</span>
         </button>
         <div id="hudBottomDock" class="hud-bottom-dock">
-          <button type="button" class="hud-menu-btn" data-action="shop" title="Loja">
-            <img src="/play/assets/hud/menu_shop.png" alt="Loja" />
-          </button>
-          <button type="button" class="hud-menu-btn" data-action="pets" title="Pets">
-            <img src="/play/assets/hud/menu_pets.png" alt="Pets" />
-          </button>
-          <button type="button" class="hud-menu-btn" data-action="character" title="Personagem">
-            <img src="/play/assets/hud/menu_character.png" alt="Personagem" />
-          </button>
-          <button type="button" class="hud-menu-btn" data-action="inventory" title="Mochila / Inventário">
-            <img src="/play/assets/hud/menu_inventory.png" alt="Inventário" />
-          </button>
-          <button type="button" class="hud-menu-btn" data-action="quests" title="Missões">
-            <img src="/play/assets/hud/menu_quests.png" alt="Quests" />
-          </button>
-          <button type="button" class="hud-menu-btn" data-action="events" title="Eventos">
-            <img src="/play/assets/hud/menu_events.png" alt="Eventos" />
-          </button>
+          <button type="button" class="hud-menu-btn" data-action="shop" title="Loja"><img src="/play/assets/hud/menu_shop.png" alt="Loja" /></button>
+          <button type="button" class="hud-menu-btn" data-action="pets" title="Pets"><img src="/play/assets/hud/menu_pets.png" alt="Pets" /></button>
+          <button type="button" class="hud-menu-btn" data-action="character" title="Personagem"><img src="/play/assets/hud/menu_character.png" alt="Personagem" /></button>
+          <button type="button" class="hud-menu-btn" data-action="inventory" title="Mochila / Inventário"><img src="/play/assets/hud/menu_inventory.png" alt="Inventário" /></button>
+          <button type="button" class="hud-menu-btn" data-action="quests" title="Missões"><img src="/play/assets/hud/menu_quests.png" alt="Quests" /></button>
+          <button type="button" class="hud-menu-btn" data-action="events" title="Eventos"><img src="/play/assets/hud/menu_events.png" alt="Eventos" /></button>
         </div>
       </nav>
 
@@ -306,29 +291,18 @@ class PlayHudController {
 
     // 4. Botão de Configurações (Engrenagem)
     const settingsBtn = document.getElementById('hudSettingsBtn');
-    if (settingsBtn) {
-      settingsBtn.addEventListener('click', (ev) => {
-        ev.stopPropagation();
-        this.openSettingsMenu();
-      });
-    }
+    if (settingsBtn) settingsBtn.addEventListener('click', (ev) => { ev.stopPropagation(); this.openSettingsMenu(); });
 
     // 5. Clique / Tap no Avatar do Jogador (abre atributos)
     const avatar = document.getElementById('hudPlayerAvatarImg');
-    if (avatar) {
-      avatar.addEventListener('click', () => {
-        if (window.PlayApp && typeof window.PlayApp.openStatsModal === 'function') {
-          window.PlayApp.openStatsModal();
-        }
-      });
-    }
+    if (avatar) avatar.addEventListener('click', () => { window.PlayApp?.openStatsModal?.(); });
 
     // 6. Botão Central de Ação do Joystick
     const interactBtn = document.getElementById('hudJoystickInteractBtn');
     if (interactBtn) {
       interactBtn.addEventListener('click', (ev) => {
         ev.stopPropagation();
-        if (this.joystickDragged) return; // Evita disparar ação se foi apenas movimento
+        if (this.joystickDragged) return;
         this.triggerInteraction();
       });
     }

@@ -395,10 +395,29 @@ const PlayQuestsController = {
         if (res?.character) {
           this.activeChar.level = res.character.level;
           this.activeChar.exp = res.character.exp;
+          this.activeChar.experience = res.character.exp;
           this.activeChar.gold = res.character.gold;
           this.activeChar.freePoints = res.character.freePoints;
+          this.activeChar.unspentStatPoints = res.character.unspentStatPoints ?? res.character.freePoints;
+          if (res.character.maxXp) this.activeChar.maxXp = res.character.maxXp;
+
+          if (res.character.playerProgression?.leveledUp) {
+            const p = res.character.playerProgression;
+            this.showNotification?.(`🎉 LEVEL UP! Nível ${p.newLevel}! (+${p.statPointsGained} Pontos de Atributos)`, 'success');
+          }
+
+          if (Array.isArray(res.character.petsProgression)) {
+            for (const petProg of res.character.petsProgression) {
+              const matchedPet = (this.activeChar?.equippedPets || []).find((p) => p.id === petProg.petId);
+              if (matchedPet) { matchedPet.level = petProg.newLevel; matchedPet.experience = petProg.newExp; }
+              if (petProg.leveledUp) {
+                this.showNotification?.(`🐾 Pet ${petProg.nickname} subiu para Nível ${petProg.newLevel}!`, 'info');
+              }
+            }
+            if (window.PlayHudController && this.activeChar?.equippedPets) window.PlayHudController.updatePets(this.activeChar.equippedPets);
+          }
+
           if (res.character.isReborn && !this.activeChar.isReborn) {
-            // Atualiza o personagem completo para refletir o visual Reborn
             await this.loadPlayBootstrap();
             const updated = this.myCharacters.find((c) => c.id === this.activeChar.id);
             if (updated) this.activeChar = updated;

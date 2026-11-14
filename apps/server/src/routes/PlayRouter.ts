@@ -17,6 +17,7 @@ import type { AssetMirrorService } from '../controllers/AssetMirrorService.js';
 import { CharacterEquipmentService } from '../controllers/CharacterEquipmentService.js';
 import { MonsterCombatBuilder, type QuestBattleConfigDto } from '../controllers/MonsterCombatBuilder.js';
 import { ItemContainerOpeningService } from '../controllers/ItemContainerOpeningService.js';
+import { CharacterProgressionService } from '../controllers/CharacterProgressionService.js';
 
 export interface PlayRouterDeps {
   prisma: PrismaClient;
@@ -425,10 +426,17 @@ export class PlayRouter {
         victoryData.defeatedMonsters,
         victoryData.goldReward
       );
+      const progression = await CharacterProgressionService.awardProgression(
+        this.deps.prisma,
+        victoryData.characterId,
+        victoryData.expReward
+      );
       this.deps.sendJson(res, 200, {
         alreadyRecorded: false,
         expGained: victoryData.expReward,
         goldGained: victoryData.goldReward,
+        playerProgression: progression?.player ?? null,
+        petsProgression: progression?.pets ?? [],
         ...progressResult,
       });
       return true;
@@ -619,6 +627,15 @@ export class PlayRouter {
             batch,
             Number(state.rewards?.gold) || 0
           );
+          const progression = await CharacterProgressionService.awardProgression(
+            this.deps.prisma,
+            state.characterId,
+            Number(state.rewards?.exp) || 0
+          );
+          if (progression && state.rewards) {
+            (state.rewards as any).playerProgression = progression.player;
+            (state.rewards as any).petsProgression = progression.pets;
+          }
         }
       }
       this.deps.sendJson(res, 200, state);
@@ -637,6 +654,15 @@ export class PlayRouter {
             batch,
             Number(state.rewards?.gold) || 0
           );
+          const progression = await CharacterProgressionService.awardProgression(
+            this.deps.prisma,
+            state.characterId,
+            Number(state.rewards?.exp) || 0
+          );
+          if (progression && state.rewards) {
+            (state.rewards as any).playerProgression = progression.player;
+            (state.rewards as any).petsProgression = progression.pets;
+          }
         }
       }
       this.deps.sendJson(res, 200, state);

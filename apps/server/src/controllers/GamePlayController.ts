@@ -272,6 +272,7 @@ export class GamePlayController {
       elementNamePtBr,
       level: c.level,
       experience: Number(c.experience ?? 0),
+      maxXp: (c.level || 1) * 200,
       gold: Number(c.gold ?? 0),
       unspentStatPoints: c.unspentStatPoints,
       distributedStatsJson: c.distributedStatsJson,
@@ -318,7 +319,9 @@ export class GamePlayController {
           skillIdsJson: mt?.skillIdsJson || [],
           hpPct: 100,
           mpPct: 100,
-          xpPct: 60,
+          experience: Number(cp.experience ?? 0),
+          maxXp: (cp.level || 1) * 200,
+          xpPct: Math.min(100, Math.max(0, Math.round((Number(cp.experience ?? 0) / Math.max(1, (cp.level || 1) * 200)) * 100))),
           thumbUrl: `${this.mcreworkPagesBaseUrl}/assets/monsters/${petKey}/thumb.webp`,
         };
       }),

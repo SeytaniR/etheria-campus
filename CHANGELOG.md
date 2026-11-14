@@ -5,6 +5,30 @@ Qualquer IA trabalhando neste repositório **DEVE** incrementar a versão e regi
 
 ---
 
+## [v0.40.0] - 2026-11-14
+### Sistema Centralizado de Progressão e Level Up do Jogador e Pets, Remoção de Itens de Teste e Ajuste de Interface
+* **Remoção de Elementos de Teste e Ajustes Visuais na HUD (`PlayHudController.js`, `index.html`):**
+  * Removido o badge de texto `"MOVER | AÇÃO"` (`.hud-joystick-hint-badge`) que ficava posicionado acima do joystick virtual.
+  * Removidos os itens de poção de cura de HP e MP de teste que estavam pré-carregados na barra de atalhos e nos botões de combate (`btnActShortcut1`, `btnActShortcut2`), mantendo os slots vazios e os botões de atalho ocultos até que o jogador configure itens reais.
+  * Otimização do arquivo `PlayHudController.js`, reduzindo de 1.011 para 985 linhas, mantendo estrita conformidade com a Regra #7 (< 1.000 linhas).
+* **Serviço Centralizado de Progressão de Personagens e Pets (`CharacterProgressionService.ts`):**
+  * Criado o serviço `CharacterProgressionService` para cálculo autoritário e unificado de Nível, Experiência (XP) e Pontos de Atributos:
+    * Integração com as curvas e patamares da tabela `level_experience_templates`.
+    * **Regra Sagrada de Atributos:** Concessão estrita de exatamente 5 pontos base distribuíveis (`unspentStatPoints += 5`) por cada Level Up do jogador, sem pontos avulsos.
+    * Suporte a múltiplos level ups consecutivos em caso de grande ganho de XP.
+    * Progressão e avanço de nível sincronizados para Pets ativos em combate e missões, atualizando `level` e `experience` em `character_pets`.
+    * Persistência autoritária e atômica nas tabelas `player_characters` e `character_pets` sem qualquer destruição de dados existentes.
+* **Integração no Combate e Missões (`PlayRouter.ts`, `QuestProgressService.ts`):**
+  * Atualizada a rota `POST /api/play/combat/victory` e as resoluções de combate (`action`, `auto-resolve`) para persistir a XP ganha, calcular o level up do jogador e dos pets participantes e retornar os metadados de progressão.
+  * Atualizada a entrega de missões (`QuestProgressService.ts`) para utilizar o `CharacterProgressionService` na concessão de XP e Level Up ao jogador e seus pets.
+* **Sincronização em Tempo Real no Cliente (`ActionCombatArena.js`, `PlayQuestsController.js`, `GamePlayController.ts`):**
+  * Ao vencer uma batalha ou concluir uma missão com Level Up:
+    * Atualização imediata do nível, experiência e pontos livres (`unspentStatPoints`) no personagem e na HUD.
+    * Atualização dos pets equipados com seus novos níveis e barras de XP.
+    * Exibição de banner comemorativo de Level Up e notificações para o jogador e seus pets.
+
+---
+
 ## [v0.39.1] - 2026-11-14
 ### Correção do Construtor de Baú/Cápsula e Roleta no Admin e Adição de Atalhos Rápidos
 * **Correção de Carregamento no Frontend do Admin (`AdminItemContainerPanel.js`):**

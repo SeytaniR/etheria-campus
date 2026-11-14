@@ -17,6 +17,7 @@ import {
   CharacterInventoryService,
   type DefeatedMonsterDropUnit,
 } from './CharacterInventoryService.js';
+import { CharacterProgressionService } from './CharacterProgressionService.js';
 
 export interface QuestObjectiveRuntimeDto {
   type: 'KILL_MONSTER' | 'KILL_LEADER' | 'KILL_BOSS' | 'KILL_RACE' | 'COLLECT_ITEM' | 'TALK_NPC' | 'VISIT_MAP' | 'WIN_BATTLES';
@@ -613,39 +614,14 @@ export class QuestProgressService {
         }
       }
 
-      // 2. Aplica EXP, Level Up, Pontos de Atributo (Exclusivo Level Up), Reborn e Ouro
-      let newExp = Number(pc.experience || 0) + expGain;
-      let newLevel = pc.level || 1;
-      let newStatPoints = Number(pc.unspentStatPoints || 0);
-
-      const expLevels = await tx.levelExperienceTemplate.findMany({
-        where: { level: { gte: newLevel } },
-        orderBy: { level: 'asc' },
-      });
-      const expMap = new Map<number, number>(
-        expLevels.map((l: any) => [Number(l.level), Number(l.experienceToNext)])
-      );
-
-      while (true) {
-        const requiredExp = expMap.get(newLevel) ?? (newLevel * 200);
-        if (requiredExp > 0 && newExp >= requiredExp) {
-          newExp -= requiredExp;
-          newLevel += 1;
-          newStatPoints += 5; // Apenas Level Up concede rigorosamente 5 pontos base distribuíveis
-        } else {
-          break;
-        }
-      }
-
+      // 2. Aplica EXP, Level Up, Pontos de Atributo (Exclusivo Level Up) para Jogador e Pets
+      const progression = await CharacterProgressionService.awardProgression(tx, pc.id, expGain);
       const newGold = BigInt(Math.max(0, Number(pc.gold || 0) + goldGain));
 
       const updatedPc = await tx.playerCharacter.update({
         where: { id: pc.id },
         data: {
-          experience: BigInt(newExp),
-          level: newLevel,
           gold: newGold,
-          unspentStatPoints: newStatPoints,
           isReborn: triggerReborn ? true : pc.isReborn,
         },
       });
@@ -671,13 +647,18 @@ export class QuestProgressService {
         }
       }
 
+      const playerProg = progression?.player;
       updatedCharSummary = {
         id: updatedPc.id,
-        level: updatedPc.level,
-        exp: Number(updatedPc.experience),
+        level: playerProg?.newLevel ?? updatedPc.level,
+        exp: playerProg?.newExp ?? Number(updatedPc.experience),
+        maxXp: playerProg?.maxXp ?? (updatedPc.level * 200),
         gold: Number(updatedPc.gold),
-        freePoints: updatedPc.unspentStatPoints,
+        freePoints: playerProg?.unspentStatPoints ?? updatedPc.unspentStatPoints,
+        unspentStatPoints: playerProg?.unspentStatPoints ?? updatedPc.unspentStatPoints,
         isReborn: updatedPc.isReborn,
+        playerProgression: playerProg ?? null,
+        petsProgression: progression?.pets ?? [],
       };
 
       // 4. Avança para próximo estágio da Quest Meta OU finaliza a Quest

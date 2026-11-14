@@ -700,7 +700,32 @@ class ActionCombatArena {
       if (!this.currentBattle || !this.client) return;
       const res = await this.client.api('/api/play/combat/victory', { method: 'POST', body: JSON.stringify({ battleId: this.currentBattle.battleId }) });
       if (res?.questState) { this.client.questState = res.questState; this.client.updateQuestHudBadge?.(); }
-      if (res?.characterGold !== undefined && this.client.activeChar) { this.client.activeChar.gold = res.characterGold; this.client.updateHudInfo?.(); }
+      if (res?.characterGold !== undefined && this.client.activeChar) { this.client.activeChar.gold = res.characterGold; }
+      if (res?.playerProgression && this.client.activeChar) {
+        const pProg = res.playerProgression;
+        this.client.activeChar.level = pProg.newLevel;
+        this.client.activeChar.experience = pProg.newExp;
+        this.client.activeChar.unspentStatPoints = pProg.unspentStatPoints;
+        if (pProg.maxXp) this.client.activeChar.maxXp = pProg.maxXp;
+        if (pProg.leveledUp) {
+          const rEl = document.getElementById('actionResultRewards');
+          if (rEl) rEl.innerHTML += `<div style="margin-top:6px; color:#fde047; font-weight:900; font-size:1.02rem; text-shadow:0 0 10px rgba(234,179,8,0.7);">🎉 LEVEL UP! Nível ${pProg.newLevel}! (+${pProg.statPointsGained} Pontos)</div>`;
+          this.client.showNotification?.(`🎉 LEVEL UP! Nível ${pProg.newLevel}! (+${pProg.statPointsGained} Pontos)`, 'success');
+        }
+      }
+      if (Array.isArray(res?.petsProgression) && res.petsProgression.length > 0) {
+        const rEl = document.getElementById('actionResultRewards');
+        for (const petProg of res.petsProgression) {
+          const matchedPet = (this.client.activeChar?.equippedPets || []).find((p) => p.id === petProg.petId);
+          if (matchedPet) { matchedPet.level = petProg.newLevel; matchedPet.experience = petProg.newExp; }
+          if (petProg.leveledUp) {
+            if (rEl) rEl.innerHTML += `<div style="margin-top:4px; color:#a7f3d0; font-weight:700;">🐾 Pet ${petProg.nickname} subiu para Nível ${petProg.newLevel}!</div>`;
+            this.client.showNotification?.(`🐾 Pet ${petProg.nickname} subiu para Nível ${petProg.newLevel}!`, 'info');
+          }
+        }
+        if (window.PlayHudController && this.client.activeChar?.equippedPets) window.PlayHudController.updatePets(this.client.activeChar.equippedPets);
+      }
+      this.client.updateHudInfo?.();
       if (Array.isArray(res?.droppedItems) && res.droppedItems.length > 0) {
         const rEl = document.getElementById('actionResultRewards');
         const dropTxt = res.droppedItems.map((d) => `+${d.quantity}x ${d.namePtBr}`).join(' &bull; ');
