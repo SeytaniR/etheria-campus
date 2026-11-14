@@ -149,6 +149,11 @@ class EtheriaPlayClient {
     this.elementMatchups = data.elementMatchups || [];
     this.mapsList = data.maps || [];
     this.myCharacters = data.characters || [];
+    this.availablePets = data.availablePets || [];
+    this.uiLayoutTemplates = data.uiLayoutTemplates || [];
+    if (window.PlayUiLayoutApplier) {
+      window.PlayUiLayoutApplier.init(this.uiLayoutTemplates);
+    }
     if (this.classTemplates.length > 0 && !this.selectedClassIdForCreation) {
       this.selectedClassIdForCreation = this.classTemplates[0].id;
     }

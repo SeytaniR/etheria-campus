@@ -225,7 +225,6 @@ class AdminQuestsModalDom {
               <button type="button" onclick="AdminApp.addVisualQuestObjective('TALK_NPC')" style="padding:4px 9px; font-size:0.74rem; background:#0369a1; color:#fff;">➕ 💬 Falar com NPC</button>
               <button type="button" onclick="AdminApp.addVisualQuestObjective('VISIT_MAP')" style="padding:4px 9px; font-size:0.74rem; background:#854d0e; color:#fff;">➕ 🗺️ Explorar Mapa</button>
               <button type="button" onclick="AdminApp.addVisualQuestObjective('WIN_BATTLES')" style="padding:4px 9px; font-size:0.74rem; background:#6b21a8; color:#fff;">➕ ⚔️ Vencer Batalhas</button>
-              <button type="button" onclick="AdminApp.addVisualQuestObjective('TAME_PET')" style="padding:4px 9px; font-size:0.74rem; background:#15803d; color:#fff;">➕ 🐾 Domar Pet</button>
             </div>
           </div>
           <div id="questVisualObjectivesContainer" style="display:flex; flex-direction:column; gap:8px;"></div>

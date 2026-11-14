@@ -9,7 +9,7 @@ git fetch origin main
 git reset --hard origin/main
 cd packages/database
 npx prisma generate
-npx prisma db push --skip-generate
+npx prisma db push --skip-generate --accept-data-loss
 cd ../..
 npm run build:packages
 npm --workspace=@etheria/server run build

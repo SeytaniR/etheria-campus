@@ -179,10 +179,6 @@ class AdminQuestsTab {
             const map = (this.savedMaps || []).find((m) => Number(m.id) === Number(obj.mapId));
             return `🗺️ Ir até <strong>${map ? `#${map.id} ${map.namePtBr} (Nv.${map.requiredLevel || 1})` : `Mapa #${obj.mapId}`}</strong>`;
           }
-          if (obj.type === 'TAME_PET') {
-            const mob = (this.monsterTemplates || []).find((m) => Number(m.id) === Number(obj.monsterTemplateId));
-            return `🐾 Domar <strong>${obj.requiredCount || 1}x ${mob ? mob.namePtBr : 'Qualquer Pet'}</strong>`;
-          }
           if (obj.type === 'WIN_BATTLES') {
             return `⚔️ Vencer <strong>${obj.requiredCount || 1} Batalha(s)</strong>`;
           }
@@ -738,12 +734,6 @@ class AdminQuestsTab {
           type: 'WIN_BATTLES',
           requiredCount: 3,
         });
-      } else if (type === 'TAME_PET') {
-        this.editingQuestObjectives.push({
-          type: 'TAME_PET',
-          monsterTemplateId: this.monsterTemplates?.[0]?.id || 1,
-          requiredCount: 1,
-        });
       }
       this.renderVisualQuestObjectives();
     };
@@ -779,8 +769,7 @@ class AdminQuestsTab {
 
       container.innerHTML = this.editingQuestObjectives
         .map((obj, i) => {
-          if (obj.type === 'KILL_MONSTER' || obj.type === 'TAME_PET') {
-            const isTame = obj.type === 'TAME_PET';
+          if (obj.type === 'KILL_MONSTER') {
             const mobOpts = (this.monsterTemplates || [])
               .map(
                 (m) =>
@@ -789,10 +778,10 @@ class AdminQuestsTab {
               .join('');
 
             return `
-            <div style="background:#020617; border:1px solid ${isTame ? '#22c55e' : '#f43f5e'}; border-radius:8px; padding:10px; display:grid; grid-template-columns:1fr 140px auto; gap:8px; align-items:end;">
+            <div style="background:#020617; border:1px solid #f43f5e; border-radius:8px; padding:10px; display:grid; grid-template-columns:1fr 140px auto; gap:8px; align-items:end;">
               <div>
-                <label style="font-size:0.72rem; color:${isTame ? '#86efac' : '#fda4af'}; font-weight:700;">
-                  ${isTame ? '🐾 Objetivo: Domar / Capturar Pet' : '🐉 Objetivo: Derrotar Monstro em Batalha'}
+                <label style="font-size:0.72rem; color:#fda4af; font-weight:700;">
+                  🐉 Objetivo: Derrotar Monstro em Batalha
                 </label>
                 <select onchange="AdminApp.updateVisualQuestObjectiveField(${i}, 'monsterTemplateId', this.value, true)">${mobOpts}</select>
               </div>

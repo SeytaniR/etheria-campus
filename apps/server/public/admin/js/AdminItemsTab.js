@@ -400,7 +400,6 @@ class AdminItemsTab {
         BUFF_STATS: (v) => `⚡ Buff Temporário (+${v})`,
         CHANGE_ELEMENT: () => `🌀 Altera Afinidade Elemental`,
         TELEPORT: () => `🌌 Teleporte Instantâneo`,
-        CATCH_PET: (v) => `🐾 Captura de Pet (+${v}%)`,
         GRANT_EXP: (v) => `✨ Concede +${v} EXP`,
         MATERIAL: () => `⚒️ Recurso Passivo / Crafting`,
         QUEST_ITEM: () => `📜 Item de Missão (Passivo)`,
@@ -511,7 +510,7 @@ class AdminItemsTab {
             <div>
               <h3 style="margin:0; color:#38bdf8;">📦 Tabela de Itens (Consumíveis, Trocadores, Materiais, Especiais)</h3>
               <p style="font-size:0.8rem; color:var(--text-muted); margin:4px 0 0;">
-                Gerencie poções de vida/mana, pedras de afinidade elemental, materiais de criação, pergaminhos e itens especiais de captura.
+                Gerencie poções de vida/mana, pedras de afinidade elemental, materiais de criação, essências, pergaminhos e itens especiais.
               </p>
             </div>
             <div style="display:flex; gap:8px; align-items:center;">
@@ -670,7 +669,6 @@ class AdminItemsTab {
                 <option value="BUFF_STATS">⚡ Buff Temporário de Atributos</option>
                 <option value="CHANGE_ELEMENT">🌀 Alteração de Afinidade Elemental</option>
                 <option value="TELEPORT">🌌 Teleporte para Ponto de Retorno</option>
-                <option value="CATCH_PET">🐾 Captura de Monstro / Domesticar Pet</option>
                 <option value="GRANT_EXP">✨ Concessão Direta de Experiência</option>
                 <option value="LEARN_SKILL">📖 Aprender Habilidade / Tomo</option>
                 <option value="OPEN_CHEST">🎁 Abertura de Baú / Recompensa</option>

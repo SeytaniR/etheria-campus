@@ -19,7 +19,7 @@ import {
 } from './CharacterInventoryService.js';
 
 export interface QuestObjectiveRuntimeDto {
-  type: 'KILL_MONSTER' | 'KILL_RACE' | 'COLLECT_ITEM' | 'TALK_NPC' | 'VISIT_MAP' | 'TAME_PET' | 'WIN_BATTLES';
+  type: 'KILL_MONSTER' | 'KILL_RACE' | 'COLLECT_ITEM' | 'TALK_NPC' | 'VISIT_MAP' | 'WIN_BATTLES';
   monsterTemplateId?: number | null;
   raceCode?: string | null;
   itemTemplateId?: number | null;

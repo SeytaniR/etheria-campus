@@ -5,7 +5,7 @@
  *   - Consumíveis (Poções de HP/MP, Comidas, Pergaminhos de Teleporte).
  *   - Trocadores Elementais (Pedras de Afinidade de Fogo, Água, Terra, Ar).
  *   - Materiais de Coleta & Crafting (Minérios, Ervas, Madeiras, Essências).
- *   - Itens de Missão, Chaves e Itens Especiais (Cápsulas de Captura de Pet, Orbes de EXP).
+ *   - Itens de Missão, Chaves e Itens Especiais (Essências, Orbes de EXP).
  *   - Integração com catálogo oficial de 6.468 itens (`assets/items/items_catalog.json`) do repositório `mcrework`.
  */
 
@@ -26,7 +26,7 @@ export interface ItemTemplateDto {
   maxStack?: number;
   cooldownSec?: number;
   targetType?: string; // SELF | ALLY | ENEMY | PET | NONE
-  effectType?: string; // HEAL_HP | RESTORE_MP | BUFF_STATS | CHANGE_ELEMENT | TELEPORT | CATCH_PET | GRANT_EXP | MATERIAL | OPEN_CHEST
+  effectType?: string; // HEAL_HP | RESTORE_MP | BUFF_STATS | CHANGE_ELEMENT | TELEPORT | GRANT_EXP | MATERIAL | OPEN_CHEST
   effectValue?: number;
   specialEffectJson?: any;
   isActive?: boolean;
@@ -364,10 +364,16 @@ export class AdminItemsController {
   }
 
   /**
-   * Semeia um catálogo inicial de 12 itens clássicos (poções, pedras elementais, materiais, cápsula de pet).
+   * Semeia um catálogo inicial de itens clássicos (poções, pedras elementais, materiais)
+   * e remove itens legados de captura de pet.
    */
   public async seedInitialItemsIfEmpty() {
     try {
+      // Remove qualquer item legado de captura de pet do banco
+      await this.prisma.itemTemplate.deleteMany({
+        where: { OR: [{ effectType: 'CATCH_PET' }, { code: 'item_capsula_selamento_astral' }] },
+      });
+
       const count = await this.prisma.itemTemplate.count({
         where: { itemCategory: { notIn: ['CHARACTER_EQUIPMENT', 'PET_EQUIPMENT'] } },
       });
@@ -538,28 +544,12 @@ export class AdminItemsController {
           effectType: 'MATERIAL',
           effectValue: 0,
         },
-        {
-          code: 'item_capsula_selamento_astral',
-          namePtBr: 'Cápsula de Selamento Astral',
-          descriptionPtBr: 'Artefato mágico de contenção usado em monstros para tentar capturá-los como Pets.',
-          mcreworkIconKey: 'assets/items/icons/item_normal_100001.png',
-          itemCategory: 'SPECIAL',
-          rarityTier: 'B',
-          requiredLevel: 5,
-          priceGold: 150,
-          maxStack: 50,
-          cooldownSec: 5.0,
-          targetType: 'ENEMY',
-          effectType: 'CATCH_PET',
-          effectValue: 15,
-          specialEffectJson: { bonusCatchRatePct: 15 },
-        },
       ];
 
       for (const s of seeds) {
         await this.createItemTemplate(s);
       }
-      console.log('✅ [AdminItemsController] 12 itens clássicos semeados com sucesso.');
+      console.log(`✅ [AdminItemsController] ${seeds.length} itens clássicos semeados com sucesso.`);
     } catch (err: any) {
       console.warn('Aviso ao semear itens iniciais:', err?.message || err);
     }

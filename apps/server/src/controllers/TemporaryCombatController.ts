@@ -336,7 +336,7 @@ export class TemporaryCombatController {
         where: { id: Number(characterId) },
         include: {
           classTemplate: true,
-          pets: { take: 3, include: { monsterTemplate: true, petTemplate: true } },
+          pets: { take: 3, include: { monsterTemplate: true } },
         },
       });
       if (pc) {
@@ -462,98 +462,35 @@ export class TemporaryCombatController {
       activeStatuses: [],
     };
 
-    const petUnits: CombatUnit[] = [];
-    const rawPets =
-      pc && pc.pets && pc.pets.length > 0
-        ? pc.pets.slice(0, 3).map((cp: any, idx: number) => {
-            const tpl = cp.petTemplate || cp.monsterTemplate;
-            const folder = cp.petTemplate ? 'pets' : 'monsters';
-            const k = cp.petTemplate ? tpl.mcreworkPetKey : tpl?.mcreworkMonsterKey || 'creature_000001';
-            const b = (tpl?.baseAttributesJson as any) || { VIT: 12, STR: 11, INT: 10, WIS: 10, AGI: 11, DEX: 10 };
-            const pLv = cp.level || charLevel;
-            const cStats = (tpl?.baseCombatAttributesJson as any) || {};
-            const isPetMag = String(tpl?.damageType || '').toUpperCase() === 'MAGICAL';
-            const petLvlScale = 1 + Math.max(0, pLv - 1) * 0.12;
-            const pMaxHp = Math.round((Number(b.VIT) || 12) * petLvlScale * vitHpRatio * 0.85);
-            const pAtk = Math.round(
-              (isPetMag
-                ? (Number(b.INT) || 10) * petLvlScale * intMagAtkRatio
-                : ((Number(b.STR) || 11) * strPhysAtkRatio + (Number(b.AGI) || 10) * agiPhysAtkRatio) * petLvlScale) * 0.90
-            );
-            const pDef = Math.round((Number(b.VIT) || 12) * petLvlScale * vitDefRatio * 0.85);
-            const pMagDef = Math.round((Number(b.WIS) || 10) * petLvlScale * wisMagDefRatio * 0.85);
-            return {
-              id: `pet_${cp.id}`,
-              name: cp.nickname || tpl?.code || `Pet #${idx + 1}`,
-              level: pLv,
-              assetFolder: folder,
-              spriteKey: k,
-              groundOffsetY: tpl?.groundOffsetY || 0,
-              elementCode: cp.elementCode || 'NEUTRAL',
-              raceCode: tpl?.raceCode || 'BEAST',
-              style: (tpl?.combatStyle as any) || 'MELEE',
-              range: tpl?.attackRange || 60,
-              dmgType: isPetMag ? 'MAGICAL' : 'PHYSICAL',
-              hp: pMaxHp,
-              atk: pAtk,
-              def: pDef,
-              magDef: pMagDef,
-              moveSpd: Number(cStats.BATTLE_MOVE_SPEED) || Math.round(playerMoveSpeed * 0.92),
-              critRate: Math.min(0.80, (Number(cStats.CRIT_RATE) || 6) / 100),
-              critDmg: Math.min(3.00, (Number(cStats.CRIT_DMG) || 150) / 100),
-              attackSpeed: Number(cStats.ATTACK_SPEED) || 1.0,
-              pAcc: Number(cStats.PHYS_ACCURACY) || 95,
-              pEva: Number(cStats.PHYS_EVASION) || 5,
-              mAcc: Number(cStats.MAG_ACCURACY) || 95,
-              mEva: Number(cStats.MAG_EVASION) || 5,
-            };
-          })
-        : [];
-
-    rawPets.forEach((p: any, idx: number) => {
-      petUnits.push({
-        id: p.id,
-        index: idx,
-        name: p.name,
-        level: p.level || charLevel,
-        hp: p.hp,
-        maxHp: p.hp,
-        mp: Math.round(playerMaxMp * 0.50),
-        maxMp: Math.round(playerMaxMp * 0.50),
-        atk: p.atk,
-        def: p.def,
-        magDef: p.magDef,
-        critRate: p.critRate,
-        critDmg: p.critDmg,
-        attackSpeed: p.attackSpeed,
-        speed: Math.round(playerSpeed * 0.95),
-        spriteKey: p.spriteKey,
-        atlasJsonUrl: `${this.mcreworkPagesBaseUrl}/assets/${p.assetFolder}/${p.spriteKey}/atlas.json`,
-        atlasWebpUrl: `${this.mcreworkPagesBaseUrl}/assets/${p.assetFolder}/${p.spriteKey}/atlas.webp`,
-        groundOffsetY: p.groundOffsetY,
-        thumbUrl: `${this.mcreworkPagesBaseUrl}/assets/${p.assetFolder}/${p.spriteKey}/thumb.webp`,
-        elementCode: p.elementCode,
-        raceCode: p.raceCode,
-        combatStyle: p.style,
-        attackRange: p.range,
-        damageType: p.dmgType,
-        basicAttackVfxKey: p.style === 'RANGED' ? '10002' : '10008',
-        basicAttackVfxColorHex: p.style === 'RANGED' ? '#4ade80' : '#fde047',
-        battleMoveSpeed: p.moveSpd,
-        physAccuracy: Math.min(125, Math.max(20, p.pAcc)),
-        physEvasion: Math.min(75, Math.max(0, p.pEva)),
-        magAccuracy: Math.min(125, Math.max(20, p.mAcc)),
-        magEvasion: Math.min(75, Math.max(0, p.mEva)),
-        isAlive: true,
-        activeStatuses: [],
-      });
-    });
-
     const [allSkills, allStatuses, allI18n] = await Promise.all([
       this.prisma.skillTemplate ? this.prisma.skillTemplate.findMany({ where: { isActive: true }, orderBy: { id: 'asc' } }) : Promise.resolve([]),
       this.prisma.statusEffectTemplate ? this.prisma.statusEffectTemplate.findMany({ where: { isActive: true }, orderBy: { id: 'asc' } }) : Promise.resolve([]),
       I18nCache.getTranslations(this.prisma, 'pt-BR'),
     ]);
+
+    const petUnits: CombatUnit[] = [];
+    if (pc && pc.pets && pc.pets.length > 0) {
+      pc.pets.slice(0, 3).forEach((cp: any, idx: number) => {
+        const tpl = cp.monsterTemplate;
+        if (!tpl) return;
+        const pLv = cp.level || charLevel;
+        const petDisplayName = cp.nickname || (allI18n.get(tpl.nameI18nKey) ?? tpl.code) || `Pet #${idx + 1}`;
+        const built = MonsterCombatBuilder.buildMonsterUnit(
+          tpl,
+          pLv,
+          idx,
+          petDisplayName,
+          scalingCtx,
+          this.mcreworkPagesBaseUrl
+        );
+        petUnits.push({
+          ...built,
+          id: `pet_${cp.id}`,
+          index: idx,
+          elementCode: tpl.fixedElementCode || cp.elementCode || 'NEUTRAL',
+        });
+      });
+    }
 
     const resolveIcon = (key?: string | null) =>
       key ? (key.startsWith('http') ? key : `${this.mcreworkPagesBaseUrl}/${key.replace(/^\/+/, '')}`) : `${this.mcreworkPagesBaseUrl}/assets/skills/icons/100156.png`;

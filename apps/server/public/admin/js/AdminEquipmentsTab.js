@@ -556,14 +556,14 @@ class AdminEquipmentsTab {
   static injectTabAndModalDom() {
     // 1. Injeta Botão na Barra Superior (.nav-tabs)
     const navTabs = document.querySelector('.nav-tabs');
-    const btnPets = document.getElementById('tabBtnPets');
+    const btnMonsters = document.getElementById('tabBtnMonsters');
     if (navTabs && !document.getElementById('tabBtnEquipments')) {
       const btn = document.createElement('button');
       btn.id = 'tabBtnEquipments';
       btn.onclick = () => window.AdminApp.switchTab('equipments');
       btn.textContent = '🛡️ Equipamentos';
-      if (btnPets && btnPets.nextSibling) {
-        navTabs.insertBefore(btn, btnPets.nextSibling);
+      if (btnMonsters && btnMonsters.nextSibling) {
+        navTabs.insertBefore(btn, btnMonsters.nextSibling);
       } else {
         navTabs.appendChild(btn);
       }
@@ -619,9 +619,9 @@ class AdminEquipmentsTab {
           <div id="equipmentsTableContainer" style="margin-top:12px;"></div>
         </div>
       `;
-      const tabPets = document.getElementById('tabPets');
-      if (tabPets && tabPets.nextSibling) {
-        adminApp.insertBefore(panel, tabPets.nextSibling);
+      const tabMonsters = document.getElementById('tabMonsters');
+      if (tabMonsters && tabMonsters.nextSibling) {
+        adminApp.insertBefore(panel, tabMonsters.nextSibling);
       } else {
         adminApp.appendChild(panel);
       }

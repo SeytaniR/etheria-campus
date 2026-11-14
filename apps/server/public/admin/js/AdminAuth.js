@@ -117,7 +117,7 @@ class AdminAuth {
         npcs: 'NPCS',
         classes: 'CLASSES',
         monsters: 'MONSTERS',
-        pets: 'MONSTERS',
+        'ui-layouts': 'MAPS',
         equipments: 'MONSTERS',
         items: 'MONSTERS',
         mounts: 'MONSTERS',
@@ -135,7 +135,7 @@ class AdminAuth {
         npcs: document.getElementById('tabBtnNpcs'),
         classes: document.getElementById('tabBtnClasses'),
         monsters: document.getElementById('tabBtnMonsters'),
-        pets: document.getElementById('tabBtnPets'),
+        'ui-layouts': document.getElementById('tabBtnUiLayouts'),
         equipments: document.getElementById('tabBtnEquipments'),
         items: document.getElementById('tabBtnItems'),
         mounts: document.getElementById('tabBtnFlyingMounts'),
@@ -191,7 +191,7 @@ class AdminAuth {
         { id: 'tabQuests', btn: 'tabBtnQuests', key: 'quests', code: 'QUESTS' },
         { id: 'tabClasses', btn: 'tabBtnClasses', key: 'classes', code: 'CLASSES' },
         { id: 'tabMonsters', btn: 'tabBtnMonsters', key: 'monsters', code: 'MONSTERS' },
-        { id: 'tabPets', btn: 'tabBtnPets', key: 'pets', code: 'MONSTERS' },
+        { id: 'tabUiLayouts', btn: 'tabBtnUiLayouts', key: 'ui-layouts', code: 'MAPS' },
         { id: 'tabEquipments', btn: 'tabBtnEquipments', key: 'equipments', code: 'MONSTERS' },
         { id: 'tabItems', btn: 'tabBtnItems', key: 'items', code: 'MONSTERS' },
         { id: 'tabFlyingMounts', btn: 'tabBtnFlyingMounts', key: 'mounts', code: 'MONSTERS' },
@@ -229,8 +229,8 @@ class AdminAuth {
       if (tab === 'monsters' && typeof this.renderMonstersCrudTable === 'function') {
         this.renderMonstersCrudTable();
       }
-      if (tab === 'pets' && typeof this.renderPetsCrudTable === 'function') {
-        this.renderPetsCrudTable();
+      if (tab === 'ui-layouts' && typeof this.renderUiLayoutsCrudTable === 'function') {
+        this.renderUiLayoutsCrudTable();
       }
       if (tab === 'equipments' && typeof this.renderEquipmentsCrudTable === 'function') {
         this.renderEquipmentsCrudTable();
@@ -277,7 +277,7 @@ class AdminAuth {
         npcs: 'NPCS',
         classes: 'CLASSES',
         monsters: 'MONSTERS',
-        pets: 'MONSTERS',
+        'ui-layouts': 'MAPS',
         equipments: 'MONSTERS',
         items: 'MONSTERS',
         mounts: 'MONSTERS',
@@ -298,7 +298,7 @@ class AdminAuth {
           npcs: document.getElementById('tabNpcs'),
           classes: document.getElementById('tabClasses'),
           monsters: document.getElementById('tabMonsters'),
-          pets: document.getElementById('tabPets'),
+          'ui-layouts': document.getElementById('tabUiLayouts'),
           equipments: document.getElementById('tabEquipments'),
           items: document.getElementById('tabItems'),
           attributes: document.getElementById('tabAttributes'),

@@ -168,7 +168,6 @@ model Element {
   attackerMatchups   ElementMatchup[] @relation("AttackerElement")
   defenderMatchups   ElementMatchup[] @relation("DefenderElement")
   monsters           MonsterTemplate[]
-  pets               PetTemplate[]
 
   @@map("elements")
 }
@@ -195,7 +194,6 @@ model Race {
   defenderMatchups RaceMatchup[]     @relation("DefenderRace")
   classes          ClassTemplate[]
   monsters         MonsterTemplate[]
-  pets             PetTemplate[]
 
   @@map("races")
 }
@@ -542,51 +540,19 @@ model CharacterInventoryItem {
   @@map("character_inventory_items")
 }
 
-/// Templates de Pets Companheiros curados do mcrework para combate de ação ao lado do jogador.
-model PetTemplate {
-  id                       Int            @id @default(autoincrement())
-  code                     String         @unique
-  mcreworkPetKey           String         @map("mcrework_pet_key")
-  nameI18nKey              String         @map("name_i18n_key")
-  descriptionI18nKey       String?        @map("description_i18n_key")
-  groundOffsetY            Int            @default(0) @map("ground_offset_y")
-  raceCode                 String         @map("race_code")
-  recommendedElementCode   String         @default("NEUTRAL") @map("recommended_element_code")
-  rarityTier               String         @default("COMMON") @map("rarity_tier") /// SS, S, A, B, C, D, F
-  role                     String         @default("BALANCED") @map("role") /// TANK, PHYS_DPS, MAG_DPS, HEALER, SUPPORT, BALANCED
-  combatStyle              String         @default("MELEE") @map("combat_style") /// MELEE (Corpo a Corpo) ou RANGED (À Distância)
-  attackRange              Int            @default(60) @map("attack_range") /// Distância padrão de alcance do ataque em pixels
-  damageType               String         @default("PHYSICAL") @map("damage_type") /// PHYSICAL (Dano Físico) ou MAGICAL (Dano Mágico)
-  catchRatePct             Float          @default(25.0) @map("catch_rate_pct")
-  baseAttributesJson       Json           @map("base_attributes_json") /// Pesos de VIT, STR, INT, WIS, AGI, DEX
-  baseCombatAttributesJson Json?          @default("{}") @map("base_combat_attributes_json") /// Velocidade em Batalha, Vel. Ataque, Precisão, Desvio, Crítico
-  skillIdsJson             Json           @default("[]") @map("skill_ids_json")
-  isActive                 Boolean        @default(true) @map("is_active")
-  createdAt                DateTime       @default(now()) @map("created_at")
-  updatedAt                DateTime       @updatedAt @map("updated_at")
-
-  race                     Race           @relation(fields: [raceCode], references: [code])
-  recommendedElement       Element        @relation(fields: [recommendedElementCode], references: [code])
-  characterPets            CharacterPet[]
-
-  @@map("pet_templates")
-}
-
-/// Pets pertencentes a um Personagem (possuem elemento sorteado na obtenção e 6 slots de equipamento).
+/// Pets pertencentes a um Personagem (baseados nos Monstros marcados como disponíveis como Pet, com 6 slots de equipamento).
 model CharacterPet {
   id                  Int              @id @default(autoincrement())
   characterId         Int              @map("character_id")
   monsterTemplateId   Int?             @map("monster_template_id")
-  petTemplateId       Int?             @map("pet_template_id")
   nickname            String?
-  elementCode         String           @map("element_code") /// Sorteado na criação/captura: 10% NEUTRAL, 20% cada ativo
+  elementCode         String           @map("element_code") /// Elemento herdado do monstro
   level               Int              @default(1)
   experience          BigInt           @default(0)
   equippedItemsJson   Json             @default("{}") @map("equipped_items_json") /// Mapeia PET_EQUIP_1..6 -> ID do item
 
   character           PlayerCharacter  @relation(fields: [characterId], references: [id], onDelete: Cascade)
   monsterTemplate     MonsterTemplate? @relation(fields: [monsterTemplateId], references: [id])
-  petTemplate         PetTemplate?     @relation(fields: [petTemplateId], references: [id])
 
   @@map("character_pets")
 }
@@ -704,4 +670,22 @@ model WorldMapTemplate {
   updatedAt       DateTime @updatedAt @map("updated_at")
 
   @@map("world_map_templates")
+}
+
+/// Tabela de Posição e Tamanho das HUDs, Modais e Interfaces do Cliente (/play)
+/// nos 3 layouts disponíveis: Mobile Vertical (Portrait), Mobile Horizontal (Landscape) e Desktop.
+model ClientUiLayoutTemplate {
+  id                  Int      @id @default(autoincrement())
+  code                String   @unique /// Ex: HUD_PLAYER_PROFILE, HUD_MINIMAP, MODAL_CHARACTER, COMBAT_SKILLS_CLUSTER
+  namePtBr            String   @map("name_pt_br")
+  category            String   @default("EXPLORE_HUD") /// EXPLORE_HUD, COMBAT_HUD, MODAL, INTERFACE
+  domSelector         String   @map("dom_selector") /// Seletor CSS no cliente /play (ex: #hudPlayerSection)
+  descriptionPtBr     String?  @map("description_pt_br")
+  mobilePortraitJson  Json     @default("{}") @map("mobile_portrait_json") /// { anchorX, anchorY, offsetX, offsetY, scale, widthPx, maxWidthVw, maxHeightVh, opacity, visible }
+  mobileLandscapeJson Json     @default("{}") @map("mobile_landscape_json")
+  desktopJson         Json     @default("{}") @map("desktop_json")
+  isActive            Boolean  @default(true) @map("is_active")
+  updatedAt           DateTime @updatedAt @map("updated_at")
+
+  @@map("client_ui_layout_templates")
 }

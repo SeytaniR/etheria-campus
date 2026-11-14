@@ -5,6 +5,17 @@ Qualquer IA trabalhando neste repositório **DEVE** incrementar a versão e regi
 
 ---
 
+## [v0.33.0] - 2026-11-14
+### Unificação de Pets com a Tabela de Monstros (Remoção de Captura) e Editor Admin de HUDs, Modais e Interfaces nos 3 Layouts
+* **Remoção Completa do Sistema de Captura e da Tabela Separada de Pets (`schema.prisma`, `AdminRouter.ts`, `TemporaryCombatController.ts`, `AdminMonstersTab.js`):**
+  * **Extinção da Tabela de Pets (`pet_templates`):** Removido o modelo `PetTemplate`, controlador `AdminPetsController.ts`, aba `AdminPetsTab.js` e todos os endpoints `/api/admin/pet-templates`.
+  * **Remoção de Sistemas de Captura/Domesticação:** Removidos efeitos `CATCH_PET` de itens, objetivos de missão `TAME_PET` ("Domar Pet") e itens de cápsula de captura.
+  * **Unificação Monstro + Pet na Tabela de Monstros (`monster_templates`):** Adicionado controle direto na tabela de Monstros (`🐾 Disponível como Pet`, checkbox rápido na tabela e filtro dedicado). Quando marcado, o monstro atua tanto como monstro quanto como pet disponível no jogo, herdando **100% dos mesmos atributos base, atributos de combate, habilidades (`skillIdsJson`), elemento, raça, raridade e rank**, mantendo o impacto integral da raridade (`MonsterCombatBuilder.buildMonsterUnit`) em seus atributos.
+* **Nova Tabela Admin para Editar Posição e Tamanho de HUDs, Modais e Interfaces nos 3 Layouts (`ClientUiLayoutTemplate`, `AdminUiLayoutsController.ts`, `AdminUiLayoutsTab.js`, `PlayUiLayoutApplier.js`):**
+  * **Persistência Autoritária no PostgreSQL + Snapshot (`client_ui_layout_templates`):** Catálogo com as 24 interfaces oficiais do cliente divididas em `EXPLORE_HUD` (8 HUDs de exploração), `COMBAT_HUD` (5 HUDs de batalha no Véu), `MODAL` (10 janelas/modais) e `INTERFACE` (gaveta GM).
+  * **Edição Independente nos 3 Layouts (`📱 Mobile Vertical`, `📲 Mobile Horizontal` e `🖥️ Desktop`):** Permite configurar Âncora Horizontal/Vertical (`DEFAULT`, `LEFT`, `CENTER`, `RIGHT` / `TOP`, `CENTER`, `BOTTOM`), `offsetX (px)`, `offsetY (px)`, `scale`, `widthPx`, `heightPx`, `maxWidthVw`, `maxHeightVh`, `opacity` e `visible`, com pré-visualização gráfica proporcional em tempo real no `/admin`.
+  * **Aplicador Dinâmico no Cliente (`PlayUiLayoutApplier.js`):** Aplica automaticamente as coordenadas, dimensões, escala e visibilidade do layout ativo (`MOBILE_PORTRAIT`, `MOBILE_LANDSCAPE`, `DESKTOP`) em tempo real no `/play`.
+
 ## [v0.32.0] - 2026-11-14
 ### Correção do Modal de Criação e Edição de Pets na Rota /admin
 * **Implementação Canônica de `openModal` na Classe `EtheriaAdminStudio` (`admin.js`):**

@@ -13,7 +13,7 @@ import type { AdminAuthService, AdminTokenPayload } from '../security/AdminAuthS
 import type { AdminUsersController } from '../controllers/AdminUsersController.js';
 import type { AdminMapsController } from '../controllers/AdminMapsController.js';
 import type { AdminMonstersController } from '../controllers/AdminMonstersController.js';
-import type { AdminPetsController } from '../controllers/AdminPetsController.js';
+import type { AdminUiLayoutsController } from '../controllers/AdminUiLayoutsController.js';
 import type { AdminEquipmentsController } from '../controllers/AdminEquipmentsController.js';
 import type { AdminItemsController } from '../controllers/AdminItemsController.js';
 import type { AdminFlyingMountsController } from '../controllers/AdminFlyingMountsController.js';
@@ -29,7 +29,7 @@ export interface AdminRouterDeps {
   usersController: AdminUsersController;
   mapsController: AdminMapsController;
   monstersController: AdminMonstersController;
-  petsController: AdminPetsController;
+  uiLayoutsController: AdminUiLayoutsController;
   equipmentsController: AdminEquipmentsController;
   itemsController: AdminItemsController;
   mountsController: AdminFlyingMountsController;
@@ -323,35 +323,35 @@ export class AdminRouter {
       return true;
     }
 
-    // --- Templates de Pets Companheiros (mcrework & PostgreSQL) ---
-    if (pathname === '/api/admin/mcrework/pets' && method === 'GET') {
-      if (this.enforceTablePermission(res, session, 'MONSTERS', 'READ')) {
-        this.deps.sendJson(res, 200, await this.deps.petsController.getMcreworkPetsGallery());
+    // --- Layouts de Interface do Cliente (Mobile Vertical, Mobile Horizontal e Desktop) ---
+    if (pathname === '/api/admin/ui-layouts' && method === 'GET') {
+      if (this.enforceTablePermission(res, session, 'MAPS', 'READ')) {
+        this.deps.sendJson(res, 200, await this.deps.uiLayoutsController.getUiLayouts());
       }
       return true;
     }
-    if (pathname === '/api/admin/pet-templates' && method === 'GET') {
-      if (this.enforceTablePermission(res, session, 'MONSTERS', 'READ')) {
-        this.deps.sendJson(res, 200, await this.deps.petsController.getPetTemplates());
+    if (pathname === '/api/admin/ui-layouts/reset-defaults' && method === 'POST') {
+      if (this.enforceTablePermission(res, session, 'MAPS', 'READ_WRITE')) {
+        this.deps.sendJson(res, 200, await this.deps.uiLayoutsController.resetDefaultUiLayouts());
       }
       return true;
     }
-    if (pathname === '/api/admin/pet-templates' && method === 'POST') {
-      if (this.enforceTablePermission(res, session, 'MONSTERS', 'READ_WRITE')) {
-        this.deps.sendJson(res, 201, await this.deps.petsController.createPetTemplate(await this.deps.readJsonBody(req)));
+    if (pathname === '/api/admin/ui-layouts' && method === 'POST') {
+      if (this.enforceTablePermission(res, session, 'MAPS', 'READ_WRITE')) {
+        this.deps.sendJson(res, 201, await this.deps.uiLayoutsController.createUiLayout(await this.deps.readJsonBody(req)));
       }
       return true;
     }
-    const petMatch = pathname.match(/^\/api\/admin\/pet-templates\/(\d+)$/);
-    if (petMatch && method === 'PUT') {
-      if (this.enforceTablePermission(res, session, 'MONSTERS', 'READ_WRITE')) {
-        this.deps.sendJson(res, 200, await this.deps.petsController.updatePetTemplate(Number(petMatch[1]), await this.deps.readJsonBody(req)));
+    const uiLayoutMatch = pathname.match(/^\/api\/admin\/ui-layouts\/(\d+)$/);
+    if (uiLayoutMatch && method === 'PUT') {
+      if (this.enforceTablePermission(res, session, 'MAPS', 'READ_WRITE')) {
+        this.deps.sendJson(res, 200, await this.deps.uiLayoutsController.updateUiLayout(Number(uiLayoutMatch[1]), await this.deps.readJsonBody(req)));
       }
       return true;
     }
-    if (petMatch && method === 'DELETE') {
-      if (this.enforceTablePermission(res, session, 'MONSTERS', 'READ_WRITE')) {
-        this.deps.sendJson(res, 200, await this.deps.petsController.deletePetTemplate(Number(petMatch[1])));
+    if (uiLayoutMatch && method === 'DELETE') {
+      if (this.enforceTablePermission(res, session, 'MAPS', 'READ_WRITE')) {
+        this.deps.sendJson(res, 200, await this.deps.uiLayoutsController.deleteUiLayout(Number(uiLayoutMatch[1])));
       }
       return true;
     }

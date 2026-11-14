@@ -184,12 +184,11 @@ export class AssetMirrorService {
     mapEntries: Array<{ id: number; relPath: string }>;
     relPaths: string[];
   }> {
-    const [maps, classes, npcs, monsters, pets, mounts, skills, statuses, items] = await Promise.all([
+    const [maps, classes, npcs, monsters, mounts, skills, statuses, items] = await Promise.all([
       prisma.gameMap.findMany({ select: { id: true, mcreworkMapImage: true } }),
       prisma.classTemplate.findMany({ select: { mcreworkCharKey: true, rebornMcreworkCharKey: true } }),
       prisma.npcTemplate.findMany({ select: { mcreworkNpcKey: true } }),
       prisma.monsterTemplate.findMany({ select: { mcreworkMonsterKey: true } }),
-      prisma.petTemplate.findMany({ select: { mcreworkPetKey: true } }),
       prisma.flyingMountTemplate.findMany({ select: { mcreworkMountKey: true } }),
       prisma.skillTemplate.findMany({ select: { mcreworkIconKey: true, mcreworkVfxKey: true } }),
       prisma.statusEffectTemplate.findMany({ select: { iconKey: true, mcreworkVfxKey: true } }),
@@ -232,13 +231,6 @@ export class AssetMirrorService {
       addRel(`assets/monsters/${mo.mcreworkMonsterKey}/atlas.json`);
       addRel(`assets/monsters/${mo.mcreworkMonsterKey}/atlas.webp`);
       addRel(`assets/monsters/${mo.mcreworkMonsterKey}/thumb.png`);
-    }
-
-    for (const p of pets) {
-      if (!p.mcreworkPetKey) continue;
-      addRel(`assets/pets/${p.mcreworkPetKey}/atlas.json`);
-      addRel(`assets/pets/${p.mcreworkPetKey}/atlas.webp`);
-      addRel(`assets/pets/${p.mcreworkPetKey}/thumb.png`);
     }
 
     for (const mt of mounts) {
@@ -397,18 +389,6 @@ export class AssetMirrorService {
       this.getOrFetchAsset(`assets/monsters/${monsterKey}/atlas.json`),
       this.getOrFetchAsset(`assets/monsters/${monsterKey}/atlas.webp`),
       this.getOrFetchAsset(`assets/monsters/${monsterKey}/thumb.png`),
-    ]);
-  }
-
-  /**
-   * Baixa e instala no disco da VPS o pacote completo de sprites de um Pet (atlas.json, atlas.webp, thumb.png).
-   */
-  public async mirrorPetAssets(petKey: string | null | undefined): Promise<void> {
-    if (!petKey) return;
-    await Promise.allSettled([
-      this.getOrFetchAsset(`assets/pets/${petKey}/atlas.json`),
-      this.getOrFetchAsset(`assets/pets/${petKey}/atlas.webp`),
-      this.getOrFetchAsset(`assets/pets/${petKey}/thumb.png`),
     ]);
   }
 

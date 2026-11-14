@@ -653,7 +653,7 @@ class PlayHudController {
             count === 0
               ? `<div style="text-align:center; padding:24px 10px; color:#94a3b8;">
                   Você não possui nenhum Pet equipado no momento.<br/>
-                  <small style="color:#64748b;">Capture ou choque ovos na aba Pets para acompanhar seu time!</small>
+                  <small style="color:#64748b;">Em breve você poderá invocar Pets usando Essências de monstros!</small>
                  </div>`
               : pets
                   .map(
@@ -815,8 +815,8 @@ class PlayHudController {
     petsSection.style.display = 'flex';
     petsSection.innerHTML = safeList
       .map((pet) => {
-        const nickname = pet.nickname || pet.name || pet.petTemplate?.namePtBr || pet.monsterTemplate?.namePtBr || 'Pet';
-        const thumbUrl = pet.thumbUrl || pet.iconUrl || pet.petTemplate?.iconUrl || pet.monsterTemplate?.thumbUrl || '/play/assets/hud/menu_pets.png';
+        const nickname = pet.nickname || pet.name || pet.monsterTemplate?.namePtBr || 'Pet';
+        const thumbUrl = pet.thumbUrl || pet.iconUrl || pet.monsterTemplate?.thumbUrl || '/play/assets/hud/menu_pets.png';
         const level = pet.level || 1;
         const hpPct = pet.hpPct !== undefined ? pet.hpPct : (pet.maxHp ? Math.min(100, Math.max(0, Math.round((pet.currentHp / pet.maxHp) * 100))) : 100);
         const mpPct = pet.mpPct !== undefined ? pet.mpPct : (pet.maxMp ? Math.min(100, Math.max(0, Math.round((pet.currentMp / pet.maxMp) * 100))) : 100);

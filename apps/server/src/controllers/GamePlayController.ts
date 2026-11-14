@@ -165,13 +165,46 @@ export class GamePlayController {
           classTemplate: true,
           pets: {
             include: {
-              petTemplate: true,
               monsterTemplate: true,
             },
           },
         },
       })
     ).map((c) => this.serializeCharacter(c, i18nMap, mapNameById));
+
+    const [availableMonstersAsPets, uiLayoutTemplates] = await Promise.all([
+      this.prisma.monsterTemplate.findMany({
+        where: { isActive: true, isTamableAsPet: true },
+        orderBy: { id: 'asc' },
+      }),
+      this.prisma.clientUiLayoutTemplate
+        ? this.prisma.clientUiLayoutTemplate.findMany({
+            where: { isActive: true },
+            orderBy: { id: 'asc' },
+          })
+        : Promise.resolve([]),
+    ]);
+
+    const availablePets = availableMonstersAsPets.map((mt) => ({
+      id: mt.id,
+      code: mt.code,
+      namePtBr: i18nMap.get(mt.nameI18nKey) ?? mt.code,
+      descriptionPtBr: mt.descriptionI18nKey ? (i18nMap.get(mt.descriptionI18nKey) ?? '') : '',
+      mcreworkMonsterKey: mt.mcreworkMonsterKey,
+      raceCode: mt.raceCode,
+      fixedElementCode: mt.fixedElementCode,
+      rarityTier: mt.rarityTier || 'F',
+      combatStyle: mt.combatStyle,
+      attackRange: mt.attackRange,
+      damageType: mt.damageType,
+      groundOffsetY: mt.groundOffsetY,
+      baseAttributesJson: mt.baseAttributesJson,
+      baseCombatAttributesJson: mt.baseCombatAttributesJson ?? {},
+      skillIdsJson: mt.skillIdsJson ?? [],
+      thumbUrl: `${this.mcreworkPagesBaseUrl}/assets/monsters/${mt.mcreworkMonsterKey}/thumb.webp`,
+      atlasJsonUrl: `${this.mcreworkPagesBaseUrl}/assets/monsters/${mt.mcreworkMonsterKey}/atlas.json`,
+      atlasWebpUrl: `${this.mcreworkPagesBaseUrl}/assets/monsters/${mt.mcreworkMonsterKey}/atlas.webp`,
+    }));
 
     return {
       baseMoveSpeed: GamePlayController.AUTHORITATIVE_BASE_MOVE_SPEED,
@@ -183,6 +216,8 @@ export class GamePlayController {
       elementMatchups,
       maps,
       characters,
+      availablePets,
+      uiLayoutTemplates,
     };
   }
 
@@ -264,16 +299,27 @@ export class GamePlayController {
       posY: c.posY,
       isCriminal: c.isCriminal,
       equippedPets: (c.pets || []).slice(0, 3).map((cp: any) => {
-        const petKey = cp.petTemplate?.mcreworkPetKey || cp.monsterTemplate?.mcreworkMonsterKey || 'PET_000001';
-        const petName = cp.nickname || (cp.petTemplate ? (i18nMap.get(cp.petTemplate.nameI18nKey) ?? cp.petTemplate.code) : `Pet #${cp.id}`);
+        const mt = cp.monsterTemplate;
+        const petKey = mt?.mcreworkMonsterKey || 'creature_000001';
+        const petName = cp.nickname || (mt ? (i18nMap.get(mt.nameI18nKey) ?? mt.code) : `Pet #${cp.id}`);
         return {
           id: cp.id,
+          monsterTemplateId: cp.monsterTemplateId,
           nickname: petName,
           level: cp.level || 1,
+          elementCode: mt?.fixedElementCode || cp.elementCode || 'NEUTRAL',
+          raceCode: mt?.raceCode || 'BEAST',
+          rarityTier: mt?.rarityTier || 'F',
+          combatStyle: mt?.combatStyle || 'MELEE',
+          attackRange: mt?.attackRange || 60,
+          damageType: mt?.damageType || 'PHYSICAL',
+          baseAttributesJson: mt?.baseAttributesJson || {},
+          baseCombatAttributesJson: mt?.baseCombatAttributesJson || {},
+          skillIdsJson: mt?.skillIdsJson || [],
           hpPct: 100,
           mpPct: 100,
           xpPct: 60,
-          thumbUrl: `/api/assets/mcrework/assets/pets/${petKey}/thumb.png`,
+          thumbUrl: `${this.mcreworkPagesBaseUrl}/assets/monsters/${petKey}/thumb.webp`,
         };
       }),
     };

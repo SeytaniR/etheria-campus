@@ -21,7 +21,7 @@ import { AdminUsersController } from './controllers/AdminUsersController.js';
 import { AdminMapsController } from './controllers/AdminMapsController.js';
 import { GamePlayController } from './controllers/GamePlayController.js';
 import { AdminMonstersController } from './controllers/AdminMonstersController.js';
-import { AdminPetsController } from './controllers/AdminPetsController.js';
+import { AdminUiLayoutsController } from './controllers/AdminUiLayoutsController.js';
 import { AdminEquipmentsController } from './controllers/AdminEquipmentsController.js';
 import { AdminItemsController } from './controllers/AdminItemsController.js';
 import { AdminFlyingMountsController } from './controllers/AdminFlyingMountsController.js';
@@ -70,7 +70,7 @@ export class EtheriaServerApp {
   private readonly mapsController: AdminMapsController;
   private readonly playController: GamePlayController;
   private readonly monstersController: AdminMonstersController;
-  private readonly petsController: AdminPetsController;
+  private readonly uiLayoutsController: AdminUiLayoutsController;
   private readonly equipmentsController: AdminEquipmentsController;
   private readonly itemsController: AdminItemsController;
   private readonly mountsController: AdminFlyingMountsController;
@@ -96,7 +96,7 @@ export class EtheriaServerApp {
     this.mapsController = new AdminMapsController(this.prisma, this.assetMirrorService);
     this.playController = new GamePlayController(this.prisma, this.assetMirrorService);
     this.monstersController = new AdminMonstersController(this.prisma, this.assetMirrorService);
-    this.petsController = new AdminPetsController(this.prisma, this.assetMirrorService);
+    this.uiLayoutsController = new AdminUiLayoutsController(this.prisma, snapshotManager);
     this.equipmentsController = new AdminEquipmentsController(this.prisma, this.assetMirrorService);
     this.itemsController = new AdminItemsController(this.prisma, this.assetMirrorService);
     this.mountsController = new AdminFlyingMountsController(this.prisma, this.assetMirrorService);
@@ -117,7 +117,7 @@ export class EtheriaServerApp {
       usersController: this.usersController,
       mapsController: this.mapsController,
       monstersController: this.monstersController,
-      petsController: this.petsController,
+      uiLayoutsController: this.uiLayoutsController,
       equipmentsController: this.equipmentsController,
       itemsController: this.itemsController,
       mountsController: this.mountsController,
@@ -401,7 +401,7 @@ export class EtheriaServerApp {
       void this.monstersController.ensureInitialMonsters();
       void this.skillsController.ensureInitialSkillsAndBuffs();
       void this.questsController.ensureInitialQuests();
-      void this.petsController.seedInitialPetsIfEmpty();
+      void this.uiLayoutsController.seedInitialUiLayoutsIfEmpty();
       void this.equipmentsController.seedInitialEquipmentsIfEmpty();
       void this.itemsController.seedInitialItemsIfEmpty();
       void this.mountsController.seedInitialFlyingMountsIfEmpty();

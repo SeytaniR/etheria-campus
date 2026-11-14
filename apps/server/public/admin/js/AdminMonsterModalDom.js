@@ -84,10 +84,10 @@ class AdminMonsterModalDom {
             <input type="number" id="monsterAttackRangeInput" min="20" max="600" value="60" title="Distância padrão de alcance do ataque em pixels" />
           </div>
           <div class="field">
-            <label style="color:#86efac; font-weight:700;">🐾 Domável como Pet?</label>
-            <select id="monsterTamableSelect">
-              <option value="true">🐾 Sim — Pode ser capturado/Pet</option>
-              <option value="false">⚔️ Não — Apenas Inimigo</option>
+            <label style="color:#86efac; font-weight:700;">🐾 Disponível como Pet no Jogo?</label>
+            <select id="monsterTamableSelect" title="Se marcado como Sim, este monstro também fica disponível como Pet no jogo com os mesmos atributos base/combate, habilidades, elemento, raridade e rank">
+              <option value="true">🐾 Sim — Monstro e Pet Disponível</option>
+              <option value="false">⚔️ Não — Apenas Monstro Inimigo</option>
             </select>
           </div>
           <div class="field">
@@ -115,7 +115,7 @@ class AdminMonsterModalDom {
           3️⃣ 📊 Atributos Base no Nível 1 (Pesos que alimentam Vida, Mana, Ataque e Defesa)
         </div>
         <p style="font-size:0.72rem; color:var(--text-muted); margin:0 0 8px 0;">
-          Estes 6 atributos escalam proporcionalmente ao nível do monstro e ao Rank de Raridade (F até SS).
+          Estes 6 atributos e o Rank de Raridade (F até SS) aplicam-se de forma idêntica tanto quando atua como Monstro quanto quando está marcado como Pet disponível.
         </p>
         <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(min(100%, 110px), 1fr)); gap:8px;">
           <div class="field"><label style="font-size:0.72rem; color:#86efac; font-weight:700;">❤️ VIT (Vida/Def)</label><input type="number" id="monsterBaseVIT" value="14" min="1" /></div>
@@ -284,7 +284,7 @@ class AdminMonsterModalDom {
           <input type="text" id="monsterSearchInput" placeholder="🔍 Buscar modelo (ex: creature_000015)..." oninput="AdminApp.filterMonsterGallery()" style="flex:1; min-width:160px; padding:6px 10px; font-size:0.82rem;" />
           <select id="monsterCategoryFilterSelect" onchange="AdminApp.filterMonsterGallery()" style="width:140px; padding:6px; font-size:0.8rem;">
             <option value="all">Todos os Modelos</option>
-            <option value="pet">🐾 Domáveis (Pets)</option>
+            <option value="pet">🐾 Modelos de Pets</option>
             <option value="mob">👾 Selvagens (Mobs)</option>
           </select>
           <span style="font-size:0.75rem; color:var(--text-muted);">(<span id="monsterCountBadge">0</span> disponíveis)</span>

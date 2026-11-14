@@ -23,6 +23,7 @@ class AdminMonstersTab {
     app.monsterCrudSearchQuery = '';
     app.monsterCrudRankFilter = 'ALL';
     app.monsterCrudElementFilter = 'ALL';
+    app.monsterCrudPetFilter = 'ALL';
 
     // Carrega McreworkSpriteSheet dinamicamente no /admin caso ainda não esteja presente
     if (!window.McreworkSpriteSheet) {
@@ -49,12 +50,46 @@ class AdminMonstersTab {
       const searchInput = document.getElementById('monsterCrudSearchInput');
       const rankSelect = document.getElementById('monsterCrudRankFilterSelect');
       const elemSelect = document.getElementById('monsterCrudElementFilterSelect');
+      const petSelect = document.getElementById('monsterCrudPetFilterSelect');
 
       this.monsterCrudSearchQuery = (searchInput ? searchInput.value : '').toLowerCase().trim();
       this.monsterCrudRankFilter = rankSelect ? rankSelect.value : 'ALL';
       this.monsterCrudElementFilter = elemSelect ? elemSelect.value : 'ALL';
+      this.monsterCrudPetFilter = petSelect ? petSelect.value : 'ALL';
 
       this.renderMonstersCrudTable();
+    };
+
+    app.toggleMonsterPetAvailable = async function (id, isAvailable) {
+      try {
+        const existing = (this.monsterTemplates || []).find((m) => Number(m.id) === Number(id));
+        if (!existing) return;
+        await this.api(`/api/admin/monster-templates/${id}`, {
+          method: 'PUT',
+          body: JSON.stringify({
+            namePtBr: existing.namePtBr,
+            descriptionPtBr: existing.descriptionPtBr,
+            mcreworkMonsterKey: existing.mcreworkMonsterKey,
+            groundOffsetY: existing.groundOffsetY,
+            raceCode: existing.raceCode,
+            fixedElementCode: existing.fixedElementCode,
+            rarityTier: existing.rarityTier,
+            combatStyle: existing.combatStyle,
+            attackRange: existing.attackRange,
+            damageType: existing.damageType,
+            isTamableAsPet: !!isAvailable,
+            isActive: existing.isActive,
+            skillIdsJson: existing.skillIdsJson,
+            lootTableJson: existing.lootTableJson,
+            baseAttributesJson: existing.baseAttributesJson,
+            baseCombatAttributesJson: existing.baseCombatAttributesJson,
+          }),
+        });
+        await this.loadMonsterTemplates();
+      } catch (err) {
+        alert(`Erro ao atualizar disponibilidade como Pet: ${err.message}`);
+        this.renderMonstersCrudTable();
+      }
     };
 
     app.filterMonsterGallery = function () {
@@ -650,10 +685,13 @@ class AdminMonstersTab {
       const q = (this.monsterCrudSearchQuery || '').toLowerCase().trim();
       const rFilter = this.monsterCrudRankFilter || 'ALL';
       const eFilter = this.monsterCrudElementFilter || 'ALL';
+      const pFilter = this.monsterCrudPetFilter || 'ALL';
 
       const filtered = all.filter((m) => {
         if (rFilter !== 'ALL' && (m.rarityTier || 'F') !== rFilter) return false;
         if (eFilter !== 'ALL' && (m.fixedElementCode || 'NEUTRAL') !== eFilter) return false;
+        if (pFilter === 'PET_AVAILABLE' && m.isTamableAsPet === false) return false;
+        if (pFilter === 'MONSTER_ONLY' && m.isTamableAsPet !== false) return false;
         if (!q) return true;
         const text = `${m.id} ${m.code} ${m.namePtBr || ''} ${m.mcreworkMonsterKey || ''} ${m.raceCode || ''} ${m.descriptionPtBr || ''}`.toLowerCase();
         return text.includes(q);
@@ -727,9 +765,10 @@ class AdminMonstersTab {
                   <br/>
                   ${m.damageType === 'MAGICAL' ? `<span style="color:#c084fc; font-weight:700;">🔮 Mágico</span>` : `<span style="color:#f59e0b; font-weight:700;">🗡️ Físico</span>`}
                 </div>
-                <div style="font-size:0.68rem; color:${m.isTamableAsPet ? '#86efac' : '#94a3b8'}; margin-top:2px;">
-                  ${m.isTamableAsPet ? '🐾 Pet Domável' : '⚔️ Selvagem'}
-                </div>
+                <label style="display:inline-flex; align-items:center; gap:5px; font-size:0.70rem; color:${m.isTamableAsPet !== false ? '#86efac' : '#94a3b8'}; margin-top:4px; cursor:pointer; background:rgba(15,23,42,0.8); padding:2px 6px; border-radius:4px; border:1px solid ${m.isTamableAsPet !== false ? '#22c55e' : '#334155'};">
+                  <input type="checkbox" ${m.isTamableAsPet !== false ? 'checked' : ''} onchange="AdminApp.toggleMonsterPetAvailable(${m.id}, this.checked)" style="cursor:pointer; accent-color:#22c55e;" />
+                  <span>${m.isTamableAsPet !== false ? '🐾 Pet Disponível' : '⚔️ Só Monstro'}</span>
+                </label>
               </td>
               <td>
                 <div style="font-family:monospace; font-size:0.73rem; line-height:1.4; background:#020617; padding:4px 6px; border-radius:4px; border:1px solid #1e293b;">
@@ -794,7 +833,10 @@ class AdminMonstersTab {
                 <span style="padding:2px 7px; border-radius:99px; background:rgba(56,189,248,0.15); color:var(--accent); font-size:0.70rem; font-weight:700;">🔥 ${m.elementNamePtBr || m.fixedElementCode}</span>
                 <span style="padding:2px 7px; border-radius:99px; background:rgba(234,179,8,0.15); color:#fde047; font-size:0.70rem; font-weight:700;">${m.combatStyle === 'RANGED' ? `🏹 Ranged (${m.attackRange || 220}px)` : `⚔️ Melee (${m.attackRange || 60}px)`}</span>
                 <span style="padding:2px 7px; border-radius:99px; background:rgba(192,132,252,0.15); color:#d8b4fe; font-size:0.70rem; font-weight:700;">${m.damageType === 'MAGICAL' ? '🔮 Mágico' : '🗡️ Físico'}</span>
-                <span style="padding:2px 7px; border-radius:99px; background:rgba(34,197,94,0.15); color:#86efac; font-size:0.70rem; font-weight:700;">${m.isTamableAsPet ? '🐾 Pet' : '⚔️ Selvagem'}</span>
+                <label style="display:inline-flex; align-items:center; gap:4px; padding:2px 7px; border-radius:99px; background:rgba(34,197,94,0.15); color:${m.isTamableAsPet !== false ? '#86efac' : '#94a3b8'}; font-size:0.70rem; font-weight:700; cursor:pointer;">
+                  <input type="checkbox" ${m.isTamableAsPet !== false ? 'checked' : ''} onchange="AdminApp.toggleMonsterPetAvailable(${m.id}, this.checked)" style="cursor:pointer; accent-color:#22c55e;" />
+                  <span>${m.isTamableAsPet !== false ? '🐾 Pet Disponível' : '⚔️ Só Monstro'}</span>
+                </label>
               </div>
 
               ${m.descriptionPtBr ? `<div style="font-size:0.74rem; color:var(--text-muted); line-height:1.3; background:#020617; padding:6px 8px; border-radius:6px; border:1px solid #1e293b;">📜 ${m.descriptionPtBr}</div>` : ''}
