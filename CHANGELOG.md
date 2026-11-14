@@ -5,6 +5,32 @@ Qualquer IA trabalhando neste repositório **DEVE** incrementar a versão e regi
 
 ---
 
+## [v0.43.0] - 2026-11-14
+### Sistema Autoritário de Chat Multi-Canal, Filtros Personalizáveis e Moderação Comunitária 16+
+* **Canais de Comunicação Oficiais (`GameChatService.ts`):**
+  * `SISTEMA`: Canal oficial do servidor para avisos, notificações de level up e eventos. **Regra de Transmissão:** mensagens de sistema são visualizadas em todos os outros canais automaticamente.
+  * `MUNDO`: Chat livre global para comunicação entre todos os jogadores online do continente.
+  * `LOCAL`: Chat restrito por proximidade geográfica/mapa atual (`currentMapId`).
+  * `GUILDA`: Chat exclusivo para membros da guilda do jogador.
+  * `FACÇÃO`: Chat exclusivo para membros da facção do jogador.
+  * `EQUIPE`: Chat exclusivo para aventureiros na mesma equipe/party.
+* **Filtro Autoritário de Moderação 16+ (`ChatModerationFilter.ts`):**
+  * Normalização avançada com remoção de acentos e decodificação seletiva de leetspeak (`@` -> `a`, `3` -> `e`, `b!tch` -> `bitch`, etc.).
+  * **Nível Crítico (Zero Tolerância):** Bloqueio imediato de mensagens com discurso de ódio, racismo, homofobia, transfobia, capacitismo e ameaças graves de violência/suicídio com feedback educativo ao jogador.
+  * **Nível Moderado (Censura com Asteriscos):** Identificação de termos de baixo calão e palavrões pesados em PT/EN, substituindo-os por asteriscos (`****`), com salvaguarda completa contra falsos positivos (efeito Scunthorpe).
+* **Interface do Jogador e Painel de Filtros / Edição (`PlayChatController.js`, `play_chat_and_modals.css`):**
+  * Modal completo de configurações (`⚙️`):
+    * Habilitar/desabilitar exibição de qualquer uma das 6 categorias de canal.
+    * Alternar se mensagens de Sistema devem aparecer em todos os chats.
+    * Ativar/desativar exibição do horário (`[HH:MM]`).
+    * Ajuste de tamanho de fonte (`Pequeno: 11px`, `Médio: 12px`, `Grande: 14px`).
+    * Ajuste de altura (`100px`, `125px`, `170px`) e opacidade do painel.
+    * Persistência individual das preferências do jogador via `localStorage`.
+  * Badges coloridos por canal (`[Sistema]` em dourado, `[Mundo]` em ciano, `[Local]` em verde esmeralda, `[Guilda]` em roxo, `[Facção]` em laranja, `[Equipe]` em turquesa).
+  * Polling autoritário inteligente com atualização instantânea ao enviar mensagens e rolagem automática ao final.
+
+---
+
 ## [v0.42.0] - 2026-11-14
 ### Expansão da Mochila (100 / 200 / 300 Slots) e Ícone Seguidor no Arraste (Drag & Drop)
 * **Expansão Autoritária dos Slots da Mochila (`CharacterInventoryService.ts`):**

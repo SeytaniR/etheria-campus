@@ -213,30 +213,8 @@ class PlayHudController {
         </div>
       </nav>
 
-      <!-- 7. HUD de Chat Multi-Canal (Estrutura Visual p/ Posicionamento e Estilo nos 3 Layouts) -->
-      <section id="hudChatSection" class="hud-chat-section">
-        <div class="hud-chat-header">
-          <div class="hud-chat-tabs">
-            <button type="button" class="hud-chat-tab active" data-channel="ALL">Geral</button>
-            <button type="button" class="hud-chat-tab" data-channel="MAP">Mapa</button>
-            <button type="button" class="hud-chat-tab" data-channel="PARTY">Grupo</button>
-            <button type="button" class="hud-chat-tab" data-channel="SYSTEM">Sistema</button>
-          </div>
-          <button type="button" id="hudCollapseChatBtn" class="hud-chat-toggle-btn" title="Minimizar / Expandir Chat">
-            <span id="hudChatToggleIcon">▼</span>
-          </button>
-        </div>
-        <div id="hudChatBody" class="hud-chat-body">
-          <div id="hudChatMessages" class="hud-chat-messages">
-            <div class="hud-chat-msg msg-system"><span class="chat-badge">[Sistema]</span> Bem-vindo ao continente de Etheria!</div>
-            <div class="hud-chat-msg msg-map"><span class="chat-badge">[Mapa]</span> <strong>Sentinela Ren:</strong> O Véu oscila perto de Vila Izumo...</div>
-          </div>
-          <div class="hud-chat-input-row">
-            <input type="text" id="hudChatInput" class="hud-chat-input" placeholder="Digite sua mensagem..." maxlength="140" />
-            <button type="button" id="hudChatSendBtn" class="hud-chat-send-btn" title="Enviar Mensagem">➤</button>
-          </div>
-        </div>
-      </section>
+      <!-- 7. HUD de Chat Multi-Canal (Gerenciado por PlayChatController.js) -->
+      <section id="hudChatSection" class="hud-chat-section"></section>
     `;
 
     worldScreen.appendChild(this.container);
@@ -335,26 +313,9 @@ class PlayHudController {
       });
     }
 
-    // 9. HUD de Chat: Alternância de Abas Visuais e Botão Minimizar/Expandir
-    const chatSection = document.getElementById('hudChatSection');
-    const collapseChatBtn = document.getElementById('hudCollapseChatBtn');
-    const chatToggleIcon = document.getElementById('hudChatToggleIcon');
-    if (collapseChatBtn && chatSection) {
-      collapseChatBtn.addEventListener('click', (ev) => {
-        ev.stopPropagation();
-        const isCollapsed = chatSection.classList.toggle('is-collapsed');
-        if (chatToggleIcon) chatToggleIcon.textContent = isCollapsed ? '💬' : '▼';
-      });
-    }
-    if (chatSection) {
-      const chatTabs = chatSection.querySelectorAll('.hud-chat-tab');
-      chatTabs.forEach((tab) => {
-        tab.addEventListener('click', (ev) => {
-          ev.stopPropagation();
-          chatTabs.forEach((t) => t.classList.remove('active'));
-          tab.classList.add('active');
-        });
-      });
+    // 9. HUD de Chat Multi-Canal Autoritário
+    if (window.PlayChatController) {
+      window.PlayChatController.init(window.PlayApp);
     }
   }
 
@@ -724,6 +685,10 @@ class PlayHudController {
   updatePlayer(charData) {
     if (!charData) return;
     this.state.character = charData;
+
+    if (window.PlayChatController && !window.PlayChatController.isPolling) {
+      window.PlayChatController.startPolling();
+    }
 
     // 1. Avatar do Personagem (imagem oficial recortada dos 12 heróis com máximo preenchimento)
     const avatarImg = document.getElementById('hudPlayerAvatarImg');

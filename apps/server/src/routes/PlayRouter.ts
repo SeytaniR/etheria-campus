@@ -19,6 +19,7 @@ import { CharacterInventoryService } from '../controllers/CharacterInventoryServ
 import { MonsterCombatBuilder, type QuestBattleConfigDto } from '../controllers/MonsterCombatBuilder.js';
 import { ItemContainerOpeningService } from '../controllers/ItemContainerOpeningService.js';
 import { CharacterProgressionService } from '../controllers/CharacterProgressionService.js';
+import { GameChatService } from '../controllers/GameChatService.js';
 
 export interface PlayRouterDeps {
   prisma: PrismaClient;
@@ -425,6 +426,52 @@ export class PlayRouter {
         this.deps.sendJson(res, 200, result);
       } catch (err: any) {
         this.deps.sendJson(res, 400, { error: err.message || 'Erro ao abrir item.' });
+      }
+      return true;
+    }
+
+    // 💬 Chat Multi-Canal (Sistema, Mundo, Local, Guilda, Facção, Equipe)
+    if (pathname === '/api/play/chat/messages' && method === 'GET') {
+      const sinceId = urlObj.searchParams.get('sinceId') ? Number(urlObj.searchParams.get('sinceId')) : undefined;
+      const mapId = urlObj.searchParams.get('mapId') ? Number(urlObj.searchParams.get('mapId')) : undefined;
+      const guildId = urlObj.searchParams.get('guildId') ? Number(urlObj.searchParams.get('guildId')) : undefined;
+      const factionId = urlObj.searchParams.get('factionId') || undefined;
+      const teamId = urlObj.searchParams.get('teamId') ? Number(urlObj.searchParams.get('teamId')) : undefined;
+
+      const messages = GameChatService.getMessages({
+        sinceId,
+        mapId,
+        guildId,
+        factionId,
+        teamId,
+      });
+      this.deps.sendJson(res, 200, { success: true, messages });
+      return true;
+    }
+
+    if (pathname === '/api/play/chat/send' && method === 'POST') {
+      const body = await this.deps.readJsonBody<{
+        channel: string;
+        message: string;
+        charId: number;
+        mapId?: number;
+      }>(req);
+      const charId = Number(body.charId);
+      if (!charId || !(await this.verifyCharacterOwnership(userAccountId, session.role, charId))) {
+        this.deps.sendJson(res, 403, { error: 'Acesso negado: personagem inválido ou não pertence à sua conta.' });
+        return true;
+      }
+
+      try {
+        const msg = await GameChatService.sendMessage(this.deps.prisma, {
+          category: (body.channel || 'MUNDO').toUpperCase() as any,
+          text: String(body.message || ''),
+          senderCharacterId: charId,
+          clientMapId: body.mapId ? Number(body.mapId) : undefined,
+        });
+        this.deps.sendJson(res, 200, { success: true, message: msg });
+      } catch (err: any) {
+        this.deps.sendJson(res, 400, { error: err.message || 'Erro ao enviar mensagem no chat.' });
       }
       return true;
     }

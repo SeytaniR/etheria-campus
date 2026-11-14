@@ -5,7 +5,8 @@
   position: absolute;
   left: 12px;
   bottom: 66px;
-  width: 250px;
+  width: 300px;
+  max-width: calc(100vw - 24px);
   background: linear-gradient(180deg, rgba(15, 23, 42, 0.88), rgba(8, 13, 25, 0.94));
   border: 1.5px solid rgba(234, 179, 8, 0.55);
   border-radius: 12px;
@@ -107,11 +108,27 @@
 }
 
 .hud-chat-msg.msg-system .chat-badge {
-  color: #fde047;
+  color: #fbbf24;
 }
 
-.hud-chat-msg.msg-map .chat-badge {
+.hud-chat-msg.msg-mundo .chat-badge {
   color: #38bdf8;
+}
+
+.hud-chat-msg.msg-local .chat-badge {
+  color: #4ade80;
+}
+
+.hud-chat-msg.msg-guilda .chat-badge {
+  color: #c084fc;
+}
+
+.hud-chat-msg.msg-faccao .chat-badge {
+  color: #fb923c;
+}
+
+.hud-chat-msg.msg-equipe .chat-badge {
+  color: #22d3ee;
 }
 
 .hud-chat-input-row {

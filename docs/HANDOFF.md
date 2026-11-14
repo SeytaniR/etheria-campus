@@ -8,9 +8,9 @@
 ---
 
 ## 📌 Status Atual do Projeto
-* **Versão Atual:** `v0.29.0`
+* **Versão Atual:** `v0.43.0`
 * **Última Atualização:** `2026-11-14`
-* **Fase Atual:** **Interface de Equipamentos (Paperdoll 12 Slots), Batalha Tátil sem Dash, Impacto Melee/Ranged e Correções de Autenticação/Login (`v0.29.0`)** — Resolução de 5 frentes prioritárias do cliente `/play`: (1) Resolução de token autoritário em cascata no mapa mundo eliminando erro 401; (2) Remoção integral do botão e lógica de Dash/Esquiva na interface e motor de movimento; (3) Ataque básico diferenciado: Melee sem projétil com impacto direto e VFX no alvo vs Ranged balístico; (4) Paperdoll de 12 slots de equipamentos na aba Personagem e botão Equipar dinâmico na aba Mochila com comunicação via API; (5) Correção do fluxo de login e lobby eliminando sobreposição da tela de login. Linhas de código rigorosamente mantidas abaixo do limite de 1.000 linhas da Regra #7.
+* **Fase Atual:** **Sistema Autoritário de Chat Multi-Canal (Sistema, Mundo, Local, Guilda, Facção, Equipe), Filtros Personalizáveis pelo Jogador e Moderação Comunitária 16+ (`v0.43.0`)** — Implementação do chat multi-canal em tempo real no servidor e cliente `/play`. Mensagens de sistema propagadas para todos os canais conforme diretriz oficial. Painel de configuração com filtros por canal, opções visuais (timestamp, tamanho da fonte, opacidade e altura) e salvamento em localStorage. Filtro autoritário 16+ com bloqueio total de discurso de ódio/ameaças e censura por asteriscos para termos vulgares/baixo calão (sem falsos positivos). Todos os arquivos estritamente conformes com a Regra #7 (< 1.000 linhas no front e < 900 no back).
 * **Repositório Oficial:** `https://github.com/SeytaniR/etheria-campus`
 * **Fonte Bruta de Assets:** `https://github.com/SeytaniR/mcrework` (`https://seytanir.github.io/mcrework/`)
 
