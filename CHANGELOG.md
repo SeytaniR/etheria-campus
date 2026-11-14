@@ -5,6 +5,24 @@ Qualquer IA trabalhando neste repositório **DEVE** incrementar a versão e regi
 
 ---
 
+## [v0.31.0] - 2026-11-14
+### Iniciação de Treino no Véu nas Missões, Mapa Mundo Pan & Zoom com Nomes Reais e Correção Visual/Numérica da Ficha do Personagem
+* **Iniciação de Treino no Véu Diretamente nos NPCs e no Diário (`PlayRouter.ts` & `PlayQuestsController.js`):**
+  * **Botão de Ação Imediata no NPC:** Ao conversar com a Sentinela/Batedora Ren (ou qualquer NPC de missão com objetivo de combate em andamento), o modal exibe o botão `⚔️ Entrar no Véu (Iniciar Treino / Combate)`.
+  * **Disponibilidade no Diário de Missões:** O mesmo botão está presente no Diário de Missões (`📜 Missões`), permitindo acionar a fenda do Véu de qualquer ponto da vila.
+  * **Rota Autoritária de Combate de Missão:** `POST /api/play/combat/quest-battle` instancia a arena do Véu com aberrações de treino escaladas ao nível inicial (Lv 1-3), eliminando a necessidade de tentar transitar para mapas de nível 10 (Pantanal das Nuvens).
+* **Mapa Mundo Interativo com Pan & Drag, Zoom In/Out e Nomes Reais dos Pontos (`PlayMapModalController.js` & `play_hud.css`):**
+  * **Nomes dos Pontos Corrigidos:** Resolução dos rótulos via `p.customLabel || mapName || p.refLabel`, eliminando o fallback genérico "Ponto" e exibindo "Vila Izumo", "Dong Xuen", "Subúrbio Leste", "Pantanal das Nuvens", etc.
+  * **Pino de Localização do Jogador Corrigido:** Mapeamento de `p.gameMapId`, posicionando com precisão o pin `📍 VOCÊ ESTÁ AQUI` sobre Vila Izumo com pulso dourado.
+  * **Motor de Pan & Drag (Arrastar):** O mapa agora pode ser arrastado livremente com o cursor do mouse (`cursor: grab / grabbing`) ou com 1 dedo no mobile.
+  * **Zoom In/Out Fluido:** Suporte à roda do mouse, pinça com 2 dedos no mobile (pinch-to-zoom) e botões flutuantes táteis `[+]`, `[-]` e `[⟲ Reset]`.
+  * **Remoção de Scrollbars Feias:** Eliminação de barras de rolagem nativas e compatibilidade total com mobile vertical, mobile horizontal e desktop.
+* **Correção Numérica e Visual da Ficha do Personagem (`PlayBagController.js`):**
+  * **Correção das Porcentagens Procedurais:** Eliminada multiplicação redundante por 100 em atributos já pontuados em base percentual (Chance Crítica ~11%, Dano Crítico ~130%, Precisão ~104%, Esquiva ~15%), erradicando números aberrantes de milhares de porcento.
+  * **Prevenção de Extrapolação de Texto (Anti-Overflow):** Rótulos concisos e limpos com truncamento automático (`text-overflow: ellipsis`) e números fixos alinhados à direita, impedindo corte lateral ou estouro do modal.
+
+---
+
 ## [v0.30.0] - 2026-11-14
 ### Ficha Completa do Personagem (Atributos Base e Combate), Distribuição Autoritária e Desbloqueio Canônico das Quests do Capítulo 1
 * **Ficha Completa do Personagem na HUD (`PlayBagController.js`):**

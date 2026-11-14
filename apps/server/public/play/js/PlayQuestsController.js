@@ -313,6 +313,17 @@ const PlayQuestsController = {
 
       // 3. Missões em Andamento (? Cinza)
       for (const q of inProgressQuests) {
+        const hasBattleObjective = (q.objectives || []).some(
+          (o) => (o.type === 'WIN_BATTLES' || o.type === 'KILL_MONSTER') && !o.completed
+        );
+        const battleBtnHtml = hasBattleObjective
+          ? `
+            <button class="btn-primary" style="background:linear-gradient(135deg, #7c3aed, #4f46e5); border:1.5px solid #a78bfa; color:#fff; font-weight:800; padding:10px 14px; font-size:0.86rem; border-radius:8px; display:flex; align-items:center; justify-content:center; gap:8px; cursor:pointer;" onclick="window.PlayApp.startQuestBattle(${q.id})">
+              ⚔️ Entrar no Véu (Iniciar Treino / Combate)
+            </button>
+          `
+          : '';
+
         cards.push(`
           <div style="background:rgba(148, 163, 184, 0.08); border:1px solid #475569; border-radius:10px; padding:12px; display:flex; flex-direction:column; gap:8px;">
             <div style="display:flex; justify-content:space-between; align-items:center; gap:8px; flex-wrap:wrap;">
@@ -331,6 +342,7 @@ const PlayQuestsController = {
             <div>
               ${this.renderRewardsSummaryHtml(q.rewards)}
             </div>
+            ${battleBtnHtml}
           </div>
         `);
       }
@@ -477,6 +489,14 @@ const PlayQuestsController = {
                     ${this.renderObjectivesListHtml(q.objectives)}
                   </div>
                   ${this.renderRewardsSummaryHtml(q.rewards)}
+                  ${
+                    q.status === 'IN_PROGRESS' &&
+                    (q.objectives || []).some((o) => (o.type === 'WIN_BATTLES' || o.type === 'KILL_MONSTER') && !o.completed)
+                      ? `<button class="btn-primary" style="background:linear-gradient(135deg, #7c3aed, #4f46e5); border:1.5px solid #a78bfa; color:#fff; font-weight:800; padding:8px 12px; font-size:0.82rem; border-radius:8px; display:flex; align-items:center; justify-content:center; gap:8px; cursor:pointer; margin-top:4px;" onclick="window.PlayApp.startQuestBattle(${q.id})">
+                          ⚔️ Entrar no Véu (Iniciar Treino / Combate)
+                        </button>`
+                      : ''
+                  }
                 </div>
               `;
             })
@@ -485,6 +505,36 @@ const PlayQuestsController = {
 
       bodyEl.innerHTML = `${tabsHtml}<div style="display:flex; flex-direction:column; gap:8px; margin-top:4px;">${listHtml}</div>`;
       document.getElementById('questLogModal').style.display = 'flex';
+    };
+
+    /**
+     * Inicia a Batalha no Véu associada a uma Missão (Treino ou Caça de Anomalias).
+     */
+    client.startQuestBattle = async function (questId) {
+      if (!this.activeChar) return;
+      try {
+        const npcModal = document.getElementById('npcQuestModal');
+        if (npcModal) npcModal.style.display = 'none';
+        const logModal = document.getElementById('questLogModal');
+        if (logModal) logModal.style.display = 'none';
+
+        const battleState = await this.api(`/api/play/combat/quest-battle`, {
+          method: 'POST',
+          body: JSON.stringify({ characterId: this.activeChar.id, questId }),
+        });
+
+        if (!this.actionCombatArena && window.ActionCombatArena) {
+          this.actionCombatArena = new ActionCombatArena(this);
+          window.PlayApp.actionArena = this.actionCombatArena;
+        }
+        if (this.actionCombatArena) {
+          this.actionCombatArena.openArena(battleState);
+        } else {
+          alert('Erro: ActionCombatArena não pôde ser instanciada.');
+        }
+      } catch (err) {
+        alert(`Erro ao iniciar batalha no Véu: ${err.message}`);
+      }
     };
   },
 

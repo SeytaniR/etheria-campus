@@ -231,7 +231,7 @@ const PlayBagController = {
 
         const renderCombatStatRow = (code, fallbackName, icon = '•') => {
           const ca = combatAttrMap.get(code);
-          const name = ca?.namePtBr || fallbackName;
+          const name = fallbackName || ca?.namePtBr;
           const isPct = ca ? Boolean(ca.isPercentage) : false;
 
           let baseVal = Number(c.baseCombatAttributesJson?.[code]);
@@ -251,24 +251,30 @@ const PlayBagController = {
           let equipTag = '';
 
           if (isPct) {
-            const totalPct = (baseVal * 100) + equipBonus;
+            // As classes já usam percentual direto (ex: 100 para 100%, 12 para 12%, 125 para 125%).
+            // Se baseVal for menor ou igual a 1.5 e maior que 0 (ex: 0.05 de fallback), ajusta escala.
+            let pctVal = baseVal;
+            if (pctVal > 0 && pctVal <= 1.5) {
+              pctVal = pctVal * 100;
+            }
+            const totalPct = pctVal + equipBonus;
             formattedTotal = `${totalPct.toFixed(1)}%`;
             if (equipBonus > 0) {
-              equipTag = `<span style="font-size:0.66rem; color:#86efac; font-weight:700;">(+${equipBonus}%)</span>`;
+              equipTag = `<span style="font-size:0.65rem; color:#86efac; font-weight:700;">(+${equipBonus}%)</span>`;
             }
           } else {
             const totalVal = Math.round(baseVal + equipBonus);
-            formattedTotal = `${totalVal}`;
+            formattedTotal = `${totalVal.toLocaleString('pt-BR')}`;
             if (equipBonus > 0) {
-              equipTag = `<span style="font-size:0.66rem; color:#86efac; font-weight:700;">(+${equipBonus})</span>`;
+              equipTag = `<span style="font-size:0.65rem; color:#86efac; font-weight:700;">(+${equipBonus})</span>`;
             }
           }
 
           return `
-            <div style="display:flex; justify-content:space-between; align-items:center; padding:4px 6px; background:rgba(30,41,59,0.5); border-radius:6px; font-size:0.72rem;">
-              <span style="color:#cbd5e1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" title="${name}">${icon} ${name}</span>
-              <div style="display:flex; align-items:center; gap:3px; white-space:nowrap; margin-left:4px;">
-                <strong style="color:#f8fafc; font-size:0.8rem;">${formattedTotal}</strong>
+            <div style="display:flex; justify-content:space-between; align-items:center; padding:4px 7px; background:rgba(30,41,59,0.5); border-radius:6px; font-size:0.72rem; min-width:0; box-sizing:border-box; overflow:hidden;">
+              <span style="color:#cbd5e1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; min-width:0; flex:1;" title="${name}">${icon} ${name}</span>
+              <div style="display:flex; align-items:center; gap:3px; white-space:nowrap; flex-shrink:0; margin-left:4px; text-align:right;">
+                <strong style="color:#f8fafc; font-size:0.78rem;">${formattedTotal}</strong>
                 ${equipTag}
               </div>
             </div>
@@ -317,27 +323,27 @@ const PlayBagController = {
           </div>
 
           <!-- Atributos de Combate Derivados -->
-          <div style="background:rgba(2,6,23,0.7); border:1px solid #334155; border-radius:8px; padding:8px 10px;">
+          <div style="background:rgba(2,6,23,0.7); border:1px solid #334155; border-radius:8px; padding:8px 10px; box-sizing:border-box; width:100%; overflow:hidden;">
             <div style="font-size:0.74rem; font-weight:700; color:#86efac; margin-bottom:6px;">⚔️ Status de Combate Derivados:</div>
-            <div style="display:grid; grid-template-columns:1fr 1fr; gap:4px;">
-              ${renderCombatStatRow('MAX_HP', 'Vida Máxima (HP)', '❤️')}
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:4px; box-sizing:border-box; width:100%; min-width:0;">
+              ${renderCombatStatRow('MAX_HP', 'Vida Máx (HP)', '❤️')}
               ${renderCombatStatRow('PHYS_DEF', 'Defesa Física', '🛡️')}
-              ${renderCombatStatRow('MAX_MP', 'Mana Máxima (MP)', '💧')}
+              ${renderCombatStatRow('MAX_MP', 'Mana Máx (MP)', '💧')}
               ${renderCombatStatRow('MAG_DEF', 'Defesa Mágica', '🔰')}
               ${renderCombatStatRow('PHYS_ATK', 'Ataque Físico', '⚔️')}
-              ${renderCombatStatRow('SPEED', 'Iniciativa / Speed', '⚡')}
+              ${renderCombatStatRow('SPEED', 'Iniciativa', '⚡')}
               ${renderCombatStatRow('MAG_ATK', 'Ataque Mágico', '🔮')}
               ${renderCombatStatRow('BATTLE_MOVE_SPEED', 'Veloc. Batalha', '👟')}
               ${renderCombatStatRow('HEAL_POWER', 'Poder de Cura', '🌿')}
               ${renderCombatStatRow('ATTACK_SPEED', 'Cadência Ataque', '⏱️')}
-              ${renderCombatStatRow('PHYS_PEN', 'Perfuração Física', '🗡️')}
-              ${renderCombatStatRow('CRIT_RATE', 'Taxa Crítica', '🎯')}
-              ${renderCombatStatRow('MAG_PEN', 'Perfuração Mágica', '✨')}
+              ${renderCombatStatRow('PHYS_PEN', 'Perfuração Fís.', '🗡️')}
+              ${renderCombatStatRow('CRIT_RATE', 'Chance Crítica', '🎯')}
+              ${renderCombatStatRow('MAG_PEN', 'Perfuração Mág.', '✨')}
               ${renderCombatStatRow('CRIT_DMG', 'Dano Crítico', '💥')}
               ${renderCombatStatRow('MP_REGEN', 'Regeneração MP', '🧪')}
               ${renderCombatStatRow('PHYS_ACCURACY', 'Precisão Física', '👁️')}
-              ${renderCombatStatRow('PHYS_EVASION', 'Evasão Física', '💨')}
-              ${renderCombatStatRow('MAG_EVASION', 'Evasão Mágica', '🌀')}
+              ${renderCombatStatRow('PHYS_EVASION', 'Esquiva Física', '💨')}
+              ${renderCombatStatRow('MAG_EVASION', 'Desvio Mágico', '🌀')}
             </div>
           </div>
 
@@ -445,7 +451,7 @@ const PlayBagController = {
     modal.id = 'characterModal';
     modal.className = 'modal-backdrop';
     modal.innerHTML = `
-      <div class="modal-box" style="width:min(96vw, 480px); max-height:92dvh; overflow-y:auto;">
+      <div class="modal-box" style="width:min(96vw, 480px); max-height:92dvh; overflow-y:auto; overflow-x:hidden; box-sizing:border-box; padding:12px;">
         <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #334155; padding-bottom:8px;">
           <h3 style="color:#fde047; font-size:0.95rem;">👤 Personagem, Atributos & Equipamentos</h3>
           <button class="btn-danger" style="padding:4px 10px;" onclick="document.getElementById('characterModal').style.display='none'">✕</button>

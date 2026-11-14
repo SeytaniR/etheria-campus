@@ -1207,7 +1207,12 @@
 
 /* Modal do Mapa Mundo Geral */
 .hud-world-map-dialog {
-  max-width: 680px;
+  width: min(96vw, 920px);
+  height: min(88dvh, 720px);
+  max-width: 96vw;
+  max-height: 88dvh;
+  display: flex;
+  flex-direction: column;
 }
 
 .hud-world-tabs-bar {
@@ -1217,6 +1222,7 @@
   display: flex;
   gap: 8px;
   overflow-x: auto;
+  flex-shrink: 0;
 }
 
 .hud-continent-tab {
@@ -1240,16 +1246,53 @@
 
 .hud-world-viewport {
   flex: 1;
-  overflow: auto;
+  overflow: hidden !important;
   position: relative;
   background: #050811;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  cursor: grab;
+  user-select: none;
+  touch-action: none;
 }
 
 .hud-world-canvas-wrapper {
   position: relative;
+  will-change: transform;
+}
+
+.hud-world-zoom-controls {
+  position: absolute;
+  right: 12px;
+  bottom: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  z-index: 50;
+  pointer-events: auto;
+}
+
+.hud-zoom-btn {
+  width: 38px;
+  height: 38px;
+  background: rgba(15, 23, 42, 0.90);
+  border: 1.5px solid rgba(234, 179, 8, 0.6);
+  color: #fde047;
+  font-size: 1.25rem;
+  font-weight: 800;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.6);
+  cursor: pointer;
+  user-select: none;
+  touch-action: manipulation;
+  transition: all 0.15s ease;
+}
+
+.hud-zoom-btn:hover {
+  background: rgba(30, 41, 59, 0.95);
+  border-color: #fde047;
+  transform: scale(1.08);
 }
 
 .hud-world-base-img {

@@ -425,6 +425,54 @@ export class PlayRouter {
       return true;
     }
 
+    // ⚔️ Iniciar Batalha de Treino / Missão no Véu (ex: Izumo Nv 1-10)
+    if (pathname === '/api/play/combat/quest-battle' && method === 'POST') {
+      const body = await this.deps.readJsonBody<{ characterId: number; questId: number }>(req);
+      const characterId = Number(body.characterId) || 0;
+      const questId = Number(body.questId) || 0;
+      if (characterId > 0 && !(await this.verifyCharacterOwnership(userAccountId, session.role, characterId))) {
+        this.deps.sendJson(res, 403, { error: 'Acesso negado: este personagem não pertence à sua conta.' });
+        return true;
+      }
+
+      const [character, quest] = await Promise.all([
+        this.deps.prisma.playerCharacter.findUnique({ where: { id: characterId } }),
+        this.deps.prisma.questTemplate.findUnique({ where: { id: questId } }),
+      ]);
+
+      if (!character || !quest) {
+        this.deps.sendJson(res, 404, { error: 'Personagem ou Missão não encontrados.' });
+        return true;
+      }
+
+      let targetMobId = 1;
+      const objs = Array.isArray(quest.objectivesJson) ? (quest.objectivesJson as any[]) : [];
+      const mobObj = objs.find((o) => o.type === 'KILL_MONSTER' && o.monsterTemplateId);
+      if (mobObj) {
+        targetMobId = Number(mobObj.monsterTemplateId) || 1;
+      } else {
+        const availableMobs = await this.deps.prisma.monsterTemplate.findMany({
+          select: { id: true, rarityTier: true },
+          where: { isActive: true },
+          orderBy: { id: 'asc' },
+        });
+        if (availableMobs.length > 0) {
+          const suitable = availableMobs.find((m: any) => m.rarityTier === 'F') || availableMobs[0];
+          targetMobId = suitable.id;
+        }
+      }
+
+      const qty = Math.floor(Math.random() * 2) + 1;
+      const state = await this.deps.combatController.startBattle(
+        characterId,
+        targetMobId,
+        qty,
+        character.level || 1,
+      );
+      this.deps.sendJson(res, 200, state);
+      return true;
+    }
+
     if (pathname === '/api/play/temporary-combat/monsters' && method === 'GET') {
       this.deps.sendJson(res, 200, await this.deps.combatController.getAvailableMonsters());
       return true;

@@ -232,6 +232,12 @@
             <div class="hud-world-canvas-wrapper" id="hudWorldCanvasWrapper">
               <!-- Renderizado dinamicamente -->
             </div>
+            <!-- Controles Flutuantes de Zoom In / Out / Reset -->
+            <div class="hud-world-zoom-controls">
+              <button type="button" class="hud-zoom-btn" id="btnWorldZoomIn" title="Aproximar Zoom">+</button>
+              <button type="button" class="hud-zoom-btn" id="btnWorldZoomOut" title="Afastar Zoom">-</button>
+              <button type="button" class="hud-zoom-btn" id="btnWorldZoomReset" title="Centralizar no Jogador / Resetar">⟲</button>
+            </div>
           </div>
 
           <!-- Footer Legend -->
@@ -274,12 +280,13 @@
     }
 
     /**
-     * Renderiza o continente ativo dentro do modal do Mapa Mundo.
+     * Renderiza o continente ativo dentro do modal do Mapa Mundo com Pan (Arrastar) e Zoom interativo.
      */
     renderWorldMapContinent(modal) {
       if (!this.worldMapsData || !this.worldMapsData.length) return;
 
       const tabsBar = modal.querySelector('#hudWorldTabsBar');
+      const viewport = modal.querySelector('#hudWorldViewport');
       const wrapper = modal.querySelector('#hudWorldCanvasWrapper');
       const statusTxt = modal.querySelector('#hudWorldStatusTxt');
 
@@ -305,18 +312,23 @@
 
       // 2. Continente Atual
       const continent = this.worldMapsData[this.selectedContinentIdx];
-      if (!continent || !wrapper) return;
+      if (!continent || !wrapper || !viewport) return;
 
       const cw = continent.canvasWidth || 1264;
       const ch = continent.canvasHeight || 848;
       const points = Array.isArray(continent.pointsJson) ? continent.pointsJson : [];
       const routes = Array.isArray(continent.routesJson) ? continent.routesJson : [];
 
+      const mapNameMap = new Map((this.playApp?.mapsList || []).map((m) => [Number(m.id), m.namePtBr || m.code]));
+
       // Verifica se o mapa atual do jogador está presente neste continente
       let playerCurrentPoint = null;
       if (this.currentMap) {
         playerCurrentPoint = points.find(
-          (p) => Number(p.mapId) === Number(this.currentMap.id) || (p.code && p.code === this.currentMap.code)
+          (p) =>
+            (p.gameMapId && Number(p.gameMapId) === Number(this.currentMap.id)) ||
+            (p.mapId && Number(p.mapId) === Number(this.currentMap.id)) ||
+            (p.code && p.code === this.currentMap.code)
         );
       }
 
@@ -327,6 +339,15 @@
           statusTxt.innerHTML = `Explorando <strong>${continent.namePtBr}</strong>. (Seu mapa atual pode estar em outro continente).`;
         }
       }
+
+      const getPointLabel = (p) => {
+        if (p.customLabel && String(p.customLabel).trim()) return String(p.customLabel).trim();
+        if (p.gameMapId && mapNameMap.has(Number(p.gameMapId))) return mapNameMap.get(Number(p.gameMapId));
+        if (p.namePtBr && String(p.namePtBr).trim()) return String(p.namePtBr).trim();
+        if (p.name && String(p.name).trim()) return String(p.name).trim();
+        if (p.refLabel && String(p.refLabel).trim()) return String(p.refLabel).trim();
+        return p.refId ? `Ponto #${p.refId}` : 'Ponto';
+      };
 
       wrapper.style.width = `${cw}px`;
       wrapper.style.height = `${ch}px`;
@@ -362,12 +383,13 @@
           ${points
             .map((p) => {
               const isCurrent = playerCurrentPoint && playerCurrentPoint.id === p.id;
+              const ptLabel = getPointLabel(p);
               return `
-              <div class="hud-world-point-node ${isCurrent ? 'point-player-here' : ''}" style="left:${p.x}px; top:${p.y}px;" title="${p.namePtBr || p.name || 'Ponto'}">
+              <div class="hud-world-point-node ${isCurrent ? 'point-player-here' : ''}" style="left:${p.x}px; top:${p.y}px;" title="${ptLabel}">
                 ${isCurrent ? '<div class="point-player-pulse"></div>' : ''}
-                <div class="point-icon-gem">${isCurrent ? '📍' : '⭐'}</div>
+                <div class="point-icon-gem">${isCurrent ? '📍' : (p.isCity ? '🏛️' : '⭐')}</div>
                 <div class="point-name-tag">
-                  <strong>${p.namePtBr || p.name || 'Ponto'}</strong>
+                  <strong>${ptLabel}</strong>
                   ${isCurrent ? '<span class="tag-here">VOCÊ ESTÁ AQUI</span>' : ''}
                 </div>
               </div>
@@ -377,13 +399,156 @@
         </div>
       `;
 
-      // Centraliza no ponto do jogador se existir
-      const worldViewport = modal.querySelector('#hudWorldViewport');
-      if (worldViewport && playerCurrentPoint) {
-        setTimeout(() => {
-          worldViewport.scrollLeft = Math.max(0, playerCurrentPoint.x - worldViewport.clientWidth / 2);
-          worldViewport.scrollTop = Math.max(0, playerCurrentPoint.y - worldViewport.clientHeight / 2);
-        }, 60);
+      // 3. Pan & Zoom Engine (Arrastar com Mouse/Touch e Zoom In/Out)
+      let vw = viewport.clientWidth || 600;
+      let vh = viewport.clientHeight || 400;
+      const fitZoom = Math.min(vw / cw, vh / ch);
+      let zoom = Math.max(0.4, Math.min(2.5, fitZoom * 1.05 || 0.75));
+      let panX = playerCurrentPoint
+        ? (vw / 2) - (playerCurrentPoint.x * zoom)
+        : (vw - cw * zoom) / 2;
+      let panY = playerCurrentPoint
+        ? (vh / 2) - (playerCurrentPoint.y * zoom)
+        : (vh - ch * zoom) / 2;
+
+      const updateTransform = () => {
+        wrapper.style.transform = `translate(${panX}px, ${panY}px) scale(${zoom})`;
+        wrapper.style.transformOrigin = '0 0';
+      };
+
+      updateTransform();
+
+      // Pan com Mouse (Arrastar)
+      let isDragging = false;
+      let startX = 0;
+      let startY = 0;
+
+      viewport.onmousedown = (e) => {
+        if (e.target.closest('.hud-world-zoom-controls')) return;
+        isDragging = true;
+        startX = e.clientX - panX;
+        startY = e.clientY - panY;
+        viewport.style.cursor = 'grabbing';
+      };
+
+      window.onmousemove = (e) => {
+        if (!isDragging) return;
+        panX = e.clientX - startX;
+        panY = e.clientY - startY;
+        updateTransform();
+      };
+
+      window.onmouseup = () => {
+        if (isDragging) {
+          isDragging = false;
+          if (viewport) viewport.style.cursor = 'grab';
+        }
+      };
+
+      // Zoom com Wheel (Roda do Mouse centralizada no cursor)
+      viewport.onwheel = (e) => {
+        e.preventDefault();
+        const rect = viewport.getBoundingClientRect();
+        const mx = e.clientX - rect.left;
+        const my = e.clientY - rect.top;
+        const factor = e.deltaY < 0 ? 1.15 : 0.87;
+        const newZoom = Math.max(0.35, Math.min(3.0, zoom * factor));
+        panX = mx - (mx - panX) * (newZoom / zoom);
+        panY = my - (my - panY) * (newZoom / zoom);
+        zoom = newZoom;
+        updateTransform();
+      };
+
+      // Touch Drag & Pinch-to-zoom (Mobile Vertical e Horizontal)
+      let touchStartX = 0;
+      let touchStartY = 0;
+      let touchInitialDist = 0;
+      let touchInitialZoom = 1;
+
+      viewport.ontouchstart = (e) => {
+        if (e.target.closest('.hud-world-zoom-controls')) return;
+        if (e.touches.length === 1) {
+          isDragging = true;
+          touchStartX = e.touches[0].clientX - panX;
+          touchStartY = e.touches[0].clientY - panY;
+        } else if (e.touches.length === 2) {
+          isDragging = false;
+          touchInitialDist = Math.hypot(
+            e.touches[0].clientX - e.touches[1].clientX,
+            e.touches[0].clientY - e.touches[1].clientY
+          );
+          touchInitialZoom = zoom;
+        }
+      };
+
+      viewport.ontouchmove = (e) => {
+        if (e.touches.length === 1 && isDragging) {
+          panX = e.touches[0].clientX - touchStartX;
+          panY = e.touches[0].clientY - touchStartY;
+          updateTransform();
+        } else if (e.touches.length === 2 && touchInitialDist > 0) {
+          const dist = Math.hypot(
+            e.touches[0].clientX - e.touches[1].clientX,
+            e.touches[0].clientY - e.touches[1].clientY
+          );
+          const factor = dist / touchInitialDist;
+          zoom = Math.max(0.35, Math.min(3.0, touchInitialZoom * factor));
+          updateTransform();
+        }
+      };
+
+      viewport.ontouchend = () => {
+        isDragging = false;
+        touchInitialDist = 0;
+      };
+
+      // Botões Flutuantes de Zoom
+      const btnZoomIn = modal.querySelector('#btnWorldZoomIn');
+      const btnZoomOut = modal.querySelector('#btnWorldZoomOut');
+      const btnZoomReset = modal.querySelector('#btnWorldZoomReset');
+
+      if (btnZoomIn) {
+        btnZoomIn.onclick = () => {
+          vw = viewport.clientWidth || 600;
+          vh = viewport.clientHeight || 400;
+          const cx = vw / 2;
+          const cy = vh / 2;
+          const newZoom = Math.min(3.0, zoom * 1.25);
+          panX = cx - (cx - panX) * (newZoom / zoom);
+          panY = cy - (cy - panY) * (newZoom / zoom);
+          zoom = newZoom;
+          updateTransform();
+        };
+      }
+
+      if (btnZoomOut) {
+        btnZoomOut.onclick = () => {
+          vw = viewport.clientWidth || 600;
+          vh = viewport.clientHeight || 400;
+          const cx = vw / 2;
+          const cy = vh / 2;
+          const newZoom = Math.max(0.35, zoom * 0.8);
+          panX = cx - (cx - panX) * (newZoom / zoom);
+          panY = cy - (cy - panY) * (newZoom / zoom);
+          zoom = newZoom;
+          updateTransform();
+        };
+      }
+
+      if (btnZoomReset) {
+        btnZoomReset.onclick = () => {
+          vw = viewport.clientWidth || 600;
+          vh = viewport.clientHeight || 400;
+          zoom = Math.max(0.4, Math.min(2.5, Math.min(vw / cw, vh / ch) * 1.05 || 0.75));
+          if (playerCurrentPoint) {
+            panX = (vw / 2) - (playerCurrentPoint.x * zoom);
+            panY = (vh / 2) - (playerCurrentPoint.y * zoom);
+          } else {
+            panX = (vw - cw * zoom) / 2;
+            panY = (vh - ch * zoom) / 2;
+          }
+          updateTransform();
+        };
       }
     }
 
