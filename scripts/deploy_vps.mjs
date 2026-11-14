@@ -5,8 +5,8 @@ const conn = new Client();
 const deployCmd = `
 set -e
 cd /home/azureuser/etheria-campus
-git checkout -- packages/database/snapshots/lowcode.snapshot.json || true
-git pull origin main
+git fetch origin main
+git reset --hard origin/main
 cd packages/database
 npx prisma generate
 npx prisma db push --skip-generate
