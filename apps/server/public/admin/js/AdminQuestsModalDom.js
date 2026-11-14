@@ -220,6 +220,8 @@ class AdminQuestsModalDom {
             <span style="font-size:0.8rem; font-weight:700; color:#fde047;">4️⃣ 🎯 Blocos Visuais de Objetivos da Missão</span>
             <div style="display:flex; gap:6px; flex-wrap:wrap;">
               <button type="button" onclick="AdminApp.addVisualQuestObjective('KILL_MONSTER')" style="padding:4px 9px; font-size:0.74rem; background:#9f1239; color:#fff;">➕ 🐉 Matar Monstro</button>
+              <button type="button" onclick="AdminApp.addVisualQuestObjective('KILL_LEADER')" style="padding:4px 9px; font-size:0.74rem; background:#0284c7; color:#fff; border:1px solid #38bdf8;">➕ 👑 Matar Líder</button>
+              <button type="button" onclick="AdminApp.addVisualQuestObjective('KILL_BOSS')" style="padding:4px 9px; font-size:0.74rem; background:#be123c; color:#fff; border:1px solid #fb7185;">➕ 💀 Matar Boss</button>
               <button type="button" onclick="AdminApp.addVisualQuestObjective('KILL_RACE')" style="padding:4px 9px; font-size:0.74rem; background:#b45309; color:#fff;">➕ 🐾 Matar Raça</button>
               <button type="button" onclick="AdminApp.addVisualQuestObjective('COLLECT_ITEM')" style="padding:4px 9px; font-size:0.74rem; background:#0f766e; color:#fff;">➕ 📦 Coletar Item</button>
               <button type="button" onclick="AdminApp.addVisualQuestObjective('TALK_NPC')" style="padding:4px 9px; font-size:0.74rem; background:#0369a1; color:#fff;">➕ 💬 Falar com NPC</button>

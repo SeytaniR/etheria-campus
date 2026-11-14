@@ -169,7 +169,8 @@ export class TemporaryCombatController {
     quantity: number = 1,
     monsterLevel: number = 1,
     customMonsterUnits?: CombatUnit[],
-    preloadedCtx?: MonsterScalingContext
+    preloadedCtx?: MonsterScalingContext,
+    variantTier: MonsterVariantTier = 'NORMAL'
   ): Promise<TemporaryBattleState> {
     const scalingCtx = preloadedCtx || (await MonsterCombatBuilder.loadScalingContext(this.prisma));
 
@@ -178,7 +179,7 @@ export class TemporaryCombatController {
     }
 
     const qty = Math.max(1, Math.min(25, Number(quantity) || 1));
-    const lvl = Math.max(1, Math.min(100, Number(monsterLevel) || 1));
+    const lvl = Math.max(1, Number(monsterLevel) || 1);
 
     const mobTemplate = await this.prisma.monsterTemplate.findUnique({
       where: { id: Number(monsterTemplateId) },
@@ -193,10 +194,13 @@ export class TemporaryCombatController {
     const mobBaseName = nameTrans?.text || mobTemplate.code;
     const rTier = String(mobTemplate.rarityTier || 'F').toUpperCase();
     const raritySuffix = rTier === 'SS' ? ' ⭐[SS]' : rTier === 'S' ? ' ⭐[S]' : '';
+    const tagPrefix =
+      variantTier === 'BOSS' ? '💀 [BOSS] ' : variantTier === 'LEADER' ? '👑 [LÍDER] ' : '';
 
     const monsterUnits: CombatUnit[] = [];
     for (let i = 0; i < qty; i++) {
-      const displayName = qty > 1 ? `${mobBaseName} #${i + 1}${raritySuffix}` : `${mobBaseName}${raritySuffix}`;
+      const displayName =
+        qty > 1 ? `${tagPrefix}${mobBaseName} #${i + 1}${raritySuffix}` : `${tagPrefix}${mobBaseName}${raritySuffix}`;
       monsterUnits.push(
         MonsterCombatBuilder.buildMonsterUnit(
           mobTemplate,
@@ -204,7 +208,8 @@ export class TemporaryCombatController {
           i,
           displayName,
           scalingCtx,
-          this.mcreworkPagesBaseUrl
+          this.mcreworkPagesBaseUrl,
+          variantTier
         )
       );
     }

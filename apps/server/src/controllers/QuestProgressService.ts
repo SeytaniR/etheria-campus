@@ -19,7 +19,8 @@ import {
 } from './CharacterInventoryService.js';
 
 export interface QuestObjectiveRuntimeDto {
-  type: 'KILL_MONSTER' | 'KILL_RACE' | 'COLLECT_ITEM' | 'TALK_NPC' | 'VISIT_MAP' | 'WIN_BATTLES';
+  type: 'KILL_MONSTER' | 'KILL_LEADER' | 'KILL_BOSS' | 'KILL_RACE' | 'COLLECT_ITEM' | 'TALK_NPC' | 'VISIT_MAP' | 'WIN_BATTLES';
+  variantTier?: 'ANY' | 'NORMAL' | 'LEADER' | 'BOSS' | string | null;
   monsterTemplateId?: number | null;
   raceCode?: string | null;
   itemTemplateId?: number | null;
@@ -115,6 +116,7 @@ export class QuestProgressService {
           objectives = [
             {
               type: metaCfg.targetType,
+              variantTier: metaCfg.variantTier || 'ANY',
               monsterTemplateId: metaCfg.targetType === 'KILL_MONSTER' ? metaCfg.monsterTemplateId : null,
               raceCode: metaCfg.targetType === 'KILL_RACE' ? metaCfg.raceCode : null,
               itemTemplateId: metaCfg.targetType === 'COLLECT_ITEM' ? metaCfg.itemTemplateId : null,
@@ -178,12 +180,30 @@ export class QuestProgressService {
 
           let fallbackLabel = obj.labelPtBr || obj.type;
           if (!obj.labelPtBr) {
-            if (obj.type === 'KILL_MONSTER') {
-              const mName = obj.monsterTemplateId ? (mobNameMap.get(Number(obj.monsterTemplateId)) ?? `Monstro #${obj.monsterTemplateId}`) : 'Monstro';
-              fallbackLabel = `Abater ${req.toLocaleString('pt-BR')}x ${mName}`;
+            const effTier =
+              obj.type === 'KILL_BOSS'
+                ? 'BOSS'
+                : obj.type === 'KILL_LEADER'
+                ? 'LEADER'
+                : String(obj.variantTier || 'ANY').toUpperCase();
+            const tierPrefix =
+              effTier === 'BOSS'
+                ? '💀 Boss de '
+                : effTier === 'LEADER'
+                ? '👑 Líder de '
+                : '';
+            if (obj.type === 'KILL_MONSTER' || obj.type === 'KILL_LEADER' || obj.type === 'KILL_BOSS') {
+              const mName = obj.monsterTemplateId
+                ? (mobNameMap.get(Number(obj.monsterTemplateId)) ?? `Monstro #${obj.monsterTemplateId}`)
+                : 'Qualquer Monstro';
+              fallbackLabel = tierPrefix
+                ? `Eliminar ${req.toLocaleString('pt-BR')}x ${tierPrefix}${mName}`
+                : `Abater ${req.toLocaleString('pt-BR')}x ${mName}`;
             } else if (obj.type === 'KILL_RACE') {
               const rName = obj.raceCode ? (raceNameMap.get(String(obj.raceCode).toUpperCase()) ?? obj.raceCode) : 'Qualquer';
-              fallbackLabel = `Abater ${req.toLocaleString('pt-BR')}x Raça ${rName}`;
+              fallbackLabel = tierPrefix
+                ? `Eliminar ${req.toLocaleString('pt-BR')}x ${tierPrefix}Raça ${rName}`
+                : `Abater ${req.toLocaleString('pt-BR')}x Raça ${rName}`;
             }
           }
           const cur = Math.min(req, Math.max(0, Number(rawCounts[idx] || 0)));
@@ -417,11 +437,15 @@ export class QuestProgressService {
       .map((u: any) => {
         const mobId = Number(u.monsterTemplateId) || 0;
         const raceCode = String(u.raceCode || raceByMobId.get(mobId) || '').trim().toUpperCase();
+        const rawTier = String(u.variantTier || 'NORMAL').toUpperCase();
+        const variantTier: 'NORMAL' | 'LEADER' | 'BOSS' =
+          rawTier === 'BOSS' ? 'BOSS' : rawTier === 'LEADER' ? 'LEADER' : 'NORMAL';
         const count = Math.max(1, Math.round(Number(u.count) || 1));
         const lootRollsCount = Math.max(count, Math.round(Number(u.lootRollsCount ?? count) || count));
         return {
           monsterTemplateId: mobId,
           raceCode,
+          variantTier,
           count,
           lootRollsCount,
         };
@@ -474,22 +498,30 @@ export class QuestProgressService {
         if (obj.type === 'WIN_BATTLES') {
           counts[idx] = Math.min(req, (counts[idx] || 0) + 1);
           changed = true;
-        } else if (obj.type === 'KILL_MONSTER') {
-          const matchedKills = normalizedUnits.reduce(
-            (sum, u) =>
-              sum + (!obj.monsterTemplateId || Number(obj.monsterTemplateId) === u.monsterTemplateId ? u.count : 0),
-            0,
-          );
+        } else if (obj.type === 'KILL_MONSTER' || obj.type === 'KILL_LEADER' || obj.type === 'KILL_BOSS') {
+          const reqTier =
+            obj.type === 'KILL_BOSS'
+              ? 'BOSS'
+              : obj.type === 'KILL_LEADER'
+              ? 'LEADER'
+              : String(obj.variantTier || 'ANY').toUpperCase();
+          const matchedKills = normalizedUnits.reduce((sum, u) => {
+            const mobOk = !obj.monsterTemplateId || Number(obj.monsterTemplateId) === u.monsterTemplateId;
+            const tierOk = !reqTier || reqTier === 'ANY' || (u.variantTier || 'NORMAL') === reqTier;
+            return sum + (mobOk && tierOk ? u.count : 0);
+          }, 0);
           if (matchedKills > 0) {
             counts[idx] = Math.min(req, (counts[idx] || 0) + matchedKills);
             changed = true;
           }
         } else if (obj.type === 'KILL_RACE') {
           const targetRace = String(obj.raceCode || '').trim().toUpperCase();
-          const matchedRaceKills = normalizedUnits.reduce(
-            (sum, u) => sum + (!targetRace || targetRace === u.raceCode ? u.count : 0),
-            0,
-          );
+          const reqTier = String(obj.variantTier || 'ANY').toUpperCase();
+          const matchedRaceKills = normalizedUnits.reduce((sum, u) => {
+            const raceOk = !targetRace || targetRace === u.raceCode;
+            const tierOk = !reqTier || reqTier === 'ANY' || (u.variantTier || 'NORMAL') === reqTier;
+            return sum + (raceOk && tierOk ? u.count : 0);
+          }, 0);
           if (matchedRaceKills > 0) {
             counts[idx] = Math.min(req, (counts[idx] || 0) + matchedRaceKills);
             changed = true;

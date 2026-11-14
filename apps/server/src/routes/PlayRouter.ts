@@ -447,10 +447,20 @@ export class PlayRouter {
       }
 
       let targetMobId = 1;
+      let targetVariantTier: 'NORMAL' | 'LEADER' | 'BOSS' = 'NORMAL';
       const objs = Array.isArray(quest.objectivesJson) ? (quest.objectivesJson as any[]) : [];
-      const mobObj = objs.find((o) => o.type === 'KILL_MONSTER' && o.monsterTemplateId);
+      const mobObj = objs.find(
+        (o) => (o.type === 'KILL_MONSTER' || o.type === 'KILL_LEADER' || o.type === 'KILL_BOSS') && o.monsterTemplateId
+      );
       if (mobObj) {
         targetMobId = Number(mobObj.monsterTemplateId) || 1;
+        const effTier =
+          mobObj.type === 'KILL_BOSS'
+            ? 'BOSS'
+            : mobObj.type === 'KILL_LEADER'
+            ? 'LEADER'
+            : String(mobObj.variantTier || 'NORMAL').toUpperCase();
+        if (effTier === 'BOSS' || effTier === 'LEADER') targetVariantTier = effTier;
       } else {
         const availableMobs = await this.deps.prisma.monsterTemplate.findMany({
           select: { id: true, rarityTier: true },
@@ -463,12 +473,15 @@ export class PlayRouter {
         }
       }
 
-      const qty = Math.floor(Math.random() * 2) + 1;
+      const qty = targetVariantTier === 'BOSS' ? 1 : Math.floor(Math.random() * 2) + 1;
       const state = await this.deps.combatController.startBattle(
         characterId,
         targetMobId,
         qty,
         character.level || 1,
+        undefined,
+        undefined,
+        targetVariantTier,
       );
       this.deps.sendJson(res, 200, state);
       return true;

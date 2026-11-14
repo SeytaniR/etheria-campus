@@ -17,6 +17,7 @@ import { I18nCache } from '@etheria/database';
 export interface DefeatedMonsterDropUnit {
   monsterTemplateId: number;
   raceCode: string;
+  variantTier?: 'NORMAL' | 'LEADER' | 'BOSS';
   count: number;
   lootRollsCount?: number;
 }

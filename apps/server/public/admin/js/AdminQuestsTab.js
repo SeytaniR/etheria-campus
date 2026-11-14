@@ -149,25 +149,20 @@ class AdminQuestsTab {
       if (!Array.isArray(objectives) || objectives.length === 0) return '<em>Sem objetivos</em>';
       return objectives
         .map((obj) => {
-          if (obj.type === 'KILL_MONSTER') {
+          const effTier = obj.type === 'KILL_BOSS' ? 'BOSS' : obj.type === 'KILL_LEADER' ? 'LEADER' : String(obj.variantTier || 'ANY').toUpperCase();
+          const tierBadge = effTier === 'BOSS' ? '💀 Boss de ' : effTier === 'LEADER' ? '👑 Líder de ' : '';
+          if (obj.type === 'KILL_MONSTER' || obj.type === 'KILL_LEADER' || obj.type === 'KILL_BOSS') {
             const mob = (this.monsterTemplates || []).find((m) => Number(m.id) === Number(obj.monsterTemplateId));
-            return `🐉 Matar <strong>${Number(obj.requiredCount || 1).toLocaleString('pt-BR')}x ${mob ? mob.namePtBr : `Monstro #${obj.monsterTemplateId}`}</strong>`;
+            const mName = mob ? mob.namePtBr : (obj.monsterTemplateId ? `Monstro #${obj.monsterTemplateId}` : 'Qualquer Monstro');
+            return `${effTier === 'BOSS' ? '💀' : effTier === 'LEADER' ? '👑' : '🐉'} Eliminar <strong>${Number(obj.requiredCount || 1).toLocaleString('pt-BR')}x ${tierBadge}${mName}</strong>`;
           }
           if (obj.type === 'KILL_RACE') {
             const race = (this.races || []).find((r) => String(r.code).toUpperCase() === String(obj.raceCode || '').toUpperCase());
-            return `🐾 Matar <strong>${Number(obj.requiredCount || 1).toLocaleString('pt-BR')}x Raça ${race?.namePtBr || obj.raceCode || '?'}</strong>`;
+            return `🐾 Eliminar <strong>${Number(obj.requiredCount || 1).toLocaleString('pt-BR')}x ${tierBadge}Raça ${race?.namePtBr || obj.raceCode || '?'}</strong>`;
           }
           if (obj.type === 'COLLECT_ITEM') {
             const item = (this.itemTemplates || []).find((it) => Number(it.id) === Number(obj.itemTemplateId));
             return `📦 Coletar e Entregar <strong>${Number(obj.requiredCount || 1).toLocaleString('pt-BR')}x ${item ? item.namePtBr : `Item #${obj.itemTemplateId}`}</strong>`;
-          }
-          if (obj.type === 'KILL_RACE') {
-            const raceOpts = (this.races || []).map((r) => `<option value="${r.code}" ${String(obj.raceCode) === String(r.code) ? 'selected' : ''}>${r.namePtBr || r.code} (${r.code})</option>`).join('');
-            return `<div style="background:#020617; border:1px solid #f59e0b; border-radius:8px; padding:10px; display:grid; grid-template-columns:1fr 140px auto; gap:8px; align-items:end;"><div><label style="font-size:0.72rem; color:#fcd34d; font-weight:700;">🐾 Objetivo: Matar Raça</label><select onchange="AdminApp.updateVisualQuestObjectiveField(${i}, 'raceCode', this.value, false)">${raceOpts}</select></div><div><label style="font-size:0.72rem;">Qtd</label><input type="number" min="1" value="${obj.requiredCount || 10}" onchange="AdminApp.updateVisualQuestObjectiveField(${i}, 'requiredCount', this.value, true)" /></div><button type="button" class="btn-danger" onclick="AdminApp.removeVisualQuestObjective(${i})" style="padding:6px 10px;">🗑️</button></div>`;
-          }
-          if (obj.type === 'COLLECT_ITEM') {
-            const itemOpts = (this.itemTemplates || []).map((it) => `<option value="${it.id}" ${Number(obj.itemTemplateId) === Number(it.id) ? 'selected' : ''}>#${it.id} ${it.namePtBr}</option>`).join('');
-            return `<div style="background:#020617; border:1px solid #14b8a6; border-radius:8px; padding:10px; display:grid; grid-template-columns:1fr 140px auto; gap:8px; align-items:end;"><div><label style="font-size:0.72rem; color:#5eead4; font-weight:700;">📦 Objetivo: Coletar & Entregar Item</label><select onchange="AdminApp.updateVisualQuestObjectiveField(${i}, 'itemTemplateId', this.value, true)">${itemOpts}</select></div><div><label style="font-size:0.72rem;">Qtd</label><input type="number" min="1" value="${obj.requiredCount || 10}" onchange="AdminApp.updateVisualQuestObjectiveField(${i}, 'requiredCount', this.value, true)" /></div><button type="button" class="btn-danger" onclick="AdminApp.removeVisualQuestObjective(${i})" style="padding:6px 10px;">🗑️</button></div>`;
           }
           if (obj.type === 'TALK_NPC') {
             const npc = (this.npcTemplates || []).find((n) => Number(n.id) === Number(obj.npcTemplateId));
@@ -696,44 +691,23 @@ class AdminQuestsTab {
     };
 
     app.addVisualQuestObjective = function (type) {
+      const defaultMobId = this.monsterTemplates?.[0]?.id || 1;
       if (type === 'KILL_MONSTER') {
-        this.editingQuestObjectives.push({
-          type: 'KILL_MONSTER',
-          monsterTemplateId: this.monsterTemplates?.[0]?.id || 1,
-          requiredCount: 3,
-        });
+        this.editingQuestObjectives.push({ type: 'KILL_MONSTER', variantTier: 'ANY', monsterTemplateId: defaultMobId, requiredCount: 3 });
+      } else if (type === 'KILL_LEADER') {
+        this.editingQuestObjectives.push({ type: 'KILL_MONSTER', variantTier: 'LEADER', monsterTemplateId: defaultMobId, requiredCount: 2 });
+      } else if (type === 'KILL_BOSS') {
+        this.editingQuestObjectives.push({ type: 'KILL_MONSTER', variantTier: 'BOSS', monsterTemplateId: defaultMobId, requiredCount: 1 });
       } else if (type === 'KILL_RACE') {
-        this.editingQuestObjectives.push({
-          type: 'KILL_RACE',
-          raceCode: this.races?.[0]?.code || 'BEAST',
-          requiredCount: 10,
-        });
+        this.editingQuestObjectives.push({ type: 'KILL_RACE', variantTier: 'ANY', raceCode: this.races?.[0]?.code || 'BEAST', requiredCount: 10 });
       } else if (type === 'COLLECT_ITEM') {
-        this.editingQuestObjectives.push({
-          type: 'COLLECT_ITEM',
-          itemTemplateId: this.itemTemplates?.[0]?.id || 1,
-          dropSourceMode: 'ANY_MONSTER',
-          dropChancePct: 100,
-          requiredCount: 10,
-        });
+        this.editingQuestObjectives.push({ type: 'COLLECT_ITEM', itemTemplateId: this.itemTemplates?.[0]?.id || 1, dropSourceMode: 'ANY_MONSTER', dropChancePct: 100, requiredCount: 10 });
       } else if (type === 'TALK_NPC') {
-        this.editingQuestObjectives.push({
-          type: 'TALK_NPC',
-          npcTemplateId: this.npcTemplates?.[0]?.id || 1,
-          mapId: null,
-          requiredCount: 1,
-        });
+        this.editingQuestObjectives.push({ type: 'TALK_NPC', npcTemplateId: this.npcTemplates?.[0]?.id || 1, mapId: null, requiredCount: 1 });
       } else if (type === 'VISIT_MAP') {
-        this.editingQuestObjectives.push({
-          type: 'VISIT_MAP',
-          mapId: this.savedMaps?.[0]?.id || 1,
-          requiredCount: 1,
-        });
+        this.editingQuestObjectives.push({ type: 'VISIT_MAP', mapId: this.savedMaps?.[0]?.id || 1, requiredCount: 1 });
       } else if (type === 'WIN_BATTLES') {
-        this.editingQuestObjectives.push({
-          type: 'WIN_BATTLES',
-          requiredCount: 3,
-        });
+        this.editingQuestObjectives.push({ type: 'WIN_BATTLES', requiredCount: 3 });
       }
       this.renderVisualQuestObjectives();
     };
@@ -766,31 +740,41 @@ class AdminQuestsTab {
       const sortedMaps = [...(this.savedMaps || [])].sort(
         (a, b) => (Number(a.requiredLevel) || 1) - (Number(b.requiredLevel) || 1) || a.id - b.id
       );
+      const tierOpts = (curTier) => {
+        const t = String(curTier || 'ANY').toUpperCase();
+        return [
+          `<option value="ANY" ${t === 'ANY' ? 'selected' : ''}>🔓 Qualquer (Básico, Líder ou Boss)</option>`,
+          `<option value="LEADER" ${t === 'LEADER' ? 'selected' : ''}>👑 Somente LÍDER (Ex: "Elimine 2 Líderes Momo")</option>`,
+          `<option value="BOSS" ${t === 'BOSS' ? 'selected' : ''}>💀 Somente BOSS (Ex: "Elimine 1 Boss da Galinha Colorida")</option>`,
+          `<option value="NORMAL" ${t === 'NORMAL' ? 'selected' : ''}>▫️ Somente Básico (Normal)</option>`,
+        ].join('');
+      };
 
       container.innerHTML = this.editingQuestObjectives
         .map((obj, i) => {
-          if (obj.type === 'KILL_MONSTER') {
-            const mobOpts = (this.monsterTemplates || [])
-              .map(
-                (m) =>
-                  `<option value="${m.id}" ${Number(obj.monsterTemplateId) === Number(m.id) ? 'selected' : ''}>#${m.id} ${m.namePtBr} (Rank ${m.rarityTier || 'F'})</option>`
-              )
-              .join('');
-
-            return `
-            <div style="background:#020617; border:1px solid #f43f5e; border-radius:8px; padding:10px; display:grid; grid-template-columns:1fr 140px auto; gap:8px; align-items:end;">
-              <div>
-                <label style="font-size:0.72rem; color:#fda4af; font-weight:700;">
-                  🐉 Objetivo: Derrotar Monstro em Batalha
-                </label>
-                <select onchange="AdminApp.updateVisualQuestObjectiveField(${i}, 'monsterTemplateId', this.value, true)">${mobOpts}</select>
-              </div>
-              <div>
-                <label style="font-size:0.72rem;">Quantidade</label>
-                <input type="number" min="1" value="${obj.requiredCount || 1}" onchange="AdminApp.updateVisualQuestObjectiveField(${i}, 'requiredCount', this.value, true)" />
-              </div>
+          if (obj.type === 'KILL_MONSTER' || obj.type === 'KILL_LEADER' || obj.type === 'KILL_BOSS') {
+            const effTier = obj.type === 'KILL_BOSS' ? 'BOSS' : obj.type === 'KILL_LEADER' ? 'LEADER' : (obj.variantTier || 'ANY');
+            const borderCol = effTier === 'BOSS' ? '#fb7185' : effTier === 'LEADER' ? '#38bdf8' : '#f43f5e';
+            const mobOpts = `<option value="" ${!obj.monsterTemplateId ? 'selected' : ''}>🌍 Qualquer Monstro do Mapa</option>` +
+              (this.monsterTemplates || []).map((m) => `<option value="${m.id}" ${Number(obj.monsterTemplateId) === Number(m.id) ? 'selected' : ''}>#${m.id} ${m.namePtBr} (Rank ${m.rarityTier || 'F'})</option>`).join('');
+            return `<div style="background:#020617; border:1px solid ${borderCol}; border-radius:8px; padding:10px; display:grid; grid-template-columns:1.2fr 1.2fr 110px auto; gap:8px; align-items:end;">
+              <div><label style="font-size:0.72rem; color:#fda4af; font-weight:700;">🐉 Monstro Alvo</label><select onchange="AdminApp.updateVisualQuestObjectiveField(${i}, 'monsterTemplateId', this.value, true)">${mobOpts}</select></div>
+              <div><label style="font-size:0.72rem; color:#38bdf8; font-weight:700;">👑/💀 Requisito de Líder ou Boss</label><select onchange="AdminApp.editingQuestObjectives[${i}].type='KILL_MONSTER'; AdminApp.updateVisualQuestObjectiveField(${i}, 'variantTier', this.value, false)">${tierOpts(effTier)}</select></div>
+              <div><label style="font-size:0.72rem;">Quantidade</label><input type="number" min="1" value="${obj.requiredCount || 1}" onchange="AdminApp.updateVisualQuestObjectiveField(${i}, 'requiredCount', this.value, true)" /></div>
               <button type="button" class="btn-danger" onclick="AdminApp.removeVisualQuestObjective(${i})" style="padding:6px 10px;">🗑️</button>
             </div>`;
+          }
+          if (obj.type === 'KILL_RACE') {
+            const raceOpts = (this.races || []).map((r) => `<option value="${r.code}" ${String(obj.raceCode) === String(r.code) ? 'selected' : ''}>${r.namePtBr || r.code} (${r.code})</option>`).join('');
+            return `<div style="background:#020617; border:1px solid #f59e0b; border-radius:8px; padding:10px; display:grid; grid-template-columns:1fr 1fr 110px auto; gap:8px; align-items:end;">
+              <div><label style="font-size:0.72rem; color:#fcd34d; font-weight:700;">🐾 Objetivo: Matar Raça</label><select onchange="AdminApp.updateVisualQuestObjectiveField(${i}, 'raceCode', this.value, false)">${raceOpts}</select></div>
+              <div><label style="font-size:0.72rem; color:#38bdf8; font-weight:700;">👑/💀 Requisito de Líder ou Boss</label><select onchange="AdminApp.updateVisualQuestObjectiveField(${i}, 'variantTier', this.value, false)">${tierOpts(obj.variantTier)}</select></div>
+              <div><label style="font-size:0.72rem;">Qtd</label><input type="number" min="1" value="${obj.requiredCount || 10}" onchange="AdminApp.updateVisualQuestObjectiveField(${i}, 'requiredCount', this.value, true)" /></div>
+              <button type="button" class="btn-danger" onclick="AdminApp.removeVisualQuestObjective(${i})" style="padding:6px 10px;">🗑️</button></div>`;
+          }
+          if (obj.type === 'COLLECT_ITEM') {
+            const itemOpts = (this.itemTemplates || []).map((it) => `<option value="${it.id}" ${Number(obj.itemTemplateId) === Number(it.id) ? 'selected' : ''}>#${it.id} ${it.namePtBr}</option>`).join('');
+            return `<div style="background:#020617; border:1px solid #14b8a6; border-radius:8px; padding:10px; display:grid; grid-template-columns:1fr 140px auto; gap:8px; align-items:end;"><div><label style="font-size:0.72rem; color:#5eead4; font-weight:700;">📦 Objetivo: Coletar & Entregar Item</label><select onchange="AdminApp.updateVisualQuestObjectiveField(${i}, 'itemTemplateId', this.value, true)">${itemOpts}</select></div><div><label style="font-size:0.72rem;">Qtd</label><input type="number" min="1" value="${obj.requiredCount || 10}" onchange="AdminApp.updateVisualQuestObjectiveField(${i}, 'requiredCount', this.value, true)" /></div><button type="button" class="btn-danger" onclick="AdminApp.removeVisualQuestObjective(${i})" style="padding:6px 10px;">🗑️</button></div>`;
           }
 
           if (obj.type === 'TALK_NPC') {

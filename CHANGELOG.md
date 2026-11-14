@@ -5,6 +5,15 @@ Qualquer IA trabalhando neste repositório **DEVE** incrementar a versão e regi
 
 ---
 
+## [v0.37.0] - 2026-11-14
+### Requisito de Eliminar Líderes (`👑 [LÍDER]`) e Bosses (`💀 [BOSS]`) na Tabela e Estúdio No-Code de Quests
+* **Objetivos de Eliminar Líderes e Bosses em Quests Normais e Meta (`AdminQuestsModalDom.js`, `AdminQuestsTab.js`, `AdminMetaQuestsPanel.js`):**
+  * Adicionados os botões rápidos **`➕ 👑 Matar Líder`** e **`➕ 💀 Matar Boss`** no construtor visual de objetivos do `/admin`.
+  * Adicionado o seletor **`👑/💀 Requisito de Líder ou Boss`** (`variantTier`: `ANY`, `LEADER`, `BOSS`, `NORMAL`) tanto em objetivos de **Monstro Específico** (ou Qualquer Monstro) quanto de **Raça** e em **Quests Meta Procedurais**, permitindo criar missões como *"Eliminar 1x 💀 Boss de Galinha Colorida"* ou *"Eliminar 2x 👑 Líder de Momo"*.
+* **Validação Autoritária por Patamar no Servidor (`CombatUtilityHelper.ts`, `QuestProgressService.ts`, `MetaQuestProceduralEngine.ts`):**
+  * `CombatUtilityHelper.buildDefeatedBatch` agrupa os abates preservando `variantTier` (`NORMAL`, `LEADER`, `BOSS`).
+  * `QuestProgressService.recordBattleVictoryBatch` valida estritamente o patamar exigido (`LEADER` ou `BOSS`) antes de contabilizar o progresso do objetivo.
+
 ## [v0.36.0] - 2026-11-14
 ### Novo Sistema de Escalonamento de Nível (-10 a +10, +20%/Nv), Multiplicadores de Rank (F..SS) e Hierarquia de Monstros (Básico, Líder e Boss)
 * **Variação de Nível de Monstros em Mapas (`MonsterCombatBuilder.resolveBalancedMapMonsterLevel`):**

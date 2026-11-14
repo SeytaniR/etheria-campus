@@ -18,7 +18,8 @@ import {
 import { QuestProgressService } from './QuestProgressService.js';
 
 export interface QuestObjectiveBlockDto {
-  type: 'KILL_MONSTER' | 'KILL_RACE' | 'COLLECT_ITEM' | 'TALK_NPC' | 'VISIT_MAP' | 'WIN_BATTLES';
+  type: 'KILL_MONSTER' | 'KILL_LEADER' | 'KILL_BOSS' | 'KILL_RACE' | 'COLLECT_ITEM' | 'TALK_NPC' | 'VISIT_MAP' | 'WIN_BATTLES';
+  variantTier?: 'ANY' | 'NORMAL' | 'LEADER' | 'BOSS' | null;
   monsterTemplateId?: number | null;
   raceCode?: string | null;
   itemTemplateId?: number | null;
@@ -244,12 +245,18 @@ export class AdminQuestsController {
       if (normalizedMeta && normalizedMeta.stages.length > 0) {
         const firstCount = normalizedMeta.stages[0].requiredCount.toLocaleString('pt-BR');
         const lastCount = normalizedMeta.stages[normalizedMeta.stages.length - 1].requiredCount.toLocaleString('pt-BR');
+        const tierPrefix =
+          normalizedMeta.variantTier === 'BOSS'
+            ? '💀 Boss '
+            : normalizedMeta.variantTier === 'LEADER'
+            ? '👑 Líder '
+            : '';
         const targetLabel =
           normalizedMeta.targetType === 'KILL_RACE'
-            ? `Raça ${raceNameMap.get(String(normalizedMeta.raceCode || '').toUpperCase()) ?? normalizedMeta.raceCode}`
+            ? `${tierPrefix}Raça ${raceNameMap.get(String(normalizedMeta.raceCode || '').toUpperCase()) ?? normalizedMeta.raceCode}`
             : normalizedMeta.targetType === 'COLLECT_ITEM'
             ? `Item ${itemNameMap.get(Number(normalizedMeta.itemTemplateId)) ?? `#${normalizedMeta.itemTemplateId}`}`
-            : `Monstro ${mobNameMap.get(Number(normalizedMeta.monsterTemplateId)) ?? `#${normalizedMeta.monsterTemplateId}`}`;
+            : `${tierPrefix}Monstro ${mobNameMap.get(Number(normalizedMeta.monsterTemplateId)) ?? (normalizedMeta.monsterTemplateId ? `#${normalizedMeta.monsterTemplateId}` : 'Qualquer')}`;
         metaSummaryPtBr = `🎯 ${normalizedMeta.stages.length} Estágios (${firstCount} → ${lastCount}) • ${targetLabel}`;
       }
 
@@ -345,6 +352,7 @@ export class AdminQuestsController {
       objectivesJson = [
         {
           type: metaConfigJson.targetType,
+          variantTier: metaConfigJson.variantTier || 'ANY',
           monsterTemplateId: metaConfigJson.targetType === 'KILL_MONSTER' ? metaConfigJson.monsterTemplateId : null,
           raceCode: metaConfigJson.targetType === 'KILL_RACE' ? metaConfigJson.raceCode : null,
           itemTemplateId: metaConfigJson.targetType === 'COLLECT_ITEM' ? metaConfigJson.itemTemplateId : null,

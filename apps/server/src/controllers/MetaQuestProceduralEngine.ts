@@ -14,6 +14,7 @@
  */
 
 export type MetaQuestTargetType = 'KILL_MONSTER' | 'KILL_RACE' | 'COLLECT_ITEM';
+export type MetaQuestVariantTier = 'ANY' | 'NORMAL' | 'LEADER' | 'BOSS';
 export type MetaQuestDropSourceMode = 'SPECIFIC_MONSTER' | 'RACE' | 'ANY_MONSTER';
 export type MetaRewardScaleMode = 'MULTIPLIER' | 'LINEAR_PCT' | 'ADDITIVE';
 
@@ -39,6 +40,7 @@ export interface MetaQuestStageDto {
 
 export interface MetaQuestConfigDto {
   targetType: MetaQuestTargetType;
+  variantTier?: MetaQuestVariantTier;
   monsterTemplateId?: number | null;
   raceCode?: string | null;
   itemTemplateId?: number | null;
@@ -141,8 +143,16 @@ export class MetaQuestProceduralEngine {
     const initialRequiredCount = Math.max(1, Math.round(Number(input.initialRequiredCount) || 10));
     const targetMultiplier = Math.max(1, Number(input.targetMultiplier) || 10);
 
+    const validVariantTiers: MetaQuestVariantTier[] = ['ANY', 'NORMAL', 'LEADER', 'BOSS'];
+    const variantTier: MetaQuestVariantTier = validVariantTiers.includes(
+      String(input.variantTier || '').toUpperCase() as MetaQuestVariantTier,
+    )
+      ? (String(input.variantTier).toUpperCase() as MetaQuestVariantTier)
+      : 'ANY';
+
     const sanitizedInput: Partial<MetaQuestConfigDto> = {
       targetType,
+      variantTier,
       monsterTemplateId: input.monsterTemplateId ? Number(input.monsterTemplateId) : null,
       raceCode: input.raceCode ? String(input.raceCode).trim().toUpperCase() : null,
       itemTemplateId: input.itemTemplateId ? Number(input.itemTemplateId) : null,
@@ -195,6 +205,7 @@ export class MetaQuestProceduralEngine {
 
     return {
       targetType,
+      variantTier,
       monsterTemplateId: sanitizedInput.monsterTemplateId,
       raceCode: sanitizedInput.raceCode,
       itemTemplateId: sanitizedInput.itemTemplateId,
@@ -233,12 +244,18 @@ export class MetaQuestProceduralEngine {
     names: { monsterName?: string; raceName?: string; itemName?: string },
   ): string {
     const qty = Number(stage.requiredCount || 1).toLocaleString('pt-BR');
+    const tierTag =
+      config.variantTier === 'BOSS'
+        ? '💀 Boss de '
+        : config.variantTier === 'LEADER'
+        ? '👑 Líder de '
+        : '';
     if (config.targetType === 'KILL_RACE') {
-      return `Abater ${qty}x da Raça ${names.raceName || config.raceCode || 'Qualquer'}`;
+      return `Eliminar ${qty}x ${tierTag}Raça ${names.raceName || config.raceCode || 'Qualquer'}`;
     }
     if (config.targetType === 'COLLECT_ITEM') {
       return `Coletar e entregar ${qty}x ${names.itemName || `Item #${config.itemTemplateId || '?'}`}`;
     }
-    return `Abater ${qty}x ${names.monsterName || `Monstro #${config.monsterTemplateId || '?'}`}`;
+    return `Eliminar ${qty}x ${tierTag}${names.monsterName || `Monstro #${config.monsterTemplateId || '?'}`}`;
   }
 }

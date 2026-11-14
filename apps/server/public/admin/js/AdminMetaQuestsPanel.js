@@ -48,6 +48,15 @@ class AdminMetaQuestsPanel {
             <label>📦 Item a Coletar e Entregar ao NPC</label>
             <select id="metaItemSelect"></select>
           </div>
+          <div class="field" id="metaVariantTierField">
+            <label style="color:#38bdf8; font-weight:700;">👑/💀 Patamar Exigido</label>
+            <select id="metaVariantTierSelect">
+              <option value="ANY">🔓 Qualquer (Básico, Líder ou Boss)</option>
+              <option value="LEADER">👑 Somente LÍDER</option>
+              <option value="BOSS">💀 Somente BOSS</option>
+              <option value="NORMAL">▫️ Somente Básico</option>
+            </select>
+          </div>
           <div class="field">
             <label style="color:#fde047;">📌 Quantidade Inicial (Estágio 1)</label>
             <input type="number" id="metaInitialCountInput" value="10" min="1" oninput="AdminApp.updateMetaSequencePreview()" />
@@ -213,10 +222,12 @@ class AdminMetaQuestsPanel {
       const fMob = document.getElementById('metaTargetMonsterField');
       const fRace = document.getElementById('metaTargetRaceField');
       const fItem = document.getElementById('metaTargetItemField');
+      const fVar = document.getElementById('metaVariantTierField');
       const dropBox = document.getElementById('metaCollectDropBox');
       if (fMob) fMob.style.display = t === 'KILL_MONSTER' ? 'block' : 'none';
       if (fRace) fRace.style.display = t === 'KILL_RACE' ? 'block' : 'none';
       if (fItem) fItem.style.display = t === 'COLLECT_ITEM' ? 'block' : 'none';
+      if (fVar) fVar.style.display = t === 'COLLECT_ITEM' ? 'none' : 'block';
       if (dropBox) dropBox.style.display = t === 'COLLECT_ITEM' ? 'block' : 'none';
       this.onMetaDropSourceChanged();
     };
@@ -361,6 +372,7 @@ class AdminMetaQuestsPanel {
       const mc = existingQuest?.metaConfigJson;
       if (mc && typeof mc === 'object') {
         document.getElementById('metaTargetTypeSelect').value = mc.targetType || 'KILL_MONSTER';
+        if (document.getElementById('metaVariantTierSelect')) document.getElementById('metaVariantTierSelect').value = mc.variantTier || 'ANY';
         if (mc.monsterTemplateId) document.getElementById('metaMonsterSelect').value = String(mc.monsterTemplateId);
         if (mc.raceCode) document.getElementById('metaRaceSelect').value = mc.raceCode;
         if (mc.itemTemplateId) document.getElementById('metaItemSelect').value = String(mc.itemTemplateId);
@@ -401,6 +413,7 @@ class AdminMetaQuestsPanel {
         this.editingMetaStages = JSON.parse(JSON.stringify(mc.stages || []));
       } else {
         document.getElementById('metaTargetTypeSelect').value = 'KILL_MONSTER';
+        if (document.getElementById('metaVariantTierSelect')) document.getElementById('metaVariantTierSelect').value = 'ANY';
         document.getElementById('metaInitialCountInput').value = '10';
         document.getElementById('metaTargetMultiplierInput').value = '10';
         document.getElementById('metaStageCountInput').value = '5';
@@ -425,6 +438,7 @@ class AdminMetaQuestsPanel {
       });
       return {
         targetType: document.getElementById('metaTargetTypeSelect')?.value || 'KILL_MONSTER',
+        variantTier: document.getElementById('metaVariantTierSelect')?.value || 'ANY',
         monsterTemplateId: Number(document.getElementById('metaMonsterSelect')?.value) || null,
         raceCode: document.getElementById('metaRaceSelect')?.value || null,
         itemTemplateId: Number(document.getElementById('metaItemSelect')?.value) || null,
