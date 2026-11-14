@@ -353,17 +353,18 @@
 
 .hud-settings-btn {
   position: absolute;
-  top: 2px;
-  right: 2px;
-  width: 34px;
-  height: 34px;
+  top: 12px;
+  right: 12px;
+  width: 38px;
+  height: 38px;
   padding: 0;
   border: none;
   background: transparent;
   cursor: pointer;
   filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.7));
   transition: transform 0.15s ease;
-  z-index: 5;
+  z-index: 100;
+  pointer-events: auto;
 }
 
 .hud-settings-btn img {
@@ -486,6 +487,20 @@
   color: rgba(234, 179, 8, 0.7);
   pointer-events: none;
   font-family: monospace;
+}
+
+.hud-slot-count-badge {
+  position: absolute;
+  bottom: 1px;
+  right: 2px;
+  font-size: 0.54rem;
+  font-weight: 900;
+  color: #fde047;
+  font-family: monospace;
+  background: rgba(2, 6, 23, 0.85);
+  border-radius: 4px;
+  padding: 0 2px;
+  pointer-events: none;
 }
 
 .hud-slot-empty-icon {
@@ -1332,4 +1347,30 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+}
+
+/* ==========================================================================
+   MODO DE BATALHA LIMPO (MOBILE PORTRAIT CLEAN BATTLE HUD & WILD RIFT CONTROLS)
+   ========================================================================== */
+body.is-in-combat #hudMinimapSection,
+body.is-in-combat #hudBottomMenuSection,
+body.is-in-combat #hudPlayerSection,
+body.is-in-combat #hudPlayerProfileSection,
+body.is-in-combat .hud-player-header-card,
+body.is-in-combat #hudPetsSection,
+body.is-in-combat #hudShortcutsSection,
+body.is-in-combat #hudJoystickSection,
+body.is-in-combat #interactionPrompt,
+body.is-in-combat .touch-dpad,
+body.is-in-combat .hud-bottom-right {
+  display: none !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+body.is-in-combat .hud-settings-btn {
+  display: block !important;
+  opacity: 1 !important;
+  pointer-events: auto !important;
+  z-index: 100 !important;
 }

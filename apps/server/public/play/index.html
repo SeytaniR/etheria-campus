@@ -481,47 +481,44 @@
     }
     .action-joystick-zone {
       position: absolute;
-      bottom: 16px;
-      left: 16px;
+      bottom: 24px;
+      left: 20px;
       width: 130px;
       height: 130px;
       border-radius: 50%;
-      background: rgba(15, 23, 42, 0.45);
-      border: 1.5px dashed rgba(56, 189, 248, 0.35);
+      background: radial-gradient(circle, rgba(15, 23, 42, 0.6) 0%, rgba(15, 23, 42, 0.25) 100%);
+      border: 1.5px dashed rgba(56, 189, 248, 0.4);
       display: flex;
       align-items: center;
       justify-content: center;
-      z-index: 10;
+      z-index: 50;
       touch-action: none;
       pointer-events: auto;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
     }
     .action-joystick-thumb {
       width: 48px;
       height: 48px;
       border-radius: 50%;
       background: radial-gradient(circle, #38bdf8 0%, #0284c7 100%);
-      box-shadow: 0 0 12px rgba(56, 189, 248, 0.6);
+      box-shadow: 0 0 14px rgba(56, 189, 248, 0.7);
       pointer-events: none;
       transition: transform 0.05s ease;
     }
     .action-buttons-cluster {
       position: absolute;
-      bottom: 14px;
-      right: 14px;
-      display: grid;
-      grid-template-columns: repeat(3, 56px);
-      gap: 8px;
-      z-index: 10;
-      pointer-events: auto;
-      align-items: center;
-      justify-items: center;
+      bottom: 0;
+      right: 0;
+      width: 220px;
+      height: 230px;
+      z-index: 50;
+      pointer-events: none;
     }
     .action-circle-btn {
-      width: 58px;
-      height: 58px;
+      position: absolute;
       border-radius: 50%;
       border: 2px solid rgba(255, 255, 255, 0.25);
-      background: rgba(15, 23, 42, 0.85);
+      background: rgba(15, 23, 42, 0.88);
       color: #fff;
       font-size: 0.8rem;
       font-weight: 700;
@@ -530,59 +527,61 @@
       align-items: center;
       justify-content: center;
       cursor: pointer;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.5);
-      position: relative;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.6);
       touch-action: manipulation;
+      pointer-events: auto;
+      user-select: none;
+      -webkit-user-select: none;
+      transition: transform 0.08s ease;
     }
     .action-circle-btn:active { transform: scale(0.92); }
     .action-btn-attack {
-      width: 62px;
-      height: 62px;
+      width: 70px;
+      height: 70px;
+      bottom: 22px;
+      right: 18px;
       background: radial-gradient(circle, #ef4444 0%, #991b1b 100%);
-      border-color: #fca5a5;
-      grid-column: 3;
-      grid-row: 2;
-      font-size: 1.15rem;
-    }
-    .action-skill-icon-img {
-      width: 34px;
-      height: 34px;
-      object-fit: contain;
-      border-radius: 50%;
-      pointer-events: none;
-    }
-    .action-skill-key-badge {
-      position: absolute;
-      top: -4px;
-      left: -4px;
-      background: #0f172a;
-      border: 1px solid #38bdf8;
-      color: #fde047;
-      font-size: 0.62rem;
-      padding: 1px 5px;
-      border-radius: 99px;
-      font-weight: 800;
+      border: 2.5px solid #fca5a5;
+      font-size: 1.4rem;
+      box-shadow: 0 0 16px rgba(239, 68, 68, 0.5), 0 4px 12px rgba(0, 0, 0, 0.7);
+      z-index: 10;
     }
     .action-btn-dash {
+      width: 48px;
+      height: 48px;
+      bottom: 20px;
+      right: 98px;
       background: radial-gradient(circle, #0284c7 0%, #075985 100%);
-      border-color: #7dd3fc;
+      border: 2px solid #7dd3fc;
+      font-size: 1.1rem;
+      z-index: 9;
     }
     .action-btn-skill {
       background: radial-gradient(circle, #8b5cf6 0%, #5b21b6 100%);
-      border-color: #c4b5fd;
+      border: 2px solid #c4b5fd;
+      z-index: 9;
     }
-    .action-cooldown-overlay {
-      position: absolute;
-      inset: 0;
-      border-radius: 50%;
-      background: rgba(0, 0, 0, 0.65);
-      display: none;
-      align-items: center;
-      justify-content: center;
-      font-size: 0.75rem;
-      color: #fde047;
-      font-weight: 700;
+    #btnActSkill1 { width: 50px; height: 50px; bottom: 78px; right: 106px; }
+    #btnActSkill2 { width: 50px; height: 50px; bottom: 132px; right: 86px; }
+    #btnActSkill3 { width: 50px; height: 50px; bottom: 160px; right: 44px; }
+    #btnActSkill4 { width: 52px; height: 52px; bottom: 136px; right: 2px; border-color: #fde047; box-shadow: 0 0 12px rgba(253, 224, 71, 0.4); }
+
+    .action-btn-item {
+      width: 44px;
+      height: 44px;
+      background: rgba(15, 23, 42, 0.92);
+      border: 1.5px solid #38bdf8;
+      box-shadow: 0 3px 10px rgba(0, 0, 0, 0.6);
+      z-index: 8;
     }
+    #btnActShortcut1 { bottom: 74px; right: 162px; border-color: #22c55e; }
+    #btnActShortcut2 { bottom: 128px; right: 148px; border-color: #38bdf8; }
+    .action-item-icon-img { width: 26px; height: 26px; object-fit: contain; pointer-events: none; }
+    .action-item-qty-badge { position: absolute; bottom: -4px; right: -2px; background: rgba(2, 6, 23, 0.9); border: 1px solid #334155; color: #fde047; font-size: 0.62rem; font-weight: 800; padding: 0 4px; border-radius: 6px; }
+    .action-item-key-badge { position: absolute; top: -4px; left: -4px; background: #0f172a; border: 1px solid #38bdf8; color: #7dd3fc; font-size: 0.58rem; padding: 0 4px; border-radius: 99px; font-weight: 800; }
+    .action-skill-icon-img { width: 32px; height: 32px; object-fit: contain; border-radius: 50%; pointer-events: none; }
+    .action-skill-key-badge { position: absolute; top: -4px; left: -4px; background: #0f172a; border: 1px solid #38bdf8; color: #fde047; font-size: 0.62rem; padding: 1px 5px; border-radius: 99px; font-weight: 800; }
+    .action-cooldown-overlay { position: absolute; inset: 0; border-radius: 50%; background: rgba(0, 0, 0, 0.72); display: none; align-items: center; justify-content: center; font-size: 0.75rem; color: #fde047; font-weight: 800; }
     .action-result-banner {
       position: absolute;
       top: 50%;
@@ -846,24 +845,18 @@
   <!-- ARENA INSTANCIADA DE COMBATE LIVRE (ACTION RPG) -->
   <div id="actionCombatModal" class="action-arena-backdrop">
     <div class="action-hud-top">
-      <div class="action-player-bars">
-        <div style="display:flex; justify-content:space-between; font-size:0.75rem; font-weight:700;">
-          <span id="actHudPlayerName" style="color:#7dd3fc;">Herói</span>
-          <span id="actHudPlayerHpText" style="color:#fca5a5;">100 / 100</span>
-        </div>
-        <div class="action-bar-track">
-          <div id="actHudPlayerHpBar" class="action-bar-fill-hp" style="width:100%;"></div>
-        </div>
-        <div class="action-bar-track">
-          <div id="actHudPlayerMpBar" class="action-bar-fill-mp" style="width:100%;"></div>
-        </div>
+      <!-- Overhead bars no Canvas substituem as barras fixas do topo -->
+      <div class="action-player-bars" style="display:none;">
+        <span id="actHudPlayerName"></span>
+        <span id="actHudPlayerHpText"></span>
+        <div id="actHudPlayerHpBar"></div>
+        <div id="actHudPlayerMpBar"></div>
       </div>
 
       <div class="action-top-actions">
-        <div style="background:rgba(15,23,42,0.85); border:1px solid #334155; padding:6px 12px; border-radius:999px; font-size:0.75rem; color:#86efac; font-weight:700;">
+        <div style="background:rgba(15,23,42,0.85); border:1px solid rgba(56,189,248,0.4); padding:6px 14px; border-radius:999px; font-size:0.75rem; color:#86efac; font-weight:700; box-shadow:0 4px 14px rgba(0,0,0,0.6);">
           👾 <span id="actHudMonstersAlive">0</span> Restante(s)
         </div>
-        <button type="button" class="action-btn-flee" onclick="PlayApp.actionArena.fleeBattle()">🏃 Fugir</button>
       </div>
     </div>
 
@@ -890,8 +883,21 @@
       <div id="actionJoystickThumb" class="action-joystick-thumb"></div>
     </div>
 
-    <!-- Botões de Ação Action (4 Slots da Classe, Dash e Ataque) -->
-    <div class="action-buttons-cluster">
+    <!-- Botões de Ação Wild Rift (Arco Radial + Atalhos Rápidos 1 e 2) -->
+    <div class="action-buttons-cluster" id="actionButtonsCluster">
+      <!-- Atalho 1 e 2 de Exploração (Poções HP/MP com ícone real e quantidade) -->
+      <button type="button" class="action-circle-btn action-btn-item" id="btnActShortcut1" onclick="PlayApp.actionArena.triggerCombatShortcut(0)" title="Atalho 1 (Poção HP)">
+        <span class="action-item-key-badge">Q</span>
+        <img class="action-item-icon-img" id="imgActShortcut1" src="/play/assets/hud/shortcut_potion_hp.png" alt="HP" />
+        <span class="action-item-qty-badge" id="qtyActShortcut1">5</span>
+      </button>
+      <button type="button" class="action-circle-btn action-btn-item" id="btnActShortcut2" onclick="PlayApp.actionArena.triggerCombatShortcut(1)" title="Atalho 2 (Poção MP)">
+        <span class="action-item-key-badge">E</span>
+        <img class="action-item-icon-img" id="imgActShortcut2" src="/play/assets/hud/shortcut_potion_mp.png" alt="MP" />
+        <span class="action-item-qty-badge" id="qtyActShortcut2">5</span>
+      </button>
+
+      <!-- 4 Habilidades da Classe em Arco Radial -->
       <button type="button" class="action-circle-btn action-btn-skill" id="btnActSkill1" onclick="PlayApp.actionArena.triggerSkill(1)" title="Slot #1 (Tecla 1)">
         <span class="action-skill-key-badge">1</span>
         <span id="lblActSkill1">⚡</span>
@@ -912,10 +918,14 @@
         <span id="lblActSkill4">💥</span>
         <div class="action-cooldown-overlay" id="cdOverlaySkill4"></div>
       </button>
+
+      <!-- Esquiva / Dash -->
       <button type="button" class="action-circle-btn action-btn-dash" id="btnActDash" onclick="PlayApp.actionArena.triggerDash()" title="Esquiva / Dash (Shift / K)">
         💨
         <div class="action-cooldown-overlay" id="cdOverlayDash"></div>
       </button>
+
+      <!-- Botão de Ataque Básico Principal (Grande) -->
       <button type="button" class="action-circle-btn action-btn-attack" id="btnActAttack" onclick="PlayApp.actionArena.triggerAttack()" title="Ataque Básico (Espaço / J)">
         ⚔️
       </button>

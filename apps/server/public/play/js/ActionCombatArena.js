@@ -56,14 +56,7 @@ class ActionCombatArena {
     this.joystickVector = { x: 0, y: 0 };
 
     // Cooldowns das Habilidades do Jogador (ms)
-    this.skillCooldowns = {
-      attack: 0,
-      skill1: 0,
-      skill2: 0,
-      skill3: 0,
-      skill4: 0,
-      dash: 0,
-    };
+    this.skillCooldowns = { attack: 0, skill1: 0, skill2: 0, skill3: 0, skill4: 0, dash: 0 };
 
     // Cache de spritesheets
     this.spriteCache = new Map();
@@ -92,6 +85,8 @@ class ActionCombatArena {
       else if (e.key === '3') this.triggerSkill(3);
       else if (e.key === '4') this.triggerSkill(4);
       else if (e.key.toLowerCase() === 'k' || e.key === 'Shift') this.triggerDash();
+      else if (e.key.toLowerCase() === 'q') this.triggerCombatShortcut(0);
+      else if (e.key.toLowerCase() === 'e') this.triggerCombatShortcut(1);
       else if (e.key === 'Escape') this.fleeBattle();
     });
 
@@ -178,23 +173,10 @@ class ActionCombatArena {
     const globalCombatAttr = (this.client?.combatAttributes || []).find((ca) => ca.code === 'BATTLE_MOVE_SPEED');
     const globalDefaultSpeed = globalCombatAttr ? Number(globalCombatAttr.baseDefault) : 180;
     const classMoveSpeed = Number(baseCombat.BATTLE_MOVE_SPEED);
-    const agiConv = (this.client?.attributeConversions || []).find(
-      (c) => c.baseAttributeCode === 'AGI' && c.combatAttributeCode === 'BATTLE_MOVE_SPEED'
-    );
+    const agiConv = (this.client?.attributeConversions || []).find((c) => c.baseAttributeCode === 'AGI' && c.combatAttributeCode === 'BATTLE_MOVE_SPEED');
     const agiRatio = agiConv ? Number(agiConv.ratioPerPoint) : 0.5;
-    const totalAgi =
-      (Number(this.client?.activeChar?.distributedStatsJson?.AGI) || 0) +
-      (Number(this.client?.activeChar?.baseAttributesJson?.AGI) || 10);
-
-    const battleSpeed = Math.max(
-      60,
-      Number(
-        pState.battleMoveSpeed ||
-        (classMoveSpeed ? classMoveSpeed + totalAgi * agiRatio : null) ||
-        (globalDefaultSpeed ? globalDefaultSpeed + totalAgi * agiRatio : null) ||
-        180
-      )
-    );
+    const totalAgi = (Number(this.client?.activeChar?.distributedStatsJson?.AGI) || 0) + (Number(this.client?.activeChar?.baseAttributesJson?.AGI) || 10);
+    const battleSpeed = Math.max(60, Number(pState.battleMoveSpeed || (classMoveSpeed ? classMoveSpeed + totalAgi * agiRatio : null) || (globalDefaultSpeed ? globalDefaultSpeed + totalAgi * agiRatio : null) || 180));
 
     this.projectiles = [];
     this.groundZones = [];
@@ -207,22 +189,11 @@ class ActionCombatArena {
     this.selectedTargetMob = null;
 
     this.player = {
-      id: pState.id || 'player_1',
-      isPlayer: true,
-      team: 'ALLY',
-      bodyRadiusX: 24,
-      bodyRadiusY: 17,
+      id: pState.id || 'player_1', isPlayer: true, team: 'ALLY', bodyRadiusX: 24, bodyRadiusY: 17,
       x: spawns.px, y: spawns.py, speed: battleSpeed, dir: pDir, action: 0, isAlive: true,
       hp: pState.hp || 500, maxHp: pState.maxHp || 500, mp: pState.mp || 200, maxMp: pState.maxMp || 200,
-      atk: pState.atk || 75,
-      physAtk: pState.physAtk || pState.atk || 75,
-      magAtk: pState.magAtk || pState.atk || 75,
-      healPower: pState.healPower || pState.atk || 50,
-      def: pState.def || 40,
-      magDef: pState.magDef || pState.def || 40,
-      activeStatuses: [],
-      shieldHp: 0,
-      shieldMaxHp: 0,
+      atk: pState.atk || 75, physAtk: pState.physAtk || pState.atk || 75, magAtk: pState.magAtk || pState.atk || 75, healPower: pState.healPower || pState.atk || 50,
+      def: pState.def || 40, magDef: pState.magDef || pState.def || 40, activeStatuses: [], shieldHp: 0, shieldMaxHp: 0,
       name: pState.name || this.client?.activeChar?.name || 'Herói',
       level: Number(pState.level || this.client?.activeChar?.level) || 1,
       elementCode: pState.elementCode || this.client?.activeChar?.elementCode || 'NEUTRAL',
@@ -236,10 +207,7 @@ class ActionCombatArena {
       attackSpeed: Number(baseCombat.ATTACK_SPEED) || 1.0,
       sprite: this.getSprite(pState.atlasJsonUrl, pState.atlasWebpUrl, pState.thumbUrl) ||
               (this.client?.activeChar ? this.client.getOrCreateSprite(
-                `char_${this.client.activeChar.mcreworkCharKey}`,
-                this.client.activeChar.atlasJsonUrl,
-                this.client.activeChar.atlasWebpUrl,
-                this.client.activeChar.thumbUrl
+                `char_${this.client.activeChar.mcreworkCharKey}`, this.client.activeChar.atlasJsonUrl, this.client.activeChar.atlasWebpUrl, this.client.activeChar.thumbUrl
               ) : null),
       groundOffsetY: pState.groundOffsetY || this.client?.activeChar?.groundOffsetY || 0,
       shadowOffsetX: pState.shadowOffsetX || this.client?.activeChar?.shadowOffsetX || 0,
@@ -317,6 +285,59 @@ class ActionCombatArena {
     });
 
     this.renderSkillButtonsHud();
+    this.updateCombatShortcutsHud();
+    if (window.PlayHudController?.setCombatMode) window.PlayHudController.setCombatMode(true);
+    else document.body.classList.add('is-in-combat');
+    this.updateHud();
+  }
+
+  updateCombatShortcutsHud() {
+    const hud = window.PlayHudController;
+    for (let i = 0; i < 2; i++) {
+      const btn = document.getElementById(`btnActShortcut${i + 1}`), img = document.getElementById(`imgActShortcut${i + 1}`), qty = document.getElementById(`qtyActShortcut${i + 1}`);
+      if (!btn) continue;
+      const s = hud?.state?.shortcuts?.[i];
+      if (s?.item) {
+        btn.style.display = 'flex';
+        btn.title = `${s.item.name} (${s.item.count !== undefined ? 'x' + s.item.count : 'Usar'})`;
+        if (img) img.src = s.item.icon;
+        if (qty) qty.textContent = s.item.count !== undefined ? String(s.item.count) : '';
+        btn.style.opacity = (s.item.count !== undefined && s.item.count <= 0) ? '0.4' : '1';
+      } else {
+        btn.style.display = 'none';
+      }
+    }
+  }
+
+  triggerCombatShortcut(slotIdx) {
+    if (!this.isActive || !this.player || !this.player.isAlive) return;
+    const hud = window.PlayHudController, slot = hud?.state?.shortcuts?.[slotIdx];
+    if (!slot?.item) {
+      if (this.client?.showNotification) this.client.showNotification(`Slot #${slotIdx + 1} vazio!`, 'info');
+      return;
+    }
+    const it = slot.item;
+    if (it.count !== undefined && it.count <= 0) {
+      if (this.client?.showNotification) this.client.showNotification(`${it.name} esgotado!`, 'warning');
+      return;
+    }
+    const now = performance.now(), cdKey = `shortcut${slotIdx}`;
+    if (this.skillCooldowns[cdKey] && this.skillCooldowns[cdKey] > now) return;
+    this.skillCooldowns[cdKey] = now + 1200;
+
+    const isMp = it.type === 'HEAL_MP' || it.name.toLowerCase().includes('mana') || it.name.toLowerCase().includes('mp');
+    if (isMp) {
+      const healMp = it.value || 80;
+      this.player.mp = Math.min(this.player.maxMp, this.player.mp + healMp);
+      this.floatingTexts.push({ x: this.player.x, y: this.player.y - 50, text: `+${healMp} MP`, color: '#38bdf8', life: 1.4 });
+    } else {
+      const healHp = it.value || 150;
+      this.player.hp = Math.min(this.player.maxHp, this.player.hp + healHp);
+      this.floatingTexts.push({ x: this.player.x, y: this.player.y - 50, text: `+${healHp} HP`, color: '#22c55e', life: 1.4 });
+    }
+    if (it.count !== undefined) it.count--;
+    this.updateCombatShortcutsHud();
+    if (hud?.updateShortcutsDisplay) hud.updateShortcutsDisplay();
     this.updateHud();
   }
 
@@ -369,6 +390,9 @@ class ActionCombatArena {
     this.monsters = [];
     this.projectiles = [];
     this.selectedTargetMob = null;
+
+    if (window.PlayHudController?.setCombatMode) window.PlayHudController.setCombatMode(false);
+    else document.body.classList.remove('is-in-combat');
 
     const modal = document.getElementById('actionCombatModal'); if (modal) modal.style.display = 'none';
     const prepBanner = document.getElementById('actionPrepBanner'); if (prepBanner) prepBanner.style.display = 'none';
@@ -928,37 +952,20 @@ class ActionCombatArena {
     const m = this.monsters.find((m) => m.isAlive);
     return m ? Math.round(this.player.x * 0.65 + m.x * 0.35) : this.player.x;
   }
-
   getCamFocusY() {
     if (!this.player) return this.client?.playerY || 0;
     const m = this.monsters.find((m) => m.isAlive);
     return m ? Math.round(this.player.y * 0.65 + m.y * 0.35) : this.player.y;
   }
-
-  drawArenaRingOnFloor(ctx, now, zoom) {
-    if (!this.isActive) return;
-    this.vfxRenderer?.drawArenaFloorAndProjectiles(ctx, this, now, zoom);
-  }
-
-  renderActiveVfx(ctx, now) {
-    if (!this.isActive) return;
-    this.vfxRenderer?.drawActiveBursts(ctx, now);
-  }
-
+  drawArenaRingOnFloor(ctx, now, zoom) { if (this.isActive) this.vfxRenderer?.drawArenaFloorAndProjectiles(ctx, this, now, zoom); }
+  renderActiveVfx(ctx, now) { if (this.isActive) this.vfxRenderer?.drawActiveBursts(ctx, now); }
   populateRenderQueue(renderQueue, now) {
     if (!this.isActive) return;
     if (this.player && this.player.isAlive) renderQueue.push({ type: 'COMBAT_PLAYER', y: this.player.y, data: this.player });
-    for (const pet of this.pets) {
-      if (pet.fadeAlpha > 0) renderQueue.push({ type: 'COMBAT_PET', y: pet.y, data: pet });
-    }
-    for (const mob of this.monsters) {
-      if (mob.fadeAlpha > 0) renderQueue.push({ type: 'COMBAT_MONSTER', y: mob.y, data: mob });
-    }
+    for (const pet of this.pets) { if (pet.fadeAlpha > 0) renderQueue.push({ type: 'COMBAT_PET', y: pet.y, data: pet }); }
+    for (const mob of this.monsters) { if (mob.fadeAlpha > 0) renderQueue.push({ type: 'COMBAT_MONSTER', y: mob.y, data: mob }); }
   }
-
-  renderFloatingTexts(ctx) {
-    this.vfxRenderer?.drawFloatingTexts(ctx, this.floatingTexts);
-  }
+  renderFloatingTexts(ctx) { this.vfxRenderer?.drawFloatingTexts(ctx, this.floatingTexts); }
 }
 
 window.ActionCombatArena = ActionCombatArena;

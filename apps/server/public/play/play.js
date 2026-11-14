@@ -868,9 +868,23 @@ class EtheriaPlayClient {
           const elapsed = (isTransient && p.actionStartTime) ? (now - p.actionStartTime) : now;
           p.sprite.draw(ctx, p.x, p.y, p.action, p.dir, elapsed, this.mesh, p.groundOffsetY || 0, 0.70, false, p.shadowOffsetX || 0, p.shadowOffsetY || 0);
         }
-        ctx.fillStyle = '#fde047'; ctx.font = 'bold 13px sans-serif'; ctx.textAlign = 'center';
-        ctx.fillText(p.name, p.x, p.y - 66 + Math.round((p.groundOffsetY || 0) * 0.70));
-        this.actionCombatArena?.vfxRenderer?.drawUnitOverlays(ctx, p, p.y - 76 + Math.round((p.groundOffsetY || 0) * 0.70), now);
+        if (p.isAlive) {
+          const bw = 54, bh = 5, bx = p.x - bw / 2, by = p.y - 62 + Math.round((p.groundOffsetY || 0) * 0.70);
+          ctx.fillStyle = 'rgba(2, 6, 23, 0.85)';
+          ctx.fillRect(bx - 1, by - 1, bw + 2, bh + 2);
+          const hpRatio = Math.max(0, Math.min(1, p.hp / (p.maxHp || 1)));
+          ctx.fillStyle = (hpRatio < 0.35) ? '#ef4444' : '#22c55e';
+          ctx.fillRect(bx, by, Math.round(bw * hpRatio), bh);
+          const mpy = by + bh + 1;
+          ctx.fillStyle = 'rgba(2, 6, 23, 0.85)';
+          ctx.fillRect(bx - 1, mpy - 1, bw + 2, 5);
+          const mpRatio = Math.max(0, Math.min(1, (p.mp || 0) / (p.maxMp || 1)));
+          ctx.fillStyle = '#38bdf8';
+          ctx.fillRect(bx, mpy, Math.round(bw * mpRatio), 3.5);
+          ctx.fillStyle = '#fde047'; ctx.font = 'bold 12px sans-serif'; ctx.textAlign = 'center';
+          ctx.fillText(p.name, p.x, by - 4);
+          this.actionCombatArena?.vfxRenderer?.drawUnitOverlays(ctx, p, by - 14, now);
+        }
       } else if (item.type === 'COMBAT_MONSTER' || item.type === 'COMBAT_PET') {
         const ent = item.data;
         const isPet = item.type === 'COMBAT_PET';
@@ -888,7 +902,15 @@ class EtheriaPlayClient {
           if (isTarget) {
             ctx.strokeStyle = '#f59e0b'; ctx.lineWidth = 1.8; ctx.strokeRect(bx - 1, by - 1, bw + 2, bh + 2);
           }
-          ctx.fillStyle = isPet ? '#38bdf8' : (isTarget ? '#fbbf24' : '#ef4444'); ctx.fillRect(bx, by, bw * Math.max(0, Math.min(1, ent.hp / ent.maxHp)), bh);
+          const hpRatio = Math.max(0, Math.min(1, ent.hp / ent.maxHp));
+          ctx.fillStyle = isPet ? (hpRatio < 0.35 ? '#ef4444' : '#22c55e') : (isTarget ? '#fbbf24' : '#ef4444');
+          ctx.fillRect(bx, by, bw * hpRatio, bh);
+          if (isPet) {
+            const mpy = by + bh + 1;
+            const mpRatio = Math.max(0, Math.min(1, (ent.mp || 0) / (ent.maxMp || 200)));
+            ctx.fillStyle = 'rgba(2, 6, 23, 0.85)'; ctx.fillRect(bx - 1, mpy - 1, bw + 2, 4.5);
+            ctx.fillStyle = '#38bdf8'; ctx.fillRect(bx, mpy, bw * mpRatio, 3);
+          }
           ctx.font = isTarget ? 'bold 12px sans-serif' : 'bold 11px sans-serif'; ctx.textAlign = 'center'; ctx.fillStyle = isPet ? '#bae6fd' : (isTarget ? '#fde047' : '#f8fafc');
           ctx.fillText(isTarget ? `🎯 ${ent.name}` : (isPet ? `🐾 ${ent.name}` : ent.name), ent.x, by - 4);
           if (isTarget) this.actionCombatArena?.vfxRenderer?.drawMonsterTargetOverlays(ctx, ent, by, now);

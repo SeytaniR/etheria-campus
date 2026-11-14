@@ -5,6 +5,43 @@ Qualquer IA trabalhando neste repositório **DEVE** incrementar a versão e regi
 
 ---
 
+## [v0.27.0] - 2026-11-14
+### Interface de Batalha Mobile Vertical (Mobile Portrait): Ocultação da HUD de Exploração, Overhead Bars (HP/MP) no Canvas 2.5D, Controles Táteis Wild Rift & Fuga Segura
+* **Ocultação da HUD de Exploração ao Entrar em Batalha (`PlayHudController.js` & `play_hud.css`):**
+  * Implementação da classe global de estado `is-in-combat` no `<body>` e método `setCombatMode(isActive)` em `PlayHudController`.
+  * Ao iniciar o combate (`ActionCombatArena.openArena`), os seguintes elementos de exploração são ocultados automaticamente:
+    * Mini Mapa (`#hudMinimapSection`)
+    * Menus Inferiores de 6 botões (`#hudBottomMenuSection` / `#hudBottomDock`)
+    * Perfil heráldico do jogador (`#hudPlayerSection` / `.hud-player-header-card`) e pets (`#hudPetsSection`)
+    * Dock lateral de atalhos de exploração (`#hudShortcutsSection`)
+    * D-Pad virtual touch legado e controles flutuantes de exploração (`#hudJoystickSection`, `#interactionPrompt`, `.touch-dpad`, `.hud-bottom-right`)
+  * Ao encerrar o combate (`ActionCombatArena.closeArena`), todos os elementos de exploração retornam imediatamente sem flickers.
+* **Barras de HP e MP Sobre a Cabeça do Modelo (Overhead Bars) no Canvas 2.5D (`play.js`):**
+  * **Jogador (`COMBAT_PLAYER`):** Desenho dinâmico das barras de HP (54x5px, esmeralda `#22c55e` e vermelha sob dano crítico) e MP (54x3.5px, azul celeste `#38bdf8`) com fundo e moldura escuros (`rgba(2, 6, 23, 0.85)`), acompanhando rigorosamente as coordenadas `p.x` e `p.y` do herói conforme se move pela arena. Nome do herói mantido centralizado acima das barras.
+  * **Pets (`COMBAT_PET`):** Adição de barra de MP logo abaixo da barra de HP do pet (azul celeste `#38bdf8`).
+  * Remoção da barra fixa do topo `#actHudPlayerHpBar` e `#actHudPlayerMpBar` da visão do jogador, despoluindo a tela.
+* **Controles Táteis Mobile-First Estilo Wild Rift / MOBA (`index.html` & `play_hud.css`):**
+  * **Lado Esquerdo:** Joystick virtual de combate (`#actionJoystickZone`) posicionado de forma limpa e ergonômica para o polegar esquerdo (`bottom: 24px; left: 20px;`).
+  * **Lado Direito (Layout Wild Rift Radial):**
+    * **Botão de Ataque Básico (`#btnActAttack`):** Botão primário grande (70x70px), posicionado na base inferior direita (`bottom: 22px; right: 18px;`) com halo vermelho e borda chanfrada.
+    * **Botão de Esquiva/Dash (`#btnActDash`):** Posicionado ergonomicamente à esquerda do ataque (`bottom: 20px; right: 98px;`).
+    * **Botões de Habilidades (Slots 1 a 4):** Organizados em arco/leque radial ao redor do botão de ataque (`#btnActSkill1`, `#btnActSkill2`, `#btnActSkill3`, `#btnActSkill4` Ultimate no ápice superior direito).
+  * **2 Primeiros Atalhos de Exploração em Combate (`#btnActShortcut1`, `#btnActShortcut2`):**
+    * Posicionados estrategicamente à esquerda do arco de habilidades (`bottom: 74px; right: 162px;` e `bottom: 128px; right: 148px;`).
+    * Exibição do ícone real do item (Poção de Vida Menor e Poção de Mana Menor) e quantidade disponível (`x5`).
+    * Ativação tátil com um toque consumindo o item instantaneamente na arena com efeito de cura flutuante (`+150 HP`, `+80 MP`) sem sair da batalha.
+* **Botão de Configurações (Engrenagem) & Sistema de Fuga em Batalha (`PlayHudController.js` & `ActionCombatArena.js`):**
+  * **Engrenagem Preservada:** `#hudSettingsBtn` desvinculado do container interno do minimapa e fixado em `top: 12px; right: 12px; z-index: 100`, mantendo-se sempre acessível tanto na exploração quanto no meio do combate.
+  * **Remoção do Botão Fixo de Fuga:** Removido o botão flutuante `.action-btn-flee` do topo da tela.
+  * **Fuga Dentro da Engrenagem:** O botão `🏃 Fugir da Batalha` é renderizado de forma contextual dentro do modal de configurações (`#hudSettingsModal`) EXCLUSIVAMENTE quando o jogador estiver em combate (`isCombatActive === true`). Fora de combate, a opção de fuga não é exibida.
+* **Auditoria de Linhas (Regra #7):**
+  * `PlayHudController.js`: 957 linhas (estritamente < 1.000 linhas).
+  * `ActionCombatArena.js`: 971 linhas (estritamente < 1.000 linhas).
+  * `play.js`: 941 linhas (estritamente < 1.000 linhas).
+  * `index.html`: 966 linhas (estritamente < 1.000 linhas).
+
+---
+
 ## [v0.26.0] - 2026-11-14
 ### Conjunto Inicial de Equipamentos do Jogador (Nível 1): Balanceamento Universal de Combate das 12 Peças do Aprendiz
 * **Adicionado & Calibrado (Game Design & Balanceamento de Sistemas):**

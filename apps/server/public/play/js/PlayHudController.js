@@ -47,9 +47,14 @@ class PlayHudController {
       equippedPets: [],
       gold: 0,
       diamonds: 1500,
-      shortcuts: Array(6)
-        .fill(null)
-        .map((_, i) => ({ id: i + 1, slotNum: i + 1, item: null, name: `Slot #${i + 1} (Vazio)` })),
+      shortcuts: [
+        { id: 1, slotNum: 1, item: { name: 'Poção de Vida', icon: '/play/assets/hud/shortcut_potion_hp.png', count: 5, type: 'HEAL_HP', value: 150 }, name: 'Poção de Vida' },
+        { id: 2, slotNum: 2, item: { name: 'Poção de Mana', icon: '/play/assets/hud/shortcut_potion_mp.png', count: 5, type: 'HEAL_MP', value: 80 }, name: 'Poção de Mana' },
+        { id: 3, slotNum: 3, item: null, name: 'Slot #3 (Vazio)' },
+        { id: 4, slotNum: 4, item: null, name: 'Slot #4 (Vazio)' },
+        { id: 5, slotNum: 5, item: null, name: 'Slot #5 (Vazio)' },
+        { id: 6, slotNum: 6, item: null, name: 'Slot #6 (Vazio)' },
+      ],
     };
   }
 
@@ -144,17 +149,19 @@ class PlayHudController {
         </div>
       </div>
 
-      <!-- 2. Topo-Direito: Mini Mapa Ampliado, Bússola, Coordenadas e Engrenagem -->
+      <!-- 2. Topo-Direito: Mini Mapa Ampliado, Bússola e Coordenadas -->
       <div id="hudMinimapSection" class="hud-minimap-section" title="Toque no mapa para expandir e ver NPCs e Mapa Mundo">
         <div class="hud-minimap-wrapper" id="hudMinimapWrapper">
           <canvas id="hudMinimapCanvas" width="160" height="160"></canvas>
           <img class="hud-minimap-frame" src="/play/assets/hud/minimap_frame.png" alt="Bússola" />
-          <button id="hudSettingsBtn" class="hud-settings-btn" title="Configurações do Jogo">
-            <img src="/play/assets/hud/settings_gear_icon.png" alt="Configurações" />
-          </button>
         </div>
         <div id="hudCoordinatesBadge" class="hud-coords-badge">0, 0</div>
       </div>
+
+      <!-- Botão de Configurações do Jogo (Engrenagem Superior Direita: Ativa em Exploração e Batalha) -->
+      <button id="hudSettingsBtn" class="hud-settings-btn" title="Configurações do Jogo">
+        <img src="/play/assets/hud/settings_gear_icon.png" alt="Configurações" />
+      </button>
 
       <!-- 3. Lateral Esquerda: Barra de 6 Atalhos Rápidos com Caixas Elegantes Sem Falsos Ícones -->
       <div id="hudShortcutsSection" class="hud-shortcuts-section">
@@ -162,9 +169,9 @@ class PlayHudController {
           ${this.state.shortcuts
             .map(
               (s, idx) => `
-            <button type="button" class="hud-shortcut-slot ${!s.item ? 'slot-empty' : ''}" data-index="${idx}" title="${s.item ? s.item.name : `Slot de Atalho #${idx + 1} (Vazio)`}">
+            <button type="button" class="hud-shortcut-slot ${!s.item ? 'slot-empty' : ''}" data-index="${idx}" title="${s.item ? `${s.item.name}${s.item.count !== undefined ? ' (x' + s.item.count + ')' : ''}` : `Slot de Atalho #${idx + 1} (Vazio)`}">
               <span class="hud-slot-num">${idx + 1}</span>
-              ${s.item ? `<img class="hud-slot-icon" src="${s.item.icon}" alt="${s.item.name}" />` : `<span class="hud-slot-empty-icon">❖</span>`}
+              ${s.item ? `<img class="hud-slot-icon" src="${s.item.icon}" alt="${s.item.name}" />${s.item.count !== undefined ? `<span class="hud-slot-count-badge">${s.item.count}</span>` : ''}` : `<span class="hud-slot-empty-icon">❖</span>`}
             </button>
           `
             )
@@ -492,27 +499,73 @@ class PlayHudController {
   }
 
   /**
+   * Alterna modo de combate: oculta minimapa, menus, perfil, pets e atalhos de exploração.
+   */
+  setCombatMode(isActive) {
+    if (isActive) {
+      document.body.classList.add('is-in-combat');
+    } else {
+      document.body.classList.remove('is-in-combat');
+    }
+  }
+
+  /**
+   * Atualiza visualmente os slots da barra de atalhos de exploração.
+   */
+  updateShortcutsDisplay() {
+    const dock = document.getElementById('hudShortcutsDock');
+    if (!dock) return;
+    const slots = dock.querySelectorAll('.hud-shortcut-slot');
+    slots.forEach((slotEl, idx) => {
+      const s = this.state.shortcuts[idx];
+      if (!s) return;
+      if (s.item) {
+        slotEl.classList.remove('slot-empty');
+        slotEl.title = `${s.item.name}${s.item.count !== undefined ? ' (x' + s.item.count + ')' : ''}`;
+        slotEl.innerHTML = `
+          <span class="hud-slot-num">${idx + 1}</span>
+          <img class="hud-slot-icon" src="${s.item.icon}" alt="${s.item.name}" />
+          ${s.item.count !== undefined ? `<span class="hud-slot-count-badge">${s.item.count}</span>` : ''}
+        `;
+      } else {
+        slotEl.classList.add('slot-empty');
+        slotEl.title = `Slot de Atalho #${idx + 1} (Vazio)`;
+        slotEl.innerHTML = `
+          <span class="hud-slot-num">${idx + 1}</span>
+          <span class="hud-slot-empty-icon">❖</span>
+        `;
+      }
+    });
+  }
+
+  /**
    * Dispara o uso de um item do slot de atalhos.
    */
   triggerShortcut(idx, slotEl) {
     const slot = this.state.shortcuts[idx];
     if (!slot) return;
-
-    // Feedback tátil visual
-    slotEl.classList.add('hud-slot-pressed');
-    setTimeout(() => slotEl.classList.remove('hud-slot-pressed'), 200);
-
+    if (slotEl) {
+      slotEl.classList.add('hud-slot-pressed');
+      setTimeout(() => slotEl.classList.remove('hud-slot-pressed'), 200);
+    }
     if (!slot.item) {
-      if (this.playApp && typeof this.playApp.showNotification === 'function') {
-        this.playApp.showNotification(`Slot de atalho #${idx + 1} vazio. Equipe poções e consumíveis pela mochila!`, 'info');
+      if (this.playApp?.showNotification) {
+        this.playApp.showNotification(`Slot #${idx + 1} vazio. Equipe consumíveis pela mochila!`, 'info');
       }
       return;
     }
-
-    console.log(`[PlayHudController] Atalho #${idx + 1} ativado: ${slot.item.name}`);
-    if (this.playApp && typeof this.playApp.showNotification === 'function') {
-      this.playApp.showNotification(`Usou ${slot.item.name}`, 'info');
+    if (this.playApp?.actionArena?.isActive) {
+      this.playApp.actionArena.triggerCombatShortcut(idx);
+      return;
     }
+    const it = slot.item;
+    if (it.count !== undefined && it.count <= 0) {
+      if (this.playApp?.showNotification) this.playApp.showNotification(`${it.name} esgotado!`, 'warning');
+      return;
+    }
+    if (it.count !== undefined) it.count--;
+    if (this.playApp?.showNotification) this.playApp.showNotification(`Usou ${it.name}!`, 'success');
+    this.updateShortcutsDisplay();
   }
 
   /**
@@ -520,6 +573,7 @@ class PlayHudController {
    */
   openSettingsMenu() {
     const isGm = Boolean(this.playApp && this.playApp.session && (this.playApp.session.role === 'ADMIN' || this.playApp.session.role === 'GM'));
+    const isCombatActive = Boolean(this.playApp?.actionArena?.isActive);
 
     const modal = document.createElement('div');
     modal.className = 'modal-backdrop';
@@ -532,6 +586,19 @@ class PlayHudController {
           <button class="hud-modal-close" onclick="document.getElementById('hudSettingsModal').remove()">✕</button>
         </div>
         <div class="hud-modal-body">
+          ${
+            isCombatActive
+              ? `
+            <div class="hud-settings-row" style="background:rgba(239, 68, 68, 0.15); border:1.5px solid #ef4444; border-radius:8px; padding:10px 12px; margin-bottom:4px;">
+              <div style="display:flex; flex-direction:column; gap:2px;">
+                <span style="color:#fca5a5; font-weight:800; font-size:0.86rem;">⚔️ Combate em Andamento</span>
+                <small style="color:#f87171; font-size:0.72rem;">Recuar com segurança e voltar ao mapa</small>
+              </div>
+              <button class="btn-danger" style="background:#ef4444; color:#fff; font-weight:800; padding:8px 16px; border-radius:8px; cursor:pointer;" onclick="if(window.PlayApp?.actionArena) { window.PlayApp.actionArena.fleeBattle(); } document.getElementById('hudSettingsModal').remove();">🏃 Fugir da Batalha</button>
+            </div>
+            `
+              : ''
+          }
           <div class="hud-settings-row">
             <span>🔊 Efeitos Sonoros & Música</span>
             <input type="checkbox" checked style="width:24px; height:24px; accent-color:#f59e0b;" />

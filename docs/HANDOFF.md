@@ -8,9 +8,9 @@
 ---
 
 ## 📌 Status Atual do Projeto
-* **Versão Atual:** `v0.26.0`
+* **Versão Atual:** `v0.27.0`
 * **Última Atualização:** `2026-11-14`
-* **Fase Atual:** **Conjunto Inicial de Equipamentos do Jogador (Nível 1): Balanceamento Universal de Combate das 12 Peças do Aprendiz (`v0.26.0`)** — Criação e balanceamento do Conjunto do Aprendiz (Nível 1) cobrindo rigorosamente os 12 slots de combate para personagem (`HEAD`, `SHOULDER`, `CHEST`, `BELT`, `LEGS`, `FEET`, `ORNAMENT_1`, `ORNAMENT_2`, `RING`, `NECKLACE`, `WEAPON_1`, `WEAPON_2`), excluindo slots não-combate (vara de pesca, asas, moda e montaria alada). Calibrado para atender com paridade todas as 12 classes (físicas, mágicas, híbridas e curandeiras), com atributos exclusivos de combate em `combatStatBonusesJson`, `baseStatBonusesJson: {}`, `priceGold: 0`, `isTradable: false`, `rarityTier: 'COMMON'`. 24 traduções em `i18n_translations`, script de automação em `scripts/seed_apprentice_equipment.mjs`, persistido no PostgreSQL oficial da VPS Azure (`40.65.63.193`), espelhado em cache permanente local e com snapshot `lowcode.snapshot.json` sincronizado. Testado, verificado com compilação limpa e serviço ativo (`HTTP 200`).
+* **Fase Atual:** **Interface de Batalha Mobile Vertical (Mobile Portrait): Ocultação da HUD de Exploração, Overhead Bars (HP/MP) no Canvas 2.5D, Controles Táteis Wild Rift & Fuga Segura (`v0.27.0`)** — Reformulação completa do modo de combate no cliente `/play`: ocultação limpa de mini mapa, menus, perfil, pets e atalhos de exploração durante combate; renderização dinâmica no Canvas 2.5D de barras de HP e MP sobre o modelo do jogador e pets acompanhando coordenadas de movimento; controles táteis ergonômicos no padrão Wild Rift (joystick esquerdo, botão grande de ataque, esquiva e leque radial de 4 habilidades à direita); integração dos 2 primeiros atalhos consumíveis (poções de HP e MP) com toque imediato em batalha; botão de engrenagem mantido no canto superior direito e fuga contextualizada dentro do modal de configurações. 100% em conformidade com o limite de 1.000 linhas da Regra #7, build verificado e sincronizado com a VPS Azure.
 * **Repositório Oficial:** `https://github.com/SeytaniR/etheria-campus`
 * **Fonte Bruta de Assets:** `https://github.com/SeytaniR/mcrework` (`https://seytanir.github.io/mcrework/`)
 
