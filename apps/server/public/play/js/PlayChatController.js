@@ -54,10 +54,42 @@ class PlayChatController {
   }
 
   /**
+   * Obtém a instância autoritária do cliente de jogo.
+   */
+  getClient() {
+    return this.client || window.PlayApp || null;
+  }
+
+  /**
+   * Obtém os dados do personagem ativo no mundo em tempo real.
+   */
+  getActiveChar() {
+    return (
+      this.activeChar ||
+      this.client?.activeChar ||
+      window.PlayApp?.activeChar ||
+      window.PlayHudController?.state?.character ||
+      null
+    );
+  }
+
+  /**
+   * Atualiza o personagem ativo no chat e sincroniza preferências.
+   */
+  updatePlayer(charData) {
+    if (!charData) return;
+    this.activeChar = charData;
+    this.loadSettings();
+    if (!this.isPolling) {
+      this.startPolling();
+    }
+  }
+
+  /**
    * Inicializa o controlador de chat vinculado à instância do cliente.
    */
   init(clientApp) {
-    this.client = clientApp;
+    this.client = clientApp || this.client || window.PlayApp;
     this.loadSettings();
     this.renderChatHtml();
     this.bindEvents();
@@ -70,7 +102,8 @@ class PlayChatController {
    */
   loadSettings() {
     try {
-      const charId = this.client?.activeChar?.id || 'default';
+      const char = this.getActiveChar();
+      const charId = char?.id || 'default';
       const saved = localStorage.getItem(`etheria_chat_settings_${charId}`) || localStorage.getItem('etheria_chat_settings');
       if (saved) {
         const parsed = JSON.parse(saved);
@@ -90,7 +123,8 @@ class PlayChatController {
    */
   saveSettings() {
     try {
-      const charId = this.client?.activeChar?.id || 'default';
+      const char = this.getActiveChar();
+      const charId = char?.id || 'default';
       localStorage.setItem(`etheria_chat_settings_${charId}`, JSON.stringify(this.settings));
       localStorage.setItem('etheria_chat_settings', JSON.stringify(this.settings));
     } catch (e) {
@@ -256,12 +290,14 @@ class PlayChatController {
    * Busca mensagens recentes do servidor via API autoritária.
    */
   async fetchMessages() {
-    if (!this.client || !this.client.api) return;
+    const client = this.getClient();
+    if (!client || !client.api) return;
 
     try {
-      const mapId = this.client.currentMapId || this.client.activeChar?.currentMapId || 1;
+      const char = this.getActiveChar();
+      const mapId = client.currentMapId || char?.currentMapId || 1;
       const url = `/api/play/chat/messages?sinceId=${this.lastMessageId}&mapId=${mapId}`;
-      const res = await this.client.api(url);
+      const res = await client.api(url);
 
       if (res && res.success && Array.isArray(res.messages)) {
         if (res.messages.length > 0) {
@@ -302,17 +338,24 @@ class PlayChatController {
       return;
     }
 
-    const charId = this.client?.activeChar?.id;
+    const client = this.getClient();
+    if (!client || !client.api) {
+      this.addSystemNotice('Erro de conexão do cliente de jogo.');
+      return;
+    }
+
+    const char = this.getActiveChar();
+    const charId = char?.id;
     if (!charId) {
       this.addSystemNotice('Você precisa selecionar um personagem para falar no chat.');
       return;
     }
 
-    const mapId = this.client.currentMapId || this.client.activeChar?.currentMapId || 1;
+    const mapId = client.currentMapId || char?.currentMapId || 1;
 
     try {
       input.value = '';
-      const res = await this.client.api('/api/play/chat/send', {
+      const res = await client.api('/api/play/chat/send', {
         method: 'POST',
         body: JSON.stringify({
           channel: this.activeCategory,

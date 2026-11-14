@@ -5,6 +5,16 @@ Qualquer IA trabalhando neste repositório **DEVE** incrementar a versão e regi
 
 ---
 
+## [v0.43.1] - 2026-11-14
+### Correção de Vinculação do Personagem Ativo no Chat do Client
+* **Resolução Robusta do Personagem Emissor (`PlayChatController.js`):**
+  * Criados helpers autoritários de fallback no client (`getActiveChar()` e `getClient()`) que consultam `this.activeChar`, `this.client?.activeChar`, `window.PlayApp?.activeChar` e `window.PlayHudController?.state?.character`.
+  * Adicionado método `updatePlayer(charData)` no `PlayChatController` para sincronizar o personagem ativo e carregar preferências do chat no exato momento da seleção.
+  * Corrigida a inicialização do chat em `PlayHudController.js` para repassar `this.client` diretamente (resolvendo race-condition onde `window.PlayApp` ainda não estava instanciado na carga inicial).
+  * Conectada a chamada `updatePlayer(found)` no `enterWorldWithCharacter` do `PlayLobbyController.js`, garantindo que o chat receba imediatamente o ID e dados do personagem ao entrar no mundo.
+
+---
+
 ## [v0.43.0] - 2026-11-14
 ### Sistema Autoritário de Chat Multi-Canal, Filtros Personalizáveis e Moderação Comunitária 16+
 * **Canais de Comunicação Oficiais (`GameChatService.ts`):**

@@ -127,6 +127,9 @@ class PlayLobbyController {
       if (!found) return;
 
       this.activeChar = found;
+      if (window.PlayChatController) {
+        window.PlayChatController.updatePlayer(found);
+      }
       this.playerX = Number(found.posX) || 500;
       this.playerY = Number(found.posY) || 500;
       this.moveTargetX = null;

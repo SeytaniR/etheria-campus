@@ -315,7 +315,7 @@ class PlayHudController {
 
     // 9. HUD de Chat Multi-Canal Autoritário
     if (window.PlayChatController) {
-      window.PlayChatController.init(window.PlayApp);
+      window.PlayChatController.init(this.client || window.PlayApp);
     }
   }
 
@@ -686,8 +686,8 @@ class PlayHudController {
     if (!charData) return;
     this.state.character = charData;
 
-    if (window.PlayChatController && !window.PlayChatController.isPolling) {
-      window.PlayChatController.startPolling();
+    if (window.PlayChatController) {
+      window.PlayChatController.updatePlayer(charData);
     }
 
     // 1. Avatar do Personagem (imagem oficial recortada dos 12 heróis com máximo preenchimento)

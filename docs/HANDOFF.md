@@ -8,9 +8,9 @@
 ---
 
 ## 📌 Status Atual do Projeto
-* **Versão Atual:** `v0.43.0`
+* **Versão Atual:** `v0.43.1`
 * **Última Atualização:** `2026-11-14`
-* **Fase Atual:** **Sistema Autoritário de Chat Multi-Canal (Sistema, Mundo, Local, Guilda, Facção, Equipe), Filtros Personalizáveis pelo Jogador e Moderação Comunitária 16+ (`v0.43.0`)** — Implementação do chat multi-canal em tempo real no servidor e cliente `/play`. Mensagens de sistema propagadas para todos os canais conforme diretriz oficial. Painel de configuração com filtros por canal, opções visuais (timestamp, tamanho da fonte, opacidade e altura) e salvamento em localStorage. Filtro autoritário 16+ com bloqueio total de discurso de ódio/ameaças e censura por asteriscos para termos vulgares/baixo calão (sem falsos positivos). Todos os arquivos estritamente conformes com a Regra #7 (< 1.000 linhas no front e < 900 no back).
+* **Fase Atual:** **Correção de Vinculação do Personagem Ativo no Chat do Client (`v0.43.1`)** — Resolução de sincronização entre o lobby, HUD e o controlador de chat (`PlayChatController.js`), eliminando o falso aviso de "selecione um personagem" e conectando o ciclo de vida do personagem emissor em tempo real. Linhas estritamente conformes com a Regra #7.
 * **Repositório Oficial:** `https://github.com/SeytaniR/etheria-campus`
 * **Fonte Bruta de Assets:** `https://github.com/SeytaniR/mcrework` (`https://seytanir.github.io/mcrework/`)
 
