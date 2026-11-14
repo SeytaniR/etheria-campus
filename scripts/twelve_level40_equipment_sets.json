@@ -1,0 +1,2221 @@
+[
+  {
+    "code": "equip_lv40_reaper_head",
+    "slot": "HEAD",
+    "namePtBr": "Coroa do Ceifador Profano",
+    "nameEn": "Crown of the Profane Reaper",
+    "descPtBr": "Tiara de seda e prata lunar que amplia a percepção sobrenatural. [Conjunto Ceifador Profano: Lv. 40 - Necromante (75%) > Barda (25%)].",
+    "descEn": "Tiara de seda e prata lunar que amplia a percepção sobrenatural. [Profane Reaper Set: Lv. 40 - Necromante (75%) > Barda (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_040305.png",
+    "combatStats": {
+      "MAG_ATK": 115,
+      "MAX_MP": 240,
+      "MAG_DEF": 55,
+      "CRIT_RATE": 25
+    }
+  },
+  {
+    "code": "equip_lv40_reaper_shoulder",
+    "slot": "SHOULDER",
+    "namePtBr": "Ombreiras do Ceifador Profano",
+    "nameEn": "Shoulders of the Profane Reaper",
+    "descPtBr": "Mantos sobre os ombros tecidos em pura energia do submundo. [Conjunto Ceifador Profano: Lv. 40 - Necromante (75%) > Barda (25%)].",
+    "descEn": "Mantos sobre os ombros tecidos em pura energia do submundo. [Profane Reaper Set: Lv. 40 - Necromante (75%) > Barda (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_040405.png",
+    "combatStats": {
+      "MAG_ATK": 85,
+      "MAX_MP": 180,
+      "MAG_DEF": 85,
+      "MAG_EVASION": 20
+    }
+  },
+  {
+    "code": "equip_lv40_reaper_chest",
+    "slot": "CHEST",
+    "namePtBr": "Manto do Ceifador Profano",
+    "nameEn": "Robe of the Profane Reaper",
+    "descPtBr": "Túnica cerimonial que absorve o sofrimento ao redor e restaura o usuário. [Conjunto Ceifador Profano: Lv. 40 - Necromante (75%) > Barda (25%)].",
+    "descEn": "Túnica cerimonial que absorve o sofrimento ao redor e restaura o usuário. [Profane Reaper Set: Lv. 40 - Necromante (75%) > Barda (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_040505.png",
+    "combatStats": {
+      "MAG_ATK": 145,
+      "MAX_MP": 310,
+      "MAG_DEF": 110,
+      "HP_REGEN": 25
+    }
+  },
+  {
+    "code": "equip_lv40_reaper_belt",
+    "slot": "BELT",
+    "namePtBr": "Faixa do Ceifador Profano",
+    "nameEn": "Sash of the Profane Reaper",
+    "descPtBr": "Faixa púrpura adornada com sinos de prata silenciosos que canalizam energia. [Conjunto Ceifador Profano: Lv. 40 - Necromante (75%) > Barda (25%)].",
+    "descEn": "Faixa púrpura adornada com sinos de prata silenciosos que canalizam energia. [Profane Reaper Set: Lv. 40 - Necromante (75%) > Barda (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_040605.png",
+    "combatStats": {
+      "MAG_ATK": 75,
+      "MAX_MP": 150,
+      "MP_REGEN": 14,
+      "MAG_DEF": 50
+    }
+  },
+  {
+    "code": "equip_lv40_reaper_legs",
+    "slot": "LEGS",
+    "namePtBr": "Saiote do Ceifador Profano",
+    "nameEn": "Skirt of the Profane Reaper",
+    "descPtBr": "Vestimenta inferior que confere passos silenciosos e rápida mobilidade mágica. [Conjunto Ceifador Profano: Lv. 40 - Necromante (75%) > Barda (25%)].",
+    "descEn": "Vestimenta inferior que confere passos silenciosos e rápida mobilidade mágica. [Profane Reaper Set: Lv. 40 - Necromante (75%) > Barda (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_040705.png",
+    "combatStats": {
+      "MAG_ATK": 105,
+      "MAX_MP": 210,
+      "MAG_DEF": 90,
+      "MAG_EVASION": 25
+    }
+  },
+  {
+    "code": "equip_lv40_reaper_feet",
+    "slot": "FEET",
+    "namePtBr": "Botas do Ceifador Profano",
+    "nameEn": "Boots of the Profane Reaper",
+    "descPtBr": "Calçados leves forrados com veludo espectral para locomoção suave. [Conjunto Ceifador Profano: Lv. 40 - Necromante (75%) > Barda (25%)].",
+    "descEn": "Calçados leves forrados com veludo espectral para locomoção suave. [Profane Reaper Set: Lv. 40 - Necromante (75%) > Barda (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_040805.png",
+    "combatStats": {
+      "MAG_ATK": 65,
+      "MAX_MP": 130,
+      "MAG_DEF": 65,
+      "BATTLE_MOVE_SPEED": 30,
+      "MAG_EVASION": 20
+    }
+  },
+  {
+    "code": "equip_lv40_reaper_weapon1",
+    "slot": "WEAPON_1",
+    "namePtBr": "Cajado da Foice Espectral",
+    "nameEn": "Spectral Scythe Staff",
+    "descPtBr": "Um cajado esculpido em ossos ancestrais coroado por uma foice de energia espectral que rasga o véu dos vivos. [Conjunto Ceifador Profano: Lv. 40 - Necromante (75%) > Barda (25%)].",
+    "descEn": "Um cajado esculpido em ossos ancestrais coroado por uma foice de energia espectral que rasga o véu dos vivos. [Profane Reaper Set: Lv. 40 - Necromante (75%) > Barda (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_040113.png",
+    "combatStats": {
+      "MAG_ATK": 285,
+      "MAX_MP": 320,
+      "CRIT_RATE": 55,
+      "CRIT_DMG": 45,
+      "MAG_ACCURACY": 35
+    }
+  },
+  {
+    "code": "equip_lv40_reaper_weapon2",
+    "slot": "WEAPON_2",
+    "namePtBr": "Grimório das Almas Condenadas",
+    "nameEn": "Condemned Souls Grimoire",
+    "descPtBr": "Um tomo encadernado em couro abissal contendo cânticos fúnebres que aceleram a colheita mística. [Conjunto Ceifador Profano: Lv. 40 - Necromante (75%) > Barda (25%)].",
+    "descEn": "Um tomo encadernado em couro abissal contendo cânticos fúnebres que aceleram a colheita mística. [Profane Reaper Set: Lv. 40 - Necromante (75%) > Barda (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_040210.png",
+    "combatStats": {
+      "MAG_ATK": 185,
+      "MAG_DEF": 95,
+      "MAX_MP": 220,
+      "HP_REGEN": 20,
+      "MAG_ACCURACY": 25
+    }
+  },
+  {
+    "code": "equip_lv40_reaper_ring",
+    "slot": "RING",
+    "namePtBr": "Selo do Abismo Noturno",
+    "nameEn": "Seal of the Night Abyss",
+    "descPtBr": "Anel de ônix que drena resquícios de força vital a cada conjuração sombria. [Conjunto Ceifador Profano: Lv. 40 - Necromante (75%) > Barda (25%)].",
+    "descEn": "Anel de ônix que drena resquícios de força vital a cada conjuração sombria. [Profane Reaper Set: Lv. 40 - Necromante (75%) > Barda (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_001010.png",
+    "combatStats": {
+      "MAG_ATK": 85,
+      "MAX_MP": 160,
+      "CRIT_RATE": 35,
+      "HP_REGEN": 12
+    }
+  },
+  {
+    "code": "equip_lv40_reaper_necklace",
+    "slot": "NECKLACE",
+    "namePtBr": "Gargantilha das Almas Penadas",
+    "nameEn": "Wailing Souls Choker",
+    "descPtBr": "Colar de prata envelhecida com um pingente em forma de crânio sussurrante. [Conjunto Ceifador Profano: Lv. 40 - Necromante (75%) > Barda (25%)].",
+    "descEn": "Colar de prata envelhecida com um pingente em forma de crânio sussurrante. [Profane Reaper Set: Lv. 40 - Necromante (75%) > Barda (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_000910.png",
+    "combatStats": {
+      "MAG_ATK": 95,
+      "MAX_MP": 190,
+      "CRIT_DMG": 30,
+      "MAG_ACCURACY": 20
+    }
+  },
+  {
+    "code": "equip_lv40_reaper_ornament1",
+    "slot": "ORNAMENT_1",
+    "namePtBr": "Talismã da Morte Eterna",
+    "nameEn": "Eternal Death Talisman",
+    "descPtBr": "Amuleto consagrado em catacumbas secretas que intensifica o foco e a precisão das maldições. [Conjunto Ceifador Profano: Lv. 40 - Necromante (75%) > Barda (25%)].",
+    "descEn": "Amuleto consagrado em catacumbas secretas que intensifica o foco e a precisão das maldições. [Profane Reaper Set: Lv. 40 - Necromante (75%) > Barda (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_001110.png",
+    "combatStats": {
+      "MAG_ATK": 75,
+      "MAX_MP": 140,
+      "MAG_ACCURACY": 30,
+      "CRIT_RATE": 25
+    }
+  },
+  {
+    "code": "equip_lv40_reaper_ornament2",
+    "slot": "ORNAMENT_2",
+    "namePtBr": "Relíquia da Ressonância Sombria",
+    "nameEn": "Dark Resonance Relic",
+    "descPtBr": "Símbolo ancestral que vibra com frequências graves, perturbando a mente dos alvos. [Conjunto Ceifador Profano: Lv. 40 - Necromante (75%) > Barda (25%)].",
+    "descEn": "Símbolo ancestral que vibra com frequências graves, perturbando a mente dos alvos. [Profane Reaper Set: Lv. 40 - Necromante (75%) > Barda (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_001210.png",
+    "combatStats": {
+      "MAG_ATK": 70,
+      "MAG_DEF": 55,
+      "MP_REGEN": 14,
+      "CRIT_DMG": 25
+    }
+  },
+  {
+    "code": "equip_lv40_symphony_head",
+    "slot": "HEAD",
+    "namePtBr": "Diadema da Sinfonia Serena",
+    "nameEn": "Diadem of Serene Symphony",
+    "descPtBr": "Tiara musical com safiras que vibram em uníssono com as canções da alma. [Conjunto Sinfonia Serena: Lv. 40 - Barda (75%) > Necromante (25%)].",
+    "descEn": "Tiara musical com safiras que vibram em uníssono com as canções da alma. [Serene Symphony Set: Lv. 40 - Barda (75%) > Necromante (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_040303.png",
+    "combatStats": {
+      "MAG_ATK": 90,
+      "HEAL_POWER": 45,
+      "MAX_MP": 280,
+      "MP_REGEN": 15,
+      "MAG_DEF": 50
+    }
+  },
+  {
+    "code": "equip_lv40_symphony_shoulder",
+    "slot": "SHOULDER",
+    "namePtBr": "Manto da Sinfonia Serena",
+    "nameEn": "Mantle of Serene Symphony",
+    "descPtBr": "Xale de seda translúcida que ondula suavemente ao ritmo da brisa sonora. [Conjunto Sinfonia Serena: Lv. 40 - Barda (75%) > Necromante (25%)].",
+    "descEn": "Xale de seda translúcida que ondula suavemente ao ritmo da brisa sonora. [Serene Symphony Set: Lv. 40 - Barda (75%) > Necromante (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_040403.png",
+    "combatStats": {
+      "MAG_ATK": 75,
+      "HEAL_POWER": 40,
+      "MAG_DEF": 80,
+      "MAG_EVASION": 25,
+      "MAX_MP": 200
+    }
+  },
+  {
+    "code": "equip_lv40_symphony_chest",
+    "slot": "CHEST",
+    "namePtBr": "Veste da Sinfonia Serena",
+    "nameEn": "Robe of Serene Symphony",
+    "descPtBr": "Vestimenta cerimonial consagrada para maestros de grandes orquestras arcanas. [Conjunto Sinfonia Serena: Lv. 40 - Barda (75%) > Necromante (25%)].",
+    "descEn": "Vestimenta cerimonial consagrada para maestros de grandes orquestras arcanas. [Serene Symphony Set: Lv. 40 - Barda (75%) > Necromante (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_040503.png",
+    "combatStats": {
+      "MAG_ATK": 120,
+      "HEAL_POWER": 70,
+      "MAX_MP": 360,
+      "MP_REGEN": 25,
+      "MAG_DEF": 105
+    }
+  },
+  {
+    "code": "equip_lv40_symphony_belt",
+    "slot": "BELT",
+    "namePtBr": "Cordão da Sinfonia Serena",
+    "nameEn": "Cordon of Serene Symphony",
+    "descPtBr": "Cinto acetinado com pingentes harmônicos que mantêm o compasso perfeito. [Conjunto Sinfonia Serena: Lv. 40 - Barda (75%) > Necromante (25%)].",
+    "descEn": "Cinto acetinado com pingentes harmônicos que mantêm o compasso perfeito. [Serene Symphony Set: Lv. 40 - Barda (75%) > Necromante (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_040603.png",
+    "combatStats": {
+      "MAG_ATK": 65,
+      "HEAL_POWER": 35,
+      "MP_REGEN": 18,
+      "MAG_DEF": 45
+    }
+  },
+  {
+    "code": "equip_lv40_symphony_legs",
+    "slot": "LEGS",
+    "namePtBr": "Saia da Sinfonia Serena",
+    "nameEn": "Skirt of Serene Symphony",
+    "descPtBr": "Saiote fluido que acompanha as danças de batalha sem restringir os movimentos. [Conjunto Sinfonia Serena: Lv. 40 - Barda (75%) > Necromante (25%)].",
+    "descEn": "Saiote fluido que acompanha as danças de batalha sem restringir os movimentos. [Serene Symphony Set: Lv. 40 - Barda (75%) > Necromante (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_040703.png",
+    "combatStats": {
+      "MAG_ATK": 85,
+      "HEAL_POWER": 50,
+      "MAX_MP": 240,
+      "MAG_DEF": 85,
+      "BATTLE_MOVE_SPEED": 25
+    }
+  },
+  {
+    "code": "equip_lv40_symphony_feet",
+    "slot": "FEET",
+    "namePtBr": "Sapatilhas da Sinfonia Serena",
+    "nameEn": "Slippers of Serene Symphony",
+    "descPtBr": "Calçados de seda com sola de camurça para piruetas e movimentação veloz. [Conjunto Sinfonia Serena: Lv. 40 - Barda (75%) > Necromante (25%)].",
+    "descEn": "Calçados de seda com sola de camurça para piruetas e movimentação veloz. [Serene Symphony Set: Lv. 40 - Barda (75%) > Necromante (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_040803.png",
+    "combatStats": {
+      "MAG_ATK": 55,
+      "HEAL_POWER": 30,
+      "MAG_DEF": 60,
+      "BATTLE_MOVE_SPEED": 40,
+      "MAG_EVASION": 25
+    }
+  },
+  {
+    "code": "equip_lv40_symphony_weapon1",
+    "slot": "WEAPON_1",
+    "namePtBr": "Alaúde da Harmonia Celestial",
+    "nameEn": "Lute of Celestial Harmony",
+    "descPtBr": "Instrumento magistral de madeira sagrada e cordas de prata que ecoa acordes restauradores. [Conjunto Sinfonia Serena: Lv. 40 - Barda (75%) > Necromante (25%)].",
+    "descEn": "Instrumento magistral de madeira sagrada e cordas de prata que ecoa acordes restauradores. [Serene Symphony Set: Lv. 40 - Barda (75%) > Necromante (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_020110.png",
+    "combatStats": {
+      "MAG_ATK": 230,
+      "MAX_MP": 420,
+      "HEAL_POWER": 95,
+      "MP_REGEN": 30,
+      "ATTACK_SPEED": 45
+    }
+  },
+  {
+    "code": "equip_lv40_symphony_weapon2",
+    "slot": "WEAPON_2",
+    "namePtBr": "Arco Sonoro da Ressonância",
+    "nameEn": "Sound Bow of Resonance",
+    "descPtBr": "Arco musical entalhado em cristal que projeta ondas rítmicas de suporte e proteção. [Conjunto Sinfonia Serena: Lv. 40 - Barda (75%) > Necromante (25%)].",
+    "descEn": "Arco musical entalhado em cristal que projeta ondas rítmicas de suporte e proteção. [Serene Symphony Set: Lv. 40 - Barda (75%) > Necromante (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_161006.png",
+    "combatStats": {
+      "MAG_ATK": 160,
+      "MAG_DEF": 105,
+      "HEAL_POWER": 65,
+      "MP_REGEN": 22,
+      "MAG_EVASION": 30
+    }
+  },
+  {
+    "code": "equip_lv40_symphony_ring",
+    "slot": "RING",
+    "namePtBr": "Anel da Cadência Perfeita",
+    "nameEn": "Ring of Perfect Cadence",
+    "descPtBr": "Aro de prata afinado harmonicamente para acelerar a cadência de canções mágicas. [Conjunto Sinfonia Serena: Lv. 40 - Barda (75%) > Necromante (25%)].",
+    "descEn": "Aro de prata afinado harmonicamente para acelerar a cadência de canções mágicas. [Serene Symphony Set: Lv. 40 - Barda (75%) > Necromante (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_001007.png",
+    "combatStats": {
+      "MAG_ATK": 75,
+      "MAX_MP": 200,
+      "MP_REGEN": 16,
+      "ATTACK_SPEED": 30
+    }
+  },
+  {
+    "code": "equip_lv40_symphony_necklace",
+    "slot": "NECKLACE",
+    "namePtBr": "Colar da Voz dos Ventos",
+    "nameEn": "Voice of the Winds Necklace",
+    "descPtBr": "Gargantilha com prisma afinador que amplifica o alcance das notas de cura e bênção. [Conjunto Sinfonia Serena: Lv. 40 - Barda (75%) > Necromante (25%)].",
+    "descEn": "Gargantilha com prisma afinador que amplifica o alcance das notas de cura e bênção. [Serene Symphony Set: Lv. 40 - Barda (75%) > Necromante (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_000907.png",
+    "combatStats": {
+      "MAG_ATK": 80,
+      "HEAL_POWER": 60,
+      "MAX_MP": 220,
+      "MP_REGEN": 18
+    }
+  },
+  {
+    "code": "equip_lv40_symphony_ornament1",
+    "slot": "ORNAMENT_1",
+    "namePtBr": "Flauta de Jade Espiritual",
+    "nameEn": "Spiritual Jade Flute",
+    "descPtBr": "Acessório melódico que eleva a clareza mental e a evasão de ataques inimigos. [Conjunto Sinfonia Serena: Lv. 40 - Barda (75%) > Necromante (25%)].",
+    "descEn": "Acessório melódico que eleva a clareza mental e a evasão de ataques inimigos. [Serene Symphony Set: Lv. 40 - Barda (75%) > Necromante (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_001107.png",
+    "combatStats": {
+      "MAG_ATK": 65,
+      "HEAL_POWER": 45,
+      "MAG_EVASION": 30,
+      "BATTLE_MOVE_SPEED": 25
+    }
+  },
+  {
+    "code": "equip_lv40_symphony_ornament2",
+    "slot": "ORNAMENT_2",
+    "namePtBr": "Sino de Prata Ressoante",
+    "nameEn": "Resonant Silver Bell",
+    "descPtBr": "Pequeno sino místico que dissipa a estática e mantém a mente focada no ritmo de combate. [Conjunto Sinfonia Serena: Lv. 40 - Barda (75%) > Necromante (25%)].",
+    "descEn": "Pequeno sino místico que dissipa a estática e mantém a mente focada no ritmo de combate. [Serene Symphony Set: Lv. 40 - Barda (75%) > Necromante (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_001207.png",
+    "combatStats": {
+      "MAG_ATK": 65,
+      "MAG_DEF": 70,
+      "MP_REGEN": 18,
+      "HEAL_POWER": 40
+    }
+  },
+  {
+    "code": "equip_lv40_cataclysm_head",
+    "slot": "HEAD",
+    "namePtBr": "Elmo Arcano do Cataclismo",
+    "nameEn": "Arcane Helm of Cataclysm",
+    "descPtBr": "Coroa de safira e platina que ressoa com os segredos dos magos soberanos. [Conjunto Cataclismo Arcano: Lv. 40 - Mago (75%) > Curandeira (25%)].",
+    "descEn": "Coroa de safira e platina que ressoa com os segredos dos magos soberanos. [Arcane Cataclysm Set: Lv. 40 - Mago (75%) > Curandeira (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_030305.png",
+    "combatStats": {
+      "MAG_ATK": 125,
+      "CRIT_RATE": 30,
+      "MAX_MP": 260,
+      "MAG_DEF": 60
+    }
+  },
+  {
+    "code": "equip_lv40_cataclysm_shoulder",
+    "slot": "SHOULDER",
+    "namePtBr": "Espaldares do Cataclismo Arcano",
+    "nameEn": "Pauldrons of Arcane Cataclysm",
+    "descPtBr": "Mantos reforçados com placas de cristal que desviam raios rivais. [Conjunto Cataclismo Arcano: Lv. 40 - Mago (75%) > Curandeira (25%)].",
+    "descEn": "Mantos reforçados com placas de cristal que desviam raios rivais. [Arcane Cataclysm Set: Lv. 40 - Mago (75%) > Curandeira (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_030405.png",
+    "combatStats": {
+      "MAG_ATK": 95,
+      "MAG_DEF": 90,
+      "CRIT_DMG": 25,
+      "MAX_MP": 190
+    }
+  },
+  {
+    "code": "equip_lv40_cataclysm_chest",
+    "slot": "CHEST",
+    "namePtBr": "Veste Maior do Cataclismo",
+    "nameEn": "Greater Robe of Cataclysm",
+    "descPtBr": "Túnica reforçada por runas cósmicas que conferem poder de choque inigualável. [Conjunto Cataclismo Arcano: Lv. 40 - Mago (75%) > Curandeira (25%)].",
+    "descEn": "Túnica reforçada por runas cósmicas que conferem poder de choque inigualável. [Arcane Cataclysm Set: Lv. 40 - Mago (75%) > Curandeira (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_030505.png",
+    "combatStats": {
+      "MAG_ATK": 160,
+      "CRIT_RATE": 40,
+      "CRIT_DMG": 40,
+      "MAG_DEF": 120,
+      "MAX_MP": 340
+    }
+  },
+  {
+    "code": "equip_lv40_cataclysm_belt",
+    "slot": "BELT",
+    "namePtBr": "Cinto Astral do Cataclismo",
+    "nameEn": "Astral Belt of Cataclysm",
+    "descPtBr": "Faixa reforçada com safiras estelares que catalisam correntes mágicas. [Conjunto Cataclismo Arcano: Lv. 40 - Mago (75%) > Curandeira (25%)].",
+    "descEn": "Faixa reforçada com safiras estelares que catalisam correntes mágicas. [Arcane Cataclysm Set: Lv. 40 - Mago (75%) > Curandeira (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_030605.png",
+    "combatStats": {
+      "MAG_ATK": 80,
+      "MAG_ACCURACY": 25,
+      "MP_REGEN": 15,
+      "MAG_DEF": 55
+    }
+  },
+  {
+    "code": "equip_lv40_cataclysm_legs",
+    "slot": "LEGS",
+    "namePtBr": "Calçadeiras do Cataclismo Arcano",
+    "nameEn": "Leggings of Arcane Cataclysm",
+    "descPtBr": "Perneiras tecidas em veludo de éter que aumentam a precisão do conjurador. [Conjunto Cataclismo Arcano: Lv. 40 - Mago (75%) > Curandeira (25%)].",
+    "descEn": "Perneiras tecidas em veludo de éter que aumentam a precisão do conjurador. [Arcane Cataclysm Set: Lv. 40 - Mago (75%) > Curandeira (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_030705.png",
+    "combatStats": {
+      "MAG_ATK": 115,
+      "MAG_DEF": 95,
+      "CRIT_RATE": 25,
+      "MAX_MP": 230
+    }
+  },
+  {
+    "code": "equip_lv40_cataclysm_feet",
+    "slot": "FEET",
+    "namePtBr": "Botas Arcanas do Cataclismo",
+    "nameEn": "Arcane Boots of Cataclysm",
+    "descPtBr": "Passadas firmes com encantamentos de aceleração de canalização. [Conjunto Cataclismo Arcano: Lv. 40 - Mago (75%) > Curandeira (25%)].",
+    "descEn": "Passadas firmes com encantamentos de aceleração de canalização. [Arcane Cataclysm Set: Lv. 40 - Mago (75%) > Curandeira (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_030805.png",
+    "combatStats": {
+      "MAG_ATK": 70,
+      "MAG_DEF": 70,
+      "BATTLE_MOVE_SPEED": 30,
+      "CRIT_DMG": 20
+    }
+  },
+  {
+    "code": "equip_lv40_cataclysm_weapon1",
+    "slot": "WEAPON_1",
+    "namePtBr": "Cetro do Cataclismo Cósmico",
+    "nameEn": "Cosmic Cataclysm Scepter",
+    "descPtBr": "Um cajado imponente encimado por um vórtice de plasma arcano concentrado. [Conjunto Cataclismo Arcano: Lv. 40 - Mago (75%) > Curandeira (25%)].",
+    "descEn": "Um cajado imponente encimado por um vórtice de plasma arcano concentrado. [Arcane Cataclysm Set: Lv. 40 - Mago (75%) > Curandeira (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_040114.png",
+    "combatStats": {
+      "MAG_ATK": 310,
+      "CRIT_RATE": 60,
+      "CRIT_DMG": 65,
+      "MAG_ACCURACY": 45,
+      "MAX_MP": 350
+    }
+  },
+  {
+    "code": "equip_lv40_cataclysm_weapon2",
+    "slot": "WEAPON_2",
+    "namePtBr": "Orbe da Supernova Arcana",
+    "nameEn": "Arcane Supernova Orb",
+    "descPtBr": "Uma esfera gravitacional em miniatura que distorce feitiços e quebra resistências. [Conjunto Cataclismo Arcano: Lv. 40 - Mago (75%) > Curandeira (25%)].",
+    "descEn": "Uma esfera gravitacional em miniatura que distorce feitiços e quebra resistências. [Arcane Cataclysm Set: Lv. 40 - Mago (75%) > Curandeira (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_040209.png",
+    "combatStats": {
+      "MAG_ATK": 205,
+      "MAG_DEF": 90,
+      "CRIT_DMG": 40,
+      "MAG_ACCURACY": 30,
+      "MAX_MP": 200
+    }
+  },
+  {
+    "code": "equip_lv40_cataclysm_ring",
+    "slot": "RING",
+    "namePtBr": "Anel da Chama Astral",
+    "nameEn": "Astral Flame Ring",
+    "descPtBr": "Aro de ouro estelar incrustado com topázio que amplifica explosões mágicas. [Conjunto Cataclismo Arcano: Lv. 40 - Mago (75%) > Curandeira (25%)].",
+    "descEn": "Aro de ouro estelar incrustado com topázio que amplifica explosões mágicas. [Arcane Cataclysm Set: Lv. 40 - Mago (75%) > Curandeira (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_011011.png",
+    "combatStats": {
+      "MAG_ATK": 100,
+      "CRIT_RATE": 40,
+      "CRIT_DMG": 35,
+      "MAX_MP": 180
+    }
+  },
+  {
+    "code": "equip_lv40_cataclysm_necklace",
+    "slot": "NECKLACE",
+    "namePtBr": "Colar da Fenda Celestial",
+    "nameEn": "Celestial Rift Necklace",
+    "descPtBr": "Pingente com fragmento de meteoro arcano que atrai energia mágica ambiente. [Conjunto Cataclismo Arcano: Lv. 40 - Mago (75%) > Curandeira (25%)].",
+    "descEn": "Pingente com fragmento de meteoro arcano que atrai energia mágica ambiente. [Arcane Cataclysm Set: Lv. 40 - Mago (75%) > Curandeira (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_010911.png",
+    "combatStats": {
+      "MAG_ATK": 105,
+      "MAG_ACCURACY": 35,
+      "CRIT_RATE": 30,
+      "MAX_MP": 220
+    }
+  },
+  {
+    "code": "equip_lv40_cataclysm_ornament1",
+    "slot": "ORNAMENT_1",
+    "namePtBr": "Prisma do Éter Supremo",
+    "nameEn": "Supreme Ether Prism",
+    "descPtBr": "Cristal lapidado para refratar feitiços em ângulos perfurantes e letais. [Conjunto Cataclismo Arcano: Lv. 40 - Mago (75%) > Curandeira (25%)].",
+    "descEn": "Cristal lapidado para refratar feitiços em ângulos perfurantes e letais. [Arcane Cataclysm Set: Lv. 40 - Mago (75%) > Curandeira (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_011111.png",
+    "combatStats": {
+      "MAG_ATK": 85,
+      "CRIT_DMG": 40,
+      "MAG_ACCURACY": 25
+    }
+  },
+  {
+    "code": "equip_lv40_cataclysm_ornament2",
+    "slot": "ORNAMENT_2",
+    "namePtBr": "Núcleo do Cataclismo Elemental",
+    "nameEn": "Elemental Cataclysm Core",
+    "descPtBr": "Relíquia pulsante que estabiliza o calor do mana gerado em lançamentos sucessivos. [Conjunto Cataclismo Arcano: Lv. 40 - Mago (75%) > Curandeira (25%)].",
+    "descEn": "Relíquia pulsante que estabiliza o calor do mana gerado em lançamentos sucessivos. [Arcane Cataclysm Set: Lv. 40 - Mago (75%) > Curandeira (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_011211.png",
+    "combatStats": {
+      "MAG_ATK": 80,
+      "MAG_DEF": 65,
+      "MP_REGEN": 16,
+      "CRIT_RATE": 25
+    }
+  },
+  {
+    "code": "equip_lv40_aurora_head",
+    "slot": "HEAD",
+    "namePtBr": "Véu da Graça da Aurora",
+    "nameEn": "Veil of Aurora Grace",
+    "descPtBr": "Diadema delicado banhado em ouro que acalma a mente e protege os sentidos. [Conjunto Graça da Aurora: Lv. 40 - Curandeira (75%) > Mago (25%)].",
+    "descEn": "Diadema delicado banhado em ouro que acalma a mente e protege os sentidos. [Aurora Grace Set: Lv. 40 - Curandeira (75%) > Mago (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_030303.png",
+    "combatStats": {
+      "MAG_ATK": 85,
+      "HEAL_POWER": 65,
+      "MAX_MP": 300,
+      "MAG_DEF": 65,
+      "MP_REGEN": 16
+    }
+  },
+  {
+    "code": "equip_lv40_aurora_shoulder",
+    "slot": "SHOULDER",
+    "namePtBr": "Xale da Graça da Aurora",
+    "nameEn": "Shawl of Aurora Grace",
+    "descPtBr": "Protetores de ombro de seda límpida que envolvem o portador em luz protetora. [Conjunto Graça da Aurora: Lv. 40 - Curandeira (75%) > Mago (25%)].",
+    "descEn": "Protetores de ombro de seda límpida que envolvem o portador em luz protetora. [Aurora Grace Set: Lv. 40 - Curandeira (75%) > Mago (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_030403.png",
+    "combatStats": {
+      "MAG_ATK": 70,
+      "HEAL_POWER": 55,
+      "MAG_DEF": 95,
+      "PHYS_DEF": 45,
+      "MAX_MP": 220
+    }
+  },
+  {
+    "code": "equip_lv40_aurora_chest",
+    "slot": "CHEST",
+    "namePtBr": "Manto Sagrado da Aurora",
+    "nameEn": "Sacred Robe of Aurora",
+    "descPtBr": "Túnica de sacerdócio supremo com fios que regeneram fibras corporais feridas. [Conjunto Graça da Aurora: Lv. 40 - Curandeira (75%) > Mago (25%)].",
+    "descEn": "Túnica de sacerdócio supremo com fios que regeneram fibras corporais feridas. [Aurora Grace Set: Lv. 40 - Curandeira (75%) > Mago (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_030503.png",
+    "combatStats": {
+      "MAG_ATK": 110,
+      "HEAL_POWER": 100,
+      "MAX_MP": 400,
+      "MP_REGEN": 28,
+      "MAG_DEF": 125
+    }
+  },
+  {
+    "code": "equip_lv40_aurora_belt",
+    "slot": "BELT",
+    "namePtBr": "Cinto da Graça da Aurora",
+    "nameEn": "Belt of Aurora Grace",
+    "descPtBr": "Faixa de cetim com suportes para frascos de elixires sagrados. [Conjunto Graça da Aurora: Lv. 40 - Curandeira (75%) > Mago (25%)].",
+    "descEn": "Faixa de cetim com suportes para frascos de elixires sagrados. [Aurora Grace Set: Lv. 40 - Curandeira (75%) > Mago (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_030603.png",
+    "combatStats": {
+      "MAG_ATK": 60,
+      "HEAL_POWER": 50,
+      "MP_REGEN": 20,
+      "MAG_DEF": 60
+    }
+  },
+  {
+    "code": "equip_lv40_aurora_legs",
+    "slot": "LEGS",
+    "namePtBr": "Vestimenta Inferior da Aurora",
+    "nameEn": "Lower Vestment of Aurora",
+    "descPtBr": "Saias longas com encantamentos de pureza que repelem malefícios. [Conjunto Graça da Aurora: Lv. 40 - Curandeira (75%) > Mago (25%)].",
+    "descEn": "Saias longas com encantamentos de pureza que repelem malefícios. [Aurora Grace Set: Lv. 40 - Curandeira (75%) > Mago (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_030703.png",
+    "combatStats": {
+      "MAG_ATK": 80,
+      "HEAL_POWER": 70,
+      "MAX_MP": 260,
+      "MAG_DEF": 100,
+      "MAG_EVASION": 20
+    }
+  },
+  {
+    "code": "equip_lv40_aurora_feet",
+    "slot": "FEET",
+    "namePtBr": "Sandálias da Graça da Aurora",
+    "nameEn": "Sandals of Aurora Grace",
+    "descPtBr": "Calçados leves que deixam um rastro de brilho suave ao tocar o chão. [Conjunto Graça da Aurora: Lv. 40 - Curandeira (75%) > Mago (25%)].",
+    "descEn": "Calçados leves que deixam um rastro de brilho suave ao tocar o chão. [Aurora Grace Set: Lv. 40 - Curandeira (75%) > Mago (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_030803.png",
+    "combatStats": {
+      "MAG_ATK": 50,
+      "HEAL_POWER": 45,
+      "MAG_DEF": 75,
+      "BATTLE_MOVE_SPEED": 30,
+      "MAG_EVASION": 25
+    }
+  },
+  {
+    "code": "equip_lv40_aurora_weapon1",
+    "slot": "WEAPON_1",
+    "namePtBr": "Cajado da Aurora Sagrada",
+    "nameEn": "Staff of Sacred Aurora",
+    "descPtBr": "Um báculo purificado coroado por uma asa dourada que canaliza orações divinas. [Conjunto Graça da Aurora: Lv. 40 - Curandeira (75%) > Mago (25%)].",
+    "descEn": "Um báculo purificado coroado por uma asa dourada que canaliza orações divinas. [Aurora Grace Set: Lv. 40 - Curandeira (75%) > Mago (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_040111.png",
+    "combatStats": {
+      "MAG_ATK": 220,
+      "HEAL_POWER": 135,
+      "MAX_MP": 450,
+      "MP_REGEN": 32,
+      "MAX_HP": 350
+    }
+  },
+  {
+    "code": "equip_lv40_aurora_weapon2",
+    "slot": "WEAPON_2",
+    "namePtBr": "Livro dos Preceitos Sagrados",
+    "nameEn": "Book of Sacred Precepts",
+    "descPtBr": "Tomo com páginas de pergaminho sagrado com orações de renovação instantânea. [Conjunto Graça da Aurora: Lv. 40 - Curandeira (75%) > Mago (25%)].",
+    "descEn": "Tomo com páginas de pergaminho sagrado com orações de renovação instantânea. [Aurora Grace Set: Lv. 40 - Curandeira (75%) > Mago (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_121006.png",
+    "combatStats": {
+      "MAG_ATK": 155,
+      "HEAL_POWER": 95,
+      "MAG_DEF": 120,
+      "MAX_MP": 280,
+      "MP_REGEN": 24
+    }
+  },
+  {
+    "code": "equip_lv40_aurora_ring",
+    "slot": "RING",
+    "namePtBr": "Selo da Bênção da Aurora",
+    "nameEn": "Seal of the Aurora Blessing",
+    "descPtBr": "Aliança de ouro branco com água-marinha abençoada pelos espíritos da vida. [Conjunto Graça da Aurora: Lv. 40 - Curandeira (75%) > Mago (25%)].",
+    "descEn": "Aliança de ouro branco com água-marinha abençoada pelos espíritos da vida. [Aurora Grace Set: Lv. 40 - Curandeira (75%) > Mago (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_001009.png",
+    "combatStats": {
+      "MAG_ATK": 75,
+      "HEAL_POWER": 70,
+      "MAX_MP": 240,
+      "MP_REGEN": 18
+    }
+  },
+  {
+    "code": "equip_lv40_aurora_necklace",
+    "slot": "NECKLACE",
+    "namePtBr": "Colar das Gotas da Aurora",
+    "nameEn": "Drops of Aurora Necklace",
+    "descPtBr": "Corrente límpida cujas contas armazenam orvalho místico de cura. [Conjunto Graça da Aurora: Lv. 40 - Curandeira (75%) > Mago (25%)].",
+    "descEn": "Corrente límpida cujas contas armazenam orvalho místico de cura. [Aurora Grace Set: Lv. 40 - Curandeira (75%) > Mago (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_000909.png",
+    "combatStats": {
+      "MAG_ATK": 80,
+      "HEAL_POWER": 80,
+      "MAX_MP": 260,
+      "MAG_DEF": 70
+    }
+  },
+  {
+    "code": "equip_lv40_aurora_ornament1",
+    "slot": "ORNAMENT_1",
+    "namePtBr": "Cruz Radiante da Aurora",
+    "nameEn": "Radiant Aurora Cross",
+    "descPtBr": "Símbolo consagrado que ergue cúpulas de proteção contra feitiços negros. [Conjunto Graça da Aurora: Lv. 40 - Curandeira (75%) > Mago (25%)].",
+    "descEn": "Símbolo consagrado que ergue cúpulas de proteção contra feitiços negros. [Aurora Grace Set: Lv. 40 - Curandeira (75%) > Mago (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_001109.png",
+    "combatStats": {
+      "MAG_ATK": 65,
+      "HEAL_POWER": 65,
+      "MAG_DEF": 75,
+      "MAX_HP": 250
+    }
+  },
+  {
+    "code": "equip_lv40_aurora_ornament2",
+    "slot": "ORNAMENT_2",
+    "namePtBr": "Broche da Purificação Divina",
+    "nameEn": "Brooch of Divine Purification",
+    "descPtBr": "Joia sagrada que dissolve toxinas e mantém o fôlego espiritual do conjurador. [Conjunto Graça da Aurora: Lv. 40 - Curandeira (75%) > Mago (25%)].",
+    "descEn": "Joia sagrada que dissolve toxinas e mantém o fôlego espiritual do conjurador. [Aurora Grace Set: Lv. 40 - Curandeira (75%) > Mago (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_001209.png",
+    "combatStats": {
+      "MAG_ATK": 65,
+      "HEAL_POWER": 55,
+      "MP_REGEN": 20,
+      "MAG_EVASION": 25
+    }
+  },
+  {
+    "code": "equip_lv40_colossus_head",
+    "slot": "HEAD",
+    "namePtBr": "Elmo Blindado do Colosso",
+    "nameEn": "Armored Helm of the Colossus",
+    "descPtBr": "Elmo fechado de aço com fendas de visão estreitas e proteção máxima. [Conjunto Colosso de Aço: Lv. 40 - Guerreira (75%) > Lanceiro (25%)].",
+    "descEn": "Elmo fechado de aço com fendas de visão estreitas e proteção máxima. [Steel Colossus Set: Lv. 40 - Guerreira (75%) > Lanceiro (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_010305.png",
+    "combatStats": {
+      "PHYS_ATK": 90,
+      "PHYS_DEF": 160,
+      "MAG_DEF": 80,
+      "MAX_HP": 420
+    }
+  },
+  {
+    "code": "equip_lv40_colossus_shoulder",
+    "slot": "SHOULDER",
+    "namePtBr": "Ombreiras Titânicas do Colosso",
+    "nameEn": "Titanic Shoulders of the Colossus",
+    "descPtBr": "Espaldares pontiagudos projetados para defletir machados pesados. [Conjunto Colosso de Aço: Lv. 40 - Guerreira (75%) > Lanceiro (25%)].",
+    "descEn": "Espaldares pontiagudos projetados para defletir machados pesados. [Steel Colossus Set: Lv. 40 - Guerreira (75%) > Lanceiro (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_010405.png",
+    "combatStats": {
+      "PHYS_ATK": 75,
+      "PHYS_DEF": 140,
+      "MAG_DEF": 75,
+      "MAX_HP": 360
+    }
+  },
+  {
+    "code": "equip_lv40_colossus_chest",
+    "slot": "CHEST",
+    "namePtBr": "Couraça Inabalável do Colosso",
+    "nameEn": "Unshakable Cuirass of the Colossus",
+    "descPtBr": "Peitoral inteiriço de liga temperada capaz de resistir a garras de dragões. [Conjunto Colosso de Aço: Lv. 40 - Guerreira (75%) > Lanceiro (25%)].",
+    "descEn": "Peitoral inteiriço de liga temperada capaz de resistir a garras de dragões. [Steel Colossus Set: Lv. 40 - Guerreira (75%) > Lanceiro (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_010505.png",
+    "combatStats": {
+      "PHYS_ATK": 120,
+      "PHYS_DEF": 215,
+      "MAG_DEF": 115,
+      "MAX_HP": 650,
+      "HP_REGEN": 35
+    }
+  },
+  {
+    "code": "equip_lv40_colossus_belt",
+    "slot": "BELT",
+    "namePtBr": "Cinturão de Placas do Colosso",
+    "nameEn": "Plate Belt of the Colossus",
+    "descPtBr": "Cinturão reforçado com travas de aço que sustentam as placas das coxas. [Conjunto Colosso de Aço: Lv. 40 - Guerreira (75%) > Lanceiro (25%)].",
+    "descEn": "Cinturão reforçado com travas de aço que sustentam as placas das coxas. [Steel Colossus Set: Lv. 40 - Guerreira (75%) > Lanceiro (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_010605.png",
+    "combatStats": {
+      "PHYS_ATK": 65,
+      "PHYS_DEF": 110,
+      "MAG_DEF": 60,
+      "HP_REGEN": 25
+    }
+  },
+  {
+    "code": "equip_lv40_colossus_legs",
+    "slot": "LEGS",
+    "namePtBr": "Coxotes Pesados do Colosso",
+    "nameEn": "Heavy Greaves of the Colossus",
+    "descPtBr": "Placas articuladas que protegem pernas e joelhos sem limitar avanço em linha. [Conjunto Colosso de Aço: Lv. 40 - Guerreira (75%) > Lanceiro (25%)].",
+    "descEn": "Placas articuladas que protegem pernas e joelhos sem limitar avanço em linha. [Steel Colossus Set: Lv. 40 - Guerreira (75%) > Lanceiro (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_010705.png",
+    "combatStats": {
+      "PHYS_ATK": 85,
+      "PHYS_DEF": 170,
+      "MAG_DEF": 85,
+      "MAX_HP": 480
+    }
+  },
+  {
+    "code": "equip_lv40_colossus_feet",
+    "slot": "FEET",
+    "namePtBr": "Botas de Chumbo do Colosso",
+    "nameEn": "Lead Boots of the Colossus",
+    "descPtBr": "Calçados pesados de ferro que fixam a postura contra empurrões. [Conjunto Colosso de Aço: Lv. 40 - Guerreira (75%) > Lanceiro (25%)].",
+    "descEn": "Calçados pesados de ferro que fixam a postura contra empurrões. [Steel Colossus Set: Lv. 40 - Guerreira (75%) > Lanceiro (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_010805.png",
+    "combatStats": {
+      "PHYS_ATK": 60,
+      "PHYS_DEF": 125,
+      "MAG_DEF": 70,
+      "BATTLE_MOVE_SPEED": 20,
+      "MAX_HP": 320
+    }
+  },
+  {
+    "code": "equip_lv40_colossus_weapon1",
+    "slot": "WEAPON_1",
+    "namePtBr": "Maça de Guerra do Colosso",
+    "nameEn": "Colossus War Mace",
+    "descPtBr": "Uma maça colossal com pontas de aço forjadas para quebrar escudos e ossos. [Conjunto Colosso de Aço: Lv. 40 - Guerreira (75%) > Lanceiro (25%)].",
+    "descEn": "Uma maça colossal com pontas de aço forjadas para quebrar escudos e ossos. [Steel Colossus Set: Lv. 40 - Guerreira (75%) > Lanceiro (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_010115.png",
+    "combatStats": {
+      "PHYS_ATK": 290,
+      "MAX_HP": 750,
+      "PHYS_DEF": 95,
+      "HP_REGEN": 35,
+      "CRIT_DMG": 45
+    }
+  },
+  {
+    "code": "equip_lv40_colossus_weapon2",
+    "slot": "WEAPON_2",
+    "namePtBr": "Escudo Bastião Imperial",
+    "nameEn": "Imperial Bastion Shield",
+    "descPtBr": "Um imenso escudo torre de ferro reforçado capaz de conter arremessos de catapultas. [Conjunto Colosso de Aço: Lv. 40 - Guerreira (75%) > Lanceiro (25%)].",
+    "descEn": "Um imenso escudo torre de ferro reforçado capaz de conter arremessos de catapultas. [Steel Colossus Set: Lv. 40 - Guerreira (75%) > Lanceiro (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_111006.png",
+    "combatStats": {
+      "PHYS_ATK": 95,
+      "PHYS_DEF": 210,
+      "MAG_DEF": 125,
+      "MAX_HP": 600,
+      "HP_REGEN": 25
+    }
+  },
+  {
+    "code": "equip_lv40_colossus_ring",
+    "slot": "RING",
+    "namePtBr": "Anel do Aço Indestrutível",
+    "nameEn": "Indestructible Steel Ring",
+    "descPtBr": "Aro pesado forjado no núcleo de uma bigorna de ferreiro ancestral. [Conjunto Colosso de Aço: Lv. 40 - Guerreira (75%) > Lanceiro (25%)].",
+    "descEn": "Aro pesado forjado no núcleo de uma bigorna de ferreiro ancestral. [Steel Colossus Set: Lv. 40 - Guerreira (75%) > Lanceiro (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_011007.png",
+    "combatStats": {
+      "PHYS_ATK": 75,
+      "PHYS_DEF": 85,
+      "MAX_HP": 380,
+      "HP_REGEN": 16
+    }
+  },
+  {
+    "code": "equip_lv40_colossus_necklace",
+    "slot": "NECKLACE",
+    "namePtBr": "Corrente do Colosso Titânico",
+    "nameEn": "Titanic Colossus Chain",
+    "descPtBr": "Elos maciços de ferro que repousam pesadamente no peito, blindando a garganta. [Conjunto Colosso de Aço: Lv. 40 - Guerreira (75%) > Lanceiro (25%)].",
+    "descEn": "Elos maciços de ferro que repousam pesadamente no peito, blindando a garganta. [Steel Colossus Set: Lv. 40 - Guerreira (75%) > Lanceiro (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_010907.png",
+    "combatStats": {
+      "PHYS_ATK": 80,
+      "PHYS_DEF": 95,
+      "MAX_HP": 450,
+      "MAG_DEF": 60
+    }
+  },
+  {
+    "code": "equip_lv40_colossus_ornament1",
+    "slot": "ORNAMENT_1",
+    "namePtBr": "Brasão da Muralha Imóvel",
+    "nameEn": "Immovable Wall Crest",
+    "descPtBr": "Emblema heráldico de uma muralha com leão que reforça a fibra muscular. [Conjunto Colosso de Aço: Lv. 40 - Guerreira (75%) > Lanceiro (25%)].",
+    "descEn": "Emblema heráldico de uma muralha com leão que reforça a fibra muscular. [Steel Colossus Set: Lv. 40 - Guerreira (75%) > Lanceiro (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_011107.png",
+    "combatStats": {
+      "PHYS_ATK": 65,
+      "PHYS_DEF": 90,
+      "MAX_HP": 400,
+      "HP_REGEN": 20
+    }
+  },
+  {
+    "code": "equip_lv40_colossus_ornament2",
+    "slot": "ORNAMENT_2",
+    "namePtBr": "Talismã da Guarda Eterna",
+    "nameEn": "Eternal Guard Talisman",
+    "descPtBr": "Pendente de ferro que pulsa calor constante, acelerando a coagulação de feridas. [Conjunto Colosso de Aço: Lv. 40 - Guerreira (75%) > Lanceiro (25%)].",
+    "descEn": "Pendente de ferro que pulsa calor constante, acelerando a coagulação de feridas. [Steel Colossus Set: Lv. 40 - Guerreira (75%) > Lanceiro (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_011207.png",
+    "combatStats": {
+      "PHYS_ATK": 60,
+      "PHYS_DEF": 80,
+      "MAG_DEF": 75,
+      "HP_REGEN": 30
+    }
+  },
+  {
+    "code": "equip_lv40_skylance_head",
+    "slot": "HEAD",
+    "namePtBr": "Elmo Cônico da Lança dos Céus",
+    "nameEn": "Conical Helm of the Sky Lance",
+    "descPtBr": "Elmo aerodinâmico que corta o vento durante investidas em velocidade. [Conjunto Lança dos Céus: Lv. 40 - Lanceiro (75%) > Guerreira (25%)].",
+    "descEn": "Elmo aerodinâmico que corta o vento durante investidas em velocidade. [Sky Lance Set: Lv. 40 - Lanceiro (75%) > Guerreira (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_010303.png",
+    "combatStats": {
+      "PHYS_ATK": 105,
+      "PHYS_ACCURACY": 30,
+      "PHYS_DEF": 125,
+      "CRIT_RATE": 25
+    }
+  },
+  {
+    "code": "equip_lv40_skylance_shoulder",
+    "slot": "SHOULDER",
+    "namePtBr": "Ombreiras Afiadas da Lança",
+    "nameEn": "Sharp Shoulders of the Lance",
+    "descPtBr": "Espaldares laminados que protegem os ombros durante o empuxo da arma. [Conjunto Lança dos Céus: Lv. 40 - Lanceiro (75%) > Guerreira (25%)].",
+    "descEn": "Espaldares laminados que protegem os ombros durante o empuxo da arma. [Sky Lance Set: Lv. 40 - Lanceiro (75%) > Guerreira (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_010403.png",
+    "combatStats": {
+      "PHYS_ATK": 85,
+      "PHYS_DEF": 110,
+      "PHYS_ACCURACY": 25,
+      "BATTLE_MOVE_SPEED": 15
+    }
+  },
+  {
+    "code": "equip_lv40_skylance_chest",
+    "slot": "CHEST",
+    "namePtBr": "Couraça Laminada da Lança",
+    "nameEn": "Laminated Cuirass of the Lance",
+    "descPtBr": "Peitoral esculpido com perfil de quilha para desviar projéteis frontais. [Conjunto Lança dos Céus: Lv. 40 - Lanceiro (75%) > Guerreira (25%)].",
+    "descEn": "Peitoral esculpido com perfil de quilha para desviar projéteis frontais. [Sky Lance Set: Lv. 40 - Lanceiro (75%) > Guerreira (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_010503.png",
+    "combatStats": {
+      "PHYS_ATK": 135,
+      "PHYS_DEF": 165,
+      "PHYS_ACCURACY": 40,
+      "CRIT_RATE": 35,
+      "MAX_HP": 450
+    }
+  },
+  {
+    "code": "equip_lv40_skylance_belt",
+    "slot": "BELT",
+    "namePtBr": "Cinto Articulado da Lança",
+    "nameEn": "Articulated Belt of the Lance",
+    "descPtBr": "Faixa reforçada com placas que mantêm a bacia firme no giro de estocada. [Conjunto Lança dos Céus: Lv. 40 - Lanceiro (75%) > Guerreira (25%)].",
+    "descEn": "Faixa reforçada com placas que mantêm a bacia firme no giro de estocada. [Sky Lance Set: Lv. 40 - Lanceiro (75%) > Guerreira (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_010603.png",
+    "combatStats": {
+      "PHYS_ATK": 75,
+      "PHYS_DEF": 85,
+      "CRIT_DMG": 20,
+      "PHYS_ACCURACY": 20
+    }
+  },
+  {
+    "code": "equip_lv40_skylance_legs",
+    "slot": "LEGS",
+    "namePtBr": "Perneiras do Perfurador Alado",
+    "nameEn": "Winged Piercer Greaves",
+    "descPtBr": "Coxotes leves com aletas que auxiliam na sustentação e no equilíbrio. [Conjunto Lança dos Céus: Lv. 40 - Lanceiro (75%) > Guerreira (25%)].",
+    "descEn": "Coxotes leves com aletas que auxiliam na sustentação e no equilíbrio. [Sky Lance Set: Lv. 40 - Lanceiro (75%) > Guerreira (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_010703.png",
+    "combatStats": {
+      "PHYS_ATK": 95,
+      "PHYS_DEF": 135,
+      "PHYS_ACCURACY": 30,
+      "BATTLE_MOVE_SPEED": 25
+    }
+  },
+  {
+    "code": "equip_lv40_skylance_feet",
+    "slot": "FEET",
+    "namePtBr": "Grevas Ligeiras da Lança",
+    "nameEn": "Light Greaves of the Lance",
+    "descPtBr": "Botas de aço com esporas que cravam no solo para alavancagem de impacto. [Conjunto Lança dos Céus: Lv. 40 - Lanceiro (75%) > Guerreira (25%)].",
+    "descEn": "Botas de aço com esporas que cravam no solo para alavancagem de impacto. [Sky Lance Set: Lv. 40 - Lanceiro (75%) > Guerreira (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_010803.png",
+    "combatStats": {
+      "PHYS_ATK": 70,
+      "PHYS_DEF": 95,
+      "BATTLE_MOVE_SPEED": 40,
+      "PHYS_ACCURACY": 25
+    }
+  },
+  {
+    "code": "equip_lv40_skylance_weapon1",
+    "slot": "WEAPON_1",
+    "namePtBr": "Lança de Ruptura do Dragão",
+    "nameEn": "Dragon Rupture Lance",
+    "descPtBr": "Uma lança longa de aço negro e ponta espiralada projetada para perfurar couraças. [Conjunto Lança dos Céus: Lv. 40 - Lanceiro (75%) > Guerreira (25%)].",
+    "descEn": "Uma lança longa de aço negro e ponta espiralada projetada para perfurar couraças. [Sky Lance Set: Lv. 40 - Lanceiro (75%) > Guerreira (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_060110.png",
+    "combatStats": {
+      "PHYS_ATK": 315,
+      "PHYS_ACCURACY": 55,
+      "CRIT_RATE": 50,
+      "CRIT_DMG": 55,
+      "MAX_HP": 450
+    }
+  },
+  {
+    "code": "equip_lv40_skylance_weapon2",
+    "slot": "WEAPON_2",
+    "namePtBr": "Broquel Pontiagudo da Lança",
+    "nameEn": "Pointed Buckler of the Lance",
+    "descPtBr": "Escudo redondo leve com ponta de perfuração central para aparar e contra-atacar. [Conjunto Lança dos Céus: Lv. 40 - Lanceiro (75%) > Guerreira (25%)].",
+    "descEn": "Escudo redondo leve com ponta de perfuração central para aparar e contra-atacar. [Sky Lance Set: Lv. 40 - Lanceiro (75%) > Guerreira (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_010210.png",
+    "combatStats": {
+      "PHYS_ATK": 175,
+      "PHYS_DEF": 120,
+      "PHYS_ACCURACY": 35,
+      "CRIT_RATE": 30,
+      "MAG_DEF": 75
+    }
+  },
+  {
+    "code": "equip_lv40_skylance_ring",
+    "slot": "RING",
+    "namePtBr": "Anel da Estocada Certeira",
+    "nameEn": "Accurate Thrust Ring",
+    "descPtBr": "Anel com ponta de aço que alinha os músculos do braço no ponto de impacto. [Conjunto Lança dos Céus: Lv. 40 - Lanceiro (75%) > Guerreira (25%)].",
+    "descEn": "Anel com ponta de aço que alinha os músculos do braço no ponto de impacto. [Sky Lance Set: Lv. 40 - Lanceiro (75%) > Guerreira (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_011013.png",
+    "combatStats": {
+      "PHYS_ATK": 90,
+      "PHYS_ACCURACY": 40,
+      "CRIT_RATE": 35,
+      "MAX_HP": 220
+    }
+  },
+  {
+    "code": "equip_lv40_skylance_necklace",
+    "slot": "NECKLACE",
+    "namePtBr": "Pingente da Ponta de Diamante",
+    "nameEn": "Diamond Tip Pendant",
+    "descPtBr": "Ponta afiada lapidada que inspira foco absoluto na pontaria de estocadas. [Conjunto Lança dos Céus: Lv. 40 - Lanceiro (75%) > Guerreira (25%)].",
+    "descEn": "Ponta afiada lapidada que inspira foco absoluto na pontaria de estocadas. [Sky Lance Set: Lv. 40 - Lanceiro (75%) > Guerreira (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_010913.png",
+    "combatStats": {
+      "PHYS_ATK": 95,
+      "PHYS_ACCURACY": 45,
+      "CRIT_DMG": 35,
+      "PHYS_DEF": 55
+    }
+  },
+  {
+    "code": "equip_lv40_skylance_ornament1",
+    "slot": "ORNAMENT_1",
+    "namePtBr": "Insígnia do Falcão Perfurador",
+    "nameEn": "Piercing Falcon Insignia",
+    "descPtBr": "Broche de aço prateado que afia a visão para identificar falhas na guarda rival. [Conjunto Lança dos Céus: Lv. 40 - Lanceiro (75%) > Guerreira (25%)].",
+    "descEn": "Broche de aço prateado que afia a visão para identificar falhas na guarda rival. [Sky Lance Set: Lv. 40 - Lanceiro (75%) > Guerreira (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_011113.png",
+    "combatStats": {
+      "PHYS_ATK": 80,
+      "CRIT_RATE": 35,
+      "PHYS_ACCURACY": 30,
+      "BATTLE_MOVE_SPEED": 25
+    }
+  },
+  {
+    "code": "equip_lv40_skylance_ornament2",
+    "slot": "ORNAMENT_2",
+    "namePtBr": "Talismã da Carga Fulminante",
+    "nameEn": "Fulminant Charge Talisman",
+    "descPtBr": "Símbolo cinético que converte velocidade de corrida em força de impacto terminal. [Conjunto Lança dos Céus: Lv. 40 - Lanceiro (75%) > Guerreira (25%)].",
+    "descEn": "Símbolo cinético que converte velocidade de corrida em força de impacto terminal. [Sky Lance Set: Lv. 40 - Lanceiro (75%) > Guerreira (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_011213.png",
+    "combatStats": {
+      "PHYS_ATK": 75,
+      "PHYS_DEF": 65,
+      "CRIT_DMG": 30,
+      "BATTLE_MOVE_SPEED": 25
+    }
+  },
+  {
+    "code": "equip_lv40_blademaster_head",
+    "slot": "HEAD",
+    "namePtBr": "Máscara da Lâmina Soberana",
+    "nameEn": "Sovereign Blade Mask",
+    "descPtBr": "Faixa e protetor facial que isolam a visão de distrações durante duelos. [Conjunto Fio Soberano: Lv. 40 - Espadachim (75%) > Lutadora (25%)].",
+    "descEn": "Faixa e protetor facial que isolam a visão de distrações durante duelos. [Sovereign Edge Set: Lv. 40 - Espadachim (75%) > Lutadora (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_050305.png",
+    "combatStats": {
+      "PHYS_ATK": 110,
+      "CRIT_RATE": 40,
+      "PHYS_ACCURACY": 30,
+      "PHYS_DEF": 75
+    }
+  },
+  {
+    "code": "equip_lv40_blademaster_shoulder",
+    "slot": "SHOULDER",
+    "namePtBr": "Espaldares da Lâmina Soberana",
+    "nameEn": "Sovereign Blade Pauldrons",
+    "descPtBr": "Ombreiras articuladas de aço rubi que acompanham golpes verticais sem atrito. [Conjunto Fio Soberano: Lv. 40 - Espadachim (75%) > Lutadora (25%)].",
+    "descEn": "Ombreiras articuladas de aço rubi que acompanham golpes verticais sem atrito. [Sovereign Edge Set: Lv. 40 - Espadachim (75%) > Lutadora (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_050405.png",
+    "combatStats": {
+      "PHYS_ATK": 90,
+      "PHYS_DEF": 90,
+      "CRIT_DMG": 30,
+      "PHYS_EVASION": 25
+    }
+  },
+  {
+    "code": "equip_lv40_blademaster_chest",
+    "slot": "CHEST",
+    "namePtBr": "Peitoral de Duelo da Lâmina Soberana",
+    "nameEn": "Sovereign Blade Dueling Plate",
+    "descPtBr": "Couraça leve de couro e tiras metálicas que não restringe a rotação do tronco. [Conjunto Fio Soberano: Lv. 40 - Espadachim (75%) > Lutadora (25%)].",
+    "descEn": "Couraça leve de couro e tiras metálicas que não restringe a rotação do tronco. [Sovereign Edge Set: Lv. 40 - Espadachim (75%) > Lutadora (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_050505.png",
+    "combatStats": {
+      "PHYS_ATK": 140,
+      "CRIT_RATE": 55,
+      "CRIT_DMG": 50,
+      "PHYS_DEF": 135,
+      "ATTACK_SPEED": 40
+    }
+  },
+  {
+    "code": "equip_lv40_blademaster_belt",
+    "slot": "BELT",
+    "namePtBr": "Cinto da Bainha Soberana",
+    "nameEn": "Sovereign Sheath Belt",
+    "descPtBr": "Cinto utilitário com encaixes duplos para bainhas de desembainhar relâmpago. [Conjunto Fio Soberano: Lv. 40 - Espadachim (75%) > Lutadora (25%)].",
+    "descEn": "Cinto utilitário com encaixes duplos para bainhas de desembainhar relâmpago. [Sovereign Edge Set: Lv. 40 - Espadachim (75%) > Lutadora (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_050605.png",
+    "combatStats": {
+      "PHYS_ATK": 75,
+      "CRIT_RATE": 30,
+      "ATTACK_SPEED": 30,
+      "PHYS_DEF": 65
+    }
+  },
+  {
+    "code": "equip_lv40_blademaster_legs",
+    "slot": "LEGS",
+    "namePtBr": "Calças de Combate da Lâmina",
+    "nameEn": "Blade Combat Trousers",
+    "descPtBr": "Perneiras com tiras de aperto para corridas curtas e saltos acrobáticos. [Conjunto Fio Soberano: Lv. 40 - Espadachim (75%) > Lutadora (25%)].",
+    "descEn": "Perneiras com tiras de aperto para corridas curtas e saltos acrobáticos. [Sovereign Edge Set: Lv. 40 - Espadachim (75%) > Lutadora (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_050705.png",
+    "combatStats": {
+      "PHYS_ATK": 100,
+      "PHYS_DEF": 105,
+      "CRIT_RATE": 35,
+      "PHYS_EVASION": 30
+    }
+  },
+  {
+    "code": "equip_lv40_blademaster_feet",
+    "slot": "FEET",
+    "namePtBr": "Botas do Espadachim Soberano",
+    "nameEn": "Sovereign Swordsman Boots",
+    "descPtBr": "Calçados com solado aderente para paradas bruscas e estocadas rápidas. [Conjunto Fio Soberano: Lv. 40 - Espadachim (75%) > Lutadora (25%)].",
+    "descEn": "Calçados com solado aderente para paradas bruscas e estocadas rápidas. [Sovereign Edge Set: Lv. 40 - Espadachim (75%) > Lutadora (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_050805.png",
+    "combatStats": {
+      "PHYS_ATK": 70,
+      "PHYS_DEF": 75,
+      "BATTLE_MOVE_SPEED": 35,
+      "CRIT_DMG": 25,
+      "PHYS_EVASION": 25
+    }
+  },
+  {
+    "code": "equip_lv40_blademaster_weapon1",
+    "slot": "WEAPON_1",
+    "namePtBr": "Katana da Flor Carmesim",
+    "nameEn": "Crimson Blossom Katana",
+    "descPtBr": "Uma lâmina de aço dobrado mil vezes que corta o ar sem emitir som. [Conjunto Fio Soberano: Lv. 40 - Espadachim (75%) > Lutadora (25%)].",
+    "descEn": "Uma lâmina de aço dobrado mil vezes que corta o ar sem emitir som. [Sovereign Edge Set: Lv. 40 - Espadachim (75%) > Lutadora (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_050110.png",
+    "combatStats": {
+      "PHYS_ATK": 295,
+      "CRIT_RATE": 75,
+      "CRIT_DMG": 70,
+      "PHYS_ACCURACY": 45,
+      "ATTACK_SPEED": 40
+    }
+  },
+  {
+    "code": "equip_lv40_blademaster_weapon2",
+    "slot": "WEAPON_2",
+    "namePtBr": "Adaga de Aparo da Flor Carmesim",
+    "nameEn": "Crimson Blossom Parrying Dagger",
+    "descPtBr": "Adaga de gume duplo curvada para prender a lâmina do oponente e contra-atacar. [Conjunto Fio Soberano: Lv. 40 - Espadachim (75%) > Lutadora (25%)].",
+    "descEn": "Adaga de gume duplo curvada para prender a lâmina do oponente e contra-atacar. [Sovereign Edge Set: Lv. 40 - Espadachim (75%) > Lutadora (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_050210.png",
+    "combatStats": {
+      "PHYS_ATK": 185,
+      "PHYS_EVASION": 55,
+      "CRIT_RATE": 45,
+      "ATTACK_SPEED": 45,
+      "PHYS_DEF": 60
+    }
+  },
+  {
+    "code": "equip_lv40_blademaster_ring",
+    "slot": "RING",
+    "namePtBr": "Anel do Corte Preciso",
+    "nameEn": "Precise Cut Ring",
+    "descPtBr": "Anel gravado com caracteres de mestres duelistas que amplia o dano nos pontos vitais. [Conjunto Fio Soberano: Lv. 40 - Espadachim (75%) > Lutadora (25%)].",
+    "descEn": "Anel gravado com caracteres de mestres duelistas que amplia o dano nos pontos vitais. [Sovereign Edge Set: Lv. 40 - Espadachim (75%) > Lutadora (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_001011.png",
+    "combatStats": {
+      "PHYS_ATK": 90,
+      "CRIT_RATE": 50,
+      "CRIT_DMG": 45,
+      "PHYS_ACCURACY": 25
+    }
+  },
+  {
+    "code": "equip_lv40_blademaster_necklace",
+    "slot": "NECKLACE",
+    "namePtBr": "Gargantilha da Lâmina Escarlate",
+    "nameEn": "Scarlet Blade Choker",
+    "descPtBr": "Fita de seda rubi com pingente de adaga afiada que aguça os reflexos oculares. [Conjunto Fio Soberano: Lv. 40 - Espadachim (75%) > Lutadora (25%)].",
+    "descEn": "Fita de seda rubi com pingente de adaga afiada que aguça os reflexos oculares. [Sovereign Edge Set: Lv. 40 - Espadachim (75%) > Lutadora (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_000911.png",
+    "combatStats": {
+      "PHYS_ATK": 95,
+      "CRIT_RATE": 45,
+      "CRIT_DMG": 50,
+      "ATTACK_SPEED": 30
+    }
+  },
+  {
+    "code": "equip_lv40_blademaster_ornament1",
+    "slot": "ORNAMENT_1",
+    "namePtBr": "Selo do Mestre das Espadas",
+    "nameEn": "Swordmaster Seal",
+    "descPtBr": "Emblema de dojo de esgrima lendário que melhora a postura marcial. [Conjunto Fio Soberano: Lv. 40 - Espadachim (75%) > Lutadora (25%)].",
+    "descEn": "Emblema de dojo de esgrima lendário que melhora a postura marcial. [Sovereign Edge Set: Lv. 40 - Espadachim (75%) > Lutadora (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_001111.png",
+    "combatStats": {
+      "PHYS_ATK": 80,
+      "CRIT_DMG": 40,
+      "PHYS_ACCURACY": 35,
+      "PHYS_EVASION": 25
+    }
+  },
+  {
+    "code": "equip_lv40_blademaster_ornament2",
+    "slot": "ORNAMENT_2",
+    "namePtBr": "Talismã da Postura Inabalável",
+    "nameEn": "Unshakable Stance Talisman",
+    "descPtBr": "Pendente que estabiliza o centro de gravidade durante combinações rápidas. [Conjunto Fio Soberano: Lv. 40 - Espadachim (75%) > Lutadora (25%)].",
+    "descEn": "Pendente que estabiliza o centro de gravidade durante combinações rápidas. [Sovereign Edge Set: Lv. 40 - Espadachim (75%) > Lutadora (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_001211.png",
+    "combatStats": {
+      "PHYS_ATK": 75,
+      "PHYS_DEF": 65,
+      "CRIT_RATE": 35,
+      "ATTACK_SPEED": 25
+    }
+  },
+  {
+    "code": "equip_lv40_firefist_head",
+    "slot": "HEAD",
+    "namePtBr": "Faixa da Fúria do Punho de Fogo",
+    "nameEn": "Fire Fist Fury Band",
+    "descPtBr": "Bandana que mantém o suor longe dos olhos e foca o espírito na luta. [Conjunto Punho de Fogo: Lv. 40 - Lutadora (75%) > Espadachim (25%)].",
+    "descEn": "Bandana que mantém o suor longe dos olhos e foca o espírito na luta. [Fire Fist Set: Lv. 40 - Lutadora (75%) > Espadachim (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_050303.png",
+    "combatStats": {
+      "PHYS_ATK": 95,
+      "ATTACK_SPEED": 45,
+      "PHYS_EVASION": 35,
+      "PHYS_DEF": 65
+    }
+  },
+  {
+    "code": "equip_lv40_firefist_shoulder",
+    "slot": "SHOULDER",
+    "namePtBr": "Protetores de Ombro da Lutadora",
+    "nameEn": "Brawler Shoulder Guards",
+    "descPtBr": "Protetores de couro flexível que não limitam o balanço do soco giratório. [Conjunto Punho de Fogo: Lv. 40 - Lutadora (75%) > Espadachim (25%)].",
+    "descEn": "Protetores de couro flexível que não limitam o balanço do soco giratório. [Fire Fist Set: Lv. 40 - Lutadora (75%) > Espadachim (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_050403.png",
+    "combatStats": {
+      "PHYS_ATK": 80,
+      "PHYS_DEF": 80,
+      "ATTACK_SPEED": 35,
+      "PHYS_EVASION": 30
+    }
+  },
+  {
+    "code": "equip_lv40_firefist_chest",
+    "slot": "CHEST",
+    "namePtBr": "Top de Batalha do Punho de Fogo",
+    "nameEn": "Fire Fist Battle Top",
+    "descPtBr": "Colete curto acolchoado com fibras resistentes que permite respiração pulmonar máxima. [Conjunto Punho de Fogo: Lv. 40 - Lutadora (75%) > Espadachim (25%)].",
+    "descEn": "Colete curto acolchoado com fibras resistentes que permite respiração pulmonar máxima. [Fire Fist Set: Lv. 40 - Lutadora (75%) > Espadachim (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_050503.png",
+    "combatStats": {
+      "PHYS_ATK": 120,
+      "ATTACK_SPEED": 60,
+      "PHYS_EVASION": 50,
+      "PHYS_DEF": 115,
+      "MAX_HP": 400
+    }
+  },
+  {
+    "code": "equip_lv40_firefist_belt",
+    "slot": "BELT",
+    "namePtBr": "Faixa Vermelha da Faixa Preta",
+    "nameEn": "Red Sash of the Black Belt",
+    "descPtBr": "Faixa marcial com nós reforçados que protegem os rins e sustentam o abdômen. [Conjunto Punho de Fogo: Lv. 40 - Lutadora (75%) > Espadachim (25%)].",
+    "descEn": "Faixa marcial com nós reforçados que protegem os rins e sustentam o abdômen. [Fire Fist Set: Lv. 40 - Lutadora (75%) > Espadachim (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_050603.png",
+    "combatStats": {
+      "PHYS_ATK": 70,
+      "ATTACK_SPEED": 40,
+      "PHYS_EVASION": 30,
+      "PHYS_DEF": 55
+    }
+  },
+  {
+    "code": "equip_lv40_firefist_legs",
+    "slot": "LEGS",
+    "namePtBr": "Calções de Treino do Punho de Fogo",
+    "nameEn": "Fire Fist Training Shorts",
+    "descPtBr": "Vestimenta curta e leve para chutes altos e rasteiras velozes. [Conjunto Punho de Fogo: Lv. 40 - Lutadora (75%) > Espadachim (25%)].",
+    "descEn": "Vestimenta curta e leve para chutes altos e rasteiras velozes. [Fire Fist Set: Lv. 40 - Lutadora (75%) > Espadachim (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_050703.png",
+    "combatStats": {
+      "PHYS_ATK": 90,
+      "PHYS_DEF": 90,
+      "ATTACK_SPEED": 45,
+      "PHYS_EVASION": 40,
+      "BATTLE_MOVE_SPEED": 35
+    }
+  },
+  {
+    "code": "equip_lv40_firefist_feet",
+    "slot": "FEET",
+    "namePtBr": "Sapatilhas da Dança do Fogo",
+    "nameEn": "Fire Dance Footwraps",
+    "descPtBr": "Bandagens para os pés com solado de camurça para saltos e pivôs instantâneos. [Conjunto Punho de Fogo: Lv. 40 - Lutadora (75%) > Espadachim (25%)].",
+    "descEn": "Bandagens para os pés com solado de camurça para saltos e pivôs instantâneos. [Fire Fist Set: Lv. 40 - Lutadora (75%) > Espadachim (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_050803.png",
+    "combatStats": {
+      "PHYS_ATK": 65,
+      "PHYS_DEF": 60,
+      "BATTLE_MOVE_SPEED": 55,
+      "PHYS_EVASION": 45,
+      "ATTACK_SPEED": 35
+    }
+  },
+  {
+    "code": "equip_lv40_firefist_weapon1",
+    "slot": "WEAPON_1",
+    "namePtBr": "Manoplas do Punho de Fogo",
+    "nameEn": "Fire Fist Gauntlets",
+    "descPtBr": "Luvas de ferro cravejadas de rubis que incendeiam o ar a cada soco desferido. [Conjunto Punho de Fogo: Lv. 40 - Lutadora (75%) > Espadachim (25%)].",
+    "descEn": "Luvas de ferro cravejadas de rubis que incendeiam o ar a cada soco desferido. [Fire Fist Set: Lv. 40 - Lutadora (75%) > Espadachim (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_060207.png",
+    "combatStats": {
+      "PHYS_ATK": 260,
+      "ATTACK_SPEED": 85,
+      "CRIT_RATE": 60,
+      "BATTLE_MOVE_SPEED": 45,
+      "PHYS_EVASION": 40
+    }
+  },
+  {
+    "code": "equip_lv40_firefist_weapon2",
+    "slot": "WEAPON_2",
+    "namePtBr": "Faixas de Punho do Tigre",
+    "nameEn": "Tiger Fist Wraps",
+    "descPtBr": "Bandagens mágicas que aumentam a firmeza dos punhos e a velocidade de retorno. [Conjunto Punho de Fogo: Lv. 40 - Lutadora (75%) > Espadachim (25%)].",
+    "descEn": "Bandagens mágicas que aumentam a firmeza dos punhos e a velocidade de retorno. [Fire Fist Set: Lv. 40 - Lutadora (75%) > Espadachim (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_060205.png",
+    "combatStats": {
+      "PHYS_ATK": 170,
+      "ATTACK_SPEED": 75,
+      "PHYS_EVASION": 55,
+      "BATTLE_MOVE_SPEED": 35,
+      "CRIT_RATE": 35
+    }
+  },
+  {
+    "code": "equip_lv40_firefist_ring",
+    "slot": "RING",
+    "namePtBr": "Anel do Frenesi Rápido",
+    "nameEn": "Rapid Frenzy Ring",
+    "descPtBr": "Aro de bronze que estimula a circulação e eleva a frequência cardíaca para o combate. [Conjunto Punho de Fogo: Lv. 40 - Lutadora (75%) > Espadachim (25%)].",
+    "descEn": "Aro de bronze que estimula a circulação e eleva a frequência cardíaca para o combate. [Fire Fist Set: Lv. 40 - Lutadora (75%) > Espadachim (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_001014.png",
+    "combatStats": {
+      "PHYS_ATK": 80,
+      "ATTACK_SPEED": 50,
+      "CRIT_RATE": 35,
+      "PHYS_EVASION": 25
+    }
+  },
+  {
+    "code": "equip_lv40_firefist_necklace",
+    "slot": "NECKLACE",
+    "namePtBr": "Colar da Fera Implacável",
+    "nameEn": "Relentless Beast Necklace",
+    "descPtBr": "Dentes de predador engastados em couro que conferem instinto de combate selvagem. [Conjunto Punho de Fogo: Lv. 40 - Lutadora (75%) > Espadachim (25%)].",
+    "descEn": "Dentes de predador engastados em couro que conferem instinto de combate selvagem. [Fire Fist Set: Lv. 40 - Lutadora (75%) > Espadachim (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_000914.png",
+    "combatStats": {
+      "PHYS_ATK": 85,
+      "ATTACK_SPEED": 45,
+      "BATTLE_MOVE_SPEED": 30,
+      "MAX_HP": 250
+    }
+  },
+  {
+    "code": "equip_lv40_firefist_ornament1",
+    "slot": "ORNAMENT_1",
+    "namePtBr": "Braçadeira do Impacto Rápido",
+    "nameEn": "Rapid Impact Armband",
+    "descPtBr": "Braçadeira de couro de touro que absorve a vibração dos impactos contra o punho. [Conjunto Punho de Fogo: Lv. 40 - Lutadora (75%) > Espadachim (25%)].",
+    "descEn": "Braçadeira de couro de touro que absorve a vibração dos impactos contra o punho. [Fire Fist Set: Lv. 40 - Lutadora (75%) > Espadachim (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_001114.png",
+    "combatStats": {
+      "PHYS_ATK": 75,
+      "ATTACK_SPEED": 40,
+      "PHYS_EVASION": 35,
+      "CRIT_DMG": 25
+    }
+  },
+  {
+    "code": "equip_lv40_firefist_ornament2",
+    "slot": "ORNAMENT_2",
+    "namePtBr": "Talismã do Reflexo Felino",
+    "nameEn": "Feline Reflex Talisman",
+    "descPtBr": "Amuleto que concede reflexos quase sobrenaturais para esquivar de golpes rivais. [Conjunto Punho de Fogo: Lv. 40 - Lutadora (75%) > Espadachim (25%)].",
+    "descEn": "Amuleto que concede reflexos quase sobrenaturais para esquivar de golpes rivais. [Fire Fist Set: Lv. 40 - Lutadora (75%) > Espadachim (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_001214.png",
+    "combatStats": {
+      "PHYS_ATK": 70,
+      "PHYS_EVASION": 50,
+      "BATTLE_MOVE_SPEED": 30,
+      "ATTACK_SPEED": 30
+    }
+  },
+  {
+    "code": "equip_lv40_sunjudicator_head",
+    "slot": "HEAD",
+    "namePtBr": "Elmo do Julgamento Solar",
+    "nameEn": "Helm of Solar Judicator",
+    "descPtBr": "Elmo coroado por um diadema solar que protege a mente de heresias. [Conjunto Julgamento Solar: Lv. 40 - Paladino (75%) > Caçadora (25%)].",
+    "descEn": "Elmo coroado por um diadema solar que protege a mente de heresias. [Solar Judicator Set: Lv. 40 - Paladino (75%) > Caçadora (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_020305.png",
+    "combatStats": {
+      "PHYS_ATK": 95,
+      "PHYS_DEF": 135,
+      "MAG_DEF": 100,
+      "HEAL_POWER": 45,
+      "MAX_HP": 350
+    }
+  },
+  {
+    "code": "equip_lv40_sunjudicator_shoulder",
+    "slot": "SHOULDER",
+    "namePtBr": "Espaldares da Glória Solar",
+    "nameEn": "Pauldrons of Solar Glory",
+    "descPtBr": "Ombreiras aladas que cobrem pescoço e peito com ouro puro. [Conjunto Julgamento Solar: Lv. 40 - Paladino (75%) > Caçadora (25%)].",
+    "descEn": "Ombreiras aladas que cobrem pescoço e peito com ouro puro. [Solar Judicator Set: Lv. 40 - Paladino (75%) > Caçadora (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_020405.png",
+    "combatStats": {
+      "PHYS_ATK": 80,
+      "PHYS_DEF": 115,
+      "MAG_DEF": 90,
+      "HEAL_POWER": 35,
+      "MAX_HP": 280
+    }
+  },
+  {
+    "code": "equip_lv40_sunjudicator_chest",
+    "slot": "CHEST",
+    "namePtBr": "Cota Sagrada do Julgamento",
+    "nameEn": "Holy Chain of Judgment",
+    "descPtBr": "Malha dourada sobreposta de placas que dissipa maldições e cortes. [Conjunto Julgamento Solar: Lv. 40 - Paladino (75%) > Caçadora (25%)].",
+    "descEn": "Malha dourada sobreposta de placas que dissipa maldições e cortes. [Solar Judicator Set: Lv. 40 - Paladino (75%) > Caçadora (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_020505.png",
+    "combatStats": {
+      "PHYS_ATK": 125,
+      "PHYS_DEF": 175,
+      "MAG_DEF": 135,
+      "HEAL_POWER": 70,
+      "MAX_HP": 580
+    }
+  },
+  {
+    "code": "equip_lv40_sunjudicator_belt",
+    "slot": "BELT",
+    "namePtBr": "Cinto da Virtude Solar",
+    "nameEn": "Belt of Solar Virtue",
+    "descPtBr": "Cinto de couro nobre com fivela solar abençoada. [Conjunto Julgamento Solar: Lv. 40 - Paladino (75%) > Caçadora (25%)].",
+    "descEn": "Cinto de couro nobre com fivela solar abençoada. [Solar Judicator Set: Lv. 40 - Paladino (75%) > Caçadora (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_020605.png",
+    "combatStats": {
+      "PHYS_ATK": 70,
+      "PHYS_DEF": 90,
+      "MAG_DEF": 75,
+      "HEAL_POWER": 35,
+      "HP_REGEN": 16
+    }
+  },
+  {
+    "code": "equip_lv40_sunjudicator_legs",
+    "slot": "LEGS",
+    "namePtBr": "Perneiras da Justiça Sagrada",
+    "nameEn": "Greaves of Holy Justice",
+    "descPtBr": "Placas douradas que protegem pernas com firmeza monumental. [Conjunto Julgamento Solar: Lv. 40 - Paladino (75%) > Caçadora (25%)].",
+    "descEn": "Placas douradas que protegem pernas com firmeza monumental. [Solar Judicator Set: Lv. 40 - Paladino (75%) > Caçadora (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_020705.png",
+    "combatStats": {
+      "PHYS_ATK": 95,
+      "PHYS_DEF": 140,
+      "MAG_DEF": 105,
+      "MAX_HP": 400
+    }
+  },
+  {
+    "code": "equip_lv40_sunjudicator_feet",
+    "slot": "FEET",
+    "namePtBr": "Botas do Alvorecer Solar",
+    "nameEn": "Boots of Solar Dawn",
+    "descPtBr": "Grevas nobres com sola acolchoada que sustentam marchas sagradas. [Conjunto Julgamento Solar: Lv. 40 - Paladino (75%) > Caçadora (25%)].",
+    "descEn": "Grevas nobres com sola acolchoada que sustentam marchas sagradas. [Solar Judicator Set: Lv. 40 - Paladino (75%) > Caçadora (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_020805.png",
+    "combatStats": {
+      "PHYS_ATK": 65,
+      "PHYS_DEF": 100,
+      "MAG_DEF": 80,
+      "BATTLE_MOVE_SPEED": 25,
+      "HEAL_POWER": 30
+    }
+  },
+  {
+    "code": "equip_lv40_sunjudicator_weapon1",
+    "slot": "WEAPON_1",
+    "namePtBr": "Maça do Julgamento Solar",
+    "nameEn": "Solar Judicator Mace",
+    "descPtBr": "Uma maça reluzente de ouro sagrado que queima as trevas a cada impacto. [Conjunto Julgamento Solar: Lv. 40 - Paladino (75%) > Caçadora (25%)].",
+    "descEn": "Uma maça reluzente de ouro sagrado que queima as trevas a cada impacto. [Solar Judicator Set: Lv. 40 - Paladino (75%) > Caçadora (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_010111.png",
+    "combatStats": {
+      "PHYS_ATK": 275,
+      "PHYS_DEF": 105,
+      "MAG_DEF": 95,
+      "HEAL_POWER": 80,
+      "MAX_HP": 550
+    }
+  },
+  {
+    "code": "equip_lv40_sunjudicator_weapon2",
+    "slot": "WEAPON_2",
+    "namePtBr": "Escudo do Sol Radiante",
+    "nameEn": "Radiant Sun Shield",
+    "descPtBr": "Escudo forjado em latão divino que cega oponentes com reflexos de fé. [Conjunto Julgamento Solar: Lv. 40 - Paladino (75%) > Caçadora (25%)].",
+    "descEn": "Escudo forjado em latão divino que cega oponentes com reflexos de fé. [Solar Judicator Set: Lv. 40 - Paladino (75%) > Caçadora (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_010209.png",
+    "combatStats": {
+      "PHYS_ATK": 100,
+      "PHYS_DEF": 190,
+      "MAG_DEF": 130,
+      "HEAL_POWER": 65,
+      "MAX_HP": 450
+    }
+  },
+  {
+    "code": "equip_lv40_sunjudicator_ring",
+    "slot": "RING",
+    "namePtBr": "Aliança da Ordem Solar",
+    "nameEn": "Solar Order Band",
+    "descPtBr": "Anel gravado com bênçãos que regenera feridas de fé e purifica o sangue. [Conjunto Julgamento Solar: Lv. 40 - Paladino (75%) > Caçadora (25%)].",
+    "descEn": "Anel gravado com bênçãos que regenera feridas de fé e purifica o sangue. [Solar Judicator Set: Lv. 40 - Paladino (75%) > Caçadora (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_011009.png",
+    "combatStats": {
+      "PHYS_ATK": 80,
+      "PHYS_DEF": 75,
+      "MAG_DEF": 65,
+      "HEAL_POWER": 45,
+      "HP_REGEN": 18
+    }
+  },
+  {
+    "code": "equip_lv40_sunjudicator_necklace",
+    "slot": "NECKLACE",
+    "namePtBr": "Cruz do Alvorecer Divino",
+    "nameEn": "Divine Dawn Cross",
+    "descPtBr": "Pingente pesado de platina e rubi que emite um brilho protetor constante. [Conjunto Julgamento Solar: Lv. 40 - Paladino (75%) > Caçadora (25%)].",
+    "descEn": "Pingente pesado de platina e rubi que emite um brilho protetor constante. [Solar Judicator Set: Lv. 40 - Paladino (75%) > Caçadora (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_010909.png",
+    "combatStats": {
+      "PHYS_ATK": 85,
+      "HEAL_POWER": 60,
+      "PHYS_DEF": 80,
+      "MAG_DEF": 80,
+      "MAX_HP": 300
+    }
+  },
+  {
+    "code": "equip_lv40_sunjudicator_ornament1",
+    "slot": "ORNAMENT_1",
+    "namePtBr": "Insígnia do Guardião da Fé",
+    "nameEn": "Guardian of Faith Insignia",
+    "descPtBr": "Broche de honra templária que firma a coragem diante de hordas monstruosas. [Conjunto Julgamento Solar: Lv. 40 - Paladino (75%) > Caçadora (25%)].",
+    "descEn": "Broche de honra templária que firma a coragem diante de hordas monstruosas. [Solar Judicator Set: Lv. 40 - Paladino (75%) > Caçadora (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_011109.png",
+    "combatStats": {
+      "PHYS_ATK": 70,
+      "PHYS_DEF": 75,
+      "HEAL_POWER": 40,
+      "MAX_HP": 320
+    }
+  },
+  {
+    "code": "equip_lv40_sunjudicator_ornament2",
+    "slot": "ORNAMENT_2",
+    "namePtBr": "Selo da Glória Eterna",
+    "nameEn": "Eternal Glory Seal",
+    "descPtBr": "Relíquia dourada que sustenta a resistência mental e física contra debuffs. [Conjunto Julgamento Solar: Lv. 40 - Paladino (75%) > Caçadora (25%)].",
+    "descEn": "Relíquia dourada que sustenta a resistência mental e física contra debuffs. [Solar Judicator Set: Lv. 40 - Paladino (75%) > Caçadora (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_011209.png",
+    "combatStats": {
+      "PHYS_ATK": 65,
+      "MAG_DEF": 85,
+      "PHYS_DEF": 70,
+      "HEAL_POWER": 45,
+      "HP_REGEN": 20
+    }
+  },
+  {
+    "code": "equip_lv40_wildhunt_head",
+    "slot": "HEAD",
+    "namePtBr": "Capuz do Rastreador Silvestre",
+    "nameEn": "Wild Tracker Hood",
+    "descPtBr": "Capuz de malha verde com pena de águia que protege dos galhos e aguça os olhos. [Conjunto Espreita Silvestre: Lv. 40 - Caçadora (75%) > Paladino (25%)].",
+    "descEn": "Capuz de malha verde com pena de águia que protege dos galhos e aguça os olhos. [Wild Hunt Set: Lv. 40 - Caçadora (75%) > Paladino (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_020303.png",
+    "combatStats": {
+      "PHYS_ATK": 100,
+      "PHYS_ACCURACY": 35,
+      "CRIT_RATE": 30,
+      "PHYS_DEF": 90
+    }
+  },
+  {
+    "code": "equip_lv40_wildhunt_shoulder",
+    "slot": "SHOULDER",
+    "namePtBr": "Ombreiras de Camuflagem Silvestre",
+    "nameEn": "Wild Camouflage Shoulders",
+    "descPtBr": "Protetores de ombro de folhas de couro que quebram a silhueta entre as árvores. [Conjunto Espreita Silvestre: Lv. 40 - Caçadora (75%) > Paladino (25%)].",
+    "descEn": "Protetores de ombro de folhas de couro que quebram a silhueta entre as árvores. [Wild Hunt Set: Lv. 40 - Caçadora (75%) > Paladino (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_020403.png",
+    "combatStats": {
+      "PHYS_ATK": 80,
+      "PHYS_DEF": 85,
+      "PHYS_EVASION": 30,
+      "PHYS_ACCURACY": 25
+    }
+  },
+  {
+    "code": "equip_lv40_wildhunt_chest",
+    "slot": "CHEST",
+    "namePtBr": "Colete de Malha dos Bosques",
+    "nameEn": "Woods Chainmail Vest",
+    "descPtBr": "Cota leve forrada com camurça que não produz tinidos metálicos ao rastejar. [Conjunto Espreita Silvestre: Lv. 40 - Caçadora (75%) > Paladino (25%)].",
+    "descEn": "Cota leve forrada com camurça que não produz tinidos metálicos ao rastejar. [Wild Hunt Set: Lv. 40 - Caçadora (75%) > Paladino (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_020503.png",
+    "combatStats": {
+      "PHYS_ATK": 130,
+      "PHYS_ACCURACY": 45,
+      "CRIT_RATE": 40,
+      "PHYS_DEF": 130,
+      "PHYS_EVASION": 35
+    }
+  },
+  {
+    "code": "equip_lv40_wildhunt_belt",
+    "slot": "BELT",
+    "namePtBr": "Cinto de Aljavas e Armadilhas",
+    "nameEn": "Quiver and Traps Belt",
+    "descPtBr": "Cinto utilitário com bolsas para cordas de arco, armadilhas e dardos. [Conjunto Espreita Silvestre: Lv. 40 - Caçadora (75%) > Paladino (25%)].",
+    "descEn": "Cinto utilitário com bolsas para cordas de arco, armadilhas e dardos. [Wild Hunt Set: Lv. 40 - Caçadora (75%) > Paladino (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_020603.png",
+    "combatStats": {
+      "PHYS_ATK": 70,
+      "PHYS_ACCURACY": 25,
+      "ATTACK_RANGE": 20,
+      "PHYS_DEF": 65
+    }
+  },
+  {
+    "code": "equip_lv40_wildhunt_legs",
+    "slot": "LEGS",
+    "namePtBr": "Calças de Caça da Floresta",
+    "nameEn": "Forest Hunting Breeches",
+    "descPtBr": "Calças resistentes a espinhos e heras venenosas para corridas na mata. [Conjunto Espreita Silvestre: Lv. 40 - Caçadora (75%) > Paladino (25%)].",
+    "descEn": "Calças resistentes a espinhos e heras venenosas para corridas na mata. [Wild Hunt Set: Lv. 40 - Caçadora (75%) > Paladino (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_020703.png",
+    "combatStats": {
+      "PHYS_ATK": 95,
+      "PHYS_DEF": 100,
+      "PHYS_EVASION": 35,
+      "BATTLE_MOVE_SPEED": 25
+    }
+  },
+  {
+    "code": "equip_lv40_wildhunt_feet",
+    "slot": "FEET",
+    "namePtBr": "Botas do Batedor Silvestre",
+    "nameEn": "Wild Scout Boots",
+    "descPtBr": "Calçados flexíveis de couro cru com solado silencioso de pele de lobo. [Conjunto Espreita Silvestre: Lv. 40 - Caçadora (75%) > Paladino (25%)].",
+    "descEn": "Calçados flexíveis de couro cru com solado silencioso de pele de lobo. [Wild Hunt Set: Lv. 40 - Caçadora (75%) > Paladino (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_020803.png",
+    "combatStats": {
+      "PHYS_ATK": 65,
+      "PHYS_DEF": 70,
+      "BATTLE_MOVE_SPEED": 45,
+      "PHYS_EVASION": 40
+    }
+  },
+  {
+    "code": "equip_lv40_wildhunt_weapon1",
+    "slot": "WEAPON_1",
+    "namePtBr": "Lança de Caça da Floresta Antiga",
+    "nameEn": "Ancient Forest Hunting Spear",
+    "descPtBr": "Uma lança entalhada com runas da natureza para arremessos precisos e estocadas rápidas. [Conjunto Espreita Silvestre: Lv. 40 - Caçadora (75%) > Paladino (25%)].",
+    "descEn": "Uma lança entalhada com runas da natureza para arremessos precisos e estocadas rápidas. [Wild Hunt Set: Lv. 40 - Caçadora (75%) > Paladino (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_060107.png",
+    "combatStats": {
+      "PHYS_ATK": 290,
+      "ATTACK_RANGE": 60,
+      "PHYS_ACCURACY": 60,
+      "CRIT_RATE": 55,
+      "PHYS_EVASION": 35
+    }
+  },
+  {
+    "code": "equip_lv40_wildhunt_weapon2",
+    "slot": "WEAPON_2",
+    "namePtBr": "Braçadeira do Disparo Silvestre",
+    "nameEn": "Wild Shot Armguard",
+    "descPtBr": "Braçadeira de couro de cervo com mira telescópica acoplada que melhora o arco do projétil. [Conjunto Espreita Silvestre: Lv. 40 - Caçadora (75%) > Paladino (25%)].",
+    "descEn": "Braçadeira de couro de cervo com mira telescópica acoplada que melhora o arco do projétil. [Wild Hunt Set: Lv. 40 - Caçadora (75%) > Paladino (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_030206.png",
+    "combatStats": {
+      "PHYS_ATK": 180,
+      "PHYS_ACCURACY": 50,
+      "PHYS_EVASION": 45,
+      "ATTACK_RANGE": 40,
+      "PHYS_DEF": 70
+    }
+  },
+  {
+    "code": "equip_lv40_wildhunt_ring",
+    "slot": "RING",
+    "namePtBr": "Anel do Olho de Falcão",
+    "nameEn": "Hawk Eye Ring",
+    "descPtBr": "Aro de madeira petrificada que concede visão telescópica e foco em movimento. [Conjunto Espreita Silvestre: Lv. 40 - Caçadora (75%) > Paladino (25%)].",
+    "descEn": "Aro de madeira petrificada que concede visão telescópica e foco em movimento. [Wild Hunt Set: Lv. 40 - Caçadora (75%) > Paladino (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_011008.png",
+    "combatStats": {
+      "PHYS_ATK": 85,
+      "ATTACK_RANGE": 35,
+      "PHYS_ACCURACY": 40,
+      "CRIT_RATE": 30
+    }
+  },
+  {
+    "code": "equip_lv40_wildhunt_necklace",
+    "slot": "NECKLACE",
+    "namePtBr": "Amuleto da Garra de Lince",
+    "nameEn": "Lynx Claw Amulet",
+    "descPtBr": "Garra afiada de lince que aguça o faro e os instintos de perseguição. [Conjunto Espreita Silvestre: Lv. 40 - Caçadora (75%) > Paladino (25%)].",
+    "descEn": "Garra afiada de lince que aguça o faro e os instintos de perseguição. [Wild Hunt Set: Lv. 40 - Caçadora (75%) > Paladino (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_010908.png",
+    "combatStats": {
+      "PHYS_ATK": 90,
+      "PHYS_ACCURACY": 45,
+      "CRIT_RATE": 35,
+      "PHYS_EVASION": 25
+    }
+  },
+  {
+    "code": "equip_lv40_wildhunt_ornament1",
+    "slot": "ORNAMENT_1",
+    "namePtBr": "Insígnia do Predador Silvestre",
+    "nameEn": "Wild Predator Insignia",
+    "descPtBr": "Broche de folhas de carvalho encantadas que ocultam o cheiro do portador. [Conjunto Espreita Silvestre: Lv. 40 - Caçadora (75%) > Paladino (25%)].",
+    "descEn": "Broche de folhas de carvalho encantadas que ocultam o cheiro do portador. [Wild Hunt Set: Lv. 40 - Caçadora (75%) > Paladino (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_011108.png",
+    "combatStats": {
+      "PHYS_ATK": 75,
+      "PHYS_EVASION": 35,
+      "PHYS_ACCURACY": 35,
+      "BATTLE_MOVE_SPEED": 25
+    }
+  },
+  {
+    "code": "equip_lv40_wildhunt_ornament2",
+    "slot": "ORNAMENT_2",
+    "namePtBr": "Talismã da Pegada Silenciosa",
+    "nameEn": "Silent Footstep Talisman",
+    "descPtBr": "Pequeno talismã de musgo que amortece qualquer som de galhos quebrados. [Conjunto Espreita Silvestre: Lv. 40 - Caçadora (75%) > Paladino (25%)].",
+    "descEn": "Pequeno talismã de musgo que amortece qualquer som de galhos quebrados. [Wild Hunt Set: Lv. 40 - Caçadora (75%) > Paladino (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_011208.png",
+    "combatStats": {
+      "PHYS_ATK": 70,
+      "PHYS_EVASION": 40,
+      "BATTLE_MOVE_SPEED": 30,
+      "ATTACK_RANGE": 25
+    }
+  },
+  {
+    "code": "equip_lv40_sniper_head",
+    "slot": "HEAD",
+    "namePtBr": "Boina com Visor Balístico",
+    "nameEn": "Beret with Ballistic Visor",
+    "descPtBr": "Boina tática com óculos balísticos integrados com grade de coordenadas. [Conjunto Franco-Atirador Tático: Lv. 40 - Atirador (75%) > Assassino (25%)].",
+    "descEn": "Boina tática com óculos balísticos integrados com grade de coordenadas. [Tactical Sniper Set: Lv. 40 - Atirador (75%) > Assassino (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_060305.png",
+    "combatStats": {
+      "PHYS_ATK": 115,
+      "PHYS_ACCURACY": 50,
+      "ATTACK_RANGE": 35,
+      "CRIT_RATE": 35,
+      "PHYS_DEF": 75
+    }
+  },
+  {
+    "code": "equip_lv40_sniper_shoulder",
+    "slot": "SHOULDER",
+    "namePtBr": "Ombreiras Reforçadas de Tiro",
+    "nameEn": "Reinforced Shooting Shoulders",
+    "descPtBr": "Acolchoamento reforçado no ombro direito para absorver repetidos coices de arma pesada. [Conjunto Franco-Atirador Tático: Lv. 40 - Atirador (75%) > Assassino (25%)].",
+    "descEn": "Acolchoamento reforçado no ombro direito para absorver repetidos coices de arma pesada. [Tactical Sniper Set: Lv. 40 - Atirador (75%) > Assassino (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_060405.png",
+    "combatStats": {
+      "PHYS_ATK": 90,
+      "PHYS_DEF": 85,
+      "PHYS_ACCURACY": 35,
+      "PHYS_EVASION": 25
+    }
+  },
+  {
+    "code": "equip_lv40_sniper_chest",
+    "slot": "CHEST",
+    "namePtBr": "Colete Balístico do Atirador",
+    "nameEn": "Marksman Ballistic Vest",
+    "descPtBr": "Colete de kevlar e placas de cerâmica contra tiros e estilhaços cruzados. [Conjunto Franco-Atirador Tático: Lv. 40 - Atirador (75%) > Assassino (25%)].",
+    "descEn": "Colete de kevlar e placas de cerâmica contra tiros e estilhaços cruzados. [Tactical Sniper Set: Lv. 40 - Atirador (75%) > Assassino (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_060505.png",
+    "combatStats": {
+      "PHYS_ATK": 145,
+      "PHYS_ACCURACY": 60,
+      "CRIT_RATE": 50,
+      "CRIT_DMG": 50,
+      "PHYS_DEF": 125,
+      "ATTACK_RANGE": 40
+    }
+  },
+  {
+    "code": "equip_lv40_sniper_belt",
+    "slot": "BELT",
+    "namePtBr": "Cinto de Carregadores Táticos",
+    "nameEn": "Tactical Mag Belt",
+    "descPtBr": "Cinto utilitário com presilhas magnéticas para recarga ultra veloz. [Conjunto Franco-Atirador Tático: Lv. 40 - Atirador (75%) > Assassino (25%)].",
+    "descEn": "Cinto utilitário com presilhas magnéticas para recarga ultra veloz. [Tactical Sniper Set: Lv. 40 - Atirador (75%) > Assassino (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_060605.png",
+    "combatStats": {
+      "PHYS_ATK": 75,
+      "PHYS_ACCURACY": 30,
+      "CRIT_RATE": 25,
+      "PHYS_DEF": 60
+    }
+  },
+  {
+    "code": "equip_lv40_sniper_legs",
+    "slot": "LEGS",
+    "namePtBr": "Calças Camufladas Balísticas",
+    "nameEn": "Ballistic Camo Trousers",
+    "descPtBr": "Tecido grosso com reforço nos joelhos para postura de tiro deitado. [Conjunto Franco-Atirador Tático: Lv. 40 - Atirador (75%) > Assassino (25%)].",
+    "descEn": "Tecido grosso com reforço nos joelhos para postura de tiro deitado. [Tactical Sniper Set: Lv. 40 - Atirador (75%) > Assassino (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_060705.png",
+    "combatStats": {
+      "PHYS_ATK": 105,
+      "PHYS_DEF": 95,
+      "PHYS_ACCURACY": 35,
+      "PHYS_EVASION": 30
+    }
+  },
+  {
+    "code": "equip_lv40_sniper_feet",
+    "slot": "FEET",
+    "namePtBr": "Botas Militares do Atirador",
+    "nameEn": "Marksman Combat Boots",
+    "descPtBr": "Solado de borracha vulcanizada que proporciona estabilidade perfeita em terrenos acidentados. [Conjunto Franco-Atirador Tático: Lv. 40 - Atirador (75%) > Assassino (25%)].",
+    "descEn": "Solado de borracha vulcanizada que proporciona estabilidade perfeita em terrenos acidentados. [Tactical Sniper Set: Lv. 40 - Atirador (75%) > Assassino (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_060805.png",
+    "combatStats": {
+      "PHYS_ATK": 70,
+      "PHYS_DEF": 70,
+      "BATTLE_MOVE_SPEED": 30,
+      "PHYS_ACCURACY": 25,
+      "PHYS_EVASION": 25
+    }
+  },
+  {
+    "code": "equip_lv40_sniper_weapon1",
+    "slot": "WEAPON_1",
+    "namePtBr": "Rifle Balístico de Alta Precisão",
+    "nameEn": "High-Precision Ballistic Rifle",
+    "descPtBr": "Arma longa de tiro estendido com cano raiado e câmara de energia perfurante. [Conjunto Franco-Atirador Tático: Lv. 40 - Atirador (75%) > Assassino (25%)].",
+    "descEn": "Arma longa de tiro estendido com cano raiado e câmara de energia perfurante. [Tactical Sniper Set: Lv. 40 - Atirador (75%) > Assassino (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_030104.png",
+    "combatStats": {
+      "PHYS_ATK": 325,
+      "ATTACK_RANGE": 110,
+      "PHYS_ACCURACY": 80,
+      "CRIT_RATE": 65,
+      "CRIT_DMG": 75
+    }
+  },
+  {
+    "code": "equip_lv40_sniper_weapon2",
+    "slot": "WEAPON_2",
+    "namePtBr": "Manopla com Mira Estabilizadora",
+    "nameEn": "Stabilizing Sight Gauntlet",
+    "descPtBr": "Manopla tática equipada com giroscópio para absorver recuo e manter mira estável. [Conjunto Franco-Atirador Tático: Lv. 40 - Atirador (75%) > Assassino (25%)].",
+    "descEn": "Manopla tática equipada com giroscópio para absorver recuo e manter mira estável. [Tactical Sniper Set: Lv. 40 - Atirador (75%) > Assassino (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_060208.png",
+    "combatStats": {
+      "PHYS_ATK": 180,
+      "PHYS_ACCURACY": 60,
+      "ATTACK_RANGE": 50,
+      "CRIT_DMG": 40,
+      "PHYS_DEF": 75
+    }
+  },
+  {
+    "code": "equip_lv40_sniper_ring",
+    "slot": "RING",
+    "namePtBr": "Anel do Alvo Travado",
+    "nameEn": "Target Locked Ring",
+    "descPtBr": "Anel de mira óptica que auxilia no cálculo de trajetória e vento. [Conjunto Franco-Atirador Tático: Lv. 40 - Atirador (75%) > Assassino (25%)].",
+    "descEn": "Anel de mira óptica que auxilia no cálculo de trajetória e vento. [Tactical Sniper Set: Lv. 40 - Atirador (75%) > Assassino (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_001012.png",
+    "combatStats": {
+      "PHYS_ATK": 95,
+      "ATTACK_RANGE": 45,
+      "PHYS_ACCURACY": 50,
+      "CRIT_RATE": 40
+    }
+  },
+  {
+    "code": "equip_lv40_sniper_necklace",
+    "slot": "NECKLACE",
+    "namePtBr": "Gargantilha do Calibre Pesado",
+    "nameEn": "Heavy Caliber Choker",
+    "descPtBr": "Colar com pingente de cápsula deflagrada de cartucho blindado. [Conjunto Franco-Atirador Tático: Lv. 40 - Atirador (75%) > Assassino (25%)].",
+    "descEn": "Colar com pingente de cápsula deflagrada de cartucho blindado. [Tactical Sniper Set: Lv. 40 - Atirador (75%) > Assassino (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_000912.png",
+    "combatStats": {
+      "PHYS_ATK": 100,
+      "CRIT_DMG": 55,
+      "PHYS_ACCURACY": 45,
+      "ATTACK_RANGE": 35
+    }
+  },
+  {
+    "code": "equip_lv40_sniper_ornament1",
+    "slot": "ORNAMENT_1",
+    "namePtBr": "Lente Térmica de Longo Alcance",
+    "nameEn": "Long-Range Thermal Lens",
+    "descPtBr": "Monóculo tático de safira escura que destaca silhuetas térmicas na escuridão. [Conjunto Franco-Atirador Tático: Lv. 40 - Atirador (75%) > Assassino (25%)].",
+    "descEn": "Monóculo tático de safira escura que destaca silhuetas térmicas na escuridão. [Tactical Sniper Set: Lv. 40 - Atirador (75%) > Assassino (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_001112.png",
+    "combatStats": {
+      "PHYS_ATK": 85,
+      "PHYS_ACCURACY": 55,
+      "ATTACK_RANGE": 40,
+      "CRIT_RATE": 30
+    }
+  },
+  {
+    "code": "equip_lv40_sniper_ornament2",
+    "slot": "ORNAMENT_2",
+    "namePtBr": "Estabilizador Cinético de Recuo",
+    "nameEn": "Kinetic Recoil Stabilizer",
+    "descPtBr": "Dispositivo mecânico no pulso que reduz oscilações no momento do disparo. [Conjunto Franco-Atirador Tático: Lv. 40 - Atirador (75%) > Assassino (25%)].",
+    "descEn": "Dispositivo mecânico no pulso que reduz oscilações no momento do disparo. [Tactical Sniper Set: Lv. 40 - Atirador (75%) > Assassino (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_001212.png",
+    "combatStats": {
+      "PHYS_ATK": 80,
+      "PHYS_ACCURACY": 45,
+      "CRIT_DMG": 40,
+      "PHYS_DEF": 60
+    }
+  },
+  {
+    "code": "equip_lv40_hiddenblade_head",
+    "slot": "HEAD",
+    "namePtBr": "Capuz Furtivo da Lâmina Oculta",
+    "nameEn": "Stealth Hood of Hidden Blade",
+    "descPtBr": "Capuz profundo de tecido fosco que esconde o rosto nas sombras. [Conjunto Lâmina Oculta: Lv. 40 - Assassino (75%) > Atirador (25%)].",
+    "descEn": "Capuz profundo de tecido fosco que esconde o rosto nas sombras. [Hidden Blade Set: Lv. 40 - Assassino (75%) > Atirador (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_060303.png",
+    "combatStats": {
+      "PHYS_ATK": 105,
+      "CRIT_RATE": 50,
+      "PHYS_EVASION": 45,
+      "PHYS_DEF": 65
+    }
+  },
+  {
+    "code": "equip_lv40_hiddenblade_shoulder",
+    "slot": "SHOULDER",
+    "namePtBr": "Ombreiras de Veludo Negro",
+    "nameEn": "Black Velvet Pauldrons",
+    "descPtBr": "Ombreiras macias sem placas que permitam rolar no chão sem barulho. [Conjunto Lâmina Oculta: Lv. 40 - Assassino (75%) > Atirador (25%)].",
+    "descEn": "Ombreiras macias sem placas que permitam rolar no chão sem barulho. [Hidden Blade Set: Lv. 40 - Assassino (75%) > Atirador (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_060403.png",
+    "combatStats": {
+      "PHYS_ATK": 80,
+      "PHYS_DEF": 70,
+      "PHYS_EVASION": 45,
+      "ATTACK_SPEED": 30
+    }
+  },
+  {
+    "code": "equip_lv40_hiddenblade_chest",
+    "slot": "CHEST",
+    "namePtBr": "Colete Furtivo da Lâmina Oculta",
+    "nameEn": "Stealth Vest of Hidden Blade",
+    "descPtBr": "Couro tratado com gordura de morcego que repele detecção e confere leveza total. [Conjunto Lâmina Oculta: Lv. 40 - Assassino (75%) > Atirador (25%)].",
+    "descEn": "Couro tratado com gordura de morcego que repele detecção e confere leveza total. [Hidden Blade Set: Lv. 40 - Assassino (75%) > Atirador (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_060503.png",
+    "combatStats": {
+      "PHYS_ATK": 135,
+      "CRIT_RATE": 60,
+      "CRIT_DMG": 65,
+      "PHYS_DEF": 110,
+      "PHYS_EVASION": 55,
+      "ATTACK_SPEED": 45
+    }
+  },
+  {
+    "code": "equip_lv40_hiddenblade_belt",
+    "slot": "BELT",
+    "namePtBr": "Cinto de Lâminas Arremessáveis",
+    "nameEn": "Throwing Blades Belt",
+    "descPtBr": "Cinto com bainhas ocultas para punhais e bombas de fumaça. [Conjunto Lâmina Oculta: Lv. 40 - Assassino (75%) > Atirador (25%)].",
+    "descEn": "Cinto com bainhas ocultas para punhais e bombas de fumaça. [Hidden Blade Set: Lv. 40 - Assassino (75%) > Atirador (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_060603.png",
+    "combatStats": {
+      "PHYS_ATK": 70,
+      "ATTACK_SPEED": 40,
+      "CRIT_RATE": 35,
+      "PHYS_EVASION": 35
+    }
+  },
+  {
+    "code": "equip_lv40_hiddenblade_legs",
+    "slot": "LEGS",
+    "namePtBr": "Calças Silenciadoras da Sombra",
+    "nameEn": "Shadow Silencing Trousers",
+    "descPtBr": "Calças coladas ao corpo com tiras elásticas que não roçam tecido contra tecido. [Conjunto Lâmina Oculta: Lv. 40 - Assassino (75%) > Atirador (25%)].",
+    "descEn": "Calças coladas ao corpo com tiras elásticas que não roçam tecido contra tecido. [Hidden Blade Set: Lv. 40 - Assassino (75%) > Atirador (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_060703.png",
+    "combatStats": {
+      "PHYS_ATK": 95,
+      "PHYS_DEF": 85,
+      "PHYS_EVASION": 50,
+      "BATTLE_MOVE_SPEED": 35
+    }
+  },
+  {
+    "code": "equip_lv40_hiddenblade_feet",
+    "slot": "FEET",
+    "namePtBr": "Botas Silenciosas do Predador",
+    "nameEn": "Predator Silent Boots",
+    "descPtBr": "Sola de couro de leopardo que pisa sobre cascalho sem produzir qualquer estalo. [Conjunto Lâmina Oculta: Lv. 40 - Assassino (75%) > Atirador (25%)].",
+    "descEn": "Sola de couro de leopardo que pisa sobre cascalho sem produzir qualquer estalo. [Hidden Blade Set: Lv. 40 - Assassino (75%) > Atirador (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_060803.png",
+    "combatStats": {
+      "PHYS_ATK": 65,
+      "PHYS_DEF": 60,
+      "BATTLE_MOVE_SPEED": 55,
+      "PHYS_EVASION": 55,
+      "ATTACK_SPEED": 35
+    }
+  },
+  {
+    "code": "equip_lv40_hiddenblade_weapon1",
+    "slot": "WEAPON_1",
+    "namePtBr": "Cimitarra da Sombra Noturna",
+    "nameEn": "Night Shadow Scimitar",
+    "descPtBr": "Lâmina escura curva banhada em óleo de serpente que não reflete a luz da lua. [Conjunto Lâmina Oculta: Lv. 40 - Assassino (75%) > Atirador (25%)].",
+    "descEn": "Lâmina escura curva banhada em óleo de serpente que não reflete a luz da lua. [Hidden Blade Set: Lv. 40 - Assassino (75%) > Atirador (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_050111.png",
+    "combatStats": {
+      "PHYS_ATK": 285,
+      "CRIT_RATE": 85,
+      "CRIT_DMG": 80,
+      "ATTACK_SPEED": 65,
+      "PHYS_EVASION": 50
+    }
+  },
+  {
+    "code": "equip_lv40_hiddenblade_weapon2",
+    "slot": "WEAPON_2",
+    "namePtBr": "Garras da Penumbra Silenciosa",
+    "nameEn": "Silent Penumbra Claws",
+    "descPtBr": "Garras acopladas às costas da mão para perfuração rápida de artérias. [Conjunto Lâmina Oculta: Lv. 40 - Assassino (75%) > Atirador (25%)].",
+    "descEn": "Garras acopladas às costas da mão para perfuração rápida de artérias. [Hidden Blade Set: Lv. 40 - Assassino (75%) > Atirador (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_060214.png",
+    "combatStats": {
+      "PHYS_ATK": 180,
+      "ATTACK_SPEED": 75,
+      "CRIT_RATE": 60,
+      "PHYS_EVASION": 60,
+      "BATTLE_MOVE_SPEED": 40
+    }
+  },
+  {
+    "code": "equip_lv40_hiddenblade_ring",
+    "slot": "RING",
+    "namePtBr": "Selo do Toque Venenoso",
+    "nameEn": "Poisonous Touch Seal",
+    "descPtBr": "Anel de prata negra com agulha retrátil com peçonha paralisante. [Conjunto Lâmina Oculta: Lv. 40 - Assassino (75%) > Atirador (25%)].",
+    "descEn": "Anel de prata negra com agulha retrátil com peçonha paralisante. [Hidden Blade Set: Lv. 40 - Assassino (75%) > Atirador (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_001013.png",
+    "combatStats": {
+      "PHYS_ATK": 90,
+      "CRIT_RATE": 55,
+      "CRIT_DMG": 50,
+      "ATTACK_SPEED": 35
+    }
+  },
+  {
+    "code": "equip_lv40_hiddenblade_necklace",
+    "slot": "NECKLACE",
+    "namePtBr": "Gargantilha da Morte Rápida",
+    "nameEn": "Swift Death Choker",
+    "descPtBr": "Fita de veludo com pingente de lâmina envenenada. [Conjunto Lâmina Oculta: Lv. 40 - Assassino (75%) > Atirador (25%)].",
+    "descEn": "Fita de veludo com pingente de lâmina envenenada. [Hidden Blade Set: Lv. 40 - Assassino (75%) > Atirador (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_000913.png",
+    "combatStats": {
+      "PHYS_ATK": 95,
+      "CRIT_DMG": 60,
+      "CRIT_RATE": 45,
+      "PHYS_EVASION": 35
+    }
+  },
+  {
+    "code": "equip_lv40_hiddenblade_ornament1",
+    "slot": "ORNAMENT_1",
+    "namePtBr": "Máscara da Sombra Eterna",
+    "nameEn": "Eternal Shadow Mask",
+    "descPtBr": "Meia-máscara de couro que anula o som da respiração durante a emboscada. [Conjunto Lâmina Oculta: Lv. 40 - Assassino (75%) > Atirador (25%)].",
+    "descEn": "Meia-máscara de couro que anula o som da respiração durante a emboscada. [Hidden Blade Set: Lv. 40 - Assassino (75%) > Atirador (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_001115.png",
+    "combatStats": {
+      "PHYS_ATK": 80,
+      "PHYS_EVASION": 55,
+      "CRIT_RATE": 40,
+      "BATTLE_MOVE_SPEED": 30
+    }
+  },
+  {
+    "code": "equip_lv40_hiddenblade_ornament2",
+    "slot": "ORNAMENT_2",
+    "namePtBr": "Talismã do Passo Invisível",
+    "nameEn": "Invisible Step Talisman",
+    "descPtBr": "Amuleto que dobra o reflexo da luz ao redor, tornando o portador fugidio como fumaça. [Conjunto Lâmina Oculta: Lv. 40 - Assassino (75%) > Atirador (25%)].",
+    "descEn": "Amuleto que dobra o reflexo da luz ao redor, tornando o portador fugidio como fumaça. [Hidden Blade Set: Lv. 40 - Assassino (75%) > Atirador (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_001215.png",
+    "combatStats": {
+      "PHYS_ATK": 75,
+      "PHYS_EVASION": 60,
+      "BATTLE_MOVE_SPEED": 45,
+      "ATTACK_SPEED": 35
+    }
+  }
+]

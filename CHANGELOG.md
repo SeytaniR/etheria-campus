@@ -5,6 +5,41 @@ Qualquer IA trabalhando neste repositório **DEVE** incrementar a versão e regi
 
 ---
 
+## [v0.46.0] - 2026-11-14
+### Montagem Declarativa de 12 Conjuntos Especializados de Nível 40 na Rota Admin (144 Peças de Combate Ponderadas A > B e B > A)
+* **Estruturação de 12 Novos Conjuntos Especializados de Nível 40 (`item_templates`, `i18n_translations`):**
+  * Criação completa de **144 novas peças de equipamento de Nível 40** (12 peças por conjunto cobrindo os 12 slots de combate: `HEAD`, `SHOULDER`, `CHEST`, `BELT`, `LEGS`, `FEET`, `ORNAMENT_1`, `ORNAMENT_2`, `RING`, `NECKLACE`, `WEAPON_1`, `WEAPON_2`), elevando o acervo do painel `/admin` para **228 equipamentos cadastrados**.
+  * **Par 1 (Necromante + Barda):**
+    * **1A. Conjunto do Ceifador Profano (Necromante 75% > Barda 25%):** Seda Púrpura Maior (Série 04 Tier 05), Foice Espectral, Grimório das Almas e Joias da Morte. Foco em `MAG_ATK` colossal, `CRIT_RATE`, `CRIT_DMG`, `MAG_ACCURACY`, `MAX_MP` e dreno vital (`HP_REGEN`).
+    * **1B. Conjunto da Sinfonia Serena (Barda 75% > Necromante 25%):** Seda Ágil (Série 04 Tier 03), Alaúde da Harmonia Celestial, Arco Sonoro da Ressonância e Joias Melódicas. Foco em `MP_REGEN` massivo, `HEAL_POWER`, `BATTLE_MOVE_SPEED`, `ATTACK_SPEED`, `MAG_DEF` e `MAG_EVASION`.
+  * **Par 2 (Mago + Curandeira):**
+    * **2A. Conjunto do Cataclismo Arcano (Mago 75% > Curandeira 25%):** Mantos Safira Maior (Série 03 Tier 05), Cetro do Cataclismo Cósmico, Orbe da Supernova e Joias Astrais. Foco em `MAG_ATK` colossal, `CRIT_DMG`, `CRIT_RATE`, `MAG_ACCURACY`, `MAX_MP` e quebra de resistências.
+    * **2B. Conjunto da Graça da Aurora (Curandeira 75% > Mago 25%):** Manto Sagrado Safira Pura (Série 03 Tier 03), Cajado da Aurora Sagrada, Livro dos Preceitos e Joias da Aurora. Foco em `HEAL_POWER` supremo, `MAX_MP`, `MP_REGEN` extrema, `MAG_DEF`, `MAX_HP` e `MAG_EVASION`.
+  * **Par 3 (Guerreira + Lanceiro):**
+    * **3A. Conjunto do Colosso de Aço (Guerreira 75% > Lanceiro 25%):** Placas de Aço Maciço (Série 01 Tier 05), Maça de Guerra do Colosso, Escudo Bastião Imperial e Joias do Aço Indestrutível. Foco em `PHYS_DEF` e `MAX_HP` titânicos, `HP_REGEN`, `MAG_DEF` e bloqueio maciço.
+    * **3B. Conjunto da Lança dos Céus (Lanceiro 75% > Guerreira 25%):** Placas Polidas (Série 01 Tier 03), Lança de Ruptura do Dragão, Broquel Pontiagudo e Joias do Falcão Perfurador. Foco em `PHYS_ATK`, `PHYS_ACCURACY`, `CRIT_RATE`, `CRIT_DMG`, perfuração e velocidade de investida (`BATTLE_MOVE_SPEED`).
+  * **Par 4 (Espadachim + Lutadora):**
+    * **4A. Conjunto do Fio Soberano (Espadachim 75% > Lutadora 25%):** Couro e Placas Rubi (Série 05 Tier 05), Katana da Flor Carmesim, Adaga de Aparo da Flor e Joias do Corte Preciso. Foco em `PHYS_ATK`, `CRIT_RATE`, `CRIT_DMG`, `PHYS_ACCURACY`, postura defensiva e contra-ataques reflexivos.
+    * **4B. Conjunto do Punho de Fogo (Lutadora 75% > Espadachim 25%):** Couro Flexível e Faixas Rubi (Série 05 Tier 03), Manoplas do Punho de Fogo, Faixas do Tigre e Joias do Frenesi Corporal. Foco em `ATTACK_SPEED` explosiva, `BATTLE_MOVE_SPEED`, `PHYS_EVASION`, cadência ininterrupta de socos e `MAX_HP`.
+  * **Par 5 (Paladino + Caçadora):**
+    * **5A. Conjunto do Julgamento Solar (Paladino 75% > Caçadora 25%):** Malha Pesada Dourada (Série 02 Tier 05), Maça do Julgamento Solar, Escudo do Sol Radiante e Joias da Ordem Solar. Foco em resistência mista (`PHYS_DEF`, `MAG_DEF`), `MAX_HP`, `HEAL_POWER`, `HP_REGEN` e solidez templária.
+    * **5B. Conjunto da Espreita Silvestre (Caçadora 75% > Paladino 25%):** Malha Nobre Leve (Série 02 Tier 03), Lança de Caça da Floresta, Braçadeira do Disparo Silvestre e Joias do Olho de Falcão. Foco em `ATTACK_RANGE`, `PHYS_ACCURACY`, `PHYS_EVASION`, `CRIT_RATE`, armadilhas e perseguição.
+  * **Par 6 (Atirador + Assassino):**
+    * **6A. Conjunto do Franco-Atirador Tático (Atirador 75% > Assassino 25%):** Couro Balístico Noturno (Série 06 Tier 05), Rifle Balístico de Alta Precisão, Manopla com Mira Estabilizadora e Joias do Alvo Travado. Foco em `ATTACK_RANGE` supremo, `PHYS_ATK` colossal, `PHYS_ACCURACY` extrema, `CRIT_DMG` e disparos a longas distâncias.
+    * **6B. Conjunto da Lâmina Oculta (Assassino 75% > Atirador 25%):** Couro Furtivo Leve (Série 06 Tier 03), Cimitarra da Sombra Noturna, Garras da Penumbra Silenciosa e Joias do Toque Venenoso. Foco em `PHYS_EVASION` extrema, `ATTACK_SPEED`, `CRIT_RATE` e `CRIT_DMG` em rajada letal e `BATTLE_MOVE_SPEED`.
+* **Conformidade Estrita com Diretrizes e Arquitetura No-Code:**
+  * **Requisito de Nível e Classes:** Todos configurados para `requiredLevel: 40`, sem restrições de classe (`reqClassCodesJson: []`).
+  * **Combate Puro:** Bônus configurados 100% em `combatStatBonusesJson` (sem contaminação de `baseStatBonusesJson: {}`).
+  * **Economia:** Preço em ouro zerado (`priceGold: 0`, `isTradable: false`, `rarityTier: 'RARE'`).
+  * **Sem Cosméticos/Utilitários:** Zero presença de Asas (`WINGS`), Modas (`FASHION`) ou Varas de Pesca (`FISHING_ROD`).
+  * **Arquitetura Modular Conforme Regra #7:** Dados desacoplados em `twelve_level40_equipment_sets.json` e script de seed com apenas 183 linhas.
+* **Persistência, Cache e Validação:**
+  * Banco de dados PostgreSQL da VPS Azure sincronizado e 143 novos ícones espelhados em cache permanente (totalizando 226 ícones em cache).
+  * Snapshot canônico `lowcode.snapshot.json` atualizado para 1.86 MB com as 144 novas entradas em `item_templates` e 288 em `i18n_translations`.
+  * Total de equipamentos na rota `/admin` validado ao vivo: **228 equipamentos** (12 do Aprendiz + 72 Balanceados da v0.45.0 + 144 Especializados da v0.46.0).
+
+---
+
 ## [v0.45.0] - 2026-11-14
 ### Montagem de 6 Conjuntos Oficiais de Equipamentos Nível 40 na Rota Admin (72 Peças de Combate No-Code)
 * **Estruturação de 6 Conjuntos Temáticos de Nível 40 (`item_templates`, `i18n_translations`):**

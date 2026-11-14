@@ -8,9 +8,16 @@
 ---
 
 ## 📌 Status Atual do Projeto
-* **Versão Atual:** `v0.45.0`
+* **Versão Atual:** `v0.46.0`
 * **Última Atualização:** `2026-11-14`
-* **Fase Atual:** **Montagem de 6 Conjuntos Oficiais de Equipamentos Nível 40 na Rota Admin (72 Peças de Combate No-Code) (`v0.45.0`)** — Cadastrados 72 novos equipamentos de Nível 40 (12 peças por conjunto cobrindo os 12 slots de combate para personagem: `HEAD`, `SHOULDER`, `CHEST`, `BELT`, `LEGS`, `FEET`, `ORNAMENT_1`, `ORNAMENT_2`, `RING`, `NECKLACE`, `WEAPON_1`, `WEAPON_2`). Conjuntos: 1) Necromante + Barda (Réquiem Noturno), 2) Mago + Curandeira (Éter Celestial), 3) Guerreira + Lanceiro (Vanguarda Titânica), 4) Espadachim + Lutadora (Fluxo Carmesim), 5) Paladino + Caçadora (Sentinela Sagrada), 6) Atirador + Assassino (Sombra Letal). Todos com `priceGold: 0`, `isTradable: false`, `rarityTier: 'RARE'`, apenas `combatStatBonusesJson` (sem atributos base), sem asas/modas/varas de pesca, e com ícones temáticos do `mcrework`. 100% No-Code (sem injeção de código em lógica/controladores). Banco PostgreSQL da VPS Azure sincronizado, 72 ícones cacheados e snapshot `lowcode.snapshot.json` atualizado (84 equipamentos totais na rota `/admin`). Todos os arquivos estritamente conformes com a Regra #7 (< 1.000 linhas).
+* **Fase Atual:** **Montagem Declarativa de 12 Conjuntos Especializados de Nível 40 na Rota Admin (144 Peças Ponderadas A > B e B > A) (`v0.46.0`)** — Cadastrados 144 novos equipamentos de Nível 40 cobrindo 12 conjuntos especializados nos 6 pares de classes originais com foco assimétrico (75% Classe A / 25% Classe B e vice-versa):
+  1) Ceifador Profano (Necromante > Barda) & Sinfonia Serena (Barda > Necromante)
+  2) Cataclismo Arcano (Mago > Curandeira) & Graça da Aurora (Curandeira > Mago)
+  3) Colosso de Aço (Guerreira > Lanceiro) & Lança dos Céus (Lanceiro > Guerreira)
+  4) Fio Soberano (Espadachim > Lutadora) & Punho de Fogo (Lutadora > Espadachim)
+  5) Julgamento Solar (Paladino > Caçadora) & Espreita Silvestre (Caçadora > Paladino)
+  6) Franco-Atirador Tático (Atirador > Assassino) & Lâmina Oculta (Assassino > Atirador).
+  Todos com 12 slots de combate para personagem, `requiredLevel: 40`, `reqClassCodesJson: []`, `priceGold: 0`, `isTradable: false`, `rarityTier: 'RARE'`, apenas `combatStatBonusesJson`, sem asas/modas/varas de pesca, e com ícones temáticos do `mcrework`. Total no `/admin` ampliado para **228 equipamentos**. PostgreSQL da VPS Azure sincronizado, 226 ícones cacheados e snapshot `lowcode.snapshot.json` atualizado. Todos os arquivos estritamente conformes com a Regra #7 (< 1.000 linhas).
 * **Repositório Oficial:** `https://github.com/SeytaniR/etheria-campus`
 * **Fonte Bruta de Assets:** `https://github.com/SeytaniR/mcrework` (`https://seytanir.github.io/mcrework/`)
 
