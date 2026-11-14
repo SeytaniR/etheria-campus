@@ -13,6 +13,15 @@ export interface UiViewportLayoutConfig {
   maxHeightVh: number | null;
   opacity: number;
   visible: boolean;
+  bgColor?: string | null;
+  borderColor?: string | null;
+  textColor?: string | null;
+  accentColor?: string | null;
+  borderRadiusPx?: number | null;
+  iconUrl?: string | null;
+  bgImageUrl?: string | null;
+  customLabel?: string | null;
+  subIcons?: Record<string, string> | null;
 }
 
 export interface UpsertClientUiLayoutDto {
@@ -92,6 +101,31 @@ function normalizeViewportConfig(raw: unknown): UiViewportLayoutConfig {
 
   const visible = parsed.visible !== false;
 
+  const strOrNull = (v: unknown): string | null =>
+    typeof v === 'string' && v.trim().length > 0 ? v.trim() : null;
+
+  const borderRadiusPx =
+    parsed.borderRadiusPx !== null &&
+    parsed.borderRadiusPx !== undefined &&
+    parsed.borderRadiusPx !== '' &&
+    Number.isFinite(Number(parsed.borderRadiusPx)) &&
+    Number(parsed.borderRadiusPx) >= 0
+      ? Math.round(Number(parsed.borderRadiusPx))
+      : null;
+
+  let subIcons: Record<string, string> | null = null;
+  if (parsed.subIcons && typeof parsed.subIcons === 'object' && !Array.isArray(parsed.subIcons)) {
+    const cleanMap: Record<string, string> = {};
+    for (const [k, v] of Object.entries(parsed.subIcons as Record<string, unknown>)) {
+      if (typeof v === 'string' && v.trim()) {
+        cleanMap[k] = v.trim();
+      }
+    }
+    if (Object.keys(cleanMap).length > 0) {
+      subIcons = cleanMap;
+    }
+  }
+
   return {
     anchorX,
     anchorY,
@@ -104,6 +138,15 @@ function normalizeViewportConfig(raw: unknown): UiViewportLayoutConfig {
     maxHeightVh,
     opacity,
     visible,
+    bgColor: strOrNull(parsed.bgColor),
+    borderColor: strOrNull(parsed.borderColor),
+    textColor: strOrNull(parsed.textColor),
+    accentColor: strOrNull(parsed.accentColor),
+    borderRadiusPx,
+    iconUrl: strOrNull(parsed.iconUrl),
+    bgImageUrl: strOrNull(parsed.bgImageUrl),
+    customLabel: strOrNull(parsed.customLabel),
+    subIcons,
   };
 }
 
@@ -203,6 +246,16 @@ export class AdminUiLayoutsController {
         'EXPLORE_HUD',
         '#hudBottomMenuSection',
         'Barra de navegação inferior: Personagem, Mochila, Pets, Missões, Loja e Eventos.',
+        { offsetX: 0, offsetY: 0, scale: 1.0 },
+        { offsetX: 0, offsetY: 0, scale: 0.95 },
+        { offsetX: 0, offsetY: 0, scale: 1.0 }
+      ),
+      mk(
+        'HUD_CHAT',
+        'HUD de Chat Multi-Canal (Geral, Mapa, Grupo, Sistema)',
+        'EXPLORE_HUD',
+        '#hudChatSection',
+        'Caixa de bate-papo interativa com abas de canais, histórico de mensagens, campo de texto e botão de minimizar.',
         { offsetX: 0, offsetY: 0, scale: 1.0 },
         { offsetX: 0, offsetY: 0, scale: 0.95 },
         { offsetX: 0, offsetY: 0, scale: 1.0 }
@@ -566,6 +619,47 @@ export class AdminUiLayoutsController {
           mobileLandscapeJson: seed.mobileLandscape as any,
           desktopJson: seed.desktop as any,
           isActive: true,
+        },
+      });
+    }
+    await this.snapshotManager.exportToDisk();
+    return this.getUiLayouts();
+  }
+
+  public async bulkUpdateUiLayouts(
+    items: Array<{
+      id: number;
+      mobilePortrait?: Partial<UiViewportLayoutConfig>;
+      mobileLandscape?: Partial<UiViewportLayoutConfig>;
+      desktop?: Partial<UiViewportLayoutConfig>;
+      isActive?: boolean;
+    }>
+  ) {
+    if (!Array.isArray(items)) {
+      throw new Error('Lista de layouts inválida para salvamento em lote.');
+    }
+    for (const item of items) {
+      const id = Number(item.id);
+      if (!Number.isFinite(id) || id <= 0) continue;
+      const existing = await this.prisma.clientUiLayoutTemplate.findUnique({ where: { id } });
+      if (!existing) continue;
+
+      await this.prisma.clientUiLayoutTemplate.update({
+        where: { id },
+        data: {
+          mobilePortraitJson:
+            item.mobilePortrait !== undefined
+              ? (normalizeViewportConfig(item.mobilePortrait) as any)
+              : (existing.mobilePortraitJson as any),
+          mobileLandscapeJson:
+            item.mobileLandscape !== undefined
+              ? (normalizeViewportConfig(item.mobileLandscape) as any)
+              : (existing.mobileLandscapeJson as any),
+          desktopJson:
+            item.desktop !== undefined
+              ? (normalizeViewportConfig(item.desktop) as any)
+              : (existing.desktopJson as any),
+          isActive: item.isActive !== undefined ? Boolean(item.isActive) : existing.isActive,
         },
       });
     }

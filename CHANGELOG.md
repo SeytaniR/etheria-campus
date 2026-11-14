@@ -5,6 +5,17 @@ Qualquer IA trabalhando neste repositório **DEVE** incrementar a versão e regi
 
 ---
 
+## [v0.34.0] - 2026-11-14
+### Studio Visual No-Code (Click & Drag, Redimensionamento, Cores e Troca de Ícones) e Criação da HUD de Chat
+* **Nova HUD Visual de Chat Multi-Canal (`#hudChatSection` / `HUD_CHAT` em `PlayHudController.js` & `play_chat_and_modals.css`):**
+  * Criada a HUD de Chat com abas de canal (`Geral`, `Mapa`, `Grupo`, `Sistema`), área de histórico de mensagens, barra de digitação com botão de envio (`➤`) e botão de minimizar/expandir (`▼` / `💬`).
+  * Registrada automaticamente no banco (`HUD_CHAT`) para posicionamento e estilização visual nos 3 layouts (`Mobile Vertical`, `Mobile Horizontal` e `Desktop`).
+* **Studio Visual No-Code WYSIWYG para HUDs, Modais e Interfaces (`AdminUiStageRenderer.js`, `AdminUiLayoutsTab.js`, `PlayUiLayoutApplier.js`):**
+  * **Palco Visual Fiel em Tempo Real:** Exibe a interface real do jogo (HUDs de Exploração + Chat, HUDs de Batalha Wild Rift ou Modais) na resolução exata do layout selecionado (`📱 Mobile Vertical 390×844`, `📲 Mobile Horizontal 844×390` e `🖥️ Desktop 1280×720`).
+  * **Click & Drag + 8 Alças de Redimensionamento/Escala:** Clique em qualquer HUD ou Modal no palco para selecioná-lo, arraste para mover livremente (com guias de alinhamento central e grade opcional de 5px) ou puxe os 4 cantos (escala) e as 4 bordas (largura/altura em pixels).
+  * **Customizador Visual de Cores e Bordas:** Seletores visuais de cor (`<input type="color">`) para Fundo, Borda, Texto, Brilho/Sombra e Arredondamento (`borderRadiusPx`), com opção de sincronizar o estilo nos 3 layouts simultaneamente.
+  * **Galeria Visual para Troca de Ícones e Imagens de Botões:** Permite trocar o ícone principal, textura de fundo ou ícones individuais de sub-botões (como cada um dos 6 botões do Menu Inferior, moldura/retrato do Avatar, moedas, anel/centro do Joystick e atalhos) clicando na galeria de assets ou enviando imagem do computador.
+
 ## [v0.33.0] - 2026-11-14
 ### Unificação de Pets com a Tabela de Monstros (Remoção de Captura) e Editor Admin de HUDs, Modais e Interfaces nos 3 Layouts
 * **Remoção Completa do Sistema de Captura e da Tabela Separada de Pets (`schema.prisma`, `AdminRouter.ts`, `TemporaryCombatController.ts`, `AdminMonstersTab.js`):**

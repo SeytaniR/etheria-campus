@@ -1,8 +1,14 @@
 /**
  * @file apps/server/public/play/js/PlayUiLayoutApplier.js
- * @description Motor de aplicação dinâmica de Layouts de UI do Cliente (/play)
+ * @description Motor de aplicação dinâmica de Layouts e Estilos Visuais de UI do Cliente (/play)
  *   para os 3 formatos: Mobile Vertical (MOBILE_PORTRAIT), Mobile Horizontal (MOBILE_LANDSCAPE)
  *   e Desktop (DESKTOP), sincronizado com a tabela `client_ui_layout_templates` do /admin.
+ *   Suporta:
+ *   - Posição (anchorX, anchorY, offsetX, offsetY)
+ *   - Tamanho e Escala (scale, widthPx, heightPx, maxWidthVw, maxHeightVh)
+ *   - Visibilidade e Opacidade (visible, opacity)
+ *   - Cores e Bordas (bgColor, borderColor, textColor, accentColor, borderRadiusPx, bgImageUrl)
+ *   - Troca de Ícones de Botões e Sub-Botões (iconUrl, subIcons, customLabel)
  */
 
 class PlayUiLayoutApplier {
@@ -79,49 +85,71 @@ class PlayUiLayoutApplier {
     return tpl.desktop || {};
   }
 
-  applyAll() {
-    this.currentMode = this.detectViewportMode();
+  applyAll(rootContainer = document, forcedMode = null) {
+    const mode = forcedMode || this.detectViewportMode();
+    if (!forcedMode) this.currentMode = mode;
     if (!Array.isArray(this.templates) || this.templates.length === 0) return;
 
     for (const tpl of this.templates) {
       if (tpl.isActive === false || !tpl.domSelector) continue;
       let elements;
       try {
-        elements = document.querySelectorAll(tpl.domSelector);
+        elements = rootContainer.querySelectorAll(tpl.domSelector);
       } catch {
         continue;
       }
       if (!elements || elements.length === 0) continue;
 
-      const cfg = this.getActiveConfigForTemplate(tpl, this.currentMode);
-      elements.forEach((el) => this.applyConfigToElement(el, cfg));
+      const cfg = this.getActiveConfigForTemplate(tpl, mode);
+      elements.forEach((el) => this.applyConfigToElement(el, cfg, Boolean(forcedMode)));
     }
   }
 
-  applyConfigToElement(el, cfg) {
+  resolveStyleTarget(el) {
+    return (
+      el.querySelector(
+        '.hud-player-header-card, .hud-bottom-dock, .hud-shortcuts-dock, .hud-minimap-wrapper, .hud-modal-dialog, .hud-map-modal-dialog'
+      ) || el
+    );
+  }
+
+  applyConfigToElement(el, cfg, isStagePreview = false) {
     if (!el || !el.style) return;
 
     // 1. Visibilidade explícita
     if (cfg.visible === false) {
-      if (el.dataset.uiLayoutHidden !== 'true') {
-        el.dataset.uiLayoutPrevDisplay = el.style.display || '';
-        el.dataset.uiLayoutHidden = 'true';
+      if (isStagePreview) {
+        el.style.opacity = '0.22';
+        el.dataset.uiLayoutHiddenPreview = 'true';
+      } else {
+        if (el.dataset.uiLayoutHidden !== 'true') {
+          el.dataset.uiLayoutPrevDisplay = el.style.display || '';
+          el.dataset.uiLayoutHidden = 'true';
+        }
+        el.style.setProperty('display', 'none', 'important');
+        return;
       }
-      el.style.setProperty('display', 'none', 'important');
-      return;
-    } else if (el.dataset.uiLayoutHidden === 'true') {
-      el.style.display = el.dataset.uiLayoutPrevDisplay || '';
-      delete el.dataset.uiLayoutHidden;
+    } else {
+      if (el.dataset.uiLayoutHidden === 'true') {
+        el.style.display = el.dataset.uiLayoutPrevDisplay || '';
+        delete el.dataset.uiLayoutHidden;
+      }
+      if (el.dataset.uiLayoutHiddenPreview === 'true') {
+        el.style.opacity = '';
+        delete el.dataset.uiLayoutHiddenPreview;
+      }
     }
 
     // 2. Opacidade
-    const opacity = Number(cfg.opacity ?? 1);
-    if (Number.isFinite(opacity) && opacity > 0 && opacity < 1) {
-      el.style.opacity = String(opacity);
-      el.dataset.uiLayoutCustomOpacity = 'true';
-    } else if (el.dataset.uiLayoutCustomOpacity === 'true') {
-      el.style.opacity = '';
-      delete el.dataset.uiLayoutCustomOpacity;
+    if (cfg.visible !== false) {
+      const opacity = Number(cfg.opacity ?? 1);
+      if (Number.isFinite(opacity) && opacity > 0 && opacity < 1) {
+        el.style.opacity = String(opacity);
+        el.dataset.uiLayoutCustomOpacity = 'true';
+      } else if (el.dataset.uiLayoutCustomOpacity === 'true') {
+        el.style.opacity = '';
+        delete el.dataset.uiLayoutCustomOpacity;
+      }
     }
 
     // 3. Dimensões (widthPx, heightPx, maxWidthVw, maxHeightVh)
@@ -141,23 +169,113 @@ class PlayUiLayoutApplier {
       delete el.dataset.uiLayoutCustomH;
     }
 
-    if (cfg.maxWidthVw && Number(cfg.maxWidthVw) > 0) {
-      el.style.setProperty('max-width', `${Number(cfg.maxWidthVw)}vw`, 'important');
-      el.dataset.uiLayoutCustomMW = 'true';
-    } else if (el.dataset.uiLayoutCustomMW === 'true') {
-      el.style.removeProperty('max-width');
-      delete el.dataset.uiLayoutCustomMW;
+    if (!isStagePreview) {
+      if (cfg.maxWidthVw && Number(cfg.maxWidthVw) > 0) {
+        el.style.setProperty('max-width', `${Number(cfg.maxWidthVw)}vw`, 'important');
+        el.dataset.uiLayoutCustomMW = 'true';
+      } else if (el.dataset.uiLayoutCustomMW === 'true') {
+        el.style.removeProperty('max-width');
+        delete el.dataset.uiLayoutCustomMW;
+      }
+
+      if (cfg.maxHeightVh && Number(cfg.maxHeightVh) > 0) {
+        el.style.setProperty('max-height', `${Number(cfg.maxHeightVh)}vh`, 'important');
+        el.dataset.uiLayoutCustomMH = 'true';
+      } else if (el.dataset.uiLayoutCustomMH === 'true') {
+        el.style.removeProperty('max-height');
+        delete el.dataset.uiLayoutCustomMH;
+      }
     }
 
-    if (cfg.maxHeightVh && Number(cfg.maxHeightVh) > 0) {
-      el.style.setProperty('max-height', `${Number(cfg.maxHeightVh)}vh`, 'important');
-      el.dataset.uiLayoutCustomMH = 'true';
-    } else if (el.dataset.uiLayoutCustomMH === 'true') {
-      el.style.removeProperty('max-height');
-      delete el.dataset.uiLayoutCustomMH;
+    // 4. Cores, Bordas e Imagem de Fundo (aplicados no card visual principal da HUD)
+    const styleTarget = this.resolveStyleTarget(el);
+    if (cfg.bgColor) {
+      styleTarget.style.setProperty('background', cfg.bgColor, 'important');
+      styleTarget.dataset.uiCustomBg = 'true';
+    } else if (styleTarget.dataset.uiCustomBg === 'true') {
+      styleTarget.style.removeProperty('background');
+      delete styleTarget.dataset.uiCustomBg;
     }
 
-    // 4. Âncora customizada (LEFT/CENTER/RIGHT e TOP/CENTER/BOTTOM) + Offset X/Y + Escala
+    if (cfg.borderColor) {
+      styleTarget.style.setProperty('border-color', cfg.borderColor, 'important');
+      styleTarget.dataset.uiCustomBorder = 'true';
+    } else if (styleTarget.dataset.uiCustomBorder === 'true') {
+      styleTarget.style.removeProperty('border-color');
+      delete styleTarget.dataset.uiCustomBorder;
+    }
+
+    if (cfg.borderRadiusPx !== null && cfg.borderRadiusPx !== undefined && cfg.borderRadiusPx !== '') {
+      styleTarget.style.setProperty('border-radius', `${Number(cfg.borderRadiusPx)}px`, 'important');
+      styleTarget.dataset.uiCustomRadius = 'true';
+    } else if (styleTarget.dataset.uiCustomRadius === 'true') {
+      styleTarget.style.removeProperty('border-radius');
+      delete styleTarget.dataset.uiCustomRadius;
+    }
+
+    if (cfg.textColor) {
+      el.style.setProperty('color', cfg.textColor, 'important');
+      el.dataset.uiCustomText = 'true';
+    } else if (el.dataset.uiCustomText === 'true') {
+      el.style.removeProperty('color');
+      delete el.dataset.uiCustomText;
+    }
+
+    if (cfg.accentColor) {
+      styleTarget.style.setProperty('box-shadow', `0 0 18px ${cfg.accentColor}`, 'important');
+      styleTarget.dataset.uiCustomAccent = 'true';
+    } else if (styleTarget.dataset.uiCustomAccent === 'true') {
+      styleTarget.style.removeProperty('box-shadow');
+      delete styleTarget.dataset.uiCustomAccent;
+    }
+
+    if (cfg.bgImageUrl) {
+      styleTarget.style.setProperty('background-image', `url("${cfg.bgImageUrl}")`, 'important');
+      styleTarget.style.setProperty('background-size', 'cover', 'important');
+      styleTarget.style.setProperty('background-position', 'center', 'important');
+      styleTarget.dataset.uiCustomBgImg = 'true';
+    } else if (styleTarget.dataset.uiCustomBgImg === 'true') {
+      styleTarget.style.removeProperty('background-image');
+      styleTarget.style.removeProperty('background-size');
+      styleTarget.style.removeProperty('background-position');
+      delete styleTarget.dataset.uiCustomBgImg;
+    }
+
+    // 5. Ícone Principal (iconUrl) e Sub-Ícones de Botões (subIcons)
+    if (cfg.iconUrl) {
+      const mainImg = el.querySelector('img');
+      if (mainImg) {
+        if (!mainImg.dataset.origSrc) mainImg.dataset.origSrc = mainImg.getAttribute('src') || '';
+        if (mainImg.getAttribute('src') !== cfg.iconUrl) {
+          mainImg.setAttribute('src', cfg.iconUrl);
+        }
+      }
+    } else {
+      const mainImg = el.querySelector('img[data-orig-src]');
+      if (mainImg && mainImg.dataset.origSrc) {
+        mainImg.setAttribute('src', mainImg.dataset.origSrc);
+        delete mainImg.dataset.origSrc;
+      }
+    }
+
+    if (cfg.subIcons && typeof cfg.subIcons === 'object') {
+      for (const [subSel, customSrc] of Object.entries(cfg.subIcons)) {
+        if (!subSel || !customSrc) continue;
+        try {
+          const subImg = el.querySelector(subSel);
+          if (subImg && subImg.tagName === 'IMG') {
+            if (!subImg.dataset.origSubSrc) subImg.dataset.origSubSrc = subImg.getAttribute('src') || '';
+            if (subImg.getAttribute('src') !== customSrc) {
+              subImg.setAttribute('src', customSrc);
+            }
+          }
+        } catch {
+          // ignore invalid subSelector
+        }
+      }
+    }
+
+    // 6. Âncora customizada (LEFT/CENTER/RIGHT e TOP/CENTER/BOTTOM) + Offset X/Y + Escala
     const anchorX = cfg.anchorX || 'DEFAULT';
     const anchorY = cfg.anchorY || 'DEFAULT';
     const offsetX = Number(cfg.offsetX || 0);
@@ -168,7 +286,7 @@ class PlayUiLayoutApplier {
     const hasCustomTransform = offsetX !== 0 || offsetY !== 0 || (Number.isFinite(scale) && Math.abs(scale - 1) > 0.01);
 
     if (hasCustomAnchor) {
-      el.style.setProperty('position', 'fixed', 'important');
+      el.style.setProperty('position', isStagePreview ? 'absolute' : 'fixed', 'important');
       el.dataset.uiLayoutCustomPos = 'true';
 
       let tx = `${offsetX}px`;

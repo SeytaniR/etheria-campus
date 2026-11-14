@@ -336,6 +336,13 @@ export class AdminRouter {
       }
       return true;
     }
+    if (pathname === '/api/admin/ui-layouts/bulk' && method === 'PUT') {
+      if (this.enforceTablePermission(res, session, 'MAPS', 'READ_WRITE')) {
+        const body = await this.deps.readJsonBody<{ items?: any[] }>(req);
+        this.deps.sendJson(res, 200, await this.deps.uiLayoutsController.bulkUpdateUiLayouts(body.items || []));
+      }
+      return true;
+    }
     if (pathname === '/api/admin/ui-layouts' && method === 'POST') {
       if (this.enforceTablePermission(res, session, 'MAPS', 'READ_WRITE')) {
         this.deps.sendJson(res, 201, await this.deps.uiLayoutsController.createUiLayout(await this.deps.readJsonBody(req)));
