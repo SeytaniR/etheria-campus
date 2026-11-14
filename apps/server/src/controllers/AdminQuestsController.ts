@@ -139,7 +139,7 @@ export class AdminQuestsController {
     );
 
     const mainQuests = quests
-      .filter((q) => q.questCategory === 'MAIN')
+      .filter((q) => q.questCategory === 'MAIN' && q.isActive !== false)
       .sort(
         (a, b) =>
           (a.chapterOrder || 1) - (b.chapterOrder || 1) ||
@@ -163,6 +163,7 @@ export class AdminQuestsController {
       if (q.questCategory === 'MAIN') {
         const sameChapterPrevEpisodes = mainQuests.filter(
           (mq) =>
+            mq.isActive !== false &&
             mq.id !== q.id &&
             Number(mq.chapterOrder) === chapter &&
             (Number(mq.episodeOrder) < episode ||
@@ -176,7 +177,7 @@ export class AdminQuestsController {
           const immediatePrev = sameChapterPrevEpisodes[sameChapterPrevEpisodes.length - 1];
           linearLockDescriptionPtBr = `🔒 Libera ao concluir Ep. ${immediatePrev.chapterOrder}-${immediatePrev.episodeOrder} (${i18nMap.get(immediatePrev.titleI18nKey) ?? immediatePrev.code})`;
         } else if (chapter > 1) {
-          const prevChapterQuests = mainQuests.filter((mq) => Number(mq.chapterOrder) === chapter - 1);
+          const prevChapterQuests = mainQuests.filter((mq) => mq.isActive !== false && Number(mq.chapterOrder) === chapter - 1);
           for (const prev of prevChapterQuests) {
             autoRequiredQuestIds.push(prev.id);
           }
@@ -188,7 +189,7 @@ export class AdminQuestsController {
         }
       } else if (reqCfg.requiredChapterCompleted && Number(reqCfg.requiredChapterCompleted) >= 1) {
         const targetChap = Number(reqCfg.requiredChapterCompleted);
-        const chapQuests = mainQuests.filter((mq) => Number(mq.chapterOrder) === targetChap);
+        const chapQuests = mainQuests.filter((mq) => mq.isActive !== false && Number(mq.chapterOrder) === targetChap);
         for (const cq of chapQuests) {
           autoRequiredQuestIds.push(cq.id);
         }

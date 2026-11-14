@@ -127,7 +127,7 @@ const PlayBagController = {
       }
     };
 
-    // 4. Modal Completo de Personagem & Equipamentos (Paperdoll)
+    // 4. Modal Completo de Personagem & Equipamentos (Paperdoll + 6 Atributos Base + Status de Combate)
     client.openCharacterModal = async function () {
       if (!this.activeChar) return;
       const c = this.activeChar;
@@ -169,6 +169,112 @@ const PlayBagController = {
               .join(' ')
           : '<span style="color:#64748b; font-size:0.74rem;">Nenhum bônus de equipamento ativo.</span>';
 
+        // 1. Cálculo dos 6 Atributos Base (Base + Crescimento por Level Up + Distribuídos)
+        const base = c.baseAttributesJson || { VIT: 10, STR: 10, INT: 10, WIS: 10, AGI: 10, DEX: 10 };
+        const dist = c.distributedStatsJson || { VIT: 0, STR: 0, INT: 0, WIS: 0, AGI: 0, DEX: 0 };
+        const grow = c.growthPerLevelJson || { VIT: 2, STR: 2, INT: 2, WIS: 2, AGI: 2, DEX: 2 };
+        const lvUps = Math.max(0, (c.level || 1) - 1);
+
+        const totalBase = {};
+        for (const k of ['VIT', 'STR', 'INT', 'WIS', 'AGI', 'DEX']) {
+          totalBase[k] = (Number(base[k]) || 0) + (Number(grow[k]) || 0) * lvUps + (Number(dist[k]) || 0);
+        }
+
+        const attrLabels = {
+          VIT: { name: 'Vitalidade', desc: 'HP Máximo, Defesa Física e Resistências' },
+          STR: { name: 'Força', desc: 'Ataque Físico, Perfuração Física e Dano Crítico' },
+          INT: { name: 'Inteligência', desc: 'Ataque Mágico, MP Máximo e Perfuração Mágica' },
+          WIS: { name: 'Sabedoria', desc: 'Cura, Defesa Mágica, Regen MP e Evasão Mágica' },
+          AGI: { name: 'Agilidade', desc: 'Velocidade, Evasão Física/Mágica e Atk Físico' },
+          DEX: { name: 'Destreza', desc: 'Taxa Crítica, Precisão Física/Mágica e Acerto' },
+        };
+
+        const canDistribute = (c.unspentStatPoints || 0) > 0;
+        const pointsBannerHtml = canDistribute
+          ? `
+            <div style="background:linear-gradient(135deg, rgba(234,179,8,0.22), rgba(245,158,11,0.12)); border:1.5px solid #f59e0b; border-radius:8px; padding:7px 10px; display:flex; justify-content:space-between; align-items:center;">
+              <div style="display:flex; align-items:center; gap:6px;">
+                <span style="font-size:1.05rem;">⭐</span>
+                <div>
+                  <strong style="color:#fde047; font-size:0.82rem;">Pontos de Atributo Disponíveis</strong>
+                  <div style="font-size:0.68rem; color:#fef08a;">Distribua os 5 pontos ganhos por Level Up</div>
+                </div>
+              </div>
+              <span style="background:#eab308; color:#020617; font-weight:900; font-size:0.9rem; padding:2px 9px; border-radius:99px; box-shadow:0 0 10px rgba(234,179,8,0.5);">
+                ${c.unspentStatPoints}
+              </span>
+            </div>
+          `
+          : '';
+
+        const baseAttrsHtml = ['VIT', 'STR', 'INT', 'WIS', 'AGI', 'DEX'].map((k) => {
+          const info = attrLabels[k] || { name: k, desc: '' };
+          return `
+            <div style="background:rgba(15,23,42,0.85); border:1px solid #334155; border-radius:8px; padding:6px 6px; display:flex; flex-direction:column; justify-content:space-between; text-align:center;" title="${info.desc}">
+              <div style="font-size:0.68rem; color:#94a3b8; font-weight:700;">${k} <span style="font-size:0.6rem; color:#64748b;">(${info.name.slice(0, 4)}.)</span></div>
+              <div style="font-size:1.05rem; font-weight:900; color:#f8fafc; margin:2px 0;">${totalBase[k]}</div>
+              <div style="font-size:0.58rem; color:#64748b; white-space:nowrap;">
+                B:${base[k] || 10} +C:${(grow[k] || 2) * lvUps} +D:${dist[k] || 0}
+              </div>
+              ${canDistribute ? `
+                <button onclick="window.PlayApp.distributeStatPoint('${k}')" class="btn-success" style="padding:2px 4px; font-size:0.68rem; font-weight:800; border-radius:4px; margin-top:3px; cursor:pointer;" title="Distribuir +1 ponto em ${info.name}">
+                  +1
+                </button>
+              ` : ''}
+            </div>
+          `;
+        }).join('');
+
+        // 2. Cálculo dos Atributos de Combate Derivados (Base Classe + Conversões Procedurais + Bônus Equipamento)
+        const combatAttrMap = new Map();
+        (this.combatAttributes || []).forEach((ca) => combatAttrMap.set(ca.code, ca));
+
+        const renderCombatStatRow = (code, fallbackName, icon = '•') => {
+          const ca = combatAttrMap.get(code);
+          const name = ca?.namePtBr || fallbackName;
+          const isPct = ca ? Boolean(ca.isPercentage) : false;
+
+          let baseVal = Number(c.baseCombatAttributesJson?.[code]);
+          if (isNaN(baseVal) || baseVal === 0) {
+            baseVal = ca ? Number(ca.baseDefault) || 0 : 0;
+          }
+
+          // Matriz de conversão procedural
+          for (const conv of (this.attributeConversions || [])) {
+            if (conv.combatAttributeCode === code) {
+              baseVal += (totalBase[conv.baseAttributeCode] || 0) * Number(conv.ratioPerPoint);
+            }
+          }
+
+          const equipBonus = Number(bonuses[code]) || 0;
+          let formattedTotal = '';
+          let equipTag = '';
+
+          if (isPct) {
+            const totalPct = (baseVal * 100) + equipBonus;
+            formattedTotal = `${totalPct.toFixed(1)}%`;
+            if (equipBonus > 0) {
+              equipTag = `<span style="font-size:0.66rem; color:#86efac; font-weight:700;">(+${equipBonus}%)</span>`;
+            }
+          } else {
+            const totalVal = Math.round(baseVal + equipBonus);
+            formattedTotal = `${totalVal}`;
+            if (equipBonus > 0) {
+              equipTag = `<span style="font-size:0.66rem; color:#86efac; font-weight:700;">(+${equipBonus})</span>`;
+            }
+          }
+
+          return `
+            <div style="display:flex; justify-content:space-between; align-items:center; padding:4px 6px; background:rgba(30,41,59,0.5); border-radius:6px; font-size:0.72rem;">
+              <span style="color:#cbd5e1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" title="${name}">${icon} ${name}</span>
+              <div style="display:flex; align-items:center; gap:3px; white-space:nowrap; margin-left:4px;">
+                <strong style="color:#f8fafc; font-size:0.8rem;">${formattedTotal}</strong>
+                ${equipTag}
+              </div>
+            </div>
+          `;
+        };
+
         bodyEl.innerHTML = `
           <!-- Paperdoll Grid com Modelo Central e 12 Slots Laterais -->
           <div style="display:grid; grid-template-columns:48px 1fr 48px; gap:8px; align-items:center; background:rgba(15,23,42,0.85); border:1px solid #334155; border-radius:12px; padding:10px;">
@@ -199,14 +305,72 @@ const PlayBagController = {
           <!-- Painel Interativo de Detalhes do Slot Selecionado -->
           <div id="characterSlotDetailPanel" style="display:none; background:#0f172a; border:1px solid #f59e0b; border-radius:8px; padding:10px;"></div>
 
+          <!-- Banner de Distribuição de Pontos Livres (se houver) -->
+          ${pointsBannerHtml}
+
+          <!-- 6 Atributos Base -->
+          <div style="background:rgba(2,6,23,0.7); border:1px solid #334155; border-radius:8px; padding:8px 10px;">
+            <div style="font-size:0.74rem; font-weight:700; color:#fde047; margin-bottom:6px;">📊 6 Atributos Base (Nível ${c.level || 1}):</div>
+            <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:5px;">
+              ${baseAttrsHtml}
+            </div>
+          </div>
+
+          <!-- Atributos de Combate Derivados -->
+          <div style="background:rgba(2,6,23,0.7); border:1px solid #334155; border-radius:8px; padding:8px 10px;">
+            <div style="font-size:0.74rem; font-weight:700; color:#86efac; margin-bottom:6px;">⚔️ Status de Combate Derivados:</div>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:4px;">
+              ${renderCombatStatRow('MAX_HP', 'Vida Máxima (HP)', '❤️')}
+              ${renderCombatStatRow('PHYS_DEF', 'Defesa Física', '🛡️')}
+              ${renderCombatStatRow('MAX_MP', 'Mana Máxima (MP)', '💧')}
+              ${renderCombatStatRow('MAG_DEF', 'Defesa Mágica', '🔰')}
+              ${renderCombatStatRow('PHYS_ATK', 'Ataque Físico', '⚔️')}
+              ${renderCombatStatRow('SPEED', 'Iniciativa / Speed', '⚡')}
+              ${renderCombatStatRow('MAG_ATK', 'Ataque Mágico', '🔮')}
+              ${renderCombatStatRow('BATTLE_MOVE_SPEED', 'Veloc. Batalha', '👟')}
+              ${renderCombatStatRow('HEAL_POWER', 'Poder de Cura', '🌿')}
+              ${renderCombatStatRow('ATTACK_SPEED', 'Cadência Ataque', '⏱️')}
+              ${renderCombatStatRow('PHYS_PEN', 'Perfuração Física', '🗡️')}
+              ${renderCombatStatRow('CRIT_RATE', 'Taxa Crítica', '🎯')}
+              ${renderCombatStatRow('MAG_PEN', 'Perfuração Mágica', '✨')}
+              ${renderCombatStatRow('CRIT_DMG', 'Dano Crítico', '💥')}
+              ${renderCombatStatRow('MP_REGEN', 'Regeneração MP', '🧪')}
+              ${renderCombatStatRow('PHYS_ACCURACY', 'Precisão Física', '👁️')}
+              ${renderCombatStatRow('PHYS_EVASION', 'Evasão Física', '💨')}
+              ${renderCombatStatRow('MAG_EVASION', 'Evasão Mágica', '🌀')}
+            </div>
+          </div>
+
           <!-- Bônus de Combate dos Equipamentos -->
           <div style="background:rgba(2,6,23,0.7); border:1px solid #334155; border-radius:8px; padding:8px 10px;">
-            <div style="font-size:0.74rem; font-weight:700; color:#cbd5e1; margin-bottom:5px;">⚔️ Bônus Consolidados dos Equipamentos:</div>
+            <div style="font-size:0.74rem; font-weight:700; color:#cbd5e1; margin-bottom:5px;">🛡️ Bônus Consolidados dos Equipamentos:</div>
             <div style="display:flex; flex-wrap:wrap; gap:4px;">${bonusesHtml}</div>
           </div>
         `;
       } catch (err) {
         bodyEl.innerHTML = `<div style="color:#fca5a5; padding:12px;">Erro ao carregar personagem: ${err.message}</div>`;
+      }
+    };
+
+    // Distribuição Autoritária de Pontos de Atributos Base
+    client.distributeStatPoint = async function (attr) {
+      if (!this.activeChar) return;
+      try {
+        const res = await this.api(`/api/play/characters/${this.activeChar.id}/distribute-stats`, {
+          method: 'POST',
+          body: JSON.stringify({ attribute: attr, points: 1 }),
+        });
+        if (res?.success) {
+          this.activeChar.unspentStatPoints = res.unspentStatPoints;
+          this.activeChar.distributedStatsJson = res.distributedStatsJson;
+          this.updateHudInfo?.();
+          await this.openCharacterModal();
+          if (this.showNotification) {
+            this.showNotification(`+1 ponto atribuído em ${attr}!`, 'success');
+          }
+        }
+      } catch (err) {
+        alert(`Erro ao distribuir ponto: ${err.message}`);
       }
     };
 
@@ -281,9 +445,9 @@ const PlayBagController = {
     modal.id = 'characterModal';
     modal.className = 'modal-backdrop';
     modal.innerHTML = `
-      <div class="modal-box" style="width:min(96vw, 440px); max-height:92dvh; overflow-y:auto;">
+      <div class="modal-box" style="width:min(96vw, 480px); max-height:92dvh; overflow-y:auto;">
         <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #334155; padding-bottom:8px;">
-          <h3 style="color:#fde047; font-size:0.95rem;">👤 Personagem & Equipamentos</h3>
+          <h3 style="color:#fde047; font-size:0.95rem;">👤 Personagem, Atributos & Equipamentos</h3>
           <button class="btn-danger" style="padding:4px 10px;" onclick="document.getElementById('characterModal').style.display='none'">✕</button>
         </div>
         <div id="characterModalBody" style="display:flex; flex-direction:column; gap:10px;"></div>

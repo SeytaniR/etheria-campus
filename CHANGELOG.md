@@ -5,6 +5,20 @@ Qualquer IA trabalhando neste repositório **DEVE** incrementar a versão e regi
 
 ---
 
+## [v0.30.0] - 2026-11-14
+### Ficha Completa do Personagem (Atributos Base e Combate), Distribuição Autoritária e Desbloqueio Canônico das Quests do Capítulo 1
+* **Ficha Completa do Personagem na HUD (`PlayBagController.js`):**
+  * **Exibição dos 6 Atributos Base:** `VIT`, `STR`, `INT`, `WIS`, `AGI`, `DEX` exibidos em cartões individuais com detalhamento de Base, Crescimento por Level Up e Pontos Distribuídos (`B + C + D = Total`).
+  * **Distribuição Autoritária de Pontos Livres:** Quando o personagem possui pontos acumulados por Level Up (`unspentStatPoints > 0`), a HUD exibe um banner dourado de destaque e botões `+1` em cada atributo base.
+  * **Endpoint Autoritário no Servidor (`PlayRouter.ts`):** `POST /api/play/characters/:id/distribute-stats` valida posse do personagem, desconta pontos disponíveis e atualiza atomicamente `distributedStatsJson` no PostgreSQL.
+  * **Status de Combate Derivados:** Grid com 18 atributos de combate calculados proceduralmente via matriz de conversão (`attributeConversions`) somados aos bônus dos equipamentos equipados, com badges visuais `(+X)` em verde claro.
+* **Desbloqueio e Correção Canônica da Linha de Quests do Capítulo 1 (`AdminQuestsController.ts`, snapshot e VPS):**
+  * **Eliminação de Dependências Fantasma:** Purga completa das missões protótipo obsoletas `quest_23` e `quest_24` do banco PostgreSQL e de `lowcode.snapshot.json`, que impediam a liberação das missões canônicas `quest_main_02` e `quest_main_03`.
+  * **Filtro Estrito de Quests Ativas:** `AdminQuestsController.ts` atualizado para exigir `q.isActive !== false` no cálculo de linearidade do capítulo.
+  * **Progressão Fluida Validada em Produção:** Testada e validada a cadeia de Izumo (Ep 1-1 a 1-5) com transição imediata de NPC turn-in para giver da próxima missão e indicadores `!` e `?` dinâmicos sobre a cabeça dos NPCs.
+
+---
+
 ## [v0.29.0] - 2026-11-14
 ### Interface de Equipamentos (Paperdoll 12 Slots), Batalha Tátil sem Dash, Impacto Melee/Ranged e Correções de Autenticação/Login
 * **Correção do Erro 401 no Mapa Mundo (`PlayMapModalController.js`):**

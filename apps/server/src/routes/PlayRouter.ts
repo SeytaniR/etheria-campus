@@ -185,6 +185,54 @@ export class PlayRouter {
       return true;
     }
 
+    // --- Distribuição Autoritária de Pontos de Atributos Base (Regra Sagrada: 5 pts por Level Up) ---
+    const charDistributeStatsMatch = pathname.match(/^\/api\/play\/characters\/(\d+)\/distribute-stats$/);
+    if (charDistributeStatsMatch && method === 'POST') {
+      const charId = Number(charDistributeStatsMatch[1]);
+      if (!(await this.verifyCharacterOwnership(userAccountId, session.role, charId))) {
+        this.deps.sendJson(res, 403, { error: 'Acesso negado: este personagem não pertence à sua conta.' });
+        return true;
+      }
+      const body = await this.deps.readJsonBody<{ attribute: string; points?: number }>(req);
+      const attr = String(body.attribute || '').toUpperCase();
+      const points = Math.max(1, Number(body.points) || 1);
+      if (!['VIT', 'STR', 'INT', 'WIS', 'AGI', 'DEX'].includes(attr)) {
+        this.deps.sendJson(res, 400, { error: 'Atributo inválido. Escolha entre VIT, STR, INT, WIS, AGI ou DEX.' });
+        return true;
+      }
+
+      const pc = await this.deps.prisma.playerCharacter.findUnique({ where: { id: charId } });
+      if (!pc) {
+        this.deps.sendJson(res, 404, { error: 'Personagem não encontrado.' });
+        return true;
+      }
+
+      if ((pc.unspentStatPoints || 0) < points) {
+        this.deps.sendJson(res, 400, { error: `Pontos insuficientes para distribuir (Disponíveis: ${pc.unspentStatPoints || 0}).` });
+        return true;
+      }
+
+      const dist = (pc.distributedStatsJson && typeof pc.distributedStatsJson === 'object'
+        ? { ...(pc.distributedStatsJson as Record<string, number>) }
+        : { VIT: 0, STR: 0, INT: 0, WIS: 0, AGI: 0, DEX: 0 }) as Record<string, number>;
+
+      dist[attr] = (Number(dist[attr]) || 0) + points;
+      const updated = await this.deps.prisma.playerCharacter.update({
+        where: { id: charId },
+        data: {
+          unspentStatPoints: Math.max(0, (pc.unspentStatPoints || 0) - points),
+          distributedStatsJson: dist,
+        },
+      });
+
+      this.deps.sendJson(res, 200, {
+        success: true,
+        unspentStatPoints: updated.unspentStatPoints,
+        distributedStatsJson: updated.distributedStatsJson,
+      });
+      return true;
+    }
+
     // --- Estado do Mapa para Exploração em Tempo Real ---
     const playMapMatch = pathname.match(/^\/api\/play\/map\/(\d+)$/);
     if (playMapMatch && method === 'GET') {
