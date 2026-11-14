@@ -5,6 +5,29 @@ Qualquer IA trabalhando neste repositório **DEVE** incrementar a versão e regi
 
 ---
 
+## [v0.45.0] - 2026-11-14
+### Montagem de 6 Conjuntos Oficiais de Equipamentos Nível 40 na Rota Admin (72 Peças de Combate No-Code)
+* **Estruturação de 6 Conjuntos Temáticos de Nível 40 (`item_templates`, `i18n_translations`):**
+  * Criação completa de **72 novos equipamentos de Nível 40** (12 peças por conjunto cobrindo os 12 slots de combate: `HEAD`, `SHOULDER`, `CHEST`, `BELT`, `LEGS`, `FEET`, `ORNAMENT_1`, `ORNAMENT_2`, `RING`, `NECKLACE`, `WEAPON_1`, `WEAPON_2`).
+  * **1. Conjunto do Réquiem Noturno (Necromante + Barda):** Seda Espiritual Púrpura (Série 04), Alaúde Encantado, Cítara Espectral e Joias da Noite. Foco em `MAG_ATK`, `MAX_MP`, `MP_REGEN`, `HEAL_POWER`, `MAG_DEF`, `MAG_ACCURACY`, `MAG_EVASION`.
+  * **2. Conjunto do Éter Celestial (Mago + Curandeira):** Mantos Safira e Ouro (Série 03), Cajado Vórtice, Grimório Sagrado e Joias Astrais. Foco em `MAG_ATK`, `HEAL_POWER`, `MAX_MP`, `MP_REGEN`, `MAG_DEF`, `CRIT_DMG`, `MAG_ACCURACY`.
+  * **3. Conjunto da Vanguarda Titânica (Guerreira + Lanceiro):** Placas Pesadas de Aço Temperado (Série 01), Rompe-Montanhas, Escudo Torre e Joias de Ferro. Foco em `PHYS_ATK`, `MAX_HP`, `PHYS_DEF`, `MAG_DEF`, `HP_REGEN`, `CRIT_DMG`, `PHYS_ACCURACY`.
+  * **4. Conjunto do Fluxo Carmesim (Espadachim + Lutadora):** Couro Laminado e Aço Rubi (Série 05), Lâmina Vorpal, Adaga de Aparar e Joias de Sangue. Foco em `PHYS_ATK`, `ATTACK_SPEED`, `CRIT_RATE`, `CRIT_DMG`, `PHYS_EVASION`, `PHYS_ACCURACY`, `BATTLE_MOVE_SPEED`.
+  * **5. Conjunto da Sentinela Sagrada (Paladino + Caçadora):** Malha Nobre Dourada (Série 02), Lança Solar, Braçadeira de Precisão e Joias Nobres. Foco em `PHYS_DEF`, `MAG_DEF`, `MAX_HP`, `PHYS_ATK`, `PHYS_ACCURACY`, `CRIT_RATE`, `HEAL_POWER`, `PHYS_EVASION`.
+  * **6. Conjunto da Sombra Letal (Atirador + Assassino):** Couro Negro Furtivo (Série 06), Mosquete Predador, Manoplas com Lâmina Oculta e Joias da Penumbra. Foco em `PHYS_ATK`, `CRIT_RATE`, `CRIT_DMG`, `PHYS_ACCURACY`, `ATTACK_SPEED`, `BATTLE_MOVE_SPEED`, `PHYS_EVASION`, `ATTACK_RANGE`.
+* **Conformidade Estrita com Diretrizes e Arquitetura No-Code:**
+  * **Requisito de Nível e Classes:** Todos configurados para `requiredLevel: 40`, sem restrições de classe (`reqClassCodesJson: []`).
+  * **Combate Puro:** Bônus configurados 100% em `combatStatBonusesJson` (sem contaminação de `baseStatBonusesJson: {}`).
+  * **Economia:** Preço em ouro zerado (`priceGold: 0`, `isTradable: false`, `rarityTier: 'RARE'`).
+  * **Sem Itens Cosméticos/Acessórios Utilitários:** Ausência total de Asas (`WINGS`), Modas (`FASHION`) e Varas de Pesca (`FISHING_ROD`).
+  * **Zero Injeção de Código:** Sem alterações em controladores de negócio ou lógicas do client/server — itens cadastrados de forma declarativa via banco de dados e persistidos em snapshot.
+* **Persistência e Cache:**
+  * Banco de dados PostgreSQL da VPS Azure sincronizado via script automatizado com commit em lote.
+  * 72 ícones canônicos do catálogo `mcrework` cacheados localmente e na VPS em `apps/server/cache/mcrework/assets/equipment/icons/`.
+  * Snapshot canônico `lowcode.snapshot.json` atualizado com as 72 novas entradas em `item_templates` e 144 em `i18n_translations` (totalizando 84 equipamentos na tabela).
+
+---
+
 ## [v0.44.0] - 2026-11-14
 ### Presença Multiplayer Otimizada no Mapa, Ícone de Combate Estilo Magic Campus e Preservação de Posição / Respawn em Batalha
 * **Presença e Sincronização Multiplayer em Tempo Real (`MapPresenceService.ts`, `PlayRouter.ts`):**

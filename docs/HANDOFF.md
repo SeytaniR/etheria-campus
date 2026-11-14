@@ -8,9 +8,9 @@
 ---
 
 ## 📌 Status Atual do Projeto
-* **Versão Atual:** `v0.44.0`
+* **Versão Atual:** `v0.45.0`
 * **Última Atualização:** `2026-11-14`
-* **Fase Atual:** **Presença Multiplayer Otimizada no Mapa, Ícone de Combate Estilo Magic Campus e Preservação de Posição / Respawn em Batalha (`v0.44.0`)** — Jogadores no mesmo mapa agora se enxergam em tempo real via heartbeat em memória de 1.4s no `/api/play/characters/:charId/sync-position`. Ao entrar em combate, o personagem permanece no mapa na pose idle com espadas animadas se batendo sobre a cabeça (estilo Magic Campus). Coordenadas do mapa antes da batalha são preservadas na vitória/fuga, e ao morrer o personagem é teletransportado para o spawn da Cidade ou Vila mais próxima (Vila Izumo). Todos os arquivos estritamente conformes com a Regra #7 (< 1.000 linhas no front e < 900 no back).
+* **Fase Atual:** **Montagem de 6 Conjuntos Oficiais de Equipamentos Nível 40 na Rota Admin (72 Peças de Combate No-Code) (`v0.45.0`)** — Cadastrados 72 novos equipamentos de Nível 40 (12 peças por conjunto cobrindo os 12 slots de combate para personagem: `HEAD`, `SHOULDER`, `CHEST`, `BELT`, `LEGS`, `FEET`, `ORNAMENT_1`, `ORNAMENT_2`, `RING`, `NECKLACE`, `WEAPON_1`, `WEAPON_2`). Conjuntos: 1) Necromante + Barda (Réquiem Noturno), 2) Mago + Curandeira (Éter Celestial), 3) Guerreira + Lanceiro (Vanguarda Titânica), 4) Espadachim + Lutadora (Fluxo Carmesim), 5) Paladino + Caçadora (Sentinela Sagrada), 6) Atirador + Assassino (Sombra Letal). Todos com `priceGold: 0`, `isTradable: false`, `rarityTier: 'RARE'`, apenas `combatStatBonusesJson` (sem atributos base), sem asas/modas/varas de pesca, e com ícones temáticos do `mcrework`. 100% No-Code (sem injeção de código em lógica/controladores). Banco PostgreSQL da VPS Azure sincronizado, 72 ícones cacheados e snapshot `lowcode.snapshot.json` atualizado (84 equipamentos totais na rota `/admin`). Todos os arquivos estritamente conformes com a Regra #7 (< 1.000 linhas).
 * **Repositório Oficial:** `https://github.com/SeytaniR/etheria-campus`
 * **Fonte Bruta de Assets:** `https://github.com/SeytaniR/mcrework` (`https://seytanir.github.io/mcrework/`)
 
