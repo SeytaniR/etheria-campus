@@ -79,6 +79,10 @@ class AdminQuestsModalDom {
         typeof window.AdminMetaQuestsPanel?.getBuilderSectionHtml === 'function'
           ? window.AdminMetaQuestsPanel.getBuilderSectionHtml()
           : '';
+      const questBattleBuilderHtml =
+        typeof window.AdminQuestBattlePanel?.getBuilderSectionHtml === 'function'
+          ? window.AdminQuestBattlePanel.getBuilderSectionHtml()
+          : '';
 
       const modal = document.createElement('div');
       modal.id = 'questTemplateModal';
@@ -231,6 +235,8 @@ class AdminQuestsModalDom {
           </div>
           <div id="questVisualObjectivesContainer" style="display:flex; flex-direction:column; gap:8px;"></div>
         </div>
+
+        ${questBattleBuilderHtml}
 
         <!-- BLOCO 5: DIÁLOGOS -->
         <div style="background:rgba(15,23,42,0.75); border:1px solid #334155; border-radius:10px; padding:12px; margin-bottom:12px;">

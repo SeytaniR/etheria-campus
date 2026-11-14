@@ -249,6 +249,7 @@ export class QuestProgressService {
 
         return {
           ...q,
+          questBattleConfig: (q.triggerConfigJson as any)?.questBattleConfig || q.questBattleConfig || null,
           dialogueCompletePtBr: effectiveDialogueComplete || q.dialogueCompletePtBr,
           objectivesJson: objectives,
           rewardsJson: rew,

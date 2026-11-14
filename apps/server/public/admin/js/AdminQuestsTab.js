@@ -18,6 +18,7 @@ class AdminQuestsTab {
     app.editingQuestObjectives = [];
 
     if (window.AdminMetaQuestsPanel) AdminMetaQuestsPanel.attach(app);
+    if (window.AdminQuestBattlePanel) AdminQuestBattlePanel.attach(app);
     AdminQuestsModalDom.injectTabAndModalDom();
 
     app.loadQuestTemplates = async function () {
@@ -273,6 +274,7 @@ class AdminQuestsTab {
               <!-- Objetivos -->
               <div style="background:rgba(15,23,42,0.8); border-left:3px solid ${st.border}; padding:5px 8px; font-size:0.72rem; line-height:1.35;">
                 ${q.metaSummaryPtBr ? `<div style="color:#fdba74; font-weight:700; margin-bottom:2px;">${q.metaSummaryPtBr}</div>` : ''}
+                ${q.questBattleSummaryPtBr ? `<div style="color:#fda4af; font-weight:700; margin-bottom:2px;">${q.questBattleSummaryPtBr}</div>` : ''}
                 ${this.formatQuestObjectivesSummary(q.objectivesJson)}
               </div>
 
@@ -685,6 +687,9 @@ class AdminQuestsTab {
       if (typeof this.loadMetaConfigIntoForm === 'function') {
         this.loadMetaConfigIntoForm(existing);
       }
+      if (typeof this.loadQuestBattleConfigIntoForm === 'function') {
+        this.loadQuestBattleConfigIntoForm(existing);
+      }
       this.onQuestEpisodeOrCategoryChanged();
       this.onQuestTriggerTypeChanged();
       this.renderVisualQuestObjectives();
@@ -919,6 +924,7 @@ class AdminQuestsTab {
           dialogueActivePtBr,
           dialogueCompletePtBr,
           objectivesJson: this.editingQuestObjectives,
+          questBattleConfig: typeof this.buildQuestBattleConfigDtoFromForm === 'function' ? this.buildQuestBattleConfigDtoFromForm() : null,
           metaConfigJson: questCategory === 'META' && typeof this.buildMetaConfigDtoFromForm === 'function' ? this.buildMetaConfigDtoFromForm() : null,
           rewardsJson: {
             exp: Number(document.getElementById('questRewardExpInput').value) || 0,

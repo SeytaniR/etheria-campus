@@ -313,13 +313,16 @@ const PlayQuestsController = {
 
       // 3. Missões em Andamento (? Cinza)
       for (const q of inProgressQuests) {
-        const hasBattleObjective = (q.objectives || []).some(
-          (o) => (o.type === 'WIN_BATTLES' || o.type === 'KILL_MONSTER') && !o.completed
-        );
+        const hasBattleObjective =
+          Boolean(q.questBattleConfig?.enabled) ||
+          (q.objectives || []).some(
+            (o) => ['WIN_BATTLES', 'KILL_MONSTER', 'KILL_LEADER', 'KILL_BOSS'].includes(o.type) && !o.completed
+          );
+        const battleBtnLabel = q.questBattleConfig?.buttonLabelPtBr || '⚔️ Entrar no Véu (Iniciar Treino / Combate)';
         const battleBtnHtml = hasBattleObjective
           ? `
             <button class="btn-primary" style="background:linear-gradient(135deg, #7c3aed, #4f46e5); border:1.5px solid #a78bfa; color:#fff; font-weight:800; padding:10px 14px; font-size:0.86rem; border-radius:8px; display:flex; align-items:center; justify-content:center; gap:8px; cursor:pointer;" onclick="window.PlayApp.startQuestBattle(${q.id})">
-              ⚔️ Entrar no Véu (Iniciar Treino / Combate)
+              ${battleBtnLabel}
             </button>
           `
           : '';
@@ -491,9 +494,12 @@ const PlayQuestsController = {
                   ${this.renderRewardsSummaryHtml(q.rewards)}
                   ${
                     q.status === 'IN_PROGRESS' &&
-                    (q.objectives || []).some((o) => (o.type === 'WIN_BATTLES' || o.type === 'KILL_MONSTER') && !o.completed)
+                    (Boolean(q.questBattleConfig?.enabled) ||
+                      (q.objectives || []).some(
+                        (o) => ['WIN_BATTLES', 'KILL_MONSTER', 'KILL_LEADER', 'KILL_BOSS'].includes(o.type) && !o.completed
+                      ))
                       ? `<button class="btn-primary" style="background:linear-gradient(135deg, #7c3aed, #4f46e5); border:1.5px solid #a78bfa; color:#fff; font-weight:800; padding:8px 12px; font-size:0.82rem; border-radius:8px; display:flex; align-items:center; justify-content:center; gap:8px; cursor:pointer; margin-top:4px;" onclick="window.PlayApp.startQuestBattle(${q.id})">
-                          ⚔️ Entrar no Véu (Iniciar Treino / Combate)
+                          ${q.questBattleConfig?.buttonLabelPtBr || '⚔️ Entrar no Véu (Iniciar Treino / Combate)'}
                         </button>`
                       : ''
                   }

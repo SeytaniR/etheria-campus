@@ -5,6 +5,21 @@ Qualquer IA trabalhando neste repositório **DEVE** incrementar a versão e regi
 
 ---
 
+## [v0.38.0] - 2026-11-14
+### Configuração Customizada da Função "Entrar em Luta" por Missão (`questBattleConfig`) no Estúdio de Quests
+* **Painel Visual No-Code de Batalha Exclusiva da Missão (`AdminQuestBattlePanel.js`, `AdminQuestsModalDom.js`, `AdminQuestsTab.js`):**
+  * Adicionada a seção **`⚔️ 4.5 Batalha Exclusiva da Missão — Configurar Função "Entrar em Luta"`** no modal de criação/edição de Quests em `/admin`.
+  * Permite vincular/compartilhar qualquer monstro da tabela `monster_templates` (ou importar com 1 clique os monstros dos objetivos da quest) e customizar exclusivamente para a luta daquela missão (sem alterar o monstro original no banco):
+    * **Quantidade de monstros a spawnar (`quantity`)**: `1` a `25`.
+    * **Patamar na Luta (`variantTier`)**: `NORMAL` (Básico 1x), `LEADER` (`👑 [LÍDER]` 2x Status/Recompensa) ou `BOSS` (`💀 [BOSS]` 4x Status/Recompensa).
+    * **Nível (`levelMode`: `FIXED` | `PLAYER_LEVEL`, `level`)**.
+    * **Nome Customizado (`customNamePtBr`)**, **Elemento (`elementCode`)**, **Raça (`raceCode`)**, **Rank (`rarityTier`: `F..SS`)**, **Estilo (`combatStyle`: `MELEE` | `RANGED`)**, **Alcance (`attackRange`)** e **Natureza do Dano (`damageType`: `PHYSICAL` | `MAGICAL`)**.
+    * **Atributos Base (`baseAttributes`: `VIT, STR, INT, WIS, AGI, DEX`)** e **Overrides Diretos de Status Finais de Combate (`combatOverrides`)**.
+    * **Habilidades (`skillIds`)** equipadas pelo monstro especificamente nessa luta.
+* **Geração Autoritária no Servidor e Integração no Cliente (`MonsterCombatBuilder.ts`, `PlayRouter.ts`, `PlayQuestsController.js`):**
+  * `MonsterCombatBuilder.buildCustomQuestMonsterUnits` instancia os monstros customizados da missão preservando `monsterTemplateId`, `raceCode` e `variantTier` para que a vitória contabilize normalmente nos objetivos da quest.
+  * `POST /api/play/combat/quest-battle` verifica `questBattleConfig.enabled` e inicia a luta no Véu com todos os grupos e atributos customizados configurados na missão.
+
 ## [v0.37.0] - 2026-11-14
 ### Requisito de Eliminar Líderes (`👑 [LÍDER]`) e Bosses (`💀 [BOSS]`) na Tabela e Estúdio No-Code de Quests
 * **Objetivos de Eliminar Líderes e Bosses em Quests Normais e Meta (`AdminQuestsModalDom.js`, `AdminQuestsTab.js`, `AdminMetaQuestsPanel.js`):**

@@ -8,13 +8,14 @@
  */
 
 import type * as http from 'node:http';
-import type { PrismaClient } from '@etheria/database';
+import { I18nCache, type PrismaClient } from '@etheria/database';
 import type { AdminAuthService } from '../security/AdminAuthService.js';
 import type { GamePlayController } from '../controllers/GamePlayController.js';
-import type { TemporaryCombatController } from '../controllers/TemporaryCombatController.js';
+import type { TemporaryCombatController, CombatUnit } from '../controllers/TemporaryCombatController.js';
 import type { AdminQuestsController } from '../controllers/AdminQuestsController.js';
 import type { AssetMirrorService } from '../controllers/AssetMirrorService.js';
 import { CharacterEquipmentService } from '../controllers/CharacterEquipmentService.js';
+import { MonsterCombatBuilder, type QuestBattleConfigDto } from '../controllers/MonsterCombatBuilder.js';
 
 export interface PlayRouterDeps {
   prisma: PrismaClient;
@@ -444,6 +445,67 @@ export class PlayRouter {
       if (!character || !quest) {
         this.deps.sendJson(res, 404, { error: 'Personagem ou Missão não encontrados.' });
         return true;
+      }
+
+      const trigCfg = (quest.triggerConfigJson || {}) as { questBattleConfig?: QuestBattleConfigDto | null };
+      const questBattleCfg = trigCfg.questBattleConfig;
+
+      if (
+        questBattleCfg &&
+        questBattleCfg.enabled &&
+        Array.isArray(questBattleCfg.monsters) &&
+        questBattleCfg.monsters.length > 0
+      ) {
+        const [scalingCtx, i18nMap] = await Promise.all([
+          MonsterCombatBuilder.loadScalingContext(this.deps.prisma),
+          I18nCache.getTranslations(this.deps.prisma, 'pt-BR'),
+        ]);
+
+        const requestedIds = Array.from(
+          new Set(
+            questBattleCfg.monsters
+              .map((m) => Number(m.monsterTemplateId))
+              .filter((id) => Number.isFinite(id) && id > 0),
+          ),
+        );
+
+        const templates = await this.deps.prisma.monsterTemplate.findMany({
+          where: requestedIds.length > 0 ? { id: { in: requestedIds } } : { isActive: true },
+          orderBy: { id: 'asc' },
+        });
+        const templateMap = new Map<number, any>(templates.map((t) => [t.id, t]));
+        const fallbackTemplate = templates[0] || (await this.deps.prisma.monsterTemplate.findFirst());
+
+        if (fallbackTemplate) {
+          const customUnits: CombatUnit[] = [];
+          for (const slot of questBattleCfg.monsters) {
+            const baseTpl = templateMap.get(Number(slot.monsterTemplateId)) || fallbackTemplate;
+            const defaultNamePtBr = i18nMap.get(baseTpl.nameI18nKey) ?? baseTpl.code;
+            const units = MonsterCombatBuilder.buildCustomQuestMonsterUnits(
+              baseTpl,
+              defaultNamePtBr,
+              slot,
+              character.level || 1,
+              customUnits.length,
+              scalingCtx,
+              '/api/assets/mcrework',
+            );
+            customUnits.push(...units);
+          }
+
+          if (customUnits.length > 0) {
+            const state = await this.deps.combatController.startBattle(
+              characterId,
+              customUnits[0].monsterTemplateId || fallbackTemplate.id,
+              customUnits.length,
+              character.level || 1,
+              customUnits,
+              scalingCtx,
+            );
+            this.deps.sendJson(res, 200, state);
+            return true;
+          }
+        }
       }
 
       let targetMobId = 1;

@@ -16,6 +16,7 @@ import {
   type MetaQuestConfigDto,
 } from './MetaQuestProceduralEngine.js';
 import { QuestProgressService } from './QuestProgressService.js';
+import type { QuestBattleConfigDto } from './MonsterCombatBuilder.js';
 
 export interface QuestObjectiveBlockDto {
   type: 'KILL_MONSTER' | 'KILL_LEADER' | 'KILL_BOSS' | 'KILL_RACE' | 'COLLECT_ITEM' | 'TALK_NPC' | 'VISIT_MAP' | 'WIN_BATTLES';
@@ -37,6 +38,7 @@ export interface QuestTriggerConfigDto {
   triggerMapId?: number | null;
   triggerMonsterId?: number | null;
   autoAcceptOnTrigger?: boolean;
+  questBattleConfig?: QuestBattleConfigDto | null;
 }
 
 export interface QuestRequirementsDto {
@@ -83,6 +85,7 @@ export interface SaveQuestTemplateDto {
   objectivesJson?: QuestObjectiveBlockDto[];
   rewardsJson?: QuestRewardDto;
   metaConfigJson?: MetaQuestConfigDto | null;
+  questBattleConfig?: QuestBattleConfigDto | null;
   isActive?: boolean;
 }
 
@@ -265,8 +268,24 @@ export class AdminQuestsController {
         ? (itemNameMap.get(Number(rewJson.rewardItemTemplateId)) ?? `Item #${rewJson.rewardItemTemplateId}`)
         : null;
 
+      const questBattleConfig: QuestBattleConfigDto | null = trigCfg.questBattleConfig || null;
+      let questBattleSummaryPtBr: string | null = null;
+      if (questBattleConfig && questBattleConfig.enabled && Array.isArray(questBattleConfig.monsters) && questBattleConfig.monsters.length > 0) {
+        const slotSummaries = questBattleConfig.monsters.map((slot) => {
+          const qty = Math.max(1, Number(slot.quantity) || 1);
+          const baseMobName = mobNameMap.get(Number(slot.monsterTemplateId)) ?? `Monstro #${slot.monsterTemplateId}`;
+          const customName = slot.customNamePtBr && String(slot.customNamePtBr).trim() ? String(slot.customNamePtBr).trim() : baseMobName;
+          const tierBadge = slot.variantTier === 'BOSS' ? '💀 ' : slot.variantTier === 'LEADER' ? '👑 ' : '';
+          const lvlStr = slot.levelMode === 'PLAYER_LEVEL' ? 'Nv.=Jogador' : `Nv.${slot.level || 1}`;
+          return `${qty}x ${tierBadge}${customName} (${lvlStr})`;
+        });
+        questBattleSummaryPtBr = `⚔️ Luta Exclusiva: ${slotSummaries.join(' + ')}`;
+      }
+
       return {
         ...q,
+        questBattleConfig,
+        questBattleSummaryPtBr,
         metaConfigJson: normalizedMeta,
         metaSummaryPtBr,
         rewardItemNamePtBr,
@@ -315,10 +334,21 @@ export class AdminQuestsController {
       ? String(dto.triggerType).toUpperCase()
       : 'NPC_INTERACT';
 
+    const rawBattleCfg = dto.questBattleConfig ?? dto.triggerConfigJson?.questBattleConfig ?? null;
+    const questBattleConfig: QuestBattleConfigDto | null =
+      rawBattleCfg && typeof rawBattleCfg === 'object'
+        ? {
+            enabled: Boolean(rawBattleCfg.enabled),
+            buttonLabelPtBr: rawBattleCfg.buttonLabelPtBr ? String(rawBattleCfg.buttonLabelPtBr).trim() : null,
+            monsters: Array.isArray(rawBattleCfg.monsters) ? rawBattleCfg.monsters : [],
+          }
+        : null;
+
     const triggerConfigJson: QuestTriggerConfigDto = {
       triggerMapId: dto.triggerConfigJson?.triggerMapId ? Number(dto.triggerConfigJson.triggerMapId) : null,
       triggerMonsterId: dto.triggerConfigJson?.triggerMonsterId ? Number(dto.triggerConfigJson.triggerMonsterId) : null,
       autoAcceptOnTrigger: Boolean(dto.triggerConfigJson?.autoAcceptOnTrigger),
+      questBattleConfig,
     };
 
     const requirementsJson: QuestRequirementsDto = {

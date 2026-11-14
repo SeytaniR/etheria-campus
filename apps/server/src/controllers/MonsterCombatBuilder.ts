@@ -16,6 +16,53 @@ import type { ElementMatchupEntry } from '@etheria/shared';
 
 export type MonsterVariantTier = 'NORMAL' | 'LEADER' | 'BOSS';
 
+export interface QuestBattleMonsterSlotDto {
+  monsterTemplateId: number;
+  quantity: number;
+  variantTier?: MonsterVariantTier;
+  levelMode?: 'FIXED' | 'PLAYER_LEVEL';
+  level?: number;
+  customNamePtBr?: string | null;
+  elementCode?: string | null;
+  raceCode?: string | null;
+  rarityTier?: string | null;
+  combatStyle?: 'MELEE' | 'RANGED' | null;
+  attackRange?: number | null;
+  damageType?: 'PHYSICAL' | 'MAGICAL' | null;
+  baseAttributes?: {
+    VIT?: number;
+    STR?: number;
+    INT?: number;
+    WIS?: number;
+    AGI?: number;
+    DEX?: number;
+  } | null;
+  combatOverrides?: {
+    maxHp?: number | null;
+    maxMp?: number | null;
+    physAtk?: number | null;
+    magAtk?: number | null;
+    def?: number | null;
+    magDef?: number | null;
+    speed?: number | null;
+    battleMoveSpeed?: number | null;
+    attackSpeed?: number | null;
+    critRatePct?: number | null;
+    critDmgPct?: number | null;
+    physAccuracy?: number | null;
+    magAccuracy?: number | null;
+    physEvasion?: number | null;
+    magEvasion?: number | null;
+  } | null;
+  skillIds?: number[] | null;
+}
+
+export interface QuestBattleConfigDto {
+  enabled: boolean;
+  buttonLabelPtBr?: string | null;
+  monsters: QuestBattleMonsterSlotDto[];
+}
+
 export interface MonsterScalingContext {
   conversions: Array<{
     baseAttributeCode: string;
@@ -231,5 +278,98 @@ export class MonsterCombatBuilder {
       isAlive: true,
       activeStatuses: [],
     };
+  }
+
+  /**
+   * Constrói unidades de monstros customizadas exclusivamente para a luta de uma Quest (`questBattleConfig`),
+   * aplicando em memória overrides de nome, nível, quantidade, elemento, raça, rank, estilo, atributos base,
+   * status de combate diretos e habilidades sem alterar o registro original em `monster_templates`.
+   */
+  public static buildCustomQuestMonsterUnits(
+    baseTemplate: any,
+    defaultNamePtBr: string,
+    slotCfg: QuestBattleMonsterSlotDto,
+    playerLevel: number,
+    startIndex: number,
+    ctx: MonsterScalingContext,
+    pagesBaseUrl: string
+  ) {
+    const origBase = (baseTemplate.baseAttributesJson as any) || {};
+    const customBase = slotCfg.baseAttributes || {};
+    const mergedBase = {
+      VIT: Number(customBase.VIT) > 0 ? Number(customBase.VIT) : Number(origBase.VIT) || 12,
+      STR: Number(customBase.STR) > 0 ? Number(customBase.STR) : Number(origBase.STR) || 12,
+      INT: Number(customBase.INT) > 0 ? Number(customBase.INT) : Number(origBase.INT) || 10,
+      WIS: Number(customBase.WIS) > 0 ? Number(customBase.WIS) : Number(origBase.WIS) || 10,
+      AGI: Number(customBase.AGI) > 0 ? Number(customBase.AGI) : Number(origBase.AGI) || 10,
+      DEX: Number(customBase.DEX) > 0 ? Number(customBase.DEX) : Number(origBase.DEX) || 10,
+    };
+
+    const virtualTemplate = {
+      ...baseTemplate,
+      fixedElementCode: slotCfg.elementCode || baseTemplate.fixedElementCode || 'NEUTRAL',
+      raceCode: slotCfg.raceCode || baseTemplate.raceCode || 'BEAST',
+      rarityTier: slotCfg.rarityTier || baseTemplate.rarityTier || 'F',
+      combatStyle: slotCfg.combatStyle || baseTemplate.combatStyle || 'MELEE',
+      attackRange: Number(slotCfg.attackRange) > 0 ? Number(slotCfg.attackRange) : Number(baseTemplate.attackRange) || 60,
+      damageType: slotCfg.damageType || baseTemplate.damageType || 'PHYSICAL',
+      baseAttributesJson: mergedBase,
+      skillIdsJson: Array.isArray(slotCfg.skillIds) ? slotCfg.skillIds : baseTemplate.skillIdsJson,
+    };
+
+    const rawTier = String(slotCfg.variantTier || 'NORMAL').toUpperCase();
+    const variantTier: MonsterVariantTier =
+      rawTier === 'BOSS' ? 'BOSS' : rawTier === 'LEADER' ? 'LEADER' : 'NORMAL';
+    const qty = Math.max(1, Math.min(25, Math.round(Number(slotCfg.quantity) || 1)));
+    const mobLevel =
+      slotCfg.levelMode === 'PLAYER_LEVEL'
+        ? Math.max(1, Number(playerLevel) || 1)
+        : Math.max(1, Math.round(Number(slotCfg.level) || Number(playerLevel) || 1));
+
+    const baseName = String(slotCfg.customNamePtBr || '').trim() || defaultNamePtBr || baseTemplate.code;
+    const rTier = String(virtualTemplate.rarityTier || 'F').toUpperCase();
+    const raritySuffix = rTier === 'SS' ? ' ⭐[SS]' : rTier === 'S' ? ' ⭐[S]' : '';
+    const tagPrefix =
+      variantTier === 'BOSS' ? '💀 [BOSS] ' : variantTier === 'LEADER' ? '👑 [LÍDER] ' : '';
+
+    const ov = slotCfg.combatOverrides || {};
+    const hasNum = (v: any) => v !== null && v !== undefined && v !== '' && Number(v) > 0;
+
+    const units = [];
+    for (let i = 0; i < qty; i++) {
+      const unitIdx = startIndex + i;
+      const displayName =
+        qty > 1 ? `${tagPrefix}${baseName} #${i + 1}${raritySuffix}` : `${tagPrefix}${baseName}${raritySuffix}`;
+      const u = this.buildMonsterUnit(virtualTemplate, mobLevel, unitIdx, displayName, ctx, pagesBaseUrl, variantTier);
+
+      if (hasNum(ov.maxHp)) {
+        u.maxHp = Math.max(1, Math.round(Number(ov.maxHp)));
+        u.hp = u.maxHp;
+      }
+      if (hasNum(ov.maxMp)) {
+        u.maxMp = Math.max(1, Math.round(Number(ov.maxMp)));
+        u.mp = u.maxMp;
+      }
+      if (hasNum(ov.physAtk)) u.physAtk = Math.max(1, Math.round(Number(ov.physAtk)));
+      if (hasNum(ov.magAtk)) u.magAtk = Math.max(1, Math.round(Number(ov.magAtk)));
+      u.atk = u.damageType === 'MAGICAL' ? u.magAtk : u.physAtk;
+      if (hasNum(ov.def)) u.def = Math.max(1, Math.round(Number(ov.def)));
+      if (hasNum(ov.magDef)) u.magDef = Math.max(1, Math.round(Number(ov.magDef)));
+      if (hasNum(ov.speed)) u.speed = Math.max(1, Math.round(Number(ov.speed)));
+      if (hasNum(ov.battleMoveSpeed)) u.battleMoveSpeed = Math.max(40, Math.round(Number(ov.battleMoveSpeed)));
+      if (hasNum(ov.attackSpeed)) u.attackSpeed = Math.max(0.2, Number(ov.attackSpeed));
+      if (hasNum(ov.critRatePct)) u.critRate = Math.min(0.95, Math.max(0, Number(ov.critRatePct) / 100));
+      if (hasNum(ov.critDmgPct)) u.critDmg = Math.min(5.0, Math.max(1.0, Number(ov.critDmgPct) / 100));
+      if (hasNum(ov.physAccuracy)) u.physAccuracy = Math.max(10, Math.round(Number(ov.physAccuracy)));
+      if (hasNum(ov.magAccuracy)) u.magAccuracy = Math.max(10, Math.round(Number(ov.magAccuracy)));
+      if (ov.physEvasion !== null && ov.physEvasion !== undefined && (ov.physEvasion as any) !== '') {
+        u.physEvasion = Math.min(75, Math.max(0, Math.round(Number(ov.physEvasion))));
+      }
+      if (ov.magEvasion !== null && ov.magEvasion !== undefined && (ov.magEvasion as any) !== '') {
+        u.magEvasion = Math.min(75, Math.max(0, Math.round(Number(ov.magEvasion))));
+      }
+      units.push(u);
+    }
+    return units;
   }
 }
