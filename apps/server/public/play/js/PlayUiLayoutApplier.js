@@ -14,10 +14,46 @@
 class PlayUiLayoutApplier {
   constructor() {
     this.templates = [];
+    this.clientOverrides = this.loadClientOverrides();
     this.currentMode = this.detectViewportMode();
     this.rafPending = false;
     this.observer = null;
     this.initialized = false;
+  }
+
+  static get STORAGE_KEY() {
+    return 'etheria_client_hud_overrides_v1';
+  }
+
+  loadClientOverrides() {
+    try {
+      const raw = localStorage.getItem(PlayUiLayoutApplier.STORAGE_KEY);
+      if (!raw) return {};
+      const parsed = JSON.parse(raw);
+      return parsed && typeof parsed === 'object' ? parsed : {};
+    } catch {
+      return {};
+    }
+  }
+
+  saveClientOverrides(overridesMap) {
+    this.clientOverrides = overridesMap && typeof overridesMap === 'object' ? overridesMap : {};
+    try {
+      localStorage.setItem(PlayUiLayoutApplier.STORAGE_KEY, JSON.stringify(this.clientOverrides));
+    } catch (err) {
+      console.error('Erro ao salvar customização local de HUD:', err);
+    }
+    this.applyAll();
+  }
+
+  clearClientOverrides() {
+    this.clientOverrides = {};
+    try {
+      localStorage.removeItem(PlayUiLayoutApplier.STORAGE_KEY);
+    } catch {
+      // ignore
+    }
+    this.applyAll();
   }
 
   detectViewportMode() {
@@ -79,16 +115,53 @@ class PlayUiLayoutApplier {
     });
   }
 
-  getActiveConfigForTemplate(tpl, mode) {
-    if (mode === 'MOBILE_PORTRAIT') return tpl.mobilePortrait || {};
-    if (mode === 'MOBILE_LANDSCAPE') return tpl.mobileLandscape || {};
-    return tpl.desktop || {};
+  getActiveConfigForTemplate(tpl, mode, includeClientOverrides = true) {
+    const base =
+      mode === 'MOBILE_PORTRAIT'
+        ? tpl.mobilePortrait || {}
+        : mode === 'MOBILE_LANDSCAPE'
+        ? tpl.mobileLandscape || {}
+        : tpl.desktop || {};
+
+    if (!includeClientOverrides || !tpl.code) {
+      return base;
+    }
+
+    const userEntry = this.clientOverrides?.[tpl.code]?.[mode];
+    if (!userEntry || typeof userEntry !== 'object') {
+      return base;
+    }
+
+    // Mescla apenas posição, escala, tamanho, visibilidade e cores (NUNCA permite trocar imagens/ícones no client)
+    return {
+      ...base,
+      anchorX: userEntry.anchorX !== undefined ? userEntry.anchorX : base.anchorX,
+      anchorY: userEntry.anchorY !== undefined ? userEntry.anchorY : base.anchorY,
+      offsetX: userEntry.offsetX !== undefined ? userEntry.offsetX : base.offsetX,
+      offsetY: userEntry.offsetY !== undefined ? userEntry.offsetY : base.offsetY,
+      scale: userEntry.scale !== undefined ? userEntry.scale : base.scale,
+      widthPx: userEntry.widthPx !== undefined ? userEntry.widthPx : base.widthPx,
+      heightPx: userEntry.heightPx !== undefined ? userEntry.heightPx : base.heightPx,
+      maxWidthVw: userEntry.maxWidthVw !== undefined ? userEntry.maxWidthVw : base.maxWidthVw,
+      maxHeightVh: userEntry.maxHeightVh !== undefined ? userEntry.maxHeightVh : base.maxHeightVh,
+      opacity: userEntry.opacity !== undefined ? userEntry.opacity : base.opacity,
+      visible: userEntry.visible !== undefined ? userEntry.visible : base.visible,
+      bgColor: userEntry.bgColor !== undefined ? userEntry.bgColor : base.bgColor,
+      borderColor: userEntry.borderColor !== undefined ? userEntry.borderColor : base.borderColor,
+      textColor: userEntry.textColor !== undefined ? userEntry.textColor : base.textColor,
+      accentColor: userEntry.accentColor !== undefined ? userEntry.accentColor : base.accentColor,
+      borderRadiusPx:
+        userEntry.borderRadiusPx !== undefined ? userEntry.borderRadiusPx : base.borderRadiusPx,
+    };
   }
 
-  applyAll(rootContainer = document, forcedMode = null) {
+  applyAll(rootContainer = document, forcedMode = null, includeClientOverrides = null) {
     const mode = forcedMode || this.detectViewportMode();
     if (!forcedMode) this.currentMode = mode;
     if (!Array.isArray(this.templates) || this.templates.length === 0) return;
+
+    const useClient =
+      includeClientOverrides !== null ? Boolean(includeClientOverrides) : rootContainer === document;
 
     for (const tpl of this.templates) {
       if (tpl.isActive === false || !tpl.domSelector) continue;
@@ -100,7 +173,7 @@ class PlayUiLayoutApplier {
       }
       if (!elements || elements.length === 0) continue;
 
-      const cfg = this.getActiveConfigForTemplate(tpl, mode);
+      const cfg = this.getActiveConfigForTemplate(tpl, mode, useClient);
       elements.forEach((el) => this.applyConfigToElement(el, cfg, Boolean(forcedMode)));
     }
   }

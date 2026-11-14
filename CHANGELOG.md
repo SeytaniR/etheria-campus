@@ -5,6 +5,15 @@ Qualquer IA trabalhando neste repositório **DEVE** incrementar a versão e regi
 
 ---
 
+## [v0.35.0] - 2026-11-14
+### Editor Visual de HUDs na Engrenagem de Configurações do Cliente (/play) com Persistência Local
+* **Acesso Direto pelo Menu da Engrenagem (`#hudSettingsBtn` -> `#hudSettingsModal` em `PlayHudController.js`):**
+  * Adicionada a opção **`📐 Personalizar Interface (HUDs)`** com o botão **`🎨 Editar HUDs`** dentro do modal de configurações do jogo (funciona tanto no modo exploração quanto durante batalhas no Véu).
+* **Editor Visual No-Code no Próprio Cliente (`PlayClientHudEditor.js` & `PlayUiLayoutApplier.js`):**
+  * **Click & Drag + 8 Alças de Redimensionamento/Escala:** O jogador pode clicar em qualquer HUD na tela e arrastar para mover (com guias de centro) ou puxar os 4 cantos (Escala `0.4x` a `2.2x`) e as 4 bordas (Largura/Altura em pixels).
+  * **Estilo Visual sem Troca de Imagens:** Permite ao jogador personalizar Escala, Transparência (`opacity`), Visibilidade (`visible`), Cor de Fundo, Cor da Borda, Cor do Texto e Arredondamento (`borderRadiusPx`), bloqueando estritamente qualquer alteração de imagens ou ícones oficiais do servidor.
+  * **Persistência Isolada por Cliente (`localStorage`):** Salva as preferências na chave `etheria_client_hud_overrides_v1` exclusivamente no navegador/dispositivo do jogador, mesclando sobre o layout base do servidor sem afetar o banco de dados global nem outros jogadores, com opção de restaurar o padrão original a qualquer momento.
+
 ## [v0.34.0] - 2026-11-14
 ### Studio Visual No-Code (Click & Drag, Redimensionamento, Cores e Troca de Ícones) e Criação da HUD de Chat
 * **Nova HUD Visual de Chat Multi-Canal (`#hudChatSection` / `HUD_CHAT` em `PlayHudController.js` & `play_chat_and_modals.css`):**

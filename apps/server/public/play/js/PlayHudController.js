@@ -646,6 +646,13 @@ class PlayHudController {
             `
               : ''
           }
+          <div class="hud-settings-row" style="background:rgba(56, 189, 248, 0.12); border:1.5px solid #38bdf8; border-radius:8px; padding:9px 11px;">
+            <div style="display:flex; flex-direction:column; gap:2px;">
+              <span style="color:#7dd3fc; font-weight:800; font-size:0.85rem;">📐 Personalizar Interface (HUDs)</span>
+              <small style="color:#94a3b8; font-size:0.7rem;">Mover, redimensionar e mudar cores no seu dispositivo</small>
+            </div>
+            <button class="btn-primary" onclick="if(window.PlayClientHudEditor) window.PlayClientHudEditor.openEditor(); document.getElementById('hudSettingsModal')?.remove();">🎨 Editar HUDs</button>
+          </div>
           <div class="hud-settings-row">
             <span>🔊 Efeitos Sonoros & Música</span>
             <input type="checkbox" checked style="width:24px; height:24px; accent-color:#f59e0b;" />
