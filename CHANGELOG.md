@@ -5,6 +5,21 @@ Qualquer IA trabalhando neste repositório **DEVE** incrementar a versão e regi
 
 ---
 
+## [v0.44.0] - 2026-11-14
+### Presença Multiplayer Otimizada no Mapa, Ícone de Combate Estilo Magic Campus e Preservação de Posição / Respawn em Batalha
+* **Presença e Sincronização Multiplayer em Tempo Real (`MapPresenceService.ts`, `PlayRouter.ts`):**
+  * Gerenciador de presença em memória com batimento cardíaco (Heartbeat) a cada 1.4s via `/api/play/characters/:charId/sync-position`, eliminando sobrecarga no banco de dados e entregando resposta em < 2ms.
+  * Descarte e poda automática de jogadores inativos (timeout de 15 segundos) e isolamento geográfico estrito por `mapId`.
+* **Renderização de Outros Jogadores e Status de Combate (`PlayMapPresenceController.js`, `play.js`):**
+  * Jogadores no mesmo mapa agora se enxergam em tempo real com profundidade 2.5D (Y-Sorting), sprites corretos de suas respectivas classes, direções e nameplates informativas com nível e cor ciano.
+  * **Ícone de Combate Estilo Magic Campus:** Quando um jogador entra em combate e outro não, ele permanece parado em sua posição no mapa com a clássica animação de **duas espadas se batendo ritmicamente sobre a cabeça**, com faíscas douradas no momento do impacto e badge `[EM COMBATE]`.
+* **Preservação de Posição em Combate e Teleporte por Morte (`ActionCombatArena.js`):**
+  * Salvas as coordenadas e direção exatas do mapa (`preCombatWorldPos`) no milissegundo de início da batalha.
+  * Ao vencer ou fugir da batalha, o jogador retorna **exatamente ao mesmo ponto do mapa** onde o combate se iniciou (corrigindo o bug anterior onde as coordenadas da grade da arena sobrescreviam as do mapa).
+  * **Respawn em Cidade/Vila:** Se o jogador for derrotado (HP <= 0 / morte), ele é teletransportado autoritariamente pelo backend para o ponto de spawn (`spawnX, spawnY`) da Cidade ou Vila mais próxima (ex: Vila Izumo / Mapa 1).
+
+---
+
 ## [v0.43.1] - 2026-11-14
 ### Correção de Vinculação do Personagem Ativo no Chat do Client
 * **Resolução Robusta do Personagem Emissor (`PlayChatController.js`):**

@@ -218,6 +218,16 @@ class ActionCombatArena {
     };
 
     if (this.client) {
+      this.preCombatWorldPos = {
+        mapId: this.client.currentMap ? this.client.currentMap.id : 1,
+        x: this.client.playerX,
+        y: this.client.playerY,
+        dir: this.client.playerDir || 0,
+      };
+      this.battleOutcome = null;
+      if (window.PlayMapPresenceController) {
+        window.PlayMapPresenceController.setLocalCombatStatus(true);
+      }
       this.client.playerX = spawns.px; this.client.playerY = spawns.py; this.client.playerDir = pDir;
       this.client.currentPath = null; this.client.moveTargetX = null; this.client.moveTargetY = null;
     }
@@ -401,7 +411,23 @@ class ActionCombatArena {
       this.client.encounterCooldownUntil = performance.now() + 5000;
       this.client.moveTargetX = null; this.client.moveTargetY = null; this.client.currentPath = null;
       this.client.dpadDx = 0; this.client.dpadDy = 0; this.client.isMoving = false;
-      if (this.player) { this.client.playerX = this.player.x; this.client.playerY = this.player.y; this.client.playerDir = this.player.dir; }
+
+      if (window.PlayMapPresenceController) {
+        window.PlayMapPresenceController.setLocalCombatStatus(false);
+      }
+
+      if (this.battleOutcome === 'DEFEAT') {
+        const charId = this.client?.activeChar?.id;
+        if (charId) {
+          this.client.api(`/api/play/characters/${charId}/respawn`, { method: 'POST' })
+            .then((res) => { if (res?.mapId) this.client.loadMapIntoWorld(res.mapId, res.spawnX, res.spawnY); })
+            .catch(() => {});
+        }
+      } else if (this.preCombatWorldPos) {
+        this.client.playerX = this.preCombatWorldPos.x;
+        this.client.playerY = this.preCombatWorldPos.y;
+        this.client.playerDir = this.preCombatWorldPos.dir;
+      }
     }
   }
 
@@ -736,6 +762,7 @@ class ActionCombatArena {
 
   showResult(isVictory, messageHtml, isFled = false) {
     this.combatState = 'RESULT';
+    this.battleOutcome = isFled ? 'FLED' : (isVictory ? 'VICTORY' : 'DEFEAT');
     const modal = document.getElementById('actionCombatModal'); if (modal) modal.style.display = 'flex';
     const prepBanner = document.getElementById('actionPrepBanner'); if (prepBanner) prepBanner.style.display = 'none';
     const banner = document.getElementById('actionResultBanner');

@@ -77,6 +77,9 @@ class EtheriaPlayClient {
   }
   async init() {
     this.setupWorldEvents();
+    if (window.PlayMapPresenceController) {
+      window.PlayMapPresenceController.init(this);
+    }
     if (window.PlayHudController) {
       window.PlayHudController.init(this);
     }
@@ -592,7 +595,9 @@ class EtheriaPlayClient {
       this.isMoving = false;
     }
     this.checkPortalsAndNpcs(now);
-    this.syncPositionPeriodically(now);
+    if (window.PlayMapPresenceController) {
+      window.PlayMapPresenceController.syncHeartbeat(now);
+    }
   }
   checkRandomEncounter(now) {
     if (
@@ -719,24 +724,6 @@ class EtheriaPlayClient {
       this.isTraversingPortal = false;
     }
   }
-  syncPositionPeriodically(now) {
-    if (!this.activeChar || !this.currentMap) return;
-    if (now - this.lastSyncTime < 1500) return;
-    const dist = Math.hypot(this.playerX - this.lastSyncedX, this.playerY - this.lastSyncedY);
-    if (dist < 8) return;
-    this.lastSyncTime = now;
-    this.lastSyncedX = this.playerX;
-    this.lastSyncedY = this.playerY;
-    void this.api(`/api/play/characters/${this.activeChar.id}/sync-position`, {
-      method: 'POST',
-      body: JSON.stringify({
-        mapId: this.currentMap.id,
-        posX: Math.round(this.playerX),
-        posY: Math.round(this.playerY),
-        noClip: this.gmNoClip,
-      }),
-    }).catch(() => {});
-  }
   renderWorld(now) {
     const canvas = document.getElementById('gameCanvas');
     const ctx = canvas.getContext('2d');
@@ -843,6 +830,9 @@ class EtheriaPlayClient {
           data: npc,
         });
       }
+      if (window.PlayMapPresenceController) {
+        window.PlayMapPresenceController.populateRenderQueue(renderQueue, now);
+      }
       if (this.activeChar) {
         renderQueue.push({
           type: 'PLAYER',
@@ -867,6 +857,10 @@ class EtheriaPlayClient {
         sprite.draw(ctx, this.playerX, this.playerY, this.isMoving ? 1 : 0, this.playerDir, now, this.mesh, groundOffsetY, 0.70, false, char.shadowOffsetX || 0, char.shadowOffsetY || 0);
         ctx.fillStyle = '#fde047'; ctx.font = 'bold 13px sans-serif'; ctx.textAlign = 'center';
         ctx.fillText(`${char.name}${char.isReborn ? ' ✨' : ''}${this.gmNoClip ? ' [NO-CLIP]' : ''}`, this.playerX, this.playerY - 66 + Math.round(groundOffsetY * 0.70));
+      } else if (item.type === 'OTHER_PLAYER') {
+        if (window.PlayMapPresenceController) {
+          window.PlayMapPresenceController.drawOtherPlayer(ctx, item.data, now, this.mesh, this.zoom);
+        }
       } else if (item.type === 'COMBAT_PLAYER') {
         const p = item.data;
         if (p.sprite) {

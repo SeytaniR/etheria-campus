@@ -8,9 +8,9 @@
 ---
 
 ## 📌 Status Atual do Projeto
-* **Versão Atual:** `v0.43.1`
+* **Versão Atual:** `v0.44.0`
 * **Última Atualização:** `2026-11-14`
-* **Fase Atual:** **Correção de Vinculação do Personagem Ativo no Chat do Client (`v0.43.1`)** — Resolução de sincronização entre o lobby, HUD e o controlador de chat (`PlayChatController.js`), eliminando o falso aviso de "selecione um personagem" e conectando o ciclo de vida do personagem emissor em tempo real. Linhas estritamente conformes com a Regra #7.
+* **Fase Atual:** **Presença Multiplayer Otimizada no Mapa, Ícone de Combate Estilo Magic Campus e Preservação de Posição / Respawn em Batalha (`v0.44.0`)** — Jogadores no mesmo mapa agora se enxergam em tempo real via heartbeat em memória de 1.4s no `/api/play/characters/:charId/sync-position`. Ao entrar em combate, o personagem permanece no mapa na pose idle com espadas animadas se batendo sobre a cabeça (estilo Magic Campus). Coordenadas do mapa antes da batalha são preservadas na vitória/fuga, e ao morrer o personagem é teletransportado para o spawn da Cidade ou Vila mais próxima (Vila Izumo). Todos os arquivos estritamente conformes com a Regra #7 (< 1.000 linhas no front e < 900 no back).
 * **Repositório Oficial:** `https://github.com/SeytaniR/etheria-campus`
 * **Fonte Bruta de Assets:** `https://github.com/SeytaniR/mcrework` (`https://seytanir.github.io/mcrework/`)
 

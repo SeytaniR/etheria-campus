@@ -20,6 +20,7 @@ import { MonsterCombatBuilder, type QuestBattleConfigDto } from '../controllers/
 import { ItemContainerOpeningService } from '../controllers/ItemContainerOpeningService.js';
 import { CharacterProgressionService } from '../controllers/CharacterProgressionService.js';
 import { GameChatService } from '../controllers/GameChatService.js';
+import { MapPresenceService } from '../controllers/MapPresenceService.js';
 
 export interface PlayRouterDeps {
   prisma: PrismaClient;
@@ -246,22 +247,49 @@ export class PlayRouter {
       return true;
     }
 
-    // --- Movimentação, Portais e Desengasgo ---
+    // --- Movimentação, Presença Multiplayer em Tempo Real, Portais e Desengasgo ---
     const syncPosMatch = pathname.match(/^\/api\/play\/characters\/(\d+)\/sync-position$/);
     if (syncPosMatch && method === 'POST') {
       const charId = Number(syncPosMatch[1]);
-      const dto = await this.deps.readJsonBody(req);
-      this.deps.sendJson(
-        res,
-        200,
-        await this.deps.playController.syncPosition(userAccountId, session.role, charId, dto)
-      );
+      const dto = await this.deps.readJsonBody<any>(req);
+      const syncResult = await this.deps.playController.syncPosition(userAccountId, session.role, charId, dto);
+
+      const otherPlayers = await MapPresenceService.updatePresence(this.deps.prisma, charId, {
+        mapId: Number(dto.mapId) || (syncResult as any).currentMapId || 1,
+        posX: Number((syncResult as any).posX ?? dto.posX),
+        posY: Number((syncResult as any).posY ?? dto.posY),
+        dir: dto.dir,
+        isMoving: dto.isMoving,
+        isInCombat: dto.isInCombat,
+      });
+
+      this.deps.sendJson(res, 200, {
+        ...syncResult,
+        otherPlayers,
+      });
+      return true;
+    }
+
+    const respawnMatch = pathname.match(/^\/api\/play\/characters\/(\d+)\/respawn$/);
+    if (respawnMatch && method === 'POST') {
+      const charId = Number(respawnMatch[1]);
+      if (!(await this.verifyCharacterOwnership(userAccountId, session.role, charId))) {
+        this.deps.sendJson(res, 403, { error: 'Acesso negado: personagem não pertence à sua conta.' });
+        return true;
+      }
+      try {
+        const respawnData = await MapPresenceService.respawnCharacter(this.deps.prisma, userAccountId, charId);
+        this.deps.sendJson(res, 200, respawnData);
+      } catch (err: any) {
+        this.deps.sendJson(res, 400, { error: err.message || 'Erro ao processar respawn.' });
+      }
       return true;
     }
 
     const traverseMatch = pathname.match(/^\/api\/play\/characters\/(\d+)\/traverse-portal$/);
     if (traverseMatch && method === 'POST') {
       const charId = Number(traverseMatch[1]);
+      MapPresenceService.removePlayer(charId);
       const dto = await this.deps.readJsonBody<{ portalId: number }>(req);
       this.deps.sendJson(
         res,
@@ -274,6 +302,7 @@ export class PlayRouter {
     const unstuckMatch = pathname.match(/^\/api\/play\/characters\/(\d+)\/unstuck$/);
     if (unstuckMatch && method === 'POST') {
       const charId = Number(unstuckMatch[1]);
+      MapPresenceService.removePlayer(charId);
       this.deps.sendJson(res, 200, await this.deps.playController.unstuckCharacter(userAccountId, charId));
       return true;
     }
