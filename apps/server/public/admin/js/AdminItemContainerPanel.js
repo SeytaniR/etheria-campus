@@ -477,7 +477,7 @@ class AdminItemContainerPanel {
      */
     app.loadContainerConfigIntoForm = function (item) {
       const eff = item?.effectType || 'NONE';
-      const spec = (item?.specialEffectJson || {}) as any;
+      const spec = item?.specialEffectJson || {};
 
       if (document.getElementById('containerSubtypeSelect')) {
         document.getElementById('containerSubtypeSelect').value = spec.containerType === 'CAPSULE' ? 'CAPSULE' : 'CHEST';
@@ -568,13 +568,13 @@ class AdminItemContainerPanel {
      */
     app.formatContainerLabel = function (item) {
       if (item.effectType === 'ROULETTE') {
-        const spec = (item.specialEffectJson || {}) as any;
+        const spec = item.specialEffectJson || {};
         const entries = Array.isArray(spec.entries) ? spec.entries : [];
-        const total = entries.reduce((acc: number, e: any) => acc + (Number(e.chancePct) || 0), 0);
+        const total = entries.reduce((acc, e) => acc + (Number(e.chancePct) || 0), 0);
         return `🎰 Roleta (${entries.length} fatias • ${total.toFixed(1)}% total)`;
       }
       if (item.effectType === 'OPEN_CHEST') {
-        const spec = (item.specialEffectJson || {}) as any;
+        const spec = item.specialEffectJson || {};
         const entries = Array.isArray(spec.entries) ? spec.entries : [];
         const label = spec.containerType === 'CAPSULE' ? '💊 Cápsula' : '🎁 Baú';
         return `${label} (${entries.length} itens configurados)`;

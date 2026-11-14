@@ -177,11 +177,44 @@ class AdminItemsTab {
       this.syncItemModalFieldStates();
     };
 
-    app.openCreateItemModal = async function () {
+    app.openCreateItemModal = async function (presetEffect = null) {
       await this.loadMcreworkItems();
       this.populateItemModalForm('create', null);
+      if (presetEffect) {
+        const catSel = document.getElementById('itemCategorySelect');
+        const effSel = document.getElementById('itemEffectSelect');
+        if (catSel) catSel.value = 'SPECIAL';
+        if (effSel) effSel.value = presetEffect;
+        const nameInp = document.getElementById('itemNameInput');
+        if (nameInp && !nameInp.value) {
+          nameInp.value = presetEffect === 'ROULETTE' ? 'Roleta da Sorte' : 'Baú de Recompensas';
+        }
+        this.syncItemModalFieldStates();
+      }
       this.renderItemGallery();
       document.getElementById('itemModal').style.display = 'flex';
+      if (presetEffect) {
+        setTimeout(() => {
+          const sec = document.getElementById('itemContainerConfigSection');
+          if (sec) {
+            sec.style.display = 'block';
+            sec.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          }
+        }, 150);
+      }
+    };
+
+    app.openContainerConfigModal = async function (id) {
+      await this.openEditItemModal(id);
+      setTimeout(() => {
+        const sec = document.getElementById('itemContainerConfigSection');
+        if (sec) {
+          sec.style.display = 'block';
+          sec.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          sec.style.boxShadow = '0 0 20px #eab308';
+          setTimeout(() => { sec.style.boxShadow = 'none'; }, 2000);
+        }
+      }, 150);
     };
 
     app.openEditItemModal = async function (id) {
@@ -488,6 +521,11 @@ class AdminItemsTab {
                     ${item.isActive ? '<span style="color:#4ade80; font-weight:700;">🟢 Ativo</span>' : '<span style="color:#f87171;">🔴 Inativo</span>'}
                   </td>
                   <td style="padding:8px 10px; text-align:right; white-space:nowrap;">
+                    ${
+                      item.effectType === 'OPEN_CHEST' || item.effectType === 'ROULETTE'
+                        ? `<button type="button" class="btn-warning" style="padding:4px 8px; font-size:0.75rem; margin-right:4px; background:#d97706; color:#fff; border:1px solid #f59e0b; border-radius:4px; cursor:pointer; font-weight:700;" onclick="AdminApp.openContainerConfigModal(${item.id})">⚙️ Configurar ${item.effectType === 'ROULETTE' ? 'Roleta' : 'Baú'}</button>`
+                        : ''
+                    }
                     <button class="btn-primary" style="padding:4px 8px; font-size:0.75rem; margin-right:4px;" onclick="AdminApp.openEditItemModal(${item.id})">✏️ Editar</button>
                     <button class="btn-secondary" style="padding:4px 8px; font-size:0.75rem; margin-right:4px; background:#0284c7; color:#fff; border:none; border-radius:4px; cursor:pointer;" onclick="AdminApp.openDuplicateItemModal(${item.id})" title="Criar cópia baseada neste item">📋 Duplicar</button>
                     <button class="btn-danger" style="padding:4px 8px; font-size:0.75rem;" onclick="AdminApp.deleteItemTemplateById(${item.id})">🗑️</button>
@@ -532,9 +570,11 @@ class AdminItemsTab {
                 Gerencie poções de vida/mana, pedras de afinidade elemental, materiais de criação, essências, pergaminhos e itens especiais.
               </p>
             </div>
-            <div style="display:flex; gap:8px; align-items:center;">
+            <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
               <span id="itemsCounterBadge" style="font-size:0.8rem; color:var(--text-muted);"></span>
               <button class="btn-primary" onclick="AdminApp.openCreateItemModal()">➕ Novo Item</button>
+              <button class="btn-warning" style="background:#d97706; color:#fff; border:1px solid #f59e0b; font-weight:700; padding:6px 12px; border-radius:6px; cursor:pointer;" onclick="AdminApp.openCreateItemModal('OPEN_CHEST')">🎁 Novo Baú / Cápsula</button>
+              <button class="btn-primary" style="background:linear-gradient(135deg, #7c3aed, #4f46e5); border:1px solid #a78bfa; font-weight:700; padding:6px 12px; border-radius:6px; cursor:pointer;" onclick="AdminApp.openCreateItemModal('ROULETTE')">🎰 Nova Roleta</button>
             </div>
           </div>
           <!-- Filtros e Busca -->
@@ -581,7 +621,13 @@ class AdminItemsTab {
     }
 
     // 3. Injeta Modal (#itemModal) no body
-    if (document.getElementById('itemModal')) return;
+    if (document.getElementById('itemModal')) {
+      if (!document.getElementById('itemContainerConfigSection')) {
+        document.getElementById('itemModal').remove();
+      } else {
+        return;
+      }
+    }
 
     const containerBuilderHtml =
       typeof window.AdminItemContainerPanel?.getContainerBuilderHtml === 'function'

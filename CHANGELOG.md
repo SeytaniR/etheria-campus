@@ -5,6 +5,15 @@ Qualquer IA trabalhando neste repositório **DEVE** incrementar a versão e regi
 
 ---
 
+## [v0.39.1] - 2026-11-14
+### Correção do Construtor de Baú/Cápsula e Roleta no Admin e Adição de Atalhos Rápidos
+* **Correção de Carregamento no Frontend do Admin (`AdminItemContainerPanel.js`):**
+  * Removidas anotações de TypeScript acidentais no arquivo `.js` que impediam a inicialização da classe `AdminItemContainerPanel` pelo navegador.
+  * Validação com `node --check` em 100% dos scripts de cliente para assegurar ausência de erros de sintaxe.
+* **Atalhos Rápidos de Criação e Ação Direta na Tabela (`AdminItemsTab.js`):**
+  * Adicionados os botões **`🎁 Novo Baú / Cápsula`** e **`🎰 Nova Roleta`** diretamente no topo da tabela de itens, abrindo o modal já pré-configurado na categoria e efeito desejados.
+  * Adicionado o botão de ação **`⚙️ Configurar Baú`** / **`⚙️ Configurar Roleta`** diretamente na coluna de ações das linhas de itens correspondentes na tabela.
+
 ## [v0.39.0] - 2026-11-14
 ### Sistema de Itens Baús/Cápsulas e Roleta da Sorte com Sorteio Autoritário e Interface Visual
 * **Configurador No-Code de Baú / Cápsula e Roleta no Estúdio de Itens (`AdminItemContainerPanel.js`, `AdminItemsTab.js`):**
