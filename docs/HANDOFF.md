@@ -8,9 +8,9 @@
 ---
 
 ## 📌 Status Atual do Projeto
-* **Versão Atual:** `v0.25.0`
-* **Última Atualização:** `2026-11-13`
-* **Fase Atual:** **Placa Real Unificada do Jogador: Homogeneização Esculpida de Avatar, Moldura Alada, Barras de HP/MP/XP, Metadados e Bandeja de Economia (`v0.25.0`)** — Unificação arquitetônica da HUD no canto superior esquerdo: eliminação de elementos flutuantes desconectados com encaixe profundo da coluna de status sob a asa direita da moldura (`margin-left: -26px; padding-left: 28px`); acabamento premium em vidro naval obsidiana com chanfro de ouro trabalhado contínuo (`border-top: 1.5px solid rgba(245, 158, 11, 0.8)`, `border-right: 2px solid rgba(217, 119, 6, 0.85)`, `border-bottom: 1.5px solid rgba(180, 83, 9, 0.75)`); incorporação do Nome (`#hudPlayerName`) e Tag de Classe (`#hudPlayerClass`); medidores com canaletas metálicas, reflexo vítreo e percentual numérico (`#hudTextHp`, `#hudTextMp`); e bandeja de economia na base com divisor dourado sutil; testado, verificado no Chrome DevTools MCP e deploy efetuado com sucesso no VPS Azure (`40.65.63.193`, HTTP 200).
+* **Versão Atual:** `v0.26.0`
+* **Última Atualização:** `2026-11-14`
+* **Fase Atual:** **Conjunto Inicial de Equipamentos do Jogador (Nível 1): Balanceamento Universal de Combate das 12 Peças do Aprendiz (`v0.26.0`)** — Criação e balanceamento do Conjunto do Aprendiz (Nível 1) cobrindo rigorosamente os 12 slots de combate para personagem (`HEAD`, `SHOULDER`, `CHEST`, `BELT`, `LEGS`, `FEET`, `ORNAMENT_1`, `ORNAMENT_2`, `RING`, `NECKLACE`, `WEAPON_1`, `WEAPON_2`), excluindo slots não-combate (vara de pesca, asas, moda e montaria alada). Calibrado para atender com paridade todas as 12 classes (físicas, mágicas, híbridas e curandeiras), com atributos exclusivos de combate em `combatStatBonusesJson`, `baseStatBonusesJson: {}`, `priceGold: 0`, `isTradable: false`, `rarityTier: 'COMMON'`. 24 traduções em `i18n_translations`, script de automação em `scripts/seed_apprentice_equipment.mjs`, persistido no PostgreSQL oficial da VPS Azure (`40.65.63.193`), espelhado em cache permanente local e com snapshot `lowcode.snapshot.json` sincronizado. Testado, verificado com compilação limpa e serviço ativo (`HTTP 200`).
 * **Repositório Oficial:** `https://github.com/SeytaniR/etheria-campus`
 * **Fonte Bruta de Assets:** `https://github.com/SeytaniR/mcrework` (`https://seytanir.github.io/mcrework/`)
 

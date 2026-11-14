@@ -1,3 +1,4 @@
+from pathlib import Path
 import paramiko
 
 ssh = paramiko.SSHClient()
@@ -6,7 +7,7 @@ ssh.connect('40.65.63.193', port=22, username='azureuser', password='Dev%9517530
 
 sftp = ssh.open_sftp()
 remote_path = '/home/azureuser/etheria-campus/packages/database/snapshots/lowcode.snapshot.json'
-local_path = r'C:\Users\Dell\.gemini\antigravity\scratch\etheria-campus\packages\database\snapshots\lowcode.snapshot.json'
+local_path = str(Path(__file__).resolve().parent.parent / 'packages' / 'database' / 'snapshots' / 'lowcode.snapshot.json')
 sftp.get(remote_path, local_path)
 sftp.close()
 ssh.close()

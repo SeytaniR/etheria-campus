@@ -1,6 +1,6 @@
 {
   "version": "0.2.0",
-  "exportedAt": "2026-11-13T13:39:33.164Z",
+  "exportedAt": "2026-11-14T00:23:38.207Z",
   "i18nTranslations": [
     {
       "id": 1,
@@ -4579,6 +4579,174 @@
       "locale": "pt-BR",
       "text": "Xian Duo",
       "updatedAt": "2026-11-13T07:08:44.623Z"
+    },
+    {
+      "id": 1187,
+      "key": "item.equip_elmo_do_aprendiz.name",
+      "locale": "pt-BR",
+      "text": "Elmo de Couro do Aprendiz",
+      "updatedAt": "2026-11-14T00:23:37.092Z"
+    },
+    {
+      "id": 1188,
+      "key": "item.equip_elmo_do_aprendiz.desc",
+      "locale": "pt-BR",
+      "text": "Um capuz reforçado com guarnições de couro flexível concedido aos novos recrutas de Etheria. Concede proteção básica à cabeça e clareza mental nos primeiros confrontos.",
+      "updatedAt": "2026-11-14T00:23:37.102Z"
+    },
+    {
+      "id": 1189,
+      "key": "item.equip_ombreiras_do_aprendiz.name",
+      "locale": "pt-BR",
+      "text": "Ombreiras de Treino do Aprendiz",
+      "updatedAt": "2026-11-14T00:23:37.113Z"
+    },
+    {
+      "id": 1190,
+      "key": "item.equip_ombreiras_do_aprendiz.desc",
+      "locale": "pt-BR",
+      "text": "Protetores de ombro acolchoados em couro macio e presilhas de latão. Absorvem impactos laterais sem comprometer a agilidade do portador.",
+      "updatedAt": "2026-11-14T00:23:37.116Z"
+    },
+    {
+      "id": 1191,
+      "key": "item.equip_peitoral_do_aprendiz.name",
+      "locale": "pt-BR",
+      "text": "Túnica Acolchoada do Aprendiz",
+      "updatedAt": "2026-11-14T00:23:37.365Z"
+    },
+    {
+      "id": 1192,
+      "key": "item.equip_peitoral_do_aprendiz.desc",
+      "locale": "pt-BR",
+      "text": "Vestimenta leve tecida com fios resistentes de linho e placas de couro curtido. É a principal proteção corporal padrão entregue pela Academia de Etheria a todos os calouros.",
+      "updatedAt": "2026-11-14T00:23:37.369Z"
+    },
+    {
+      "id": 1193,
+      "key": "item.equip_cinto_do_aprendiz.name",
+      "locale": "pt-BR",
+      "text": "Cinto de Fivela do Aprendiz",
+      "updatedAt": "2026-11-14T00:23:37.378Z"
+    },
+    {
+      "id": 1194,
+      "key": "item.equip_cinto_do_aprendiz.desc",
+      "locale": "pt-BR",
+      "text": "Cinto rústico de couro cru com suporte reforçado para cantis e bolsas de reagentes. Mantém a postura firme durante manobras evasivas.",
+      "updatedAt": "2026-11-14T00:23:37.381Z"
+    },
+    {
+      "id": 1195,
+      "key": "item.equip_calcas_do_aprendiz.name",
+      "locale": "pt-BR",
+      "text": "Calças de Treino do Aprendiz",
+      "updatedAt": "2026-11-14T00:23:37.480Z"
+    },
+    {
+      "id": 1196,
+      "key": "item.equip_calcas_do_aprendiz.desc",
+      "locale": "pt-BR",
+      "text": "Calças confeccionadas em lona grossa com joelheiras de couro reforçado. Permitem mobilidade livre para esquivas rápidas em terrenos irregulares.",
+      "updatedAt": "2026-11-14T00:23:37.484Z"
+    },
+    {
+      "id": 1197,
+      "key": "item.equip_botas_do_aprendiz.name",
+      "locale": "pt-BR",
+      "text": "Botas de Caminhada do Aprendiz",
+      "updatedAt": "2026-11-14T00:23:37.491Z"
+    },
+    {
+      "id": 1198,
+      "key": "item.equip_botas_do_aprendiz.desc",
+      "locale": "pt-BR",
+      "text": "Calçados resistentes de solado emborrachado adequados para longas marchas e deslocamentos táticos pelas arenas do campus.",
+      "updatedAt": "2026-11-14T00:23:37.493Z"
+    },
+    {
+      "id": 1199,
+      "key": "item.equip_amuleto_do_aprendiz.name",
+      "locale": "pt-BR",
+      "text": "Amuleto de Cobre do Aprendiz",
+      "updatedAt": "2026-11-14T00:23:37.600Z"
+    },
+    {
+      "id": 1200,
+      "key": "item.equip_amuleto_do_aprendiz.desc",
+      "locale": "pt-BR",
+      "text": "Pequeno ornamento de cobre polido cravado com o símbolo dos novatos. Canaliza energias harmoniosas que aumentam a precisão de feitiços e ataques.",
+      "updatedAt": "2026-11-14T00:23:37.603Z"
+    },
+    {
+      "id": 1201,
+      "key": "item.equip_talisma_do_aprendiz.name",
+      "locale": "pt-BR",
+      "text": "Talismã Protetor do Aprendiz",
+      "updatedAt": "2026-11-14T00:23:37.693Z"
+    },
+    {
+      "id": 1202,
+      "key": "item.equip_talisma_do_aprendiz.desc",
+      "locale": "pt-BR",
+      "text": "Ornamento encantado esculpido em madeira de salgueiro sagrado. Repele vibrações nocivas concedendo esquiva e resistência a quem o carrega.",
+      "updatedAt": "2026-11-14T00:23:37.696Z"
+    },
+    {
+      "id": 1203,
+      "key": "item.equip_anel_do_aprendiz.name",
+      "locale": "pt-BR",
+      "text": "Anel de Latão do Aprendiz",
+      "updatedAt": "2026-11-14T00:23:37.785Z"
+    },
+    {
+      "id": 1204,
+      "key": "item.equip_anel_do_aprendiz.desc",
+      "locale": "pt-BR",
+      "text": "Um aro de latão fosco gravado com runas simples de foco. Aumenta a força dos golpes e a contundência crítica dos calouros.",
+      "updatedAt": "2026-11-14T00:23:37.788Z"
+    },
+    {
+      "id": 1205,
+      "key": "item.equip_colar_do_aprendiz.name",
+      "locale": "pt-BR",
+      "text": "Colar de Madeira do Aprendiz",
+      "updatedAt": "2026-11-14T00:23:37.874Z"
+    },
+    {
+      "id": 1206,
+      "key": "item.equip_colar_do_aprendiz.desc",
+      "locale": "pt-BR",
+      "text": "Colar simples adornado com uma semente lapidada da Grande Árvore de Etheria. Promove a recuperação natural e estabilidade de mana e vida.",
+      "updatedAt": "2026-11-14T00:23:37.877Z"
+    },
+    {
+      "id": 1207,
+      "key": "item.equip_arma_do_aprendiz.name",
+      "locale": "pt-BR",
+      "text": "Lâmina Rúnica do Aprendiz",
+      "updatedAt": "2026-11-14T00:23:37.998Z"
+    },
+    {
+      "id": 1208,
+      "key": "item.equip_arma_do_aprendiz.desc",
+      "locale": "pt-BR",
+      "text": "Uma espada rúnica universal balanceada pela Academia de Etheria. Sua liga híbrida de aço e cristal canaliza tanto vigor físico quanto pulsos de energia mágica, garantindo que guerreiros, ladinos e magos desfiram golpes precisos.",
+      "updatedAt": "2026-11-14T00:23:38.001Z"
+    },
+    {
+      "id": 1209,
+      "key": "item.equip_foco_do_aprendiz.name",
+      "locale": "pt-BR",
+      "text": "Grimório Protetor do Aprendiz",
+      "updatedAt": "2026-11-14T00:23:38.099Z"
+    },
+    {
+      "id": 1210,
+      "key": "item.equip_foco_do_aprendiz.desc",
+      "locale": "pt-BR",
+      "text": "Um tomo de batalha encadernado em placas rígidas com fecho metálico. Serve simultaneamente como foco arcano de concentração mágica e como broquel de bloqueio rápido para desviar golpes inimigos.",
+      "updatedAt": "2026-11-14T00:23:38.103Z"
     }
   ],
   "biomes": [
@@ -53211,6 +53379,371 @@
       "isActive": true,
       "createdAt": "2026-11-13T00:29:47.984Z",
       "updatedAt": "2026-11-13T00:29:47.984Z"
+    },
+    {
+      "id": 45,
+      "code": "equip_elmo_do_aprendiz",
+      "nameI18nKey": "item.equip_elmo_do_aprendiz.name",
+      "descriptionI18nKey": "item.equip_elmo_do_aprendiz.desc",
+      "mcreworkIconKey": "assets/equipment/icons/equip_normal_200001.png",
+      "itemCategory": "CHARACTER_EQUIPMENT",
+      "equipmentSlotCode": "HEAD",
+      "rarityTier": "COMMON",
+      "requiredLevel": 1,
+      "isTradable": false,
+      "priceGold": 0,
+      "maxStack": 1,
+      "cooldownSec": 0,
+      "targetType": "SELF",
+      "effectType": null,
+      "effectValue": 0,
+      "reqClassCodesJson": [],
+      "baseStatBonusesJson": {},
+      "combatStatBonusesJson": {
+        "MAX_HP": 25,
+        "MAG_DEF": 4,
+        "PHYS_DEF": 4,
+        "MAG_ACCURACY": 2
+      },
+      "specialEffectJson": {},
+      "isActive": true,
+      "createdAt": "2026-11-14T00:23:37.106Z",
+      "updatedAt": "2026-11-14T00:23:37.106Z"
+    },
+    {
+      "id": 46,
+      "code": "equip_ombreiras_do_aprendiz",
+      "nameI18nKey": "item.equip_ombreiras_do_aprendiz.name",
+      "descriptionI18nKey": "item.equip_ombreiras_do_aprendiz.desc",
+      "mcreworkIconKey": "assets/equipment/icons/equip_normal_250001.png",
+      "itemCategory": "CHARACTER_EQUIPMENT",
+      "equipmentSlotCode": "SHOULDER",
+      "rarityTier": "COMMON",
+      "requiredLevel": 1,
+      "isTradable": false,
+      "priceGold": 0,
+      "maxStack": 1,
+      "cooldownSec": 0,
+      "targetType": "SELF",
+      "effectType": null,
+      "effectValue": 0,
+      "reqClassCodesJson": [],
+      "baseStatBonusesJson": {},
+      "combatStatBonusesJson": {
+        "MAX_HP": 20,
+        "MAG_DEF": 3,
+        "PHYS_DEF": 3,
+        "PHYS_EVASION": 2
+      },
+      "specialEffectJson": {},
+      "isActive": true,
+      "createdAt": "2026-11-14T00:23:37.119Z",
+      "updatedAt": "2026-11-14T00:23:37.119Z"
+    },
+    {
+      "id": 47,
+      "code": "equip_peitoral_do_aprendiz",
+      "nameI18nKey": "item.equip_peitoral_do_aprendiz.name",
+      "descriptionI18nKey": "item.equip_peitoral_do_aprendiz.desc",
+      "mcreworkIconKey": "assets/equipment/icons/equip_normal_210001.png",
+      "itemCategory": "CHARACTER_EQUIPMENT",
+      "equipmentSlotCode": "CHEST",
+      "rarityTier": "COMMON",
+      "requiredLevel": 1,
+      "isTradable": false,
+      "priceGold": 0,
+      "maxStack": 1,
+      "cooldownSec": 0,
+      "targetType": "SELF",
+      "effectType": null,
+      "effectValue": 0,
+      "reqClassCodesJson": [],
+      "baseStatBonusesJson": {},
+      "combatStatBonusesJson": {
+        "MAX_HP": 45,
+        "MAX_MP": 15,
+        "MAG_DEF": 8,
+        "PHYS_DEF": 8
+      },
+      "specialEffectJson": {},
+      "isActive": true,
+      "createdAt": "2026-11-14T00:23:37.374Z",
+      "updatedAt": "2026-11-14T00:23:37.374Z"
+    },
+    {
+      "id": 48,
+      "code": "equip_cinto_do_aprendiz",
+      "nameI18nKey": "item.equip_cinto_do_aprendiz.name",
+      "descriptionI18nKey": "item.equip_cinto_do_aprendiz.desc",
+      "mcreworkIconKey": "assets/equipment/icons/equip_normal_220001.png",
+      "itemCategory": "CHARACTER_EQUIPMENT",
+      "equipmentSlotCode": "BELT",
+      "rarityTier": "COMMON",
+      "requiredLevel": 1,
+      "isTradable": false,
+      "priceGold": 0,
+      "maxStack": 1,
+      "cooldownSec": 0,
+      "targetType": "SELF",
+      "effectType": null,
+      "effectValue": 0,
+      "reqClassCodesJson": [],
+      "baseStatBonusesJson": {},
+      "combatStatBonusesJson": {
+        "MAX_HP": 20,
+        "MAG_DEF": 3,
+        "MP_REGEN": 1,
+        "PHYS_DEF": 3
+      },
+      "specialEffectJson": {},
+      "isActive": true,
+      "createdAt": "2026-11-14T00:23:37.384Z",
+      "updatedAt": "2026-11-14T00:23:37.384Z"
+    },
+    {
+      "id": 49,
+      "code": "equip_calcas_do_aprendiz",
+      "nameI18nKey": "item.equip_calcas_do_aprendiz.name",
+      "descriptionI18nKey": "item.equip_calcas_do_aprendiz.desc",
+      "mcreworkIconKey": "assets/equipment/icons/equip_normal_230001.png",
+      "itemCategory": "CHARACTER_EQUIPMENT",
+      "equipmentSlotCode": "LEGS",
+      "rarityTier": "COMMON",
+      "requiredLevel": 1,
+      "isTradable": false,
+      "priceGold": 0,
+      "maxStack": 1,
+      "cooldownSec": 0,
+      "targetType": "SELF",
+      "effectType": null,
+      "effectValue": 0,
+      "reqClassCodesJson": [],
+      "baseStatBonusesJson": {},
+      "combatStatBonusesJson": {
+        "MAX_HP": 35,
+        "MAG_DEF": 6,
+        "PHYS_DEF": 6,
+        "PHYS_EVASION": 2
+      },
+      "specialEffectJson": {},
+      "isActive": true,
+      "createdAt": "2026-11-14T00:23:37.487Z",
+      "updatedAt": "2026-11-14T00:23:37.487Z"
+    },
+    {
+      "id": 50,
+      "code": "equip_botas_do_aprendiz",
+      "nameI18nKey": "item.equip_botas_do_aprendiz.name",
+      "descriptionI18nKey": "item.equip_botas_do_aprendiz.desc",
+      "mcreworkIconKey": "assets/equipment/icons/equip_normal_240001.png",
+      "itemCategory": "CHARACTER_EQUIPMENT",
+      "equipmentSlotCode": "FEET",
+      "rarityTier": "COMMON",
+      "requiredLevel": 1,
+      "isTradable": false,
+      "priceGold": 0,
+      "maxStack": 1,
+      "cooldownSec": 0,
+      "targetType": "SELF",
+      "effectType": null,
+      "effectValue": 0,
+      "reqClassCodesJson": [],
+      "baseStatBonusesJson": {},
+      "combatStatBonusesJson": {
+        "MAX_HP": 15,
+        "MAG_DEF": 3,
+        "PHYS_DEF": 3,
+        "PHYS_EVASION": 3,
+        "BATTLE_MOVE_SPEED": 5
+      },
+      "specialEffectJson": {},
+      "isActive": true,
+      "createdAt": "2026-11-14T00:23:37.496Z",
+      "updatedAt": "2026-11-14T00:23:37.496Z"
+    },
+    {
+      "id": 51,
+      "code": "equip_amuleto_do_aprendiz",
+      "nameI18nKey": "item.equip_amuleto_do_aprendiz.name",
+      "descriptionI18nKey": "item.equip_amuleto_do_aprendiz.desc",
+      "mcreworkIconKey": "assets/equipment/icons/equip_normal_320001.png",
+      "itemCategory": "CHARACTER_EQUIPMENT",
+      "equipmentSlotCode": "ORNAMENT_1",
+      "rarityTier": "COMMON",
+      "requiredLevel": 1,
+      "isTradable": false,
+      "priceGold": 0,
+      "maxStack": 1,
+      "cooldownSec": 0,
+      "targetType": "SELF",
+      "effectType": null,
+      "effectValue": 0,
+      "reqClassCodesJson": [],
+      "baseStatBonusesJson": {},
+      "combatStatBonusesJson": {
+        "MAX_HP": 15,
+        "CRIT_RATE": 2,
+        "MAG_ACCURACY": 4,
+        "PHYS_ACCURACY": 4
+      },
+      "specialEffectJson": {},
+      "isActive": true,
+      "createdAt": "2026-11-14T00:23:37.606Z",
+      "updatedAt": "2026-11-14T00:23:37.606Z"
+    },
+    {
+      "id": 52,
+      "code": "equip_talisma_do_aprendiz",
+      "nameI18nKey": "item.equip_talisma_do_aprendiz.name",
+      "descriptionI18nKey": "item.equip_talisma_do_aprendiz.desc",
+      "mcreworkIconKey": "assets/equipment/icons/equip_normal_330002.png",
+      "itemCategory": "CHARACTER_EQUIPMENT",
+      "equipmentSlotCode": "ORNAMENT_2",
+      "rarityTier": "COMMON",
+      "requiredLevel": 1,
+      "isTradable": false,
+      "priceGold": 0,
+      "maxStack": 1,
+      "cooldownSec": 0,
+      "targetType": "SELF",
+      "effectType": null,
+      "effectValue": 0,
+      "reqClassCodesJson": [],
+      "baseStatBonusesJson": {},
+      "combatStatBonusesJson": {
+        "MAX_MP": 15,
+        "HEAL_POWER": 3,
+        "MAG_EVASION": 4,
+        "PHYS_EVASION": 3
+      },
+      "specialEffectJson": {},
+      "isActive": true,
+      "createdAt": "2026-11-14T00:23:37.699Z",
+      "updatedAt": "2026-11-14T00:23:37.699Z"
+    },
+    {
+      "id": 53,
+      "code": "equip_anel_do_aprendiz",
+      "nameI18nKey": "item.equip_anel_do_aprendiz.name",
+      "descriptionI18nKey": "item.equip_anel_do_aprendiz.desc",
+      "mcreworkIconKey": "assets/equipment/icons/equip_normal_310002.png",
+      "itemCategory": "CHARACTER_EQUIPMENT",
+      "equipmentSlotCode": "RING",
+      "rarityTier": "COMMON",
+      "requiredLevel": 1,
+      "isTradable": false,
+      "priceGold": 0,
+      "maxStack": 1,
+      "cooldownSec": 0,
+      "targetType": "SELF",
+      "effectType": null,
+      "effectValue": 0,
+      "reqClassCodesJson": [],
+      "baseStatBonusesJson": {},
+      "combatStatBonusesJson": {
+        "MAG_ATK": 4,
+        "CRIT_DMG": 5,
+        "PHYS_ATK": 4,
+        "CRIT_RATE": 3
+      },
+      "specialEffectJson": {},
+      "isActive": true,
+      "createdAt": "2026-11-14T00:23:37.791Z",
+      "updatedAt": "2026-11-14T00:23:37.791Z"
+    },
+    {
+      "id": 54,
+      "code": "equip_colar_do_aprendiz",
+      "nameI18nKey": "item.equip_colar_do_aprendiz.name",
+      "descriptionI18nKey": "item.equip_colar_do_aprendiz.desc",
+      "mcreworkIconKey": "assets/equipment/icons/equip_normal_300001.png",
+      "itemCategory": "CHARACTER_EQUIPMENT",
+      "equipmentSlotCode": "NECKLACE",
+      "rarityTier": "COMMON",
+      "requiredLevel": 1,
+      "isTradable": false,
+      "priceGold": 0,
+      "maxStack": 1,
+      "cooldownSec": 0,
+      "targetType": "SELF",
+      "effectType": null,
+      "effectValue": 0,
+      "reqClassCodesJson": [],
+      "baseStatBonusesJson": {},
+      "combatStatBonusesJson": {
+        "MAX_HP": 25,
+        "MAX_MP": 25,
+        "MP_REGEN": 1,
+        "HEAL_POWER": 4
+      },
+      "specialEffectJson": {},
+      "isActive": true,
+      "createdAt": "2026-11-14T00:23:37.880Z",
+      "updatedAt": "2026-11-14T00:23:37.880Z"
+    },
+    {
+      "id": 55,
+      "code": "equip_arma_do_aprendiz",
+      "nameI18nKey": "item.equip_arma_do_aprendiz.name",
+      "descriptionI18nKey": "item.equip_arma_do_aprendiz.desc",
+      "mcreworkIconKey": "assets/equipment/icons/equip_normal_050100.png",
+      "itemCategory": "CHARACTER_EQUIPMENT",
+      "equipmentSlotCode": "WEAPON_1",
+      "rarityTier": "COMMON",
+      "requiredLevel": 1,
+      "isTradable": false,
+      "priceGold": 0,
+      "maxStack": 1,
+      "cooldownSec": 0,
+      "targetType": "SELF",
+      "effectType": null,
+      "effectValue": 0,
+      "reqClassCodesJson": [],
+      "baseStatBonusesJson": {},
+      "combatStatBonusesJson": {
+        "MAG_ATK": 14,
+        "PHYS_ATK": 14,
+        "ATTACK_RANGE": 10,
+        "ATTACK_SPEED": 0.05,
+        "MAG_ACCURACY": 6,
+        "PHYS_ACCURACY": 6
+      },
+      "specialEffectJson": {},
+      "isActive": true,
+      "createdAt": "2026-11-14T00:23:38.004Z",
+      "updatedAt": "2026-11-14T00:23:38.004Z"
+    },
+    {
+      "id": 56,
+      "code": "equip_foco_do_aprendiz",
+      "nameI18nKey": "item.equip_foco_do_aprendiz.name",
+      "descriptionI18nKey": "item.equip_foco_do_aprendiz.desc",
+      "mcreworkIconKey": "assets/equipment/icons/equip_normal_121002.png",
+      "itemCategory": "CHARACTER_EQUIPMENT",
+      "equipmentSlotCode": "WEAPON_2",
+      "rarityTier": "COMMON",
+      "requiredLevel": 1,
+      "isTradable": false,
+      "priceGold": 0,
+      "maxStack": 1,
+      "cooldownSec": 0,
+      "targetType": "SELF",
+      "effectType": null,
+      "effectValue": 0,
+      "reqClassCodesJson": [],
+      "baseStatBonusesJson": {},
+      "combatStatBonusesJson": {
+        "MAX_MP": 20,
+        "MAG_DEF": 5,
+        "PHYS_DEF": 5,
+        "HEAL_POWER": 3,
+        "MAG_EVASION": 3,
+        "PHYS_EVASION": 3
+      },
+      "specialEffectJson": {},
+      "isActive": true,
+      "createdAt": "2026-11-14T00:23:38.106Z",
+      "updatedAt": "2026-11-14T00:23:38.106Z"
     }
   ],
   "questTemplates": [
@@ -56065,8 +56598,8 @@
           "customLabel": "Espaço Zen"
         },
         {
-          "x": 558,
-          "y": 393,
+          "x": 539.6,
+          "y": 370.7,
           "id": "pt_1794550483009_378",
           "refId": 6,
           "isCity": false,
@@ -56075,8 +56608,8 @@
           "customLabel": "Lago Sol Norte"
         },
         {
-          "x": 506.5,
-          "y": 457.8,
+          "x": 479.9,
+          "y": 362.7,
           "id": "pt_1794550663989_882",
           "refId": 7,
           "isCity": false,
@@ -56085,8 +56618,8 @@
           "customLabel": ""
         },
         {
-          "x": 447.3,
-          "y": 425.4,
+          "x": 497.9,
+          "y": 423.1,
           "id": "pt_1794550671244_29",
           "refId": 8,
           "isCity": false,
@@ -56095,8 +56628,8 @@
           "customLabel": ""
         },
         {
-          "x": 401.1,
-          "y": 396.8,
+          "x": 418.5,
+          "y": 354.5,
           "id": "pt_1794550677352_464",
           "refId": 9,
           "isCity": false,
@@ -56153,6 +56686,106 @@
           "refLabel": "Ponto #14",
           "gameMapId": 9,
           "customLabel": "Oásis do Céu"
+        },
+        {
+          "x": 374.2,
+          "y": 406.5,
+          "id": "pt_1794577148965_23",
+          "refId": 15,
+          "isCity": false,
+          "refLabel": "Ponto #15",
+          "gameMapId": null,
+          "customLabel": ""
+        },
+        {
+          "x": 573.3,
+          "y": 444.5,
+          "id": "pt_1794577166613_712",
+          "refId": 16,
+          "isCity": false,
+          "refLabel": "Ponto #16",
+          "gameMapId": null,
+          "customLabel": ""
+        },
+        {
+          "x": 747.5,
+          "y": 431.6,
+          "id": "pt_1794577174092_193",
+          "refId": 17,
+          "isCity": false,
+          "refLabel": "Ponto #17",
+          "gameMapId": null,
+          "customLabel": ""
+        },
+        {
+          "x": 920.8,
+          "y": 434.5,
+          "id": "pt_1794577175087_181",
+          "refId": 18,
+          "isCity": false,
+          "refLabel": "Ponto #18",
+          "gameMapId": null,
+          "customLabel": ""
+        },
+        {
+          "x": 891,
+          "y": 518,
+          "id": "pt_1794577175918_567",
+          "refId": 19,
+          "isCity": false,
+          "refLabel": "Ponto #19",
+          "gameMapId": 11,
+          "customLabel": ""
+        },
+        {
+          "x": 829.9,
+          "y": 484.1,
+          "id": "pt_1794577176627_194",
+          "refId": 20,
+          "isCity": false,
+          "refLabel": "Ponto #20",
+          "gameMapId": null,
+          "customLabel": ""
+        },
+        {
+          "x": 781.4,
+          "y": 519.8,
+          "id": "pt_1794577187610_541",
+          "refId": 21,
+          "isCity": false,
+          "refLabel": "Ponto #21",
+          "gameMapId": null,
+          "customLabel": ""
+        },
+        {
+          "x": 793,
+          "y": 564.2,
+          "id": "pt_1794577188851_902",
+          "refId": 22,
+          "isCity": false,
+          "refLabel": "Ponto #22",
+          "gameMapId": null,
+          "customLabel": ""
+        },
+        {
+          "x": 827.6,
+          "y": 623,
+          "id": "pt_1794577189383_312",
+          "refId": 23,
+          "isCity": false,
+          "refLabel": "Ponto #23",
+          "gameMapId": null,
+          "customLabel": ""
+        },
+        {
+          "x": 766.5,
+          "y": 656.8,
+          "id": "pt_1794577190201_432",
+          "refId": 24,
+          "isCity": false,
+          "refLabel": "Ponto #24",
+          "gameMapId": null,
+          "customLabel": ""
         }
       ],
       "routesJson": [
@@ -56187,12 +56820,60 @@
         {
           "to": "pt_1794550739528_670",
           "from": "pt_1794550755079_743"
+        },
+        {
+          "to": "pt_1794577176627_194",
+          "from": "pt_1794577174092_193"
+        },
+        {
+          "to": "pt_1794577175087_181",
+          "from": "pt_1794577176627_194"
+        },
+        {
+          "to": "pt_1794577175918_567",
+          "from": "pt_1794577176627_194"
+        },
+        {
+          "to": "pt_1794577187610_541",
+          "from": "pt_1794577175918_567"
+        },
+        {
+          "to": "pt_1794577187610_541",
+          "from": "pt_1794577188851_902"
+        },
+        {
+          "to": "pt_1794577189383_312",
+          "from": "pt_1794577188851_902"
+        },
+        {
+          "to": "pt_1794577189383_312",
+          "from": "pt_1794577190201_432"
+        },
+        {
+          "to": "pt_1794550671244_29",
+          "from": "pt_1794550483009_378"
+        },
+        {
+          "to": "pt_1794550671244_29",
+          "from": "pt_1794550663989_882"
+        },
+        {
+          "to": "pt_1794550677352_464",
+          "from": "pt_1794550663989_882"
+        },
+        {
+          "to": "pt_1794550483009_378",
+          "from": "pt_1794550663989_882"
+        },
+        {
+          "to": "pt_1794577148965_23",
+          "from": "pt_1794550677352_464"
         }
       ],
       "showRoutesLayer": true,
       "showPointsLayer": true,
       "isActive": true,
-      "updatedAt": "2026-11-13T06:22:33.634Z"
+      "updatedAt": "2026-11-13T13:58:11.529Z"
     },
     {
       "id": 2,

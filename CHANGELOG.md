@@ -5,6 +5,36 @@ Qualquer IA trabalhando neste repositório **DEVE** incrementar a versão e regi
 
 ---
 
+## [v0.26.0] - 2026-11-14
+### Conjunto Inicial de Equipamentos do Jogador (Nível 1): Balanceamento Universal de Combate das 12 Peças do Aprendiz
+* **Adicionado & Calibrado (Game Design & Balanceamento de Sistemas):**
+  * **Criação do "Conjunto do Aprendiz" (Nível 1):** Conjunto inicial completo de equipamentos cobrindo exatamente os 12 slots de combate para personagens (`ownerType = 'CHARACTER'`), sem incluir slots não-combate (vara de pesca, asa, moda ou montaria alada):
+    1. 🧢 `HEAD` (`equip_elmo_do_aprendiz`): Elmo de Couro do Aprendiz (`MAX_HP: 25`, `PHYS_DEF: 4`, `MAG_DEF: 4`, `MAG_ACCURACY: 2`).
+    2. 🛡️ `SHOULDER` (`equip_ombreiras_do_aprendiz`): Ombreiras de Treino do Aprendiz (`MAX_HP: 20`, `PHYS_DEF: 3`, `MAG_DEF: 3`, `PHYS_EVASION: 2`).
+    3. 🥋 `CHEST` (`equip_peitoral_do_aprendiz`): Túnica Acolchoada do Aprendiz (`MAX_HP: 45`, `MAX_MP: 15`, `PHYS_DEF: 8`, `MAG_DEF: 8`).
+    4. 🥋 `BELT` (`equip_cinto_do_aprendiz`): Cinto de Fivela do Aprendiz (`MAX_HP: 20`, `PHYS_DEF: 3`, `MAG_DEF: 3`, `MP_REGEN: 1`).
+    5. 👖 `LEGS` (`equip_calcas_do_aprendiz`): Calças de Treino do Aprendiz (`MAX_HP: 35`, `PHYS_DEF: 6`, `MAG_DEF: 6`, `PHYS_EVASION: 2`).
+    6. 👢 `FEET` (`equip_botas_do_aprendiz`): Botas de Caminhada do Aprendiz (`MAX_HP: 15`, `PHYS_DEF: 3`, `MAG_DEF: 3`, `BATTLE_MOVE_SPEED: 5`, `PHYS_EVASION: 3`).
+    7. 🔮 `ORNAMENT_1` (`equip_amuleto_do_aprendiz`): Amuleto de Cobre do Aprendiz (`MAX_HP: 15`, `PHYS_ACCURACY: 4`, `MAG_ACCURACY: 4`, `CRIT_RATE: 2`).
+    8. 🧿 `ORNAMENT_2` (`equip_talisma_do_aprendiz`): Talismã Protetor do Aprendiz (`MAX_MP: 15`, `PHYS_EVASION: 3`, `MAG_EVASION: 4`, `HEAL_POWER: 3`).
+    9. 💍 `RING` (`equip_anel_do_aprendiz`): Anel de Latão do Aprendiz (`PHYS_ATK: 4`, `MAG_ATK: 4`, `CRIT_RATE: 3`, `CRIT_DMG: 5`).
+    10. 📿 `NECKLACE` (`equip_colar_do_aprendiz`): Colar de Madeira do Aprendiz (`MAX_HP: 25`, `MAX_MP: 25`, `MP_REGEN: 1`, `HEAL_POWER: 4`).
+    11. ⚔️ `WEAPON_1` (`equip_arma_do_aprendiz`): Lâmina Rúnica do Aprendiz (`PHYS_ATK: 14`, `MAG_ATK: 14`, `PHYS_ACCURACY: 6`, `MAG_ACCURACY: 6`, `ATTACK_SPEED: 0.05`, `ATTACK_RANGE: 10`).
+    12. 📖 `WEAPON_2` (`equip_foco_do_aprendiz`): Grimório Protetor do Aprendiz (`MAX_MP: 20`, `PHYS_DEF: 5`, `MAG_DEF: 5`, `PHYS_EVASION: 3`, `MAG_EVASION: 3`, `HEAL_POWER: 3`).
+  * **Conformidade Estrita com as Diretrizes de Balanceamento (v0.19.0+):**
+    * **Universal para todas as 12 Classes:** `reqClassCodesJson: []` (livre para qualquer arquétipo: guerreiros, ladinos, curandeiros e magos).
+    * **Atributos Exclusivos de Combate:** Concessão unicamente via `combatStatBonusesJson`, mantendo `baseStatBonusesJson: {}`.
+    * **Economia Inicial Vinculada:** `priceGold: 0`, `isTradable: false`, `rarityTier: 'COMMON'`, `requiredLevel: 1`, `maxStack: 1`.
+  * **Internacionalização Imersiva (i18n):**
+    * 24 novas entradas cadastradas em `i18n_translations` com nomes e descrições ricamente contextualizados na lore da Academia de Etheria.
+  * **Persistência, Snapshot e Automação:**
+    * Script dedicado de seed e verificação em `scripts/seed_apprentice_equipment.mjs`.
+    * Banco PostgreSQL da VPS sincronizado com os 12 novos templates de itens (`item_templates` IDs 45..56).
+    * Espelhamento e cache de ícones permanentes em `apps/server/cache/mcrework/assets/equipment/icons/`.
+    * Snapshot oficial `packages/database/snapshots/lowcode.snapshot.json` atualizado.
+
+---
+
 ## [v0.25.0] - 2026-11-13
 ### Placa Real Unificada do Jogador: Homogeneização Esculpida de Avatar, Moldura Alada, Barras de HP/MP/XP, Metadados e Bandeja de Economia
 * **Modificado & Esculpido (`play_hud.css` & `PlayHudController.js`):**
