@@ -5,6 +5,15 @@ Qualquer IA trabalhando neste repositório **DEVE** incrementar a versão e regi
 
 ---
 
+## [v0.32.0] - 2026-11-14
+### Correção do Modal de Criação e Edição de Pets na Rota /admin
+* **Implementação Canônica de `openModal` na Classe `EtheriaAdminStudio` (`admin.js`):**
+  * Declarado o método canônico `openModal(id)` na classe base de administração, espelhando `closeModal(id)` e garantindo abertura limpa com `display = 'flex'`.
+* **Blindagem e Injeção Defensiva na Aba de Pets (`AdminPetsTab.js`):**
+  * Chamada de `AdminPetsTab.injectModalDom()` antes da abertura de criação ou edição, garantindo que o `#petModal` exista mesmo se a aba for aberta dinamicamente.
+  * Adicionado fallback seguro tanto em `openCreatePetModal` e `openEditPetModal` quanto em `closeModal` ao salvar, prevenindo `TypeError: this.openModal is not a function`.
+  * CRUD completo de Pets 100% operacional no painel administrativo `/admin`.
+
 ## [v0.31.0] - 2026-11-14
 ### Iniciação de Treino no Véu nas Missões, Mapa Mundo Pan & Zoom com Nomes Reais e Correção Visual/Numérica da Ficha do Personagem
 * **Iniciação de Treino no Véu Diretamente nos NPCs e no Diário (`PlayRouter.ts` & `PlayQuestsController.js`):**

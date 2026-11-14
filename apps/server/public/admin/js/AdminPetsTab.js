@@ -77,6 +77,7 @@ class AdminPetsTab {
     };
 
     app.openCreatePetModal = async function () {
+      AdminPetsTab.injectModalDom();
       await this.loadMcreworkPets();
       document.getElementById('petEditIdInput').value = '';
       document.getElementById('petModalTitle').textContent = '🐾 Cadastrar Novo Pet Companheiro';
@@ -111,10 +112,16 @@ class AdminPetsTab {
       this.selectMcreworkPet(firstPet ? firstPet.mcreworkPetKey : 'creature_000001');
 
       this.renderPetGallery();
-      this.openModal('petModal');
+      if (typeof this.openModal === 'function') {
+        this.openModal('petModal');
+      } else {
+        const modal = document.getElementById('petModal');
+        if (modal) modal.style.display = 'flex';
+      }
     };
 
     app.openEditPetModal = async function (id) {
+      AdminPetsTab.injectModalDom();
       await this.loadMcreworkPets();
       const pet = this.petTemplates.find((p) => p.id === Number(id));
       if (!pet) return;
@@ -153,7 +160,12 @@ class AdminPetsTab {
 
       this.selectMcreworkPet(pet.mcreworkPetKey);
       this.renderPetGallery();
-      this.openModal('petModal');
+      if (typeof this.openModal === 'function') {
+        this.openModal('petModal');
+      } else {
+        const modal = document.getElementById('petModal');
+        if (modal) modal.style.display = 'flex';
+      }
     };
 
     app.selectMcreworkPet = function (key) {
@@ -338,7 +350,12 @@ class AdminPetsTab {
           await this.api('/api/admin/pet-templates', { method: 'POST', body: JSON.stringify(dto) });
         }
 
-        this.closeModal('petModal');
+        if (typeof this.closeModal === 'function') {
+          this.closeModal('petModal');
+        } else {
+          const modal = document.getElementById('petModal');
+          if (modal) modal.style.display = 'none';
+        }
         await this.loadPetTemplates();
       } catch (err) {
         alert(`Erro ao salvar Pet: ${err.message}`);

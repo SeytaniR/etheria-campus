@@ -109,6 +109,11 @@ class EtheriaAdminStudio {
     }
   }
 
+  openModal(id) {
+    const el = document.getElementById(id);
+    if (el) el.style.display = 'flex';
+  }
+
   closeModal(id) {
     const el = document.getElementById(id);
     if (el) el.style.display = 'none';
