@@ -43,7 +43,7 @@ class AdminEquipmentSetsTab {
       document.getElementById('equipSetNameInput').value = '';
       document.getElementById('equipSetDescriptionInput').value = '';
       document.getElementById('equipSetReqLevelInput').value = '40';
-      document.getElementById('equipSetRaritySelect').value = 'RARE';
+      document.getElementById('equipSetRaritySelect').value = 'B';
       document.getElementById('equipSetMinFullInput').value = '12';
       document.getElementById('equipSetMinHalfInput').value = '6';
       document.getElementById('equipSetHalfBonusRatioInput').value = '40';
@@ -73,7 +73,7 @@ class AdminEquipmentSetsTab {
         document.getElementById('equipSetNameInput').value = s.namePtBr;
         document.getElementById('equipSetDescriptionInput').value = s.descriptionPtBr || '';
         document.getElementById('equipSetReqLevelInput').value = s.requiredLevel || 1;
-        document.getElementById('equipSetRaritySelect').value = s.rarityTier || 'COMMON';
+        document.getElementById('equipSetRaritySelect').value = s.rarityTier || 'F';
         document.getElementById('equipSetMinFullInput').value = s.minPiecesFull || 12;
         document.getElementById('equipSetMinHalfInput').value = s.minPiecesHalf || 6;
         document.getElementById('equipSetHalfBonusRatioInput').value = s.halfBonusRatioPct || 40;
@@ -157,7 +157,7 @@ class AdminEquipmentSetsTab {
         code: document.getElementById('equipSetCodeInput').value.trim() || undefined,
         descriptionPtBr: document.getElementById('equipSetDescriptionInput').value.trim() || undefined,
         requiredLevel: parseInt(document.getElementById('equipSetReqLevelInput').value, 10) || 1,
-        rarityTier: document.getElementById('equipSetRaritySelect').value || 'COMMON',
+        rarityTier: document.getElementById('equipSetRaritySelect').value || 'F',
         minPiecesFull: parseInt(document.getElementById('equipSetMinFullInput').value, 10) || 12,
         minPiecesHalf: parseInt(document.getElementById('equipSetMinHalfInput').value, 10) || 6,
         halfBonusRatioPct: parseFloat(document.getElementById('equipSetHalfBonusRatioInput').value) || 40.0,
@@ -244,14 +244,22 @@ class AdminEquipmentSetsTab {
 
       const formatRarity = (rar) => {
         const colors = {
-          COMMON: '#94a3b8',
-          RARE: '#38bdf8',
-          EPIC: '#c084fc',
-          LEGENDARY: '#f59e0b',
-          MYTHIC: '#ef4444',
+          SS: '#fbbf24',
+          S: '#c084fc',
+          A: '#38bdf8',
+          B: '#4ade80',
+          C: '#fde047',
+          D: '#fdba74',
+          F: '#cbd5e1',
+          COMMON: '#cbd5e1',
+          RARE: '#4ade80',
+          EPIC: '#38bdf8',
+          LEGENDARY: '#c084fc',
+          MYTHIC: '#fbbf24',
         };
-        const c = colors[rar] || '#94a3b8';
-        return `<span style="font-size:0.7rem; font-weight:800; padding:2px 6px; border-radius:4px; border:1px solid ${c}; color:${c}; background:rgba(15,23,42,0.6);">${rar}</span>`;
+        const c = colors[rar] || '#cbd5e1';
+        const label = ['SS', 'S', 'A', 'B', 'C', 'D', 'F'].includes(rar) ? `Rank ${rar}` : rar;
+        return `<span style="font-size:0.7rem; font-weight:800; padding:2px 6px; border-radius:4px; border:1px solid ${c}; color:${c}; background:rgba(15,23,42,0.6);">${label}</span>`;
       };
 
       let tableHtml = `
@@ -370,14 +378,17 @@ class AdminEquipmentSetsTab {
               <option value="1">Nível 1 (Aprendiz)</option>
               <option value="40">Nível 40 (Balanceados/Espec.)</option>
               <option value="50">Nível 50 (Épicos Mais Fortes)</option>
+              <option value="60">Nível 60 (Lendários Mais Fortes)</option>
             </select>
             <select id="equipSetRarityFilterSelect" onchange="AdminApp.filterEquipmentSetsCrudTable()" style="width:130px; padding:7px; font-size:0.8rem;">
               <option value="ALL">Todas Raridades</option>
-              <option value="COMMON">COMMON (Comum)</option>
-              <option value="RARE">RARE (Raro)</option>
-              <option value="EPIC">EPIC (Épico)</option>
-              <option value="LEGENDARY">LEGENDARY (Lendário)</option>
-              <option value="MYTHIC">MYTHIC (Mítico)</option>
+              <option value="SS">Rank SS (Mítico)</option>
+              <option value="S">Rank S (Lendário)</option>
+              <option value="A">Rank A (Épico)</option>
+              <option value="B">Rank B (Raro)</option>
+              <option value="C">Rank C (Incomum)</option>
+              <option value="D">Rank D (Regular)</option>
+              <option value="F">Rank F (Básico)</option>
             </select>
           </div>
 
@@ -429,11 +440,13 @@ class AdminEquipmentSetsTab {
               <div class="field">
                 <label>Raridade do Conjunto</label>
                 <select id="equipSetRaritySelect">
-                  <option value="COMMON">COMMON (Comum)</option>
-                  <option value="RARE">RARE (Raro)</option>
-                  <option value="EPIC">EPIC (Épico)</option>
-                  <option value="LEGENDARY">LEGENDARY (Lendário)</option>
-                  <option value="MYTHIC">MYTHIC (Mítico)</option>
+                  <option value="SS">Rank SS (Mítico)</option>
+                  <option value="S">Rank S (Lendário)</option>
+                  <option value="A">Rank A (Épico)</option>
+                  <option value="B">Rank B (Raro)</option>
+                  <option value="C">Rank C (Incomum)</option>
+                  <option value="D">Rank D (Regular)</option>
+                  <option value="F">Rank F (Básico)</option>
                 </select>
               </div>
               <div class="field">

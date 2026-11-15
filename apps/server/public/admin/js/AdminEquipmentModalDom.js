@@ -65,14 +65,13 @@ class AdminEquipmentModalDom {
             <div class="field">
               <label>Raridade</label>
               <select id="equipRaritySelect">
-                <option value="COMMON">COMMON (Comum)</option>
-                <option value="F">Rank F (Básico)</option>
-                <option value="D">Rank D (Regular)</option>
-                <option value="C">Rank C (Incomum)</option>
-                <option value="B">Rank B (Raro)</option>
-                <option value="A">Rank A (Épico)</option>
-                <option value="S">Rank S (Lendário)</option>
                 <option value="SS">Rank SS (Mítico)</option>
+                <option value="S">Rank S (Lendário)</option>
+                <option value="A">Rank A (Épico)</option>
+                <option value="B">Rank B (Raro)</option>
+                <option value="C">Rank C (Incomum)</option>
+                <option value="D">Rank D (Regular)</option>
+                <option value="F">Rank F (Básico)</option>
               </select>
             </div>
             <div class="field">

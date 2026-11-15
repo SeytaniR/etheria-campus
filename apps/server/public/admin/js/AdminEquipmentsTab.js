@@ -138,7 +138,7 @@ class AdminEquipmentsTab {
       if (document.getElementById('equipSetSelect')) {
         document.getElementById('equipSetSelect').value = '';
       }
-      document.getElementById('equipRaritySelect').value = 'COMMON';
+      document.getElementById('equipRaritySelect').value = 'F';
       document.getElementById('equipReqLevelInput').value = '1';
       document.getElementById('equipActiveSelect').value = 'true';
       document.getElementById('equipIconKeyInput').value = 'assets/equipment/icons/equip_normal_100001.png';
@@ -176,7 +176,7 @@ class AdminEquipmentsTab {
       if (document.getElementById('equipSetSelect')) {
         document.getElementById('equipSetSelect').value = item.equipmentSetId ? String(item.equipmentSetId) : '';
       }
-      document.getElementById('equipRaritySelect').value = item.rarityTier || 'COMMON';
+      document.getElementById('equipRaritySelect').value = item.rarityTier || 'F';
       document.getElementById('equipReqLevelInput').value = item.requiredLevel ?? 1;
       document.getElementById('equipActiveSelect').value = String(item.isActive ?? true);
       document.getElementById('equipIconKeyInput').value = item.mcreworkIconKey || '';
@@ -464,7 +464,11 @@ class AdminEquipmentsTab {
         C: { text: '#fde047', border: '#eab308', bg: 'rgba(234,179,8,0.18)' },
         D: { text: '#fdba74', border: '#f97316', bg: 'rgba(249,115,22,0.18)' },
         F: { text: '#cbd5e1', border: '#64748b', bg: 'rgba(100,116,139,0.18)' },
-        COMMON: { text: '#94a3b8', border: '#475569', bg: 'rgba(71,85,105,0.18)' },
+        COMMON: { text: '#cbd5e1', border: '#64748b', bg: 'rgba(100,116,139,0.18)' },
+        RARE: { text: '#4ade80', border: '#22c55e', bg: 'rgba(34,197,94,0.18)' },
+        EPIC: { text: '#38bdf8', border: '#0ea5e9', bg: 'rgba(14,165,233,0.18)' },
+        LEGENDARY: { text: '#c084fc', border: '#a855f7', bg: 'rgba(168,85,247,0.18)' },
+        MYTHIC: { text: '#fbbf24', border: '#f59e0b', bg: 'rgba(245,158,11,0.18)' },
       };
 
       const slotIcons = {
@@ -517,7 +521,7 @@ class AdminEquipmentsTab {
                     </td>
                     <td style="padding:8px 10px;">
                       <span style="font-weight:800; color:${rStyle.text}; background:${rStyle.bg}; border:1px solid ${rStyle.border}; padding:2px 8px; border-radius:99px; font-size:0.72rem; white-space:nowrap;">
-                        ${item.rarityTier}
+                        ${['SS', 'S', 'A', 'B', 'C', 'D', 'F'].includes(item.rarityTier) ? `Rank ${item.rarityTier}` : item.rarityTier}
                       </span>
                     </td>
                     <td style="padding:8px 10px; font-weight:700; color:#cbd5e1;">
@@ -558,7 +562,7 @@ class AdminEquipmentsTab {
                   <div class="equipment-mobile-card-title">
                     <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:6px;">
                       <strong style="font-size:0.92rem; color:#f8fafc;">${item.namePtBr}</strong>
-                      <span style="font-weight:800; color:${rStyle.text}; background:${rStyle.bg}; border:1px solid ${rStyle.border}; padding:1px 7px; border-radius:99px; font-size:0.70rem; white-space:nowrap;">${item.rarityTier}</span>
+                      <span style="font-weight:800; color:${rStyle.text}; background:${rStyle.bg}; border:1px solid ${rStyle.border}; padding:1px 7px; border-radius:99px; font-size:0.70rem; white-space:nowrap;">${['SS', 'S', 'A', 'B', 'C', 'D', 'F'].includes(item.rarityTier) ? `Rank ${item.rarityTier}` : item.rarityTier}</span>
                     </div>
                     <div style="display:flex; gap:6px; align-items:center; flex-wrap:wrap; font-size:0.70rem; color:var(--text-muted); margin-top:2px;">
                       <span style="color:#38bdf8; font-family:monospace;">${item.code}</span>

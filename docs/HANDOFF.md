@@ -8,16 +8,15 @@
 ---
 
 ## 📌 Status Atual do Projeto
-* **Versão Atual:** `v0.49.0`
+* **Versão Atual:** `v0.50.0`
 * **Última Atualização:** `2026-11-15`
-* **Fase Atual:** **Montagem Declarativa de 12 Conjuntos Lendários de Nível 60 na Rota Admin (144 Peças Mais Fortes) e Categorias de Conjuntos (`v0.49.0`)** — Cadastrados 144 novos equipamentos de Nível 60 com raridade `LEGENDARY` e poder de combate substancialmente ampliado (+35% a +50% em relação ao Lv. 50 Épico), cobrindo 12 conjuntos especializados nos 6 pares de classes originais com foco assimétrico (75% Classe A / 25% Classe B e vice-versa):
-  1) Eclipse Cósmico (Necromante > Barda) & Harmonia Estelar (Barda > Necromante)
-  2) Singularidade Cósmica (Mago > Curandeira) & Redenção Divina (Curandeira > Mago)
-  3) Berserker Imortal (Guerreira > Lanceiro) & Rompedor de Galáxias (Lanceiro > Guerreira)
-  4) Lâmina do Trovão Primordial (Espadachim > Lutadora) & Fúria Elemental dos Titãs (Lutadora > Espadachim)
-  5) Fortaleza Celestial (Paladino > Caçadora) & Caçador do Vácuo Astral (Caçadora > Paladino)
-  6) Aniquilador Orbital (Atirador > Assassino) & Ceifador Fantasma Cósmico (Assassino > Atirador).
-  Todos com 12 slots de combate para personagem, `requiredLevel: 60`, `reqClassCodesJson: []`, `priceGold: 0`, `isTradable: false`, `rarityTier: 'LEGENDARY'`, apenas `combatStatBonusesJson`, sem asas/modas/varas de pesca, e com ícones temáticos dos tiers 09 e 10 do `mcrework`. Total de equipamentos no painel `/admin` ampliado para **516 equipamentos** e total de conjuntos ampliado para **43 conjuntos** (com 12/12 peças em 100% dos conjuntos). PostgreSQL da VPS Azure sincronizado, 426 ícones cacheados e snapshot `lowcode.snapshot.json` atualizado para 2.55 MB. Todos os arquivos estritamente conformes com a Regra #7 (< 1.000 linhas).
+* **Fase Atual:** **Padronização de Raridades de Todos os Equipamentos e Conjuntos para Ranks Oficiais (SS, S, A, B, C, D, F) e Preservação de Customizações Manuais (`v0.50.0`)** — Corrigida toda a base de equipamentos e conjuntos para utilizar o sistema nativo de Ranks de Etheria (`SS`, `S`, `A`, `B`, `C`, `D`, `F`), eliminando tags textuais redundantes em inglês e no texto de descrição:
+  1. **516 Equipamentos Alinhados:** 144 Nível 60 (Rank S), 144 Nível 50 (Rank A), 216 Nível 40 (Rank B), 12 Nível 1 (Rank F).
+  2. **Customização Manual Preservada (Cláusula 0.2):** O item `Adagas do Ceifador Fantasma` (`equip_lv60_ghostreaper_weapon1`, ID `#700`) editado pelo usuário no `/admin` mantém integralmente `rarityTier: 'S'`, `requiredLevel: 150` e bônus de combate `MAG_ATK: 888`.
+  3. **43 Conjuntos de Equipamentos Alinhados:** 12 Nível 60 (Rank S), 12 Nível 50 (Rank A), 18 Nível 40 (Rank B), 1 Nível 1 (Rank F).
+  4. **576 Traduções i18n Alinhadas:** Tags `(Lendário)`, `(Épico)`, `(Raro)` e `(Comum)` substituídas por `(Rank S)`, `(Rank A)`, `(Rank B)` e `(Rank F)`.
+  5. **Frontend /admin e /play Atualizados:** Modais, tabelas, filtros e badges renderizam os Ranks oficiais `SS, S, A, B, C, D, F`.
+  6. **VPS Azure & Snapshot Canônico:** PostgreSQL da VPS Azure atualizado, serviço reiniciado e snapshot `lowcode.snapshot.json` sincronizado. Todos os arquivos estritamente conformes com a Regra #7 (< 1.000 linhas).
 * **Repositório Oficial:** `https://github.com/SeytaniR/etheria-campus`
 * **Fonte Bruta de Assets:** `https://github.com/SeytaniR/mcrework` (`https://seytanir.github.io/mcrework/`)
 

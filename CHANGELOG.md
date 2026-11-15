@@ -5,6 +5,37 @@ Qualquer IA trabalhando neste repositório **DEVE** incrementar a versão e regi
 
 ---
 
+## [v0.50.0] - 2026-11-15
+### Padronização de Raridades de Todos os Equipamentos e Conjuntos para Ranks Oficiais (SS, S, A, B, C, D, F) e Preservação de Customizações Manuais
+* **Harmonização do Campo `rarityTier` em Toda a Base de Equipamentos (`item_templates`):**
+  * Eliminação de tags textuais redundantes e alinhamento estrito com os Ranks canônicos do ecossistema de Etheria (`SS`, `S`, `A`, `B`, `C`, `D`, `F`).
+  * **144 Peças de Nível 60:** Padronizadas para **Rank S** (`rarityTier: 'S'`).
+  * **144 Peças de Nível 50:** Padronizadas para **Rank A** (`rarityTier: 'A'`).
+  * **216 Peças de Nível 40:** Padronizadas para **Rank B** (`rarityTier: 'B'`).
+  * **12 Peças de Nível 1 (Aprendiz):** Padronizadas para **Rank F** (`rarityTier: 'F'`).
+  * **Preservação Sagrada de Customização Manual do Usuário (Cláusula 0.2 & Regra #9):** O item **Adagas do Ceifador Fantasma** (`equip_lv60_ghostreaper_weapon1`, ID `#700`), customizado pelo usuário no painel Admin, teve 100% de suas alterações manuais preservadas: `rarityTier: 'S'`, `requiredLevel: 150` e bônus de combate `MAG_ATK: 888`.
+* **Harmonização da Tabela de Conjuntos de Equipamentos (`equipment_sets`):**
+  * Todos os **43 conjuntos** da tabela agora utilizam estritamente os Ranks oficiais:
+    * 12 Conjuntos de Nível 60 -> **Rank S** (`rarityTier: 'S'`).
+    * 12 Conjuntos de Nível 50 -> **Rank A** (`rarityTier: 'A'`).
+    * 18 Conjuntos de Nível 40 -> **Rank B** (`rarityTier: 'B'`).
+    * 1 Conjunto de Nível 1 -> **Rank F** (`rarityTier: 'F'`).
+* **Saneamento de Tags Textuais Redundantes em Traduções (`i18n_translations`):**
+  * Atualização de 576 descrições de equipamentos em português e inglês substituindo tags antigas entre parênteses pelos Ranks oficiais: `(Lendário)` -> `(Rank S)`, `(Épico)` -> `(Rank A)`, `(Raro)` -> `(Rank B)` e `(Comum)` -> `(Rank F)`.
+* **Atualização da Interface Studio Admin e Cliente de Jogo (`/play`):**
+  * `AdminEquipmentModalDom.js`: Dropdown `equipRaritySelect` atualizado para conter exclusivamente as opções `SS, S, A, B, C, D, F`.
+  * `AdminEquipmentsTab.js`: Badges visuais passam a exibir `Rank ${rarityTier}` com estilização cromática temática; dropdown de filtro e valor padrão do modal alinhados para Rank F.
+  * `AdminEquipmentSetsTab.js`: Tabela de conjuntos renderiza badges `Rank ${rarityTier}`; filtros de busca por raridade e formulários CRUD atualizados para as opções de Rank oficiais.
+  * `PlayBagController.js`: Paleta visual `RARITY_MAP` e algoritmo de filtragem da mochila alinhados para reconhecer `SS` (Mítico/Cósmico), `S` (Lendário), `A` (Épico), `B` (Raro), `C` (Incomum), `D` (Regular) e `F` (Básico).
+* **Persistência, Banco de Dados na Nuvem e Governança:**
+  * Script `scripts/migrate_equipment_rarity_to_ranks.mjs` executado diretamente no PostgreSQL 16 da VPS Azure (`40.65.63.193`).
+  * Serviço de produção `etheria-campus.service` reiniciado e validado como ativo via systemd.
+  * Snapshot canônico `packages/database/snapshots/lowcode.snapshot.json` atualizado e versionado (2.54 MB).
+  * Arquivos JSON declarativos sincronizados (`scripts/equipment_sets_definitions.json`, `twelve_level40_equipment_sets.json`, `twelve_level50_equipment_sets.json`, `twelve_level60_equipment_sets.json`).
+  * Todos os arquivos de código rigorosamente abaixo de 1.000 linhas conforme Regra #7.
+
+---
+
 ## [v0.49.0] - 2026-11-15
 ### Montagem Declarativa de 12 Conjuntos Lendários de Nível 60 na Rota Admin (144 Peças Mais Fortes) e Categorias de Conjuntos
 * **Estruturação de 12 Novos Conjuntos Lendários de Nível 60 (`equipment_sets`, `item_templates`, `i18n_translations`):**

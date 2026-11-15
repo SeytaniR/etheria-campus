@@ -28,19 +28,19 @@ const PlayBagController = {
   ],
 
   RARITY_MAP: {
-    F: { border: '#f8fafc', glow: 'rgba(248,250,252,0.3)', label: 'Comum [Rank F]', color: '#f8fafc', bg: '#020617' },
-    COMMON: { border: '#f8fafc', glow: 'rgba(248,250,252,0.3)', label: 'Comum [Rank F]', color: '#f8fafc', bg: '#020617' },
-    D: { border: '#22c55e', glow: 'rgba(34,197,94,0.35)', label: 'Incomum [Rank D]', color: '#22c55e', bg: '#020617' },
-    UNCOMMON: { border: '#22c55e', glow: 'rgba(34,197,94,0.35)', label: 'Incomum [Rank D]', color: '#22c55e', bg: '#020617' },
-    C: { border: '#3b82f6', glow: 'rgba(59,130,246,0.4)', label: 'Raro [Rank C]', color: '#3b82f6', bg: '#020617' },
-    RARE: { border: '#3b82f6', glow: 'rgba(59,130,246,0.4)', label: 'Raro [Rank C]', color: '#3b82f6', bg: '#020617' },
-    B: { border: '#a855f7', glow: 'rgba(168,85,247,0.45)', label: 'Épico [Rank B]', color: '#a855f7', bg: '#020617' },
-    EPIC: { border: '#a855f7', glow: 'rgba(168,85,247,0.45)', label: 'Épico [Rank B]', color: '#a855f7', bg: '#020617' },
-    A: { border: '#f97316', glow: 'rgba(249,115,22,0.5)', label: 'Lendário [Rank A]', color: '#f97316', bg: '#020617' },
-    LEGENDARY: { border: '#f97316', glow: 'rgba(249,115,22,0.5)', label: 'Lendário [Rank A]', color: '#f97316', bg: '#020617' },
-    S: { border: '#ef4444', glow: 'rgba(239,68,68,0.55)', label: 'Mítico [Rank S]', color: '#ef4444', bg: '#020617' },
-    MYTHIC: { border: '#ef4444', glow: 'rgba(239,68,68,0.55)', label: 'Mítico [Rank S]', color: '#ef4444', bg: '#020617' },
-    SS: { border: '#000000', glow: 'rgba(0,0,0,0.95)', label: 'Cósmico [Rank SS]', color: '#ffffff', isCosmic: true, bg: '#09090b' },
+    F: { border: '#cbd5e1', glow: 'rgba(203,213,225,0.3)', label: 'Básico [Rank F]', color: '#cbd5e1', bg: '#020617' },
+    COMMON: { border: '#cbd5e1', glow: 'rgba(203,213,225,0.3)', label: 'Básico [Rank F]', color: '#cbd5e1', bg: '#020617' },
+    D: { border: '#fdba74', glow: 'rgba(249,115,22,0.35)', label: 'Regular [Rank D]', color: '#fdba74', bg: '#020617' },
+    UNCOMMON: { border: '#fde047', glow: 'rgba(234,179,8,0.35)', label: 'Incomum [Rank C]', color: '#fde047', bg: '#020617' },
+    C: { border: '#fde047', glow: 'rgba(234,179,8,0.4)', label: 'Incomum [Rank C]', color: '#fde047', bg: '#020617' },
+    B: { border: '#4ade80', glow: 'rgba(74,222,128,0.45)', label: 'Raro [Rank B]', color: '#4ade80', bg: '#020617' },
+    RARE: { border: '#4ade80', glow: 'rgba(74,222,128,0.45)', label: 'Raro [Rank B]', color: '#4ade80', bg: '#020617' },
+    A: { border: '#38bdf8', glow: 'rgba(56,189,248,0.5)', label: 'Épico [Rank A]', color: '#38bdf8', bg: '#020617' },
+    EPIC: { border: '#38bdf8', glow: 'rgba(56,189,248,0.5)', label: 'Épico [Rank A]', color: '#38bdf8', bg: '#020617' },
+    S: { border: '#c084fc', glow: 'rgba(192,132,252,0.55)', label: 'Lendário [Rank S]', color: '#c084fc', bg: '#020617' },
+    LEGENDARY: { border: '#c084fc', glow: 'rgba(192,132,252,0.55)', label: 'Lendário [Rank S]', color: '#c084fc', bg: '#020617' },
+    SS: { border: '#fbbf24', glow: 'rgba(251,191,36,0.95)', label: 'Mítico [Rank SS]', color: '#fbbf24', isCosmic: false, bg: '#09090b' },
+    MYTHIC: { border: '#fbbf24', glow: 'rgba(251,191,36,0.95)', label: 'Mítico [Rank SS]', color: '#fbbf24', isCosmic: false, bg: '#09090b' },
     COSMIC: { border: '#000000', glow: 'rgba(0,0,0,0.95)', label: 'Cósmico [Rank SS]', color: '#ffffff', isCosmic: true, bg: '#09090b' },
   },
 
@@ -291,12 +291,12 @@ const PlayBagController = {
     if (filterRarity !== 'ALL') {
       const rKey = String(it.rarityTier || '').toUpperCase();
       if (filterRarity === 'F' && !['F', 'COMMON'].includes(rKey)) matches = false;
-      else if (filterRarity === 'D' && !['D', 'UNCOMMON'].includes(rKey)) matches = false;
-      else if (filterRarity === 'C' && !['C', 'RARE'].includes(rKey)) matches = false;
-      else if (filterRarity === 'B' && !['B', 'EPIC'].includes(rKey)) matches = false;
-      else if (filterRarity === 'A' && !['A', 'LEGENDARY'].includes(rKey)) matches = false;
-      else if (filterRarity === 'S' && !['S', 'MYTHIC'].includes(rKey)) matches = false;
-      else if (filterRarity === 'SS' && !['SS', 'COSMIC'].includes(rKey)) matches = false;
+      else if (filterRarity === 'D' && !['D', 'REGULAR'].includes(rKey)) matches = false;
+      else if (filterRarity === 'C' && !['C', 'UNCOMMON', 'INCOMUM'].includes(rKey)) matches = false;
+      else if (filterRarity === 'B' && !['B', 'RARE', 'RARO'].includes(rKey)) matches = false;
+      else if (filterRarity === 'A' && !['A', 'EPIC', 'EPICO'].includes(rKey)) matches = false;
+      else if (filterRarity === 'S' && !['S', 'LEGENDARY', 'LENDARIO'].includes(rKey)) matches = false;
+      else if (filterRarity === 'SS' && !['SS', 'MYTHIC', 'MITICO', 'COSMIC'].includes(rKey)) matches = false;
     }
 
     const rar = this.RARITY_MAP[String(it.rarityTier || '').toUpperCase()] || this.RARITY_MAP.F;
