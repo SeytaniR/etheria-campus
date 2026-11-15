@@ -5,6 +5,41 @@ Qualquer IA trabalhando neste repositório **DEVE** incrementar a versão e regi
 
 ---
 
+## [v0.47.0] - 2026-11-14
+### Montagem Declarativa de 12 Conjuntos Épicos de Nível 50 na Rota Admin (144 Peças de Combate Mais Fortes)
+* **Estruturação de 12 Novos Conjuntos Épicos de Nível 50 (`item_templates`, `i18n_translations`):**
+  * Criação completa de **144 novas peças de combate de Nível 50** com poder ampliado (+45% a +60% em atributos em relação ao Nível 40) e raridade `EPIC`, cobrindo exatamente os 12 slots de personagem (`HEAD`, `SHOULDER`, `CHEST`, `BELT`, `LEGS`, `FEET`, `ORNAMENT_1`, `ORNAMENT_2`, `RING`, `NECKLACE`, `WEAPON_1`, `WEAPON_2`), elevando o catálogo total da rota `/admin` para **372 equipamentos cadastrados**.
+  * **Par 1 (Necromante + Barda):**
+    * **1A. Conjunto do Soberano Abissal (Necromante 75% > Barda 25%):** Seda Abissal (Série 04 Tier 07), Báculo do Soberano do Vazio, Crônicas do Fim dos Tempos e Joias do Senhor das Trevas. Foco em `MAG_ATK` colossal (arma de 440 MATK), `CRIT_RATE`, `CRIT_DMG`, `MAG_ACCURACY`, `MAX_MP` e drenagem vital contínua (`HP_REGEN`).
+    * **1B. Conjunto da Melodia Imortal (Barda 75% > Necromante 25%):** Seda de Gala Ressoante (Série 04 Tier 08), Alaúde das Nove Esferas, Arco da Harmonia Celestial e Joias da Ressonância Divina. Foco em `MP_REGEN` massivo, `HEAL_POWER`, `BATTLE_MOVE_SPEED`, `ATTACK_SPEED`, `MAG_DEF` e evasão mágica.
+  * **Par 2 (Mago + Curandeira):**
+    * **2A. Conjunto do Arquimago Primordial (Mago 75% > Curandeira 25%):** Mantos de Safira Densa (Série 03 Tier 07), Cetro do Dragão Celestial (485 MATK), Orbe do Infinito Arcano e Joias do Éter Ancestral. Foco em explosões estelares, dano crítico massivo e penetração absoluta.
+    * **2B. Conjunto da Transcendência Divina (Curandeira 75% > Mago 25%):** Manto da Pureza Suprema (Série 03 Tier 08), Báculo da Vida Eterna, Grimório da Criação Primordial e Joias da Luz Sagrada. Foco em milagres curativos contínuos (`HEAL_POWER` supremo), `MAX_MP`, `MP_REGEN`, `MAG_DEF` e `MAX_HP`.
+  * **Par 3 (Guerreira + Lanceiro):**
+    * **3A. Conjunto do Baluarte dos Titãs (Guerreira 75% > Lanceiro 25%):** Placas Pesadas de Aço Negro Vulcânico (Série 01 Tier 07), Maça Glacial dos Titãs (450 ATK, 1.150 HP), Escudo Titã dos Deuses (320 DEF, 950 HP) e Joias da Fortaleza Absoluta. Foco em absorção de impacto monumental, vida extrema e regeneração corporal.
+    * **3B. Conjunto do Cometa Perfurador (Lanceiro 75% > Guerreira 25%):** Placas Meteóricas Aerodinâmicas (Série 01 Tier 08), Lança Meteórica do Dragão (490 ATK), Escudo dos Cruzados de Ferro e Joias da Estocada Cósmica. Foco em perfuração supersônica, precisão e velocidade de investida.
+  * **Par 4 (Espadachim + Lutadora):**
+    * **4A. Conjunto da Lâmina Celestial (Espadachim 75% > Lutadora 25%):** Couro e Placas de Aço Rubi Puro (Série 05 Tier 07), Lâmina Ancestral Soberana (465 ATK, 115 Crit), Adaga Sem Sombra do Destino e Joias do Vórtice de Aço. Foco em corte cirúrgico, multiplicador crítico avassalador e postura reflexiva.
+    * **4B. Conjunto da Fúria do Dragão (Lutadora 75% > Espadachim 25%):** Traje de Escamas de Dragão Carmesim (Série 05 Tier 08), Manopla Destruidora de Céus (415 ATK, 130 Aspd), Manopla do Vácuo Absoluto e Joias do Impacto Fulminante. Foco em velocidade de ataque frenética, sequências consecutivas e esquiva visceral.
+  * **Par 5 (Paladino + Caçadora):**
+    * **5A. Conjunto da Cidadela Divina (Paladino 75% > Caçadora 25%):** Malha Dourada e Alabastro Sagrado (Série 02 Tier 07), Maça do Trovão Sagrado, Escudo Bastião de Ouro Imperial e Joias do Reino Sagrado. Foco em resistência mista sagrada impenetrável (`PHYS_DEF`, `MAG_DEF`), `MAX_HP`, `HEAL_POWER` e bênção regenerativa.
+    * **5B. Conjunto da Sentinela dos Ermos (Caçadora 75% > Paladino 25%):** Malha Élfica Nobre Camuflada (Série 02 Tier 08), Lança Alada do Vento Sul, Braçadeira da Precisão Estelar e Joias da Presa Ancestral. Foco em alcance de projétil supremo (`ATTACK_RANGE`), precisão e emboscadas na mata.
+  * **Par 6 (Atirador + Assassino):**
+    * **6A. Conjunto da Devastação Balística (Atirador 75% > Assassino 25%):** Couro Balístico com Nanotubos (Série 06 Tier 07), Canhão de Partículas Noturno (515 ATK, 160 Alcance), Manopla Tática com Giroscópio e Joias do Mira-Laser. Foco em artilharia pesada, disparos de longa distância e mira térmica.
+    * **6B. Conjunto do Espectro Letal (Assassino 75% > Atirador 25%):** Couro Negro Fosco de Óleo de Sombra (Série 06 Tier 08), Lâmina Corta-Almas Noturna, Adaga do Fim dos Tempos e Joias da Sombra Mortal. Foco em evasão extrema (`PHYS_EVASION`), velocidade de ataque, execução instantânea e locomoção invisível.
+* **Conformidade Estrita com Diretrizes e Arquitetura No-Code:**
+  * **Requisito de Nível e Classes:** Todos configurados para `requiredLevel: 50` com raridade `EPIC`, sem restrições de classe (`reqClassCodesJson: []`).
+  * **Combate Puro:** Bônus configurados 100% em `combatStatBonusesJson` (`baseStatBonusesJson: {}`).
+  * **Economia:** Preço em ouro zerado (`priceGold: 0`, `isTradable: false`).
+  * **Sem Cosméticos/Utilitários:** Zero presença de Asas (`WINGS`), Modas (`FASHION`) ou Varas de Pesca (`FISHING_ROD`).
+  * **Arquitetura Modular Conforme Regra #7:** Dados desacoplados em `twelve_level50_equipment_sets.json` e script de seed com apenas 183 linhas.
+* **Persistência, Cache e Validação:**
+  * Banco de dados PostgreSQL da VPS Azure sincronizado e 118 novos ícones espelhados em cache permanente (totalizando 344 ícones em cache).
+  * Snapshot canônico `lowcode.snapshot.json` atualizado para 2.16 MB com as 144 novas entradas em `item_templates` e 288 em `i18n_translations`.
+  * Total de equipamentos na rota `/admin` validado ao vivo: **372 equipamentos cadastrados**.
+
+---
+
 ## [v0.46.0] - 2026-11-14
 ### Montagem Declarativa de 12 Conjuntos Especializados de Nível 40 na Rota Admin (144 Peças de Combate Ponderadas A > B e B > A)
 * **Estruturação de 12 Novos Conjuntos Especializados de Nível 40 (`item_templates`, `i18n_translations`):**

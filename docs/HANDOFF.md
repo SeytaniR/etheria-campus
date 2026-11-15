@@ -8,16 +8,16 @@
 ---
 
 ## 📌 Status Atual do Projeto
-* **Versão Atual:** `v0.46.0`
+* **Versão Atual:** `v0.47.0`
 * **Última Atualização:** `2026-11-14`
-* **Fase Atual:** **Montagem Declarativa de 12 Conjuntos Especializados de Nível 40 na Rota Admin (144 Peças Ponderadas A > B e B > A) (`v0.46.0`)** — Cadastrados 144 novos equipamentos de Nível 40 cobrindo 12 conjuntos especializados nos 6 pares de classes originais com foco assimétrico (75% Classe A / 25% Classe B e vice-versa):
-  1) Ceifador Profano (Necromante > Barda) & Sinfonia Serena (Barda > Necromante)
-  2) Cataclismo Arcano (Mago > Curandeira) & Graça da Aurora (Curandeira > Mago)
-  3) Colosso de Aço (Guerreira > Lanceiro) & Lança dos Céus (Lanceiro > Guerreira)
-  4) Fio Soberano (Espadachim > Lutadora) & Punho de Fogo (Lutadora > Espadachim)
-  5) Julgamento Solar (Paladino > Caçadora) & Espreita Silvestre (Caçadora > Paladino)
-  6) Franco-Atirador Tático (Atirador > Assassino) & Lâmina Oculta (Assassino > Atirador).
-  Todos com 12 slots de combate para personagem, `requiredLevel: 40`, `reqClassCodesJson: []`, `priceGold: 0`, `isTradable: false`, `rarityTier: 'RARE'`, apenas `combatStatBonusesJson`, sem asas/modas/varas de pesca, e com ícones temáticos do `mcrework`. Total no `/admin` ampliado para **228 equipamentos**. PostgreSQL da VPS Azure sincronizado, 226 ícones cacheados e snapshot `lowcode.snapshot.json` atualizado. Todos os arquivos estritamente conformes com a Regra #7 (< 1.000 linhas).
+* **Fase Atual:** **Montagem Declarativa de 12 Conjuntos Épicos de Nível 50 na Rota Admin (144 Peças Mais Fortes) (`v0.47.0`)** — Cadastrados 144 novos equipamentos de Nível 50 com raridade `EPIC` e poder de combate substancialmente ampliado (+45% a +60% em relação ao Lv. 40), cobrindo 12 conjuntos especializados nos 6 pares de classes originais com foco assimétrico (75% Classe A / 25% Classe B e vice-versa):
+  1) Soberano Abissal (Necromante > Barda) & Melodia Imortal (Barda > Necromante)
+  2) Arquimago Primordial (Mago > Curandeira) & Transcendência Divina (Curandeira > Mago)
+  3) Baluarte dos Titãs (Guerreira > Lanceiro) & Cometa Perfurador (Lanceiro > Guerreira)
+  4) Lâmina Celestial (Espadachim > Lutadora) & Fúria do Dragão (Lutadora > Espadachim)
+  5) Cidadela Divina (Paladino > Caçadora) & Sentinela dos Ermos (Caçadora > Paladino)
+  6) Devastação Balística (Atirador > Assassino) & Espectro Letal (Assassino > Atirador).
+  Todos com 12 slots de combate para personagem, `requiredLevel: 50`, `reqClassCodesJson: []`, `priceGold: 0`, `isTradable: false`, `rarityTier: 'EPIC'`, apenas `combatStatBonusesJson`, sem asas/modas/varas de pesca, e com ícones temáticos dos tiers 07 e 08 do `mcrework`. Total de equipamentos no painel `/admin` ampliado para **372 equipamentos**. PostgreSQL da VPS Azure sincronizado, 344 ícones cacheados e snapshot `lowcode.snapshot.json` atualizado para 2.16 MB. Todos os arquivos estritamente conformes com a Regra #7 (< 1.000 linhas).
 * **Repositório Oficial:** `https://github.com/SeytaniR/etheria-campus`
 * **Fonte Bruta de Assets:** `https://github.com/SeytaniR/mcrework` (`https://seytanir.github.io/mcrework/`)
 
