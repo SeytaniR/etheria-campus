@@ -1,0 +1,2257 @@
+[
+  {
+    "code": "equip_lv60_eclipse_head",
+    "slot": "HEAD",
+    "namePtBr": "Coroa do Eclipse Cósmico",
+    "nameEn": "Cosmic Eclipse Crown",
+    "descPtBr": "Diadema forjado em platina estelar negra que canaliza a visão sombria do vácuo. [Conjunto Eclipse Cósmico: Lv. 60 (Lendário) - Necromante (75%) > Barda (25%)].",
+    "descEn": "Diadema forjado em platina estelar negra que canaliza a visão sombria do vácuo. [Cosmic Eclipse Set: Lv. 60 (Legendary) - Necromante (75%) > Barda (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_040309.png",
+    "combatStats": {
+      "MAG_ATK": 270,
+      "MAX_MP": 580,
+      "MAG_DEF": 140,
+      "CRIT_RATE": 60
+    }
+  },
+  {
+    "code": "equip_lv60_eclipse_shoulder",
+    "slot": "SHOULDER",
+    "namePtBr": "Mantos do Eclipse Cósmico",
+    "nameEn": "Cosmic Eclipse Mantles",
+    "descPtBr": "Ombreiras de seda sombria que absorvem feitiços rivais e desviam ataques mágicos. [Conjunto Eclipse Cósmico: Lv. 60 (Lendário) - Necromante (75%) > Barda (25%)].",
+    "descEn": "Ombreiras de seda sombria que absorvem feitiços rivais e desviam ataques mágicos. [Cosmic Eclipse Set: Lv. 60 (Legendary) - Necromante (75%) > Barda (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_040409.png",
+    "combatStats": {
+      "MAG_ATK": 200,
+      "MAX_MP": 440,
+      "MAG_DEF": 200,
+      "MAG_EVASION": 50
+    }
+  },
+  {
+    "code": "equip_lv60_eclipse_chest",
+    "slot": "CHEST",
+    "namePtBr": "Veste Maior do Eclipse Cósmico",
+    "nameEn": "Cosmic Eclipse Greater Robe",
+    "descPtBr": "Túnica forrada com runas ancestrais de dreno vital que renovam a vida a cada feitiço. [Conjunto Eclipse Cósmico: Lv. 60 (Lendário) - Necromante (75%) > Barda (25%)].",
+    "descEn": "Túnica forrada com runas ancestrais de dreno vital que renovam a vida a cada feitiço. [Cosmic Eclipse Set: Lv. 60 (Legendary) - Necromante (75%) > Barda (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_040509.png",
+    "combatStats": {
+      "MAG_ATK": 330,
+      "MAX_MP": 720,
+      "MAG_DEF": 260,
+      "HP_REGEN": 60
+    }
+  },
+  {
+    "code": "equip_lv60_eclipse_belt",
+    "slot": "BELT",
+    "namePtBr": "Faixa do Eclipse Cósmico",
+    "nameEn": "Cosmic Eclipse Sash",
+    "descPtBr": "Cinto com orbes gravitacionais que restauram mana continuamente durante o combate. [Conjunto Eclipse Cósmico: Lv. 60 (Lendário) - Necromante (75%) > Barda (25%)].",
+    "descEn": "Cinto com orbes gravitacionais que restauram mana continuamente durante o combate. [Cosmic Eclipse Set: Lv. 60 (Legendary) - Necromante (75%) > Barda (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_040609.png",
+    "combatStats": {
+      "MAG_ATK": 180,
+      "MAX_MP": 360,
+      "MP_REGEN": 35,
+      "MAG_DEF": 120
+    }
+  },
+  {
+    "code": "equip_lv60_eclipse_legs",
+    "slot": "LEGS",
+    "namePtBr": "Saiote do Eclipse Cósmico",
+    "nameEn": "Cosmic Eclipse Skirt",
+    "descPtBr": "Perneiras de éter escuro que silenciam passos e aumentam drasticamente a evasão mágica. [Conjunto Eclipse Cósmico: Lv. 60 (Lendário) - Necromante (75%) > Barda (25%)].",
+    "descEn": "Perneiras de éter escuro que silenciam passos e aumentam drasticamente a evasão mágica. [Cosmic Eclipse Set: Lv. 60 (Legendary) - Necromante (75%) > Barda (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_040709.png",
+    "combatStats": {
+      "MAG_ATK": 250,
+      "MAX_MP": 520,
+      "MAG_DEF": 210,
+      "MAG_EVASION": 60
+    }
+  },
+  {
+    "code": "equip_lv60_eclipse_feet",
+    "slot": "FEET",
+    "namePtBr": "Botas do Eclipse Cósmico",
+    "nameEn": "Cosmic Eclipse Boots",
+    "descPtBr": "Calçados que permitem deslizar sobre as sombras com velocidade e leveza inigualáveis. [Conjunto Eclipse Cósmico: Lv. 60 (Lendário) - Necromante (75%) > Barda (25%)].",
+    "descEn": "Calçados que permitem deslizar sobre as sombras com velocidade e leveza inigualáveis. [Cosmic Eclipse Set: Lv. 60 (Legendary) - Necromante (75%) > Barda (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_040809.png",
+    "combatStats": {
+      "MAG_ATK": 160,
+      "MAX_MP": 320,
+      "MAG_DEF": 160,
+      "BATTLE_MOVE_SPEED": 65,
+      "MAG_EVASION": 50
+    }
+  },
+  {
+    "code": "equip_lv60_eclipse_weapon1",
+    "slot": "WEAPON_1",
+    "namePtBr": "Báculo do Eclipse Cósmico",
+    "nameEn": "Cosmic Eclipse Staff",
+    "descPtBr": "Cetro lendário coroado por um núcleo estelar escuro pulsante de puro poder necrótico. [Conjunto Eclipse Cósmico: Lv. 60 (Lendário) - Necromante (75%) > Barda (25%)].",
+    "descEn": "Cetro lendário coroado por um núcleo estelar escuro pulsante de puro poder necrótico. [Cosmic Eclipse Set: Lv. 60 (Legendary) - Necromante (75%) > Barda (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_040116.png",
+    "combatStats": {
+      "MAG_ATK": 650,
+      "MAX_MP": 750,
+      "CRIT_RATE": 110,
+      "CRIT_DMG": 95,
+      "MAG_ACCURACY": 75
+    }
+  },
+  {
+    "code": "equip_lv60_eclipse_weapon2",
+    "slot": "WEAPON_2",
+    "namePtBr": "Tomo do Fim dos Tempos",
+    "nameEn": "End of Times Tome",
+    "descPtBr": "Grimório lendário com inscrições prohibidas de dreno vital que catalisam maldições mortais. [Conjunto Eclipse Cósmico: Lv. 60 (Lendário) - Necromante (75%) > Barda (25%)].",
+    "descEn": "Grimório lendário com inscrições prohibidas de dreno vital que catalisam maldições mortais. [Cosmic Eclipse Set: Lv. 60 (Legendary) - Necromante (75%) > Barda (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_040215.png",
+    "combatStats": {
+      "MAG_ATK": 420,
+      "MAG_DEF": 220,
+      "MAX_MP": 520,
+      "HP_REGEN": 55,
+      "MAG_ACCURACY": 60
+    }
+  },
+  {
+    "code": "equip_lv60_eclipse_ring",
+    "slot": "RING",
+    "namePtBr": "Anel do Eclipse Cósmico",
+    "nameEn": "Cosmic Eclipse Ring",
+    "descPtBr": "Aro de obsidiana estelar que suga a vitalidade dos inimigos a cada impacto arcano. [Conjunto Eclipse Cósmico: Lv. 60 (Lendário) - Necromante (75%) > Barda (25%)].",
+    "descEn": "Aro de obsidiana estelar que suga a vitalidade dos inimigos a cada impacto arcano. [Cosmic Eclipse Set: Lv. 60 (Legendary) - Necromante (75%) > Barda (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_011009.png",
+    "combatStats": {
+      "MAG_ATK": 200,
+      "MAX_MP": 380,
+      "CRIT_RATE": 80,
+      "HP_REGEN": 35
+    }
+  },
+  {
+    "code": "equip_lv60_eclipse_necklace",
+    "slot": "NECKLACE",
+    "namePtBr": "Colar do Eclipse Cósmico",
+    "nameEn": "Cosmic Eclipse Necklace",
+    "descPtBr": "Gargantilha de ônix astral que intensifica dano crítico e precisão mágica. [Conjunto Eclipse Cósmico: Lv. 60 (Lendário) - Necromante (75%) > Barda (25%)].",
+    "descEn": "Gargantilha de ônix astral que intensifica dano crítico e precisão mágica. [Cosmic Eclipse Set: Lv. 60 (Legendary) - Necromante (75%) > Barda (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_010909.png",
+    "combatStats": {
+      "MAG_ATK": 220,
+      "MAX_MP": 450,
+      "CRIT_DMG": 75,
+      "MAG_ACCURACY": 50
+    }
+  },
+  {
+    "code": "equip_lv60_eclipse_ornament1",
+    "slot": "ORNAMENT_1",
+    "namePtBr": "Talismã do Eclipse Cósmico",
+    "nameEn": "Cosmic Eclipse Talisman",
+    "descPtBr": "Relíquia estelar que curva os raios de luz e garante precisão mágica absoluta. [Conjunto Eclipse Cósmico: Lv. 60 (Lendário) - Necromante (75%) > Barda (25%)].",
+    "descEn": "Relíquia estelar que curva os raios de luz e garante precisão mágica absoluta. [Cosmic Eclipse Set: Lv. 60 (Legendary) - Necromante (75%) > Barda (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_011109.png",
+    "combatStats": {
+      "MAG_ATK": 170,
+      "MAX_MP": 330,
+      "MAG_ACCURACY": 60,
+      "MP_REGEN": 30
+    }
+  },
+  {
+    "code": "equip_lv60_eclipse_ornament2",
+    "slot": "ORNAMENT_2",
+    "namePtBr": "Orbe das Almas do Eclipse",
+    "nameEn": "Eclipse Souls Orb",
+    "descPtBr": "Esfera condensada de almas estelares que regenera vida continuamente. [Conjunto Eclipse Cósmico: Lv. 60 (Lendário) - Necromante (75%) > Barda (25%)].",
+    "descEn": "Esfera condensada de almas estelares que regenera vida continuamente. [Cosmic Eclipse Set: Lv. 60 (Legendary) - Necromante (75%) > Barda (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_011209.png",
+    "combatStats": {
+      "MAG_ATK": 170,
+      "MAX_MP": 330,
+      "HP_REGEN": 55,
+      "BATTLE_MOVE_SPEED": 25
+    }
+  },
+  {
+    "code": "equip_lv60_starharmony_head",
+    "slot": "HEAD",
+    "namePtBr": "Diadema da Harmonia Estelar",
+    "nameEn": "Star Harmony Circlet",
+    "descPtBr": "Coroa cintilante com gemas celestes que amplifica o alcance vocal e a clareza melódica. [Conjunto Harmonia Estelar: Lv. 60 (Lendário) - Barda (75%) > Necromante (25%)].",
+    "descEn": "Coroa cintilante com gemas celestes que amplifica o alcance vocal e a clareza melódica. [Star Harmony Set: Lv. 60 (Legendary) - Barda (75%) > Necromante (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_040310.png",
+    "combatStats": {
+      "MAG_ATK": 230,
+      "HEAL_POWER": 180,
+      "MAG_DEF": 130,
+      "MAX_MP": 550,
+      "CRIT_RATE": 50
+    }
+  },
+  {
+    "code": "equip_lv60_starharmony_shoulder",
+    "slot": "SHOULDER",
+    "namePtBr": "Estola da Harmonia Estelar",
+    "nameEn": "Star Harmony Stole",
+    "descPtBr": "Manto de gala bordado em fios de prata que dissipa feitiços hostis com harmonias sonoras. [Conjunto Harmonia Estelar: Lv. 60 (Lendário) - Barda (75%) > Necromante (25%)].",
+    "descEn": "Manto de gala bordado em fios de prata que dissipa feitiços hostis com harmonias sonoras. [Star Harmony Set: Lv. 60 (Legendary) - Barda (75%) > Necromante (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_040410.png",
+    "combatStats": {
+      "MAG_ATK": 180,
+      "HEAL_POWER": 150,
+      "MAG_DEF": 190,
+      "MAX_MP": 420,
+      "MAG_EVASION": 50
+    }
+  },
+  {
+    "code": "equip_lv60_starharmony_chest",
+    "slot": "CHEST",
+    "namePtBr": "Veste de Gala da Harmonia Estelar",
+    "nameEn": "Star Harmony Gala Robe",
+    "descPtBr": "Vestimenta ressonante que restaura a mana do bardo e amplia a regeneração da equipe. [Conjunto Harmonia Estelar: Lv. 60 (Lendário) - Barda (75%) > Necromante (25%)].",
+    "descEn": "Vestimenta ressonante que restaura a mana do bardo e amplia a regeneração da equipe. [Star Harmony Set: Lv. 60 (Legendary) - Barda (75%) > Necromante (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_040510.png",
+    "combatStats": {
+      "MAG_ATK": 280,
+      "HEAL_POWER": 220,
+      "MAG_DEF": 240,
+      "MP_REGEN": 40,
+      "MAX_MP": 680
+    }
+  },
+  {
+    "code": "equip_lv60_starharmony_belt",
+    "slot": "BELT",
+    "namePtBr": "Faixa Rítmica da Harmonia Estelar",
+    "nameEn": "Star Harmony Rhythm Sash",
+    "descPtBr": "Cinto com sinos arcanos que mantém a cadência de conjuração e o fluxo de energia ininterruptos. [Conjunto Harmonia Estelar: Lv. 60 (Lendário) - Barda (75%) > Necromante (25%)].",
+    "descEn": "Cinto com sinos arcanos que mantém a cadência de conjuração e o fluxo de energia ininterruptos. [Star Harmony Set: Lv. 60 (Legendary) - Barda (75%) > Necromante (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_040610.png",
+    "combatStats": {
+      "MAG_ATK": 160,
+      "HEAL_POWER": 130,
+      "MP_REGEN": 35,
+      "MAG_DEF": 110,
+      "MAX_MP": 350
+    }
+  },
+  {
+    "code": "equip_lv60_starharmony_legs",
+    "slot": "LEGS",
+    "namePtBr": "Saiote Ressoante da Harmonia Estelar",
+    "nameEn": "Star Harmony Resonant Skirt",
+    "descPtBr": "Perneiras flexíveis que facilitam movimentos evasivos graciosos durante a canção. [Conjunto Harmonia Estelar: Lv. 60 (Lendário) - Barda (75%) > Necromante (25%)].",
+    "descEn": "Perneiras flexíveis que facilitam movimentos evasivos graciosos durante a canção. [Star Harmony Set: Lv. 60 (Legendary) - Barda (75%) > Necromante (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_040710.png",
+    "combatStats": {
+      "MAG_ATK": 220,
+      "HEAL_POWER": 170,
+      "MAG_DEF": 190,
+      "MAX_MP": 480,
+      "MAG_EVASION": 55
+    }
+  },
+  {
+    "code": "equip_lv60_starharmony_feet",
+    "slot": "FEET",
+    "namePtBr": "Botas Ágeis da Harmonia Estelar",
+    "nameEn": "Star Harmony Agile Boots",
+    "descPtBr": "Calçados leves encantados com o vento que proporcionam locomoção ultra veloz na arena. [Conjunto Harmonia Estelar: Lv. 60 (Lendário) - Barda (75%) > Necromante (25%)].",
+    "descEn": "Calçados leves encantados com o vento que proporcionam locomoção ultra veloz na arena. [Star Harmony Set: Lv. 60 (Legendary) - Barda (75%) > Necromante (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_040810.png",
+    "combatStats": {
+      "MAG_ATK": 150,
+      "HEAL_POWER": 120,
+      "MAG_DEF": 140,
+      "BATTLE_MOVE_SPEED": 85,
+      "MAG_EVASION": 45
+    }
+  },
+  {
+    "code": "equip_lv60_starharmony_weapon1",
+    "slot": "WEAPON_1",
+    "namePtBr": "Alaúde da Harmonia Cósmica",
+    "nameEn": "Cosmic Harmony Lute",
+    "descPtBr": "Instrumento divino esculpido em madeira astral com cordas de luz que canalizam canções radiantes. [Conjunto Harmonia Estelar: Lv. 60 (Lendário) - Barda (75%) > Necromante (25%)].",
+    "descEn": "Instrumento divino esculpido em madeira astral com cordas de luz que canalizam canções radiantes. [Star Harmony Set: Lv. 60 (Legendary) - Barda (75%) > Necromante (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_020116.png",
+    "combatStats": {
+      "MAG_ATK": 580,
+      "HEAL_POWER": 360,
+      "ATTACK_SPEED": 0.7,
+      "BATTLE_MOVE_SPEED": 70,
+      "MAX_MP": 650
+    }
+  },
+  {
+    "code": "equip_lv60_starharmony_weapon2",
+    "slot": "WEAPON_2",
+    "namePtBr": "Flauta Celestial de Éter",
+    "nameEn": "Celestial Ether Flute",
+    "descPtBr": "Instrumento de sopro cristalino que tece acordes curativos e protege contra energias necróticas. [Conjunto Harmonia Estelar: Lv. 60 (Lendário) - Barda (75%) > Necromante (25%)].",
+    "descEn": "Instrumento de sopro cristalino que tece acordes curativos e protege contra energias necróticas. [Star Harmony Set: Lv. 60 (Legendary) - Barda (75%) > Necromante (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_020214.png",
+    "combatStats": {
+      "MAG_ATK": 380,
+      "HEAL_POWER": 240,
+      "MP_REGEN": 45,
+      "MAG_DEF": 190,
+      "MAX_MP": 450
+    }
+  },
+  {
+    "code": "equip_lv60_starharmony_ring",
+    "slot": "RING",
+    "namePtBr": "Aliança da Harmonia Estelar",
+    "nameEn": "Star Harmony Ring",
+    "descPtBr": "Aro com safiras cintilantes que recupera mana em cascata e eleva a chance crítica mágica. [Conjunto Harmonia Estelar: Lv. 60 (Lendário) - Barda (75%) > Necromante (25%)].",
+    "descEn": "Aro com safiras cintilantes que recupera mana em cascata e eleva a chance crítica mágica. [Star Harmony Set: Lv. 60 (Legendary) - Barda (75%) > Necromante (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_001009.png",
+    "combatStats": {
+      "MAG_ATK": 180,
+      "HEAL_POWER": 140,
+      "MP_REGEN": 30,
+      "CRIT_RATE": 70,
+      "MAX_MP": 360
+    }
+  },
+  {
+    "code": "equip_lv60_starharmony_necklace",
+    "slot": "NECKLACE",
+    "namePtBr": "Gargantilha da Harmonia Estelar",
+    "nameEn": "Star Harmony Choker",
+    "descPtBr": "Colar afinado na frequência das esferas celestiais que amplia o poder restaurador de feitiços. [Conjunto Harmonia Estelar: Lv. 60 (Lendário) - Barda (75%) > Necromante (25%)].",
+    "descEn": "Colar afinado na frequência das esferas celestiais que amplia o poder restaurador de feitiços. [Star Harmony Set: Lv. 60 (Legendary) - Barda (75%) > Necromante (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_000909.png",
+    "combatStats": {
+      "MAG_ATK": 200,
+      "HEAL_POWER": 160,
+      "MP_REGEN": 35,
+      "MAX_MP": 420,
+      "BATTLE_MOVE_SPEED": 60
+    }
+  },
+  {
+    "code": "equip_lv60_starharmony_ornament1",
+    "slot": "ORNAMENT_1",
+    "namePtBr": "Diapasão da Harmonia Estelar",
+    "nameEn": "Star Harmony Tuning Fork",
+    "descPtBr": "Sintonizador ressonante de éter que afina os feitiços com velocidade e precisão melódica. [Conjunto Harmonia Estelar: Lv. 60 (Lendário) - Barda (75%) > Necromante (25%)].",
+    "descEn": "Sintonizador ressonante de éter que afina os feitiços com velocidade e precisão melódica. [Star Harmony Set: Lv. 60 (Legendary) - Barda (75%) > Necromante (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_001109.png",
+    "combatStats": {
+      "MAG_ATK": 160,
+      "HEAL_POWER": 130,
+      "BATTLE_MOVE_SPEED": 45,
+      "MP_REGEN": 25
+    }
+  },
+  {
+    "code": "equip_lv60_starharmony_ornament2",
+    "slot": "ORNAMENT_2",
+    "namePtBr": "Partitura das Nove Esferas",
+    "nameEn": "Nine Spheres Sheet",
+    "descPtBr": "Notas celestes transcritas que concedem evasão mágica reflexiva em situações críticas. [Conjunto Harmonia Estelar: Lv. 60 (Lendário) - Barda (75%) > Necromante (25%)].",
+    "descEn": "Notas celestes transcritas que concedem evasão mágica reflexiva em situações críticas. [Star Harmony Set: Lv. 60 (Legendary) - Barda (75%) > Necromante (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_001209.png",
+    "combatStats": {
+      "MAG_ATK": 160,
+      "HEAL_POWER": 130,
+      "MAG_EVASION": 50,
+      "MP_REGEN": 25
+    }
+  },
+  {
+    "code": "equip_lv60_singularity_head",
+    "slot": "HEAD",
+    "namePtBr": "Elmo do Singularidade Cósmica",
+    "nameEn": "Cosmic Singularity Helm",
+    "descPtBr": "Proteção craniana lendária forjada para campeões veteranos. [Conjunto Singularidade Cósmica: Lv. 60 (Lendário) - Mago (75%) > Curandeira (25%)].",
+    "descEn": "Legendary headgear forged for veteran champions. [Cosmic Singularity Set: Lv. 60 (Legendary) - Mago (75%) > Curandeira (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_030309.png",
+    "combatStats": {
+      "MAG_ATK": 290,
+      "MAX_MP": 620,
+      "MAG_DEF": 140,
+      "CRIT_RATE": 70
+    }
+  },
+  {
+    "code": "equip_lv60_singularity_shoulder",
+    "slot": "SHOULDER",
+    "namePtBr": "Ombreiras do Singularidade Cósmica",
+    "nameEn": "Cosmic Singularity Pauldrons",
+    "descPtBr": "Espaldares reforçados que defletem impactos e estabilizam postura marcial. [Conjunto Singularidade Cósmica: Lv. 60 (Lendário) - Mago (75%) > Curandeira (25%)].",
+    "descEn": "Reinforced pauldrons that deflect strikes and stabilize battle posture. [Cosmic Singularity Set: Lv. 60 (Legendary) - Mago (75%) > Curandeira (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_030409.png",
+    "combatStats": {
+      "MAG_ATK": 220,
+      "MAX_MP": 480,
+      "MAG_DEF": 200,
+      "MAG_PEN": 50
+    }
+  },
+  {
+    "code": "equip_lv60_singularity_chest",
+    "slot": "CHEST",
+    "namePtBr": "Peitoral do Singularidade Cósmica",
+    "nameEn": "Cosmic Singularity Chestplate",
+    "descPtBr": "Armadura de tronco sublime com resistência física e mágica incomparáveis. [Conjunto Singularidade Cósmica: Lv. 60 (Lendário) - Mago (75%) > Curandeira (25%)].",
+    "descEn": "Sublime torso armor granting unmatched physical and magical defense. [Cosmic Singularity Set: Lv. 60 (Legendary) - Mago (75%) > Curandeira (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_030509.png",
+    "combatStats": {
+      "MAG_ATK": 360,
+      "MAX_MP": 780,
+      "MAG_DEF": 250,
+      "MAG_PEN": 70
+    }
+  },
+  {
+    "code": "equip_lv60_singularity_belt",
+    "slot": "BELT",
+    "namePtBr": "Cinto do Singularidade Cósmica",
+    "nameEn": "Cosmic Singularity Belt",
+    "descPtBr": "Cinturão reforçado com placas rúnicas para equilíbrio perfeito em combate. [Conjunto Singularidade Cósmica: Lv. 60 (Lendário) - Mago (75%) > Curandeira (25%)].",
+    "descEn": "Reinforced belt with runic plating for ideal combat equilibrium. [Cosmic Singularity Set: Lv. 60 (Legendary) - Mago (75%) > Curandeira (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_030609.png",
+    "combatStats": {
+      "MAG_ATK": 190,
+      "MAX_MP": 400,
+      "MP_REGEN": 35,
+      "MAG_DEF": 120
+    }
+  },
+  {
+    "code": "equip_lv60_singularity_legs",
+    "slot": "LEGS",
+    "namePtBr": "Grevas do Singularidade Cósmica",
+    "nameEn": "Cosmic Singularity Greaves",
+    "descPtBr": "Perneiras articuladas de alta mobilidade e absorção de choque contínuo. [Conjunto Singularidade Cósmica: Lv. 60 (Lendário) - Mago (75%) > Curandeira (25%)].",
+    "descEn": "Articulated greaves providing high mobility and continuous shock absorption. [Cosmic Singularity Set: Lv. 60 (Legendary) - Mago (75%) > Curandeira (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_030709.png",
+    "combatStats": {
+      "MAG_ATK": 270,
+      "MAX_MP": 560,
+      "MAG_DEF": 210,
+      "MAG_PEN": 60
+    }
+  },
+  {
+    "code": "equip_lv60_singularity_feet",
+    "slot": "FEET",
+    "namePtBr": "Botas do Singularidade Cósmica",
+    "nameEn": "Cosmic Singularity Boots",
+    "descPtBr": "Calçados lendários que conferem propulsão e agilidade suprema em terreno hostil. [Conjunto Singularidade Cósmica: Lv. 60 (Lendário) - Mago (75%) > Curandeira (25%)].",
+    "descEn": "Legendary footwear providing supreme speed and propulsion across hostile terrain. [Cosmic Singularity Set: Lv. 60 (Legendary) - Mago (75%) > Curandeira (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_030809.png",
+    "combatStats": {
+      "MAG_ATK": 170,
+      "MAX_MP": 360,
+      "MAG_DEF": 160,
+      "BATTLE_MOVE_SPEED": 65,
+      "MAG_EVASION": 50
+    }
+  },
+  {
+    "code": "equip_lv60_singularity_weapon1",
+    "slot": "WEAPON_1",
+    "namePtBr": "Cetro da Singularidade Cósmica",
+    "nameEn": "Cosmic Singularity Scepter",
+    "descPtBr": "Arma primária lendária consagrada nas mais ferozes guerras divinas. [Conjunto Singularidade Cósmica: Lv. 60 (Lendário) - Mago (75%) > Curandeira (25%)].",
+    "descEn": "Legendary primary weapon consecrated in the fiercest divine wars. [Cosmic Singularity Set: Lv. 60 (Legendary) - Mago (75%) > Curandeira (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_030116.png",
+    "combatStats": {
+      "MAG_ATK": 740,
+      "MAX_MP": 800,
+      "CRIT_RATE": 120,
+      "CRIT_DMG": 105,
+      "MAG_ACCURACY": 85
+    }
+  },
+  {
+    "code": "equip_lv60_singularity_weapon2",
+    "slot": "WEAPON_2",
+    "namePtBr": "Orbe da Singularidade Absoluta",
+    "nameEn": "Absolute Singularity Orb",
+    "descPtBr": "Armamento secundário lendário perfeitamente balanceado para máxima eficácia tática. [Conjunto Singularidade Cósmica: Lv. 60 (Lendário) - Mago (75%) > Curandeira (25%)].",
+    "descEn": "Legendary secondary equipment perfectly balanced for maximum tactical efficiency. [Cosmic Singularity Set: Lv. 60 (Legendary) - Mago (75%) > Curandeira (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_030214.png",
+    "combatStats": {
+      "MAG_ATK": 460,
+      "MAG_DEF": 200,
+      "MAX_MP": 580,
+      "MAG_PEN": 80,
+      "MAG_ACCURACY": 65
+    }
+  },
+  {
+    "code": "equip_lv60_singularity_ring",
+    "slot": "RING",
+    "namePtBr": "Anel do Singularidade Cósmica",
+    "nameEn": "Cosmic Singularity Ring",
+    "descPtBr": "Joia lendária incrustada com essência cósmica que aprimora o poder de batalha. [Conjunto Singularidade Cósmica: Lv. 60 (Lendário) - Mago (75%) > Curandeira (25%)].",
+    "descEn": "Legendary ring encrusted with cosmic essence boosting combat prowess. [Cosmic Singularity Set: Lv. 60 (Legendary) - Mago (75%) > Curandeira (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_011010.png",
+    "combatStats": {
+      "MAG_ATK": 210,
+      "MAX_MP": 420,
+      "CRIT_RATE": 85,
+      "MAG_PEN": 50
+    }
+  },
+  {
+    "code": "equip_lv60_singularity_necklace",
+    "slot": "NECKLACE",
+    "namePtBr": "Colar do Singularidade Cósmica",
+    "nameEn": "Cosmic Singularity Necklace",
+    "descPtBr": "Amuleto sagrado que amplia atributos ofensivos e letalidade de golpes. [Conjunto Singularidade Cósmica: Lv. 60 (Lendário) - Mago (75%) > Curandeira (25%)].",
+    "descEn": "Sacred necklace amplifying offensive attributes and critical strike power. [Cosmic Singularity Set: Lv. 60 (Legendary) - Mago (75%) > Curandeira (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_010910.png",
+    "combatStats": {
+      "MAG_ATK": 230,
+      "MAX_MP": 480,
+      "CRIT_DMG": 80,
+      "MAG_ACCURACY": 55
+    }
+  },
+  {
+    "code": "equip_lv60_singularity_ornament1",
+    "slot": "ORNAMENT_1",
+    "namePtBr": "Ornamento Tático do Singularidade Cósmica",
+    "nameEn": "Cosmic Singularity Tactical Ornament",
+    "descPtBr": "Acessório tático lendário que aperfeiçoa reflexos, precisão e velocidade. [Conjunto Singularidade Cósmica: Lv. 60 (Lendário) - Mago (75%) > Curandeira (25%)].",
+    "descEn": "Tactical legendary ornament improving reflexes, accuracy, and quickness. [Cosmic Singularity Set: Lv. 60 (Legendary) - Mago (75%) > Curandeira (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_011110.png",
+    "combatStats": {
+      "MAG_ATK": 180,
+      "MAX_MP": 360,
+      "MAG_ACCURACY": 65,
+      "MAG_PEN": 50
+    }
+  },
+  {
+    "code": "equip_lv60_singularity_ornament2",
+    "slot": "ORNAMENT_2",
+    "namePtBr": "Insígnia dos Deuses do Singularidade Cósmica",
+    "nameEn": "Cosmic Singularity Gods Insignia",
+    "descPtBr": "Selo de glória que canaliza a bênção dos deuses ancestrais de Etheria. [Conjunto Singularidade Cósmica: Lv. 60 (Lendário) - Mago (75%) > Curandeira (25%)].",
+    "descEn": "Glory crest channeling the blessings of ancient Etherian gods. [Cosmic Singularity Set: Lv. 60 (Legendary) - Mago (75%) > Curandeira (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_011210.png",
+    "combatStats": {
+      "MAG_ATK": 180,
+      "MAX_MP": 360,
+      "CRIT_DMG": 70,
+      "BATTLE_MOVE_SPEED": 30
+    }
+  },
+  {
+    "code": "equip_lv60_redemption_head",
+    "slot": "HEAD",
+    "namePtBr": "Elmo do Redenção Divina",
+    "nameEn": "Divine Redemption Helm",
+    "descPtBr": "Proteção craniana lendária forjada para campeões veteranos. [Conjunto Redenção Divina: Lv. 60 (Lendário) - Curandeira (75%) > Mago (25%)].",
+    "descEn": "Legendary headgear forged for veteran champions. [Divine Redemption Set: Lv. 60 (Legendary) - Curandeira (75%) > Mago (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_030310.png",
+    "combatStats": {
+      "MAG_ATK": 220,
+      "HEAL_POWER": 250,
+      "MAG_DEF": 180,
+      "PHYS_DEF": 150,
+      "MAX_HP": 850
+    }
+  },
+  {
+    "code": "equip_lv60_redemption_shoulder",
+    "slot": "SHOULDER",
+    "namePtBr": "Ombreiras do Redenção Divina",
+    "nameEn": "Divine Redemption Pauldrons",
+    "descPtBr": "Espaldares reforçados que defletem impactos e estabilizam postura marcial. [Conjunto Redenção Divina: Lv. 60 (Lendário) - Curandeira (75%) > Mago (25%)].",
+    "descEn": "Reinforced pauldrons that deflect strikes and stabilize battle posture. [Divine Redemption Set: Lv. 60 (Legendary) - Curandeira (75%) > Mago (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_030410.png",
+    "combatStats": {
+      "MAG_ATK": 170,
+      "HEAL_POWER": 200,
+      "MAG_DEF": 220,
+      "PHYS_DEF": 170,
+      "MAX_HP": 650
+    }
+  },
+  {
+    "code": "equip_lv60_redemption_chest",
+    "slot": "CHEST",
+    "namePtBr": "Peitoral do Redenção Divina",
+    "nameEn": "Divine Redemption Chestplate",
+    "descPtBr": "Armadura de tronco sublime com resistência física e mágica incomparáveis. [Conjunto Redenção Divina: Lv. 60 (Lendário) - Curandeira (75%) > Mago (25%)].",
+    "descEn": "Sublime torso armor granting unmatched physical and magical defense. [Divine Redemption Set: Lv. 60 (Legendary) - Curandeira (75%) > Mago (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_030510.png",
+    "combatStats": {
+      "MAG_ATK": 260,
+      "HEAL_POWER": 310,
+      "MAG_DEF": 280,
+      "PHYS_DEF": 220,
+      "MAX_HP": 1100
+    }
+  },
+  {
+    "code": "equip_lv60_redemption_belt",
+    "slot": "BELT",
+    "namePtBr": "Cinto do Redenção Divina",
+    "nameEn": "Divine Redemption Belt",
+    "descPtBr": "Cinturão reforçado com placas rúnicas para equilíbrio perfeito em combate. [Conjunto Redenção Divina: Lv. 60 (Lendário) - Curandeira (75%) > Mago (25%)].",
+    "descEn": "Reinforced belt with runic plating for ideal combat equilibrium. [Divine Redemption Set: Lv. 60 (Legendary) - Curandeira (75%) > Mago (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_030610.png",
+    "combatStats": {
+      "MAG_ATK": 150,
+      "HEAL_POWER": 170,
+      "MP_REGEN": 45,
+      "MAG_DEF": 160,
+      "MAX_HP": 550
+    }
+  },
+  {
+    "code": "equip_lv60_redemption_legs",
+    "slot": "LEGS",
+    "namePtBr": "Grevas do Redenção Divina",
+    "nameEn": "Divine Redemption Greaves",
+    "descPtBr": "Perneiras articuladas de alta mobilidade e absorção de choque contínuo. [Conjunto Redenção Divina: Lv. 60 (Lendário) - Curandeira (75%) > Mago (25%)].",
+    "descEn": "Articulated greaves providing high mobility and continuous shock absorption. [Divine Redemption Set: Lv. 60 (Legendary) - Curandeira (75%) > Mago (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_030710.png",
+    "combatStats": {
+      "MAG_ATK": 210,
+      "HEAL_POWER": 240,
+      "MAG_DEF": 240,
+      "PHYS_DEF": 180,
+      "MAX_HP": 750
+    }
+  },
+  {
+    "code": "equip_lv60_redemption_feet",
+    "slot": "FEET",
+    "namePtBr": "Botas do Redenção Divina",
+    "nameEn": "Divine Redemption Boots",
+    "descPtBr": "Calçados lendários que conferem propulsão e agilidade suprema em terreno hostil. [Conjunto Redenção Divina: Lv. 60 (Lendário) - Curandeira (75%) > Mago (25%)].",
+    "descEn": "Legendary footwear providing supreme speed and propulsion across hostile terrain. [Divine Redemption Set: Lv. 60 (Legendary) - Curandeira (75%) > Mago (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_030810.png",
+    "combatStats": {
+      "MAG_ATK": 140,
+      "HEAL_POWER": 160,
+      "MAG_DEF": 180,
+      "PHYS_DEF": 140,
+      "BATTLE_MOVE_SPEED": 60
+    }
+  },
+  {
+    "code": "equip_lv60_redemption_weapon1",
+    "slot": "WEAPON_1",
+    "namePtBr": "Báculo da Redenção Divina",
+    "nameEn": "Divine Redemption Staff",
+    "descPtBr": "Arma primária lendária consagrada nas mais ferozes guerras divinas. [Conjunto Redenção Divina: Lv. 60 (Lendário) - Curandeira (75%) > Mago (25%)].",
+    "descEn": "Legendary primary weapon consecrated in the fiercest divine wars. [Divine Redemption Set: Lv. 60 (Legendary) - Curandeira (75%) > Mago (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_030117.png",
+    "combatStats": {
+      "MAG_ATK": 550,
+      "HEAL_POWER": 520,
+      "MAX_MP": 850,
+      "MAG_DEF": 280,
+      "MP_REGEN": 50
+    }
+  },
+  {
+    "code": "equip_lv60_redemption_weapon2",
+    "slot": "WEAPON_2",
+    "namePtBr": "Relicário da Redenção Suprema",
+    "nameEn": "Supreme Redemption Reliquary",
+    "descPtBr": "Armamento secundário lendário perfeitamente balanceado para máxima eficácia tática. [Conjunto Redenção Divina: Lv. 60 (Lendário) - Curandeira (75%) > Mago (25%)].",
+    "descEn": "Legendary secondary equipment perfectly balanced for maximum tactical efficiency. [Divine Redemption Set: Lv. 60 (Legendary) - Curandeira (75%) > Mago (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_030215.png",
+    "combatStats": {
+      "MAG_ATK": 350,
+      "HEAL_POWER": 340,
+      "PHYS_DEF": 260,
+      "MAG_DEF": 290,
+      "MAX_HP": 600
+    }
+  },
+  {
+    "code": "equip_lv60_redemption_ring",
+    "slot": "RING",
+    "namePtBr": "Anel do Redenção Divina",
+    "nameEn": "Divine Redemption Ring",
+    "descPtBr": "Joia lendária incrustada com essência cósmica que aprimora o poder de batalha. [Conjunto Redenção Divina: Lv. 60 (Lendário) - Curandeira (75%) > Mago (25%)].",
+    "descEn": "Legendary ring encrusted with cosmic essence boosting combat prowess. [Divine Redemption Set: Lv. 60 (Legendary) - Curandeira (75%) > Mago (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_001010.png",
+    "combatStats": {
+      "MAG_ATK": 170,
+      "HEAL_POWER": 190,
+      "MP_REGEN": 40,
+      "MAG_DEF": 200,
+      "MAX_HP": 500
+    }
+  },
+  {
+    "code": "equip_lv60_redemption_necklace",
+    "slot": "NECKLACE",
+    "namePtBr": "Colar do Redenção Divina",
+    "nameEn": "Divine Redemption Necklace",
+    "descPtBr": "Amuleto sagrado que amplia atributos ofensivos e letalidade de golpes. [Conjunto Redenção Divina: Lv. 60 (Lendário) - Curandeira (75%) > Mago (25%)].",
+    "descEn": "Sacred necklace amplifying offensive attributes and critical strike power. [Divine Redemption Set: Lv. 60 (Legendary) - Curandeira (75%) > Mago (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_000910.png",
+    "combatStats": {
+      "MAG_ATK": 190,
+      "HEAL_POWER": 220,
+      "MP_REGEN": 45,
+      "MAG_DEF": 220,
+      "MAX_HP": 550
+    }
+  },
+  {
+    "code": "equip_lv60_redemption_ornament1",
+    "slot": "ORNAMENT_1",
+    "namePtBr": "Ornamento Tático do Redenção Divina",
+    "nameEn": "Divine Redemption Tactical Ornament",
+    "descPtBr": "Acessório tático lendário que aperfeiçoa reflexos, precisão e velocidade. [Conjunto Redenção Divina: Lv. 60 (Lendário) - Curandeira (75%) > Mago (25%)].",
+    "descEn": "Tactical legendary ornament improving reflexes, accuracy, and quickness. [Divine Redemption Set: Lv. 60 (Legendary) - Curandeira (75%) > Mago (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_001110.png",
+    "combatStats": {
+      "MAG_ATK": 150,
+      "HEAL_POWER": 170,
+      "HP_REGEN": 60,
+      "MP_REGEN": 35
+    }
+  },
+  {
+    "code": "equip_lv60_redemption_ornament2",
+    "slot": "ORNAMENT_2",
+    "namePtBr": "Insígnia dos Deuses do Redenção Divina",
+    "nameEn": "Divine Redemption Gods Insignia",
+    "descPtBr": "Selo de glória que canaliza a bênção dos deuses ancestrais de Etheria. [Conjunto Redenção Divina: Lv. 60 (Lendário) - Curandeira (75%) > Mago (25%)].",
+    "descEn": "Glory crest channeling the blessings of ancient Etherian gods. [Divine Redemption Set: Lv. 60 (Legendary) - Curandeira (75%) > Mago (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_001210.png",
+    "combatStats": {
+      "MAG_ATK": 150,
+      "HEAL_POWER": 170,
+      "MAG_DEF": 180,
+      "BATTLE_MOVE_SPEED": 30
+    }
+  },
+  {
+    "code": "equip_lv60_berserker_head",
+    "slot": "HEAD",
+    "namePtBr": "Elmo do Berserker Imortal",
+    "nameEn": "Immortal Berserker Helm",
+    "descPtBr": "Proteção craniana lendária forjada para campeões veteranos. [Conjunto Berserker Imortal: Lv. 60 (Lendário) - Guerreira (75%) > Lanceiro (25%)].",
+    "descEn": "Legendary headgear forged for veteran champions. [Immortal Berserker Set: Lv. 60 (Legendary) - Guerreira (75%) > Lanceiro (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_010309.png",
+    "combatStats": {
+      "PHYS_DEF": 310,
+      "MAG_DEF": 200,
+      "MAX_HP": 1200,
+      "PHYS_ATK": 130,
+      "HP_REGEN": 60
+    }
+  },
+  {
+    "code": "equip_lv60_berserker_shoulder",
+    "slot": "SHOULDER",
+    "namePtBr": "Ombreiras do Berserker Imortal",
+    "nameEn": "Immortal Berserker Pauldrons",
+    "descPtBr": "Espaldares reforçados que defletem impactos e estabilizam postura marcial. [Conjunto Berserker Imortal: Lv. 60 (Lendário) - Guerreira (75%) > Lanceiro (25%)].",
+    "descEn": "Reinforced pauldrons that deflect strikes and stabilize battle posture. [Immortal Berserker Set: Lv. 60 (Legendary) - Guerreira (75%) > Lanceiro (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_010409.png",
+    "combatStats": {
+      "PHYS_DEF": 240,
+      "MAG_DEF": 160,
+      "MAX_HP": 950,
+      "PHYS_ATK": 100
+    }
+  },
+  {
+    "code": "equip_lv60_berserker_chest",
+    "slot": "CHEST",
+    "namePtBr": "Peitoral do Berserker Imortal",
+    "nameEn": "Immortal Berserker Chestplate",
+    "descPtBr": "Armadura de tronco sublime com resistência física e mágica incomparáveis. [Conjunto Berserker Imortal: Lv. 60 (Lendário) - Guerreira (75%) > Lanceiro (25%)].",
+    "descEn": "Sublime torso armor granting unmatched physical and magical defense. [Immortal Berserker Set: Lv. 60 (Legendary) - Guerreira (75%) > Lanceiro (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_010509.png",
+    "combatStats": {
+      "PHYS_DEF": 390,
+      "MAG_DEF": 260,
+      "MAX_HP": 1600,
+      "PHYS_ATK": 160,
+      "HP_REGEN": 80
+    }
+  },
+  {
+    "code": "equip_lv60_berserker_belt",
+    "slot": "BELT",
+    "namePtBr": "Cinto do Berserker Imortal",
+    "nameEn": "Immortal Berserker Belt",
+    "descPtBr": "Cinturão reforçado com placas rúnicas para equilíbrio perfeito em combate. [Conjunto Berserker Imortal: Lv. 60 (Lendário) - Guerreira (75%) > Lanceiro (25%)].",
+    "descEn": "Reinforced belt with runic plating for ideal combat equilibrium. [Immortal Berserker Set: Lv. 60 (Legendary) - Guerreira (75%) > Lanceiro (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_010609.png",
+    "combatStats": {
+      "PHYS_DEF": 210,
+      "MAG_DEF": 140,
+      "MAX_HP": 800,
+      "PHYS_ATK": 90,
+      "HP_REGEN": 50
+    }
+  },
+  {
+    "code": "equip_lv60_berserker_legs",
+    "slot": "LEGS",
+    "namePtBr": "Grevas do Berserker Imortal",
+    "nameEn": "Immortal Berserker Greaves",
+    "descPtBr": "Perneiras articuladas de alta mobilidade e absorção de choque contínuo. [Conjunto Berserker Imortal: Lv. 60 (Lendário) - Guerreira (75%) > Lanceiro (25%)].",
+    "descEn": "Articulated greaves providing high mobility and continuous shock absorption. [Immortal Berserker Set: Lv. 60 (Legendary) - Guerreira (75%) > Lanceiro (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_010709.png",
+    "combatStats": {
+      "PHYS_DEF": 290,
+      "MAG_DEF": 190,
+      "MAX_HP": 1100,
+      "PHYS_ATK": 120
+    }
+  },
+  {
+    "code": "equip_lv60_berserker_feet",
+    "slot": "FEET",
+    "namePtBr": "Botas do Berserker Imortal",
+    "nameEn": "Immortal Berserker Boots",
+    "descPtBr": "Calçados lendários que conferem propulsão e agilidade suprema em terreno hostil. [Conjunto Berserker Imortal: Lv. 60 (Lendário) - Guerreira (75%) > Lanceiro (25%)].",
+    "descEn": "Legendary footwear providing supreme speed and propulsion across hostile terrain. [Immortal Berserker Set: Lv. 60 (Legendary) - Guerreira (75%) > Lanceiro (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_010809.png",
+    "combatStats": {
+      "PHYS_DEF": 190,
+      "MAG_DEF": 130,
+      "MAX_HP": 700,
+      "PHYS_ATK": 80,
+      "BATTLE_MOVE_SPEED": 60
+    }
+  },
+  {
+    "code": "equip_lv60_berserker_weapon1",
+    "slot": "WEAPON_1",
+    "namePtBr": "Espadão do Berserker Imortal",
+    "nameEn": "Immortal Berserker Greatsword",
+    "descPtBr": "Arma primária lendária consagrada nas mais ferozes guerras divinas. [Conjunto Berserker Imortal: Lv. 60 (Lendário) - Guerreira (75%) > Lanceiro (25%)].",
+    "descEn": "Legendary primary weapon consecrated in the fiercest divine wars. [Immortal Berserker Set: Lv. 60 (Legendary) - Guerreira (75%) > Lanceiro (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_010116.png",
+    "combatStats": {
+      "PHYS_ATK": 720,
+      "MAX_HP": 1750,
+      "PHYS_DEF": 180,
+      "PHYS_PEN": 90,
+      "CRIT_RATE": 80
+    }
+  },
+  {
+    "code": "equip_lv60_berserker_weapon2",
+    "slot": "WEAPON_2",
+    "namePtBr": "Escudo Muralha do Berserker",
+    "nameEn": "Berserker Bulwark Shield",
+    "descPtBr": "Armamento secundário lendário perfeitamente balanceado para máxima eficácia tática. [Conjunto Berserker Imortal: Lv. 60 (Lendário) - Guerreira (75%) > Lanceiro (25%)].",
+    "descEn": "Legendary secondary equipment perfectly balanced for maximum tactical efficiency. [Immortal Berserker Set: Lv. 60 (Legendary) - Guerreira (75%) > Lanceiro (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_010214.png",
+    "combatStats": {
+      "PHYS_ATK": 240,
+      "PHYS_DEF": 520,
+      "MAG_DEF": 240,
+      "MAX_HP": 1450,
+      "HP_REGEN": 70
+    }
+  },
+  {
+    "code": "equip_lv60_berserker_ring",
+    "slot": "RING",
+    "namePtBr": "Anel do Berserker Imortal",
+    "nameEn": "Immortal Berserker Ring",
+    "descPtBr": "Joia lendária incrustada com essência cósmica que aprimora o poder de batalha. [Conjunto Berserker Imortal: Lv. 60 (Lendário) - Guerreira (75%) > Lanceiro (25%)].",
+    "descEn": "Legendary ring encrusted with cosmic essence boosting combat prowess. [Immortal Berserker Set: Lv. 60 (Legendary) - Guerreira (75%) > Lanceiro (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_011011.png",
+    "combatStats": {
+      "PHYS_ATK": 220,
+      "PHYS_DEF": 200,
+      "MAX_HP": 850,
+      "HP_REGEN": 50
+    }
+  },
+  {
+    "code": "equip_lv60_berserker_necklace",
+    "slot": "NECKLACE",
+    "namePtBr": "Colar do Berserker Imortal",
+    "nameEn": "Immortal Berserker Necklace",
+    "descPtBr": "Amuleto sagrado que amplia atributos ofensivos e letalidade de golpes. [Conjunto Berserker Imortal: Lv. 60 (Lendário) - Guerreira (75%) > Lanceiro (25%)].",
+    "descEn": "Sacred necklace amplifying offensive attributes and critical strike power. [Immortal Berserker Set: Lv. 60 (Legendary) - Guerreira (75%) > Lanceiro (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_010911.png",
+    "combatStats": {
+      "PHYS_ATK": 240,
+      "PHYS_DEF": 220,
+      "MAX_HP": 950,
+      "HP_REGEN": 60
+    }
+  },
+  {
+    "code": "equip_lv60_berserker_ornament1",
+    "slot": "ORNAMENT_1",
+    "namePtBr": "Ornamento Tático do Berserker Imortal",
+    "nameEn": "Immortal Berserker Tactical Ornament",
+    "descPtBr": "Acessório tático lendário que aperfeiçoa reflexos, precisão e velocidade. [Conjunto Berserker Imortal: Lv. 60 (Lendário) - Guerreira (75%) > Lanceiro (25%)].",
+    "descEn": "Tactical legendary ornament improving reflexes, accuracy, and quickness. [Immortal Berserker Set: Lv. 60 (Legendary) - Guerreira (75%) > Lanceiro (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_011111.png",
+    "combatStats": {
+      "PHYS_ATK": 190,
+      "PHYS_DEF": 180,
+      "MAX_HP": 750,
+      "PHYS_PEN": 50
+    }
+  },
+  {
+    "code": "equip_lv60_berserker_ornament2",
+    "slot": "ORNAMENT_2",
+    "namePtBr": "Insígnia dos Deuses do Berserker Imortal",
+    "nameEn": "Immortal Berserker Gods Insignia",
+    "descPtBr": "Selo de glória que canaliza a bênção dos deuses ancestrais de Etheria. [Conjunto Berserker Imortal: Lv. 60 (Lendário) - Guerreira (75%) > Lanceiro (25%)].",
+    "descEn": "Glory crest channeling the blessings of ancient Etherian gods. [Immortal Berserker Set: Lv. 60 (Legendary) - Guerreira (75%) > Lanceiro (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_011211.png",
+    "combatStats": {
+      "PHYS_ATK": 190,
+      "PHYS_DEF": 180,
+      "MAX_HP": 750,
+      "BATTLE_MOVE_SPEED": 30
+    }
+  },
+  {
+    "code": "equip_lv60_galaxybreaker_head",
+    "slot": "HEAD",
+    "namePtBr": "Elmo do Rompedor de Galáxias",
+    "nameEn": "Galaxy Breaker Helm",
+    "descPtBr": "Proteção craniana lendária forjada para campeões veteranos. [Conjunto Rompedor de Galáxias: Lv. 60 (Lendário) - Lanceiro (75%) > Guerreira (25%)].",
+    "descEn": "Legendary headgear forged for veteran champions. [Galaxy Breaker Set: Lv. 60 (Legendary) - Lanceiro (75%) > Guerreira (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_010310.png",
+    "combatStats": {
+      "PHYS_DEF": 270,
+      "MAG_DEF": 160,
+      "MAX_HP": 950,
+      "PHYS_ATK": 180,
+      "CRIT_RATE": 75
+    }
+  },
+  {
+    "code": "equip_lv60_galaxybreaker_shoulder",
+    "slot": "SHOULDER",
+    "namePtBr": "Ombreiras do Rompedor de Galáxias",
+    "nameEn": "Galaxy Breaker Pauldrons",
+    "descPtBr": "Espaldares reforçados que defletem impactos e estabilizam postura marcial. [Conjunto Rompedor de Galáxias: Lv. 60 (Lendário) - Lanceiro (75%) > Guerreira (25%)].",
+    "descEn": "Reinforced pauldrons that deflect strikes and stabilize battle posture. [Galaxy Breaker Set: Lv. 60 (Legendary) - Lanceiro (75%) > Guerreira (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_010410.png",
+    "combatStats": {
+      "PHYS_DEF": 210,
+      "MAG_DEF": 130,
+      "MAX_HP": 750,
+      "PHYS_ATK": 140,
+      "PHYS_PEN": 45
+    }
+  },
+  {
+    "code": "equip_lv60_galaxybreaker_chest",
+    "slot": "CHEST",
+    "namePtBr": "Peitoral do Rompedor de Galáxias",
+    "nameEn": "Galaxy Breaker Chestplate",
+    "descPtBr": "Armadura de tronco sublime com resistência física e mágica incomparáveis. [Conjunto Rompedor de Galáxias: Lv. 60 (Lendário) - Lanceiro (75%) > Guerreira (25%)].",
+    "descEn": "Sublime torso armor granting unmatched physical and magical defense. [Galaxy Breaker Set: Lv. 60 (Legendary) - Lanceiro (75%) > Guerreira (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_010510.png",
+    "combatStats": {
+      "PHYS_DEF": 340,
+      "MAG_DEF": 210,
+      "MAX_HP": 1250,
+      "PHYS_ATK": 230,
+      "PHYS_PEN": 70
+    }
+  },
+  {
+    "code": "equip_lv60_galaxybreaker_belt",
+    "slot": "BELT",
+    "namePtBr": "Cinto do Rompedor de Galáxias",
+    "nameEn": "Galaxy Breaker Belt",
+    "descPtBr": "Cinturão reforçado com placas rúnicas para equilíbrio perfeito em combate. [Conjunto Rompedor de Galáxias: Lv. 60 (Lendário) - Lanceiro (75%) > Guerreira (25%)].",
+    "descEn": "Reinforced belt with runic plating for ideal combat equilibrium. [Galaxy Breaker Set: Lv. 60 (Legendary) - Lanceiro (75%) > Guerreira (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_010610.png",
+    "combatStats": {
+      "PHYS_DEF": 180,
+      "MAG_DEF": 110,
+      "MAX_HP": 650,
+      "PHYS_ATK": 120,
+      "PHYS_PEN": 40
+    }
+  },
+  {
+    "code": "equip_lv60_galaxybreaker_legs",
+    "slot": "LEGS",
+    "namePtBr": "Grevas do Rompedor de Galáxias",
+    "nameEn": "Galaxy Breaker Greaves",
+    "descPtBr": "Perneiras articuladas de alta mobilidade e absorção de choque contínuo. [Conjunto Rompedor de Galáxias: Lv. 60 (Lendário) - Lanceiro (75%) > Guerreira (25%)].",
+    "descEn": "Articulated greaves providing high mobility and continuous shock absorption. [Galaxy Breaker Set: Lv. 60 (Legendary) - Lanceiro (75%) > Guerreira (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_010710.png",
+    "combatStats": {
+      "PHYS_DEF": 250,
+      "MAG_DEF": 150,
+      "MAX_HP": 880,
+      "PHYS_ATK": 160,
+      "PHYS_PEN": 50
+    }
+  },
+  {
+    "code": "equip_lv60_galaxybreaker_feet",
+    "slot": "FEET",
+    "namePtBr": "Botas do Rompedor de Galáxias",
+    "nameEn": "Galaxy Breaker Boots",
+    "descPtBr": "Calçados lendários que conferem propulsão e agilidade suprema em terreno hostil. [Conjunto Rompedor de Galáxias: Lv. 60 (Lendário) - Lanceiro (75%) > Guerreira (25%)].",
+    "descEn": "Legendary footwear providing supreme speed and propulsion across hostile terrain. [Galaxy Breaker Set: Lv. 60 (Legendary) - Lanceiro (75%) > Guerreira (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_010810.png",
+    "combatStats": {
+      "PHYS_DEF": 170,
+      "MAG_DEF": 110,
+      "MAX_HP": 600,
+      "PHYS_ATK": 110,
+      "BATTLE_MOVE_SPEED": 80
+    }
+  },
+  {
+    "code": "equip_lv60_galaxybreaker_weapon1",
+    "slot": "WEAPON_1",
+    "namePtBr": "Lança Rompedora de Galáxias",
+    "nameEn": "Galaxy Breaker Lance",
+    "descPtBr": "Arma primária lendária consagrada nas mais ferozes guerras divinas. [Conjunto Rompedor de Galáxias: Lv. 60 (Lendário) - Lanceiro (75%) > Guerreira (25%)].",
+    "descEn": "Legendary primary weapon consecrated in the fiercest divine wars. [Galaxy Breaker Set: Lv. 60 (Legendary) - Lanceiro (75%) > Guerreira (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_010117.png",
+    "combatStats": {
+      "PHYS_ATK": 760,
+      "MAX_HP": 1350,
+      "PHYS_PEN": 140,
+      "CRIT_RATE": 95,
+      "PHYS_ACCURACY": 85
+    }
+  },
+  {
+    "code": "equip_lv60_galaxybreaker_weapon2",
+    "slot": "WEAPON_2",
+    "namePtBr": "Broquel de Impulso Galáctico",
+    "nameEn": "Galactic Impulse Buckler",
+    "descPtBr": "Armamento secundário lendário perfeitamente balanceado para máxima eficácia tática. [Conjunto Rompedor de Galáxias: Lv. 60 (Lendário) - Lanceiro (75%) > Guerreira (25%)].",
+    "descEn": "Legendary secondary equipment perfectly balanced for maximum tactical efficiency. [Galaxy Breaker Set: Lv. 60 (Legendary) - Lanceiro (75%) > Guerreira (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_010215.png",
+    "combatStats": {
+      "PHYS_ATK": 320,
+      "PHYS_DEF": 340,
+      "MAG_DEF": 160,
+      "MAX_HP": 900,
+      "PHYS_PEN": 80
+    }
+  },
+  {
+    "code": "equip_lv60_galaxybreaker_ring",
+    "slot": "RING",
+    "namePtBr": "Anel do Rompedor de Galáxias",
+    "nameEn": "Galaxy Breaker Ring",
+    "descPtBr": "Joia lendária incrustada com essência cósmica que aprimora o poder de batalha. [Conjunto Rompedor de Galáxias: Lv. 60 (Lendário) - Lanceiro (75%) > Guerreira (25%)].",
+    "descEn": "Legendary ring encrusted with cosmic essence boosting combat prowess. [Galaxy Breaker Set: Lv. 60 (Legendary) - Lanceiro (75%) > Guerreira (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_001011.png",
+    "combatStats": {
+      "PHYS_ATK": 240,
+      "PHYS_DEF": 130,
+      "MAX_HP": 700,
+      "CRIT_RATE": 80,
+      "PHYS_PEN": 60
+    }
+  },
+  {
+    "code": "equip_lv60_galaxybreaker_necklace",
+    "slot": "NECKLACE",
+    "namePtBr": "Colar do Rompedor de Galáxias",
+    "nameEn": "Galaxy Breaker Necklace",
+    "descPtBr": "Amuleto sagrado que amplia atributos ofensivos e letalidade de golpes. [Conjunto Rompedor de Galáxias: Lv. 60 (Lendário) - Lanceiro (75%) > Guerreira (25%)].",
+    "descEn": "Sacred necklace amplifying offensive attributes and critical strike power. [Galaxy Breaker Set: Lv. 60 (Legendary) - Lanceiro (75%) > Guerreira (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_000911.png",
+    "combatStats": {
+      "PHYS_ATK": 260,
+      "PHYS_DEF": 140,
+      "MAX_HP": 750,
+      "CRIT_DMG": 75,
+      "PHYS_PEN": 65
+    }
+  },
+  {
+    "code": "equip_lv60_galaxybreaker_ornament1",
+    "slot": "ORNAMENT_1",
+    "namePtBr": "Ornamento Tático do Rompedor de Galáxias",
+    "nameEn": "Galaxy Breaker Tactical Ornament",
+    "descPtBr": "Acessório tático lendário que aperfeiçoa reflexos, precisão e velocidade. [Conjunto Rompedor de Galáxias: Lv. 60 (Lendário) - Lanceiro (75%) > Guerreira (25%)].",
+    "descEn": "Tactical legendary ornament improving reflexes, accuracy, and quickness. [Galaxy Breaker Set: Lv. 60 (Legendary) - Lanceiro (75%) > Guerreira (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_001111.png",
+    "combatStats": {
+      "PHYS_ATK": 200,
+      "PHYS_DEF": 110,
+      "MAX_HP": 600,
+      "PHYS_ACCURACY": 60
+    }
+  },
+  {
+    "code": "equip_lv60_galaxybreaker_ornament2",
+    "slot": "ORNAMENT_2",
+    "namePtBr": "Insígnia dos Deuses do Rompedor de Galáxias",
+    "nameEn": "Galaxy Breaker Gods Insignia",
+    "descPtBr": "Selo de glória que canaliza a bênção dos deuses ancestrais de Etheria. [Conjunto Rompedor de Galáxias: Lv. 60 (Lendário) - Lanceiro (75%) > Guerreira (25%)].",
+    "descEn": "Glory crest channeling the blessings of ancient Etherian gods. [Galaxy Breaker Set: Lv. 60 (Legendary) - Lanceiro (75%) > Guerreira (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_001211.png",
+    "combatStats": {
+      "PHYS_ATK": 200,
+      "PHYS_DEF": 110,
+      "MAX_HP": 600,
+      "BATTLE_MOVE_SPEED": 50
+    }
+  },
+  {
+    "code": "equip_lv60_thunderblade_head",
+    "slot": "HEAD",
+    "namePtBr": "Elmo do Lâmina do Trovão Primordial",
+    "nameEn": "Primordial Thunderblade Helm",
+    "descPtBr": "Proteção craniana lendária forjada para campeões veteranos. [Conjunto Lâmina do Trovão Primordial: Lv. 60 (Lendário) - Espadachim (75%) > Lutadora (25%)].",
+    "descEn": "Legendary headgear forged for veteran champions. [Primordial Thunderblade Set: Lv. 60 (Legendary) - Espadachim (75%) > Lutadora (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_050309.png",
+    "combatStats": {
+      "PHYS_DEF": 260,
+      "MAG_DEF": 140,
+      "MAX_HP": 850,
+      "PHYS_ATK": 190,
+      "CRIT_RATE": 80
+    }
+  },
+  {
+    "code": "equip_lv60_thunderblade_shoulder",
+    "slot": "SHOULDER",
+    "namePtBr": "Ombreiras do Lâmina do Trovão Primordial",
+    "nameEn": "Primordial Thunderblade Pauldrons",
+    "descPtBr": "Espaldares reforçados que defletem impactos e estabilizam postura marcial. [Conjunto Lâmina do Trovão Primordial: Lv. 60 (Lendário) - Espadachim (75%) > Lutadora (25%)].",
+    "descEn": "Reinforced pauldrons that deflect strikes and stabilize battle posture. [Primordial Thunderblade Set: Lv. 60 (Legendary) - Espadachim (75%) > Lutadora (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_050409.png",
+    "combatStats": {
+      "PHYS_DEF": 200,
+      "MAG_DEF": 110,
+      "MAX_HP": 700,
+      "PHYS_ATK": 150,
+      "PHYS_EVASION": 45
+    }
+  },
+  {
+    "code": "equip_lv60_thunderblade_chest",
+    "slot": "CHEST",
+    "namePtBr": "Peitoral do Lâmina do Trovão Primordial",
+    "nameEn": "Primordial Thunderblade Chestplate",
+    "descPtBr": "Armadura de tronco sublime com resistência física e mágica incomparáveis. [Conjunto Lâmina do Trovão Primordial: Lv. 60 (Lendário) - Espadachim (75%) > Lutadora (25%)].",
+    "descEn": "Sublime torso armor granting unmatched physical and magical defense. [Primordial Thunderblade Set: Lv. 60 (Legendary) - Espadachim (75%) > Lutadora (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_050509.png",
+    "combatStats": {
+      "PHYS_DEF": 330,
+      "MAG_DEF": 180,
+      "MAX_HP": 1150,
+      "PHYS_ATK": 240,
+      "CRIT_RATE": 70
+    }
+  },
+  {
+    "code": "equip_lv60_thunderblade_belt",
+    "slot": "BELT",
+    "namePtBr": "Cinto do Lâmina do Trovão Primordial",
+    "nameEn": "Primordial Thunderblade Belt",
+    "descPtBr": "Cinturão reforçado com placas rúnicas para equilíbrio perfeito em combate. [Conjunto Lâmina do Trovão Primordial: Lv. 60 (Lendário) - Espadachim (75%) > Lutadora (25%)].",
+    "descEn": "Reinforced belt with runic plating for ideal combat equilibrium. [Primordial Thunderblade Set: Lv. 60 (Legendary) - Espadachim (75%) > Lutadora (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_050609.png",
+    "combatStats": {
+      "PHYS_DEF": 180,
+      "MAG_DEF": 100,
+      "MAX_HP": 600,
+      "PHYS_ATK": 130,
+      "CRIT_RATE": 40
+    }
+  },
+  {
+    "code": "equip_lv60_thunderblade_legs",
+    "slot": "LEGS",
+    "namePtBr": "Grevas do Lâmina do Trovão Primordial",
+    "nameEn": "Primordial Thunderblade Greaves",
+    "descPtBr": "Perneiras articuladas de alta mobilidade e absorção de choque contínuo. [Conjunto Lâmina do Trovão Primordial: Lv. 60 (Lendário) - Espadachim (75%) > Lutadora (25%)].",
+    "descEn": "Articulated greaves providing high mobility and continuous shock absorption. [Primordial Thunderblade Set: Lv. 60 (Legendary) - Espadachim (75%) > Lutadora (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_050709.png",
+    "combatStats": {
+      "PHYS_DEF": 240,
+      "MAG_DEF": 130,
+      "MAX_HP": 800,
+      "PHYS_ATK": 170,
+      "PHYS_EVASION": 50
+    }
+  },
+  {
+    "code": "equip_lv60_thunderblade_feet",
+    "slot": "FEET",
+    "namePtBr": "Botas do Lâmina do Trovão Primordial",
+    "nameEn": "Primordial Thunderblade Boots",
+    "descPtBr": "Calçados lendários que conferem propulsão e agilidade suprema em terreno hostil. [Conjunto Lâmina do Trovão Primordial: Lv. 60 (Lendário) - Espadachim (75%) > Lutadora (25%)].",
+    "descEn": "Legendary footwear providing supreme speed and propulsion across hostile terrain. [Primordial Thunderblade Set: Lv. 60 (Legendary) - Espadachim (75%) > Lutadora (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_050809.png",
+    "combatStats": {
+      "PHYS_DEF": 160,
+      "MAG_DEF": 90,
+      "MAX_HP": 550,
+      "PHYS_ATK": 120,
+      "BATTLE_MOVE_SPEED": 85
+    }
+  },
+  {
+    "code": "equip_lv60_thunderblade_weapon1",
+    "slot": "WEAPON_1",
+    "namePtBr": "Katana do Trovão Primordial",
+    "nameEn": "Primordial Thunder Katana",
+    "descPtBr": "Arma primária lendária consagrada nas mais ferozes guerras divinas. [Conjunto Lâmina do Trovão Primordial: Lv. 60 (Lendário) - Espadachim (75%) > Lutadora (25%)].",
+    "descEn": "Legendary primary weapon consecrated in the fiercest divine wars. [Primordial Thunderblade Set: Lv. 60 (Legendary) - Espadachim (75%) > Lutadora (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_050116.png",
+    "combatStats": {
+      "PHYS_ATK": 730,
+      "CRIT_RATE": 130,
+      "CRIT_DMG": 115,
+      "ATTACK_SPEED": 0.65,
+      "PHYS_ACCURACY": 80
+    }
+  },
+  {
+    "code": "equip_lv60_thunderblade_weapon2",
+    "slot": "WEAPON_2",
+    "namePtBr": "Wakizashi do Trovão Primordial",
+    "nameEn": "Primordial Thunder Wakizashi",
+    "descPtBr": "Armamento secundário lendário perfeitamente balanceado para máxima eficácia tática. [Conjunto Lâmina do Trovão Primordial: Lv. 60 (Lendário) - Espadachim (75%) > Lutadora (25%)].",
+    "descEn": "Legendary secondary equipment perfectly balanced for maximum tactical efficiency. [Primordial Thunderblade Set: Lv. 60 (Legendary) - Espadachim (75%) > Lutadora (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_050214.png",
+    "combatStats": {
+      "PHYS_ATK": 430,
+      "PHYS_DEF": 220,
+      "CRIT_RATE": 95,
+      "ATTACK_SPEED": 0.5,
+      "PHYS_ACCURACY": 65
+    }
+  },
+  {
+    "code": "equip_lv60_thunderblade_ring",
+    "slot": "RING",
+    "namePtBr": "Anel do Lâmina do Trovão Primordial",
+    "nameEn": "Primordial Thunderblade Ring",
+    "descPtBr": "Joia lendária incrustada com essência cósmica que aprimora o poder de batalha. [Conjunto Lâmina do Trovão Primordial: Lv. 60 (Lendário) - Espadachim (75%) > Lutadora (25%)].",
+    "descEn": "Legendary ring encrusted with cosmic essence boosting combat prowess. [Primordial Thunderblade Set: Lv. 60 (Legendary) - Espadachim (75%) > Lutadora (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_011012.png",
+    "combatStats": {
+      "PHYS_ATK": 240,
+      "CRIT_RATE": 100,
+      "CRIT_DMG": 70,
+      "MAX_HP": 650
+    }
+  },
+  {
+    "code": "equip_lv60_thunderblade_necklace",
+    "slot": "NECKLACE",
+    "namePtBr": "Colar do Lâmina do Trovão Primordial",
+    "nameEn": "Primordial Thunderblade Necklace",
+    "descPtBr": "Amuleto sagrado que amplia atributos ofensivos e letalidade de golpes. [Conjunto Lâmina do Trovão Primordial: Lv. 60 (Lendário) - Espadachim (75%) > Lutadora (25%)].",
+    "descEn": "Sacred necklace amplifying offensive attributes and critical strike power. [Primordial Thunderblade Set: Lv. 60 (Legendary) - Espadachim (75%) > Lutadora (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_010912.png",
+    "combatStats": {
+      "PHYS_ATK": 260,
+      "CRIT_RATE": 105,
+      "CRIT_DMG": 75,
+      "MAX_HP": 700
+    }
+  },
+  {
+    "code": "equip_lv60_thunderblade_ornament1",
+    "slot": "ORNAMENT_1",
+    "namePtBr": "Ornamento Tático do Lâmina do Trovão Primordial",
+    "nameEn": "Primordial Thunderblade Tactical Ornament",
+    "descPtBr": "Acessório tático lendário que aperfeiçoa reflexos, precisão e velocidade. [Conjunto Lâmina do Trovão Primordial: Lv. 60 (Lendário) - Espadachim (75%) > Lutadora (25%)].",
+    "descEn": "Tactical legendary ornament improving reflexes, accuracy, and quickness. [Primordial Thunderblade Set: Lv. 60 (Legendary) - Espadachim (75%) > Lutadora (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_011112.png",
+    "combatStats": {
+      "PHYS_ATK": 200,
+      "PHYS_ACCURACY": 65,
+      "CRIT_RATE": 60,
+      "MAX_HP": 550
+    }
+  },
+  {
+    "code": "equip_lv60_thunderblade_ornament2",
+    "slot": "ORNAMENT_2",
+    "namePtBr": "Insígnia dos Deuses do Lâmina do Trovão Primordial",
+    "nameEn": "Primordial Thunderblade Gods Insignia",
+    "descPtBr": "Selo de glória que canaliza a bênção dos deuses ancestrais de Etheria. [Conjunto Lâmina do Trovão Primordial: Lv. 60 (Lendário) - Espadachim (75%) > Lutadora (25%)].",
+    "descEn": "Glory crest channeling the blessings of ancient Etherian gods. [Primordial Thunderblade Set: Lv. 60 (Legendary) - Espadachim (75%) > Lutadora (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_011212.png",
+    "combatStats": {
+      "PHYS_ATK": 200,
+      "BATTLE_MOVE_SPEED": 55,
+      "PHYS_EVASION": 50,
+      "MAX_HP": 550
+    }
+  },
+  {
+    "code": "equip_lv60_elementalfury_head",
+    "slot": "HEAD",
+    "namePtBr": "Elmo do Fúria Elemental dos Titãs",
+    "nameEn": "Titans Elemental Fury Helm",
+    "descPtBr": "Proteção craniana lendária forjada para campeões veteranos. [Conjunto Fúria Elemental dos Titãs: Lv. 60 (Lendário) - Lutadora (75%) > Espadachim (25%)].",
+    "descEn": "Legendary headgear forged for veteran champions. [Titans Elemental Fury Set: Lv. 60 (Legendary) - Lutadora (75%) > Espadachim (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_050310.png",
+    "combatStats": {
+      "PHYS_DEF": 280,
+      "MAG_DEF": 160,
+      "MAX_HP": 1150,
+      "PHYS_ATK": 170,
+      "PHYS_EVASION": 60
+    }
+  },
+  {
+    "code": "equip_lv60_elementalfury_shoulder",
+    "slot": "SHOULDER",
+    "namePtBr": "Ombreiras do Fúria Elemental dos Titãs",
+    "nameEn": "Titans Elemental Fury Pauldrons",
+    "descPtBr": "Espaldares reforçados que defletem impactos e estabilizam postura marcial. [Conjunto Fúria Elemental dos Titãs: Lv. 60 (Lendário) - Lutadora (75%) > Espadachim (25%)].",
+    "descEn": "Reinforced pauldrons that deflect strikes and stabilize battle posture. [Titans Elemental Fury Set: Lv. 60 (Legendary) - Lutadora (75%) > Espadachim (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_050410.png",
+    "combatStats": {
+      "PHYS_DEF": 210,
+      "MAG_DEF": 120,
+      "MAX_HP": 900,
+      "PHYS_ATK": 140,
+      "PHYS_EVASION": 45
+    }
+  },
+  {
+    "code": "equip_lv60_elementalfury_chest",
+    "slot": "CHEST",
+    "namePtBr": "Peitoral do Fúria Elemental dos Titãs",
+    "nameEn": "Titans Elemental Fury Chestplate",
+    "descPtBr": "Armadura de tronco sublime com resistência física e mágica incomparáveis. [Conjunto Fúria Elemental dos Titãs: Lv. 60 (Lendário) - Lutadora (75%) > Espadachim (25%)].",
+    "descEn": "Sublime torso armor granting unmatched physical and magical defense. [Titans Elemental Fury Set: Lv. 60 (Legendary) - Lutadora (75%) > Espadachim (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_050510.png",
+    "combatStats": {
+      "PHYS_DEF": 350,
+      "MAG_DEF": 210,
+      "MAX_HP": 1550,
+      "PHYS_ATK": 210,
+      "HP_REGEN": 60
+    }
+  },
+  {
+    "code": "equip_lv60_elementalfury_belt",
+    "slot": "BELT",
+    "namePtBr": "Cinto do Fúria Elemental dos Titãs",
+    "nameEn": "Titans Elemental Fury Belt",
+    "descPtBr": "Cinturão reforçado com placas rúnicas para equilíbrio perfeito em combate. [Conjunto Fúria Elemental dos Titãs: Lv. 60 (Lendário) - Lutadora (75%) > Espadachim (25%)].",
+    "descEn": "Reinforced belt with runic plating for ideal combat equilibrium. [Titans Elemental Fury Set: Lv. 60 (Legendary) - Lutadora (75%) > Espadachim (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_050610.png",
+    "combatStats": {
+      "PHYS_DEF": 190,
+      "MAG_DEF": 110,
+      "MAX_HP": 800,
+      "PHYS_ATK": 120,
+      "HP_REGEN": 50
+    }
+  },
+  {
+    "code": "equip_lv60_elementalfury_legs",
+    "slot": "LEGS",
+    "namePtBr": "Grevas do Fúria Elemental dos Titãs",
+    "nameEn": "Titans Elemental Fury Greaves",
+    "descPtBr": "Perneiras articuladas de alta mobilidade e absorção de choque contínuo. [Conjunto Fúria Elemental dos Titãs: Lv. 60 (Lendário) - Lutadora (75%) > Espadachim (25%)].",
+    "descEn": "Articulated greaves providing high mobility and continuous shock absorption. [Titans Elemental Fury Set: Lv. 60 (Legendary) - Lutadora (75%) > Espadachim (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_050710.png",
+    "combatStats": {
+      "PHYS_DEF": 260,
+      "MAG_DEF": 150,
+      "MAX_HP": 1050,
+      "PHYS_ATK": 150,
+      "PHYS_EVASION": 50
+    }
+  },
+  {
+    "code": "equip_lv60_elementalfury_feet",
+    "slot": "FEET",
+    "namePtBr": "Botas do Fúria Elemental dos Titãs",
+    "nameEn": "Titans Elemental Fury Boots",
+    "descPtBr": "Calçados lendários que conferem propulsão e agilidade suprema em terreno hostil. [Conjunto Fúria Elemental dos Titãs: Lv. 60 (Lendário) - Lutadora (75%) > Espadachim (25%)].",
+    "descEn": "Legendary footwear providing supreme speed and propulsion across hostile terrain. [Titans Elemental Fury Set: Lv. 60 (Legendary) - Lutadora (75%) > Espadachim (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_050810.png",
+    "combatStats": {
+      "PHYS_DEF": 170,
+      "MAG_DEF": 100,
+      "MAX_HP": 700,
+      "PHYS_ATK": 110,
+      "BATTLE_MOVE_SPEED": 80
+    }
+  },
+  {
+    "code": "equip_lv60_elementalfury_weapon1",
+    "slot": "WEAPON_1",
+    "namePtBr": "Manoplas da Fúria Elemental",
+    "nameEn": "Elemental Fury Gauntlets",
+    "descPtBr": "Arma primária lendária consagrada nas mais ferozes guerras divinas. [Conjunto Fúria Elemental dos Titãs: Lv. 60 (Lendário) - Lutadora (75%) > Espadachim (25%)].",
+    "descEn": "Legendary primary weapon consecrated in the fiercest divine wars. [Titans Elemental Fury Set: Lv. 60 (Legendary) - Lutadora (75%) > Espadachim (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_050117.png",
+    "combatStats": {
+      "PHYS_ATK": 680,
+      "ATTACK_SPEED": 0.85,
+      "MAX_HP": 1450,
+      "PHYS_PEN": 110,
+      "PHYS_DEF": 70
+    }
+  },
+  {
+    "code": "equip_lv60_elementalfury_weapon2",
+    "slot": "WEAPON_2",
+    "namePtBr": "Braçadeiras da Fúria Titânica",
+    "nameEn": "Titanic Fury Bracers",
+    "descPtBr": "Armamento secundário lendário perfeitamente balanceado para máxima eficácia tática. [Conjunto Fúria Elemental dos Titãs: Lv. 60 (Lendário) - Lutadora (75%) > Espadachim (25%)].",
+    "descEn": "Legendary secondary equipment perfectly balanced for maximum tactical efficiency. [Titans Elemental Fury Set: Lv. 60 (Legendary) - Lutadora (75%) > Espadachim (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_050215.png",
+    "combatStats": {
+      "PHYS_ATK": 390,
+      "ATTACK_SPEED": 0.6,
+      "MAX_HP": 1100,
+      "PHYS_DEF": 260,
+      "PHYS_PEN": 80
+    }
+  },
+  {
+    "code": "equip_lv60_elementalfury_ring",
+    "slot": "RING",
+    "namePtBr": "Anel do Fúria Elemental dos Titãs",
+    "nameEn": "Titans Elemental Fury Ring",
+    "descPtBr": "Joia lendária incrustada com essência cósmica que aprimora o poder de batalha. [Conjunto Fúria Elemental dos Titãs: Lv. 60 (Lendário) - Lutadora (75%) > Espadachim (25%)].",
+    "descEn": "Legendary ring encrusted with cosmic essence boosting combat prowess. [Titans Elemental Fury Set: Lv. 60 (Legendary) - Lutadora (75%) > Espadachim (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_001012.png",
+    "combatStats": {
+      "PHYS_ATK": 220,
+      "PHYS_DEF": 190,
+      "MAX_HP": 850,
+      "PHYS_PEN": 50
+    }
+  },
+  {
+    "code": "equip_lv60_elementalfury_necklace",
+    "slot": "NECKLACE",
+    "namePtBr": "Colar do Fúria Elemental dos Titãs",
+    "nameEn": "Titans Elemental Fury Necklace",
+    "descPtBr": "Amuleto sagrado que amplia atributos ofensivos e letalidade de golpes. [Conjunto Fúria Elemental dos Titãs: Lv. 60 (Lendário) - Lutadora (75%) > Espadachim (25%)].",
+    "descEn": "Sacred necklace amplifying offensive attributes and critical strike power. [Titans Elemental Fury Set: Lv. 60 (Legendary) - Lutadora (75%) > Espadachim (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_000912.png",
+    "combatStats": {
+      "PHYS_ATK": 240,
+      "PHYS_DEF": 210,
+      "MAX_HP": 900,
+      "PHYS_PEN": 55
+    }
+  },
+  {
+    "code": "equip_lv60_elementalfury_ornament1",
+    "slot": "ORNAMENT_1",
+    "namePtBr": "Ornamento Tático do Fúria Elemental dos Titãs",
+    "nameEn": "Titans Elemental Fury Tactical Ornament",
+    "descPtBr": "Acessório tático lendário que aperfeiçoa reflexos, precisão e velocidade. [Conjunto Fúria Elemental dos Titãs: Lv. 60 (Lendário) - Lutadora (75%) > Espadachim (25%)].",
+    "descEn": "Tactical legendary ornament improving reflexes, accuracy, and quickness. [Titans Elemental Fury Set: Lv. 60 (Legendary) - Lutadora (75%) > Espadachim (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_001112.png",
+    "combatStats": {
+      "PHYS_ATK": 180,
+      "PHYS_DEF": 160,
+      "MAX_HP": 750,
+      "PHYS_EVASION": 50
+    }
+  },
+  {
+    "code": "equip_lv60_elementalfury_ornament2",
+    "slot": "ORNAMENT_2",
+    "namePtBr": "Insígnia dos Deuses do Fúria Elemental dos Titãs",
+    "nameEn": "Titans Elemental Fury Gods Insignia",
+    "descPtBr": "Selo de glória que canaliza a bênção dos deuses ancestrais de Etheria. [Conjunto Fúria Elemental dos Titãs: Lv. 60 (Lendário) - Lutadora (75%) > Espadachim (25%)].",
+    "descEn": "Glory crest channeling the blessings of ancient Etherian gods. [Titans Elemental Fury Set: Lv. 60 (Legendary) - Lutadora (75%) > Espadachim (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_001212.png",
+    "combatStats": {
+      "PHYS_ATK": 180,
+      "PHYS_DEF": 160,
+      "MAX_HP": 750,
+      "BATTLE_MOVE_SPEED": 45
+    }
+  },
+  {
+    "code": "equip_lv60_celestialfortress_head",
+    "slot": "HEAD",
+    "namePtBr": "Elmo do Fortaleza Celestial",
+    "nameEn": "Celestial Fortress Helm",
+    "descPtBr": "Proteção craniana lendária forjada para campeões veteranos. [Conjunto Fortaleza Celestial: Lv. 60 (Lendário) - Paladino (75%) > Caçadora (25%)].",
+    "descEn": "Legendary headgear forged for veteran champions. [Celestial Fortress Set: Lv. 60 (Legendary) - Paladino (75%) > Caçadora (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_020309.png",
+    "combatStats": {
+      "PHYS_DEF": 290,
+      "MAG_DEF": 230,
+      "MAX_HP": 1100,
+      "PHYS_ATK": 140,
+      "HEAL_POWER": 140
+    }
+  },
+  {
+    "code": "equip_lv60_celestialfortress_shoulder",
+    "slot": "SHOULDER",
+    "namePtBr": "Ombreiras do Fortaleza Celestial",
+    "nameEn": "Celestial Fortress Pauldrons",
+    "descPtBr": "Espaldares reforçados que defletem impactos e estabilizam postura marcial. [Conjunto Fortaleza Celestial: Lv. 60 (Lendário) - Paladino (75%) > Caçadora (25%)].",
+    "descEn": "Reinforced pauldrons that deflect strikes and stabilize battle posture. [Celestial Fortress Set: Lv. 60 (Legendary) - Paladino (75%) > Caçadora (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_020409.png",
+    "combatStats": {
+      "PHYS_DEF": 230,
+      "MAG_DEF": 180,
+      "MAX_HP": 880,
+      "PHYS_ATK": 110,
+      "HEAL_POWER": 110
+    }
+  },
+  {
+    "code": "equip_lv60_celestialfortress_chest",
+    "slot": "CHEST",
+    "namePtBr": "Peitoral do Fortaleza Celestial",
+    "nameEn": "Celestial Fortress Chestplate",
+    "descPtBr": "Armadura de tronco sublime com resistência física e mágica incomparáveis. [Conjunto Fortaleza Celestial: Lv. 60 (Lendário) - Paladino (75%) > Caçadora (25%)].",
+    "descEn": "Sublime torso armor granting unmatched physical and magical defense. [Celestial Fortress Set: Lv. 60 (Legendary) - Paladino (75%) > Caçadora (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_020509.png",
+    "combatStats": {
+      "PHYS_DEF": 370,
+      "MAG_DEF": 300,
+      "MAX_HP": 1500,
+      "PHYS_ATK": 180,
+      "HEAL_POWER": 180
+    }
+  },
+  {
+    "code": "equip_lv60_celestialfortress_belt",
+    "slot": "BELT",
+    "namePtBr": "Cinto do Fortaleza Celestial",
+    "nameEn": "Celestial Fortress Belt",
+    "descPtBr": "Cinturão reforçado com placas rúnicas para equilíbrio perfeito em combate. [Conjunto Fortaleza Celestial: Lv. 60 (Lendário) - Paladino (75%) > Caçadora (25%)].",
+    "descEn": "Reinforced belt with runic plating for ideal combat equilibrium. [Celestial Fortress Set: Lv. 60 (Legendary) - Paladino (75%) > Caçadora (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_020609.png",
+    "combatStats": {
+      "PHYS_DEF": 200,
+      "MAG_DEF": 160,
+      "MAX_HP": 750,
+      "PHYS_ATK": 100,
+      "HP_REGEN": 40
+    }
+  },
+  {
+    "code": "equip_lv60_celestialfortress_legs",
+    "slot": "LEGS",
+    "namePtBr": "Grevas do Fortaleza Celestial",
+    "nameEn": "Celestial Fortress Greaves",
+    "descPtBr": "Perneiras articuladas de alta mobilidade e absorção de choque contínuo. [Conjunto Fortaleza Celestial: Lv. 60 (Lendário) - Paladino (75%) > Caçadora (25%)].",
+    "descEn": "Articulated greaves providing high mobility and continuous shock absorption. [Celestial Fortress Set: Lv. 60 (Legendary) - Paladino (75%) > Caçadora (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_020709.png",
+    "combatStats": {
+      "PHYS_DEF": 270,
+      "MAG_DEF": 210,
+      "MAX_HP": 1000,
+      "PHYS_ATK": 130,
+      "HEAL_POWER": 130
+    }
+  },
+  {
+    "code": "equip_lv60_celestialfortress_feet",
+    "slot": "FEET",
+    "namePtBr": "Botas do Fortaleza Celestial",
+    "nameEn": "Celestial Fortress Boots",
+    "descPtBr": "Calçados lendários que conferem propulsão e agilidade suprema em terreno hostil. [Conjunto Fortaleza Celestial: Lv. 60 (Lendário) - Paladino (75%) > Caçadora (25%)].",
+    "descEn": "Legendary footwear providing supreme speed and propulsion across hostile terrain. [Celestial Fortress Set: Lv. 60 (Legendary) - Paladino (75%) > Caçadora (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_020809.png",
+    "combatStats": {
+      "PHYS_DEF": 180,
+      "MAG_DEF": 140,
+      "MAX_HP": 650,
+      "PHYS_ATK": 90,
+      "BATTLE_MOVE_SPEED": 60
+    }
+  },
+  {
+    "code": "equip_lv60_celestialfortress_weapon1",
+    "slot": "WEAPON_1",
+    "namePtBr": "Martelo da Fortaleza Celestial",
+    "nameEn": "Celestial Fortress Warhammer",
+    "descPtBr": "Arma primária lendária consagrada nas mais ferozes guerras divinas. [Conjunto Fortaleza Celestial: Lv. 60 (Lendário) - Paladino (75%) > Caçadora (25%)].",
+    "descEn": "Legendary primary weapon consecrated in the fiercest divine wars. [Celestial Fortress Set: Lv. 60 (Legendary) - Paladino (75%) > Caçadora (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_020117.png",
+    "combatStats": {
+      "PHYS_ATK": 670,
+      "HEAL_POWER": 280,
+      "MAX_HP": 1500,
+      "PHYS_DEF": 240,
+      "MAG_DEF": 180
+    }
+  },
+  {
+    "code": "equip_lv60_celestialfortress_weapon2",
+    "slot": "WEAPON_2",
+    "namePtBr": "Pavês da Fortaleza Celestial",
+    "nameEn": "Celestial Fortress Tower Shield",
+    "descPtBr": "Armamento secundário lendário perfeitamente balanceado para máxima eficácia tática. [Conjunto Fortaleza Celestial: Lv. 60 (Lendário) - Paladino (75%) > Caçadora (25%)].",
+    "descEn": "Legendary secondary equipment perfectly balanced for maximum tactical efficiency. [Celestial Fortress Set: Lv. 60 (Legendary) - Paladino (75%) > Caçadora (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_020215.png",
+    "combatStats": {
+      "PHYS_ATK": 260,
+      "PHYS_DEF": 480,
+      "MAG_DEF": 360,
+      "MAX_HP": 1300,
+      "HEAL_POWER": 200
+    }
+  },
+  {
+    "code": "equip_lv60_celestialfortress_ring",
+    "slot": "RING",
+    "namePtBr": "Anel do Fortaleza Celestial",
+    "nameEn": "Celestial Fortress Ring",
+    "descPtBr": "Joia lendária incrustada com essência cósmica que aprimora o poder de batalha. [Conjunto Fortaleza Celestial: Lv. 60 (Lendário) - Paladino (75%) > Caçadora (25%)].",
+    "descEn": "Legendary ring encrusted with cosmic essence boosting combat prowess. [Celestial Fortress Set: Lv. 60 (Legendary) - Paladino (75%) > Caçadora (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_011009.png",
+    "combatStats": {
+      "PHYS_ATK": 200,
+      "PHYS_DEF": 210,
+      "MAG_DEF": 170,
+      "MAX_HP": 750,
+      "HEAL_POWER": 120
+    }
+  },
+  {
+    "code": "equip_lv60_celestialfortress_necklace",
+    "slot": "NECKLACE",
+    "namePtBr": "Colar do Fortaleza Celestial",
+    "nameEn": "Celestial Fortress Necklace",
+    "descPtBr": "Amuleto sagrado que amplia atributos ofensivos e letalidade de golpes. [Conjunto Fortaleza Celestial: Lv. 60 (Lendário) - Paladino (75%) > Caçadora (25%)].",
+    "descEn": "Sacred necklace amplifying offensive attributes and critical strike power. [Celestial Fortress Set: Lv. 60 (Legendary) - Paladino (75%) > Caçadora (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_010909.png",
+    "combatStats": {
+      "PHYS_ATK": 220,
+      "PHYS_DEF": 230,
+      "MAG_DEF": 190,
+      "MAX_HP": 800,
+      "HEAL_POWER": 140
+    }
+  },
+  {
+    "code": "equip_lv60_celestialfortress_ornament1",
+    "slot": "ORNAMENT_1",
+    "namePtBr": "Ornamento Tático do Fortaleza Celestial",
+    "nameEn": "Celestial Fortress Tactical Ornament",
+    "descPtBr": "Acessório tático lendário que aperfeiçoa reflexos, precisão e velocidade. [Conjunto Fortaleza Celestial: Lv. 60 (Lendário) - Paladino (75%) > Caçadora (25%)].",
+    "descEn": "Tactical legendary ornament improving reflexes, accuracy, and quickness. [Celestial Fortress Set: Lv. 60 (Legendary) - Paladino (75%) > Caçadora (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_011113.png",
+    "combatStats": {
+      "PHYS_ATK": 170,
+      "PHYS_DEF": 170,
+      "MAG_DEF": 140,
+      "MAX_HP": 600,
+      "HP_REGEN": 45
+    }
+  },
+  {
+    "code": "equip_lv60_celestialfortress_ornament2",
+    "slot": "ORNAMENT_2",
+    "namePtBr": "Insígnia dos Deuses do Fortaleza Celestial",
+    "nameEn": "Celestial Fortress Gods Insignia",
+    "descPtBr": "Selo de glória que canaliza a bênção dos deuses ancestrais de Etheria. [Conjunto Fortaleza Celestial: Lv. 60 (Lendário) - Paladino (75%) > Caçadora (25%)].",
+    "descEn": "Glory crest channeling the blessings of ancient Etherian gods. [Celestial Fortress Set: Lv. 60 (Legendary) - Paladino (75%) > Caçadora (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_011211.png",
+    "combatStats": {
+      "PHYS_ATK": 170,
+      "PHYS_DEF": 170,
+      "MAG_DEF": 140,
+      "MAX_HP": 600,
+      "BATTLE_MOVE_SPEED": 30
+    }
+  },
+  {
+    "code": "equip_lv60_voidstalker_head",
+    "slot": "HEAD",
+    "namePtBr": "Elmo do Caçador do Vácuo Astral",
+    "nameEn": "Astral Void Stalker Helm",
+    "descPtBr": "Proteção craniana lendária forjada para campeões veteranos. [Conjunto Caçador do Vácuo Astral: Lv. 60 (Lendário) - Caçadora (75%) > Paladino (25%)].",
+    "descEn": "Legendary headgear forged for veteran champions. [Astral Void Stalker Set: Lv. 60 (Legendary) - Caçadora (75%) > Paladino (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_020310.png",
+    "combatStats": {
+      "PHYS_DEF": 250,
+      "MAG_DEF": 150,
+      "MAX_HP": 800,
+      "PHYS_ATK": 200,
+      "CRIT_RATE": 75
+    }
+  },
+  {
+    "code": "equip_lv60_voidstalker_shoulder",
+    "slot": "SHOULDER",
+    "namePtBr": "Ombreiras do Caçador do Vácuo Astral",
+    "nameEn": "Astral Void Stalker Pauldrons",
+    "descPtBr": "Espaldares reforçados que defletem impactos e estabilizam postura marcial. [Conjunto Caçador do Vácuo Astral: Lv. 60 (Lendário) - Caçadora (75%) > Paladino (25%)].",
+    "descEn": "Reinforced pauldrons that deflect strikes and stabilize battle posture. [Astral Void Stalker Set: Lv. 60 (Legendary) - Caçadora (75%) > Paladino (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_020410.png",
+    "combatStats": {
+      "PHYS_DEF": 190,
+      "MAG_DEF": 120,
+      "MAX_HP": 650,
+      "PHYS_ATK": 150,
+      "PHYS_EVASION": 50
+    }
+  },
+  {
+    "code": "equip_lv60_voidstalker_chest",
+    "slot": "CHEST",
+    "namePtBr": "Peitoral do Caçador do Vácuo Astral",
+    "nameEn": "Astral Void Stalker Chestplate",
+    "descPtBr": "Armadura de tronco sublime com resistência física e mágica incomparáveis. [Conjunto Caçador do Vácuo Astral: Lv. 60 (Lendário) - Caçadora (75%) > Paladino (25%)].",
+    "descEn": "Sublime torso armor granting unmatched physical and magical defense. [Astral Void Stalker Set: Lv. 60 (Legendary) - Caçadora (75%) > Paladino (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_020510.png",
+    "combatStats": {
+      "PHYS_DEF": 310,
+      "MAG_DEF": 190,
+      "MAX_HP": 1050,
+      "PHYS_ATK": 250,
+      "CRIT_RATE": 65
+    }
+  },
+  {
+    "code": "equip_lv60_voidstalker_belt",
+    "slot": "BELT",
+    "namePtBr": "Cinto do Caçador do Vácuo Astral",
+    "nameEn": "Astral Void Stalker Belt",
+    "descPtBr": "Cinturão reforçado com placas rúnicas para equilíbrio perfeito em combate. [Conjunto Caçador do Vácuo Astral: Lv. 60 (Lendário) - Caçadora (75%) > Paladino (25%)].",
+    "descEn": "Reinforced belt with runic plating for ideal combat equilibrium. [Astral Void Stalker Set: Lv. 60 (Legendary) - Caçadora (75%) > Paladino (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_020610.png",
+    "combatStats": {
+      "PHYS_DEF": 170,
+      "MAG_DEF": 110,
+      "MAX_HP": 580,
+      "PHYS_ATK": 130,
+      "CRIT_RATE": 45
+    }
+  },
+  {
+    "code": "equip_lv60_voidstalker_legs",
+    "slot": "LEGS",
+    "namePtBr": "Grevas do Caçador do Vácuo Astral",
+    "nameEn": "Astral Void Stalker Greaves",
+    "descPtBr": "Perneiras articuladas de alta mobilidade e absorção de choque contínuo. [Conjunto Caçador do Vácuo Astral: Lv. 60 (Lendário) - Caçadora (75%) > Paladino (25%)].",
+    "descEn": "Articulated greaves providing high mobility and continuous shock absorption. [Astral Void Stalker Set: Lv. 60 (Legendary) - Caçadora (75%) > Paladino (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_020710.png",
+    "combatStats": {
+      "PHYS_DEF": 230,
+      "MAG_DEF": 140,
+      "MAX_HP": 750,
+      "PHYS_ATK": 170,
+      "PHYS_EVASION": 55
+    }
+  },
+  {
+    "code": "equip_lv60_voidstalker_feet",
+    "slot": "FEET",
+    "namePtBr": "Botas do Caçador do Vácuo Astral",
+    "nameEn": "Astral Void Stalker Boots",
+    "descPtBr": "Calçados lendários que conferem propulsão e agilidade suprema em terreno hostil. [Conjunto Caçador do Vácuo Astral: Lv. 60 (Lendário) - Caçadora (75%) > Paladino (25%)].",
+    "descEn": "Legendary footwear providing supreme speed and propulsion across hostile terrain. [Astral Void Stalker Set: Lv. 60 (Legendary) - Caçadora (75%) > Paladino (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_020810.png",
+    "combatStats": {
+      "PHYS_DEF": 150,
+      "MAG_DEF": 100,
+      "MAX_HP": 500,
+      "PHYS_ATK": 120,
+      "BATTLE_MOVE_SPEED": 90
+    }
+  },
+  {
+    "code": "equip_lv60_voidstalker_weapon1",
+    "slot": "WEAPON_1",
+    "namePtBr": "Arco do Caçador do Vácuo",
+    "nameEn": "Void Stalker Bow",
+    "descPtBr": "Arma primária lendária consagrada nas mais ferozes guerras divinas. [Conjunto Caçador do Vácuo Astral: Lv. 60 (Lendário) - Caçadora (75%) > Paladino (25%)].",
+    "descEn": "Legendary primary weapon consecrated in the fiercest divine wars. [Astral Void Stalker Set: Lv. 60 (Legendary) - Caçadora (75%) > Paladino (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_020115.png",
+    "combatStats": {
+      "PHYS_ATK": 740,
+      "CRIT_RATE": 120,
+      "CRIT_DMG": 100,
+      "ATTACK_RANGE": 85,
+      "PHYS_ACCURACY": 80
+    }
+  },
+  {
+    "code": "equip_lv60_voidstalker_weapon2",
+    "slot": "WEAPON_2",
+    "namePtBr": "Aljava do Caçador do Vácuo",
+    "nameEn": "Void Stalker Quiver",
+    "descPtBr": "Armamento secundário lendário perfeitamente balanceado para máxima eficácia tática. [Conjunto Caçador do Vácuo Astral: Lv. 60 (Lendário) - Caçadora (75%) > Paladino (25%)].",
+    "descEn": "Legendary secondary equipment perfectly balanced for maximum tactical efficiency. [Astral Void Stalker Set: Lv. 60 (Legendary) - Caçadora (75%) > Paladino (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_020213.png",
+    "combatStats": {
+      "PHYS_ATK": 380,
+      "PHYS_DEF": 190,
+      "CRIT_RATE": 85,
+      "ATTACK_RANGE": 55,
+      "PHYS_ACCURACY": 70
+    }
+  },
+  {
+    "code": "equip_lv60_voidstalker_ring",
+    "slot": "RING",
+    "namePtBr": "Anel do Caçador do Vácuo Astral",
+    "nameEn": "Astral Void Stalker Ring",
+    "descPtBr": "Joia lendária incrustada com essência cósmica que aprimora o poder de batalha. [Conjunto Caçador do Vácuo Astral: Lv. 60 (Lendário) - Caçadora (75%) > Paladino (25%)].",
+    "descEn": "Legendary ring encrusted with cosmic essence boosting combat prowess. [Astral Void Stalker Set: Lv. 60 (Legendary) - Caçadora (75%) > Paladino (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_001009.png",
+    "combatStats": {
+      "PHYS_ATK": 230,
+      "CRIT_RATE": 90,
+      "CRIT_DMG": 70,
+      "MAX_HP": 600
+    }
+  },
+  {
+    "code": "equip_lv60_voidstalker_necklace",
+    "slot": "NECKLACE",
+    "namePtBr": "Colar do Caçador do Vácuo Astral",
+    "nameEn": "Astral Void Stalker Necklace",
+    "descPtBr": "Amuleto sagrado que amplia atributos ofensivos e letalidade de golpes. [Conjunto Caçador do Vácuo Astral: Lv. 60 (Lendário) - Caçadora (75%) > Paladino (25%)].",
+    "descEn": "Sacred necklace amplifying offensive attributes and critical strike power. [Astral Void Stalker Set: Lv. 60 (Legendary) - Caçadora (75%) > Paladino (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_000909.png",
+    "combatStats": {
+      "PHYS_ATK": 250,
+      "CRIT_RATE": 95,
+      "CRIT_DMG": 75,
+      "MAX_HP": 650
+    }
+  },
+  {
+    "code": "equip_lv60_voidstalker_ornament1",
+    "slot": "ORNAMENT_1",
+    "namePtBr": "Ornamento Tático do Caçador do Vácuo Astral",
+    "nameEn": "Astral Void Stalker Tactical Ornament",
+    "descPtBr": "Acessório tático lendário que aperfeiçoa reflexos, precisão e velocidade. [Conjunto Caçador do Vácuo Astral: Lv. 60 (Lendário) - Caçadora (75%) > Paladino (25%)].",
+    "descEn": "Tactical legendary ornament improving reflexes, accuracy, and quickness. [Astral Void Stalker Set: Lv. 60 (Legendary) - Caçadora (75%) > Paladino (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_011114.png",
+    "combatStats": {
+      "PHYS_ATK": 190,
+      "PHYS_ACCURACY": 70,
+      "ATTACK_RANGE": 40,
+      "MAX_HP": 500
+    }
+  },
+  {
+    "code": "equip_lv60_voidstalker_ornament2",
+    "slot": "ORNAMENT_2",
+    "namePtBr": "Insígnia dos Deuses do Caçador do Vácuo Astral",
+    "nameEn": "Astral Void Stalker Gods Insignia",
+    "descPtBr": "Selo de glória que canaliza a bênção dos deuses ancestrais de Etheria. [Conjunto Caçador do Vácuo Astral: Lv. 60 (Lendário) - Caçadora (75%) > Paladino (25%)].",
+    "descEn": "Glory crest channeling the blessings of ancient Etherian gods. [Astral Void Stalker Set: Lv. 60 (Legendary) - Caçadora (75%) > Paladino (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_011210.png",
+    "combatStats": {
+      "PHYS_ATK": 190,
+      "BATTLE_MOVE_SPEED": 60,
+      "PHYS_EVASION": 55,
+      "MAX_HP": 500
+    }
+  },
+  {
+    "code": "equip_lv60_orbitaldestroyer_head",
+    "slot": "HEAD",
+    "namePtBr": "Elmo do Aniquilador Orbital",
+    "nameEn": "Orbital Destroyer Helm",
+    "descPtBr": "Proteção craniana lendária forjada para campeões veteranos. [Conjunto Aniquilador Orbital: Lv. 60 (Lendário) - Atirador (75%) > Assassino (25%)].",
+    "descEn": "Legendary headgear forged for veteran champions. [Orbital Destroyer Set: Lv. 60 (Legendary) - Atirador (75%) > Assassino (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_060309.png",
+    "combatStats": {
+      "PHYS_DEF": 250,
+      "MAG_DEF": 150,
+      "MAX_HP": 780,
+      "PHYS_ATK": 210,
+      "CRIT_RATE": 80
+    }
+  },
+  {
+    "code": "equip_lv60_orbitaldestroyer_shoulder",
+    "slot": "SHOULDER",
+    "namePtBr": "Ombreiras do Aniquilador Orbital",
+    "nameEn": "Orbital Destroyer Pauldrons",
+    "descPtBr": "Espaldares reforçados que defletem impactos e estabilizam postura marcial. [Conjunto Aniquilador Orbital: Lv. 60 (Lendário) - Atirador (75%) > Assassino (25%)].",
+    "descEn": "Reinforced pauldrons that deflect strikes and stabilize battle posture. [Orbital Destroyer Set: Lv. 60 (Legendary) - Atirador (75%) > Assassino (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_060409.png",
+    "combatStats": {
+      "PHYS_DEF": 190,
+      "MAG_DEF": 120,
+      "MAX_HP": 620,
+      "PHYS_ATK": 160,
+      "PHYS_PEN": 50
+    }
+  },
+  {
+    "code": "equip_lv60_orbitaldestroyer_chest",
+    "slot": "CHEST",
+    "namePtBr": "Peitoral do Aniquilador Orbital",
+    "nameEn": "Orbital Destroyer Chestplate",
+    "descPtBr": "Armadura de tronco sublime com resistência física e mágica incomparáveis. [Conjunto Aniquilador Orbital: Lv. 60 (Lendário) - Atirador (75%) > Assassino (25%)].",
+    "descEn": "Sublime torso armor granting unmatched physical and magical defense. [Orbital Destroyer Set: Lv. 60 (Legendary) - Atirador (75%) > Assassino (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_060509.png",
+    "combatStats": {
+      "PHYS_DEF": 320,
+      "MAG_DEF": 190,
+      "MAX_HP": 1000,
+      "PHYS_ATK": 270,
+      "PHYS_PEN": 80
+    }
+  },
+  {
+    "code": "equip_lv60_orbitaldestroyer_belt",
+    "slot": "BELT",
+    "namePtBr": "Cinto do Aniquilador Orbital",
+    "nameEn": "Orbital Destroyer Belt",
+    "descPtBr": "Cinturão reforçado com placas rúnicas para equilíbrio perfeito em combate. [Conjunto Aniquilador Orbital: Lv. 60 (Lendário) - Atirador (75%) > Assassino (25%)].",
+    "descEn": "Reinforced belt with runic plating for ideal combat equilibrium. [Orbital Destroyer Set: Lv. 60 (Legendary) - Atirador (75%) > Assassino (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_060609.png",
+    "combatStats": {
+      "PHYS_DEF": 170,
+      "MAG_DEF": 110,
+      "MAX_HP": 550,
+      "PHYS_ATK": 140,
+      "PHYS_PEN": 45
+    }
+  },
+  {
+    "code": "equip_lv60_orbitaldestroyer_legs",
+    "slot": "LEGS",
+    "namePtBr": "Grevas do Aniquilador Orbital",
+    "nameEn": "Orbital Destroyer Greaves",
+    "descPtBr": "Perneiras articuladas de alta mobilidade e absorção de choque contínuo. [Conjunto Aniquilador Orbital: Lv. 60 (Lendário) - Atirador (75%) > Assassino (25%)].",
+    "descEn": "Articulated greaves providing high mobility and continuous shock absorption. [Orbital Destroyer Set: Lv. 60 (Legendary) - Atirador (75%) > Assassino (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_060709.png",
+    "combatStats": {
+      "PHYS_DEF": 230,
+      "MAG_DEF": 140,
+      "MAX_HP": 720,
+      "PHYS_ATK": 180,
+      "PHYS_PEN": 55
+    }
+  },
+  {
+    "code": "equip_lv60_orbitaldestroyer_feet",
+    "slot": "FEET",
+    "namePtBr": "Botas do Aniquilador Orbital",
+    "nameEn": "Orbital Destroyer Boots",
+    "descPtBr": "Calçados lendários que conferem propulsão e agilidade suprema em terreno hostil. [Conjunto Aniquilador Orbital: Lv. 60 (Lendário) - Atirador (75%) > Assassino (25%)].",
+    "descEn": "Legendary footwear providing supreme speed and propulsion across hostile terrain. [Orbital Destroyer Set: Lv. 60 (Legendary) - Atirador (75%) > Assassino (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_060809.png",
+    "combatStats": {
+      "PHYS_DEF": 150,
+      "MAG_DEF": 100,
+      "MAX_HP": 480,
+      "PHYS_ATK": 130,
+      "BATTLE_MOVE_SPEED": 75
+    }
+  },
+  {
+    "code": "equip_lv60_orbitaldestroyer_weapon1",
+    "slot": "WEAPON_1",
+    "namePtBr": "Rifle Aniquilador Orbital",
+    "nameEn": "Orbital Destroyer Rifle",
+    "descPtBr": "Arma primária lendária consagrada nas mais ferozes guerras divinas. [Conjunto Aniquilador Orbital: Lv. 60 (Lendário) - Atirador (75%) > Assassino (25%)].",
+    "descEn": "Legendary primary weapon consecrated in the fiercest divine wars. [Orbital Destroyer Set: Lv. 60 (Legendary) - Atirador (75%) > Assassino (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_060117.png",
+    "combatStats": {
+      "PHYS_ATK": 780,
+      "PHYS_PEN": 160,
+      "CRIT_RATE": 120,
+      "ATTACK_RANGE": 105,
+      "PHYS_ACCURACY": 85
+    }
+  },
+  {
+    "code": "equip_lv60_orbitaldestroyer_weapon2",
+    "slot": "WEAPON_2",
+    "namePtBr": "Canhão Secundário Orbital",
+    "nameEn": "Orbital Secondary Cannon",
+    "descPtBr": "Armamento secundário lendário perfeitamente balanceado para máxima eficácia tática. [Conjunto Aniquilador Orbital: Lv. 60 (Lendário) - Atirador (75%) > Assassino (25%)].",
+    "descEn": "Legendary secondary equipment perfectly balanced for maximum tactical efficiency. [Orbital Destroyer Set: Lv. 60 (Legendary) - Atirador (75%) > Assassino (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_060215.png",
+    "combatStats": {
+      "PHYS_ATK": 410,
+      "PHYS_DEF": 190,
+      "PHYS_PEN": 110,
+      "ATTACK_RANGE": 65,
+      "PHYS_ACCURACY": 70
+    }
+  },
+  {
+    "code": "equip_lv60_orbitaldestroyer_ring",
+    "slot": "RING",
+    "namePtBr": "Anel do Aniquilador Orbital",
+    "nameEn": "Orbital Destroyer Ring",
+    "descPtBr": "Joia lendária incrustada com essência cósmica que aprimora o poder de batalha. [Conjunto Aniquilador Orbital: Lv. 60 (Lendário) - Atirador (75%) > Assassino (25%)].",
+    "descEn": "Legendary ring encrusted with cosmic essence boosting combat prowess. [Orbital Destroyer Set: Lv. 60 (Legendary) - Atirador (75%) > Assassino (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_011010.png",
+    "combatStats": {
+      "PHYS_ATK": 250,
+      "CRIT_RATE": 100,
+      "PHYS_PEN": 70,
+      "MAX_HP": 580
+    }
+  },
+  {
+    "code": "equip_lv60_orbitaldestroyer_necklace",
+    "slot": "NECKLACE",
+    "namePtBr": "Colar do Aniquilador Orbital",
+    "nameEn": "Orbital Destroyer Necklace",
+    "descPtBr": "Amuleto sagrado que amplia atributos ofensivos e letalidade de golpes. [Conjunto Aniquilador Orbital: Lv. 60 (Lendário) - Atirador (75%) > Assassino (25%)].",
+    "descEn": "Sacred necklace amplifying offensive attributes and critical strike power. [Orbital Destroyer Set: Lv. 60 (Legendary) - Atirador (75%) > Assassino (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_010910.png",
+    "combatStats": {
+      "PHYS_ATK": 270,
+      "CRIT_DMG": 85,
+      "PHYS_PEN": 75,
+      "MAX_HP": 620
+    }
+  },
+  {
+    "code": "equip_lv60_orbitaldestroyer_ornament1",
+    "slot": "ORNAMENT_1",
+    "namePtBr": "Ornamento Tático do Aniquilador Orbital",
+    "nameEn": "Orbital Destroyer Tactical Ornament",
+    "descPtBr": "Acessório tático lendário que aperfeiçoa reflexos, precisão e velocidade. [Conjunto Aniquilador Orbital: Lv. 60 (Lendário) - Atirador (75%) > Assassino (25%)].",
+    "descEn": "Tactical legendary ornament improving reflexes, accuracy, and quickness. [Orbital Destroyer Set: Lv. 60 (Legendary) - Atirador (75%) > Assassino (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_011115.png",
+    "combatStats": {
+      "PHYS_ATK": 210,
+      "PHYS_ACCURACY": 75,
+      "ATTACK_RANGE": 50,
+      "MAX_HP": 500
+    }
+  },
+  {
+    "code": "equip_lv60_orbitaldestroyer_ornament2",
+    "slot": "ORNAMENT_2",
+    "namePtBr": "Insígnia dos Deuses do Aniquilador Orbital",
+    "nameEn": "Orbital Destroyer Gods Insignia",
+    "descPtBr": "Selo de glória que canaliza a bênção dos deuses ancestrais de Etheria. [Conjunto Aniquilador Orbital: Lv. 60 (Lendário) - Atirador (75%) > Assassino (25%)].",
+    "descEn": "Glory crest channeling the blessings of ancient Etherian gods. [Orbital Destroyer Set: Lv. 60 (Legendary) - Atirador (75%) > Assassino (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_011212.png",
+    "combatStats": {
+      "PHYS_ATK": 210,
+      "BATTLE_MOVE_SPEED": 50,
+      "PHYS_PEN": 60,
+      "MAX_HP": 500
+    }
+  },
+  {
+    "code": "equip_lv60_ghostreaper_head",
+    "slot": "HEAD",
+    "namePtBr": "Elmo do Ceifador Fantasma Cósmico",
+    "nameEn": "Cosmic Ghost Reaper Helm",
+    "descPtBr": "Proteção craniana lendária forjada para campeões veteranos. [Conjunto Ceifador Fantasma Cósmico: Lv. 60 (Lendário) - Assassino (75%) > Atirador (25%)].",
+    "descEn": "Legendary headgear forged for veteran champions. [Cosmic Ghost Reaper Set: Lv. 60 (Legendary) - Assassino (75%) > Atirador (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_060310.png",
+    "combatStats": {
+      "PHYS_DEF": 240,
+      "MAG_DEF": 140,
+      "MAX_HP": 750,
+      "PHYS_ATK": 210,
+      "CRIT_RATE": 95
+    }
+  },
+  {
+    "code": "equip_lv60_ghostreaper_shoulder",
+    "slot": "SHOULDER",
+    "namePtBr": "Ombreiras do Ceifador Fantasma Cósmico",
+    "nameEn": "Cosmic Ghost Reaper Pauldrons",
+    "descPtBr": "Espaldares reforçados que defletem impactos e estabilizam postura marcial. [Conjunto Ceifador Fantasma Cósmico: Lv. 60 (Lendário) - Assassino (75%) > Atirador (25%)].",
+    "descEn": "Reinforced pauldrons that deflect strikes and stabilize battle posture. [Cosmic Ghost Reaper Set: Lv. 60 (Legendary) - Assassino (75%) > Atirador (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_060410.png",
+    "combatStats": {
+      "PHYS_DEF": 180,
+      "MAG_DEF": 110,
+      "MAX_HP": 600,
+      "PHYS_ATK": 160,
+      "PHYS_EVASION": 60
+    }
+  },
+  {
+    "code": "equip_lv60_ghostreaper_chest",
+    "slot": "CHEST",
+    "namePtBr": "Peitoral do Ceifador Fantasma Cósmico",
+    "nameEn": "Cosmic Ghost Reaper Chestplate",
+    "descPtBr": "Armadura de tronco sublime com resistência física e mágica incomparáveis. [Conjunto Ceifador Fantasma Cósmico: Lv. 60 (Lendário) - Assassino (75%) > Atirador (25%)].",
+    "descEn": "Sublime torso armor granting unmatched physical and magical defense. [Cosmic Ghost Reaper Set: Lv. 60 (Legendary) - Assassino (75%) > Atirador (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_060510.png",
+    "combatStats": {
+      "PHYS_DEF": 300,
+      "MAG_DEF": 180,
+      "MAX_HP": 980,
+      "PHYS_ATK": 260,
+      "PHYS_EVASION": 80
+    }
+  },
+  {
+    "code": "equip_lv60_ghostreaper_belt",
+    "slot": "BELT",
+    "namePtBr": "Cinto do Ceifador Fantasma Cósmico",
+    "nameEn": "Cosmic Ghost Reaper Belt",
+    "descPtBr": "Cinturão reforçado com placas rúnicas para equilíbrio perfeito em combate. [Conjunto Ceifador Fantasma Cósmico: Lv. 60 (Lendário) - Assassino (75%) > Atirador (25%)].",
+    "descEn": "Reinforced belt with runic plating for ideal combat equilibrium. [Cosmic Ghost Reaper Set: Lv. 60 (Legendary) - Assassino (75%) > Atirador (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_060610.png",
+    "combatStats": {
+      "PHYS_DEF": 160,
+      "MAG_DEF": 100,
+      "MAX_HP": 520,
+      "PHYS_ATK": 140,
+      "CRIT_RATE": 55
+    }
+  },
+  {
+    "code": "equip_lv60_ghostreaper_legs",
+    "slot": "LEGS",
+    "namePtBr": "Grevas do Ceifador Fantasma Cósmico",
+    "nameEn": "Cosmic Ghost Reaper Greaves",
+    "descPtBr": "Perneiras articuladas de alta mobilidade e absorção de choque contínuo. [Conjunto Ceifador Fantasma Cósmico: Lv. 60 (Lendário) - Assassino (75%) > Atirador (25%)].",
+    "descEn": "Articulated greaves providing high mobility and continuous shock absorption. [Cosmic Ghost Reaper Set: Lv. 60 (Legendary) - Assassino (75%) > Atirador (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_060710.png",
+    "combatStats": {
+      "PHYS_DEF": 220,
+      "MAG_DEF": 130,
+      "MAX_HP": 700,
+      "PHYS_ATK": 180,
+      "PHYS_EVASION": 65
+    }
+  },
+  {
+    "code": "equip_lv60_ghostreaper_feet",
+    "slot": "FEET",
+    "namePtBr": "Botas do Ceifador Fantasma Cósmico",
+    "nameEn": "Cosmic Ghost Reaper Boots",
+    "descPtBr": "Calçados lendários que conferem propulsão e agilidade suprema em terreno hostil. [Conjunto Ceifador Fantasma Cósmico: Lv. 60 (Lendário) - Assassino (75%) > Atirador (25%)].",
+    "descEn": "Legendary footwear providing supreme speed and propulsion across hostile terrain. [Cosmic Ghost Reaper Set: Lv. 60 (Legendary) - Assassino (75%) > Atirador (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_060810.png",
+    "combatStats": {
+      "PHYS_DEF": 140,
+      "MAG_DEF": 90,
+      "MAX_HP": 450,
+      "PHYS_ATK": 130,
+      "BATTLE_MOVE_SPEED": 95,
+      "PHYS_EVASION": 60
+    }
+  },
+  {
+    "code": "equip_lv60_ghostreaper_weapon1",
+    "slot": "WEAPON_1",
+    "namePtBr": "Adagas do Ceifador Fantasma",
+    "nameEn": "Ghost Reaper Daggers",
+    "descPtBr": "Arma primária lendária consagrada nas mais ferozes guerras divinas. [Conjunto Ceifador Fantasma Cósmico: Lv. 60 (Lendário) - Assassino (75%) > Atirador (25%)].",
+    "descEn": "Legendary primary weapon consecrated in the fiercest divine wars. [Cosmic Ghost Reaper Set: Lv. 60 (Legendary) - Assassino (75%) > Atirador (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_060116.png",
+    "combatStats": {
+      "PHYS_ATK": 710,
+      "CRIT_RATE": 150,
+      "CRIT_DMG": 135,
+      "ATTACK_SPEED": 0.75,
+      "PHYS_EVASION": 85
+    }
+  },
+  {
+    "code": "equip_lv60_ghostreaper_weapon2",
+    "slot": "WEAPON_2",
+    "namePtBr": "Garra Sombria do Ceifador",
+    "nameEn": "Ghost Reaper Shadow Claw",
+    "descPtBr": "Armamento secundário lendário perfeitamente balanceado para máxima eficácia tática. [Conjunto Ceifador Fantasma Cósmico: Lv. 60 (Lendário) - Assassino (75%) > Atirador (25%)].",
+    "descEn": "Legendary secondary equipment perfectly balanced for maximum tactical efficiency. [Cosmic Ghost Reaper Set: Lv. 60 (Legendary) - Assassino (75%) > Atirador (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_060214.png",
+    "combatStats": {
+      "PHYS_ATK": 420,
+      "ATTACK_SPEED": 0.65,
+      "CRIT_RATE": 110,
+      "PHYS_EVASION": 70,
+      "PHYS_ACCURACY": 65
+    }
+  },
+  {
+    "code": "equip_lv60_ghostreaper_ring",
+    "slot": "RING",
+    "namePtBr": "Anel do Ceifador Fantasma Cósmico",
+    "nameEn": "Cosmic Ghost Reaper Ring",
+    "descPtBr": "Joia lendária incrustada com essência cósmica que aprimora o poder de batalha. [Conjunto Ceifador Fantasma Cósmico: Lv. 60 (Lendário) - Assassino (75%) > Atirador (25%)].",
+    "descEn": "Legendary ring encrusted with cosmic essence boosting combat prowess. [Cosmic Ghost Reaper Set: Lv. 60 (Legendary) - Assassino (75%) > Atirador (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_001010.png",
+    "combatStats": {
+      "PHYS_ATK": 250,
+      "CRIT_RATE": 115,
+      "CRIT_DMG": 85,
+      "MAX_HP": 550
+    }
+  },
+  {
+    "code": "equip_lv60_ghostreaper_necklace",
+    "slot": "NECKLACE",
+    "namePtBr": "Colar do Ceifador Fantasma Cósmico",
+    "nameEn": "Cosmic Ghost Reaper Necklace",
+    "descPtBr": "Amuleto sagrado que amplia atributos ofensivos e letalidade de golpes. [Conjunto Ceifador Fantasma Cósmico: Lv. 60 (Lendário) - Assassino (75%) > Atirador (25%)].",
+    "descEn": "Sacred necklace amplifying offensive attributes and critical strike power. [Cosmic Ghost Reaper Set: Lv. 60 (Legendary) - Assassino (75%) > Atirador (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_000910.png",
+    "combatStats": {
+      "PHYS_ATK": 270,
+      "CRIT_RATE": 120,
+      "CRIT_DMG": 90,
+      "MAX_HP": 600
+    }
+  },
+  {
+    "code": "equip_lv60_ghostreaper_ornament1",
+    "slot": "ORNAMENT_1",
+    "namePtBr": "Ornamento Tático do Ceifador Fantasma Cósmico",
+    "nameEn": "Cosmic Ghost Reaper Tactical Ornament",
+    "descPtBr": "Acessório tático lendário que aperfeiçoa reflexos, precisão e velocidade. [Conjunto Ceifador Fantasma Cósmico: Lv. 60 (Lendário) - Assassino (75%) > Atirador (25%)].",
+    "descEn": "Tactical legendary ornament improving reflexes, accuracy, and quickness. [Cosmic Ghost Reaper Set: Lv. 60 (Legendary) - Assassino (75%) > Atirador (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_001110.png",
+    "combatStats": {
+      "PHYS_ATK": 210,
+      "PHYS_EVASION": 75,
+      "CRIT_RATE": 65,
+      "MAX_HP": 480
+    }
+  },
+  {
+    "code": "equip_lv60_ghostreaper_ornament2",
+    "slot": "ORNAMENT_2",
+    "namePtBr": "Insígnia dos Deuses do Ceifador Fantasma Cósmico",
+    "nameEn": "Cosmic Ghost Reaper Gods Insignia",
+    "descPtBr": "Selo de glória que canaliza a bênção dos deuses ancestrais de Etheria. [Conjunto Ceifador Fantasma Cósmico: Lv. 60 (Lendário) - Assassino (75%) > Atirador (25%)].",
+    "descEn": "Glory crest channeling the blessings of ancient Etherian gods. [Cosmic Ghost Reaper Set: Lv. 60 (Legendary) - Assassino (75%) > Atirador (25%)].",
+    "icon": "assets/equipment/icons/equip_normal_001210.png",
+    "combatStats": {
+      "PHYS_ATK": 210,
+      "BATTLE_MOVE_SPEED": 65,
+      "PHYS_ACCURACY": 70,
+      "MAX_HP": 480
+    }
+  }
+]

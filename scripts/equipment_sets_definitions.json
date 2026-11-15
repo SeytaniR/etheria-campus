@@ -8,9 +8,17 @@
     "rarityTier": "COMMON",
     "minPiecesFull": 12,
     "minPiecesHalf": 6,
-    "halfBonusRatioPct": 40.0,
-    "fullBonusRatioPct": 100.0,
-    "bonusCombatStatsJson": { "MAX_HP": 60, "MAX_MP": 20, "PHYS_ATK": 8, "MAG_ATK": 8, "PHYS_DEF": 6, "MAG_DEF": 6, "BATTLE_MOVE_SPEED": 10 }
+    "halfBonusRatioPct": 40,
+    "fullBonusRatioPct": 100,
+    "bonusCombatStatsJson": {
+      "MAX_HP": 60,
+      "MAX_MP": 20,
+      "PHYS_ATK": 8,
+      "MAG_ATK": 8,
+      "PHYS_DEF": 6,
+      "MAG_DEF": 6,
+      "BATTLE_MOVE_SPEED": 10
+    }
   },
   {
     "code": "set_lv40_requiem",
@@ -21,9 +29,17 @@
     "rarityTier": "RARE",
     "minPiecesFull": 12,
     "minPiecesHalf": 6,
-    "halfBonusRatioPct": 40.0,
-    "fullBonusRatioPct": 100.0,
-    "bonusCombatStatsJson": { "MAX_HP": 900, "MAX_MP": 300, "MAG_ATK": 140, "MAG_DEF": 75, "HEAL_POWER": 70, "BATTLE_MOVE_SPEED": 25, "CRIT_RATE": 4.0 }
+    "halfBonusRatioPct": 40,
+    "fullBonusRatioPct": 100,
+    "bonusCombatStatsJson": {
+      "MAX_HP": 900,
+      "MAX_MP": 300,
+      "MAG_ATK": 140,
+      "MAG_DEF": 75,
+      "HEAL_POWER": 70,
+      "BATTLE_MOVE_SPEED": 25,
+      "CRIT_RATE": 4
+    }
   },
   {
     "code": "set_lv40_celestial",
@@ -34,9 +50,17 @@
     "rarityTier": "RARE",
     "minPiecesFull": 12,
     "minPiecesHalf": 6,
-    "halfBonusRatioPct": 40.0,
-    "fullBonusRatioPct": 100.0,
-    "bonusCombatStatsJson": { "MAX_HP": 850, "MAX_MP": 350, "MAG_ATK": 160, "HEAL_POWER": 90, "MAG_DEF": 80, "BATTLE_MOVE_SPEED": 20, "MAG_PEN": 45 }
+    "halfBonusRatioPct": 40,
+    "fullBonusRatioPct": 100,
+    "bonusCombatStatsJson": {
+      "MAX_HP": 850,
+      "MAX_MP": 350,
+      "MAG_ATK": 160,
+      "HEAL_POWER": 90,
+      "MAG_DEF": 80,
+      "BATTLE_MOVE_SPEED": 20,
+      "MAG_PEN": 45
+    }
   },
   {
     "code": "set_lv40_titan",
@@ -47,9 +71,16 @@
     "rarityTier": "RARE",
     "minPiecesFull": 12,
     "minPiecesHalf": 6,
-    "halfBonusRatioPct": 40.0,
-    "fullBonusRatioPct": 100.0,
-    "bonusCombatStatsJson": { "MAX_HP": 1200, "PHYS_ATK": 130, "PHYS_DEF": 110, "MAG_DEF": 60, "BATTLE_MOVE_SPEED": 20, "PHYS_PEN": 50 }
+    "halfBonusRatioPct": 40,
+    "fullBonusRatioPct": 100,
+    "bonusCombatStatsJson": {
+      "MAX_HP": 1200,
+      "PHYS_ATK": 130,
+      "PHYS_DEF": 110,
+      "MAG_DEF": 60,
+      "BATTLE_MOVE_SPEED": 20,
+      "PHYS_PEN": 50
+    }
   },
   {
     "code": "set_lv40_crimson",
@@ -60,9 +91,16 @@
     "rarityTier": "RARE",
     "minPiecesFull": 12,
     "minPiecesHalf": 6,
-    "halfBonusRatioPct": 40.0,
-    "fullBonusRatioPct": 100.0,
-    "bonusCombatStatsJson": { "MAX_HP": 1000, "PHYS_ATK": 150, "PHYS_DEF": 80, "ATTACK_SPEED": 0.25, "BATTLE_MOVE_SPEED": 35, "CRIT_RATE": 5.0 }
+    "halfBonusRatioPct": 40,
+    "fullBonusRatioPct": 100,
+    "bonusCombatStatsJson": {
+      "MAX_HP": 1000,
+      "PHYS_ATK": 150,
+      "PHYS_DEF": 80,
+      "ATTACK_SPEED": 0.25,
+      "BATTLE_MOVE_SPEED": 35,
+      "CRIT_RATE": 5
+    }
   },
   {
     "code": "set_lv40_sentinel",
@@ -73,9 +111,16 @@
     "rarityTier": "RARE",
     "minPiecesFull": 12,
     "minPiecesHalf": 6,
-    "halfBonusRatioPct": 40.0,
-    "fullBonusRatioPct": 100.0,
-    "bonusCombatStatsJson": { "MAX_HP": 1150, "PHYS_ATK": 110, "PHYS_DEF": 100, "MAG_DEF": 70, "BATTLE_MOVE_SPEED": 30, "CRIT_RATE": 4.5 }
+    "halfBonusRatioPct": 40,
+    "fullBonusRatioPct": 100,
+    "bonusCombatStatsJson": {
+      "MAX_HP": 1150,
+      "PHYS_ATK": 110,
+      "PHYS_DEF": 100,
+      "MAG_DEF": 70,
+      "BATTLE_MOVE_SPEED": 30,
+      "CRIT_RATE": 4.5
+    }
   },
   {
     "code": "set_lv40_shadow",
@@ -86,9 +131,17 @@
     "rarityTier": "RARE",
     "minPiecesFull": 12,
     "minPiecesHalf": 6,
-    "halfBonusRatioPct": 40.0,
-    "fullBonusRatioPct": 100.0,
-    "bonusCombatStatsJson": { "MAX_HP": 800, "PHYS_ATK": 170, "PHYS_DEF": 65, "CRIT_RATE": 6.5, "CRIT_DMG": 12.0, "BATTLE_MOVE_SPEED": 40, "PHYS_PEN": 55 }
+    "halfBonusRatioPct": 40,
+    "fullBonusRatioPct": 100,
+    "bonusCombatStatsJson": {
+      "MAX_HP": 800,
+      "PHYS_ATK": 170,
+      "PHYS_DEF": 65,
+      "CRIT_RATE": 6.5,
+      "CRIT_DMG": 12,
+      "BATTLE_MOVE_SPEED": 40,
+      "PHYS_PEN": 55
+    }
   },
   {
     "code": "set_lv40_reaper",
@@ -99,9 +152,16 @@
     "rarityTier": "RARE",
     "minPiecesFull": 12,
     "minPiecesHalf": 6,
-    "halfBonusRatioPct": 40.0,
-    "fullBonusRatioPct": 100.0,
-    "bonusCombatStatsJson": { "MAX_HP": 950, "MAG_ATK": 180, "MAG_PEN": 60, "MAG_DEF": 70, "CRIT_RATE": 5.0, "BATTLE_MOVE_SPEED": 20 }
+    "halfBonusRatioPct": 40,
+    "fullBonusRatioPct": 100,
+    "bonusCombatStatsJson": {
+      "MAX_HP": 950,
+      "MAG_ATK": 180,
+      "MAG_PEN": 60,
+      "MAG_DEF": 70,
+      "CRIT_RATE": 5,
+      "BATTLE_MOVE_SPEED": 20
+    }
   },
   {
     "code": "set_lv40_symphony",
@@ -112,9 +172,16 @@
     "rarityTier": "RARE",
     "minPiecesFull": 12,
     "minPiecesHalf": 6,
-    "halfBonusRatioPct": 40.0,
-    "fullBonusRatioPct": 100.0,
-    "bonusCombatStatsJson": { "MAX_HP": 900, "MAG_ATK": 120, "HEAL_POWER": 110, "ATTACK_SPEED": 0.30, "BATTLE_MOVE_SPEED": 40, "CRIT_RATE": 4.0 }
+    "halfBonusRatioPct": 40,
+    "fullBonusRatioPct": 100,
+    "bonusCombatStatsJson": {
+      "MAX_HP": 900,
+      "MAG_ATK": 120,
+      "HEAL_POWER": 110,
+      "ATTACK_SPEED": 0.3,
+      "BATTLE_MOVE_SPEED": 40,
+      "CRIT_RATE": 4
+    }
   },
   {
     "code": "set_lv40_cataclysm",
@@ -125,9 +192,16 @@
     "rarityTier": "RARE",
     "minPiecesFull": 12,
     "minPiecesHalf": 6,
-    "halfBonusRatioPct": 40.0,
-    "fullBonusRatioPct": 100.0,
-    "bonusCombatStatsJson": { "MAX_HP": 800, "MAG_ATK": 210, "MAG_PEN": 70, "MAG_DEF": 65, "CRIT_RATE": 6.0, "BATTLE_MOVE_SPEED": 25 }
+    "halfBonusRatioPct": 40,
+    "fullBonusRatioPct": 100,
+    "bonusCombatStatsJson": {
+      "MAX_HP": 800,
+      "MAG_ATK": 210,
+      "MAG_PEN": 70,
+      "MAG_DEF": 65,
+      "CRIT_RATE": 6,
+      "BATTLE_MOVE_SPEED": 25
+    }
   },
   {
     "code": "set_lv40_aurora",
@@ -138,9 +212,16 @@
     "rarityTier": "RARE",
     "minPiecesFull": 12,
     "minPiecesHalf": 6,
-    "halfBonusRatioPct": 40.0,
-    "fullBonusRatioPct": 100.0,
-    "bonusCombatStatsJson": { "MAX_HP": 1100, "MAX_MP": 400, "HEAL_POWER": 140, "MAG_DEF": 95, "PHYS_DEF": 75, "BATTLE_MOVE_SPEED": 20 }
+    "halfBonusRatioPct": 40,
+    "fullBonusRatioPct": 100,
+    "bonusCombatStatsJson": {
+      "MAX_HP": 1100,
+      "MAX_MP": 400,
+      "HEAL_POWER": 140,
+      "MAG_DEF": 95,
+      "PHYS_DEF": 75,
+      "BATTLE_MOVE_SPEED": 20
+    }
   },
   {
     "code": "set_lv40_colossus",
@@ -151,9 +232,15 @@
     "rarityTier": "RARE",
     "minPiecesFull": 12,
     "minPiecesHalf": 6,
-    "halfBonusRatioPct": 40.0,
-    "fullBonusRatioPct": 100.0,
-    "bonusCombatStatsJson": { "MAX_HP": 1400, "PHYS_ATK": 140, "PHYS_DEF": 130, "MAG_DEF": 60, "BATTLE_MOVE_SPEED": 15 }
+    "halfBonusRatioPct": 40,
+    "fullBonusRatioPct": 100,
+    "bonusCombatStatsJson": {
+      "MAX_HP": 1400,
+      "PHYS_ATK": 140,
+      "PHYS_DEF": 130,
+      "MAG_DEF": 60,
+      "BATTLE_MOVE_SPEED": 15
+    }
   },
   {
     "code": "set_lv40_skylance",
@@ -164,9 +251,16 @@
     "rarityTier": "RARE",
     "minPiecesFull": 12,
     "minPiecesHalf": 6,
-    "halfBonusRatioPct": 40.0,
-    "fullBonusRatioPct": 100.0,
-    "bonusCombatStatsJson": { "MAX_HP": 1050, "PHYS_ATK": 160, "PHYS_PEN": 75, "PHYS_DEF": 90, "CRIT_RATE": 5.5, "BATTLE_MOVE_SPEED": 35 }
+    "halfBonusRatioPct": 40,
+    "fullBonusRatioPct": 100,
+    "bonusCombatStatsJson": {
+      "MAX_HP": 1050,
+      "PHYS_ATK": 160,
+      "PHYS_PEN": 75,
+      "PHYS_DEF": 90,
+      "CRIT_RATE": 5.5,
+      "BATTLE_MOVE_SPEED": 35
+    }
   },
   {
     "code": "set_lv40_blademaster",
@@ -177,9 +271,16 @@
     "rarityTier": "RARE",
     "minPiecesFull": 12,
     "minPiecesHalf": 6,
-    "halfBonusRatioPct": 40.0,
-    "fullBonusRatioPct": 100.0,
-    "bonusCombatStatsJson": { "MAX_HP": 950, "PHYS_ATK": 180, "CRIT_RATE": 7.0, "CRIT_DMG": 14.0, "ATTACK_SPEED": 0.35, "BATTLE_MOVE_SPEED": 35 }
+    "halfBonusRatioPct": 40,
+    "fullBonusRatioPct": 100,
+    "bonusCombatStatsJson": {
+      "MAX_HP": 950,
+      "PHYS_ATK": 180,
+      "CRIT_RATE": 7,
+      "CRIT_DMG": 14,
+      "ATTACK_SPEED": 0.35,
+      "BATTLE_MOVE_SPEED": 35
+    }
   },
   {
     "code": "set_lv40_firefist",
@@ -190,9 +291,15 @@
     "rarityTier": "RARE",
     "minPiecesFull": 12,
     "minPiecesHalf": 6,
-    "halfBonusRatioPct": 40.0,
-    "fullBonusRatioPct": 100.0,
-    "bonusCombatStatsJson": { "MAX_HP": 1250, "PHYS_ATK": 160, "PHYS_DEF": 105, "PHYS_PEN": 55, "BATTLE_MOVE_SPEED": 25 }
+    "halfBonusRatioPct": 40,
+    "fullBonusRatioPct": 100,
+    "bonusCombatStatsJson": {
+      "MAX_HP": 1250,
+      "PHYS_ATK": 160,
+      "PHYS_DEF": 105,
+      "PHYS_PEN": 55,
+      "BATTLE_MOVE_SPEED": 25
+    }
   },
   {
     "code": "set_lv40_sunjudicator",
@@ -203,9 +310,16 @@
     "rarityTier": "RARE",
     "minPiecesFull": 12,
     "minPiecesHalf": 6,
-    "halfBonusRatioPct": 40.0,
-    "fullBonusRatioPct": 100.0,
-    "bonusCombatStatsJson": { "MAX_HP": 1400, "PHYS_DEF": 135, "MAG_DEF": 100, "PHYS_ATK": 100, "HEAL_POWER": 60, "BATTLE_MOVE_SPEED": 15 }
+    "halfBonusRatioPct": 40,
+    "fullBonusRatioPct": 100,
+    "bonusCombatStatsJson": {
+      "MAX_HP": 1400,
+      "PHYS_DEF": 135,
+      "MAG_DEF": 100,
+      "PHYS_ATK": 100,
+      "HEAL_POWER": 60,
+      "BATTLE_MOVE_SPEED": 15
+    }
   },
   {
     "code": "set_lv40_wildhunt",
@@ -216,9 +330,15 @@
     "rarityTier": "RARE",
     "minPiecesFull": 12,
     "minPiecesHalf": 6,
-    "halfBonusRatioPct": 40.0,
-    "fullBonusRatioPct": 100.0,
-    "bonusCombatStatsJson": { "MAX_HP": 900, "PHYS_ATK": 175, "CRIT_RATE": 6.5, "CRIT_DMG": 12.0, "BATTLE_MOVE_SPEED": 45 }
+    "halfBonusRatioPct": 40,
+    "fullBonusRatioPct": 100,
+    "bonusCombatStatsJson": {
+      "MAX_HP": 900,
+      "PHYS_ATK": 175,
+      "CRIT_RATE": 6.5,
+      "CRIT_DMG": 12,
+      "BATTLE_MOVE_SPEED": 45
+    }
   },
   {
     "code": "set_lv40_sniper",
@@ -229,9 +349,16 @@
     "rarityTier": "RARE",
     "minPiecesFull": 12,
     "minPiecesHalf": 6,
-    "halfBonusRatioPct": 40.0,
-    "fullBonusRatioPct": 100.0,
-    "bonusCombatStatsJson": { "MAX_HP": 800, "PHYS_ATK": 210, "PHYS_PEN": 80, "CRIT_RATE": 6.0, "CRIT_DMG": 15.0, "BATTLE_MOVE_SPEED": 30 }
+    "halfBonusRatioPct": 40,
+    "fullBonusRatioPct": 100,
+    "bonusCombatStatsJson": {
+      "MAX_HP": 800,
+      "PHYS_ATK": 210,
+      "PHYS_PEN": 80,
+      "CRIT_RATE": 6,
+      "CRIT_DMG": 15,
+      "BATTLE_MOVE_SPEED": 30
+    }
   },
   {
     "code": "set_lv40_hiddenblade",
@@ -242,9 +369,15 @@
     "rarityTier": "RARE",
     "minPiecesFull": 12,
     "minPiecesHalf": 6,
-    "halfBonusRatioPct": 40.0,
-    "fullBonusRatioPct": 100.0,
-    "bonusCombatStatsJson": { "MAX_HP": 850, "PHYS_ATK": 190, "CRIT_RATE": 8.5, "CRIT_DMG": 18.0, "BATTLE_MOVE_SPEED": 45 }
+    "halfBonusRatioPct": 40,
+    "fullBonusRatioPct": 100,
+    "bonusCombatStatsJson": {
+      "MAX_HP": 850,
+      "PHYS_ATK": 190,
+      "CRIT_RATE": 8.5,
+      "CRIT_DMG": 18,
+      "BATTLE_MOVE_SPEED": 45
+    }
   },
   {
     "code": "set_lv50_abyssal",
@@ -255,9 +388,16 @@
     "rarityTier": "EPIC",
     "minPiecesFull": 12,
     "minPiecesHalf": 6,
-    "halfBonusRatioPct": 40.0,
-    "fullBonusRatioPct": 100.0,
-    "bonusCombatStatsJson": { "MAX_HP": 1600, "MAG_ATK": 300, "MAG_PEN": 110, "MAG_DEF": 120, "CRIT_RATE": 7.5, "BATTLE_MOVE_SPEED": 35 }
+    "halfBonusRatioPct": 40,
+    "fullBonusRatioPct": 100,
+    "bonusCombatStatsJson": {
+      "MAX_HP": 1600,
+      "MAG_ATK": 300,
+      "MAG_PEN": 110,
+      "MAG_DEF": 120,
+      "CRIT_RATE": 7.5,
+      "BATTLE_MOVE_SPEED": 35
+    }
   },
   {
     "code": "set_lv50_melody",
@@ -268,9 +408,16 @@
     "rarityTier": "EPIC",
     "minPiecesFull": 12,
     "minPiecesHalf": 6,
-    "halfBonusRatioPct": 40.0,
-    "fullBonusRatioPct": 100.0,
-    "bonusCombatStatsJson": { "MAX_HP": 1500, "MAG_ATK": 210, "HEAL_POWER": 180, "ATTACK_SPEED": 0.45, "BATTLE_MOVE_SPEED": 55, "CRIT_RATE": 6.0 }
+    "halfBonusRatioPct": 40,
+    "fullBonusRatioPct": 100,
+    "bonusCombatStatsJson": {
+      "MAX_HP": 1500,
+      "MAG_ATK": 210,
+      "HEAL_POWER": 180,
+      "ATTACK_SPEED": 0.45,
+      "BATTLE_MOVE_SPEED": 55,
+      "CRIT_RATE": 6
+    }
   },
   {
     "code": "set_lv50_archmage",
@@ -281,9 +428,16 @@
     "rarityTier": "EPIC",
     "minPiecesFull": 12,
     "minPiecesHalf": 6,
-    "halfBonusRatioPct": 40.0,
-    "fullBonusRatioPct": 100.0,
-    "bonusCombatStatsJson": { "MAX_HP": 1350, "MAG_ATK": 350, "MAG_PEN": 120, "MAG_DEF": 110, "CRIT_RATE": 8.5, "BATTLE_MOVE_SPEED": 35 }
+    "halfBonusRatioPct": 40,
+    "fullBonusRatioPct": 100,
+    "bonusCombatStatsJson": {
+      "MAX_HP": 1350,
+      "MAG_ATK": 350,
+      "MAG_PEN": 120,
+      "MAG_DEF": 110,
+      "CRIT_RATE": 8.5,
+      "BATTLE_MOVE_SPEED": 35
+    }
   },
   {
     "code": "set_lv50_transcendence",
@@ -294,9 +448,16 @@
     "rarityTier": "EPIC",
     "minPiecesFull": 12,
     "minPiecesHalf": 6,
-    "halfBonusRatioPct": 40.0,
-    "fullBonusRatioPct": 100.0,
-    "bonusCombatStatsJson": { "MAX_HP": 1900, "MAX_MP": 600, "HEAL_POWER": 230, "MAG_DEF": 160, "PHYS_DEF": 125, "BATTLE_MOVE_SPEED": 30 }
+    "halfBonusRatioPct": 40,
+    "fullBonusRatioPct": 100,
+    "bonusCombatStatsJson": {
+      "MAX_HP": 1900,
+      "MAX_MP": 600,
+      "HEAL_POWER": 230,
+      "MAG_DEF": 160,
+      "PHYS_DEF": 125,
+      "BATTLE_MOVE_SPEED": 30
+    }
   },
   {
     "code": "set_lv50_bulwark",
@@ -307,9 +468,15 @@
     "rarityTier": "EPIC",
     "minPiecesFull": 12,
     "minPiecesHalf": 6,
-    "halfBonusRatioPct": 40.0,
-    "fullBonusRatioPct": 100.0,
-    "bonusCombatStatsJson": { "MAX_HP": 2400, "PHYS_ATK": 240, "PHYS_DEF": 210, "MAG_DEF": 105, "BATTLE_MOVE_SPEED": 25 }
+    "halfBonusRatioPct": 40,
+    "fullBonusRatioPct": 100,
+    "bonusCombatStatsJson": {
+      "MAX_HP": 2400,
+      "PHYS_ATK": 240,
+      "PHYS_DEF": 210,
+      "MAG_DEF": 105,
+      "BATTLE_MOVE_SPEED": 25
+    }
   },
   {
     "code": "set_lv50_comet",
@@ -320,9 +487,16 @@
     "rarityTier": "EPIC",
     "minPiecesFull": 12,
     "minPiecesHalf": 6,
-    "halfBonusRatioPct": 40.0,
-    "fullBonusRatioPct": 100.0,
-    "bonusCombatStatsJson": { "MAX_HP": 1750, "PHYS_ATK": 280, "PHYS_PEN": 125, "PHYS_DEF": 145, "CRIT_RATE": 8.0, "BATTLE_MOVE_SPEED": 45 }
+    "halfBonusRatioPct": 40,
+    "fullBonusRatioPct": 100,
+    "bonusCombatStatsJson": {
+      "MAX_HP": 1750,
+      "PHYS_ATK": 280,
+      "PHYS_PEN": 125,
+      "PHYS_DEF": 145,
+      "CRIT_RATE": 8,
+      "BATTLE_MOVE_SPEED": 45
+    }
   },
   {
     "code": "set_lv50_celestialblade",
@@ -333,9 +507,16 @@
     "rarityTier": "EPIC",
     "minPiecesFull": 12,
     "minPiecesHalf": 6,
-    "halfBonusRatioPct": 40.0,
-    "fullBonusRatioPct": 100.0,
-    "bonusCombatStatsJson": { "MAX_HP": 1600, "PHYS_ATK": 300, "CRIT_RATE": 10.0, "CRIT_DMG": 22.0, "ATTACK_SPEED": 0.50, "BATTLE_MOVE_SPEED": 50 }
+    "halfBonusRatioPct": 40,
+    "fullBonusRatioPct": 100,
+    "bonusCombatStatsJson": {
+      "MAX_HP": 1600,
+      "PHYS_ATK": 300,
+      "CRIT_RATE": 10,
+      "CRIT_DMG": 22,
+      "ATTACK_SPEED": 0.5,
+      "BATTLE_MOVE_SPEED": 50
+    }
   },
   {
     "code": "set_lv50_dragonfury",
@@ -346,9 +527,15 @@
     "rarityTier": "EPIC",
     "minPiecesFull": 12,
     "minPiecesHalf": 6,
-    "halfBonusRatioPct": 40.0,
-    "fullBonusRatioPct": 100.0,
-    "bonusCombatStatsJson": { "MAX_HP": 2100, "PHYS_ATK": 270, "PHYS_DEF": 170, "PHYS_PEN": 90, "BATTLE_MOVE_SPEED": 35 }
+    "halfBonusRatioPct": 40,
+    "fullBonusRatioPct": 100,
+    "bonusCombatStatsJson": {
+      "MAX_HP": 2100,
+      "PHYS_ATK": 270,
+      "PHYS_DEF": 170,
+      "PHYS_PEN": 90,
+      "BATTLE_MOVE_SPEED": 35
+    }
   },
   {
     "code": "set_lv50_citadel",
@@ -359,9 +546,16 @@
     "rarityTier": "EPIC",
     "minPiecesFull": 12,
     "minPiecesHalf": 6,
-    "halfBonusRatioPct": 40.0,
-    "fullBonusRatioPct": 100.0,
-    "bonusCombatStatsJson": { "MAX_HP": 2350, "PHYS_DEF": 220, "MAG_DEF": 165, "PHYS_ATK": 180, "HEAL_POWER": 100, "BATTLE_MOVE_SPEED": 25 }
+    "halfBonusRatioPct": 40,
+    "fullBonusRatioPct": 100,
+    "bonusCombatStatsJson": {
+      "MAX_HP": 2350,
+      "PHYS_DEF": 220,
+      "MAG_DEF": 165,
+      "PHYS_ATK": 180,
+      "HEAL_POWER": 100,
+      "BATTLE_MOVE_SPEED": 25
+    }
   },
   {
     "code": "set_lv50_wasteland",
@@ -372,9 +566,15 @@
     "rarityTier": "EPIC",
     "minPiecesFull": 12,
     "minPiecesHalf": 6,
-    "halfBonusRatioPct": 40.0,
-    "fullBonusRatioPct": 100.0,
-    "bonusCombatStatsJson": { "MAX_HP": 1550, "PHYS_ATK": 290, "CRIT_RATE": 9.5, "CRIT_DMG": 18.0, "BATTLE_MOVE_SPEED": 60 }
+    "halfBonusRatioPct": 40,
+    "fullBonusRatioPct": 100,
+    "bonusCombatStatsJson": {
+      "MAX_HP": 1550,
+      "PHYS_ATK": 290,
+      "CRIT_RATE": 9.5,
+      "CRIT_DMG": 18,
+      "BATTLE_MOVE_SPEED": 60
+    }
   },
   {
     "code": "set_lv50_devastator",
@@ -385,9 +585,16 @@
     "rarityTier": "EPIC",
     "minPiecesFull": 12,
     "minPiecesHalf": 6,
-    "halfBonusRatioPct": 40.0,
-    "fullBonusRatioPct": 100.0,
-    "bonusCombatStatsJson": { "MAX_HP": 1400, "PHYS_ATK": 340, "PHYS_PEN": 130, "CRIT_RATE": 9.0, "CRIT_DMG": 22.0, "BATTLE_MOVE_SPEED": 40 }
+    "halfBonusRatioPct": 40,
+    "fullBonusRatioPct": 100,
+    "bonusCombatStatsJson": {
+      "MAX_HP": 1400,
+      "PHYS_ATK": 340,
+      "PHYS_PEN": 130,
+      "CRIT_RATE": 9,
+      "CRIT_DMG": 22,
+      "BATTLE_MOVE_SPEED": 40
+    }
   },
   {
     "code": "set_lv50_specter",
@@ -398,8 +605,260 @@
     "rarityTier": "EPIC",
     "minPiecesFull": 12,
     "minPiecesHalf": 6,
-    "halfBonusRatioPct": 40.0,
-    "fullBonusRatioPct": 100.0,
-    "bonusCombatStatsJson": { "MAX_HP": 1450, "PHYS_ATK": 310, "CRIT_RATE": 12.0, "CRIT_DMG": 26.0, "BATTLE_MOVE_SPEED": 60 }
+    "halfBonusRatioPct": 40,
+    "fullBonusRatioPct": 100,
+    "bonusCombatStatsJson": {
+      "MAX_HP": 1450,
+      "PHYS_ATK": 310,
+      "CRIT_RATE": 12,
+      "CRIT_DMG": 26,
+      "BATTLE_MOVE_SPEED": 60
+    }
+  },
+  {
+    "code": "set_lv60_eclipse",
+    "namePtBr": "Conjunto do Eclipse Cósmico",
+    "descriptionPtBr": "Necromancia estelar com dreno colossal de essência e aniquilação mágica em área. Ponderado Necromante (75%) > Barda (25%).",
+    "prefix": "equip_lv60_eclipse",
+    "requiredLevel": 60,
+    "rarityTier": "LEGENDARY",
+    "minPiecesFull": 12,
+    "minPiecesHalf": 6,
+    "halfBonusRatioPct": 40,
+    "fullBonusRatioPct": 100,
+    "bonusCombatStatsJson": {
+      "MAX_HP": 2400,
+      "MAG_ATK": 450,
+      "MAG_PEN": 165,
+      "MAG_DEF": 180,
+      "CRIT_RATE": 11.5,
+      "CRIT_DMG": 25,
+      "BATTLE_MOVE_SPEED": 45
+    }
+  },
+  {
+    "code": "set_lv60_starharmony",
+    "namePtBr": "Conjunto da Harmonia Estelar",
+    "descriptionPtBr": "Sinfonia cósmica ressoante com suporte em grande escala, aceleração e mana infinita. Ponderado Barda (75%) > Necromante (25%).",
+    "prefix": "equip_lv60_starharmony",
+    "requiredLevel": 60,
+    "rarityTier": "LEGENDARY",
+    "minPiecesFull": 12,
+    "minPiecesHalf": 6,
+    "halfBonusRatioPct": 40,
+    "fullBonusRatioPct": 100,
+    "bonusCombatStatsJson": {
+      "MAX_HP": 2200,
+      "MAG_ATK": 320,
+      "HEAL_POWER": 270,
+      "ATTACK_SPEED": 0.65,
+      "BATTLE_MOVE_SPEED": 75,
+      "CRIT_RATE": 9,
+      "MP_REGEN": 45
+    }
+  },
+  {
+    "code": "set_lv60_singularity",
+    "namePtBr": "Conjunto da Singularidade Cósmica",
+    "descriptionPtBr": "Distorção arcana primordial capaz de colapsar o éter em explosões de puro poder elemental. Ponderado Mago (75%) > Curandeira (25%).",
+    "prefix": "equip_lv60_singularity",
+    "requiredLevel": 60,
+    "rarityTier": "LEGENDARY",
+    "minPiecesFull": 12,
+    "minPiecesHalf": 6,
+    "halfBonusRatioPct": 40,
+    "fullBonusRatioPct": 100,
+    "bonusCombatStatsJson": {
+      "MAX_HP": 2000,
+      "MAG_ATK": 520,
+      "MAG_PEN": 180,
+      "MAG_DEF": 165,
+      "CRIT_RATE": 13,
+      "CRIT_DMG": 30,
+      "BATTLE_MOVE_SPEED": 45
+    }
+  },
+  {
+    "code": "set_lv60_redemption",
+    "namePtBr": "Conjunto da Redenção Divina",
+    "descriptionPtBr": "Luz sagrada suprema com milagres curativos massivos, escudos regenerativos e proteção celestial. Ponderado Curandeira (75%) > Mago (25%).",
+    "prefix": "equip_lv60_redemption",
+    "requiredLevel": 60,
+    "rarityTier": "LEGENDARY",
+    "minPiecesFull": 12,
+    "minPiecesHalf": 6,
+    "halfBonusRatioPct": 40,
+    "fullBonusRatioPct": 100,
+    "bonusCombatStatsJson": {
+      "MAX_HP": 2800,
+      "MAX_MP": 900,
+      "HEAL_POWER": 340,
+      "MAG_DEF": 240,
+      "PHYS_DEF": 190,
+      "BATTLE_MOVE_SPEED": 40,
+      "HP_REGEN": 60
+    }
+  },
+  {
+    "code": "set_lv60_berserker",
+    "namePtBr": "Conjunto do Berserker Imortal",
+    "descriptionPtBr": "Blindagem forjada no núcleo de estrelas mortas com resiliência colossal e esmagamento físico brutal. Ponderado Guerreira (75%) > Lanceiro (25%).",
+    "prefix": "equip_lv60_berserker",
+    "requiredLevel": 60,
+    "rarityTier": "LEGENDARY",
+    "minPiecesFull": 12,
+    "minPiecesHalf": 6,
+    "halfBonusRatioPct": 40,
+    "fullBonusRatioPct": 100,
+    "bonusCombatStatsJson": {
+      "MAX_HP": 3600,
+      "PHYS_ATK": 360,
+      "PHYS_DEF": 310,
+      "MAG_DEF": 160,
+      "BATTLE_MOVE_SPEED": 35,
+      "HP_REGEN": 80
+    }
+  },
+  {
+    "code": "set_lv60_galaxybreaker",
+    "namePtBr": "Conjunto do Rompedor de Galáxias",
+    "descriptionPtBr": "Estocadas supersônicas capazes de perfurar as defesas mais densas e rasgar linhas de batalha. Ponderado Lanceiro (75%) > Guerreira (25%).",
+    "prefix": "equip_lv60_galaxybreaker",
+    "requiredLevel": 60,
+    "rarityTier": "LEGENDARY",
+    "minPiecesFull": 12,
+    "minPiecesHalf": 6,
+    "halfBonusRatioPct": 40,
+    "fullBonusRatioPct": 100,
+    "bonusCombatStatsJson": {
+      "MAX_HP": 2600,
+      "PHYS_ATK": 420,
+      "PHYS_PEN": 185,
+      "PHYS_DEF": 220,
+      "CRIT_RATE": 12,
+      "CRIT_DMG": 22,
+      "BATTLE_MOVE_SPEED": 65
+    }
+  },
+  {
+    "code": "set_lv60_thunderblade",
+    "namePtBr": "Conjunto da Lâmina do Trovão Primordial",
+    "descriptionPtBr": "Cortes em velocidade da luz com precisão atômica, taxa crítica fenomenal e contra-ataques reflexivos. Ponderado Espadachim (75%) > Lutadora (25%).",
+    "prefix": "equip_lv60_thunderblade",
+    "requiredLevel": 60,
+    "rarityTier": "LEGENDARY",
+    "minPiecesFull": 12,
+    "minPiecesHalf": 6,
+    "halfBonusRatioPct": 40,
+    "fullBonusRatioPct": 100,
+    "bonusCombatStatsJson": {
+      "MAX_HP": 2400,
+      "PHYS_ATK": 450,
+      "CRIT_RATE": 15,
+      "CRIT_DMG": 32,
+      "ATTACK_SPEED": 0.75,
+      "BATTLE_MOVE_SPEED": 70
+    }
+  },
+  {
+    "code": "set_lv60_elementalfury",
+    "namePtBr": "Conjunto da Fúria Elemental dos Titãs",
+    "descriptionPtBr": "Golpes marciais devastadores que canalizam calor e impacto puro para pulverizar alvos no corpo a corpo. Ponderado Lutadora (75%) > Espadachim (25%).",
+    "prefix": "equip_lv60_elementalfury",
+    "requiredLevel": 60,
+    "rarityTier": "LEGENDARY",
+    "minPiecesFull": 12,
+    "minPiecesHalf": 6,
+    "halfBonusRatioPct": 40,
+    "fullBonusRatioPct": 100,
+    "bonusCombatStatsJson": {
+      "MAX_HP": 3100,
+      "PHYS_ATK": 400,
+      "PHYS_DEF": 255,
+      "PHYS_PEN": 140,
+      "ATTACK_SPEED": 0.6,
+      "BATTLE_MOVE_SPEED": 50
+    }
+  },
+  {
+    "code": "set_lv60_celestialfortress",
+    "namePtBr": "Conjunto da Fortaleza Celestial",
+    "descriptionPtBr": "Égide sacrossanta de platina estelar com resistência mista absoluta e sustentação de fé radiante. Ponderado Paladino (75%) > Caçadora (25%).",
+    "prefix": "equip_lv60_celestialfortress",
+    "requiredLevel": 60,
+    "rarityTier": "LEGENDARY",
+    "minPiecesFull": 12,
+    "minPiecesHalf": 6,
+    "halfBonusRatioPct": 40,
+    "fullBonusRatioPct": 100,
+    "bonusCombatStatsJson": {
+      "MAX_HP": 3500,
+      "PHYS_DEF": 330,
+      "MAG_DEF": 250,
+      "PHYS_ATK": 270,
+      "HEAL_POWER": 150,
+      "BATTLE_MOVE_SPEED": 35
+    }
+  },
+  {
+    "code": "set_lv60_voidstalker",
+    "namePtBr": "Conjunto do Caçador do Vácuo Astral",
+    "descriptionPtBr": "Mobilidade e alcance supremos para disparos cósmicos que aniquilam alvos a distâncias imensas. Ponderado Caçadora (75%) > Paladino (25%).",
+    "prefix": "equip_lv60_voidstalker",
+    "requiredLevel": 60,
+    "rarityTier": "LEGENDARY",
+    "minPiecesFull": 12,
+    "minPiecesHalf": 6,
+    "halfBonusRatioPct": 40,
+    "fullBonusRatioPct": 100,
+    "bonusCombatStatsJson": {
+      "MAX_HP": 2300,
+      "PHYS_ATK": 430,
+      "CRIT_RATE": 14,
+      "CRIT_DMG": 28,
+      "BATTLE_MOVE_SPEED": 85,
+      "ATTACK_RANGE": 40
+    }
+  },
+  {
+    "code": "set_lv60_orbitaldestroyer",
+    "namePtBr": "Conjunto do Aniquilador Orbital",
+    "descriptionPtBr": "Calibre hiperbárico de destruição com perfuração titânica e capacidade de alvejar alvos prioritários. Ponderado Atirador (75%) > Assassino (25%).",
+    "prefix": "equip_lv60_orbitaldestroyer",
+    "requiredLevel": 60,
+    "rarityTier": "LEGENDARY",
+    "minPiecesFull": 12,
+    "minPiecesHalf": 6,
+    "halfBonusRatioPct": 40,
+    "fullBonusRatioPct": 100,
+    "bonusCombatStatsJson": {
+      "MAX_HP": 2100,
+      "PHYS_ATK": 510,
+      "PHYS_PEN": 195,
+      "CRIT_RATE": 13.5,
+      "CRIT_DMG": 32,
+      "BATTLE_MOVE_SPEED": 55,
+      "ATTACK_RANGE": 50
+    }
+  },
+  {
+    "code": "set_lv60_ghostreaper",
+    "namePtBr": "Conjunto do Ceifador Fantasma Cósmico",
+    "descriptionPtBr": "Letalidade sobrenatural silenciosa nas trevas, evasão fantasmagórica e execuções críticas imediatas. Ponderado Assassino (75%) > Atirador (25%).",
+    "prefix": "equip_lv60_ghostreaper",
+    "requiredLevel": 60,
+    "rarityTier": "LEGENDARY",
+    "minPiecesFull": 12,
+    "minPiecesHalf": 6,
+    "halfBonusRatioPct": 40,
+    "fullBonusRatioPct": 100,
+    "bonusCombatStatsJson": {
+      "MAX_HP": 2200,
+      "PHYS_ATK": 465,
+      "CRIT_RATE": 18,
+      "CRIT_DMG": 38,
+      "PHYS_EVASION": 75,
+      "BATTLE_MOVE_SPEED": 85
+    }
   }
 ]

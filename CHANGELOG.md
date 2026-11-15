@@ -5,6 +5,44 @@ Qualquer IA trabalhando neste repositório **DEVE** incrementar a versão e regi
 
 ---
 
+## [v0.49.0] - 2026-11-15
+### Montagem Declarativa de 12 Conjuntos Lendários de Nível 60 na Rota Admin (144 Peças Mais Fortes) e Categorias de Conjuntos
+* **Estruturação de 12 Novos Conjuntos Lendários de Nível 60 (`equipment_sets`, `item_templates`, `i18n_translations`):**
+  * Criação completa de **144 novas peças de combate de Nível 60** com poder ampliado (+35% a +50% em atributos em relação ao Nível 50 Épico) e raridade `LEGENDARY`, cobrindo exatamente os 12 slots de personagem (`HEAD`, `SHOULDER`, `CHEST`, `BELT`, `LEGS`, `FEET`, `ORNAMENT_1`, `ORNAMENT_2`, `RING`, `NECKLACE`, `WEAPON_1`, `WEAPON_2`), elevando o catálogo total de equipamentos para **516 equipamentos cadastrados**.
+  * Criação de **12 novos registros de conjuntos em `equipment_sets`**, elevando o total da tabela de conjuntos para **43 conjuntos cadastrados**.
+  * **Categorias de Conjuntos e Bônus Especializados por Par de Classes (Ponderação Assimétrica 75% / 25%):**
+    * **Par 1 (Necromante + Barda):**
+      * **1A. Conjunto do Eclipse Cósmico (Necromante 75% > Barda 25%):** Báculo do Eclipse Cósmico (650 MATK, 750 MP, 110 Crit, 95 Crit Dmg), Tomo do Fim dos Tempos e Seda Estelar Sombria (Série 04 Tier 09). Bônus de conjunto: `MAX_HP: 2400`, `MAG_ATK: 450`, `MAG_PEN: 165`, `MAG_DEF: 180`, `CRIT_RATE: 11.5%`, `CRIT_DMG: 25%`, `BATTLE_MOVE_SPEED: 45`.
+      * **1B. Conjunto da Harmonia Estelar (Barda 75% > Necromante 25%):** Alaúde da Harmonia Cósmica (580 MATK, 360 Heal Power, 0.70 Aspd), Flauta Celestial de Éter e Seda de Gala Resonante (Série 04 Tier 10). Bônus de conjunto: `MAX_HP: 2200`, `MAG_ATK: 320`, `HEAL_POWER: 270`, `ATTACK_SPEED: 0.65`, `BATTLE_MOVE_SPEED: 75`, `CRIT_RATE: 9%`, `MP_REGEN: 45`.
+    * **Par 2 (Mago + Curandeira):**
+      * **2A. Conjunto da Singularidade Cósmica (Mago 75% > Curandeira 25%):** Cetro da Singularidade Cósmica (740 MATK, 800 MP, 120 Crit), Orbe da Singularidade Absoluta e Mantos Cósmicos (Série 03 Tier 09). Bônus de conjunto: `MAX_HP: 2000`, `MAG_ATK: 520`, `MAG_PEN: 180`, `MAG_DEF: 165`, `CRIT_RATE: 13%`, `CRIT_DMG: 30%`, `BATTLE_MOVE_SPEED: 45`.
+      * **2B. Conjunto da Redenção Divina (Curandeira 75% > Mago 25%):** Báculo da Redenção Divina (550 MATK, 520 Heal Power, 850 MP), Relicário da Redenção Suprema e Mantos Sagrados Alabastro (Série 03 Tier 10). Bônus de conjunto: `MAX_HP: 2800`, `MAX_MP: 900`, `HEAL_POWER: 340`, `MAG_DEF: 240`, `PHYS_DEF: 190`, `BATTLE_MOVE_SPEED: 40`, `HP_REGEN: 60`.
+    * **Par 3 (Guerreira + Lanceiro):**
+      * **3A. Conjunto do Berserker Imortal (Guerreira 75% > Lanceiro 25%):** Espadão do Berserker Imortal (720 ATK, 1750 HP), Escudo Muralha do Berserker (520 DEF, 1450 HP) e Placas Vulcânicas Estelares (Série 01 Tier 09). Bônus de conjunto: `MAX_HP: 3600`, `PHYS_ATK: 360`, `PHYS_DEF: 310`, `MAG_DEF: 160`, `BATTLE_MOVE_SPEED: 35`, `HP_REGEN: 80`.
+      * **3B. Conjunto do Rompedor de Galáxias (Lanceiro 75% > Guerreira 25%):** Lança Rompedora de Galáxias (760 ATK, 140 Pen, 95 Crit), Broquel de Impulso Galáctico e Placas Aerodinâmicas Meteóricas (Série 01 Tier 10). Bônus de conjunto: `MAX_HP: 2600`, `PHYS_ATK: 420`, `PHYS_PEN: 185`, `PHYS_DEF: 220`, `CRIT_RATE: 12%`, `CRIT_DMG: 22%`, `BATTLE_MOVE_SPEED: 65`.
+    * **Par 4 (Espadachim + Lutadora):**
+      * **4A. Conjunto da Lâmina do Trovão Primordial (Espadachim 75% > Lutadora 25%):** Katana do Trovão Primordial (730 ATK, 130 Crit, 115 Crit Dmg), Wakizashi do Trovão Primordial e Traje Tempestuoso Rubi (Série 05 Tier 09). Bônus de conjunto: `MAX_HP: 2400`, `PHYS_ATK: 450`, `CRIT_RATE: 15%`, `CRIT_DMG: 32%`, `ATTACK_SPEED: 0.75`, `BATTLE_MOVE_SPEED: 70`.
+      * **4B. Conjunto da Fúria Elemental dos Titãs (Lutadora 75% > Espadachim 25%):** Manoplas da Fúria Elemental (680 ATK, 0.85 Aspd, 1450 HP), Braçadeiras Titânicas e Traje de Escamas Vulcânicas (Série 05 Tier 10). Bônus de conjunto: `MAX_HP: 3100`, `PHYS_ATK: 400`, `PHYS_DEF: 255`, `PHYS_PEN: 140`, `ATTACK_SPEED: 0.60`, `BATTLE_MOVE_SPEED: 50`.
+    * **Par 5 (Paladino + Caçadora):**
+      * **5A. Conjunto da Fortaleza Celestial (Paladino 75% > Caçadora 25%):** Martelo da Fortaleza Celestial (670 ATK, 280 Heal Power, 1500 HP), Pavês da Fortaleza Celestial (480 DEF, 360 MDEF) e Malha de Ouro Sagrado (Série 02 Tier 09). Bônus de conjunto: `MAX_HP: 3500`, `PHYS_DEF: 330`, `MAG_DEF: 250`, `PHYS_ATK: 270`, `HEAL_POWER: 150`, `BATTLE_MOVE_SPEED: 35`.
+      * **5B. Conjunto do Caçador do Vácuo Astral (Caçadora 75% > Paladino 25%):** Arco do Caçador do Vácuo (740 ATK, 85 Alcance, 120 Crit), Aljava do Vácuo e Malha Élfica Estelar (Série 02 Tier 10). Bônus de conjunto: `MAX_HP: 2300`, `PHYS_ATK: 430`, `CRIT_RATE: 14%`, `CRIT_DMG: 28%`, `BATTLE_MOVE_SPEED: 85`, `ATTACK_RANGE: 40`.
+    * **Par 6 (Atirador + Assassino):**
+      * **6A. Conjunto do Aniquilador Orbital (Atirador 75% > Assassino 25%):** Rifle Aniquilador Orbital (780 ATK, 160 Pen, 105 Alcance), Canhão Secundário Orbital e Couro Balístico de Nanotubos (Série 06 Tier 09). Bônus de conjunto: `MAX_HP: 2100`, `PHYS_ATK: 510`, `PHYS_PEN: 195`, `CRIT_RATE: 13.5%`, `CRIT_DMG: 32%`, `BATTLE_MOVE_SPEED: 55`, `ATTACK_RANGE: 50`.
+      * **6B. Conjunto do Ceifador Fantasma Cósmico (Assassino 75% > Atirador 25%):** Adagas do Ceifador Fantasma (710 ATK, 150 Crit, 135 Crit Dmg, 85 Evasão), Garra Sombria do Ceifador e Couro Negro Espectral (Série 06 Tier 10). Bônus de conjunto: `MAX_HP: 2200`, `PHYS_ATK: 465`, `CRIT_RATE: 18%`, `CRIT_DMG: 38%`, `PHYS_EVASION: 75`, `BATTLE_MOVE_SPEED: 85`.
+* **Conformidade Estrita com Diretrizes e Arquitetura No-Code:**
+  * **Requisito de Nível e Classes:** Todos configurados para `requiredLevel: 60` com raridade `LEGENDARY`, sem restrições de classe (`reqClassCodesJson: []`).
+  * **Combate Puro:** Bônus configurados 100% em `combatStatBonusesJson` (`baseStatBonusesJson: {}`).
+  * **Economia:** Preço em ouro zerado (`priceGold: 0`, `isTradable: false`).
+  * **Sem Cosméticos/Utilitários:** Zero presença de Asas (`WINGS`), Modas (`FASHION`) ou Varas de Pesca (`FISHING_ROD`).
+  * **Vinculação 100% Direta:** Cada uma das 144 peças vinculada ao seu respectivo `equipmentSetId` (12/12 peças por conjunto em todos os 12 conjuntos).
+  * **Arquitetura Modular Conforme Regra #7:** Dados desacoplados em `twelve_level60_equipment_sets.json` e scripts com limites rígidos de linhas.
+* **Persistência, Cache e Validação:**
+  * Banco de dados PostgreSQL da VPS Azure sincronizado e 82 novos ícones espelhados em cache local permanente (totalizando 426 ícones em cache).
+  * Snapshot canônico `lowcode.snapshot.json` atualizado para 2.55 MB com 43 conjuntos e 516 itens.
+  * Validação ao vivo via Chrome DevTools MCP no Studio Admin: exatamente 43 conjuntos de equipamentos e 516 equipamentos ativos no catálogo.
+
+---
+
 ## [v0.48.0] - 2026-11-15
 ### Tabela de Conjuntos de Equipamentos na Rota Admin, Mecânica de Bônus de Conjunto e Vinculação Total
 * **Modelagem e Migração de Conjuntos de Equipamentos (`equipment_sets`):**

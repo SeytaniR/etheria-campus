@@ -8,9 +8,16 @@
 ---
 
 ## 📌 Status Atual do Projeto
-* **Versão Atual:** `v0.48.0`
+* **Versão Atual:** `v0.49.0`
 * **Última Atualização:** `2026-11-15`
-* **Fase Atual:** **Tabela de Conjuntos de Equipamentos na Rota Admin, Mecânica de Bônus de Conjunto e Vinculação Total (`v0.48.0`)** — Implementada a aba de Conjuntos de Equipamentos (`equipment_sets`) na rota `/admin`, modelagem Prisma com bônus de combate, lógica autoritária de ativação (100% de bônus com 12 peças, 40% de bônus com 6 peças para combinações híbridas), visualização no paperdoll em `/play`, filtro e seleção de conjuntos em `/admin` Equipamentos, e vinculação de 100% dos 372 equipamentos existentes aos seus respectivos 31 conjuntos (12/12 peças em cada um). VPS Azure `40.65.63.193` e snapshot canônico sincronizados. Todos os arquivos estritamente conformes com a Regra #7 (< 1.000 linhas).
+* **Fase Atual:** **Montagem Declarativa de 12 Conjuntos Lendários de Nível 60 na Rota Admin (144 Peças Mais Fortes) e Categorias de Conjuntos (`v0.49.0`)** — Cadastrados 144 novos equipamentos de Nível 60 com raridade `LEGENDARY` e poder de combate substancialmente ampliado (+35% a +50% em relação ao Lv. 50 Épico), cobrindo 12 conjuntos especializados nos 6 pares de classes originais com foco assimétrico (75% Classe A / 25% Classe B e vice-versa):
+  1) Eclipse Cósmico (Necromante > Barda) & Harmonia Estelar (Barda > Necromante)
+  2) Singularidade Cósmica (Mago > Curandeira) & Redenção Divina (Curandeira > Mago)
+  3) Berserker Imortal (Guerreira > Lanceiro) & Rompedor de Galáxias (Lanceiro > Guerreira)
+  4) Lâmina do Trovão Primordial (Espadachim > Lutadora) & Fúria Elemental dos Titãs (Lutadora > Espadachim)
+  5) Fortaleza Celestial (Paladino > Caçadora) & Caçador do Vácuo Astral (Caçadora > Paladino)
+  6) Aniquilador Orbital (Atirador > Assassino) & Ceifador Fantasma Cósmico (Assassino > Atirador).
+  Todos com 12 slots de combate para personagem, `requiredLevel: 60`, `reqClassCodesJson: []`, `priceGold: 0`, `isTradable: false`, `rarityTier: 'LEGENDARY'`, apenas `combatStatBonusesJson`, sem asas/modas/varas de pesca, e com ícones temáticos dos tiers 09 e 10 do `mcrework`. Total de equipamentos no painel `/admin` ampliado para **516 equipamentos** e total de conjuntos ampliado para **43 conjuntos** (com 12/12 peças em 100% dos conjuntos). PostgreSQL da VPS Azure sincronizado, 426 ícones cacheados e snapshot `lowcode.snapshot.json` atualizado para 2.55 MB. Todos os arquivos estritamente conformes com a Regra #7 (< 1.000 linhas).
 * **Repositório Oficial:** `https://github.com/SeytaniR/etheria-campus`
 * **Fonte Bruta de Assets:** `https://github.com/SeytaniR/mcrework` (`https://seytanir.github.io/mcrework/`)
 
