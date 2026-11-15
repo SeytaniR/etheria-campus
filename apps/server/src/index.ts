@@ -23,6 +23,7 @@ import { GamePlayController } from './controllers/GamePlayController.js';
 import { AdminMonstersController } from './controllers/AdminMonstersController.js';
 import { AdminUiLayoutsController } from './controllers/AdminUiLayoutsController.js';
 import { AdminEquipmentsController } from './controllers/AdminEquipmentsController.js';
+import { AdminEquipmentSetsController } from './controllers/AdminEquipmentSetsController.js';
 import { AdminItemsController } from './controllers/AdminItemsController.js';
 import { AdminFlyingMountsController } from './controllers/AdminFlyingMountsController.js';
 import { AdminSkillsController } from './controllers/AdminSkillsController.js';
@@ -72,6 +73,7 @@ export class EtheriaServerApp {
   private readonly monstersController: AdminMonstersController;
   private readonly uiLayoutsController: AdminUiLayoutsController;
   private readonly equipmentsController: AdminEquipmentsController;
+  private readonly equipmentSetsController: AdminEquipmentSetsController;
   private readonly itemsController: AdminItemsController;
   private readonly mountsController: AdminFlyingMountsController;
   private readonly skillsController: AdminSkillsController;
@@ -98,6 +100,7 @@ export class EtheriaServerApp {
     this.monstersController = new AdminMonstersController(this.prisma, this.assetMirrorService);
     this.uiLayoutsController = new AdminUiLayoutsController(this.prisma, snapshotManager);
     this.equipmentsController = new AdminEquipmentsController(this.prisma, this.assetMirrorService);
+    this.equipmentSetsController = new AdminEquipmentSetsController(this.prisma);
     this.itemsController = new AdminItemsController(this.prisma, this.assetMirrorService);
     this.mountsController = new AdminFlyingMountsController(this.prisma, this.assetMirrorService);
     this.skillsController = new AdminSkillsController(this.prisma, this.assetMirrorService);
@@ -119,6 +122,7 @@ export class EtheriaServerApp {
       monstersController: this.monstersController,
       uiLayoutsController: this.uiLayoutsController,
       equipmentsController: this.equipmentsController,
+      equipmentSetsController: this.equipmentSetsController,
       itemsController: this.itemsController,
       mountsController: this.mountsController,
       skillsController: this.skillsController,

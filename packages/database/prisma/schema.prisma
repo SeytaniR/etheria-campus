@@ -417,6 +417,29 @@ model EquipmentSlot {
   @@map("equipment_slots")
 }
 
+/// Catálogo de Conjuntos de Equipamentos (Set Bonuses, Atributos de Combate e Regra 50%/100%).
+model EquipmentSet {
+  id                      Int            @id @default(autoincrement())
+  code                    String         @unique
+  nameI18nKey             String         @map("name_i18n_key")
+  descriptionI18nKey      String         @map("description_i18n_key")
+  requiredLevel           Int            @default(1) @map("required_level")
+  rarityTier              String         @default("COMMON") @map("rarity_tier") /// COMMON, RARE, EPIC, LEGENDARY, MYTHIC
+  minPiecesFull           Int            @default(12) @map("min_pieces_full") /// 100% do conjunto (normalmente 12 peças de combate)
+  minPiecesHalf           Int            @default(6) @map("min_pieces_half") /// 50% do conjunto (normalmente 6 peças)
+  halfBonusRatioPct       Float          @default(40.0) @map("half_bonus_ratio_pct") /// 40% de bônus ao equipar metade do conjunto
+  fullBonusRatioPct       Float          @default(100.0) @map("full_bonus_ratio_pct") /// 100% de bônus ao equipar conjunto completo
+  bonusCombatStatsJson    Json           @default("{}") @map("bonus_combat_stats_json") /// MAX_HP, PHYS_ATK, MAG_ATK, PHYS_DEF, MAG_DEF, etc.
+  bonusSpecialEffectsJson Json           @default("{}") @map("bonus_special_effects_json")
+  isActive                Boolean        @default(true) @map("is_active")
+  createdAt               DateTime       @default(now()) @map("created_at")
+  updatedAt               DateTime       @default(now()) @updatedAt @map("updated_at")
+
+  items                   ItemTemplate[]
+
+  @@map("equipment_sets")
+}
+
 /// Catálogo de Itens, Equipamentos (Personagem e Pet), Consumíveis e Trocadores de Elemento.
 model ItemTemplate {
   id                    Int            @id @default(autoincrement())
@@ -426,6 +449,7 @@ model ItemTemplate {
   mcreworkIconKey       String?        @map("mcrework_icon_key")
   itemCategory          String         @map("item_category") /// CHARACTER_EQUIPMENT, PET_EQUIPMENT, CONSUMABLE, ELEMENT_CHANGER, MATERIAL
   equipmentSlotCode     String?        @map("equipment_slot_code")
+  equipmentSetId        Int?           @map("equipment_set_id")
   rarityTier            String         @default("COMMON") @map("rarity_tier") /// SS, S, A, B, C, D, F, COMMON
   requiredLevel         Int            @default(1) @map("required_level")
   isTradable            Boolean        @default(true) @map("is_tradable") /// true = comercializável (tem valor em ouro); false = intransferível/sem valor
@@ -444,6 +468,7 @@ model ItemTemplate {
   updatedAt             DateTime                 @default(now()) @updatedAt @map("updated_at")
 
   equipmentSlot         EquipmentSlot?           @relation(fields: [equipmentSlotCode], references: [code])
+  equipmentSet          EquipmentSet?            @relation(fields: [equipmentSetId], references: [id])
   inventoryStacks       CharacterInventoryItem[]
 
   @@map("item_templates")

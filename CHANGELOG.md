@@ -5,6 +5,27 @@ Qualquer IA trabalhando neste repositório **DEVE** incrementar a versão e regi
 
 ---
 
+## [v0.48.0] - 2026-11-15
+### Tabela de Conjuntos de Equipamentos na Rota Admin, Mecânica de Bônus de Conjunto e Vinculação Total
+* **Modelagem e Migração de Conjuntos de Equipamentos (`equipment_sets`):**
+  * Criação do model `EquipmentSet` no Prisma (`packages/database/prisma/schema.prisma`) com atributos de combate em `bonusCombatStatsJson`, regras de ativação configuráveis (`minPiecesFull: 12`, `minPiecesHalf: 6`, `halfBonusRatioPct: 40.0`, `fullBonusRatioPct: 100.0`), níveis requeridos, raridade e relação 1:N com `ItemTemplate.equipmentSetId`.
+  * Atualização do `SnapshotManager.ts` para exportação/importação idempotente de `equipmentSets` preservando integridade referencial com `itemTemplates`.
+* **Motor Autoritário de Bônus de Conjunto no Servidor:**
+  * Implementação em `CharacterEquipmentService.ts` e `TemporaryCombatController.ts`: cálculo em tempo real das peças equipadas agrupadas por `equipmentSetId`.
+  * Ativação de bônus total (100% dos atributos) se o jogador equipar todas as 12 peças do conjunto.
+  * Ativação de bônus parcial (40% dos atributos) se equipar 6 ou mais peças (50% do conjunto), permitindo combinações híbridas de 2 conjuntos (ex: 6 peças de Set A + 6 peças de Set B concedem 40% + 40% = 80% de bônus combinado).
+* **Interface e CRUD Completo na Rota Admin (`/admin`):**
+  * Nova aba "👑 Conjuntos de Equip." no menu superior com tabela reativa, badges de status, contagem dinâmica de peças vinculadas (ex: 12/12), filtros de busca, nível e raridade.
+  * Modais completos para criação/edição de conjuntos com suporte a i18n (`pt-BR` e `en-US`), pré-visualização de atributos e modal de inspeção de todas as peças vinculadas.
+  * Atualização da aba "Equipamentos": nova coluna "👑 Conjunto", filtro por conjunto no toolbar e campo seletor de conjunto no modal de cadastro de equipamentos.
+* **Exibição Visual de Bônus Ativos no Cliente (`/play`):**
+  * O painel de Paperdoll / Bag agora renderiza dinamicamente os bônus de conjunto ativos (12 peças dourado / 6 peças prateado) e exibe o nome do conjunto ao inspecionar cada peça equipada.
+* **Seed Declarativo e Vinculação dos 372 Equipamentos Existentes:**
+  * Cadastro de 31 conjuntos no banco de dados e vinculação de exatamente 12/12 peças por conjunto em 100% dos 372 equipamentos existentes (1 Aprendiz Lv. 1, 6 Balanceados Lv. 40, 12 Especializados Lv. 40 e 12 Épicos Lv. 50).
+  * Snapshot canônico `lowcode.snapshot.json` sincronizado com 2.22 MB.
+
+---
+
 ## [v0.47.0] - 2026-11-14
 ### Montagem Declarativa de 12 Conjuntos Épicos de Nível 50 na Rota Admin (144 Peças de Combate Mais Fortes)
 * **Estruturação de 12 Novos Conjuntos Épicos de Nível 50 (`item_templates`, `i18n_translations`):**

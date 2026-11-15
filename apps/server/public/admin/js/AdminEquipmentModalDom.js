@@ -57,6 +57,12 @@ class AdminEquipmentModalDom {
               <select id="equipSlotSelect"></select>
             </div>
             <div class="field">
+              <label>Conjunto de Equipamentos</label>
+              <select id="equipSetSelect">
+                <option value="">Nenhum Conjunto</option>
+              </select>
+            </div>
+            <div class="field">
               <label>Raridade</label>
               <select id="equipRaritySelect">
                 <option value="COMMON">COMMON (Comum)</option>

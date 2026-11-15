@@ -37,6 +37,7 @@ export interface LowCodeDatabaseSnapshot {
   combatAttributes: any[];
   attributeConversions: any[];
   equipmentSlots: any[];
+  equipmentSets?: any[];
   classTemplates: any[];
   monsterRarities: any[];
   monsterTemplates: any[];
@@ -94,6 +95,7 @@ export class SnapshotManager {
       combatAttributes: await this.prisma.combatAttribute.findMany({ orderBy: { code: 'asc' } }),
       attributeConversions: await this.prisma.attributeConversion.findMany({ orderBy: { id: 'asc' } }),
       equipmentSlots: await this.prisma.equipmentSlot.findMany({ orderBy: [{ ownerType: 'asc' }, { slotIndex: 'asc' }] }),
+      equipmentSets: await (this.prisma as any).equipmentSet.findMany({ orderBy: { id: 'asc' } }),
       classTemplates: await this.prisma.classTemplate.findMany({ orderBy: { id: 'asc' } }),
       monsterRarities: await this.prisma.monsterRarity.findMany({ orderBy: { id: 'asc' } }),
       monsterTemplates: await this.prisma.monsterTemplate.findMany({ orderBy: { id: 'asc' } }),
@@ -296,6 +298,100 @@ export class SnapshotManager {
               mobileLandscapeJson: ul.mobileLandscapeJson ?? {},
               desktopJson: ul.desktopJson ?? {},
               isActive: ul.isActive ?? true,
+            },
+          });
+        }
+      }
+
+      // 7. Conjuntos de Equipamentos
+      if (Array.isArray(snapshot.equipmentSets)) {
+        for (const es of snapshot.equipmentSets) {
+          await (this.prisma as any).equipmentSet.upsert({
+            where: { id: es.id },
+            create: {
+              id: es.id,
+              code: es.code,
+              nameI18nKey: es.nameI18nKey,
+              descriptionI18nKey: es.descriptionI18nKey,
+              requiredLevel: es.requiredLevel ?? 1,
+              rarityTier: es.rarityTier ?? 'COMMON',
+              minPiecesFull: es.minPiecesFull ?? 12,
+              minPiecesHalf: es.minPiecesHalf ?? 6,
+              halfBonusRatioPct: es.halfBonusRatioPct ?? 40.0,
+              fullBonusRatioPct: es.fullBonusRatioPct ?? 100.0,
+              bonusCombatStatsJson: es.bonusCombatStatsJson ?? {},
+              bonusSpecialEffectsJson: es.bonusSpecialEffectsJson ?? {},
+              isActive: es.isActive ?? true,
+            },
+            update: {
+              code: es.code,
+              nameI18nKey: es.nameI18nKey,
+              descriptionI18nKey: es.descriptionI18nKey,
+              requiredLevel: es.requiredLevel ?? 1,
+              rarityTier: es.rarityTier ?? 'COMMON',
+              minPiecesFull: es.minPiecesFull ?? 12,
+              minPiecesHalf: es.minPiecesHalf ?? 6,
+              halfBonusRatioPct: es.halfBonusRatioPct ?? 40.0,
+              fullBonusRatioPct: es.fullBonusRatioPct ?? 100.0,
+              bonusCombatStatsJson: es.bonusCombatStatsJson ?? {},
+              bonusSpecialEffectsJson: es.bonusSpecialEffectsJson ?? {},
+              isActive: es.isActive ?? true,
+            },
+          });
+        }
+      }
+
+      // 8. Templates de Itens e Equipamentos (com equipmentSetId)
+      if (Array.isArray(snapshot.itemTemplates)) {
+        for (const it of snapshot.itemTemplates) {
+          await this.prisma.itemTemplate.upsert({
+            where: { id: it.id },
+            create: {
+              id: it.id,
+              code: it.code,
+              nameI18nKey: it.nameI18nKey,
+              descriptionI18nKey: it.descriptionI18nKey,
+              mcreworkIconKey: it.mcreworkIconKey,
+              itemCategory: it.itemCategory,
+              equipmentSlotCode: it.equipmentSlotCode,
+              equipmentSetId: it.equipmentSetId ?? null,
+              rarityTier: it.rarityTier ?? 'COMMON',
+              requiredLevel: it.requiredLevel ?? 1,
+              isTradable: it.isTradable !== false,
+              priceGold: it.priceGold ?? 0,
+              maxStack: it.maxStack ?? 999,
+              cooldownSec: it.cooldownSec ?? 0.0,
+              targetType: it.targetType ?? 'SELF',
+              effectType: it.effectType,
+              effectValue: it.effectValue ?? 0.0,
+              reqClassCodesJson: it.reqClassCodesJson ?? [],
+              baseStatBonusesJson: it.baseStatBonusesJson ?? {},
+              combatStatBonusesJson: it.combatStatBonusesJson ?? {},
+              specialEffectJson: it.specialEffectJson ?? {},
+              isActive: it.isActive !== false,
+            },
+            update: {
+              code: it.code,
+              nameI18nKey: it.nameI18nKey,
+              descriptionI18nKey: it.descriptionI18nKey,
+              mcreworkIconKey: it.mcreworkIconKey,
+              itemCategory: it.itemCategory,
+              equipmentSlotCode: it.equipmentSlotCode,
+              equipmentSetId: it.equipmentSetId ?? null,
+              rarityTier: it.rarityTier ?? 'COMMON',
+              requiredLevel: it.requiredLevel ?? 1,
+              isTradable: it.isTradable !== false,
+              priceGold: it.priceGold ?? 0,
+              maxStack: it.maxStack ?? 999,
+              cooldownSec: it.cooldownSec ?? 0.0,
+              targetType: it.targetType ?? 'SELF',
+              effectType: it.effectType,
+              effectValue: it.effectValue ?? 0.0,
+              reqClassCodesJson: it.reqClassCodesJson ?? [],
+              baseStatBonusesJson: it.baseStatBonusesJson ?? {},
+              combatStatBonusesJson: it.combatStatBonusesJson ?? {},
+              specialEffectJson: it.specialEffectJson ?? {},
+              isActive: it.isActive !== false,
             },
           });
         }

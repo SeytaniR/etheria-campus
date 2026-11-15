@@ -119,6 +119,7 @@ class AdminAuth {
         monsters: 'MONSTERS',
         'ui-layouts': 'MAPS',
         equipments: 'MONSTERS',
+        'equipment-sets': 'MONSTERS',
         items: 'MONSTERS',
         mounts: 'MONSTERS',
         experience: 'ATTRIBUTES',
@@ -137,6 +138,7 @@ class AdminAuth {
         monsters: document.getElementById('tabBtnMonsters'),
         'ui-layouts': document.getElementById('tabBtnUiLayouts'),
         equipments: document.getElementById('tabBtnEquipments'),
+        'equipment-sets': document.getElementById('tabBtnEquipmentSets'),
         items: document.getElementById('tabBtnItems'),
         mounts: document.getElementById('tabBtnFlyingMounts'),
         experience: document.getElementById('tabBtnExperience'),
@@ -193,6 +195,7 @@ class AdminAuth {
         { id: 'tabMonsters', btn: 'tabBtnMonsters', key: 'monsters', code: 'MONSTERS' },
         { id: 'tabUiLayouts', btn: 'tabBtnUiLayouts', key: 'ui-layouts', code: 'MAPS' },
         { id: 'tabEquipments', btn: 'tabBtnEquipments', key: 'equipments', code: 'MONSTERS' },
+        { id: 'tabEquipmentSets', btn: 'tabBtnEquipmentSets', key: 'equipment-sets', code: 'MONSTERS' },
         { id: 'tabItems', btn: 'tabBtnItems', key: 'items', code: 'MONSTERS' },
         { id: 'tabFlyingMounts', btn: 'tabBtnFlyingMounts', key: 'mounts', code: 'MONSTERS' },
         { id: 'tabExperience', btn: 'tabBtnExperience', key: 'experience', code: 'ATTRIBUTES' },
@@ -234,6 +237,9 @@ class AdminAuth {
       }
       if (tab === 'equipments' && typeof this.renderEquipmentsCrudTable === 'function') {
         this.renderEquipmentsCrudTable();
+      }
+      if (tab === 'equipment-sets' && typeof this.loadEquipmentSets === 'function') {
+        this.loadEquipmentSets();
       }
       if (tab === 'items' && typeof this.renderItemsCrudTable === 'function') {
         this.renderItemsCrudTable();
@@ -279,6 +285,7 @@ class AdminAuth {
         monsters: 'MONSTERS',
         'ui-layouts': 'MAPS',
         equipments: 'MONSTERS',
+        'equipment-sets': 'MONSTERS',
         items: 'MONSTERS',
         mounts: 'MONSTERS',
         experience: 'ATTRIBUTES',

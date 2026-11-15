@@ -419,7 +419,10 @@ export class TemporaryCombatController {
       : {}) as Record<string, number>;
     const eqItemIds = Object.values(equippedMap).map(Number).filter((id) => Number.isInteger(id) && id > 0);
     const eqItems = eqItemIds.length > 0
-      ? await this.prisma.itemTemplate.findMany({ where: { id: { in: eqItemIds } } })
+      ? await this.prisma.itemTemplate.findMany({
+          where: { id: { in: eqItemIds } },
+          include: { equipmentSet: true },
+        })
       : [];
 
     const eqBonuses: Record<string, number> = {};
@@ -429,6 +432,38 @@ export class TemporaryCombatController {
         : {}) as Record<string, number>;
       for (const [k, v] of Object.entries(bMap)) {
         eqBonuses[k] = (eqBonuses[k] || 0) + (Number(v) || 0);
+      }
+    }
+
+    // Bônus de Conjuntos de Equipamentos (100% full = 100%, 50% half = 40%)
+    const setPiecesCount = new Map<number, { set: any; count: number }>();
+    for (const eq of eqItems) {
+      if (eq.equipmentSet) {
+        const setId = eq.equipmentSet.id;
+        const entry = setPiecesCount.get(setId) || { set: eq.equipmentSet, count: 0 };
+        entry.count += 1;
+        setPiecesCount.set(setId, entry);
+      }
+    }
+    for (const [, { set, count }] of setPiecesCount.entries()) {
+      const minFull = set.minPiecesFull || 12;
+      const minHalf = set.minPiecesHalf || 6;
+      let ratio = 0;
+      if (count >= minFull) {
+        ratio = (set.fullBonusRatioPct ?? 100.0) / 100.0;
+      } else if (count >= minHalf) {
+        ratio = (set.halfBonusRatioPct ?? 40.0) / 100.0;
+      }
+      if (ratio > 0) {
+        const stats = (set.bonusCombatStatsJson && typeof set.bonusCombatStatsJson === 'object'
+          ? (set.bonusCombatStatsJson as Record<string, number>)
+          : {}) as Record<string, number>;
+        for (const [k, v] of Object.entries(stats)) {
+          const numVal = Number(v) || 0;
+          if (numVal !== 0) {
+            eqBonuses[k] = (eqBonuses[k] || 0) + Math.round(numVal * ratio);
+          }
+        }
       }
     }
 

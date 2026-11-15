@@ -34,6 +34,17 @@ export const VALID_CHARACTER_EQUIPMENT_SLOTS = [
 
 export type CharacterEquipmentSlotCode = typeof VALID_CHARACTER_EQUIPMENT_SLOTS[number];
 
+export interface ActiveSetBonusDto {
+  setId: number;
+  code: string;
+  namePtBr: string;
+  piecesEquipped: number;
+  totalPieces: number;
+  activationTier: 'FULL' | 'HALF';
+  bonusRatioPct: number;
+  appliedStats: Record<string, number>;
+}
+
 export interface EquippedSlotDetailDto {
   slotCode: string;
   item: {
@@ -43,6 +54,8 @@ export interface EquippedSlotDetailDto {
     descriptionPtBr: string;
     iconUrl: string;
     equipmentSlotCode: string;
+    equipmentSetId?: number | null;
+    equipmentSetNamePtBr?: string | null;
     rarityTier: string;
     requiredLevel: number;
     combatStatBonuses: Record<string, number>;
@@ -61,7 +74,11 @@ export class CharacterEquipmentService {
   public static async getCharacterEquippedDetails(
     prisma: PrismaClient,
     characterId: number
-  ): Promise<{ slots: EquippedSlotDetailDto[]; consolidatedBonuses: Record<string, number> }> {
+  ): Promise<{
+    slots: EquippedSlotDetailDto[];
+    consolidatedBonuses: Record<string, number>;
+    activeSetBonuses: ActiveSetBonusDto[];
+  }> {
     const pc = await prisma.playerCharacter.findUnique({
       where: { id: Number(characterId) },
       select: { id: true, equippedItemsJson: true },
@@ -86,6 +103,7 @@ export class CharacterEquipmentService {
       itemIds.length > 0
         ? prisma.itemTemplate.findMany({
             where: { id: { in: itemIds } },
+            include: { equipmentSet: true },
           })
         : [],
       I18nCache.getTranslations(prisma, 'pt-BR'),
@@ -119,6 +137,8 @@ export class CharacterEquipmentService {
             descriptionPtBr: it.descriptionI18nKey ? (i18nMap.get(it.descriptionI18nKey) ?? '') : '',
             iconUrl: this.resolveIconUrl(it.mcreworkIconKey),
             equipmentSlotCode: it.equipmentSlotCode ?? slotCode,
+            equipmentSetId: it.equipmentSetId,
+            equipmentSetNamePtBr: it.equipmentSet ? (i18nMap.get(it.equipmentSet.nameI18nKey) || it.equipmentSet.code) : null,
             rarityTier: it.rarityTier ?? 'COMMON',
             requiredLevel: it.requiredLevel ?? 1,
             combatStatBonuses: bonuses,
@@ -132,9 +152,67 @@ export class CharacterEquipmentService {
       };
     });
 
+    // --- Cálculo de Bônus de Conjuntos de Equipamentos (100% full = 100% bônus, 50% half = 40% bônus) ---
+    const setPiecesCount = new Map<number, { set: any; count: number }>();
+    for (const slotCode of VALID_CHARACTER_EQUIPMENT_SLOTS) {
+      const itemId = Number(equippedMap[slotCode]) || 0;
+      const it = itemId > 0 ? itemsById.get(itemId) : null;
+      if (it && it.equipmentSet) {
+        const setId = it.equipmentSet.id;
+        const entry = setPiecesCount.get(setId) || { set: it.equipmentSet, count: 0 };
+        entry.count += 1;
+        setPiecesCount.set(setId, entry);
+      }
+    }
+
+    const activeSetBonuses: ActiveSetBonusDto[] = [];
+
+    for (const [setId, { set, count }] of setPiecesCount.entries()) {
+      const minFull = set.minPiecesFull || 12;
+      const minHalf = set.minPiecesHalf || 6;
+      let ratio = 0;
+      let tier: 'FULL' | 'HALF' | null = null;
+
+      if (count >= minFull) {
+        ratio = (set.fullBonusRatioPct ?? 100.0) / 100.0;
+        tier = 'FULL';
+      } else if (count >= minHalf) {
+        ratio = (set.halfBonusRatioPct ?? 40.0) / 100.0;
+        tier = 'HALF';
+      }
+
+      if (tier && ratio > 0) {
+        const stats = (set.bonusCombatStatsJson && typeof set.bonusCombatStatsJson === 'object'
+          ? (set.bonusCombatStatsJson as Record<string, number>)
+          : {}) as Record<string, number>;
+
+        const appliedStats: Record<string, number> = {};
+        for (const [stat, val] of Object.entries(stats)) {
+          const numVal = Number(val) || 0;
+          if (numVal !== 0) {
+            const scaled = Math.round(numVal * ratio);
+            appliedStats[stat] = scaled;
+            consolidatedBonuses[stat] = (consolidatedBonuses[stat] || 0) + scaled;
+          }
+        }
+
+        activeSetBonuses.push({
+          setId,
+          code: set.code,
+          namePtBr: i18nMap.get(set.nameI18nKey) || set.code,
+          piecesEquipped: count,
+          totalPieces: minFull,
+          activationTier: tier,
+          bonusRatioPct: Math.round(ratio * 100),
+          appliedStats,
+        });
+      }
+    }
+
     return {
       slots,
       consolidatedBonuses,
+      activeSetBonuses,
     };
   }
 
@@ -249,6 +327,7 @@ export class CharacterEquipmentService {
       equippedSlot: finalSlot,
       equippedItems: equippedDetails.slots,
       consolidatedBonuses: equippedDetails.consolidatedBonuses,
+      activeSetBonuses: equippedDetails.activeSetBonuses,
       bag,
     };
   }
@@ -316,6 +395,7 @@ export class CharacterEquipmentService {
       unequippedSlot: finalSlot,
       equippedItems: equippedDetails.slots,
       consolidatedBonuses: equippedDetails.consolidatedBonuses,
+      activeSetBonuses: equippedDetails.activeSetBonuses,
       bag,
     };
   }

@@ -20,6 +20,7 @@ export interface EquipmentTemplateDto {
   mcreworkIconKey?: string;
   itemCategory?: string; // CHARACTER_EQUIPMENT | PET_EQUIPMENT
   equipmentSlotCode: string;
+  equipmentSetId?: number | null;
   rarityTier?: string; // SS, S, A, B, C, D, F, COMMON
   requiredLevel?: number;
   priceGold?: number;
@@ -170,11 +171,15 @@ export class AdminEquipmentsController {
 
     const items = await this.prisma.itemTemplate.findMany({
       where,
-      include: { equipmentSlot: true },
+      include: { equipmentSlot: true, equipmentSet: true },
       orderBy: [{ requiredLevel: 'asc' }, { id: 'asc' }],
     });
 
-    const i18nKeys = items.flatMap((i) => [i.nameI18nKey, i.descriptionI18nKey]);
+    const i18nKeys = items.flatMap((i) => [
+      i.nameI18nKey,
+      i.descriptionI18nKey,
+      ...(i.equipmentSet ? [i.equipmentSet.nameI18nKey] : []),
+    ]);
     const translations = await this.prisma.i18nTranslation.findMany({
       where: { key: { in: i18nKeys }, locale: 'pt-BR' },
     });
@@ -191,6 +196,9 @@ export class AdminEquipmentsController {
         iconUrl: `${this.mcreworkPagesBaseUrl}/${iconKey.replace(/^\/+/, '')}`,
         itemCategory: item.itemCategory,
         equipmentSlotCode: item.equipmentSlotCode,
+        equipmentSetId: item.equipmentSetId,
+        equipmentSetCode: item.equipmentSet?.code || null,
+        equipmentSetNamePtBr: item.equipmentSet ? (transMap.get(item.equipmentSet.nameI18nKey) || item.equipmentSet.code) : null,
         slotNamePtBr: item.equipmentSlot?.code || item.equipmentSlotCode || '',
         slotOwnerType: item.equipmentSlot?.ownerType || (item.itemCategory === 'PET_EQUIPMENT' ? 'PET' : 'CHARACTER'),
         rarityTier: item.rarityTier,
@@ -258,6 +266,7 @@ export class AdminEquipmentsController {
         mcreworkIconKey: dto.mcreworkIconKey || null,
         itemCategory: category,
         equipmentSlotCode: dto.equipmentSlotCode,
+        equipmentSetId: dto.equipmentSetId ? Number(dto.equipmentSetId) : null,
         rarityTier: dto.rarityTier || 'COMMON',
         requiredLevel: dto.requiredLevel ?? 1,
         priceGold: 0,
@@ -307,6 +316,7 @@ export class AdminEquipmentsController {
         mcreworkIconKey: dto.mcreworkIconKey !== undefined ? dto.mcreworkIconKey : existing.mcreworkIconKey,
         itemCategory: dto.itemCategory !== undefined ? dto.itemCategory : existing.itemCategory,
         equipmentSlotCode: dto.equipmentSlotCode !== undefined ? dto.equipmentSlotCode : existing.equipmentSlotCode,
+        equipmentSetId: dto.equipmentSetId !== undefined ? (dto.equipmentSetId ? Number(dto.equipmentSetId) : null) : existing.equipmentSetId,
         rarityTier: dto.rarityTier !== undefined ? dto.rarityTier : existing.rarityTier,
         requiredLevel: dto.requiredLevel !== undefined ? dto.requiredLevel : existing.requiredLevel,
         priceGold: 0,

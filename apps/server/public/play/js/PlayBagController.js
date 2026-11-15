@@ -723,6 +723,35 @@ const PlayBagController = {
       </div>
       <div id="characterSlotDetailPanel" style="display:none; background:#020617; border:1px solid #38bdf8; border-radius:6px; padding:6px 8px;"></div>
 
+      <!-- Bônus de Conjuntos de Equipamentos Ativos -->
+      ${(equipRes?.activeSetBonuses && equipRes.activeSetBonuses.length > 0) ? `
+        <div style="background:#020617; border:1px solid #eab308; border-radius:8px; padding:6px 10px;">
+          <div style="font-size:0.72rem; font-weight:800; color:#fde047; margin-bottom:4px; display:flex; justify-content:space-between; align-items:center;">
+            <span>👑 Bônus de Conjunto Ativo (${equipRes.activeSetBonuses.length})</span>
+            <span style="font-size:0.65rem; color:#86efac; font-weight:700;">Arena Action</span>
+          </div>
+          <div style="display:flex; flex-direction:column; gap:4px;">
+            ${equipRes.activeSetBonuses.map((sb) => {
+              const tierBadge = sb.activationTier === 'FULL'
+                ? '<span style="color:#4ade80; font-weight:800;">★ 100% Full (+100% bônus)</span>'
+                : '<span style="color:#38bdf8; font-weight:800;">★ 50% Half (+40% bônus)</span>';
+              const statsStr = Object.entries(sb.appliedStats || {})
+                .map(([k, v]) => `+${v} ${k}`)
+                .join(', ');
+              return `
+                <div style="font-size:0.68rem; background:#0f172a; border:1px solid #1e293b; border-radius:4px; padding:4px 6px;">
+                  <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <strong style="color:#fde047;">${sb.namePtBr} (${sb.piecesEquipped}/${sb.totalPieces} Peças)</strong>
+                    ${tierBadge}
+                  </div>
+                  <div style="color:#94a3b8; margin-top:2px; font-family:monospace;">${statsStr}</div>
+                </div>
+              `;
+            }).join('')}
+          </div>
+        </div>
+      ` : ''}
+
       <!-- Atributos Base -->
       <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:6px;">
         ${['VIT', 'STR', 'INT', 'WIS', 'AGI', 'DEX'].map((k) => `
@@ -764,7 +793,7 @@ const PlayBagController = {
             <img src="${it.iconUrl}" style="width:30px; height:30px; object-fit:contain; border-radius:4px; background:#020617;" />
             <div>
               <div style="font-size:0.8rem; font-weight:800; color:#fde047;">${it.namePtBr}</div>
-              <div style="font-size:0.66rem; color:#94a3b8;">${slotCode} &bull; Rank ${it.rarityTier}</div>
+              <div style="font-size:0.66rem; color:#94a3b8;">${slotCode} &bull; Rank ${it.rarityTier}${it.equipmentSetNamePtBr ? ` &bull; <span style="color:#fde047;">👑 ${it.equipmentSetNamePtBr}</span>` : ''}</div>
             </div>
           </div>
           <button class="btn-danger" style="padding:4px 10px; font-size:0.72rem; font-weight:700;" onclick="window.PlayApp.unequipCharacterSlot('${slotCode}')">

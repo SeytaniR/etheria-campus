@@ -14,10 +14,12 @@ class AdminEquipmentsTab {
   static attach(app) {
     app.equipmentTemplates = [];
     app.equipmentSlots = [];
+    app.equipmentSets = [];
     app.mcreworkEquipment = [];
     app.selectedMcreworkEquipmentIcon = '';
     app.equipmentSearchQuery = '';
     app.equipmentSlotFilter = 'ALL';
+    app.equipmentSetFilter = 'ALL';
     app.equipmentCategoryFilter = 'ALL';
     app.equipmentRarityFilter = 'ALL';
     app.equipmentGallerySearchQuery = '';
@@ -27,7 +29,13 @@ class AdminEquipmentsTab {
 
     app.loadEquipmentTemplates = async function () {
       try {
+        if (!this.equipmentSets || this.equipmentSets.length === 0) {
+          try {
+            this.equipmentSets = await this.api('/api/admin/equipment-sets');
+          } catch {}
+        }
         this.equipmentTemplates = await this.api('/api/admin/equipments');
+        this.populateEquipmentSetDropdowns?.();
         this.renderEquipmentsCrudTable();
       } catch (err) {
         console.error('Falha ao carregar templates de equipamentos:', err);
@@ -70,10 +78,32 @@ class AdminEquipmentsTab {
       }
     };
 
+    app.populateEquipmentSetDropdowns = function () {
+      const filterSelect = document.getElementById('equipSetFilterSelect');
+      const formSelect = document.getElementById('equipSetSelect');
+      if (!this.equipmentSets) return;
+
+      const optsHtml = this.equipmentSets
+        .map((s) => `<option value="${s.id}">👑 ${s.namePtBr} (Nv.${s.requiredLevel})</option>`)
+        .join('');
+
+      if (filterSelect) {
+        const curVal = filterSelect.value;
+        filterSelect.innerHTML = `<option value="ALL">Todos os Conjuntos</option><option value="NONE">Sem Conjunto</option>${optsHtml}`;
+        if (curVal) filterSelect.value = curVal;
+      }
+      if (formSelect) {
+        const curVal = formSelect.value;
+        formSelect.innerHTML = `<option value="">Nenhum Conjunto</option>${optsHtml}`;
+        if (curVal) formSelect.value = curVal;
+      }
+    };
+
     app.filterEquipmentsCrudTable = function () {
       const input = document.getElementById('equipSearchInput');
       this.equipmentSearchQuery = (input ? input.value : '').toLowerCase().trim();
       this.equipmentSlotFilter = document.getElementById('equipSlotFilterSelect')?.value || 'ALL';
+      this.equipmentSetFilter = document.getElementById('equipSetFilterSelect')?.value || 'ALL';
       this.equipmentCategoryFilter = document.getElementById('equipCategoryFilterSelect')?.value || 'ALL';
       this.equipmentRarityFilter = document.getElementById('equipRarityFilterSelect')?.value || 'ALL';
       this.renderEquipmentsCrudTable();
@@ -105,6 +135,9 @@ class AdminEquipmentsTab {
       document.getElementById('equipCodeInput').value = '';
       document.getElementById('equipCategorySelect').value = 'CHARACTER_EQUIPMENT';
       document.getElementById('equipSlotSelect').value = 'WEAPON_1';
+      if (document.getElementById('equipSetSelect')) {
+        document.getElementById('equipSetSelect').value = '';
+      }
       document.getElementById('equipRaritySelect').value = 'COMMON';
       document.getElementById('equipReqLevelInput').value = '1';
       document.getElementById('equipActiveSelect').value = 'true';
@@ -140,6 +173,9 @@ class AdminEquipmentsTab {
       document.getElementById('equipCodeInput').value = item.code || '';
       document.getElementById('equipCategorySelect').value = item.itemCategory || 'CHARACTER_EQUIPMENT';
       document.getElementById('equipSlotSelect').value = item.equipmentSlotCode || 'WEAPON_1';
+      if (document.getElementById('equipSetSelect')) {
+        document.getElementById('equipSetSelect').value = item.equipmentSetId ? String(item.equipmentSetId) : '';
+      }
       document.getElementById('equipRaritySelect').value = item.rarityTier || 'COMMON';
       document.getElementById('equipReqLevelInput').value = item.requiredLevel ?? 1;
       document.getElementById('equipActiveSelect').value = String(item.isActive ?? true);
@@ -299,12 +335,17 @@ class AdminEquipmentsTab {
         if (val !== 0) combatStatBonusesJson[cf] = val;
       });
 
+      const equipmentSetId = document.getElementById('equipSetSelect')?.value
+        ? Number(document.getElementById('equipSetSelect').value)
+        : null;
+
       const payload = {
         code: code || undefined,
         namePtBr,
         descriptionPtBr,
         itemCategory,
         equipmentSlotCode,
+        equipmentSetId,
         rarityTier,
         requiredLevel,
         priceGold: 0, // Não comercializado pelo jogo
@@ -383,11 +424,16 @@ class AdminEquipmentsTab {
 
       const q = (this.equipmentSearchQuery || '').toLowerCase();
       const sF = this.equipmentSlotFilter || 'ALL';
+      const setF = this.equipmentSetFilter || 'ALL';
       const cF = this.equipmentCategoryFilter || 'ALL';
       const rF = this.equipmentRarityFilter || 'ALL';
 
       const filtered = (this.equipmentTemplates || []).filter((e) => {
         if (sF !== 'ALL' && e.equipmentSlotCode !== sF) return false;
+        if (setF !== 'ALL') {
+          if (setF === 'NONE' && e.equipmentSetId) return false;
+          if (setF !== 'NONE' && String(e.equipmentSetId) !== setF) return false;
+        }
         if (cF !== 'ALL' && e.itemCategory !== cF) return false;
         if (rF !== 'ALL' && e.rarityTier !== rF) return false;
         if (!q) return true;
@@ -437,6 +483,7 @@ class AdminEquipmentsTab {
                 <th style="padding:10px; width:50px;">Ícone</th>
                 <th style="padding:10px;">Nome & Código</th>
                 <th style="padding:10px;">Slot / Categoria</th>
+                <th style="padding:10px; width:140px; color:#eab308;">👑 Conjunto</th>
                 <th style="padding:10px; width:90px;">Raridade</th>
                 <th style="padding:10px; width:75px;">Nível Mín.</th>
                 <th style="padding:10px; color:#38bdf8;">⚔️ Atributos de Combate da Arena</th>
@@ -464,6 +511,9 @@ class AdminEquipmentsTab {
                     <td style="padding:8px 10px;">
                       <span style="color:#bae6fd; font-weight:700;">${sIcon} ${item.slotNamePtBr}</span>
                       <div style="font-size:0.70rem; color:${isPet ? '#c084fc' : '#94a3b8'}; margin-top:2px;">${isPet ? '🐾 Pet' : '👤 Personagem'}</div>
+                    </td>
+                    <td style="padding:8px 10px;">
+                      ${item.equipmentSetNamePtBr ? `<span style="font-weight:700; color:#fde047; font-size:0.75rem; background:rgba(234,179,8,0.15); border:1px solid #eab308; padding:2px 6px; border-radius:4px; white-space:nowrap;">👑 ${item.equipmentSetNamePtBr}</span>` : '<span style="color:#64748b; font-size:0.75rem;">—</span>'}
                     </td>
                     <td style="padding:8px 10px;">
                       <span style="font-weight:800; color:${rStyle.text}; background:${rStyle.bg}; border:1px solid ${rStyle.border}; padding:2px 8px; border-radius:99px; font-size:0.72rem; white-space:nowrap;">
@@ -522,6 +572,7 @@ class AdminEquipmentsTab {
                   <span style="padding:2px 8px; border-radius:99px; background:rgba(56,189,248,0.15); color:#bae6fd; font-weight:700;">${sIcon} ${item.slotNamePtBr}</span>
                   <span style="padding:2px 8px; border-radius:99px; background:${isPet ? 'rgba(192,132,252,0.15)' : 'rgba(148,163,184,0.15)'}; color:${isPet ? '#c084fc' : '#cbd5e1'}; font-weight:600;">${isPet ? '🐾 Pet' : '👤 Personagem'}</span>
                   <span style="padding:2px 8px; border-radius:99px; background:rgba(234,179,8,0.15); color:#fde047; font-weight:700;">Nv. ${item.requiredLevel}</span>
+                  ${item.equipmentSetNamePtBr ? `<span style="padding:2px 8px; border-radius:99px; background:rgba(234,179,8,0.2); border:1px solid #eab308; color:#fde047; font-weight:700;">👑 ${item.equipmentSetNamePtBr}</span>` : ''}
                 </div>
 
                 ${item.descriptionPtBr ? `<div style="font-size:0.73rem; color:var(--text-muted); line-height:1.3; background:#020617; padding:6px 8px; border-radius:6px; border:1px solid #1e293b;">📜 ${item.descriptionPtBr}</div>` : ''}
@@ -597,6 +648,9 @@ class AdminEquipmentsTab {
             <input type="text" id="equipSearchInput" placeholder="🔍 Buscar equipamento por nome ou código..." oninput="AdminApp.filterEquipmentsCrudTable()" style="flex:1; min-width:180px; padding:7px 10px; font-size:0.82rem;" />
             <select id="equipSlotFilterSelect" onchange="AdminApp.filterEquipmentsCrudTable()" style="width:160px; padding:7px; font-size:0.8rem;">
               <option value="ALL">Todos os Slots</option>
+            </select>
+            <select id="equipSetFilterSelect" onchange="AdminApp.filterEquipmentsCrudTable()" style="width:160px; padding:7px; font-size:0.8rem;">
+              <option value="ALL">Todos os Conjuntos</option>
             </select>
             <select id="equipCategoryFilterSelect" onchange="AdminApp.filterEquipmentsCrudTable()" style="width:145px; padding:7px; font-size:0.8rem;">
               <option value="ALL">Todas Categorias</option>

@@ -15,6 +15,7 @@ import type { AdminMapsController } from '../controllers/AdminMapsController.js'
 import type { AdminMonstersController } from '../controllers/AdminMonstersController.js';
 import type { AdminUiLayoutsController } from '../controllers/AdminUiLayoutsController.js';
 import type { AdminEquipmentsController } from '../controllers/AdminEquipmentsController.js';
+import type { AdminEquipmentSetsController } from '../controllers/AdminEquipmentSetsController.js';
 import type { AdminItemsController } from '../controllers/AdminItemsController.js';
 import type { AdminFlyingMountsController } from '../controllers/AdminFlyingMountsController.js';
 import type { AdminSkillsController } from '../controllers/AdminSkillsController.js';
@@ -31,6 +32,7 @@ export interface AdminRouterDeps {
   monstersController: AdminMonstersController;
   uiLayoutsController: AdminUiLayoutsController;
   equipmentsController: AdminEquipmentsController;
+  equipmentSetsController: AdminEquipmentSetsController;
   itemsController: AdminItemsController;
   mountsController: AdminFlyingMountsController;
   skillsController: AdminSkillsController;
@@ -399,6 +401,39 @@ export class AdminRouter {
     if (eqMatch && method === 'DELETE') {
       if (this.enforceTablePermission(res, session, 'MONSTERS', 'READ_WRITE')) {
         this.deps.sendJson(res, 200, await this.deps.equipmentsController.deleteEquipmentTemplate(Number(eqMatch[1])));
+      }
+      return true;
+    }
+
+    // --- Conjuntos de Equipamentos (`equipment_sets`) ---
+    if (pathname === '/api/admin/equipment-sets' && method === 'GET') {
+      if (this.enforceTablePermission(res, session, 'MONSTERS', 'READ')) {
+        this.deps.sendJson(res, 200, await this.deps.equipmentSetsController.getEquipmentSets());
+      }
+      return true;
+    }
+    if (pathname === '/api/admin/equipment-sets' && method === 'POST') {
+      if (this.enforceTablePermission(res, session, 'MONSTERS', 'READ_WRITE')) {
+        this.deps.sendJson(res, 201, await this.deps.equipmentSetsController.createEquipmentSet(await this.deps.readJsonBody(req)));
+      }
+      return true;
+    }
+    const eqSetMatch = pathname.match(/^\/api\/admin\/equipment-sets\/(\d+)$/);
+    if (eqSetMatch && method === 'GET') {
+      if (this.enforceTablePermission(res, session, 'MONSTERS', 'READ')) {
+        this.deps.sendJson(res, 200, await this.deps.equipmentSetsController.getEquipmentSetById(Number(eqSetMatch[1])));
+      }
+      return true;
+    }
+    if (eqSetMatch && method === 'PUT') {
+      if (this.enforceTablePermission(res, session, 'MONSTERS', 'READ_WRITE')) {
+        this.deps.sendJson(res, 200, await this.deps.equipmentSetsController.updateEquipmentSet(Number(eqSetMatch[1]), await this.deps.readJsonBody(req)));
+      }
+      return true;
+    }
+    if (eqSetMatch && method === 'DELETE') {
+      if (this.enforceTablePermission(res, session, 'MONSTERS', 'READ_WRITE')) {
+        this.deps.sendJson(res, 200, await this.deps.equipmentSetsController.deleteEquipmentSet(Number(eqSetMatch[1])));
       }
       return true;
     }

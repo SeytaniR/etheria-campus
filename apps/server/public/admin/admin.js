@@ -82,6 +82,7 @@ class EtheriaAdminStudio {
     if (window.AdminTeleportNpcsTab) window.AdminTeleportNpcsTab.attach(this);
     if (window.AdminUiLayoutsTab) window.AdminUiLayoutsTab.attach(this);
     if (window.AdminEquipmentsTab) window.AdminEquipmentsTab.attach(this);
+    if (window.AdminEquipmentSetsTab) window.AdminEquipmentSetsTab.attach(this);
     if (window.AdminItemsTab) window.AdminItemsTab.attach(this);
     if (window.AdminFlyingMountsTab) window.AdminFlyingMountsTab.attach(this);
     if (window.AdminExperienceTab) window.AdminExperienceTab.attach(this);
