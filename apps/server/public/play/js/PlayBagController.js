@@ -616,6 +616,20 @@ const PlayBagController = {
   },
 
   injectBagModalDom() {
+    if (document.getElementById('bagModal')) return;
+    const modal = document.createElement('div');
+    modal.id = 'bagModal';
+    modal.className = 'modal-backdrop';
+    modal.innerHTML = `
+      <div class="modal-box" style="width:min(95vw, 520px);">
+        <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #334155; padding-bottom:10px;">
+          <h3 style="color:#fde047; font-size:1rem;">🎒 Mochila & Carteira (Base Inicial)</h3>
+          <button class="btn-danger" onclick="document.getElementById('bagModal').style.display='none'">Fechar</button>
+        </div>
+        <div id="bagModalBody" style="display:flex; flex-direction:column; gap:10px;"></div>
+      </div>`;
+    document.body.appendChild(modal);
+  },
 
   injectItemDetailModalDom() {
     if (document.getElementById('bagItemDetailModal')) return;
