@@ -34,8 +34,13 @@ class PlayGmController {
         if (typeof this.updateGmGroundDisplay === 'function') {
           this.updateGmGroundDisplay();
         }
-        if (drawer.classList.contains('open') && typeof this.loadGmBattleMonsters === 'function') {
-          this.loadGmBattleMonsters();
+        if (drawer.classList.contains('open')) {
+          if (typeof this.loadGmBattleMonsters === 'function') {
+            this.loadGmBattleMonsters();
+          }
+          if (typeof this.syncBattleOptionsDisplay === 'function') {
+            this.syncBattleOptionsDisplay();
+          }
         }
       }
     };
@@ -287,6 +292,42 @@ class PlayGmController {
       } catch (err) {
         alert(`Erro ao iniciar batalha GM: ${err.message}`);
       }
+    };
+
+    client.syncBattleOptionsDisplay = function () {
+      const sfxBtn = document.getElementById('btnGmToggleSfx');
+      if (sfxBtn && window.BattleTransitionController) {
+        const on = window.BattleTransitionController.sfxEnabled;
+        sfxBtn.textContent = on ? '🔊 Ligado' : '🔇 Desligado';
+        sfxBtn.className = on ? '' : 'btn-danger';
+      }
+      const veilBtn = document.getElementById('btnGmToggleVeil');
+      if (veilBtn) {
+        const on = this.actionCombatArena?.vfxRenderer
+          ? this.actionCombatArena.vfxRenderer.veilEffectsEnabled
+          : localStorage.getItem('etheria_veil_effects') !== 'false';
+        veilBtn.textContent = on ? '🌫️ Ligado' : '🌫️ Desligado';
+        veilBtn.className = on ? '' : 'btn-danger';
+      }
+    };
+
+    client.toggleBattleSfx = function () {
+      if (window.BattleTransitionController) {
+        const next = !window.BattleTransitionController.sfxEnabled;
+        window.BattleTransitionController.sfxEnabled = next;
+        try { localStorage.setItem('etheria_battle_sfx', next ? 'true' : 'false'); } catch {}
+        this.syncBattleOptionsDisplay();
+      }
+    };
+
+    client.toggleVeilEffects = function () {
+      if (this.actionCombatArena?.vfxRenderer) {
+        this.actionCombatArena.vfxRenderer.toggleVeilEffects();
+      } else {
+        const cur = localStorage.getItem('etheria_veil_effects') !== 'false';
+        try { localStorage.setItem('etheria_veil_effects', (!cur) ? 'true' : 'false'); } catch {}
+      }
+      this.syncBattleOptionsDisplay();
     };
   }
 }

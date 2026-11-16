@@ -978,7 +978,7 @@ class ActionCombatArena {
     return m ? Math.round(this.player.y * 0.65 + m.y * 0.35) : this.player.y;
   }
   drawArenaRingOnFloor(ctx, now, zoom) { if (this.isActive) this.vfxRenderer?.drawArenaFloorAndProjectiles(ctx, this, now, zoom); }
-  renderActiveVfx(ctx, now) { if (this.isActive) this.vfxRenderer?.drawActiveBursts(ctx, now); }
+  renderActiveVfx(ctx, now) { if (this.isActive) this.vfxRenderer?.drawActiveBursts(ctx, now, this); }
   populateRenderQueue(renderQueue, now) {
     if (!this.isActive) return;
     if (this.player && this.player.isAlive) renderQueue.push({ type: 'COMBAT_PLAYER', y: this.player.y, data: this.player });

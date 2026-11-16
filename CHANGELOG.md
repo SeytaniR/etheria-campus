@@ -5,6 +5,31 @@ Qualquer IA trabalhando neste repositório **DEVE** incrementar a versão e regi
 
 ---
 
+## [v0.52.0] - 2026-11-16
+### Efeitos Atmosféricos do Véu / Mundo Invertido (Stranger Things) na Arena Instanciada (/play)
+* **Atmosfera Sobrenatural e Enigmática do Véu (The Veil Lore & Upside Down Aesthetic):**
+  * Desenvolvido sistema atmosférico completo e imersivo para a arena instanciada de combate livre (`/play`), reproduzindo fielmente o clima sombrio do Mundo Invertido de Stranger Things, condizente com a lore do Véu em Etheria.
+  * **1. Esporos e Cinzas Dimensionais Flutuantes (Floating Spores & Ash Motes):**
+    * 85 partículas etéreas flutuando e oscilando suavemente em 2.5D com profundidade de camadas (`depth: 0.35 - 1.2`), paralaxe vertical/horizontal, wrap-around contínuo e brilho bioluminescente pulsante.
+    * Paleta cromática autêntica do Véu: 55% Cinza Ectoplasmático / Cinzas, 25% Ciano Necrótico Fantasmal e 20% Carmesim Dimensional.
+  * **2. Piso Sombrio Abissal e Distorções Dimensionais do Solo:**
+    * Gradiente radial sombrio delimitado na elipse da arena (ardósia escuro no núcleo, índigo profundo e bordas carmesim no vazio dimensional).
+    * Ondas concêntricas de choque dimensional pulsando suavemente no chão da arena.
+  * **3. Raízes e Tentáculos Eldritch Rastejantes (Creeping Vines/Tendrils):**
+    * 22 raízes orgânicas vivas enraizadas no perímetro elíptico da arena rastejando em direção ao centro com ondulação senoidal em tempo real, veias avermelhadas e pontas bioluminescentes pulsantes.
+  * **4. Barreira Elíptica com Descargas Estáticas:**
+    * Arcos elétricos de energia estática alternando entre carmesim e ciano ao longo do perímetro da elipse da arena.
+  * **5. Relâmpagos Dimensionais do Véu (Red Atmospheric Lightning in the Clouds):**
+    * A cada 3.5 a 7.5 segundos, descargas elétricas ramificadas em tom carmesim elétrico com núcleo incandescente rasgam os céus do Véu acompanhadas de flash sutil e difuso de luz ambiente.
+* **Controle, Usabilidade e Performance:**
+  * Toggle no menu GM (`🌫️ Efeitos do Véu: Ligado / Desligado`) com sincronização em tempo real e persistência em `localStorage` (`etheria_veil_effects`).
+  * Desempenho otimizado a 60 FPS com reuso de partículas sem geração de lixo para o garbage collector.
+* **Governança e Cumprimento Estrito de Regras:**
+  * Todos os arquivos rigorosamente abaixo de 1.000 linhas (Regra #7): `ActionVfxRenderer.js` (722 linhas), `ActionCombatArena.js` (991 linhas), `play.js` (982 linhas), `index.html` (986 linhas), `PlayGmController.js` (335 linhas).
+  * Regra de Navegador em Segundo Plano / Modo Oculto rigorosamente respeitada.
+
+---
+
 ## [v0.51.0] - 2026-11-16
 ### Motor de Transição Cinemática de Entrada em Batalha e Áudio Procedural no Jogo (/play)
 * **Novo Motor Modular `BattleTransitionController.js` (Action RPG):**

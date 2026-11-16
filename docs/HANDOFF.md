@@ -8,9 +8,9 @@
 ---
 
 ## 📌 Status Atual do Projeto
-* **Versão Atual:** `v0.51.0`
+* **Versão Atual:** `v0.52.0`
 * **Última Atualização:** `2026-11-16`
-* **Fase Atual:** **Motor de Transição Cinemática de Entrada em Batalha e Áudio Procedural no Jogo (/play) (`v0.51.0`)** — Implementado motor modular de transições de entrada em combate (`BattleTransitionController.js`) com 4 estilos visuais épicos (Fratura Dimensional de Cristal, Corte de Lâminas Duplo em 'X', Vórtice Arcano Espiral e Pulso Cósmico com abertura de cortina de laser), congelamento de frame de exploração, banner informativo de encontro de monstros com rank/nível, síntese de áudio procedural via Web Audio API (sub-bass impact, acordes heroicos e estilhaços/zunidos sem arquivos externos), suporte a pular transição instantaneamente via toque/tecla e integração completa no painel GM. Todos os arquivos estritamente conformes com a Regra #7 (< 1.000 linhas).
+* **Fase Atual:** **Efeitos Atmosféricos do Véu / Mundo Invertido (Stranger Things) na Arena Instanciada (/play) (`v0.52.0`)** — Implementada ambientação sobrenatural e imersiva para o combate instanciado remetendo à dimensão "O Véu" (The Veil): 85 esporos e cinzas flutuantes com profundidade 2.5D e paralaxe, piso sombrio abissal delimitado na elipse da arena com anéis de distorção dimensional concêntricos, 22 raízes/tentáculos rastejantes vivos com ondulação senoidal e pontas bioluminescentes, barreira elíptica com descargas estáticas e relâmpagos avermelhados periódicos cortando os céus com clarão difuso de baixa opacidade. Toggle persistente no painel GM (`🌫️ Efeitos do Véu: Ligado / Desligado`) e 60 FPS estáveis. Todos os arquivos de código mantidos estritamente abaixo do limite de 1.000 linhas (Regra #7) e uso de navegador sempre em segundo plano/oculto conforme nova regra obrigatória.
 * **Repositório Oficial:** `https://github.com/SeytaniR/etheria-campus`
 * **Fonte Bruta de Assets:** `https://github.com/SeytaniR/mcrework` (`https://seytanir.github.io/mcrework/`)
 
