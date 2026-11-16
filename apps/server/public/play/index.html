@@ -913,24 +913,24 @@
         ⚔️
       </button>
     </div>
-
-    <!-- Modal e Card de Desfecho de Batalha (Vitória / Derrota) -->
-    <div id="combatOutcomeModal">
-      <div class="outcome-card is-victory">
-        <div class="outcome-crest-wrap">
-          <img id="outcomeCrestImg" class="outcome-crest-img" src="/play/assets/hud/victory_crest.png" alt="Resultado" />
-        </div>
-        <h2 id="outcomeTitle" class="outcome-title">VITÓRIA GLORIOSA</h2>
-        <p id="outcomeSubtitle" class="outcome-subtitle">A fenda dimensional foi expurgada e o equilíbrio restaurado.</p>
-        <div id="outcomeRewardsGrid" class="outcome-rewards-grid"></div>
-        <button type="button" id="btnOutcomeAction" class="outcome-action-btn">Continuar Jornada</button>
-        <div class="outcome-timer-track"><div id="outcomeTimerBar" class="outcome-timer-bar"></div></div>
-      </div>
-    </div>
-
-    <!-- Overlay de Transição Dimensional / Respawn -->
-    <div id="respawnFadeOverlay"></div>
   </div>
+
+  <!-- Modal e Card de Desfecho de Batalha (Vitória / Derrota) -->
+  <div id="combatOutcomeModal">
+    <div class="outcome-card is-victory">
+      <div class="outcome-crest-wrap">
+        <img id="outcomeCrestImg" class="outcome-crest-img" src="/play/assets/hud/victory_crest.png" alt="Resultado" />
+      </div>
+      <h2 id="outcomeTitle" class="outcome-title">VITÓRIA GLORIOSA</h2>
+      <p id="outcomeSubtitle" class="outcome-subtitle">A fenda dimensional foi expurgada e o equilíbrio restaurado.</p>
+      <div id="outcomeRewardsGrid" class="outcome-rewards-grid"></div>
+      <button type="button" id="btnOutcomeAction" class="outcome-action-btn">Continuar Jornada</button>
+      <div class="outcome-timer-track"><div id="outcomeTimerBar" class="outcome-timer-bar"></div></div>
+    </div>
+  </div>
+
+  <!-- Overlay de Transição Dimensional / Respawn -->
+  <div id="respawnFadeOverlay"></div>
 
   <script type="module">
     import { CombatDamageCalculator } from '/shared/CombatDamageCalculator.js?v=20261111_elem';
