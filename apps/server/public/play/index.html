@@ -7,6 +7,7 @@
   <link rel="stylesheet" href="/play/css/play_chat_and_modals.css?v=20261114_chat" />
   <link rel="stylesheet" href="/play/css/play_lobby.css?v=20261116_v4" />
   <link rel="stylesheet" href="/play/css/play_combat_outcome.css?v=20261116_v055" />
+  <link rel="stylesheet" href="/play/css/play_stats_modal.css?v=20261116_v1" />
   <title>Etheria Campus — Jogo (/play) & Painel GM (/gm)</title>
   <style>
     :root {
@@ -821,13 +822,13 @@
   </section>
 
   <!-- MODAL: FICHA DE ATRIBUTOS PROCEDURAIS (6 BASE -> COMBATE) -->
-  <div id="statsModal" class="modal-backdrop">
-    <div class="modal-box">
-      <div style="display:flex; justify-content:space-between; align-items:center;">
-        <h3>📊 Ficha de Atributos Procedurais</h3>
-        <button class="btn-danger" onclick="document.getElementById('statsModal').style.display='none'">Fechar</button>
+  <div id="statsModal" class="stats-modal-backdrop" onclick="if(event.target===this)PlayApp.closeStatsModal()">
+    <div class="stats-modal-dialog" onclick="event.stopPropagation()">
+      <div class="stats-modal-header">
+        <h3 class="stats-modal-title">📊 Ficha de Atributos & Matriz de Combate</h3>
+        <button class="stats-modal-close" onclick="PlayApp.closeStatsModal()">✕</button>
       </div>
-      <div id="statsModalBody" style="display:flex; flex-direction:column; gap:10px; font-size:0.84rem;"></div>
+      <div id="statsModalBody" class="stats-modal-body"></div>
     </div>
   </div>
 

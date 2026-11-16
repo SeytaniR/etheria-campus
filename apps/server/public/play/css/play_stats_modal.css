@@ -1,0 +1,517 @@
+/**
+ * @file apps/server/public/play/css/play_stats_modal.css
+ * @description Estilos responsivos para o modal de Ficha de Atributos & Matriz Procedural de Combate.
+ * Suporta Desktop, Mobile Vertical (Portrait) e Mobile Horizontal (Landscape) mantendo 60+ FPS.
+ */
+
+.stats-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 95;
+  background: rgba(2, 6, 23, 0.82);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 10px;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.stats-modal-dialog {
+  background: #090e1a;
+  border: 1.5px solid #1e293b;
+  border-radius: 12px;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.9), 0 0 15px rgba(56, 189, 248, 0.15);
+  width: min(96vw, 680px);
+  max-height: 92dvh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  color: #f8fafc;
+  animation: statsModalFadeIn 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes statsModalFadeIn {
+  from { opacity: 0; transform: scale(0.96) translateY(6px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.stats-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 14px;
+  background: #0b1325;
+  border-bottom: 1px solid #1e293b;
+  flex-shrink: 0;
+}
+
+.stats-modal-title {
+  font-size: 0.98rem;
+  font-weight: 800;
+  color: #fde047;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+}
+
+.stats-modal-close {
+  background: rgba(239, 68, 68, 0.18);
+  border: 1px solid rgba(239, 68, 68, 0.4);
+  color: #fca5a5;
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-weight: 800;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+}
+
+.stats-modal-close:hover {
+  background: #ef4444;
+  color: #ffffff;
+}
+
+.stats-modal-body {
+  padding: 12px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  flex: 1;
+}
+
+/* Banner de Perfil do Personagem */
+.stats-hero-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: linear-gradient(90deg, #0d1933 0%, #070d1c 100%);
+  border: 1px solid #1e3a5f;
+  border-radius: 8px;
+  padding: 8px 12px;
+  flex-shrink: 0;
+}
+
+.stats-hero-profile {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.stats-hero-thumb {
+  width: 44px;
+  height: 44px;
+  border-radius: 8px;
+  object-fit: cover;
+  border: 1.5px solid #38bdf8;
+  background: #020617;
+}
+
+.stats-hero-name {
+  font-size: 0.92rem;
+  font-weight: 800;
+  color: #fde047;
+}
+
+.stats-hero-meta {
+  font-size: 0.72rem;
+  color: #94a3b8;
+  margin-top: 1px;
+}
+
+.stats-points-badge {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  border-radius: 99px;
+  font-size: 0.76rem;
+  font-weight: 800;
+}
+
+.stats-points-badge.has-points {
+  background: rgba(245, 158, 11, 0.2);
+  border: 1.5px solid #f59e0b;
+  color: #fef08a;
+  box-shadow: 0 0 10px rgba(245, 158, 11, 0.25);
+  animation: statsPulseBadge 1.8s infinite ease-in-out;
+}
+
+.stats-points-badge.zero-points {
+  background: rgba(30, 41, 59, 0.6);
+  border: 1px solid #334155;
+  color: #94a3b8;
+}
+
+@keyframes statsPulseBadge {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.04); }
+}
+
+/* Grid Principal em 2 Colunas (Desktop & Paisagem) */
+.stats-main-grid {
+  display: grid;
+  grid-template-columns: 1fr 1.05fr;
+  gap: 12px;
+}
+
+.stats-section-box {
+  background: #060b17;
+  border: 1px solid #1e293b;
+  border-radius: 8px;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.stats-section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #1e293b;
+  padding-bottom: 6px;
+}
+
+.stats-section-title {
+  font-size: 0.80rem;
+  font-weight: 800;
+  color: #38bdf8;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin: 0;
+}
+
+/* Linha de Atributo Base com Controles Táteis + / - */
+.stats-base-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.stats-base-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #0f172a;
+  border: 1px solid #1e293b;
+  border-radius: 6px;
+  padding: 6px 8px;
+  transition: border-color 0.15s ease;
+}
+
+.stats-base-row.is-allocated {
+  border-color: #22c55e;
+  background: rgba(34, 197, 94, 0.08);
+}
+
+.stats-attr-info {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.stats-attr-label {
+  font-size: 0.74rem;
+  font-weight: 800;
+  color: #f1f5f9;
+}
+
+.stats-attr-desc {
+  font-size: 0.65rem;
+  color: #64748b;
+}
+
+.stats-attr-controls {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.stats-val-display {
+  min-width: 48px;
+  text-align: right;
+  font-size: 0.90rem;
+  font-weight: 900;
+  color: #f8fafc;
+  font-family: monospace;
+}
+
+.stats-pending-pill {
+  color: #4ade80;
+  font-size: 0.74rem;
+  font-weight: 800;
+  margin-left: 2px;
+}
+
+.stats-btn-ctrl {
+  width: 28px;
+  height: 28px;
+  border-radius: 5px;
+  border: none;
+  font-size: 0.95rem;
+  font-weight: 900;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.12s ease;
+}
+
+.stats-btn-minus {
+  background: #1e293b;
+  border: 1px solid #475569;
+  color: #94a3b8;
+}
+
+.stats-btn-minus:not(:disabled):hover {
+  background: #ef4444;
+  border-color: #ef4444;
+  color: #ffffff;
+}
+
+.stats-btn-plus {
+  background: #0284c7;
+  border: 1px solid #38bdf8;
+  color: #ffffff;
+}
+
+.stats-btn-plus:not(:disabled):hover {
+  background: #38bdf8;
+  color: #020617;
+}
+
+.stats-btn-ctrl:disabled {
+  opacity: 0.28;
+  cursor: not-allowed;
+}
+
+/* Barra de Ações (Salvar e Redefinir) */
+.stats-actions-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.stats-btn-save {
+  flex: 1;
+  background: linear-gradient(180deg, #16a34a 0%, #15803d 100%);
+  border: 1.5px solid #4ade80;
+  border-radius: 6px;
+  color: #ffffff;
+  font-weight: 800;
+  font-size: 0.80rem;
+  padding: 8px 12px;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(22, 163, 74, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: all 0.15s ease;
+}
+
+.stats-btn-save:hover {
+  filter: brightness(1.1);
+  transform: translateY(-1px);
+}
+
+.stats-btn-reset {
+  background: #1e293b;
+  border: 1px solid #475569;
+  border-radius: 6px;
+  color: #cbd5e1;
+  font-weight: 700;
+  font-size: 0.76rem;
+  padding: 8px 10px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.stats-btn-reset:hover {
+  background: #334155;
+}
+
+/* Painel de Confirmação In-Modal */
+.stats-confirm-box {
+  background: #1e1b4b;
+  border: 1.5px solid #a855f7;
+  border-radius: 8px;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  animation: statsConfirmPop 0.16s ease-out;
+}
+
+@keyframes statsConfirmPop {
+  from { opacity: 0; transform: scale(0.97); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.stats-confirm-title {
+  font-size: 0.78rem;
+  font-weight: 800;
+  color: #e9d5ff;
+}
+
+.stats-confirm-text {
+  font-size: 0.72rem;
+  color: #c4b5fd;
+  line-height: 1.35;
+}
+
+.stats-confirm-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.stats-btn-confirm {
+  flex: 1;
+  background: #9333ea;
+  border: 1px solid #c084fc;
+  color: #ffffff;
+  font-weight: 800;
+  font-size: 0.75rem;
+  padding: 6px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.stats-btn-cancel {
+  background: #334155;
+  border: 1px solid #475569;
+  color: #f1f5f9;
+  font-weight: 700;
+  font-size: 0.75rem;
+  padding: 6px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+/* Grid de Atributos de Combate Derivados */
+.stats-combat-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 5px;
+  max-height: 280px;
+  overflow-y: auto;
+  padding-right: 2px;
+}
+
+.stats-combat-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: rgba(15, 23, 42, 0.75);
+  border: 1px solid #1e293b;
+  border-radius: 5px;
+  padding: 4px 8px;
+}
+
+.stats-combat-name {
+  font-size: 0.72rem;
+  color: #cbd5e1;
+}
+
+.stats-combat-code {
+  font-size: 0.62rem;
+  color: #64748b;
+  margin-left: 3px;
+  font-family: monospace;
+}
+
+.stats-combat-val {
+  font-size: 0.82rem;
+  font-weight: 800;
+  color: #38bdf8;
+  font-family: monospace;
+}
+
+.stats-combat-preview {
+  color: #4ade80;
+  font-size: 0.75rem;
+  font-weight: 800;
+  margin-left: 3px;
+}
+
+/* ==========================================================================
+   Responsividade: Mobile Vertical (Portrait) & Mobile Horizontal (Landscape)
+   ========================================================================== */
+@media (max-width: 640px) and (orientation: portrait) {
+  .stats-modal-dialog {
+    width: 96vw;
+    max-height: 90dvh;
+  }
+  .stats-main-grid {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+  .stats-combat-grid {
+    max-height: 200px;
+  }
+  .stats-btn-ctrl {
+    width: 34px;
+    height: 34px;
+    font-size: 1.15rem;
+  }
+  .stats-btn-save {
+    padding: 10px;
+    font-size: 0.86rem;
+  }
+}
+
+@media (max-height: 520px) and (orientation: landscape) {
+  .stats-modal-dialog {
+    width: min(96vw, 720px);
+    max-height: 94dvh;
+  }
+  .stats-modal-header {
+    padding: 6px 12px;
+  }
+  .stats-modal-body {
+    padding: 8px 10px;
+    gap: 8px;
+  }
+  .stats-hero-banner {
+    padding: 5px 10px;
+  }
+  .stats-hero-thumb {
+    width: 32px;
+    height: 32px;
+  }
+  .stats-main-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+  .stats-section-box {
+    padding: 6px 8px;
+    gap: 5px;
+  }
+  .stats-base-row {
+    padding: 4px 6px;
+  }
+  .stats-btn-ctrl {
+    width: 24px;
+    height: 24px;
+    font-size: 0.85rem;
+  }
+  .stats-combat-grid {
+    max-height: 180px;
+    gap: 3px;
+  }
+  .stats-combat-row {
+    padding: 3px 6px;
+  }
+}

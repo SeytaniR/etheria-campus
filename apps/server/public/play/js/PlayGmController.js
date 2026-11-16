@@ -143,63 +143,257 @@ class PlayGmController {
 
     client.openStatsModal = function () {
       if (!this.activeChar) return;
+      this._statsModalState = {
+        pendingAllocations: { VIT: 0, STR: 0, INT: 0, WIS: 0, AGI: 0, DEX: 0 },
+        isConfirmingSave: false,
+        isSaving: false,
+      };
+      this.renderStatsModalView();
+      const modal = document.getElementById('statsModal');
+      if (modal) modal.style.display = 'flex';
+    };
+
+    client.closeStatsModal = function () {
+      const modal = document.getElementById('statsModal');
+      if (modal) modal.style.display = 'none';
+      this._statsModalState = null;
+    };
+
+    client.renderStatsModalView = function () {
+      if (!this.activeChar) return;
       const c = this.activeChar;
       const base = c.baseAttributesJson || { VIT: 10, STR: 10, INT: 10, WIS: 10, AGI: 10, DEX: 10 };
-      const dist = c.distributedStatsJson || { VIT: 0, STR: 0, INT: 0, WIS: 0, AGI: 0, DEX: 0 };
+      const dist = (c.distributedStatsJson && typeof c.distributedStatsJson === 'object')
+        ? c.distributedStatsJson
+        : { VIT: 0, STR: 0, INT: 0, WIS: 0, AGI: 0, DEX: 0 };
       const grow = c.growthPerLevelJson || { VIT: 2, STR: 2, INT: 2, WIS: 2, AGI: 2, DEX: 2 };
       const lvUps = Math.max(0, (c.level || 1) - 1);
 
-      const totalBase = {};
+      const state = this._statsModalState || {
+        pendingAllocations: { VIT: 0, STR: 0, INT: 0, WIS: 0, AGI: 0, DEX: 0 },
+        isConfirmingSave: false,
+        isSaving: false,
+      };
+      const pending = state.pendingAllocations;
+      const totalPending = Object.values(pending).reduce((sum, p) => sum + (Number(p) || 0), 0);
+      const remainingUnspent = Math.max(0, (Number(c.unspentStatPoints) || 0) - totalPending);
+
+      const ATTR_METAS = {
+        VIT: { label: 'VIT • Vitalidade', desc: 'Aumenta HP Máximo e Defesa' },
+        STR: { label: 'STR • Força', desc: 'Aumenta Dano Físico e Carga' },
+        INT: { label: 'INT • Inteligência', desc: 'Aumenta Dano Mágico' },
+        WIS: { label: 'WIS • Sabedoria', desc: 'Aumenta MP Máximo e Def. Mágica' },
+        AGI: { label: 'AGI • Agilidade', desc: 'Aumenta Vel. Ataque e Evasão' },
+        DEX: { label: 'DEX • Destreza', desc: 'Aumenta Precisão e Crítico' },
+      };
+
+      const baseTotals = {};
+      const previewTotals = {};
       for (const k of ['VIT', 'STR', 'INT', 'WIS', 'AGI', 'DEX']) {
-        totalBase[k] = (Number(base[k]) || 0) + (Number(grow[k]) || 0) * lvUps + (Number(dist[k]) || 0);
+        const permanentBase = (Number(base[k]) || 0) + (Number(grow[k]) || 0) * lvUps + (Number(dist[k]) || 0);
+        baseTotals[k] = permanentBase;
+        previewTotals[k] = permanentBase + (Number(pending[k]) || 0);
       }
 
-      // Calcula Atributos de Combate via Matriz Procedural (`attribute_conversions`)
-      const combatLines = this.combatAttributes.map((ca) => {
-        let val = Number(ca.baseDefault) || 0;
-        for (const conv of this.attributeConversions) {
+      // Calcula Atributos de Combate Atuais e Preview via Matriz Procedural
+      const combatRows = (this.combatAttributes || []).map((ca) => {
+        let baseVal = Number(ca.baseDefault) || 0;
+        let previewVal = Number(ca.baseDefault) || 0;
+        for (const conv of (this.attributeConversions || [])) {
           if (conv.combatAttributeCode === ca.code) {
-            val += (totalBase[conv.baseAttributeCode] || 0) * Number(conv.ratioPerPoint);
+            baseVal += (baseTotals[conv.baseAttributeCode] || 0) * Number(conv.ratioPerPoint);
+            previewVal += (previewTotals[conv.baseAttributeCode] || 0) * Number(conv.ratioPerPoint);
           }
         }
-        const formatted = ca.isPercentage ? `${val.toFixed(1)}%` : Math.round(val);
-        return `<div style="display:flex; justify-content:space-between; padding:4px 8px; background:rgba(30,41,59,0.6); border-radius:6px;">
-          <span>${ca.namePtBr} (<code>${ca.code}</code>)</span>
-          <strong style="color:var(--accent);">${formatted}</strong>
-        </div>`;
+        const diff = previewVal - baseVal;
+        const curFormatted = ca.isPercentage ? `${baseVal.toFixed(1)}%` : Math.round(baseVal);
+        const prevFormatted = ca.isPercentage ? `${previewVal.toFixed(1)}%` : Math.round(previewVal);
+        const hasDiff = Math.abs(diff) > 0.001;
+
+        return `
+          <div class="stats-combat-row">
+            <div>
+              <span class="stats-combat-name">${ca.namePtBr || ca.code}</span>
+              <span class="stats-combat-code">${ca.code}</span>
+            </div>
+            <div style="display:flex; align-items:center;">
+              <span class="stats-combat-val">${hasDiff ? prevFormatted : curFormatted}</span>
+              ${hasDiff ? `<span class="stats-combat-preview">(+${ca.isPercentage ? diff.toFixed(1) + '%' : Math.round(diff)})</span>` : ''}
+            </div>
+          </div>
+        `;
       });
 
       const el = this.getElementStyle(c.elementCode);
       const modalBody = document.getElementById('statsModalBody');
-      if (modalBody) {
-        modalBody.innerHTML = `
-          <div style="padding:10px; background:rgba(56,189,248,0.1); border-radius:8px; border:1px solid var(--border);">
-            <strong>${c.name}</strong> &bull; Nv.${c.level} &bull; ${c.classNamePtBr} (${c.raceCode})<br/>
-            <span>Elemento: <strong style="color:${el.color};">${el.icon} ${c.elementNamePtBr}</strong></span>
-          </div>
-          <div>
-            <strong style="color:var(--accent-amber); display:block; margin-bottom:6px;">6 Atributos Base Totais:</strong>
-            <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:6px;">
-              ${['VIT', 'STR', 'INT', 'WIS', 'AGI', 'DEX']
-                .map(
-                  (k) => `<div style="padding:6px; background:var(--bg-input); border-radius:6px; text-align:center;">
-                    <div style="font-size:0.72rem; color:var(--text-muted);">${k}</div>
-                    <strong style="font-size:0.95rem;">${totalBase[k]}</strong>
-                  </div>`
-                )
-                .join('')}
+      if (!modalBody) return;
+
+      modalBody.innerHTML = `
+        <!-- Banner do Herói -->
+        <div class="stats-hero-banner">
+          <div class="stats-hero-profile">
+            <img class="stats-hero-thumb" src="${c.thumbUrl || '/play/assets/hud/menu_character.png'}" alt="${c.name}" />
+            <div>
+              <div class="stats-hero-name">${c.name} (Nv. ${c.level})</div>
+              <div class="stats-hero-meta">${c.classNamePtBr || 'Classe'} &bull; ${c.raceCode || 'HUMAN'} &bull; <span style="color:${el.color}; font-weight:700;">${el.icon} ${c.elementNamePtBr || c.elementCode}</span></div>
             </div>
           </div>
-          <div>
-            <strong style="color:#86efac; display:block; margin-bottom:6px;">Atributos de Combate Derivados (Matriz Procedural):</strong>
-            <div style="display:grid; grid-template-columns:1fr 1fr; gap:6px;">
-              ${combatLines.join('')}
+          <div class="stats-points-badge ${remainingUnspent > 0 ? 'has-points' : 'zero-points'}">
+            ★ ${remainingUnspent} Pts Livres
+          </div>
+        </div>
+
+        <!-- Grid Principal em 2 Colunas -->
+        <div class="stats-main-grid">
+          <!-- Coluna 1: 6 Atributos Base & Distribuição Não-Bloqueante -->
+          <div class="stats-section-box">
+            <div class="stats-section-header">
+              <h4 class="stats-section-title">⚡ 6 Atributos Base</h4>
+              <span style="font-size:0.68rem; color:#94a3b8;">${totalPending > 0 ? `<strong style="color:#4ade80;">+${totalPending} pts alocados</strong>` : 'Clique em + para alocar'}</span>
+            </div>
+
+            <div class="stats-base-list">
+              ${['VIT', 'STR', 'INT', 'WIS', 'AGI', 'DEX'].map((k) => {
+                const meta = ATTR_METAS[k];
+                const curVal = previewTotals[k];
+                const pts = Number(pending[k]) || 0;
+                return `
+                  <div class="stats-base-row ${pts > 0 ? 'is-allocated' : ''}">
+                    <div class="stats-attr-info">
+                      <span class="stats-attr-label">${meta.label}</span>
+                      <span class="stats-attr-desc">${meta.desc}</span>
+                    </div>
+                    <div class="stats-attr-controls">
+                      <div class="stats-val-display">
+                        ${curVal}
+                        ${pts > 0 ? `<span class="stats-pending-pill">(+${pts})</span>` : ''}
+                      </div>
+                      <button type="button" class="stats-btn-ctrl stats-btn-minus" onclick="PlayApp.removePendingStatPoint('${k}')" ${pts <= 0 ? 'disabled' : ''} title="Remover ponto de ${k}">-</button>
+                      <button type="button" class="stats-btn-ctrl stats-btn-plus" onclick="PlayApp.addPendingStatPoint('${k}')" ${remainingUnspent <= 0 ? 'disabled' : ''} title="Adicionar ponto em ${k}">+</button>
+                    </div>
+                  </div>
+                `;
+              }).join('')}
+            </div>
+
+            <!-- Painel de Confirmação ou Barra de Ações -->
+            ${state.isConfirmingSave ? `
+              <div class="stats-confirm-box">
+                <div class="stats-confirm-title">⚠️ Confirmar Distribuição de Pontos?</div>
+                <div class="stats-confirm-text">
+                  Você está alocando <strong>${totalPending} ponto(s)</strong>:
+                  ${Object.entries(pending).filter(([, p]) => p > 0).map(([k, p]) => `<strong>+${p} ${k}</strong>`).join(', ')}.
+                  <br/><span style="color:#fbbf24;">Esta ação consumirá seus pontos livres permanentemente.</span>
+                </div>
+                <div class="stats-confirm-actions">
+                  <button type="button" class="stats-btn-confirm" onclick="PlayApp.confirmSaveStats()" ${state.isSaving ? 'disabled' : ''}>
+                    ${state.isSaving ? '⏳ Salvando...' : '✓ Sim, Confirmar e Salvar'}
+                  </button>
+                  <button type="button" class="stats-btn-cancel" onclick="PlayApp.cancelSaveStatsPrompt()" ${state.isSaving ? 'disabled' : ''}>
+                    ✕ Cancelar
+                  </button>
+                </div>
+              </div>
+            ` : `
+              <div class="stats-actions-bar">
+                <button type="button" class="stats-btn-save" onclick="PlayApp.promptSaveStats()" ${totalPending <= 0 ? 'disabled style="opacity:0.4; cursor:not-allowed;"' : ''}>
+                  💾 Salvar Atributos ${totalPending > 0 ? `(+${totalPending} pts)` : ''}
+                </button>
+                ${totalPending > 0 ? `
+                  <button type="button" class="stats-btn-reset" onclick="PlayApp.resetPendingStats()" title="Limpar pontos não salvos">
+                    ↺ Redefinir
+                  </button>
+                ` : ''}
+              </div>
+            `}
+          </div>
+
+          <!-- Coluna 2: Atributos de Combate Derivados (Matriz Procedural) -->
+          <div class="stats-section-box">
+            <div class="stats-section-header">
+              <h4 class="stats-section-title">⚔️ Atributos de Combate</h4>
+              <span style="font-size:0.68rem; color:#86efac; font-weight:700;">Matriz Procedural</span>
+            </div>
+            <div class="stats-combat-grid">
+              ${combatRows.join('')}
             </div>
           </div>
-        `;
+        </div>
+      `;
+    };
+
+    client.addPendingStatPoint = function (attr) {
+      if (!this._statsModalState || !this.activeChar) return;
+      const pending = this._statsModalState.pendingAllocations;
+      const totalPending = Object.values(pending).reduce((sum, p) => sum + (Number(p) || 0), 0);
+      const remainingUnspent = (Number(this.activeChar.unspentStatPoints) || 0) - totalPending;
+      if (remainingUnspent <= 0) return;
+
+      pending[attr] = (Number(pending[attr]) || 0) + 1;
+      this._statsModalState.isConfirmingSave = false;
+      this.renderStatsModalView();
+    };
+
+    client.removePendingStatPoint = function (attr) {
+      if (!this._statsModalState) return;
+      const pending = this._statsModalState.pendingAllocations;
+      if ((Number(pending[attr]) || 0) <= 0) return;
+
+      pending[attr] = Math.max(0, (Number(pending[attr]) || 0) - 1);
+      this._statsModalState.isConfirmingSave = false;
+      this.renderStatsModalView();
+    };
+
+    client.resetPendingStats = function () {
+      if (!this._statsModalState) return;
+      this._statsModalState.pendingAllocations = { VIT: 0, STR: 0, INT: 0, WIS: 0, AGI: 0, DEX: 0 };
+      this._statsModalState.isConfirmingSave = false;
+      this.renderStatsModalView();
+    };
+
+    client.promptSaveStats = function () {
+      if (!this._statsModalState) return;
+      const totalPending = Object.values(this._statsModalState.pendingAllocations).reduce((sum, p) => sum + (Number(p) || 0), 0);
+      if (totalPending <= 0) return;
+      this._statsModalState.isConfirmingSave = true;
+      this.renderStatsModalView();
+    };
+
+    client.cancelSaveStatsPrompt = function () {
+      if (!this._statsModalState) return;
+      this._statsModalState.isConfirmingSave = false;
+      this.renderStatsModalView();
+    };
+
+    client.confirmSaveStats = async function () {
+      if (!this._statsModalState || !this.activeChar) return;
+      const totalPending = Object.values(this._statsModalState.pendingAllocations).reduce((sum, p) => sum + (Number(p) || 0), 0);
+      if (totalPending <= 0) return;
+
+      this._statsModalState.isSaving = true;
+      this.renderStatsModalView();
+
+      try {
+        const res = await this.api(`/api/play/characters/${this.activeChar.id}/distribute-stats`, {
+          method: 'POST',
+          body: JSON.stringify({ allocations: this._statsModalState.pendingAllocations }),
+        });
+
+        if (res && res.success) {
+          this.activeChar.unspentStatPoints = res.unspentStatPoints;
+          this.activeChar.distributedStatsJson = res.distributedStatsJson;
+          this._statsModalState.pendingAllocations = { VIT: 0, STR: 0, INT: 0, WIS: 0, AGI: 0, DEX: 0 };
+          this._statsModalState.isConfirmingSave = false;
+          this._statsModalState.isSaving = false;
+          this.updateHudInfo?.();
+          this.showNotification?.('✓ Pontos de atributos distribuídos e salvos com sucesso!', 'success');
+          this.renderStatsModalView();
+        }
+      } catch (err) {
+        this._statsModalState.isSaving = false;
+        alert(`Erro ao salvar pontos: ${err.message}`);
+        this.renderStatsModalView();
       }
-      const modal = document.getElementById('statsModal');
-      if (modal) modal.style.display = 'flex';
     };
 
     client.toggleCharacterReborn = async function () {

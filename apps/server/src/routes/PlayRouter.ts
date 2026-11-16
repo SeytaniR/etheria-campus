@@ -208,11 +208,40 @@ export class PlayRouter {
         this.deps.sendJson(res, 403, { error: 'Acesso negado: este personagem não pertence à sua conta.' });
         return true;
       }
-      const body = await this.deps.readJsonBody<{ attribute: string; points?: number }>(req);
-      const attr = String(body.attribute || '').toUpperCase();
-      const points = Math.max(1, Number(body.points) || 1);
-      if (!['VIT', 'STR', 'INT', 'WIS', 'AGI', 'DEX'].includes(attr)) {
-        this.deps.sendJson(res, 400, { error: 'Atributo inválido. Escolha entre VIT, STR, INT, WIS, AGI ou DEX.' });
+      const body = await this.deps.readJsonBody<{
+        attribute?: string;
+        points?: number;
+        allocations?: Record<string, number>;
+      }>(req);
+
+      const VALID_ATTRS = ['VIT', 'STR', 'INT', 'WIS', 'AGI', 'DEX'];
+      const allocationsToApply: Record<string, number> = {};
+
+      if (body.allocations && typeof body.allocations === 'object') {
+        for (const [rawAttr, rawPts] of Object.entries(body.allocations)) {
+          const attr = String(rawAttr || '').toUpperCase();
+          const pts = Number(rawPts) || 0;
+          if (pts > 0) {
+            if (!VALID_ATTRS.includes(attr)) {
+              this.deps.sendJson(res, 400, { error: `Atributo inválido: "${attr}". Escolha entre VIT, STR, INT, WIS, AGI ou DEX.` });
+              return true;
+            }
+            allocationsToApply[attr] = (allocationsToApply[attr] || 0) + pts;
+          }
+        }
+      } else if (body.attribute) {
+        const attr = String(body.attribute || '').toUpperCase();
+        const points = Math.max(1, Number(body.points) || 1);
+        if (!VALID_ATTRS.includes(attr)) {
+          this.deps.sendJson(res, 400, { error: 'Atributo inválido. Escolha entre VIT, STR, INT, WIS, AGI ou DEX.' });
+          return true;
+        }
+        allocationsToApply[attr] = points;
+      }
+
+      const totalRequested = Object.values(allocationsToApply).reduce((sum, p) => sum + p, 0);
+      if (totalRequested <= 0) {
+        this.deps.sendJson(res, 400, { error: 'Nenhum ponto válido especificado para distribuição.' });
         return true;
       }
 
@@ -222,8 +251,10 @@ export class PlayRouter {
         return true;
       }
 
-      if ((pc.unspentStatPoints || 0) < points) {
-        this.deps.sendJson(res, 400, { error: `Pontos insuficientes para distribuir (Disponíveis: ${pc.unspentStatPoints || 0}).` });
+      if ((pc.unspentStatPoints || 0) < totalRequested) {
+        this.deps.sendJson(res, 400, {
+          error: `Pontos insuficientes para distribuir (Disponíveis: ${pc.unspentStatPoints || 0}, Solicitados: ${totalRequested}).`,
+        });
         return true;
       }
 
@@ -231,11 +262,14 @@ export class PlayRouter {
         ? { ...(pc.distributedStatsJson as Record<string, number>) }
         : { VIT: 0, STR: 0, INT: 0, WIS: 0, AGI: 0, DEX: 0 }) as Record<string, number>;
 
-      dist[attr] = (Number(dist[attr]) || 0) + points;
+      for (const [attr, pts] of Object.entries(allocationsToApply)) {
+        dist[attr] = (Number(dist[attr]) || 0) + pts;
+      }
+
       const updated = await this.deps.prisma.playerCharacter.update({
         where: { id: charId },
         data: {
-          unspentStatPoints: Math.max(0, (pc.unspentStatPoints || 0) - points),
+          unspentStatPoints: Math.max(0, (pc.unspentStatPoints || 0) - totalRequested),
           distributedStatsJson: dist,
         },
       });

@@ -54,7 +54,6 @@ const PlayBagController = {
   attach(client) {
     this.client = client;
     this.injectBagModalDom();
-    this.injectCharacterModalDom();
     this.injectItemDetailModalDom();
 
     // 1. Abertura do Modal de Mochila em Grade
@@ -75,8 +74,8 @@ const PlayBagController = {
         this.showNotification?.('⚔️ Equipamento vestido com sucesso!', 'success');
         PlayBagController.closeItemDetailModal();
         await PlayBagController.loadBag();
-        if (document.getElementById('characterModal')?.style.display === 'flex') {
-          await this.openCharacterModal();
+        if (document.getElementById('statsModal')?.style.display === 'flex') {
+          this.openStatsModal();
         }
       } catch (err) {
         alert(`Erro ao equipar: ${err.message}`);
@@ -91,7 +90,9 @@ const PlayBagController = {
           body: JSON.stringify({ slotCode }),
         });
         this.showNotification?.(`Desequipou item do slot ${slotCode}.`, 'info');
-        await this.openCharacterModal();
+        if (document.getElementById('statsModal')?.style.display === 'flex') {
+          this.openStatsModal();
+        }
         if (document.getElementById('bagModal')?.style.display === 'flex') {
           await PlayBagController.loadBag();
         }
@@ -99,49 +100,6 @@ const PlayBagController = {
         alert(`Erro ao desequipar: ${err.message}`);
       }
     };
-
-    // 3. Modal de Personagem & Atributos
-    client.openCharacterModal = async function () {
-      if (!this.activeChar) return;
-      const bodyEl = document.getElementById('characterModalBody');
-      if (!bodyEl) return;
-      document.getElementById('characterModal').style.display = 'flex';
-      bodyEl.innerHTML = `<div style="padding:16px; text-align:center; color:#94a3b8;">⏳ Carregando atributos...</div>`;
-
-      try {
-        const [charFull, equipRes] = await Promise.all([
-          this.api(`/api/play/characters/${this.activeChar.id}`),
-          this.api(`/api/play/characters/${this.activeChar.id}/equipment`),
-        ]);
-        if (charFull) {
-          this.activeChar = charFull;
-          this.updateHudInfo?.();
-        }
-        PlayBagController.renderCharacterSheet(charFull, equipRes);
-      } catch (err) {
-        bodyEl.innerHTML = `<div style="color:#fca5a5; padding:12px;">Erro ao carregar personagem: ${err.message}</div>`;
-      }
-    };
-
-    client.distributeStatPoint = async function (attr) {
-      if (!this.activeChar) return;
-      try {
-        const res = await this.api(`/api/play/characters/${this.activeChar.id}/distribute-stats`, {
-          method: 'POST',
-          body: JSON.stringify({ attribute: attr, points: 1 }),
-        });
-        if (res && res.success) {
-          this.activeChar.unspentStatPoints = res.unspentStatPoints;
-          this.activeChar.distributedStatsJson = res.distributedStatsJson;
-          await this.openCharacterModal();
-          this.showNotification?.(`+1 ponto atribuído em ${attr}!`, 'success');
-        }
-      } catch (err) {
-        alert(`Erro ao distribuir ponto: ${err.message}`);
-      }
-    };
-
-    client.openStatsModal = client.openCharacterModal;
   },
 
   async loadBag() {
@@ -657,186 +615,7 @@ const PlayBagController = {
     this.renderBagGrid();
   },
 
-  renderCharacterSheet(c, equipRes) {
-    const bodyEl = document.getElementById('characterModalBody');
-    if (!bodyEl) return;
-
-    const base = c.baseAttributesJson || { VIT: 10, STR: 10, INT: 10, WIS: 10, AGI: 10, DEX: 10 };
-    const grow = c.growthPerLevelJson || { VIT: 2, STR: 2, INT: 2, WIS: 2, AGI: 2, DEX: 2 };
-    const dist = c.distributedStatsJson || { VIT: 0, STR: 0, INT: 0, WIS: 0, AGI: 0, DEX: 0 };
-    const lvUps = Math.max(0, (c.level || 1) - 1);
-
-    const totalBase = {};
-    for (const k of ['VIT', 'STR', 'INT', 'WIS', 'AGI', 'DEX']) {
-      totalBase[k] = (base[k] || 10) + (grow[k] || 2) * lvUps + (dist[k] || 0);
-    }
-
-    const equippedSlots = equipRes?.slots || [];
-    const equipMap = {};
-    for (const s of equippedSlots) {
-      equipMap[s.slotCode] = s.item;
-    }
-
-    const leftDefs = this.SLOT_DEFINITIONS.filter((s) => s.col === 'left');
-    const rightDefs = this.SLOT_DEFINITIONS.filter((s) => s.col === 'right');
-
-    const renderEquipBox = (s) => {
-      const it = equipMap[s.code];
-      const hasItem = Boolean(it);
-      const iconUrl = it?.iconUrl || '';
-      const rar = it ? (this.RARITY_MAP[String(it.rarityTier || '').toUpperCase()] || this.RARITY_MAP.F) : null;
-      const borderStyle = rar ? (rar.isCosmic ? 'border:1.5px solid #000; box-shadow:0 0 8px #000;' : `border:1.5px solid ${rar.border}; box-shadow:0 0 5px ${rar.glow};`) : 'border:1px dashed #334155;';
-
-      return `
-        <div class="equip-slot-box" data-slot="${s.code}" data-item="${it ? encodeURIComponent(JSON.stringify(it)) : ''}" onclick="window.PlayBagController.onPaperdollClick('${s.code}')" style="width:42px; height:42px; border-radius:6px; background:#020617; display:flex; align-items:center; justify-content:center; position:relative; cursor:pointer; ${borderStyle}" title="${s.label} (${s.code}): ${hasItem ? it.namePtBr : 'Vazio'}">
-          ${hasItem ? `<img src="${iconUrl}" style="width:82%; height:82%; object-fit:contain;" />` : `<span style="font-size:1.05rem; opacity:0.4;">${s.icon}</span>`}
-          <span style="position:absolute; bottom:0px; left:2px; font-size:0.5rem; color:#64748b; font-weight:800;">${s.code.slice(0, 3)}</span>
-        </div>
-      `;
-    };
-
-    bodyEl.innerHTML = `
-      <div style="display:flex; justify-content:space-between; align-items:center; background:#020617; border:1px solid #eab308; border-radius:8px; padding:6px 10px;">
-        <div>
-          <strong style="color:#fde047; font-size:0.88rem;">${c.name} (Nv. ${c.level})</strong>
-          <div style="font-size:0.68rem; color:#94a3b8;">${c.classNamePtBr || 'Classe'} &bull; Elemento: ${c.elementNamePtBr || c.elementCode}</div>
-        </div>
-        ${(c.unspentStatPoints || 0) > 0 ? `
-          <div style="background:#eab308; color:#020617; font-weight:900; font-size:0.74rem; padding:2px 8px; border-radius:99px;">
-            ★ ${c.unspentStatPoints} Pts Livres
-          </div>
-        ` : ''}
-      </div>
-
-      <!-- Paperdoll de 12 Slots de Equipamento -->
-      <div style="background:#0a0f1d; border:1px solid #1e293b; border-radius:8px; padding:8px; display:flex; justify-content:space-between; align-items:center;">
-        <div style="display:grid; grid-template-columns:repeat(2, 42px); gap:6px;">
-          ${leftDefs.map(renderEquipBox).join('')}
-        </div>
-        <div style="display:flex; flex-direction:column; align-items:center; justify-content:center;">
-          <img src="${c.thumbUrl || '/play/assets/hud/menu_character.png'}" style="width:72px; height:72px; object-fit:contain; border-radius:8px;" />
-          <span style="font-size:0.64rem; color:#64748b; margin-top:3px;">Paperdoll 12 Slots</span>
-        </div>
-        <div style="display:grid; grid-template-columns:repeat(2, 42px); gap:6px;">
-          ${rightDefs.map(renderEquipBox).join('')}
-        </div>
-      </div>
-      <div id="characterSlotDetailPanel" style="display:none; background:#020617; border:1px solid #38bdf8; border-radius:6px; padding:6px 8px;"></div>
-
-      <!-- Bônus de Conjuntos de Equipamentos Ativos -->
-      ${(equipRes?.activeSetBonuses && equipRes.activeSetBonuses.length > 0) ? `
-        <div style="background:#020617; border:1px solid #eab308; border-radius:8px; padding:6px 10px;">
-          <div style="font-size:0.72rem; font-weight:800; color:#fde047; margin-bottom:4px; display:flex; justify-content:space-between; align-items:center;">
-            <span>👑 Bônus de Conjunto Ativo (${equipRes.activeSetBonuses.length})</span>
-            <span style="font-size:0.65rem; color:#86efac; font-weight:700;">Arena Action</span>
-          </div>
-          <div style="display:flex; flex-direction:column; gap:4px;">
-            ${equipRes.activeSetBonuses.map((sb) => {
-              const tierBadge = sb.activationTier === 'FULL'
-                ? '<span style="color:#4ade80; font-weight:800;">★ 100% Full (+100% bônus)</span>'
-                : '<span style="color:#38bdf8; font-weight:800;">★ 50% Half (+40% bônus)</span>';
-              const statsStr = Object.entries(sb.appliedStats || {})
-                .map(([k, v]) => `+${v} ${k}`)
-                .join(', ');
-              return `
-                <div style="font-size:0.68rem; background:#0f172a; border:1px solid #1e293b; border-radius:4px; padding:4px 6px;">
-                  <div style="display:flex; justify-content:space-between; align-items:center;">
-                    <strong style="color:#fde047;">${sb.namePtBr} (${sb.piecesEquipped}/${sb.totalPieces} Peças)</strong>
-                    ${tierBadge}
-                  </div>
-                  <div style="color:#94a3b8; margin-top:2px; font-family:monospace;">${statsStr}</div>
-                </div>
-              `;
-            }).join('')}
-          </div>
-        </div>
-      ` : ''}
-
-      <!-- Atributos Base -->
-      <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:6px;">
-        ${['VIT', 'STR', 'INT', 'WIS', 'AGI', 'DEX'].map((k) => `
-          <div style="background:#0f172a; border:1px solid #334155; border-radius:6px; padding:5px; text-align:center;">
-            <div style="font-size:0.66rem; color:#94a3b8; font-weight:700;">${k}</div>
-            <div style="font-size:0.95rem; font-weight:900; color:#f8fafc;">${totalBase[k]}</div>
-            ${(c.unspentStatPoints || 0) > 0 ? `
-              <button onclick="window.PlayApp.distributeStatPoint('${k}')" class="btn-success" style="padding:1px 6px; font-size:0.65rem; font-weight:800; border-radius:4px; margin-top:2px;">+1</button>
-            ` : ''}
-          </div>
-        `).join('')}
-      </div>
-    `;
-  },
-
-  onPaperdollClick(slotCode) {
-    const box = document.querySelector(`.equip-slot-box[data-slot="${slotCode}"]`);
-    const panel = document.getElementById('characterSlotDetailPanel');
-    if (!box || !panel) return;
-
-    const raw = box.getAttribute('data-item');
-    if (!raw) {
-      panel.style.display = 'block';
-      panel.innerHTML = `
-        <div style="display:flex; justify-content:space-between; align-items:center;">
-          <span style="color:#94a3b8; font-size:0.75rem;">Slot <strong>${slotCode}</strong> vazio.</span>
-          <button class="btn-primary" style="padding:3px 7px; font-size:0.7rem;" onclick="window.PlayApp.openBagModal()">🎒 Abrir Mochila</button>
-        </div>
-      `;
-      return;
-    }
-
-    try {
-      const it = JSON.parse(decodeURIComponent(raw));
-      panel.style.display = 'block';
-      panel.innerHTML = `
-        <div style="display:flex; justify-content:space-between; align-items:center; gap:8px;">
-          <div style="display:flex; align-items:center; gap:6px;">
-            <img src="${it.iconUrl}" style="width:30px; height:30px; object-fit:contain; border-radius:4px; background:#020617;" />
-            <div>
-              <div style="font-size:0.8rem; font-weight:800; color:#fde047;">${it.namePtBr}</div>
-              <div style="font-size:0.66rem; color:#94a3b8;">${slotCode} &bull; Rank ${it.rarityTier}${it.equipmentSetNamePtBr ? ` &bull; <span style="color:#fde047;">👑 ${it.equipmentSetNamePtBr}</span>` : ''}</div>
-            </div>
-          </div>
-          <button class="btn-danger" style="padding:4px 10px; font-size:0.72rem; font-weight:700;" onclick="window.PlayApp.unequipCharacterSlot('${slotCode}')">
-            Desequipar
-          </button>
-        </div>
-      `;
-    } catch {
-      panel.style.display = 'none';
-    }
-  },
-
   injectBagModalDom() {
-    if (document.getElementById('bagModal')) return;
-    const modal = document.createElement('div');
-    modal.id = 'bagModal';
-    modal.className = 'modal-backdrop';
-    modal.innerHTML = `
-      <div class="modal-box" style="width:min(95vw, 440px); max-height:92dvh; overflow:hidden; display:flex; flex-direction:column; padding:12px;">
-        <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #334155; padding-bottom:8px; margin-bottom:8px;">
-          <h3 style="color:#fde047; font-size:0.95rem; margin:0;">🎒 Inventário & Carteira</h3>
-          <button class="btn-danger" style="padding:3px 9px;" onclick="document.getElementById('bagModal').style.display='none'">✕</button>
-        </div>
-        <div id="bagModalBody" style="display:flex; flex-direction:column; gap:8px; flex:1; overflow:hidden;"></div>
-      </div>`;
-    document.body.appendChild(modal);
-  },
-
-  injectCharacterModalDom() {
-    if (document.getElementById('characterModal')) return;
-    const modal = document.createElement('div');
-    modal.id = 'characterModal';
-    modal.className = 'modal-backdrop';
-    modal.innerHTML = `
-      <div class="modal-box" style="width:min(96vw, 460px); max-height:92dvh; overflow-y:auto; padding:12px;">
-        <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #334155; padding-bottom:8px; margin-bottom:8px;">
-          <h3 style="color:#fde047; font-size:0.95rem; margin:0;">👤 Personagem & Atributos</h3>
-          <button class="btn-danger" style="padding:3px 9px;" onclick="document.getElementById('characterModal').style.display='none'">✕</button>
-        </div>
-        <div id="characterModalBody" style="display:flex; flex-direction:column; gap:8px;"></div>
-      </div>`;
-    document.body.appendChild(modal);
-  },
 
   injectItemDetailModalDom() {
     if (document.getElementById('bagItemDetailModal')) return;
