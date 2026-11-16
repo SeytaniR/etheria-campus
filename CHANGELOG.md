@@ -5,6 +5,17 @@ Qualquer IA trabalhando neste repositório **DEVE** incrementar a versão e regi
 
 ---
 
+## [v0.54.2] - 2026-11-16
+### Padronização Visual: Retratos de Perfil (Busto / Avatar) na Seleção de Heróis Existentes
+* **Alinhamento dos Retratos de Personagens no Lobby (`PlayLobbyController.js`):**
+  * Corrigida a renderização na lista de heróis existentes (`renderHeroesList`) para utilizar prioritariamente a arte de perfil em busto / retrato de anime (`/play/assets/hud/avatars/${c.classCode}.png`), idêntica à já utilizada com sucesso na tela de criação de personagens.
+  * Substituído o uso indevido da miniatura de corpo inteiro do sprite sheet (`thumbUrl`), conferindo um padrão visual homogêneo, nítido e esteticamente polido a todos os cards do Lobby.
+* **Governança e Cumprimento Estrito de Regras:**
+  * `PlayLobbyController.js` mantido em 401 linhas (< 1.000 linhas, Regra #7).
+  * Build TypeScript validado com 0 erros.
+
+---
+
 ## [v0.54.1] - 2026-11-16
 ### Remoção de Botões e Menções ao Studio Low-Code na Interface do Client (/play)
 * **Remoção de Elementos de Interface do Studio na Rota `/play` (`index.html`):**

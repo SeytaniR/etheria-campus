@@ -76,7 +76,9 @@ class PlayLobbyController {
       container.innerHTML = myChars
         .map((c) => {
           const el = this.getElementStyle(c.elementCode);
-          const avatarSrc = c.thumbUrl || (c.classCode ? `/play/assets/hud/avatars/${c.classCode}.png` : '/play/assets/hud/player_avatar_frame.png');
+          const avatarSrc = c.classCode
+            ? `/play/assets/hud/avatars/${c.classCode}.png`
+            : (c.thumbUrl || '/play/assets/hud/player_avatar_frame.png');
           const isReborn = Boolean(c.isReborn);
           const hasRebornSkin = Boolean(c.rebornMcreworkCharKey);
           const xp = Number(c.experience) || 0;

@@ -8,9 +8,9 @@
 ---
 
 ## 📌 Status Atual do Projeto
-* **Versão Atual:** `v0.54.1`
+* **Versão Atual:** `v0.54.2`
 * **Última Atualização:** `2026-11-16`
-* **Fase Atual:** **Remoção de Botões e Menções ao Studio Low-Code na Interface do Client (/play) (`v0.54.1`)** — Removidos todos os botões e links que mencionavam o Studio Low-Code ou `/admin` na interface do client de `/play` (rodapé do card de Login, botão `🛠️ Studio` na barra superior do Lobby e botão `🛠️ /admin` na HUD superior de exploração do mundo). Refinados textos de lore para manter imersão total. Todos os arquivos estritamente < 1.000 linhas (Regra #7).
+* **Fase Atual:** **Padronização Visual: Retratos de Perfil (Busto / Avatar) na Seleção de Heróis Existentes (/play) (`v0.54.2`)** — Corrigida a imagem dos personagens na lista de heróis do Lobby para exibir os retratos de perfil estilizados em busto (`/play/assets/hud/avatars/${classCode}.png`) em vez do modelo/miniatura de corpo inteiro do sprite sheet, alinhando perfeitamente a apresentação com a tela de criação. Conduzida análise detalhada de otimização de performance para 60+ FPS estáveis no mobile (Xiaomi Redmi Note 14 Pro). Todos os arquivos estritamente < 1.000 linhas (Regra #7).
 * **Repositório Oficial:** `https://github.com/SeytaniR/etheria-campus`
 * **Fonte Bruta de Assets:** `https://github.com/SeytaniR/mcrework` (`https://seytanir.github.io/mcrework/`)
 
