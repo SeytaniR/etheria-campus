@@ -79,6 +79,227 @@
   color: #ffffff;
 }
 
+/* Barra de Abas do Modal (Equipamentos vs Atributos) */
+.stats-modal-tabs {
+  display: flex;
+  gap: 8px;
+  padding: 8px 12px;
+  background: #070c18;
+  border-bottom: 1px solid #1e293b;
+  flex-shrink: 0;
+}
+
+.stats-tab-btn {
+  flex: 1;
+  padding: 8px 14px;
+  border-radius: 6px;
+  border: 1px solid #1e293b;
+  background: #0f172a;
+  color: #94a3b8;
+  font-size: 0.82rem;
+  font-weight: 800;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: all 0.15s ease;
+}
+
+.stats-tab-btn:hover {
+  background: #1e293b;
+  color: #f8fafc;
+}
+
+.stats-tab-btn.active {
+  background: linear-gradient(180deg, #1e3a5f 0%, #0d1e38 100%);
+  border-color: #38bdf8;
+  color: #38bdf8;
+  box-shadow: 0 0 12px rgba(56, 189, 248, 0.25);
+}
+
+.stats-tab-points-pill {
+  background: #eab308;
+  color: #020617;
+  font-size: 0.70rem;
+  font-weight: 900;
+  padding: 1px 6px;
+  border-radius: 99px;
+  margin-left: 2px;
+}
+
+/* Paperdoll de 12 Slots de Equipamento */
+.stats-paperdoll-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.stats-paperdoll-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #060b17;
+  border: 1px solid #1e293b;
+  border-radius: 8px;
+  padding: 10px;
+  gap: 8px;
+}
+
+.stats-paperdoll-col {
+  display: grid;
+  grid-template-columns: repeat(2, 44px);
+  gap: 6px;
+}
+
+.stats-paperdoll-center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 0 8px;
+  text-align: center;
+}
+
+.stats-paperdoll-avatar {
+  width: 76px;
+  height: 76px;
+  object-fit: contain;
+  border-radius: 8px;
+  border: 1.5px solid #38bdf8;
+  background: #020617;
+  box-shadow: 0 0 16px rgba(56, 189, 248, 0.2);
+}
+
+.stats-slot-box {
+  width: 44px;
+  height: 44px;
+  border-radius: 6px;
+  background: #020617;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  user-select: none;
+}
+
+.stats-slot-box:hover {
+  transform: scale(1.05);
+}
+
+.stats-slot-box.selected {
+  outline: 2px solid #fde047;
+  box-shadow: 0 0 12px rgba(253, 224, 71, 0.6);
+}
+
+.stats-slot-code {
+  position: absolute;
+  bottom: 1px;
+  left: 2px;
+  font-size: 0.52rem;
+  color: #64748b;
+  font-weight: 800;
+  pointer-events: none;
+}
+
+/* Painel de Detalhes do Slot Selecionado */
+.stats-slot-detail-card {
+  background: #091122;
+  border: 1.5px solid #38bdf8;
+  border-radius: 8px;
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  animation: statsConfirmPop 0.16s ease-out;
+}
+
+.stats-slot-detail-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid #1e293b;
+  padding-bottom: 6px;
+}
+
+.stats-slot-detail-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.stats-slot-detail-icon {
+  width: 36px;
+  height: 36px;
+  object-fit: contain;
+  border-radius: 6px;
+  background: #020617;
+  border: 1px solid #334155;
+}
+
+.stats-slot-detail-name {
+  font-size: 0.86rem;
+  font-weight: 800;
+  color: #fde047;
+}
+
+.stats-slot-detail-sub {
+  font-size: 0.70rem;
+  color: #94a3b8;
+  margin-top: 1px;
+}
+
+.stats-slot-detail-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  font-size: 0.72rem;
+  font-family: monospace;
+}
+
+.stats-stat-badge {
+  background: #0f172a;
+  border: 1px solid #334155;
+  border-radius: 4px;
+  padding: 2px 6px;
+  color: #86efac;
+}
+
+.stats-btn-unequip {
+  background: rgba(239, 68, 68, 0.18);
+  border: 1.5px solid #ef4444;
+  color: #fca5a5;
+  font-weight: 800;
+  font-size: 0.78rem;
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  align-self: flex-start;
+  transition: all 0.15s ease;
+}
+
+.stats-btn-unequip:hover {
+  background: #ef4444;
+  color: #ffffff;
+}
+
+/* Lista de Bônus de Conjuntos */
+.stats-sets-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.stats-set-item {
+  background: #070d1c;
+  border: 1px solid #eab308;
+  border-radius: 6px;
+  padding: 6px 8px;
+  font-size: 0.72rem;
+}
+
 .stats-modal-body {
   padding: 12px;
   overflow-y: auto;
@@ -479,6 +700,14 @@
   }
   .stats-modal-header {
     padding: 6px 12px;
+  }
+  .stats-modal-tabs {
+    padding: 4px 10px;
+    gap: 6px;
+  }
+  .stats-tab-btn {
+    padding: 5px 8px;
+    font-size: 0.76rem;
   }
   .stats-modal-body {
     padding: 8px 10px;

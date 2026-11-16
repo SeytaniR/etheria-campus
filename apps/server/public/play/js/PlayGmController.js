@@ -141,13 +141,38 @@ class PlayGmController {
       alert(`🔄 Mapa #${this.currentMap.id} (${this.currentMap.namePtBr}) recarregado em tempo real do PostgreSQL!`);
     };
 
-    client.openStatsModal = function () {
+    const CHARACTER_EQUIP_SLOTS = [
+      { code: 'HEAD', label: 'Elmo', icon: '🧢', col: 'left' },
+      { code: 'SHOULDER', label: 'Ombros', icon: '🛡️', col: 'left' },
+      { code: 'CHEST', label: 'Peitoral', icon: '🥋', col: 'left' },
+      { code: 'BELT', label: 'Cinto', icon: '🎗️', col: 'left' },
+      { code: 'LEGS', label: 'Calças', icon: '👖', col: 'left' },
+      { code: 'FEET', label: 'Botas', icon: '👢', col: 'left' },
+      { code: 'WEAPON_1', label: 'Arma 1', icon: '⚔️', col: 'right' },
+      { code: 'WEAPON_2', label: 'Arma 2', icon: '📖', col: 'right' },
+      { code: 'NECKLACE', label: 'Colar', icon: '📿', col: 'right' },
+      { code: 'RING', label: 'Anel', icon: '💍', col: 'right' },
+      { code: 'ORNAMENT_1', label: 'Amuleto', icon: '🔮', col: 'right' },
+      { code: 'ORNAMENT_2', label: 'Talismã', icon: '🧿', col: 'right' },
+    ];
+
+    client.openStatsModal = async function (initialTab) {
       if (!this.activeChar) return;
-      this._statsModalState = {
+      if (initialTab) this._statsModalTab = initialTab;
+      else if (!this._statsModalTab) this._statsModalTab = 'equip';
+
+      this._statsModalState = this._statsModalState || {
         pendingAllocations: { VIT: 0, STR: 0, INT: 0, WIS: 0, AGI: 0, DEX: 0 },
         isConfirmingSave: false,
         isSaving: false,
       };
+
+      try {
+        this._equippedDetails = await this.api(`/api/play/characters/${this.activeChar.id}/equipment`);
+      } catch (err) {
+        console.warn('Erro ao carregar equipamentos:', err);
+      }
+
       this.renderStatsModalView();
       const modal = document.getElementById('statsModal');
       if (modal) modal.style.display = 'flex';
@@ -157,6 +182,35 @@ class PlayGmController {
       const modal = document.getElementById('statsModal');
       if (modal) modal.style.display = 'none';
       this._statsModalState = null;
+    };
+
+    client.switchStatsModalTab = function (tabName) {
+      this._statsModalTab = tabName;
+      this.renderStatsModalView();
+    };
+
+    client.selectEquipSlot = function (slotCode) {
+      this._selectedEquipSlot = (this._selectedEquipSlot === slotCode ? null : slotCode);
+      this.renderStatsModalView();
+    };
+
+    client.unequipCharacterSlot = async function (slotCode) {
+      if (!this.activeChar) return;
+      try {
+        await this.api(`/api/play/characters/${this.activeChar.id}/equipment/unequip`, {
+          method: 'POST',
+          body: JSON.stringify({ slotCode }),
+        });
+        this.showNotification?.(`Item do slot ${slotCode} desequipado!`, 'info');
+        this._equippedDetails = await this.api(`/api/play/characters/${this.activeChar.id}/equipment`);
+        this._selectedEquipSlot = null;
+        this.renderStatsModalView();
+        if (document.getElementById('bagModal')?.style.display === 'flex') {
+          await PlayBagController.loadBag();
+        }
+      } catch (err) {
+        alert(`Erro ao desequipar: ${err.message}`);
+      }
     };
 
     client.renderStatsModalView = function () {
@@ -178,57 +232,280 @@ class PlayGmController {
       const totalPending = Object.values(pending).reduce((sum, p) => sum + (Number(p) || 0), 0);
       const remainingUnspent = Math.max(0, (Number(c.unspentStatPoints) || 0) - totalPending);
 
-      const ATTR_METAS = {
-        VIT: { label: 'VIT • Vitalidade', desc: 'Aumenta HP Máximo e Defesa' },
-        STR: { label: 'STR • Força', desc: 'Aumenta Dano Físico e Carga' },
-        INT: { label: 'INT • Inteligência', desc: 'Aumenta Dano Mágico' },
-        WIS: { label: 'WIS • Sabedoria', desc: 'Aumenta MP Máximo e Def. Mágica' },
-        AGI: { label: 'AGI • Agilidade', desc: 'Aumenta Vel. Ataque e Evasão' },
-        DEX: { label: 'DEX • Destreza', desc: 'Aumenta Precisão e Crítico' },
-      };
-
-      const baseTotals = {};
-      const previewTotals = {};
-      for (const k of ['VIT', 'STR', 'INT', 'WIS', 'AGI', 'DEX']) {
-        const permanentBase = (Number(base[k]) || 0) + (Number(grow[k]) || 0) * lvUps + (Number(dist[k]) || 0);
-        baseTotals[k] = permanentBase;
-        previewTotals[k] = permanentBase + (Number(pending[k]) || 0);
+      const activeTab = this._statsModalTab || 'equip';
+      const equippedSlots = this._equippedDetails?.slots || [];
+      const equipMap = {};
+      for (const s of equippedSlots) {
+        if (s.item) equipMap[s.slotCode] = s.item;
       }
-
-      // Calcula Atributos de Combate Atuais e Preview via Matriz Procedural
-      const combatRows = (this.combatAttributes || []).map((ca) => {
-        let baseVal = Number(ca.baseDefault) || 0;
-        let previewVal = Number(ca.baseDefault) || 0;
-        for (const conv of (this.attributeConversions || [])) {
-          if (conv.combatAttributeCode === ca.code) {
-            baseVal += (baseTotals[conv.baseAttributeCode] || 0) * Number(conv.ratioPerPoint);
-            previewVal += (previewTotals[conv.baseAttributeCode] || 0) * Number(conv.ratioPerPoint);
-          }
-        }
-        const diff = previewVal - baseVal;
-        const curFormatted = ca.isPercentage ? `${baseVal.toFixed(1)}%` : Math.round(baseVal);
-        const prevFormatted = ca.isPercentage ? `${previewVal.toFixed(1)}%` : Math.round(previewVal);
-        const hasDiff = Math.abs(diff) > 0.001;
-
-        return `
-          <div class="stats-combat-row">
-            <div>
-              <span class="stats-combat-name">${ca.namePtBr || ca.code}</span>
-              <span class="stats-combat-code">${ca.code}</span>
-            </div>
-            <div style="display:flex; align-items:center;">
-              <span class="stats-combat-val">${hasDiff ? prevFormatted : curFormatted}</span>
-              ${hasDiff ? `<span class="stats-combat-preview">(+${ca.isPercentage ? diff.toFixed(1) + '%' : Math.round(diff)})</span>` : ''}
-            </div>
-          </div>
-        `;
-      });
+      const equippedCount = Object.keys(equipMap).length;
 
       const el = this.getElementStyle(c.elementCode);
       const modalBody = document.getElementById('statsModalBody');
       if (!modalBody) return;
 
+      // 1. Renderizador da Aba de Equipamentos (Paperdoll de 12 Slots)
+      const renderEquipTabContent = () => {
+        const leftDefs = CHARACTER_SLOTS.filter((s) => s.col === 'left');
+        const rightDefs = CHARACTER_SLOTS.filter((s) => s.col === 'right');
+        const rarityMap = window.PlayBagController?.RARITY_MAP || {};
+
+        const renderSlotBox = (s) => {
+          const it = equipMap[s.code];
+          const hasItem = Boolean(it);
+          const isSelected = this._selectedEquipSlot === s.code;
+          const rar = it ? (rarityMap[String(it.rarityTier || '').toUpperCase()] || rarityMap.F || {}) : null;
+          const borderStyle = rar ? (rar.isCosmic ? 'border:1.5px solid #000; box-shadow:0 0 8px #000;' : `border:1.5px solid ${rar.border}; box-shadow:0 0 6px ${rar.glow};`) : 'border:1px dashed #334155;';
+
+          return `
+            <div class="stats-slot-box ${isSelected ? 'selected' : ''}" onclick="PlayApp.selectEquipSlot('${s.code}')" style="${borderStyle}" title="${s.label} (${s.code}): ${hasItem ? it.namePtBr : 'Vazio'}">
+              ${hasItem ? `<img src="${it.iconUrl || ''}" style="width:82%; height:82%; object-fit:contain;" />` : `<span style="font-size:1.1rem; opacity:0.35;">${s.icon}</span>`}
+              <span class="stats-slot-code">${s.code.slice(0, 3)}</span>
+            </div>
+          `;
+        };
+
+        const selectedSlot = this._selectedEquipSlot ? CHARACTER_SLOTS.find((s) => s.code === this._selectedEquipSlot) : null;
+        const selectedItem = selectedSlot ? equipMap[selectedSlot.code] : null;
+
+        const activeSets = this._equippedDetails?.activeSetBonuses || [];
+
+        return `
+          <!-- Grid em 2 Colunas para Equipamentos -->
+          <div class="stats-main-grid">
+            <!-- Coluna 1: Paperdoll dos 12 Slots -->
+            <div class="stats-section-box">
+              <div class="stats-section-header">
+                <h4 class="stats-section-title">🛡️ Paperdoll 12 Slots</h4>
+                <span style="font-size:0.68rem; color:#86efac; font-weight:700;">${equippedCount}/12 Vestidos</span>
+              </div>
+              <div class="stats-paperdoll-container">
+                <div class="stats-paperdoll-col">
+                  ${leftDefs.map(renderSlotBox).join('')}
+                </div>
+                <div class="stats-paperdoll-center">
+                  <img class="stats-paperdoll-avatar" src="${c.thumbUrl || '/play/assets/hud/menu_character.png'}" alt="${c.name}" />
+                  <span style="font-size:0.68rem; color:#fde047; font-weight:800; margin-top:4px;">${c.name}</span>
+                  <span style="font-size:0.60rem; color:#94a3b8;">${c.classNamePtBr || 'Herói'}</span>
+                </div>
+                <div class="stats-paperdoll-col">
+                  ${rightDefs.map(renderSlotBox).join('')}
+                </div>
+              </div>
+            </div>
+
+            <!-- Coluna 2: Inspeção do Slot & Bônus de Conjunto -->
+            <div class="stats-section-box">
+              <div class="stats-section-header">
+                <h4 class="stats-section-title">🔍 Inspeção & Ações</h4>
+                <span style="font-size:0.68rem; color:#38bdf8;">${selectedSlot ? `${selectedSlot.label} (${selectedSlot.code})` : 'Selecione um slot'}</span>
+              </div>
+
+              ${selectedSlot ? `
+                <div class="stats-slot-detail-card">
+                  ${selectedItem ? `
+                    <div class="stats-slot-detail-header">
+                      <div class="stats-slot-detail-info">
+                        <img class="stats-slot-detail-icon" src="${selectedItem.iconUrl || ''}" alt="${selectedItem.namePtBr}" />
+                        <div>
+                          <div class="stats-slot-detail-name">${selectedItem.namePtBr}</div>
+                          <div class="stats-slot-detail-sub">${selectedSlot.label} &bull; Rank ${selectedItem.rarityTier || 'F'}${selectedItem.equipmentSetNamePtBr ? ` &bull; <strong style="color:#fde047;">👑 ${selectedItem.equipmentSetNamePtBr}</strong>` : ''}</div>
+                        </div>
+                      </div>
+                    </div>
+
+                    ${(selectedItem.baseAttributesJson || selectedItem.baseCombatAttributesJson) ? `
+                      <div class="stats-slot-detail-stats">
+                        ${Object.entries(selectedItem.baseAttributesJson || {}).map(([k, v]) => `<span class="stats-stat-badge">+${v} ${k}</span>`).join('')}
+                        ${Object.entries(selectedItem.baseCombatAttributesJson || {}).map(([k, v]) => `<span class="stats-stat-badge" style="color:#38bdf8;">+${v} ${k}</span>`).join('')}
+                      </div>
+                    ` : ''}
+
+                    <button type="button" class="stats-btn-unequip" onclick="PlayApp.unequipCharacterSlot('${selectedSlot.code}')">
+                      Desequipar Item
+                    </button>
+                  ` : `
+                    <div style="text-align:center; padding:12px; color:#94a3b8; font-size:0.75rem;">
+                      O slot <strong>${selectedSlot.label} (${selectedSlot.code})</strong> está vazio.<br/>
+                      <button type="button" class="btn-primary" style="margin-top:8px; padding:4px 10px; font-size:0.72rem;" onclick="PlayApp.openBagModal()">🎒 Abrir Mochila</button>
+                    </div>
+                  `}
+                </div>
+              ` : `
+                <div style="text-align:center; padding:16px 10px; color:#64748b; font-size:0.74rem;">
+                  💡 Toque em qualquer um dos 12 slots ao lado para inspecionar atributos, conjunto ou desequipar o item.
+                </div>
+              `}
+
+              <!-- Lista de Bônus de Conjuntos Ativos -->
+              <div style="margin-top:4px;">
+                <div style="font-size:0.74rem; font-weight:800; color:#fde047; margin-bottom:4px; display:flex; justify-content:space-between; align-items:center;">
+                  <span>👑 Conjuntos Ativos (${activeSets.length})</span>
+                  <span style="font-size:0.65rem; color:#86efac;">Arena Action</span>
+                </div>
+                ${activeSets.length > 0 ? `
+                  <div class="stats-sets-list">
+                    ${activeSets.map((sb) => {
+                      const statsStr = Object.entries(sb.appliedStats || {}).map(([k, v]) => `+${v} ${k}`).join(', ');
+                      return `
+                        <div class="stats-set-item">
+                          <div style="display:flex; justify-content:space-between; align-items:center;">
+                            <strong style="color:#fde047;">${sb.namePtBr} (${sb.piecesEquipped}/${sb.totalPieces} Peças)</strong>
+                            <span style="color:#4ade80; font-weight:800;">${sb.activationTier === 'FULL' ? '★ Full (100%)' : '★ Half (50%)'}</span>
+                          </div>
+                          <div style="color:#94a3b8; margin-top:2px; font-family:monospace; font-size:0.68rem;">${statsStr}</div>
+                        </div>
+                      `;
+                    }).join('')}
+                  </div>
+                ` : `
+                  <div style="font-size:0.68rem; color:#64748b; padding:6px; background:#070d1c; border-radius:6px; border:1px dashed #1e293b;">
+                    Equipe peças do mesmo conjunto para desbloquear bônus de combate na Arena!
+                  </div>
+                `}
+              </div>
+            </div>
+          </div>
+        `;
+      };
+
+      // 2. Renderizador da Aba de Atributos & Matriz Procedural
+      const renderStatsTabContent = () => {
+        const ATTR_METAS = {
+          VIT: { label: 'VIT • Vitalidade', desc: 'Aumenta HP Máximo e Defesa' },
+          STR: { label: 'STR • Força', desc: 'Aumenta Dano Físico e Carga' },
+          INT: { label: 'INT • Inteligência', desc: 'Aumenta Dano Mágico' },
+          WIS: { label: 'WIS • Sabedoria', desc: 'Aumenta MP Máximo e Def. Mágica' },
+          AGI: { label: 'AGI • Agilidade', desc: 'Aumenta Vel. Ataque e Evasão' },
+          DEX: { label: 'DEX • Destreza', desc: 'Aumenta Precisão e Crítico' },
+        };
+
+        const baseTotals = {};
+        const previewTotals = {};
+        for (const k of ['VIT', 'STR', 'INT', 'WIS', 'AGI', 'DEX']) {
+          const permanentBase = (Number(base[k]) || 0) + (Number(grow[k]) || 0) * lvUps + (Number(dist[k]) || 0);
+          baseTotals[k] = permanentBase;
+          previewTotals[k] = permanentBase + (Number(pending[k]) || 0);
+        }
+
+        const combatRows = (this.combatAttributes || []).map((ca) => {
+          let baseVal = Number(ca.baseDefault) || 0;
+          let previewVal = Number(ca.baseDefault) || 0;
+          for (const conv of (this.attributeConversions || [])) {
+            if (conv.combatAttributeCode === ca.code) {
+              baseVal += (baseTotals[conv.baseAttributeCode] || 0) * Number(conv.ratioPerPoint);
+              previewVal += (previewTotals[conv.baseAttributeCode] || 0) * Number(conv.ratioPerPoint);
+            }
+          }
+          const diff = previewVal - baseVal;
+          const curFormatted = ca.isPercentage ? `${baseVal.toFixed(1)}%` : Math.round(baseVal);
+          const prevFormatted = ca.isPercentage ? `${previewVal.toFixed(1)}%` : Math.round(previewVal);
+          const hasDiff = Math.abs(diff) > 0.001;
+
+          return `
+            <div class="stats-combat-row">
+              <div>
+                <span class="stats-combat-name">${ca.namePtBr || ca.code}</span>
+                <span class="stats-combat-code">${ca.code}</span>
+              </div>
+              <div style="display:flex; align-items:center;">
+                <span class="stats-combat-val">${hasDiff ? prevFormatted : curFormatted}</span>
+                ${hasDiff ? `<span class="stats-combat-preview">(+${ca.isPercentage ? diff.toFixed(1) + '%' : Math.round(diff)})</span>` : ''}
+              </div>
+            </div>
+          `;
+        });
+
+        return `
+          <div class="stats-main-grid">
+            <!-- Coluna 1: 6 Atributos Base & Distribuição Não-Bloqueante -->
+            <div class="stats-section-box">
+              <div class="stats-section-header">
+                <h4 class="stats-section-title">⚡ 6 Atributos Base</h4>
+                <span style="font-size:0.68rem; color:#94a3b8;">${totalPending > 0 ? `<strong style="color:#4ade80;">+${totalPending} pts alocados</strong>` : 'Clique em + para alocar'}</span>
+              </div>
+
+              <div class="stats-base-list">
+                ${['VIT', 'STR', 'INT', 'WIS', 'AGI', 'DEX'].map((k) => {
+                  const meta = ATTR_METAS[k];
+                  const curVal = previewTotals[k];
+                  const pts = Number(pending[k]) || 0;
+                  return `
+                    <div class="stats-base-row ${pts > 0 ? 'is-allocated' : ''}">
+                      <div class="stats-attr-info">
+                        <span class="stats-attr-label">${meta.label}</span>
+                        <span class="stats-attr-desc">${meta.desc}</span>
+                      </div>
+                      <div class="stats-attr-controls">
+                        <div class="stats-val-display">
+                          ${curVal}
+                          ${pts > 0 ? `<span class="stats-pending-pill">(+${pts})</span>` : ''}
+                        </div>
+                        <button type="button" class="stats-btn-ctrl stats-btn-minus" onclick="PlayApp.removePendingStatPoint('${k}')" ${pts <= 0 ? 'disabled' : ''} title="Remover ponto de ${k}">-</button>
+                        <button type="button" class="stats-btn-ctrl stats-btn-plus" onclick="PlayApp.addPendingStatPoint('${k}')" ${remainingUnspent <= 0 ? 'disabled' : ''} title="Adicionar ponto em ${k}">+</button>
+                      </div>
+                    </div>
+                  `;
+                }).join('')}
+              </div>
+
+              <!-- Painel de Confirmação ou Barra de Ações -->
+              ${state.isConfirmingSave ? `
+                <div class="stats-confirm-box">
+                  <div class="stats-confirm-title">⚠️ Confirmar Distribuição de Pontos?</div>
+                  <div class="stats-confirm-text">
+                    Você está alocando <strong>${totalPending} ponto(s)</strong>:
+                    ${Object.entries(pending).filter(([, p]) => p > 0).map(([k, p]) => `<strong>+${p} ${k}</strong>`).join(', ')}.
+                    <br/><span style="color:#fbbf24;">Esta ação consumirá seus pontos livres permanentemente.</span>
+                  </div>
+                  <div class="stats-confirm-actions">
+                    <button type="button" class="stats-btn-confirm" onclick="PlayApp.confirmSaveStats()" ${state.isSaving ? 'disabled' : ''}>
+                      ${state.isSaving ? '⏳ Salvando...' : '✓ Sim, Confirmar e Salvar'}
+                    </button>
+                    <button type="button" class="stats-btn-cancel" onclick="PlayApp.cancelSaveStatsPrompt()" ${state.isSaving ? 'disabled' : ''}>
+                      ✕ Cancelar
+                    </button>
+                  </div>
+                </div>
+              ` : `
+                <div class="stats-actions-bar">
+                  <button type="button" class="stats-btn-save" onclick="PlayApp.promptSaveStats()" ${totalPending <= 0 ? 'disabled style="opacity:0.4; cursor:not-allowed;"' : ''}>
+                    💾 Salvar Atributos ${totalPending > 0 ? `(+${totalPending} pts)` : ''}
+                  </button>
+                  ${totalPending > 0 ? `
+                    <button type="button" class="stats-btn-reset" onclick="PlayApp.resetPendingStats()" title="Limpar pontos não salvos">
+                      ↺ Redefinir
+                    </button>
+                  ` : ''}
+                </div>
+              `}
+            </div>
+
+            <!-- Coluna 2: Atributos de Combate Derivados (Matriz Procedural) -->
+            <div class="stats-section-box">
+              <div class="stats-section-header">
+                <h4 class="stats-section-title">⚔️ Atributos de Combate</h4>
+                <span style="font-size:0.68rem; color:#86efac; font-weight:700;">Matriz Procedural</span>
+              </div>
+              <div class="stats-combat-grid">
+                ${combatRows.join('')}
+              </div>
+            </div>
+          </div>
+        `;
+      };
+
       modalBody.innerHTML = `
+        <!-- Barra de Abas do Modal -->
+        <div class="stats-modal-tabs">
+          <button type="button" class="stats-tab-btn ${activeTab === 'equip' ? 'active' : ''}" onclick="PlayApp.switchStatsModalTab('equip')">
+            🛡️ Equipamentos (${equippedCount}/12)
+          </button>
+          <button type="button" class="stats-tab-btn ${activeTab === 'stats' ? 'active' : ''}" onclick="PlayApp.switchStatsModalTab('stats')">
+            ⚡ Atributos & Matriz ${remainingUnspent > 0 ? `<span class="stats-tab-points-pill">★ ${remainingUnspent}</span>` : ''}
+          </button>
+        </div>
+
         <!-- Banner do Herói -->
         <div class="stats-hero-banner">
           <div class="stats-hero-profile">
@@ -243,82 +520,8 @@ class PlayGmController {
           </div>
         </div>
 
-        <!-- Grid Principal em 2 Colunas -->
-        <div class="stats-main-grid">
-          <!-- Coluna 1: 6 Atributos Base & Distribuição Não-Bloqueante -->
-          <div class="stats-section-box">
-            <div class="stats-section-header">
-              <h4 class="stats-section-title">⚡ 6 Atributos Base</h4>
-              <span style="font-size:0.68rem; color:#94a3b8;">${totalPending > 0 ? `<strong style="color:#4ade80;">+${totalPending} pts alocados</strong>` : 'Clique em + para alocar'}</span>
-            </div>
-
-            <div class="stats-base-list">
-              ${['VIT', 'STR', 'INT', 'WIS', 'AGI', 'DEX'].map((k) => {
-                const meta = ATTR_METAS[k];
-                const curVal = previewTotals[k];
-                const pts = Number(pending[k]) || 0;
-                return `
-                  <div class="stats-base-row ${pts > 0 ? 'is-allocated' : ''}">
-                    <div class="stats-attr-info">
-                      <span class="stats-attr-label">${meta.label}</span>
-                      <span class="stats-attr-desc">${meta.desc}</span>
-                    </div>
-                    <div class="stats-attr-controls">
-                      <div class="stats-val-display">
-                        ${curVal}
-                        ${pts > 0 ? `<span class="stats-pending-pill">(+${pts})</span>` : ''}
-                      </div>
-                      <button type="button" class="stats-btn-ctrl stats-btn-minus" onclick="PlayApp.removePendingStatPoint('${k}')" ${pts <= 0 ? 'disabled' : ''} title="Remover ponto de ${k}">-</button>
-                      <button type="button" class="stats-btn-ctrl stats-btn-plus" onclick="PlayApp.addPendingStatPoint('${k}')" ${remainingUnspent <= 0 ? 'disabled' : ''} title="Adicionar ponto em ${k}">+</button>
-                    </div>
-                  </div>
-                `;
-              }).join('')}
-            </div>
-
-            <!-- Painel de Confirmação ou Barra de Ações -->
-            ${state.isConfirmingSave ? `
-              <div class="stats-confirm-box">
-                <div class="stats-confirm-title">⚠️ Confirmar Distribuição de Pontos?</div>
-                <div class="stats-confirm-text">
-                  Você está alocando <strong>${totalPending} ponto(s)</strong>:
-                  ${Object.entries(pending).filter(([, p]) => p > 0).map(([k, p]) => `<strong>+${p} ${k}</strong>`).join(', ')}.
-                  <br/><span style="color:#fbbf24;">Esta ação consumirá seus pontos livres permanentemente.</span>
-                </div>
-                <div class="stats-confirm-actions">
-                  <button type="button" class="stats-btn-confirm" onclick="PlayApp.confirmSaveStats()" ${state.isSaving ? 'disabled' : ''}>
-                    ${state.isSaving ? '⏳ Salvando...' : '✓ Sim, Confirmar e Salvar'}
-                  </button>
-                  <button type="button" class="stats-btn-cancel" onclick="PlayApp.cancelSaveStatsPrompt()" ${state.isSaving ? 'disabled' : ''}>
-                    ✕ Cancelar
-                  </button>
-                </div>
-              </div>
-            ` : `
-              <div class="stats-actions-bar">
-                <button type="button" class="stats-btn-save" onclick="PlayApp.promptSaveStats()" ${totalPending <= 0 ? 'disabled style="opacity:0.4; cursor:not-allowed;"' : ''}>
-                  💾 Salvar Atributos ${totalPending > 0 ? `(+${totalPending} pts)` : ''}
-                </button>
-                ${totalPending > 0 ? `
-                  <button type="button" class="stats-btn-reset" onclick="PlayApp.resetPendingStats()" title="Limpar pontos não salvos">
-                    ↺ Redefinir
-                  </button>
-                ` : ''}
-              </div>
-            `}
-          </div>
-
-          <!-- Coluna 2: Atributos de Combate Derivados (Matriz Procedural) -->
-          <div class="stats-section-box">
-            <div class="stats-section-header">
-              <h4 class="stats-section-title">⚔️ Atributos de Combate</h4>
-              <span style="font-size:0.68rem; color:#86efac; font-weight:700;">Matriz Procedural</span>
-            </div>
-            <div class="stats-combat-grid">
-              ${combatRows.join('')}
-            </div>
-          </div>
-        </div>
+        <!-- Conteúdo da Aba Ativa -->
+        ${activeTab === 'equip' ? renderEquipTabContent() : renderStatsTabContent()}
       `;
     };
 
