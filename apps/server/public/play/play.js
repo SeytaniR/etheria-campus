@@ -398,6 +398,10 @@ class EtheriaPlayClient {
       if (this.actionCombatArena?.isActive) {
         if (window.PlayNativeAppController?.handleArenaPointer(this, worldPt)) return;
       }
+      // Se o clique foi em um portal, PortalTravelController conduz o herói e abre confirmação
+      if (window.PortalTravelController?.handleCanvasClick(this, worldPt)) {
+        return;
+      }
       // Se o jogador tocar diretamente sobre um NPC e já estiver próximo, abre o modal de Quest/Diálogo
       for (const npc of this.currentMap.npcs || []) {
         const clickDist = Math.hypot(worldPt.x - npc.posX, worldPt.y - (npc.posY - 28));
@@ -684,65 +688,36 @@ class EtheriaPlayClient {
     }
   }
   checkPortalsAndNpcs(now) {
+    if (window.PortalTravelController) {
+      window.PortalTravelController.update(this, now);
+    }
     const prompt = document.getElementById('interactionPrompt');
     const textEl = document.getElementById('interactionText');
     const btnEl = document.getElementById('interactionBtn');
     if (!this.currentMap || this.actionCombatArena?.isActive || this.isTraversingPortal) {
       if (prompt) prompt.style.display = 'none';
+      return;
     }
-    // 1. Verifica proximidade de Portais Pareados
-    for (const p of this.currentMap.portals || []) {
-      const dist = Math.hypot(this.playerX - p.sourceX, this.playerY - p.sourceY);
-      const radius = Number(p.triggerRadius) || 48;
-      if (this.arrivedAtPortalId === p.id) {
-        if (dist > radius + 22) {
-          this.arrivedAtPortalId = null;
-        } else {
-          continue;
-        }
-      }
-      if (dist <= radius + 14) {
-        prompt.style.display = 'flex';
-        textEl.textContent = `🌀 ${p.label}`;
-        btnEl.textContent = p.targetMapNamePtBr ? `Ir para ${p.targetMapNamePtBr} (${p.targetX}, ${p.targetY})` : 'Sem portal par vinculado ainda';
-        btnEl.onclick = () => this.traversePortal(p.id);
-        // Travessia automática ao pisar no núcleo do portal (se já passou o cooldown de saída)
-        if (dist <= radius * 0.7 && p.targetMapId && now > this.portalCooldownUntil) {
-          this.portalCooldownUntil = now + 4000;
-          void this.traversePortal(p.id);
-        }
-      }
-    }
-    // 2. Verifica proximidade de NPCs Interativos e Indicadores de Quest
+    // Verifica proximidade de NPCs Interativos e Indicadores de Quest
     for (const n of this.currentMap.npcs || []) {
       const dist = Math.hypot(this.playerX - n.posX, this.playerY - n.posY);
-      if (dist <= 68) {
+      if (dist <= 68 && prompt && textEl && btnEl) {
         prompt.style.display = 'flex';
         const qInd = this.questState?.npcHeadIndicators?.[n.npcTemplateId];
         const stateLabels = { TURN_IN_READY: '❓ Entregar Missão', AVAILABLE: '❗ Nova Missão', IN_PROGRESS: '❓ Missão em Andamento' };
         textEl.textContent = `🧙 ${n.namePtBr}`;
         btnEl.textContent = stateLabels[qInd?.state] || '💬 Conversar';
         btnEl.onclick = () => { if (typeof this.openNpcQuestModal === 'function') void this.openNpcQuestModal(n); };
+        return;
       }
     }
-    prompt.style.display = 'none';
+    if (prompt) prompt.style.display = 'none';
   }
-  async traversePortal(portalId) {
+  traversePortal(portalId) {
     if (!this.activeChar || this.isTraversingPortal) return;
-    this.isTraversingPortal = true;
-    try {
-      const res = await this.api(`/api/play/characters/${this.activeChar.id}/traverse-portal`, {
-        method: 'POST',
-        body: JSON.stringify({ portalId }),
-      });
-      this.activeChar.currentMapId = res.currentMapId;
-      this.activeChar.posX = res.posX;
-      this.activeChar.posY = res.posY;
-      await this.loadMapIntoWorld(res.currentMapId, res.posX, res.posY, res.arrivedAtPortalId);
-    } catch (err) {
-      alert(`🌀 Portal: ${err.message}`);
-    } finally {
-      this.isTraversingPortal = false;
+    const portal = (this.currentMap?.portals || []).find((p) => p.id === portalId);
+    if (window.PortalTravelController && portal) {
+      window.PortalTravelController.openConfirmation(this, portal);
     }
   }
   toggleBattleSfx() {
@@ -961,6 +936,9 @@ class EtheriaPlayClient {
     }
     if (this.levelUpVfx) {
       this.levelUpVfx.renderWorldAir(ctx, now, this.zoom);
+    }
+    if (window.PortalTravelController?.hasActiveVfx) {
+      window.PortalTravelController.renderWorldVfx(ctx, now, this.zoom);
     }
     ctx.restore();
     // 6.1 Transição Cinemática de Entrada em Batalha
