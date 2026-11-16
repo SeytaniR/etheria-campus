@@ -246,8 +246,8 @@ class PlayGmController {
 
       // 1. Renderizador da Aba de Equipamentos (Paperdoll de 12 Slots)
       const renderEquipTabContent = () => {
-        const leftDefs = CHARACTER_SLOTS.filter((s) => s.col === 'left');
-        const rightDefs = CHARACTER_SLOTS.filter((s) => s.col === 'right');
+        const leftDefs = CHARACTER_EQUIP_SLOTS.filter((s) => s.col === 'left');
+        const rightDefs = CHARACTER_EQUIP_SLOTS.filter((s) => s.col === 'right');
         const rarityMap = window.PlayBagController?.RARITY_MAP || {};
 
         const renderSlotBox = (s) => {
@@ -265,7 +265,7 @@ class PlayGmController {
           `;
         };
 
-        const selectedSlot = this._selectedEquipSlot ? CHARACTER_SLOTS.find((s) => s.code === this._selectedEquipSlot) : null;
+        const selectedSlot = this._selectedEquipSlot ? CHARACTER_EQUIP_SLOTS.find((s) => s.code === this._selectedEquipSlot) : null;
         const selectedItem = selectedSlot ? equipMap[selectedSlot.code] : null;
 
         const activeSets = this._equippedDetails?.activeSetBonuses || [];
