@@ -8,15 +8,9 @@
 ---
 
 ## 📌 Status Atual do Projeto
-* **Versão Atual:** `v0.50.0`
-* **Última Atualização:** `2026-11-15`
-* **Fase Atual:** **Padronização de Raridades de Todos os Equipamentos e Conjuntos para Ranks Oficiais (SS, S, A, B, C, D, F) e Preservação de Customizações Manuais (`v0.50.0`)** — Corrigida toda a base de equipamentos e conjuntos para utilizar o sistema nativo de Ranks de Etheria (`SS`, `S`, `A`, `B`, `C`, `D`, `F`), eliminando tags textuais redundantes em inglês e no texto de descrição:
-  1. **516 Equipamentos Alinhados:** 144 Nível 60 (Rank S), 144 Nível 50 (Rank A), 216 Nível 40 (Rank B), 12 Nível 1 (Rank F).
-  2. **Customização Manual Preservada (Cláusula 0.2):** O item `Adagas do Ceifador Fantasma` (`equip_lv60_ghostreaper_weapon1`, ID `#700`) editado pelo usuário no `/admin` mantém integralmente `rarityTier: 'S'`, `requiredLevel: 150` e bônus de combate `MAG_ATK: 888`.
-  3. **43 Conjuntos de Equipamentos Alinhados:** 12 Nível 60 (Rank S), 12 Nível 50 (Rank A), 18 Nível 40 (Rank B), 1 Nível 1 (Rank F).
-  4. **576 Traduções i18n Alinhadas:** Tags `(Lendário)`, `(Épico)`, `(Raro)` e `(Comum)` substituídas por `(Rank S)`, `(Rank A)`, `(Rank B)` e `(Rank F)`.
-  5. **Frontend /admin e /play Atualizados:** Modais, tabelas, filtros e badges renderizam os Ranks oficiais `SS, S, A, B, C, D, F`.
-  6. **VPS Azure & Snapshot Canônico:** PostgreSQL da VPS Azure atualizado, serviço reiniciado e snapshot `lowcode.snapshot.json` sincronizado. Todos os arquivos estritamente conformes com a Regra #7 (< 1.000 linhas).
+* **Versão Atual:** `v0.51.0`
+* **Última Atualização:** `2026-11-16`
+* **Fase Atual:** **Motor de Transição Cinemática de Entrada em Batalha e Áudio Procedural no Jogo (/play) (`v0.51.0`)** — Implementado motor modular de transições de entrada em combate (`BattleTransitionController.js`) com 4 estilos visuais épicos (Fratura Dimensional de Cristal, Corte de Lâminas Duplo em 'X', Vórtice Arcano Espiral e Pulso Cósmico com abertura de cortina de laser), congelamento de frame de exploração, banner informativo de encontro de monstros com rank/nível, síntese de áudio procedural via Web Audio API (sub-bass impact, acordes heroicos e estilhaços/zunidos sem arquivos externos), suporte a pular transição instantaneamente via toque/tecla e integração completa no painel GM. Todos os arquivos estritamente conformes com a Regra #7 (< 1.000 linhas).
 * **Repositório Oficial:** `https://github.com/SeytaniR/etheria-campus`
 * **Fonte Bruta de Assets:** `https://github.com/SeytaniR/mcrework` (`https://seytanir.github.io/mcrework/`)
 

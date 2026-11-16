@@ -377,6 +377,11 @@
       touch-action: none;
       overflow: hidden;
       pointer-events: none;
+      transition: opacity 0.22s ease-out;
+    }
+    .action-arena-backdrop.transitioning {
+      opacity: 0 !important;
+      pointer-events: none !important;
     }
     .action-arena-canvas-container {
       display: none;
@@ -806,6 +811,26 @@
         <button class="btn-primary" onclick="PlayApp.startGmBattle()" style="padding:7px; font-weight:700; font-size:0.78rem; background:linear-gradient(135deg, #e11d48, #be123c); border-color:#f43f5e; margin-top:2px;">
           ⚔️ Entrar em Batalha GM
         </button>
+
+        <div style="display:flex; flex-direction:column; gap:4px; margin-top:4px; border-top:1px dashed rgba(56,189,248,0.3); padding-top:6px;">
+          <label style="font-size:0.7rem; color:#38bdf8; font-weight:700;">✨ Efeito de Transição de Batalha:</label>
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:4px;">
+            <select id="gmTransitionStyleSelect" onchange="window.BattleTransitionController.setTransitionStyle(this.value)" style="padding:3px 4px; font-size:0.72rem; background:#020617; border:1px solid var(--border); color:#fde047; border-radius:4px;">
+              <option value="RANDOM">🎲 Aleatório (Épico)</option>
+              <option value="SHATTER">💎 Fratura de Cristal</option>
+              <option value="SLASH">⚔️ Corte de Lâminas</option>
+              <option value="VORTEX">🌀 Vórtice Arcano</option>
+              <option value="PULSE">⚡ Pulso Cósmico</option>
+            </select>
+            <button class="btn-cyan" onclick="window.BattleTransitionController.test(document.getElementById('gmTransitionStyleSelect').value)" style="padding:4px; font-size:0.72rem; font-weight:700;">
+              🎬 Testar Efeito
+            </button>
+          </div>
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-top:2px;">
+            <label style="font-size:0.68rem; color:var(--text-muted);">🔊 Som de Batalha (SFX):</label>
+            <button id="btnGmToggleSfx" onclick="PlayApp.toggleBattleSfx()" style="padding:2px 8px; font-size:0.68rem;">🔊 Ligado</button>
+          </div>
+        </div>
       </div>
 
       <div style="display:flex; flex-direction:column; gap:6px; border-top:1px solid var(--border); padding-top:8px;">
@@ -938,9 +963,10 @@
   <script src="/play/js/ActionSkillEngine.js?v=20261112_sk"></script>
   <script src="/play/js/ActionMotionEngine.js?v=20261113_m1"></script>
   <script src="/play/js/ArenaUnitAiController.js?v=20261112_sk"></script>
-  <script src="/play/js/ActionCombatArena.js?v=20261112_sk"></script>
+  <script src="/play/js/BattleTransitionController.js?v=20261116_v2"></script>
+  <script src="/play/js/ActionCombatArena.js?v=20261116_v2"></script>
   <script src="/play/js/PlayLobbyController.js?v=20261108_p4"></script>
-  <script src="/play/js/PlayGmController.js?v=20261108_p4"></script>
+  <script src="/play/js/PlayGmController.js?v=20261116_v2"></script>
   <script src="/play/js/PlayContainerModal.js?v=20261114_cont"></script>
   <script src="/play/js/PlayBagController.js?v=20261111_meta"></script>
   <script src="/play/js/PlayQuestsController.js?v=20261111_meta"></script>
@@ -951,6 +977,6 @@
   <script src="/play/js/PlayHudController.js?v=20261114_hud"></script>
   <script src="/play/js/PlayUiLayoutApplier.js?v=20261114_ui"></script>
   <script src="/play/js/PlayClientHudEditor.js?v=20261114_cedit"></script>
-  <script src="/play/play.js?v=20261113_m1"></script>
+  <script src="/play/play.js?v=20261116_v2"></script>
 </body>
 </html>

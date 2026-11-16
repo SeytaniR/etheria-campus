@@ -5,6 +5,33 @@ Qualquer IA trabalhando neste repositório **DEVE** incrementar a versão e regi
 
 ---
 
+## [v0.51.0] - 2026-11-16
+### Motor de Transição Cinemática de Entrada em Batalha e Áudio Procedural no Jogo (/play)
+* **Novo Motor Modular `BattleTransitionController.js` (Action RPG):**
+  * Desenvolvido módulo cliente 100% autônomo e de alta performance no loop 60 FPS (`apps/server/public/play/js/BattleTransitionController.js`), rigorosamente abaixo de 1.000 linhas (751 linhas) conforme Regra #7.
+  * **4 Estilos Visuais Cinemáticos de Entrada em Combate:**
+    1. **💎 Fratura Dimensional de Cristal (`SHATTER`):** Congela o frame de exploração e fragmenta a tela em 48 cacos triangulares orgânicos com física de dispersão radial, rotação angular, gravidade, bordas fluorescentes de cristal e fagulhas luminosas.
+    2. **⚔️ Corte de Lâminas Duplo (`SLASH`):** Dois cortes neon de alta velocidade em 'X' cruzam a tela com rastro de partículas e efeito de brasa incandescente, separando 4 fatias que deslizam e revelam a arena.
+    3. **🌀 Vórtice Arcano (`VORTEX`):** Distorção gravitacional em espiral que puxa a cena de exploração para o núcleo dimensional com anéis de choque cósmicos e partículas orbitais.
+    4. **⚡ Pulso Cósmico & Cortina de Aço (`PULSE`):** Flash estroboscópico duplo com abertura em feixe de laser horizontal que abre a tela verticalmente como uma cortina de teatro cósmico.
+  * **Síntese Sonora Procedural via Web Audio API (Zero Dependência de Arquivos):**
+    * Geração de áudio 100% sintetizado em tempo real no navegador: sub-bass impact kick (160Hz -> 32Hz), acordes de tensão orquestral (tétrades harmônicas) e efeitos específicos de quebra de vidro cristalino ou zunido de lâmina cortante.
+    * Suporte a toggle de som (ligado/mudo) persistido em `localStorage`.
+  * **Placa / Banner Cinemático de Encontro:**
+    * Exibe dinamicamente o tipo de encontro (`ENCONTRO DE COMBATE!` ou `EMBOSCADA DE MONSTROS!`), nome do monstro, quantidade de inimigos, nível e badge de Rank/Tier (`BOSS`, `LEADER`, `NORMAL`).
+  * **Interatividade e Acessibilidade:**
+    * Pular transição a qualquer momento com um toque na tela ou pressionando `Espaço` / `Enter` / `Esc`.
+    * Transição suave de opacidade (`transition: opacity 0.22s ease-out`) na HUD da arena para evitar pop-ins visuais abruptos.
+* **Integração no Painel GM e Menu de Testes:**
+  * Adicionado seletor de estilo de transição (`🎲 Aleatório`, `💎 Fratura`, `⚔️ Corte`, `🌀 Vórtice`, `⚡ Pulso`) e botão `🎬 Testar Efeito` no painel GM para testes sob demanda.
+  * Botão de alternância rápida de SFX (`🔊 Ligado` / `🔇 Mudo`).
+* **Conformidade Estrita com AGENTS.md e Governança:**
+  * Todos os arquivos de código mantidos estritamente abaixo do limite de 1.000 linhas (`BattleTransitionController.js`: 751 linhas, `ActionCombatArena.js`: 991 linhas, `play.js`: 982 linhas, `index.html`: 982 linhas).
+  * Build TypeScript e empacotamento validados com 100% de sucesso.
+  * Deploy efetuado na VPS Azure com serviço `etheria-campus.service` ativo.
+
+---
+
 ## [v0.50.0] - 2026-11-15
 ### Padronização de Raridades de Todos os Equipamentos e Conjuntos para Ranks Oficiais (SS, S, A, B, C, D, F) e Preservação de Customizações Manuais
 * **Harmonização do Campo `rarityTier` em Toda a Base de Equipamentos (`item_templates`):**

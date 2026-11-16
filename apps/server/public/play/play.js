@@ -372,6 +372,10 @@ class EtheriaPlayClient {
     const canvas = document.getElementById('gameCanvas');
     canvas.addEventListener('pointerdown', (e) => {
       e.preventDefault();
+      if (window.BattleTransitionController?.isActive) {
+        window.BattleTransitionController.skip();
+        return;
+      }
       if (!this.activeChar || !this.currentMap) return;
       const rect = canvas.getBoundingClientRect();
       const sx = e.clientX - rect.left;
@@ -724,6 +728,13 @@ class EtheriaPlayClient {
       this.isTraversingPortal = false;
     }
   }
+  toggleBattleSfx() {
+    if (window.BattleTransitionController) {
+      const enabled = window.BattleTransitionController.toggleSound();
+      const btn = document.getElementById('btnGmToggleSfx');
+      if (btn) btn.textContent = enabled ? '🔊 Ligado' : '🔇 Mudo';
+    }
+  }
   renderWorld(now) {
     const canvas = document.getElementById('gameCanvas');
     const ctx = canvas.getContext('2d');
@@ -951,6 +962,10 @@ class EtheriaPlayClient {
       this.actionCombatArena.renderFloatingTexts(ctx);
     }
     ctx.restore();
+    // 6.1 Transição Cinemática de Entrada em Batalha
+    if (window.BattleTransitionController?.isActive) {
+      window.BattleTransitionController.render(ctx, now, canvas);
+    }
     // 7. Atualização fluida do Minimapa na HUD a cada ~90ms
     if (window.PlayHudController && (!this._lastMinimapUpdate || now - this._lastMinimapUpdate > 90)) {
       this._lastMinimapUpdate = now;

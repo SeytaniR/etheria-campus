@@ -150,6 +150,7 @@ class ActionCombatArena {
   }
 
   openArena(battleState) {
+    if (window.BattleTransitionController) window.BattleTransitionController.start(battleState, this);
     this.currentBattle = battleState;
     this.isActive = true;
     this.combatState = 'PREPARATION';
@@ -277,7 +278,8 @@ class ActionCombatArena {
 
     this.floatingTexts = [];
 
-    const modal = document.getElementById('actionCombatModal'); if (modal) modal.style.display = 'flex';
+    const modal = document.getElementById('actionCombatModal');
+    if (modal) { modal.style.display = 'flex'; if (this.isTransitioning) modal.classList.add('transitioning'); }
     const resultBanner = document.getElementById('actionResultBanner'); if (resultBanner) resultBanner.style.display = 'none';
     const prepBanner = document.getElementById('actionPrepBanner'); if (prepBanner) prepBanner.style.display = 'flex';
     const timerEl = document.getElementById('actPrepTimer'); if (timerEl) timerEl.textContent = '20s';
@@ -285,13 +287,7 @@ class ActionCombatArena {
     const statusEl = document.getElementById('actPrepStatusText');
     if (statusEl) statusEl.textContent = this.totalRealPlayers > 1 ? `Aguardando: 0/${this.totalRealPlayers} jogadores prontos` : 'Trace sua estratégia ou clique em Pronto';
 
-    this.floatingTexts.push({
-      x: spawns.px,
-      y: spawns.py - 60,
-      text: 'PREPARE-SE PARA A BATALHA',
-      color: '#38bdf8',
-      life: 2.2,
-    });
+    this.floatingTexts.push({ x: spawns.px, y: spawns.py - 60, text: 'PREPARE-SE PARA A BATALHA', color: '#38bdf8', life: 2.2 });
 
     this.renderSkillButtonsHud();
     this.updateCombatShortcutsHud();
@@ -393,6 +389,7 @@ class ActionCombatArena {
   }
 
   closeArena() {
+    this.isTransitioning = false;
     this.isActive = false;
     this.combatState = 'INACTIVE';
     this.pets = [];
@@ -847,6 +844,7 @@ class ActionCombatArena {
 
     // 0. Contagem regressiva durante PREPARATION
     if (this.combatState === 'PREPARATION') {
+      if (this.isTransitioning) return;
       this.prepTimeRemaining = Math.max(0, this.prepTimeRemaining - dt);
       const timerEl = document.getElementById('actPrepTimer');
       if (timerEl) timerEl.textContent = `${Math.ceil(this.prepTimeRemaining)}s`;
@@ -971,12 +969,12 @@ class ActionCombatArena {
 
   getCamFocusX() {
     if (!this.player) return this.client?.playerX || 0;
-    const m = this.monsters.find((m) => m.isAlive);
+    const m = this.monsters.find((mob) => mob.isAlive);
     return m ? Math.round(this.player.x * 0.65 + m.x * 0.35) : this.player.x;
   }
   getCamFocusY() {
     if (!this.player) return this.client?.playerY || 0;
-    const m = this.monsters.find((m) => m.isAlive);
+    const m = this.monsters.find((mob) => mob.isAlive);
     return m ? Math.round(this.player.y * 0.65 + m.y * 0.35) : this.player.y;
   }
   drawArenaRingOnFloor(ctx, now, zoom) { if (this.isActive) this.vfxRenderer?.drawArenaFloorAndProjectiles(ctx, this, now, zoom); }
