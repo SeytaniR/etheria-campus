@@ -386,52 +386,55 @@ class ActionVfxRenderer {
   }
 
   /* ==========================================================================
-     ATMOSFERA DO VÉU / THE VEIL (MUNDO INVERTIDO DE STRANGER THINGS)
+     ATMOSFERA DO VÉU / THE VEIL (MUNDO INVERTIDO DE STRANGER THINGS - TELA TODA)
      ========================================================================== */
 
   /**
-   * Inicializa partículas e raízes dimensionais alinhadas à elipse da arena instanciada.
+   * Inicializa partículas e raízes dimensionais preenchendo a tela toda e a arena instanciada.
    */
-  initVeilAtmosphere(cx, cy, rx, ry) {
+  initVeilAtmosphere(cx, cy, rx, ry, viewL, viewT, viewW, viewH) {
     this.lastArenaKey = `${Math.round(cx)}_${Math.round(cy)}_${Math.round(rx)}_${Math.round(ry)}`;
     this.veilSpores = [];
     this.veilTendrils = [];
     this.veilLightning = null;
-    this.nextVeilLightningTime = performance.now() + 3200 + Math.random() * 2500;
+    this.nextVeilLightningTime = performance.now() + 3000 + Math.random() * 2500;
     this.lastVeilTime = performance.now();
 
-    // 1. Esporos e Cinzas Dimensionais Flutuantes (85 partículas com paralaxe 2.5D)
+    const vl = typeof viewL === 'number' ? viewL : cx - 1100;
+    const vt = typeof viewT === 'number' ? viewT : cy - 800;
+    const vw = typeof viewW === 'number' ? Math.max(1600, viewW) : 2200;
+    const vh = typeof viewH === 'number' ? Math.max(1200, viewH) : 1600;
+
+    // 1. Esporos e Cinzas Dimensionais Flutuantes (160 partículas cobrindo toda a tela visível)
     const sporeColors = [
       { r: 203, g: 213, b: 225 }, // 55% Cinza Ectoplasmático / Cinzas do Véu
       { r: 56, g: 189, b: 248 },  // 25% Ciano Necrótico Fantasmal
       { r: 244, g: 63, b: 94 },   // 20% Carmesim Dimensional
     ];
 
-    for (let i = 0; i < 85; i++) {
-      const ang = Math.random() * Math.PI * 2;
-      const distRatio = Math.sqrt(Math.random()) * 1.08;
+    for (let i = 0; i < 160; i++) {
       const depth = 0.35 + Math.random() * 0.85;
       const roll = Math.random();
       const col = roll > 0.80 ? sporeColors[2] : (roll > 0.55 ? sporeColors[1] : sporeColors[0]);
 
       this.veilSpores.push({
-        baseX: cx + Math.cos(ang) * rx * distRatio,
-        y: cy + Math.sin(ang) * ry * distRatio + (Math.random() * 40 - 20),
+        baseX: vl + Math.random() * vw,
+        y: vt + Math.random() * vh,
         depth,
-        size: (1.2 + Math.random() * 2.4) * depth,
-        vy: -(9 + Math.random() * 22) * depth,
-        freq: 0.8 + Math.random() * 1.8,
-        amp: (10 + Math.random() * 22) * depth,
+        size: (1.2 + Math.random() * 2.5) * depth,
+        vy: -(9 + Math.random() * 24) * depth,
+        freq: 0.7 + Math.random() * 1.8,
+        amp: (12 + Math.random() * 25) * depth,
         phase: Math.random() * Math.PI * 2,
         baseAlpha: 0.35 + Math.random() * 0.55,
-        pulseSpeed: 1.2 + Math.random() * 2.0,
+        pulseSpeed: 1.1 + Math.random() * 1.9,
         r: col.r,
         g: col.g,
         b: col.b,
       });
     }
 
-    // 2. Vinhas e Raízes Eldritch Rastejantes enraizadas na borda elíptica
+    // 2. Vinhas e Raízes Eldritch Rastejantes enraizadas na borda elíptica da arena
     const numTendrils = 22;
     for (let i = 0; i < numTendrils; i++) {
       const baseAng = (i / numTendrils) * Math.PI * 2 + (Math.random() * 0.18 - 0.09);
@@ -464,35 +467,49 @@ class ActionVfxRenderer {
   }
 
   /**
-   * Renderiza a atmosfera do solo do Véu (piso elíptico abissal, distorções dimensionais e raízes).
+   * Renderiza a atmosfera do solo do Véu (escurecimento em tela toda, piso abissal da arena e raízes).
    */
   drawVeilFloorAtmosphere(ctx, arena, now, zoom = 1.0) {
     const cx = arena.arenaCenterX;
     const cy = arena.arenaCenterY;
     const rx = arena.arenaRadiusX;
     const ry = arena.arenaRadiusY;
+
+    // Viewport da tela no espaço do mundo
+    const canvas = arena.client?.canvas || ctx.canvas;
+    const camX = arena.client?.camX ?? 0;
+    const camY = arena.client?.camY ?? 0;
+    const viewL = -camX / zoom;
+    const viewT = -camY / zoom;
+    const viewW = canvas.width / zoom;
+    const viewH = canvas.height / zoom;
+
     const curKey = `${Math.round(cx)}_${Math.round(cy)}_${Math.round(rx)}_${Math.round(ry)}`;
     if (curKey !== this.lastArenaKey || this.veilSpores.length === 0) {
-      this.initVeilAtmosphere(cx, cy, rx, ry);
+      this.initVeilAtmosphere(cx, cy, rx, ry, viewL, viewT, viewW, viewH);
     }
 
     ctx.save();
 
-    // 1. Piso Sombrio Abissal do Véu Delimitado na Elipse da Arena
+    // 1. Camada Sombria Global do Véu Cobrindo Toda a Tela Visível (Mundo Invertido Fullscreen)
+    ctx.fillStyle = 'rgba(7, 11, 24, 0.58)';
+    ctx.fillRect(viewL - 80, viewT - 80, viewW + 160, viewH + 160);
+
+    // 2. Foco Dimensional Abissal do Piso na Elipse da Arena
     ctx.beginPath();
     ctx.ellipse(cx, cy, rx, ry, 0, 0, Math.PI * 2);
     const grad = ctx.createRadialGradient(cx, cy, rx * 0.12, cx, cy, rx);
-    grad.addColorStop(0, 'rgba(15, 23, 42, 0.42)');
-    grad.addColorStop(0.55, 'rgba(30, 27, 75, 0.52)');
-    grad.addColorStop(0.85, 'rgba(69, 10, 10, 0.65)');
-    grad.addColorStop(1, 'rgba(2, 6, 23, 0.90)');
+    grad.addColorStop(0, 'rgba(15, 23, 42, 0.35)');
+    grad.addColorStop(0.55, 'rgba(30, 27, 75, 0.45)');
+    grad.addColorStop(0.85, 'rgba(69, 10, 10, 0.58)');
+    grad.addColorStop(1, 'rgba(2, 6, 23, 0.85)');
     ctx.fillStyle = grad;
     ctx.fill();
 
-    // 2. Ondas de Distorção Dimensional Concêntricas Pulsantes
+    // 3. Ondas de Distorção Dimensional Concêntricas Pulsantes na Arena
     for (let i = 1; i <= 2; i++) {
       const pulseRatio = 0.38 * i + 0.05 * Math.sin((now / 360) + i);
-      const ringAlpha = 0.15 + 0.08 * Math.sin((now / 430) + i * 1.5);
+      const ringAlpha = 0.16 + 0.08 * Math.sin((now / 430) + i * 1.5);
       ctx.beginPath();
       ctx.ellipse(cx, cy, rx * pulseRatio, ry * pulseRatio, 0, 0, Math.PI * 2);
       ctx.strokeStyle = i === 1 ? `rgba(225, 29, 72, ${ringAlpha})` : `rgba(56, 189, 248, ${ringAlpha * 0.8})`;
@@ -500,7 +517,7 @@ class ActionVfxRenderer {
       ctx.stroke();
     }
 
-    // 3. Raízes e Tentáculos Eldritch Rastejantes
+    // 4. Raízes e Tentáculos Eldritch Rastejantes
     for (const tendril of this.veilTendrils) {
       ctx.beginPath();
       ctx.moveTo(tendril.startX, tendril.startY);
@@ -541,8 +558,8 @@ class ActionVfxRenderer {
       ctx.fill();
     }
 
-    // 4. Barreira Elíptica do Véu com Descargas Estáticas de Energia
-    const perimeterArcs = 12;
+    // 5. Barreira Elíptica da Arena com Descargas Estáticas de Energia
+    const perimeterArcs = 14;
     for (let k = 0; k < perimeterArcs; k++) {
       const arcAng = (k / perimeterArcs) * Math.PI * 2 + ((now / 2200) % (Math.PI * 2));
       const px = cx + Math.cos(arcAng) * rx;
@@ -561,22 +578,39 @@ class ActionVfxRenderer {
   }
 
   /**
-   * Renderiza a atmosfera aérea do Véu (esporos/cinzas 2.5D com paralaxe e relâmpagos avermelhados).
+   * Renderiza a atmosfera aérea do Véu na tela toda (vinheta sombria, esporos/cinzas 2.5D e relâmpagos).
    */
   drawVeilAirAndSpores(ctx, arena, now, zoom = 1.0) {
     if (!this.veilEffectsEnabled) return;
-    const cx = arena.arenaCenterX;
-    const cy = arena.arenaCenterY;
-    const rx = arena.arenaRadiusX;
-    const ry = arena.arenaRadiusY;
+
+    // Viewport da tela no espaço do mundo
+    const canvas = arena.client?.canvas || ctx.canvas;
+    const camX = arena.client?.camX ?? 0;
+    const camY = arena.client?.camY ?? 0;
+    const viewL = -camX / zoom;
+    const viewT = -camY / zoom;
+    const viewW = canvas.width / zoom;
+    const viewH = canvas.height / zoom;
+
     const dt = Math.min(0.08, (now - this.lastVeilTime) / 1000);
     this.lastVeilTime = now;
 
     ctx.save();
 
-    // 1. Relâmpago Dimensional do Véu (Red Atmospheric Lightning no Céu)
+    // 1. Vinheta Sombria Cinematográfica nas Bordas da Tela (Stranger Things Vignette)
+    const midX = viewL + viewW / 2;
+    const midY = viewT + viewH / 2;
+    const maxR = Math.max(viewW, viewH) * 0.72;
+    const vig = ctx.createRadialGradient(midX, midY, maxR * 0.40, midX, midY, maxR);
+    vig.addColorStop(0, 'rgba(0, 0, 0, 0)');
+    vig.addColorStop(0.68, 'rgba(15, 10, 30, 0.28)');
+    vig.addColorStop(1, 'rgba(2, 6, 18, 0.65)');
+    ctx.fillStyle = vig;
+    ctx.fillRect(viewL - 20, viewT - 20, viewW + 40, viewH + 40);
+
+    // 2. Relâmpago Dimensional do Véu Cortando o Céu da Tela Toda
     if (now >= this.nextVeilLightningTime && !this.veilLightning) {
-      this.triggerVeilLightning(cx, cy, rx, ry, now);
+      this.triggerVeilLightning(viewL, viewT, viewW, viewH, now);
     }
 
     if (this.veilLightning) {
@@ -587,11 +621,9 @@ class ActionVfxRenderer {
         const progress = elapsed / this.veilLightning.durationMs;
         const flashAlpha = Math.max(0, 1 - progress);
 
-        // Clarão difuso na atmosfera do Véu
-        ctx.beginPath();
-        ctx.ellipse(cx, cy, rx * 1.15, ry * 1.15, 0, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(225, 29, 72, ${0.09 * flashAlpha})`;
-        ctx.fill();
+        // Clarão difuso em toda a tela visível
+        ctx.fillStyle = `rgba(225, 29, 72, ${0.10 * flashAlpha})`;
+        ctx.fillRect(viewL - 20, viewT - 20, viewW + 40, viewH + 40);
 
         // Linhas principais do raio avermelhado
         ctx.beginPath();
@@ -629,19 +661,24 @@ class ActionVfxRenderer {
       }
     }
 
-    // 2. Atualização e Renderização dos Esporos / Cinzas Dimensionais (Stranger Things Style)
+    // 3. Atualização e Renderização dos Esporos / Cinzas Dimensionais Cobrindo a Tela Toda
+    const minY = viewT - 40;
+    const maxY = viewT + viewH + 40;
+
     for (const sp of this.veilSpores) {
       sp.y += sp.vy * dt;
 
-      // Wrap-around vertical quando passa do topo da arena
-      const minY = cy - ry * 1.15;
-      const maxY = cy + ry * 1.10;
+      // Wrap-around vertical em tela cheia
       if (sp.y < minY) {
-        sp.y = maxY + (Math.random() * 20);
-        const ang = Math.random() * Math.PI * 2;
-        const distRatio = Math.sqrt(Math.random()) * 0.95;
-        sp.baseX = cx + Math.cos(ang) * rx * distRatio;
+        sp.y = maxY + Math.random() * 30;
+        sp.baseX = viewL + Math.random() * viewW;
+      } else if (sp.y > maxY + 60) {
+        sp.y = minY;
       }
+
+      // Reajuste horizontal suave se a câmera deslizar
+      if (sp.baseX < viewL - 120) sp.baseX = viewL + viewW + Math.random() * 40;
+      else if (sp.baseX > viewL + viewW + 120) sp.baseX = viewL - Math.random() * 40;
 
       const swayX = Math.sin((now / 1000) * sp.freq + sp.phase) * sp.amp;
       const renderX = sp.baseX + swayX;
@@ -662,22 +699,22 @@ class ActionVfxRenderer {
   }
 
   /**
-   * Dispara um relâmpago ramificado avermelhado cortando os céus do Véu.
+   * Dispara um relâmpago ramificado avermelhado cortando os céus da tela toda.
    */
-  triggerVeilLightning(cx, cy, rx, ry, now) {
+  triggerVeilLightning(viewL, viewT, viewW, viewH, now) {
     this.nextVeilLightningTime = now + 3500 + Math.random() * 4000;
-    const startX = cx + (Math.random() * rx * 1.2 - rx * 0.6);
-    const startY = cy - ry * 1.25;
-    const numSegments = 7;
+    const startX = viewL + (0.15 + Math.random() * 0.70) * viewW;
+    const startY = viewT - 20;
+    const numSegments = 8;
     const mainBranch = [{ x: startX, y: startY }];
 
     let curX = startX;
     let curY = startY;
-    const segH = (ry * 1.6) / numSegments;
+    const segH = (viewH * 0.75) / numSegments;
     const subBranches = [];
 
     for (let s = 1; s <= numSegments; s++) {
-      curX += (Math.random() - 0.5) * 55;
+      curX += (Math.random() - 0.5) * 65;
       curY += segH * (0.8 + Math.random() * 0.4);
       mainBranch.push({ x: curX, y: curY });
 
@@ -687,7 +724,7 @@ class ActionVfxRenderer {
         let subY = curY;
         const subSegments = 3;
         for (let ss = 0; ss < subSegments; ss++) {
-          subX += (Math.random() - 0.5) * 45;
+          subX += (Math.random() - 0.5) * 55;
           subY += segH * 0.7;
           subBranch.push({ x: subX, y: subY });
         }
@@ -698,6 +735,10 @@ class ActionVfxRenderer {
     this.veilLightning = {
       startMs: now,
       durationMs: 290,
+      mainBranch,
+      subBranches,
+    };
+  }
       mainBranch,
       subBranches,
     };

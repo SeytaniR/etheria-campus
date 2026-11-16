@@ -8,9 +8,9 @@
 ---
 
 ## 📌 Status Atual do Projeto
-* **Versão Atual:** `v0.52.0`
+* **Versão Atual:** `v0.52.1`
 * **Última Atualização:** `2026-11-16`
-* **Fase Atual:** **Efeitos Atmosféricos do Véu / Mundo Invertido (Stranger Things) na Arena Instanciada (/play) (`v0.52.0`)** — Implementada ambientação sobrenatural e imersiva para o combate instanciado remetendo à dimensão "O Véu" (The Veil): 85 esporos e cinzas flutuantes com profundidade 2.5D e paralaxe, piso sombrio abissal delimitado na elipse da arena com anéis de distorção dimensional concêntricos, 22 raízes/tentáculos rastejantes vivos com ondulação senoidal e pontas bioluminescentes, barreira elíptica com descargas estáticas e relâmpagos avermelhados periódicos cortando os céus com clarão difuso de baixa opacidade. Toggle persistente no painel GM (`🌫️ Efeitos do Véu: Ligado / Desligado`) e 60 FPS estáveis. Todos os arquivos de código mantidos estritamente abaixo do limite de 1.000 linhas (Regra #7) e uso de navegador sempre em segundo plano/oculto conforme nova regra obrigatória.
+* **Fase Atual:** **Expansão dos Efeitos do Véu para Tela Toda (Fullscreen Upside Down Atmosphere) (/play) (`v0.52.1`)** — Atendendo ao refinamento do usuário, a ambientação do Mundo Invertido de *Stranger Things* / *O Véu* foi expandida para cobrir 100% da tela visível do jogo: camada sombria sobre todo o mapa visível (`rgba(7, 11, 24, 0.58)`), 160 esporos e cinzas flutuantes cobrindo a viewport inteira com paralaxe 2.5D, vinheta sombria cinematográfica nas 4 bordas da tela e relâmpagos avermelhados rasgando o céu da tela toda com flash atmosférico global. O ringue da arena elíptica permanece destacado para combate tático. Todos os arquivos rigorosamente abaixo de 1.000 linhas (Regra #7) e operação silenciosa do navegador.
 * **Repositório Oficial:** `https://github.com/SeytaniR/etheria-campus`
 * **Fonte Bruta de Assets:** `https://github.com/SeytaniR/mcrework` (`https://seytanir.github.io/mcrework/`)
 

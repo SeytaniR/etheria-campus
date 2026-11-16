@@ -5,6 +5,20 @@ Qualquer IA trabalhando neste repositório **DEVE** incrementar a versão e regi
 
 ---
 
+## [v0.52.1] - 2026-11-16
+### Expansão dos Efeitos do Véu para Tela Toda (Fullscreen Upside Down Atmosphere)
+* **Atmosfera Global do Véu Cobrindo 100% da Tela Visível:**
+  * Atendendo ao refinamento estético do usuário, a ambientação do Mundo Invertido de *Stranger Things* / *O Véu* foi expandida da elipse restrita para **toda a viewport do jogo**:
+  * **1. Camada Sombria de Chão em Tela Cheia:** O mapa inteiro visível na tela recebe o filtro sombrio, frio e ectoplasmático do Véu (`rgba(7, 11, 24, 0.58)`), transformando todo o relevo, rios e margens no ambiente desolado do Mundo Invertido, enquanto a elipse da arena permanece como o ringue de combate tático demarcado por anéis dimensionais, arcos de choque e raízes rastejantes.
+  * **2. 160 Esporos e Cinzas Flutuando por Toda a Tela:** Densidade de partículas dimensionais duplicada e espalhada por toda a viewport com wrap-around dinâmico contínuo na subida vertical e oscilações senoidais orgânicas.
+  * **3. Vinheta Sombria Cinematográfica nas Bordas da Tela (Vignette):** Gradiente radial dinâmico centralizado na câmera escurecendo os 4 cantos e bordas da viewport (`canvas.width` x `canvas.height`), criando a sensação imersiva e claustrofóbica do Mundo Invertido.
+  * **4. Relâmpagos Dimensionais Rasgando o Céu da Tela Toda:** Descargas elétricas avermelhadas cortam o topo visível de ponta a ponta com clarão atmosférico global cobrindo toda a tela.
+* **Governança e Cumprimento Estrito de Regras:**
+  * `ActionVfxRenderer.js` mantido em 763 linhas (< 1.000 linhas, Regra #7).
+  * Build e testes 100% validados.
+
+---
+
 ## [v0.52.0] - 2026-11-16
 ### Efeitos Atmosféricos do Véu / Mundo Invertido (Stranger Things) na Arena Instanciada (/play)
 * **Atmosfera Sobrenatural e Enigmática do Véu (The Veil Lore & Upside Down Aesthetic):**
