@@ -293,23 +293,41 @@
   pointer-events: auto;
 }
 
+/* Colunas de Organização */
+.outcome-left-column {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.outcome-right-column {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
 /* ==========================================================================
    RESPONSIVIDADE: MOBILE HORIZONTAL (LANDSCAPE)
    ========================================================================== */
-@media (max-height: 480px) and (orientation: landscape) {
+@media (max-height: 520px) and (orientation: landscape) {
   .outcome-card {
-    max-width: 640px;
-    padding: 12px 20px;
+    max-width: 760px;
+    padding: 16px 24px;
     flex-direction: row;
     align-items: center;
-    gap: 16px;
+    justify-content: center;
+    gap: 28px;
   }
 
   .outcome-left-column {
+    flex: 0 0 240px;
+    min-width: 220px;
     display: flex;
     flex-direction: column;
     align-items: center;
-    min-width: 160px;
+    justify-content: center;
   }
 
   .outcome-right-column {
@@ -317,30 +335,34 @@
     display: flex;
     flex-direction: column;
     align-items: center;
+    justify-content: center;
   }
 
   .outcome-crest-wrap {
-    width: 68px;
-    height: 68px;
-    margin-bottom: 4px;
+    width: 90px;
+    height: 90px;
+    min-width: 90px;
+    flex-shrink: 0;
+    margin-bottom: 6px;
   }
 
   .outcome-title {
-    font-size: 1.15rem;
+    font-size: 1.25rem;
   }
 
   .outcome-subtitle {
     font-size: 0.74rem;
-    margin: 2px 0 8px 0;
+    margin: 4px 0 0 0;
+    line-height: 1.35;
   }
 
   .outcome-rewards-grid {
-    gap: 6px;
-    margin-bottom: 10px;
+    gap: 8px;
+    margin-bottom: 12px;
   }
 
   .outcome-reward-row {
-    padding: 6px 12px;
+    padding: 7px 14px;
   }
 
   .reward-label {
@@ -348,13 +370,14 @@
   }
 
   .reward-value {
-    font-size: 0.92rem;
+    font-size: 0.95rem;
   }
 
   .outcome-action-btn {
-    padding: 8px 18px;
-    font-size: 0.84rem;
-    max-width: 220px;
+    white-space: nowrap;
+    padding: 10px 24px;
+    font-size: 0.88rem;
+    max-width: 240px;
   }
 }
 
