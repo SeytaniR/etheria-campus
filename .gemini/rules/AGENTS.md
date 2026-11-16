@@ -86,7 +86,7 @@ Como este projeto é desenvolvido em **revezamento de turnos entre múltiplas co
   1. Garantir que o código compila sem erros de tipagem (`tsc --noEmit`).
   2. Atualizar o `CHANGELOG.md` com a nova versão incremental.
   3. Atualizar o `docs/HANDOFF.md` informando o estado atual e o próximo passo exato para a outra IA.
-  4. Realizar `git commit` e `git push` para o repositório oficial (`SeytaniR/etheria-campus`).
+  4. Realizar `git commit` + `git push origin main` para o repositório oficial (`SeytaniR/etheria-campus`) e atualizar imediatamente a VPS de produção (Regra #9).
 
 ### 4. Internacionalização Nativa (`i18n` em 100% do Projeto)
 * **Zero Texto Fixo na UI:** É proibido escrever strings em português ou inglês diretamente no HTML/Canvas.
@@ -115,3 +115,34 @@ Quando mais de uma IA estiver atuando no projeto (em revezamento de turnos, inst
 * **8.3 Preservação dos Dados Cadastrados:** Monstros, mapas, biomas, itens, pets e classes salvos no banco e no `lowcode.snapshot.json` pertencem ao usuário e ao projeto. Nenhuma IA pode resetar tabelas, apagar dados da outra ou alterar IDs existentes.
 * **8.4 Atualização Obrigatória do `docs/HANDOFF.md` e `CHANGELOG.md`:** Toda IA deve registrar com clareza os arquivos modificados, o que foi entregue e o status de compilação, para que a parceira saiba exatamente o ponto de continuidade.
 * **8.5 Single Source of Truth:** O repositório oficial no GitHub (`main`) e a VPS Azure (`40-65-63-193.sslip.io`) são os ambientes integrados. Mudanças na VPS devem ser feitas sincronizando via Git e executando compilação limpa.
+
+### 9. Sincronização Obrigatória Git + VPS 100% Atualizada & Segurança por Backup/Rollback
+* **9.1 Nunca Deixar Alterações Fora do Git nem Desatualizadas na VPS:** Toda entrega validada (build + typecheck passando) DEVE encerrar com **`git commit` + `git push origin main`** seguido de **deploy imediato na VPS Azure** (`/home/azureuser/etheria-campus` em `40.65.63.193`).
+* **9.2 Rotina Segura de Atualização na VPS:**
+  1. Fazer backup preventivo do `packages/database/snapshots/lowcode.snapshot.json` na VPS antes do pull (preservando edições feitas ao vivo no `/admin`).
+  2. Executar `git pull origin main` sem descartar dados de produção.
+  3. Se o `schema.prisma` mudou, rodar `npx prisma db push --schema=packages/database/prisma/schema.prisma` (nunca usar `--force-reset` ou `--accept-data-loss`) e `npx prisma generate --schema=packages/database/prisma/schema.prisma`.
+  4. Rodar `npm run build:packages && npm --workspace=@etheria/server run build` e `sudo systemctl restart etheria-campus`, validando `HTTP 200` em `/admin` e `/play`.
+* **9.3 Rollback Garantido:** Graças aos commits atômicos no Git e aos backups preventivos de snapshot/PostgreSQL antes de alterações sensíveis, qualquer regressão em produção pode ser revertida rapidamente restaurando o snapshot/commit estável anterior. *(Nunca gravar senhas ou chaves SSH em texto claro no repositório).*
+
+---
+
+### 10. Arquitetura Sagrada de Assets: Isolamento Estrito Client-Servidor & Espelhamento Automático no Salvar
+* **10.1 Papel Estrito do Repositório GitHub (`mcrework`):**
+  * O repositório remoto de assets no GitHub serve **exclusivamente** para alimentar a interface do Administrador (`/admin`) durante os processos de criação, edição e consulta de catálogos (mostrar miniaturas e galerias visuais disponíveis para o admin escolher ao cadastrar entidades).
+* **10.2 Espelhamento e Instalação Imediata no Servidor no Momento do Salvamento:**
+  * No exato momento em que o admin clica em **Salvar** qualquer entidade nas tabelas do banco de dados (Mapas, Personagens/Classes, NPCs, Monstros, Pets, Montarias, Equipamentos, Itens, Habilidades ou Efeitos de Status), o servidor do jogo **baixa e instala imediatamente** no disco local permanente da VPS (`apps/server/cache/mcrework/`) todos os arquivos vinculados (imagens de mapa, arquivos `atlas.json`, `atlas.webp`, `thumb.png`/`thumb.webp`, ícones e pastas de efeitos VFX), caso ainda não estejam presentes.
+* **10.3 Comunicação Estrita e Exclusiva do Client (`/play`) com o Servidor do Jogo:**
+  * O cliente do jogo (`/play`) **NUNCA** faz requisições diretas para o GitHub. Ele comunica-se **estrita e exclusivamente** com o servidor do jogo (endpoints `/api/assets/mcrework/*`, `/api/assets/map-image/:id` e `/api/play/*`).
+  * O carregamento de assets pelo client é feito 100% a partir do servidor do jogo e do seu cache local no navegador (`PlayAssetDownloader.js` / Cache Storage).
+* **10.4 Comunicação do Admin (`/admin`):**
+  * A rota `/admin` comunica-se com o servidor do jogo para todas as operações de banco de dados, regras e persistência, e comunica-se com o GitHub apenas para listar os assets brutos disponíveis nas galerias durante a autoria; ao salvar, o servidor se encarrega de instalar o asset selecionado localmente.
+
+---
+
+### 11. Uso Estrito do Navegador em Segundo Plano / Modo Oculto (Headless / Zero Pop-up)
+* **11.1 Proibição de Abertura Invasiva na Tela do Usuário:**
+  * Sempre que a IA utilizar ferramentas de navegação ou automação web (Chrome DevTools MCP, Puppeteer, Playwright, Selenium, scripts ou subagentes de browser), o navegador **DEVE** operar obrigatoriamente de forma oculta e em segundo plano (`headless: true`, abas abertas com `background: true` ou processos em background).
+  * É **terminantemente proibido** abrir janelas visíveis ou abas que saltem na tela do usuário "do nada" sem solicitação explícita.
+  * Todas as validações, inspeções de rota (`/admin`, `/play`), execução de scripts ou testes visuais devem ser executados silenciosamente em background sem roubar o foco ou interromper a área de trabalho do usuário.
+

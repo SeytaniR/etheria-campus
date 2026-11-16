@@ -138,3 +138,11 @@ Quando mais de uma IA estiver atuando no projeto (em revezamento de turnos, inst
 * **10.4 Comunicação do Admin (`/admin`):**
   * A rota `/admin` comunica-se com o servidor do jogo para todas as operações de banco de dados, regras e persistência, e comunica-se com o GitHub apenas para listar os assets brutos disponíveis nas galerias durante a autoria; ao salvar, o servidor se encarrega de instalar o asset selecionado localmente.
 
+---
+
+### 11. Uso Estrito do Navegador em Segundo Plano / Modo Oculto (Headless / Zero Pop-up)
+* **11.1 Proibição de Abertura Invasiva na Tela do Usuário:**
+  * Sempre que a IA utilizar ferramentas de navegação ou automação web (Chrome DevTools MCP, Puppeteer, Playwright, Selenium, scripts ou subagentes de browser), o navegador **DEVE** operar obrigatoriamente de forma oculta e em segundo plano (`headless: true`, abas abertas com `background: true` ou processos em background).
+  * É **terminantemente proibido** abrir janelas visíveis ou abas que saltem na tela do usuário "do nada" sem solicitação explícita.
+  * Todas as validações, inspeções de rota (`/admin`, `/play`), execução de scripts ou testes visuais devem ser executados silenciosamente em background sem roubar o foco ou interromper a área de trabalho do usuário.
+

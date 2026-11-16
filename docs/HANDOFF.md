@@ -62,6 +62,10 @@
     * O cliente do jogo (`/play`) comunica-se estrita e exclusivamente com o servidor do jogo (`/api/assets/*`, `/api/play/*`), nunca fazendo requisições ao GitHub.
     * A rota `/admin` comunica-se com o servidor do jogo para persistência e regras, e com o GitHub apenas para exibir galerias disponíveis para escolha.
 
+14. **Uso Estrito do Navegador em Segundo Plano / Modo Oculto (Headless / Zero Pop-up):**
+    * Sempre que qualquer IA ou ferramenta utilizar o navegador (Chrome DevTools MCP, Puppeteer, Playwright ou subagentes), deve operar obrigatoriamente de forma oculta/em segundo plano (`headless: true`, abas abertas em `background: true`).
+    * Proibido abrir janelas visíveis ou abas que saltem na tela do usuário sem solicitação explícita.
+
 ---
 
 ## ⚠️ Pendências Documentadas & Base Incompleta (Economia/Inventário)
