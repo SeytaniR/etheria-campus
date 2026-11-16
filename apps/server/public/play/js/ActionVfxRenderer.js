@@ -739,10 +739,6 @@ class ActionVfxRenderer {
       subBranches,
     };
   }
-      mainBranch,
-      subBranches,
-    };
-  }
 
   /**
    * Alterna ligar/desligar os efeitos do Véu, persistindo no localStorage.
