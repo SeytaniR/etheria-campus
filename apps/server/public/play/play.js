@@ -845,6 +845,8 @@ class EtheriaPlayClient {
       ctx.beginPath(); ctx.arc(destX, destY, 10, 0, Math.PI * 2);
       ctx.strokeStyle = '#38bdf8'; ctx.lineWidth = 2.5 / this.zoom; ctx.stroke();
     }
+    // 4.5. Halo Rúnico no Piso de Level Up (desenhado sob os pés do personagem)
+    if (this.levelUpVfx) this.levelUpVfx.renderWorldFloor(ctx, now, this.zoom);
     // 5. Ordenação de Profundidade 2.5D (Y-Sorting com Pooling Zero-Alloc)
     for (let i = 0; i < this._renderQueue.length; i++) this._renderPool.push(this._renderQueue[i]);
     this._renderQueue.length = 0;
@@ -958,7 +960,7 @@ class EtheriaPlayClient {
       this.actionCombatArena.renderFloatingTexts(ctx);
     }
     if (this.levelUpVfx) {
-      this.levelUpVfx.renderWorld(ctx, now, this.zoom);
+      this.levelUpVfx.renderWorldAir(ctx, now, this.zoom);
     }
     ctx.restore();
     // 6.1 Transição Cinemática de Entrada em Batalha

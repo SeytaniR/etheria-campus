@@ -141,9 +141,18 @@ export class PlayRouter {
       return true;
     }
 
-    const charDeleteMatch = pathname.match(/^\/api\/play\/characters\/(\d+)$/);
-    if (charDeleteMatch && method === 'DELETE') {
-      const charId = Number(charDeleteMatch[1]);
+    const charByIdMatch = pathname.match(/^\/api\/play\/characters\/(\d+)$/);
+    if (charByIdMatch && method === 'GET') {
+      const charId = Number(charByIdMatch[1]);
+      if (!(await this.verifyCharacterOwnership(userAccountId, session.role, charId))) {
+        this.deps.sendJson(res, 403, { error: 'Acesso negado: este personagem não pertence à sua conta.' });
+        return true;
+      }
+      this.deps.sendJson(res, 200, await this.deps.playController.getCharacterById(userAccountId, session.role, charId));
+      return true;
+    }
+    if (charByIdMatch && method === 'DELETE') {
+      const charId = Number(charByIdMatch[1]);
       this.deps.sendJson(res, 200, await this.deps.playController.deleteCharacter(userAccountId, charId));
       return true;
     }

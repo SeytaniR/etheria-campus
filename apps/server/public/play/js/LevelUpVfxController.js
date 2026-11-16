@@ -133,9 +133,70 @@ class LevelUpVfxController {
   }
 
   /**
-   * Atualiza e renderiza todos os efeitos de Level Up ativos no Canvas do mundo.
+   * 1. Renderiza o Piso Mágico / Halo Rúnico no Chão (Chamado ANTES da fila de entidades 2.5D).
+   * Garante que o personagem fique nitidamente SOBRE o anel mágico no chão, sem os pés cobertos.
    */
-  renderWorld(ctx, now, zoom = 1.0) {
+  renderWorldFloor(ctx, now, zoom = 1.0) {
+    if (this.activeEffects.length === 0) return;
+
+    for (let e = 0; e < this.activeEffects.length; e++) {
+      const fx = this.activeEffects[e];
+      const elapsed = now - fx.startTime;
+      if (elapsed >= fx.duration) continue;
+
+      const progress = Math.min(1.0, elapsed / fx.duration);
+      // Vincula as coordenadas atuais do herói para que o círculo mágico acompanhe o piso do personagem
+      const wx = (this.client && typeof this.client.playerX === 'number') ? this.client.playerX : fx.worldX;
+      const wy = (this.client && typeof this.client.playerY === 'number') ? this.client.playerY : fx.worldY;
+      fx.curX = wx;
+      fx.curY = wy;
+
+      // Halo Rúnico no Chão (Círculo Sagrado no Piso)
+      const floorPulse = 0.5 + 0.5 * Math.sin(progress * Math.PI);
+      const floorRx = 50 * (0.85 + 0.15 * floorPulse);
+      const floorRy = floorRx * 0.52;
+
+      ctx.save();
+      // Duplo fill concêntrico (Zero shadowBlur!)
+      ctx.beginPath();
+      ctx.ellipse(wx, wy, floorRx * 1.35, floorRy * 1.35, 0, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(245, 158, 11, ${0.20 * floorPulse})`;
+      ctx.fill();
+
+      ctx.beginPath();
+      ctx.ellipse(wx, wy, floorRx, floorRy, 0, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(254, 240, 138, ${0.38 * floorPulse})`;
+      ctx.fill();
+
+      // Anel rúnico externo com traços pontilhados rotativos
+      const rotAngle = (now / 600) % (Math.PI * 2);
+      ctx.beginPath();
+      ctx.ellipse(wx, wy, floorRx * 0.95, floorRy * 0.95, 0, 0, Math.PI * 2);
+      ctx.strokeStyle = `rgba(253, 224, 71, ${0.85 * floorPulse})`;
+      ctx.lineWidth = 2.2 / zoom;
+      ctx.setLineDash([8 / zoom, 6 / zoom]);
+      ctx.lineDashOffset = -rotAngle * 18;
+      ctx.stroke();
+
+      // Anel rúnico interno invertido
+      ctx.beginPath();
+      ctx.ellipse(wx, wy, floorRx * 0.65, floorRy * 0.65, 0, 0, Math.PI * 2);
+      ctx.strokeStyle = `rgba(254, 240, 138, ${0.60 * floorPulse})`;
+      ctx.lineWidth = 1.4 / zoom;
+      ctx.setLineDash([5 / zoom, 5 / zoom]);
+      ctx.lineDashOffset = rotAngle * 12;
+      ctx.stroke();
+      ctx.setLineDash([]);
+
+      ctx.restore();
+    }
+  }
+
+  /**
+   * 2. Renderiza os Efeitos Aéreos: Anéis Ascendentes, Partículas e Tipografia Flutuante.
+   * (Chamado APÓS as entidades 2.5D para que as partículas subam ao redor e sobre o herói).
+   */
+  renderWorldAir(ctx, now, zoom = 1.0) {
     if (this.activeEffects.length === 0) return;
 
     for (let e = this.activeEffects.length - 1; e >= 0; e--) {
@@ -148,42 +209,17 @@ class LevelUpVfxController {
       }
 
       const progress = Math.min(1.0, elapsed / fx.duration);
-      const wx = fx.worldX;
-      const wy = fx.worldY;
-
-      // 1. Halo Rúnico no Chão (Círculo de Luz Sagrada)
+      const wx = fx.curX ?? ((this.client && typeof this.client.playerX === 'number') ? this.client.playerX : fx.worldX);
+      const wy = fx.curY ?? ((this.client && typeof this.client.playerY === 'number') ? this.client.playerY : fx.worldY);
       const floorPulse = 0.5 + 0.5 * Math.sin(progress * Math.PI);
-      const floorRx = 46 * (0.8 + 0.2 * floorPulse);
-      const floorRy = floorRx * 0.52;
 
       ctx.save();
-      // Duplo fill concêntrico (Zero shadowBlur!)
-      ctx.beginPath();
-      ctx.ellipse(wx, wy, floorRx * 1.3, floorRy * 1.3, 0, 0, Math.PI * 2);
-      ctx.fillStyle = `rgba(245, 158, 11, ${0.22 * floorPulse})`;
-      ctx.fill();
 
-      ctx.beginPath();
-      ctx.ellipse(wx, wy, floorRx, floorRy, 0, 0, Math.PI * 2);
-      ctx.fillStyle = `rgba(254, 240, 138, ${0.45 * floorPulse})`;
-      ctx.fill();
-
-      // Anel rúnico externo com traços rotativos
-      const rotAngle = (now / 600) % (Math.PI * 2);
-      ctx.beginPath();
-      ctx.ellipse(wx, wy, floorRx * 0.95, floorRy * 0.95, 0, 0, Math.PI * 2);
-      ctx.strokeStyle = `rgba(253, 224, 71, ${0.85 * floorPulse})`;
-      ctx.lineWidth = 2.2 / zoom;
-      ctx.setLineDash([8 / zoom, 6 / zoom]);
-      ctx.lineDashOffset = -rotAngle * 18;
-      ctx.stroke();
-      ctx.setLineDash([]);
-
-      // 2. Anéis Celestiais Ascendentes (Ondas de Luz Subindo em Espiral)
+      // 2.1 Anéis Celestiais Ascendentes (Ondas de Luz Subindo em Espiral)
       const ringCount = 3;
       for (let r = 0; r < ringCount; r++) {
         const ringProg = ((elapsed + r * 350) % 1100) / 1100;
-        const ringY = wy - ringProg * 82;
+        const ringY = wy - ringProg * 84;
         const ringRx = (36 + ringProg * 22);
         const ringRy = ringRx * 0.44;
         const ringAlpha = (1.0 - ringProg) * floorPulse;
@@ -195,7 +231,7 @@ class LevelUpVfxController {
         ctx.stroke();
       }
 
-      // 3. Partículas e Feixes Cintilantes (Blit ultra-rápido de texturas offscreen)
+      // 2.2 Partículas e Feixes Cintilantes (Blit ultra-rápido de texturas offscreen)
       for (const sp of fx.sparkles) {
         if (elapsed < sp.delay) continue;
         const pElapsed = (elapsed - sp.delay) / 1000;
@@ -215,11 +251,19 @@ class LevelUpVfxController {
       }
       ctx.globalAlpha = 1.0;
 
-      // 4. Tipografia Flutuante Heróica ("✦ LEVEL UP! ✦ Nível X")
+      // 2.3 Tipografia Flutuante Heróica ("✦ LEVEL UP! ✦ Nível X")
       this.drawFloatingBanner(ctx, wx, wy, fx, progress, zoom);
 
       ctx.restore();
     }
+  }
+
+  /**
+   * Renderização completa de compatibilidade caso chamado em passo único.
+   */
+  renderWorld(ctx, now, zoom = 1.0) {
+    this.renderWorldFloor(ctx, now, zoom);
+    this.renderWorldAir(ctx, now, zoom);
   }
 
   drawFloatingBanner(ctx, wx, wy, fx, progress, zoom) {

@@ -329,6 +329,34 @@ export class GamePlayController {
   }
 
   /**
+   * Retorna os detalhes autoritativos completos de um Personagem para a ficha de atributos/status.
+   */
+  public async getCharacterById(userAccountId: number, role: string, characterId: number) {
+    const i18nMap = await I18nCache.getTranslations(this.prisma, 'pt-BR');
+    const isElevated = ['ADMIN', 'GM'].includes(role);
+    const c = await this.prisma.playerCharacter.findFirst({
+      where: isElevated ? { id: characterId } : { id: characterId, userAccountId },
+      include: {
+        classTemplate: true,
+        pets: {
+          include: {
+            monsterTemplate: true,
+          },
+        },
+      },
+    });
+    if (!c) {
+      throw new Error('Personagem não encontrado ou acesso não autorizado.');
+    }
+    const map = c.currentMapId ? await this.prisma.gameMap.findUnique({ where: { id: c.currentMapId } }) : null;
+    const mapNameById = new Map<number, string>();
+    if (map) {
+      mapNameById.set(map.id, i18nMap.get(map.nameI18nKey) ?? map.code);
+    }
+    return this.serializeCharacter(c, i18nMap, mapNameById);
+  }
+
+  /**
    * Cria um novo Personagem para o jogador logado:
    * - Valida a Classe/Personagem escolhida em `class_templates`
    * - Sorteia o Elemento inicial (10% NEUTRAL vs 20% cada elemento ativo)
