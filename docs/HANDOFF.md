@@ -8,9 +8,9 @@
 ---
 
 ## 📌 Status Atual do Projeto
-* **Versão Atual:** `v0.54.0`
+* **Versão Atual:** `v0.54.1`
 * **Última Atualização:** `2026-11-16`
-* **Fase Atual:** **Interface Cinematográfica de Login e Lobby de Heróis na rota /play (`v0.54.0`)** — Desenvolvida interface visual rica, imersiva e cinematográfica para a rota `/play`. Inclui nova tela de login estilizada com wallpaper em tela cheia (`login_bg_etheria.jpg`), card com Glassmorphism, botão posicionado de cadastro com modal amigável para futuros registros, e novo lobby de heróis com wallpaper (`lobby_bg_etheria.jpg`) dividido em abas ("🧙 Meus Heróis" e "➕ Criar Herói"). Para personagens existentes, exibe cards com portrait circular ornamentado, badge do elemento primordial com cor oficial e ícone, tag Reborn, nível, classe, raça, progresso de EXP, localização no mapa, carteira de ouro, e ações de Jogar, Alternar Skin Reborn (se disponível na classe) e Excluir. Para novos personagens, exibe seletor de classes com artes oficiais, painel de atributos base com barras visuais e taxa de crescimento por nível (`VIT, STR, INT, WIS, AGI, DEX`), tipo de combate, alcance e infográfico ilustrado do Sorteio Elemental Oficial (10% Neutro vs 20% Fogo, Água, Terra, Ar). Controles de celular e joystick mantidos 100% intactos. Todos os arquivos estritamente < 1.000 linhas (Regra #7).
+* **Fase Atual:** **Remoção de Botões e Menções ao Studio Low-Code na Interface do Client (/play) (`v0.54.1`)** — Removidos todos os botões e links que mencionavam o Studio Low-Code ou `/admin` na interface do client de `/play` (rodapé do card de Login, botão `🛠️ Studio` na barra superior do Lobby e botão `🛠️ /admin` na HUD superior de exploração do mundo). Refinados textos de lore para manter imersão total. Todos os arquivos estritamente < 1.000 linhas (Regra #7).
 * **Repositório Oficial:** `https://github.com/SeytaniR/etheria-campus`
 * **Fonte Bruta de Assets:** `https://github.com/SeytaniR/mcrework` (`https://seytanir.github.io/mcrework/`)
 

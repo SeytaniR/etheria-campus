@@ -313,7 +313,7 @@ class PlayLobbyController {
 
     client.toggleCharacterReborn = async function (charId, hasRebornSkin) {
       if (!hasRebornSkin) {
-        alert('ℹ️ A forma Reborn desta classe ainda está sendo forjada no Studio. Em breve novos visuais alternativos estarão disponíveis!');
+        alert('ℹ️ A forma Reborn desta classe ainda está sendo forjada nos santuários de Etheria. Em breve novos visuais alternativos estarão disponíveis!');
         return;
       }
 

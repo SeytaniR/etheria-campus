@@ -5,6 +5,20 @@ Qualquer IA trabalhando neste repositório **DEVE** incrementar a versão e regi
 
 ---
 
+## [v0.54.1] - 2026-11-16
+### Remoção de Botões e Menções ao Studio Low-Code na Interface do Client (/play)
+* **Remoção de Elementos de Interface do Studio na Rota `/play` (`index.html`):**
+  * **Tela de Login:** Removido o link/botão `🛠️ Studio Low-Code` do rodapé do card de autenticação, preservando estritamente a identidade de jogo standalone e o indicador da versão do cliente.
+  * **Barra Superior do Lobby de Heróis:** Removido o botão de atalho `🛠️ Studio`, mantendo apenas o controle de sessão `Sair` de forma limpa e segura.
+  * **Barra Superior da HUD In-Game (`header.world-top-nav`):** Removido o botão `🛠️ /admin`, impedindo o escape acidental de jogadores para a área administrativa.
+* **Refinamento de Textos de Lore (`PlayLobbyController.js`):**
+  * Atualizada a notificação de visual Reborn indisponível para `"ℹ️ A forma Reborn desta classe ainda está sendo forjada nos santuários de Etheria. Em breve novos visuais alternativos estarão disponíveis!"`, eliminando qualquer menção ao Studio e preservando a imersão.
+* **Governança e Cumprimento Estrito de Regras:**
+  * `index.html` reduzido para 976 linhas e `PlayLobbyController.js` mantido em 399 linhas (< 1.000 linhas, Regra #7).
+  * Build TypeScript validado sem erros nos 3 pacotes.
+
+---
+
 ## [v0.54.0] - 2026-11-16
 ### Interface Cinematográfica de Login e Lobby de Heróis na rota /play
 * **Nova Tela de Login Cinematográfica (`apps/server/public/play/css/play_lobby.css`):**
