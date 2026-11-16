@@ -8,9 +8,9 @@
 ---
 
 ## 📌 Status Atual do Projeto
-* **Versão Atual:** `v0.54.2`
+* **Versão Atual:** `v0.55.0`
 * **Última Atualização:** `2026-11-16`
-* **Fase Atual:** **Padronização Visual: Retratos de Perfil (Busto / Avatar) na Seleção de Heróis Existentes (/play) (`v0.54.2`)** — Corrigida a imagem dos personagens na lista de heróis do Lobby para exibir os retratos de perfil estilizados em busto (`/play/assets/hud/avatars/${classCode}.png`) em vez do modelo/miniatura de corpo inteiro do sprite sheet, alinhando perfeitamente a apresentação com a tela de criação. Conduzida análise detalhada de otimização de performance para 60+ FPS estáveis no mobile (Xiaomi Redmi Note 14 Pro). Todos os arquivos estritamente < 1.000 linhas (Regra #7).
+* **Fase Atual:** **Otimização de Performance Mobile 60+ FPS Estáveis no Client (/play) (`v0.55.0`)** — Arquitetura de renderização de alto desempenho homologada para smartphones modernos de tela 120Hz (referência Xiaomi Redmi Note 14 Pro, Mali-G615 GPU, 1.5K). Eliminação total de `ctx.shadowBlur` e `ctx.filter` em loops de renderização contínuos; partículas bioluminescentes desenhadas via texturas 32x32px pré-renderizadas em Canvas Offscreen (`ctx.drawImage`); vinheta sombria em tela cheia delegada ao compositor GPU nativo do Android via CSS (`#veilVignetteOverlay`); clamp estrito de 60 FPS (`elapsed < 15.5ms`) que impede superaquecimento e throttling da GPU em telas de 90Hz/120Hz; fila de renderização 2.5D com reciclagem estática de objetos (Zero-Alloc Pooling `_renderPool`), eliminando micro-travamentos de Garbage Collection; e diretrizes consolidadas permanentemente em `docs/PERFORMANCE_STANDARDS.md`. Todos os arquivos estritamente < 1.000 linhas (Regra #7).
 * **Repositório Oficial:** `https://github.com/SeytaniR/etheria-campus`
 * **Fonte Bruta de Assets:** `https://github.com/SeytaniR/mcrework` (`https://seytanir.github.io/mcrework/`)
 
@@ -65,6 +65,14 @@
 14. **Uso Estrito do Navegador em Segundo Plano / Modo Oculto (Headless / Zero Pop-up):**
     * Sempre que qualquer IA ou ferramenta utilizar o navegador (Chrome DevTools MCP, Puppeteer, Playwright ou subagentes), deve operar obrigatoriamente de forma oculta/em segundo plano (`headless: true`, abas abertas em `background: true`).
     * Proibido abrir janelas visíveis ou abas que saltem na tela do usuário sem solicitação explícita.
+
+15. **Padrões e Diretrizes de Alta Performance (60+ FPS Estáveis - `docs/PERFORMANCE_STANDARDS.md`):**
+    * Proibição estrita de `ctx.shadowBlur` e `ctx.filter` em loops de renderização contínuos do Canvas 2D.
+    * Partículas e esporos desenhados com texturas 32x32px pré-renderizadas em Canvas Offscreen (`ctx.drawImage`) com custo computacional desprezível.
+    * Overlays fullscreen (vinhetas sombrias) delegados ao compositor GPU nativo do Android via HTML/CSS (`#veilVignetteOverlay`).
+    * Trava de 60 FPS no `gameLoop` (`if (elapsed < 15.5) return;`) para evitar consumo desnecessário de bateria e throttling térmico em telas 90Hz/120Hz (como no Xiaomi Redmi Note 14 Pro).
+    * Alocação zero (Zero-Alloc) na ordenação de profundidade 2.5D com reciclagem estática de objetos (`_renderPool`), evitando micro-travamentos de Garbage Collection.
+    * Cache geométrico de gradientes radiais na arena de combate.
 
 ---
 

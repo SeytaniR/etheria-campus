@@ -73,6 +73,9 @@ class EtheriaPlayClient {
     if (window.PlayBagController) window.PlayBagController.attach(this);
     if (window.PlayAssetDownloader) window.PlayAssetDownloader.attach(this);
     this.lastFrameTime = performance.now();
+    this._renderQueue = [];
+    this._renderPool = [];
+    this._renderQueue.pushItem = (t, y, d) => this.pushRenderItem(t, y, d);
     this.init();
   }
   async init() {
@@ -472,8 +475,16 @@ class EtheriaPlayClient {
       y: Math.round((sy - camY) / this.zoom),
     };
   }
+  pushRenderItem(type, y, data) {
+    let item = this._renderPool.pop();
+    if (!item) item = { type, y, data };
+    else { item.type = type; item.y = y; item.data = data; }
+    this._renderQueue.push(item);
+  }
   gameLoop(now) {
-    const dt = Math.min(0.05, (now - this.lastFrameTime) / 1000);
+    const elapsed = now - this.lastFrameTime;
+    if (elapsed < 15.5) { requestAnimationFrame((t) => this.gameLoop(t)); return; }
+    const dt = Math.min(0.05, elapsed / 1000);
     this.lastFrameTime = now;
     if (this.activeChar && this.currentMap) {
       if (this.actionCombatArena?.isActive) {
@@ -830,32 +841,18 @@ class EtheriaPlayClient {
       ctx.beginPath(); ctx.arc(destX, destY, 10, 0, Math.PI * 2);
       ctx.strokeStyle = '#38bdf8'; ctx.lineWidth = 2.5 / this.zoom; ctx.stroke();
     }
-    // 5. Ordenação de Profundidade 2.5D (Y-Sorting)
-    const renderQueue = [];
+    // 5. Ordenação de Profundidade 2.5D (Y-Sorting com Pooling Zero-Alloc)
+    for (let i = 0; i < this._renderQueue.length; i++) this._renderPool.push(this._renderQueue[i]);
+    this._renderQueue.length = 0;
     if (this.actionCombatArena?.isActive) {
-      // Arena Instanciada: NPCs e outros jogadores são omitidos da tela para isolamento visual total
-      this.actionCombatArena.populateRenderQueue(renderQueue, now);
+      this.actionCombatArena.populateRenderQueue(this._renderQueue, now);
     } else {
-      for (const npc of this.currentMap.npcs || []) {
-        renderQueue.push({
-          type: 'NPC',
-          y: npc.posY,
-          data: npc,
-        });
-      }
-      if (window.PlayMapPresenceController) {
-        window.PlayMapPresenceController.populateRenderQueue(renderQueue, now);
-      }
-      if (this.activeChar) {
-        renderQueue.push({
-          type: 'PLAYER',
-          y: this.playerY,
-          data: this.activeChar,
-        });
-      }
+      for (const npc of this.currentMap.npcs || []) this.pushRenderItem('NPC', npc.posY, npc);
+      if (window.PlayMapPresenceController) window.PlayMapPresenceController.populateRenderQueue(this._renderQueue, now);
+      if (this.activeChar) this.pushRenderItem('PLAYER', this.playerY, this.activeChar);
     }
-    renderQueue.sort((a, b) => a.y - b.y);
-    for (const item of renderQueue) {
+    this._renderQueue.sort((a, b) => a.y - b.y);
+    for (const item of this._renderQueue) {
       if (item.type === 'NPC') {
         const npc = item.data;
         const sprite = this.getOrCreateSprite(`npc_${npc.mcreworkNpcKey}`, npc.atlasJsonUrl, npc.atlasWebpUrl, npc.thumbUrl);
@@ -920,14 +917,7 @@ class EtheriaPlayClient {
         if (ent.sprite) {
           const isTransient = (ent.action === 3 || ent.action === 5 || ent.action === 6 || ent.action === 7);
           const elapsed = (isTransient && ent.actionStartTime) ? (now - ent.actionStartTime) : now;
-          ctx.save();
-          if (!isPet && vTier === 'BOSS') {
-            ctx.shadowColor = '#f43f5e'; ctx.shadowBlur = 14; ctx.filter = 'saturate(1.35) contrast(1.08)';
-          } else if (!isPet && vTier === 'LEADER') {
-            ctx.shadowColor = '#38bdf8'; ctx.shadowBlur = 9; ctx.filter = 'saturate(1.18)';
-          }
           ent.sprite.draw(ctx, ent.x, ent.y, ent.action, ent.dir, elapsed, this.mesh, ent.groundOffsetY || 0, (isPet ? 0.62 : 0.70) * mScale, ent.action === 6, ent.shadowOffsetX || 0, ent.shadowOffsetY || 0);
-          ctx.restore();
         }
         if (ent.isAlive) {
           const isTarget = !isPet && (this.actionCombatArena?.selectedTargetMob === ent);

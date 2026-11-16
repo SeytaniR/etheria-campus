@@ -858,3 +858,20 @@
   transform: translateY(1px) scale(0.94);
 }
 
+/* ==========================================================================
+   OTIMIZAÇÃO MOBILE (60 FPS): VINHETA ACELERADA POR HARDWARE (COMPOSITOR NATIVO)
+   ========================================================================== */
+#veilVignetteOverlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 12;
+  opacity: 0;
+  transition: opacity 0.35s ease;
+  background: radial-gradient(circle at center, rgba(0, 0, 0, 0) 40%, rgba(15, 10, 30, 0.28) 70%, rgba(2, 6, 18, 0.72) 100%);
+  will-change: opacity;
+}
+#veilVignetteOverlay.active {
+  opacity: 1;
+}
+

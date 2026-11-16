@@ -553,7 +553,7 @@
       </button>
 
       <div class="login-footer-actions">
-        <span style="color:#64748b;">Fase Beta &bull; v0.54.1</span>
+        <span style="color:#64748b;">Fase Beta &bull; v0.55.0</span>
       </div>
     </div>
 
@@ -663,6 +663,8 @@
   <!-- 3. TELA DO MUNDO DE JOGO (EXPLORAÇÃO 2.5D + PAINEL GM) -->
   <section id="worldScreen">
     <canvas id="gameCanvas"></canvas>
+    <!-- Vinheta Sombria do Véu acelerada por hardware (Compositor Nativo Mobile a custo zero de Canvas) -->
+    <div id="veilVignetteOverlay"></div>
 
     <!-- Barra de Navegação e HUD Superior Unificado (Responsivo para Celular e PC) -->
     <header class="world-top-nav">

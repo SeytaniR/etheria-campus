@@ -153,6 +153,7 @@ class ActionCombatArena {
     if (window.BattleTransitionController) window.BattleTransitionController.start(battleState, this);
     this.currentBattle = battleState;
     this.isActive = true;
+    const vig = document.getElementById('veilVignetteOverlay'); if (vig) vig.classList.add('active');
     this.combatState = 'PREPARATION';
     this.prepTimeRemaining = 20.0;
     this.isLocalPlayerReady = false;
@@ -399,6 +400,7 @@ class ActionCombatArena {
 
     if (window.PlayHudController?.setCombatMode) window.PlayHudController.setCombatMode(false);
     else document.body.classList.remove('is-in-combat');
+    const vig = document.getElementById('veilVignetteOverlay'); if (vig) vig.classList.remove('active');
 
     const modal = document.getElementById('actionCombatModal'); if (modal) modal.style.display = 'none';
     const prepBanner = document.getElementById('actionPrepBanner'); if (prepBanner) prepBanner.style.display = 'none';
@@ -981,9 +983,10 @@ class ActionCombatArena {
   renderActiveVfx(ctx, now) { if (this.isActive) this.vfxRenderer?.drawActiveBursts(ctx, now, this); }
   populateRenderQueue(renderQueue, now) {
     if (!this.isActive) return;
-    if (this.player && this.player.isAlive) renderQueue.push({ type: 'COMBAT_PLAYER', y: this.player.y, data: this.player });
-    for (const pet of this.pets) { if (pet.fadeAlpha > 0) renderQueue.push({ type: 'COMBAT_PET', y: pet.y, data: pet }); }
-    for (const mob of this.monsters) { if (mob.fadeAlpha > 0) renderQueue.push({ type: 'COMBAT_MONSTER', y: mob.y, data: mob }); }
+    const push = renderQueue.pushItem ? (t, y, d) => renderQueue.pushItem(t, y, d) : (t, y, d) => renderQueue.push({ type: t, y, data: d });
+    if (this.player && this.player.isAlive) push('COMBAT_PLAYER', this.player.y, this.player);
+    for (const pet of this.pets) { if (pet.fadeAlpha > 0) push('COMBAT_PET', pet.y, pet); }
+    for (const mob of this.monsters) { if (mob.fadeAlpha > 0) push('COMBAT_MONSTER', mob.y, mob); }
   }
   renderFloatingTexts(ctx) { this.vfxRenderer?.drawFloatingTexts(ctx, this.floatingTexts); }
 }

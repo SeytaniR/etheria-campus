@@ -94,15 +94,10 @@ class PlayMapPresenceController {
    * Insere os outros jogadores na fila de renderização (Y-Sorting) do mapa.
    */
   populateRenderQueue(renderQueue, now) {
-    if (!Array.isArray(renderQueue)) return;
-    if (!this.otherPlayers || this.otherPlayers.length === 0) return;
-
+    if (!renderQueue || !this.otherPlayers || this.otherPlayers.length === 0) return;
+    const push = renderQueue.pushItem ? (t, y, d) => renderQueue.pushItem(t, y, d) : (t, y, d) => renderQueue.push({ type: t, y, data: d });
     for (const player of this.otherPlayers) {
-      renderQueue.push({
-        type: 'OTHER_PLAYER',
-        y: player.posY,
-        data: player,
-      });
+      push('OTHER_PLAYER', player.posY, player);
     }
   }
 

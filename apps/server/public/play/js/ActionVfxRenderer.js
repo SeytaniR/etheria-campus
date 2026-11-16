@@ -23,6 +23,37 @@ class ActionVfxRenderer {
     this.nextVeilLightningTime = performance.now() + 3500;
     this.lastVeilTime = performance.now();
     this.lastArenaKey = '';
+    this.floorGradCache = null;
+    this.lastFloorGradKey = '';
+
+    // Texturas de halo bioluminescente pré-renderizadas em Canvas Offscreen (Zero shadowBlur no loop!)
+    this.sporeGlowTextures = {
+      ash: this.createParticleGlowTexture(210, 220, 235),
+      cyan: this.createParticleGlowTexture(56, 189, 248),
+      crimson: this.createParticleGlowTexture(244, 63, 94),
+    };
+  }
+
+  /**
+   * Pré-renderiza textura radial suave de partícula bioluminescente para renderização ultra-rápida (60+ FPS).
+   */
+  createParticleGlowTexture(r, g, b) {
+    const size = 32;
+    const c = document.createElement('canvas');
+    c.width = size;
+    c.height = size;
+    const cx = c.getContext('2d');
+    const half = size / 2;
+    const gObj = cx.createRadialGradient(half, half, 1.2, half, half, half);
+    gObj.addColorStop(0, `rgba(${r}, ${g}, ${b}, 1.0)`);
+    gObj.addColorStop(0.35, `rgba(${r}, ${g}, ${b}, 0.85)`);
+    gObj.addColorStop(0.7, `rgba(${r}, ${g}, ${b}, 0.28)`);
+    gObj.addColorStop(1, `rgba(${r}, ${g}, ${b}, 0)`);
+    cx.fillStyle = gObj;
+    cx.beginPath();
+    cx.arc(half, half, half, 0, Math.PI * 2);
+    cx.fill();
+    return c;
   }
 
   getOrLoadVfx(vfxKey) {
@@ -416,6 +447,7 @@ class ActionVfxRenderer {
       const depth = 0.35 + Math.random() * 0.85;
       const roll = Math.random();
       const col = roll > 0.80 ? sporeColors[2] : (roll > 0.55 ? sporeColors[1] : sporeColors[0]);
+      const glowType = roll > 0.80 ? 'crimson' : (roll > 0.55 ? 'cyan' : 'ash');
 
       this.veilSpores.push({
         baseX: vl + Math.random() * vw,
@@ -428,6 +460,7 @@ class ActionVfxRenderer {
         phase: Math.random() * Math.PI * 2,
         baseAlpha: 0.35 + Math.random() * 0.55,
         pulseSpeed: 1.1 + Math.random() * 1.9,
+        glowType,
         r: col.r,
         g: col.g,
         b: col.b,
@@ -495,15 +528,20 @@ class ActionVfxRenderer {
     ctx.fillStyle = 'rgba(7, 11, 24, 0.58)';
     ctx.fillRect(viewL - 80, viewT - 80, viewW + 160, viewH + 160);
 
-    // 2. Foco Dimensional Abissal do Piso na Elipse da Arena
+    // 2. Foco Dimensional Abissal do Piso na Elipse da Arena (Cache inteligente de gradiente)
     ctx.beginPath();
     ctx.ellipse(cx, cy, rx, ry, 0, 0, Math.PI * 2);
-    const grad = ctx.createRadialGradient(cx, cy, rx * 0.12, cx, cy, rx);
-    grad.addColorStop(0, 'rgba(15, 23, 42, 0.35)');
-    grad.addColorStop(0.55, 'rgba(30, 27, 75, 0.45)');
-    grad.addColorStop(0.85, 'rgba(69, 10, 10, 0.58)');
-    grad.addColorStop(1, 'rgba(2, 6, 23, 0.85)');
-    ctx.fillStyle = grad;
+    const gradKey = `${Math.round(cx)}_${Math.round(cy)}_${Math.round(rx)}`;
+    if (gradKey !== this.lastFloorGradKey || !this.floorGradCache) {
+      this.lastFloorGradKey = gradKey;
+      const grad = ctx.createRadialGradient(cx, cy, rx * 0.12, cx, cy, rx);
+      grad.addColorStop(0, 'rgba(15, 23, 42, 0.35)');
+      grad.addColorStop(0.55, 'rgba(30, 27, 75, 0.45)');
+      grad.addColorStop(0.85, 'rgba(69, 10, 10, 0.58)');
+      grad.addColorStop(1, 'rgba(2, 6, 23, 0.85)');
+      this.floorGradCache = grad;
+    }
+    ctx.fillStyle = this.floorGradCache;
     ctx.fill();
 
     // 3. Ondas de Distorção Dimensional Concêntricas Pulsantes na Arena
@@ -548,13 +586,16 @@ class ActionVfxRenderer {
       ctx.lineWidth = Math.max(1, (tendril.thick * 0.38) / zoom);
       ctx.stroke();
 
-      // Ponta bioluminescente orgânica
+      // Ponta bioluminescente orgânica sem shadowBlur (duplo fill rápido)
       const tipPulse = 0.65 + 0.35 * Math.sin((now / 230) + tendril.tipPulsePhase);
+      const tipR = (2.2 * tipPulse) / zoom;
       ctx.beginPath();
-      ctx.arc(prevX, prevY, (2.3 * tipPulse) / zoom, 0, Math.PI * 2);
-      ctx.fillStyle = `rgba(244, 63, 94, ${0.85 * tipPulse})`;
-      ctx.shadowColor = '#f43f5e';
-      ctx.shadowBlur = 6;
+      ctx.arc(prevX, prevY, tipR * 1.8, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(244, 63, 94, ${0.30 * tipPulse})`;
+      ctx.fill();
+      ctx.beginPath();
+      ctx.arc(prevX, prevY, tipR, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(255, 120, 150, ${0.92 * tipPulse})`;
       ctx.fill();
     }
 
@@ -597,16 +638,11 @@ class ActionVfxRenderer {
 
     ctx.save();
 
-    // 1. Vinheta Sombria Cinematográfica nas Bordas da Tela (Stranger Things Vignette)
-    const midX = viewL + viewW / 2;
-    const midY = viewT + viewH / 2;
-    const maxR = Math.max(viewW, viewH) * 0.72;
-    const vig = ctx.createRadialGradient(midX, midY, maxR * 0.40, midX, midY, maxR);
-    vig.addColorStop(0, 'rgba(0, 0, 0, 0)');
-    vig.addColorStop(0.68, 'rgba(15, 10, 30, 0.28)');
-    vig.addColorStop(1, 'rgba(2, 6, 18, 0.65)');
-    ctx.fillStyle = vig;
-    ctx.fillRect(viewL - 20, viewT - 20, viewW + 40, viewH + 40);
+    // 1. Vinheta Sombria Fullscreen gerenciada por overlay CSS acelerado por GPU (#veilVignetteOverlay)
+    const vigEl = document.getElementById('veilVignetteOverlay');
+    if (vigEl && !vigEl.classList.contains('active')) {
+      vigEl.classList.add('active');
+    }
 
     // 2. Relâmpago Dimensional do Véu Cortando o Céu da Tela Toda
     if (now >= this.nextVeilLightningTime && !this.veilLightning) {
@@ -625,7 +661,7 @@ class ActionVfxRenderer {
         ctx.fillStyle = `rgba(225, 29, 72, ${0.10 * flashAlpha})`;
         ctx.fillRect(viewL - 20, viewT - 20, viewW + 40, viewH + 40);
 
-        // Linhas principais do raio avermelhado
+        // Linhas principais do raio avermelhado sem shadowBlur (duplo stroke com glow)
         ctx.beginPath();
         const mainPts = this.veilLightning.mainBranch;
         if (mainPts && mainPts.length > 1) {
@@ -634,15 +670,17 @@ class ActionVfxRenderer {
             ctx.lineTo(mainPts[p].x, mainPts[p].y);
           }
         }
-        ctx.strokeStyle = `rgba(244, 63, 94, ${0.92 * flashAlpha})`;
-        ctx.lineWidth = 2.4 / zoom;
-        ctx.shadowColor = '#e11d48';
-        ctx.shadowBlur = 12;
+        ctx.strokeStyle = `rgba(225, 29, 72, ${0.40 * flashAlpha})`;
+        ctx.lineWidth = 5.2 / zoom;
+        ctx.stroke();
+
+        ctx.strokeStyle = `rgba(244, 63, 94, ${0.95 * flashAlpha})`;
+        ctx.lineWidth = 2.2 / zoom;
         ctx.stroke();
 
         // Núcleo branco incandescente
-        ctx.strokeStyle = `rgba(255, 255, 255, ${0.85 * flashAlpha})`;
-        ctx.lineWidth = 1.0 / zoom;
+        ctx.strokeStyle = `rgba(255, 255, 255, ${0.90 * flashAlpha})`;
+        ctx.lineWidth = 0.9 / zoom;
         ctx.stroke();
 
         // Sub-ramificações
@@ -661,7 +699,7 @@ class ActionVfxRenderer {
       }
     }
 
-    // 3. Atualização e Renderização dos Esporos / Cinzas Dimensionais Cobrindo a Tela Toda
+    // 3. Atualização e Renderização dos Esporos / Cinzas Dimensionais Cobrindo a Tela Toda (Textura offscreen ultrarrápida)
     const minY = viewT - 40;
     const maxY = viewT + viewH + 40;
 
@@ -687,13 +725,13 @@ class ActionVfxRenderer {
       const pulse = 0.8 + 0.2 * Math.sin((now / 1000) * sp.pulseSpeed + sp.phase);
       const alpha = Math.max(0.1, Math.min(1.0, sp.baseAlpha * pulse));
 
-      ctx.beginPath();
-      ctx.arc(renderX, renderY, sp.size / zoom, 0, Math.PI * 2);
-      ctx.fillStyle = `rgba(${sp.r}, ${sp.g}, ${sp.b}, ${alpha})`;
-      ctx.shadowColor = `rgb(${sp.r}, ${sp.g}, ${sp.b})`;
-      ctx.shadowBlur = 4;
-      ctx.fill();
+      // Zero shadowBlur: renderização direta de textura pré-compilada em offscreen canvas
+      const tex = this.sporeGlowTextures[sp.glowType] || this.sporeGlowTextures.ash;
+      const drawSize = Math.max(4, (sp.size * 3.6) / zoom);
+      ctx.globalAlpha = alpha;
+      ctx.drawImage(tex, renderX - drawSize / 2, renderY - drawSize / 2, drawSize, drawSize);
     }
+    ctx.globalAlpha = 1.0;
 
     ctx.restore();
   }
@@ -748,6 +786,11 @@ class ActionVfxRenderer {
       this.veilEffectsEnabled = forcedState;
     } else {
       this.veilEffectsEnabled = !this.veilEffectsEnabled;
+    }
+    const vigEl = document.getElementById('veilVignetteOverlay');
+    if (vigEl) {
+      if (this.veilEffectsEnabled) vigEl.classList.add('active');
+      else vigEl.classList.remove('active');
     }
     try {
       localStorage.setItem('etheria_veil_effects', this.veilEffectsEnabled ? 'true' : 'false');
