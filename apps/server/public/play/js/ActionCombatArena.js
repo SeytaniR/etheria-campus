@@ -405,6 +405,7 @@ class ActionCombatArena {
     const modal = document.getElementById('actionCombatModal'); if (modal) modal.style.display = 'none';
     const prepBanner = document.getElementById('actionPrepBanner'); if (prepBanner) prepBanner.style.display = 'none';
     const resultBanner = document.getElementById('actionResultBanner'); if (resultBanner) resultBanner.style.display = 'none';
+    const outcome = document.getElementById('combatOutcomeModal'); if (outcome) outcome.classList.remove('active');
 
     if (this.client) {
       this.client.encounterCooldownUntil = performance.now() + 5000;
@@ -415,7 +416,7 @@ class ActionCombatArena {
         window.PlayMapPresenceController.setLocalCombatStatus(false);
       }
 
-      if (this.battleOutcome === 'DEFEAT') {
+      if (this.battleOutcome === 'DEFEAT' && !window.CombatOutcomeController) {
         const charId = this.client?.activeChar?.id;
         if (charId) {
           this.client.api(`/api/play/characters/${charId}/respawn`, { method: 'POST' })
@@ -709,20 +710,26 @@ class ActionCombatArena {
     }
   }
 
-  checkVictoryCondition() {
+  async checkVictoryCondition() {
     if (this.combatState !== 'FIGHTING') return;
     const aliveMobs = this.monsters.filter((m) => m.isAlive);
     if (aliveMobs.length === 0) {
+      this.combatState = 'RESULT';
       const expGained = this.monsters.reduce((acc, m) => acc + (Number(m.level) || 1) * 65 * Math.max(1, Number(m.rewardMultiplier) || 1), 0);
       const goldGained = this.monsters.reduce((acc, m) => acc + Math.max(10, (Number(m.level) || 1) * 18) * Math.max(1, Number(m.rewardMultiplier) || 1), 0);
-      this.recordBattleVictoryOnServer(expGained, goldGained);
-      this.showResult(true, `Você venceu o confronto na arena!<br><br><strong>+${expGained} EXP</strong> &bull; <strong>+${goldGained} Ouro</strong>`);
+      const res = await this.recordBattleVictoryOnServer();
+      const vData = { expGained, goldGained, ...(res || {}) };
+      if (window.CombatOutcomeController) {
+        window.CombatOutcomeController.showVictory(vData, this, this.client);
+      } else {
+        this.showResult(true, `Você venceu!<br><br><strong>+${expGained} EXP</strong> &bull; <strong>+${goldGained} Ouro</strong>`);
+      }
     }
   }
 
   async recordBattleVictoryOnServer() {
     try {
-      if (!this.currentBattle || !this.client) return;
+      if (!this.currentBattle || !this.client) return null;
       const res = await this.client.api('/api/play/combat/victory', { method: 'POST', body: JSON.stringify({ battleId: this.currentBattle.battleId }) });
       if (res?.questState) { this.client.questState = res.questState; this.client.updateQuestHudBadge?.(); }
       if (res?.characterGold !== undefined && this.client.activeChar) { this.client.activeChar.gold = res.characterGold; }
@@ -732,36 +739,28 @@ class ActionCombatArena {
         this.client.activeChar.experience = pProg.newExp;
         this.client.activeChar.unspentStatPoints = pProg.unspentStatPoints;
         if (pProg.maxXp) this.client.activeChar.maxXp = pProg.maxXp;
-        if (pProg.leveledUp) {
-          const rEl = document.getElementById('actionResultRewards');
-          if (rEl) rEl.innerHTML += `<div style="margin-top:6px; color:#fde047; font-weight:900; font-size:1.02rem; text-shadow:0 0 10px rgba(234,179,8,0.7);">🎉 LEVEL UP! Nível ${pProg.newLevel}! (+${pProg.statPointsGained} Pontos)</div>`;
-          this.client.showNotification?.(`🎉 LEVEL UP! Nível ${pProg.newLevel}! (+${pProg.statPointsGained} Pontos)`, 'success');
-        }
       }
       if (Array.isArray(res?.petsProgression) && res.petsProgression.length > 0) {
-        const rEl = document.getElementById('actionResultRewards');
         for (const petProg of res.petsProgression) {
           const matchedPet = (this.client.activeChar?.equippedPets || []).find((p) => p.id === petProg.petId);
           if (matchedPet) { matchedPet.level = petProg.newLevel; matchedPet.experience = petProg.newExp; }
-          if (petProg.leveledUp) {
-            if (rEl) rEl.innerHTML += `<div style="margin-top:4px; color:#a7f3d0; font-weight:700;">🐾 Pet ${petProg.nickname} subiu para Nível ${petProg.newLevel}!</div>`;
-            this.client.showNotification?.(`🐾 Pet ${petProg.nickname} subiu para Nível ${petProg.newLevel}!`, 'info');
-          }
         }
         if (window.PlayHudController && this.client.activeChar?.equippedPets) window.PlayHudController.updatePets(this.client.activeChar.equippedPets);
       }
       this.client.updateHudInfo?.();
-      if (Array.isArray(res?.droppedItems) && res.droppedItems.length > 0) {
-        const rEl = document.getElementById('actionResultRewards');
-        const dropTxt = res.droppedItems.map((d) => `+${d.quantity}x ${d.namePtBr}`).join(' &bull; ');
-        if (rEl) rEl.innerHTML += `<div style="margin-top:6px; color:#5eead4; font-weight:700;">${dropTxt}</div>`;
-      }
-    } catch (err) { console.warn('Falha ao sincronizar vitória no backend:', err); }
+      return res;
+    } catch (err) { console.warn('Falha ao sincronizar vitória no backend:', err); return null; }
   }
 
   showResult(isVictory, messageHtml, isFled = false) {
     this.combatState = 'RESULT';
     this.battleOutcome = isFled ? 'FLED' : (isVictory ? 'VICTORY' : 'DEFEAT');
+    if (window.CombatOutcomeController) {
+      if (isFled) window.CombatOutcomeController.showFled(this, this.client);
+      else if (isVictory) window.CombatOutcomeController.showVictory({ expGained: 0, goldGained: 0 }, this, this.client);
+      else window.CombatOutcomeController.showDefeat(this, this.client);
+      return;
+    }
     const modal = document.getElementById('actionCombatModal'); if (modal) modal.style.display = 'flex';
     const prepBanner = document.getElementById('actionPrepBanner'); if (prepBanner) prepBanner.style.display = 'none';
     const banner = document.getElementById('actionResultBanner');

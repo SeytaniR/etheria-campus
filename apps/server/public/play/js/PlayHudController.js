@@ -944,6 +944,15 @@ class PlayHudController {
     ctx.restore();
     ctx.restore(); // Fecha o clip circular
   }
+
+  pulseLevelBadge(newLevel) {
+    const lvlBadge = document.getElementById('hudPlayerLevelBadge');
+    if (lvlBadge) {
+      lvlBadge.textContent = `Nv. ${newLevel}`;
+      lvlBadge.classList.add('level-up-pulse');
+      setTimeout(() => lvlBadge.classList.remove('level-up-pulse'), 1800);
+    }
+  }
 }
 
 // Exporta como singleton global

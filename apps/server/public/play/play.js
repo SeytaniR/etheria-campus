@@ -90,6 +90,10 @@ class EtheriaPlayClient {
       this.actionCombatArena = new ActionCombatArena(this);
       this.actionArena = this.actionCombatArena;
     }
+    if (window.LevelUpVfxController) {
+      this.levelUpVfx = new LevelUpVfxController();
+      this.levelUpVfx.attach(this);
+    }
     requestAnimationFrame((t) => this.gameLoop(t));
     if (this.token) {
       try {
@@ -952,6 +956,9 @@ class EtheriaPlayClient {
     if (this.actionCombatArena?.isActive) {
       this.actionCombatArena.renderActiveVfx(ctx, now);
       this.actionCombatArena.renderFloatingTexts(ctx);
+    }
+    if (this.levelUpVfx) {
+      this.levelUpVfx.renderWorld(ctx, now, this.zoom);
     }
     ctx.restore();
     // 6.1 Transição Cinemática de Entrada em Batalha

@@ -6,6 +6,7 @@
   <link rel="stylesheet" href="/play/css/play_hud.css?v=20261114_hud" />
   <link rel="stylesheet" href="/play/css/play_chat_and_modals.css?v=20261114_chat" />
   <link rel="stylesheet" href="/play/css/play_lobby.css?v=20261116_v4" />
+  <link rel="stylesheet" href="/play/css/play_combat_outcome.css?v=20261116_v055" />
   <title>Etheria Campus — Jogo (/play) & Painel GM (/gm)</title>
   <style>
     :root {
@@ -490,29 +491,6 @@
     .action-skill-icon-img { width: 32px; height: 32px; object-fit: contain; border-radius: 50%; pointer-events: none; }
     .action-skill-key-badge { position: absolute; top: -4px; left: -4px; background: #0f172a; border: 1px solid #38bdf8; color: #fde047; font-size: 0.62rem; padding: 1px 5px; border-radius: 99px; font-weight: 800; }
     .action-cooldown-overlay { position: absolute; inset: 0; border-radius: 50%; background: rgba(0, 0, 0, 0.72); display: none; align-items: center; justify-content: center; font-size: 0.75rem; color: #fde047; font-weight: 800; }
-    .action-result-banner {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      background: rgba(15, 23, 42, 0.95);
-      border: 2px solid #38bdf8;
-      border-radius: 14px;
-      padding: 20px 28px;
-      text-align: center;
-      box-shadow: 0 0 40px rgba(0,0,0,0.9), 0 0 20px rgba(56, 189, 248, 0.4);
-      z-index: 120;
-      pointer-events: auto;
-      display: none;
-      flex-direction: column;
-      align-items: center;
-      gap: 12px;
-      max-width: 90vw;
-    }
-    .action-result-banner button {
-      pointer-events: auto;
-      cursor: pointer;
-    }
   </style>
 </head>
 <body>
@@ -553,7 +531,7 @@
       </button>
 
       <div class="login-footer-actions">
-        <span style="color:#64748b;">Fase Beta &bull; v0.55.0</span>
+        <span style="color:#64748b;">Fase Beta &bull; v0.56.0</span>
       </div>
     </div>
 
@@ -936,14 +914,22 @@
       </button>
     </div>
 
-    <!-- Banner de Resultado (Vitória / Derrota) -->
-    <div id="actionResultBanner" class="action-result-banner">
-      <h2 id="actionResultTitle" style="margin:0; font-size:1.5rem; color:#fde047;">🏆 VITÓRIA!</h2>
-      <div id="actionResultRewards" style="font-size:0.86rem; color:#e2e8f0; line-height:1.4;"></div>
-      <button type="button" class="btn-primary" id="btnActionCloseResult" onclick="if(window.PlayApp && window.PlayApp.actionArena) { window.PlayApp.actionArena.closeArena(); }" style="padding:10px 24px; border-radius:999px; font-weight:700; cursor:pointer; pointer-events:auto;">
-        ✅ Continuar Aventura
-      </button>
+    <!-- Modal e Card de Desfecho de Batalha (Vitória / Derrota) -->
+    <div id="combatOutcomeModal">
+      <div class="outcome-card is-victory">
+        <div class="outcome-crest-wrap">
+          <img id="outcomeCrestImg" class="outcome-crest-img" src="/play/assets/hud/victory_crest.png" alt="Resultado" />
+        </div>
+        <h2 id="outcomeTitle" class="outcome-title">VITÓRIA GLORIOSA</h2>
+        <p id="outcomeSubtitle" class="outcome-subtitle">A fenda dimensional foi expurgada e o equilíbrio restaurado.</p>
+        <div id="outcomeRewardsGrid" class="outcome-rewards-grid"></div>
+        <button type="button" id="btnOutcomeAction" class="outcome-action-btn">Continuar Jornada</button>
+        <div class="outcome-timer-track"><div id="outcomeTimerBar" class="outcome-timer-bar"></div></div>
+      </div>
     </div>
+
+    <!-- Overlay de Transição Dimensional / Respawn -->
+    <div id="respawnFadeOverlay"></div>
   </div>
 
   <script type="module">
@@ -973,6 +959,8 @@
   <script src="/play/js/PlayUiLayoutApplier.js?v=20261114_ui"></script>
   <script src="/play/js/PlayClientHudEditor.js?v=20261114_cedit"></script>
   <script src="/play/js/PlayNativeAppController.js?v=20261116_native"></script>
+  <script src="/play/js/LevelUpVfxController.js?v=20261116_v055"></script>
+  <script src="/play/js/CombatOutcomeController.js?v=20261116_v055"></script>
   <script src="/play/play.js?v=20261116_v2"></script>
 </body>
 </html>

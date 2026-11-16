@@ -5,6 +5,28 @@ Qualquer IA trabalhando neste repositório **DEVE** incrementar a versão e regi
 
 ---
 
+## [v0.56.0] - 2026-11-16
+### Cinemática de Vitória, Derrota e Level Up com Transição Suave e Zero Emojis
+* **Novo Controlador de Efeitos Especiais de Level Up (`LevelUpVfxController.js`):**
+  * **Efeito Visual no Mapa de Exploração:** Em vez de modais intrusivos que interrompiam a jogabilidade, o Level Up agora manifesta-se diretamente no mundo 2.5D ao redor do herói por meio de uma aura sagrada no piso com anéis rúnicos rotativos, ondas de luz celestiais concêntricas ascendentes e 32 partículas/feixes estelares desenhados via texturas offscreen (60+ FPS sem `shadowBlur`).
+  * **Tipografia Flutuante Heróica:** Banner rúnico flutuante translúcido (`✦ LEVEL UP! ✦ Nível X (+5 Pontos)`) com curvas cúbicas suaves de subida e dissipação elegante por 2.8s.
+  * **Áudio Procedural Sagrado:** Síntese em tempo real de arpejo celestial límpido via Web Audio API (C5 -> E5 -> G5 -> C6).
+  * **Pulso Dourado na HUD:** Efeito de pulsação dourada sincronizado no badge de nível do jogador no topo-esquerdo (`PlayHudController.pulseLevelBadge`).
+  * **Isolamento e Encadeamento de Telas:** O efeito de Level Up é enfileirado (`pendingLevelUp`) durante o confronto e só é disparado no mapa após o fechamento da tela de vitória e dissolução da arena, garantindo que as interfaces nunca se sobreponham.
+* **Novo Orquestrador de Desfecho de Combate (`CombatOutcomeController.js` e `play_combat_outcome.css`):**
+  * **Substituição do Modal Genérico:** Eliminado o banner antigo com textos brutos e emojis. Implementado card cinematográfico em Glassmorphism com bordas douradas (vitória) ou carmesins (derrota).
+  * **Brasões Artísticos Oficiais (Zero Emojis):** Criados brasões épicos dedicados de alta fidelidade:
+    * `victory_crest.png`: Brasão dourado com asas angelicais, espadas rúnicas cruzadas, láureas e estrela radiante.
+    * `defeat_crest.png`: Brasão sombrio de obsidiana partida com runas carmesins pulsantes e névoa abissal.
+  * **Recompensas e Contadores Fluidos:** Barra animada de preenchimento de EXP com ícone de cristal arcano (`crystal_gem_icon.png`), tag de moedas de ouro cunhadas (`gold_coin_icon.png`), pílulas estilizadas para drops de tesouros e barra de timer automático (7s).
+  * **Transição Suave de Derrota e Teleporte ao Santuário:** Ao sofrer derrota, o sistema executa fade out suave da arena, cobre a tela com névoa dimensional escura (`#respawnFadeOverlay`), comunica-se com `/api/play/characters/:id/respawn`, carrega o mapa da cidade mais próxima e materializa o herói no santuário com feixe de luz sagrada e dissipação da escuridão.
+  * **Responsividade Multi-Plataforma:** Layouts específicos para Mobile Vertical (Portrait), Mobile Horizontal (Landscape de 2 colunas lado a lado) e Desktop.
+* **Governança e Cumprimento Estrito de Regras:**
+  * Todos os 7 arquivos de código rigorosamente abaixo de 1.000 linhas (`ActionCombatArena.js`: 993, `play.js`: 981, `index.html`: 966, `PlayHudController.js`: 959, `CombatOutcomeController.js`: 342, `LevelUpVfxController.js`: 271, `play_combat_outcome.css`: 410 - Regra #7).
+  * Build TypeScript validado sem erros nos 3 pacotes (`shared`, `database`, `server`).
+
+---
+
 ## [v0.55.0] - 2026-11-16
 ### Arquitetura de Alto Desempenho e Otimização Mobile 60+ FPS Estáveis (/play)
 * **Eliminação de Passes de Blur Pesados no Canvas 2D (`ActionVfxRenderer.js` e `play.js`):**

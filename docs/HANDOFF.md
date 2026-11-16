@@ -8,9 +8,9 @@
 ---
 
 ## 📌 Status Atual do Projeto
-* **Versão Atual:** `v0.55.0`
+* **Versão Atual:** `v0.56.0`
 * **Última Atualização:** `2026-11-16`
-* **Fase Atual:** **Otimização de Performance Mobile 60+ FPS Estáveis no Client (/play) (`v0.55.0`)** — Arquitetura de renderização de alto desempenho homologada para smartphones modernos de tela 120Hz (referência Xiaomi Redmi Note 14 Pro, Mali-G615 GPU, 1.5K). Eliminação total de `ctx.shadowBlur` e `ctx.filter` em loops de renderização contínuos; partículas bioluminescentes desenhadas via texturas 32x32px pré-renderizadas em Canvas Offscreen (`ctx.drawImage`); vinheta sombria em tela cheia delegada ao compositor GPU nativo do Android via CSS (`#veilVignetteOverlay`); clamp estrito de 60 FPS (`elapsed < 15.5ms`) que impede superaquecimento e throttling da GPU em telas de 90Hz/120Hz; fila de renderização 2.5D com reciclagem estática de objetos (Zero-Alloc Pooling `_renderPool`), eliminando micro-travamentos de Garbage Collection; e diretrizes consolidadas permanentemente em `docs/PERFORMANCE_STANDARDS.md`. Todos os arquivos estritamente < 1.000 linhas (Regra #7).
+* **Fase Atual:** **Cinemática de Vitória, Derrota e Level Up com Transição Suave e Zero Emojis (`v0.56.0`)** — Implementados os módulos `LevelUpVfxController.js` e `CombatOutcomeController.js` acompanhados do estilo responsivo `play_combat_outcome.css`. O Level Up manifesta-se diretamente no mapa 2.5D de exploração com anéis rúnicos dourados, aura ascendente, arpejo sonoro celestial (Web Audio API) e banner rúnico translúcido, sem modais intrusivos e disparado de forma encadeada apenas após o fechamento da arena. A tela de vitória/derrota foi remodelada com brasões artísticos oficiais (`victory_crest.png` e `defeat_crest.png`), barras fluidas de EXP e ouro (zero emojis), e transição suave de teleporte para o santuário ao morrer com fade escuro e materialização luminosa. 100% responsivo para Mobile Vertical, Mobile Horizontal (Landscape) e Desktop (60+ FPS). Todos os arquivos estritamente < 1.000 linhas (Regra #7).
 * **Repositório Oficial:** `https://github.com/SeytaniR/etheria-campus`
 * **Fonte Bruta de Assets:** `https://github.com/SeytaniR/mcrework` (`https://seytanir.github.io/mcrework/`)
 
