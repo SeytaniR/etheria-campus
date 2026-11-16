@@ -169,6 +169,9 @@ class EtheriaPlayClient {
     document.getElementById('playLoginScreen').style.display = 'none';
     document.getElementById('worldScreen').style.display = 'none';
     document.getElementById('lobbyScreen').style.display = 'flex';
+    if (typeof this.renderLobby === 'function') {
+      this.renderLobby();
+    }
   }
   getElementStyle(elementCode) {
     const styles = {

@@ -5,7 +5,36 @@ Qualquer IA trabalhando neste repositório **DEVE** incrementar a versão e regi
 
 ---
 
-## [v0.53.0] - 2026-11-16
+## [v0.54.0] - 2026-11-16
+### Interface Cinematográfica de Login e Lobby de Heróis na rota /play
+* **Nova Tela de Login Cinematográfica (`apps/server/public/play/css/play_lobby.css`):**
+  * Fundo imersivo com wallpaper épico em tela cheia (`login_bg_etheria.jpg`), vinheta radial sombria e efeito Glassmorphism de alta fidelidade.
+  * Card centralizado com `backdrop-filter: blur(20px)`, bordas douradas arcanas, badge *✦ ACESSO AO REINO ✦*, tipografia heroica e campos de entrada estilizados com ícones (`🛡️ Usuário` e `🔑 Senha`).
+  * Botão de entrada com gradiente dourado/âmbar e brilho de alta intensidade ("⚔️ Entrar no Mundo").
+  * Botão posicionado de auto-cadastro ("✨ Criar Nova Conta (Cadastro)") integrado com modal explicativo e amigável sobre o período de testes e a liberação de auto-registro na próxima fase beta.
+  * Rodapé discreto com indicador da versão `v0.54.0` e atalho para o Studio Low-Code (`/admin`).
+* **Novo Lobby Cinematográfico de Seleção, Edição, Exclusão e Criação de Heróis:**
+  * Fundo temático com wallpaper do Santuário dos Heróis (`lobby_bg_etheria.jpg`) e barra superior translúcida com badge do usuário e atalhos rápidos.
+  * Sistema de navegação por abas responsivas ("🧙 Meus Heróis" e "➕ Criar Herói"), eliminando rolagens infinitas em smartphones.
+  * **Visualização Enriquecida para Heróis Existentes:**
+    * Card de herói estilo MMORPG com retrato circular ornamentado, badge flutuante do elemento primordial (`🔥 Fogo`, `💧 Água`, `🌿 Terra`, `🌪️ Ar`, `⚪ Neutro`), tag `🌟 REBORN` (para personagens Reborn), nível, classe e raça.
+    * Barra de progresso de EXP em tempo real com indicador numérico e percentual.
+    * Chips de informações vitais: localização no mapa (`🗺️ [Nome do Mapa]`) e carteira de ouro (`🪙 [X] Ouro`).
+    * Três ações táticas: "⚔️ Jogar" (acesso imediato ao mundo 2.5D), "✨ Alternar Visual" (troca dinâmica entre Skin Padrão e Skin Reborn via API com atualização instantânea) e "🗑️ Excluir" (com confirmação de segurança dialogada).
+  * **Visualização Enriquecida para Criação de Novos Heróis:**
+    * Campo de nome estilizado com validação de 2 a 24 caracteres.
+    * Seletor de classes em grade responsiva com avatares e nomes oficiais.
+    * Ficha técnica da classe selecionada destacando os **6 Atributos Primordiais de Base**: Vitalidade (`VIT`), Força (`STR`), Inteligência (`INT`), Sabedoria (`WIS`), Agilidade (`AGI`) e Destreza (`DEX`), com barras de proporção visual e taxas de ganho por nível (`+X/nv`).
+    * Especificações de combate: estilo (Corpo a Corpo / À Distância), tipo de dano (Físico / Mágico) e alcance de ataque em pixels.
+    * Infográfico explicativo do Sorteio Elemental Oficial: esclarecendo que o elemento primordial é concedido pelo servidor ao nascer (10% Neutro vs 20% para cada elemento ativo).
+* **Compatibilidade Mobile e Isolamento Estrito de Controles:**
+  * Preservação integral do joystick virtual e botões de ação touch no mundo de jogo.
+  * Layout responsivo para telas estreitas de smartphones e tablets.
+* **Governança e Cumprimento Estrito de Regras:**
+  * Todos os arquivos de código rigorosamente mantidos abaixo de 1.000 linhas (Regra #7): `index.html` (981 linhas), `play.js` (984 linhas), `PlayLobbyController.js` (399 linhas), `play_lobby.css` (545 linhas).
+  * Build TypeScript concluído com 0 erros nos workspaces `@etheria/shared`, `@etheria/database` e `@etheria/server`.
+
+---
 ### Modo Janela Nativa de Jogo (Anti-Browser) e Controle Completo de Combate via Mouse no PC
 * **Desativação Total de Funções Nativas de Navegador (`PlayNativeAppController.js`):**
   * Desenvolvido novo módulo modular de inicialização autônoma (`apps/server/public/play/js/PlayNativeAppController.js`), transformando o client em uma experiência 100% nativa de jogo desktop/mobile (como se não estivesse rodando dentro de um browser):
