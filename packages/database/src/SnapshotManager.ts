@@ -397,6 +397,89 @@ export class SnapshotManager {
         }
       }
 
+      // 9. Habilidades (SkillTemplates)
+      if (Array.isArray(snapshot.skillTemplates)) {
+        for (const s of snapshot.skillTemplates) {
+          await this.prisma.skillTemplate.upsert({
+            where: { id: s.id },
+            create: {
+              id: s.id,
+              code: s.code,
+              nameI18nKey: s.nameI18nKey,
+              descriptionI18nKey: s.descriptionI18nKey,
+              mcreworkIconKey: s.mcreworkIconKey,
+              castActionId: s.castActionId ?? 3,
+              castMovement: s.castMovement || 'MELEE_ADVANCE',
+              mcreworkVfxKey: s.mcreworkVfxKey,
+              vfxColorHex: s.vfxColorHex,
+              vfxColorIntensity: s.vfxColorIntensity ?? 100,
+              skillType: s.skillType || 'ACTIVE',
+              triggerType: s.triggerType || 'MANUAL',
+              mpCost: s.mpCost ?? 10,
+              apCost: s.apCost ?? 2,
+              cooldownSeconds: s.cooldownSeconds ?? 0,
+              castRange: s.castRange ?? 160,
+              aoeRadius: s.aoeRadius ?? 0,
+              coneAngleDeg: s.coneAngleDeg ?? 90,
+              lineWidthPx: s.lineWidthPx ?? 48,
+              groundZoneDurationSec: s.groundZoneDurationSec ?? 0,
+              groundZoneTickSec: s.groundZoneTickSec ?? 1,
+              ignoreEvasion: s.ignoreEvasion ?? false,
+              targetScope: s.targetScope || 'TARGET_PRIMARY',
+              hitCount: s.hitCount ?? 1,
+              effectBlocksJson: s.effectBlocksJson ?? [],
+              isActive: s.isActive !== false,
+            },
+            update: {
+              code: s.code,
+              nameI18nKey: s.nameI18nKey,
+              descriptionI18nKey: s.descriptionI18nKey,
+              mcreworkIconKey: s.mcreworkIconKey,
+              castActionId: s.castActionId ?? 3,
+              castMovement: s.castMovement || 'MELEE_ADVANCE',
+              mcreworkVfxKey: s.mcreworkVfxKey,
+              vfxColorHex: s.vfxColorHex,
+              vfxColorIntensity: s.vfxColorIntensity ?? 100,
+              skillType: s.skillType || 'ACTIVE',
+              triggerType: s.triggerType || 'MANUAL',
+              mpCost: s.mpCost ?? 10,
+              apCost: s.apCost ?? 2,
+              cooldownSeconds: s.cooldownSeconds ?? 0,
+              castRange: s.castRange ?? 160,
+              aoeRadius: s.aoeRadius ?? 0,
+              coneAngleDeg: s.coneAngleDeg ?? 90,
+              lineWidthPx: s.lineWidthPx ?? 48,
+              groundZoneDurationSec: s.groundZoneDurationSec ?? 0,
+              groundZoneTickSec: s.groundZoneTickSec ?? 1,
+              ignoreEvasion: s.ignoreEvasion ?? false,
+              targetScope: s.targetScope || 'TARGET_PRIMARY',
+              hitCount: s.hitCount ?? 1,
+              effectBlocksJson: s.effectBlocksJson ?? [],
+              isActive: s.isActive !== false,
+            },
+          });
+        }
+      }
+
+      // 10. Vínculos de Bioma com Monstros (MonsterBiomes)
+      if (Array.isArray(snapshot.monsterBiomes)) {
+        for (const mb of snapshot.monsterBiomes) {
+          await this.prisma.monsterBiome.upsert({
+            where: {
+              monsterTemplateId_biomeId: {
+                monsterTemplateId: mb.monsterTemplateId,
+                biomeId: mb.biomeId,
+              },
+            },
+            create: {
+              monsterTemplateId: mb.monsterTemplateId,
+              biomeId: mb.biomeId,
+            },
+            update: {},
+          });
+        }
+      }
+
       return { restored: true, message: `Snapshot importado com sucesso a partir de ${this.snapshotFilePath}` };
     } catch (err: any) {
       return { restored: false, message: `Falha ao restaurar snapshot: ${err?.message || err}` };

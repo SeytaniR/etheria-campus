@@ -12,6 +12,7 @@ git pull origin main
 cd packages/database
 npx prisma generate
 npx prisma db push --skip-generate
+npx tsx src/seedTenNewMonsters.ts || true
 cd ../..
 npm run build:packages
 npm --workspace=@etheria/server run build
