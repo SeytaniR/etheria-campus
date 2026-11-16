@@ -8,9 +8,9 @@
 ---
 
 ## 📌 Status Atual do Projeto
-* **Versão Atual:** `v0.52.1`
+* **Versão Atual:** `v0.53.0`
 * **Última Atualização:** `2026-11-16`
-* **Fase Atual:** **Expansão dos Efeitos do Véu para Tela Toda (Fullscreen Upside Down Atmosphere) (/play) (`v0.52.1`)** — Atendendo ao refinamento do usuário, a ambientação do Mundo Invertido de *Stranger Things* / *O Véu* foi expandida para cobrir 100% da tela visível do jogo: camada sombria sobre todo o mapa visível (`rgba(7, 11, 24, 0.58)`), 160 esporos e cinzas flutuantes cobrindo a viewport inteira com paralaxe 2.5D, vinheta sombria cinematográfica nas 4 bordas da tela e relâmpagos avermelhados rasgando o céu da tela toda com flash atmosférico global. O ringue da arena elíptica permanece destacado para combate tático. Todos os arquivos rigorosamente abaixo de 1.000 linhas (Regra #7) e operação silenciosa do navegador.
+* **Fase Atual:** **Modo Janela Nativa de Jogo (Anti-Browser) e Controle Completo de Combate via Mouse no PC (/play) (`v0.53.0`)** — Implementada a desativação completa de funções nativas de navegador em todo o client (menu de contexto do botão direito, arrastar imagens/links, seleção de texto acidental e atalhos como Ctrl+S, Ctrl+P, Ctrl+F), tratando a janela como um jogo nativo standalone; adicionado controle de mouse em combate na arena (clique esquerdo no chão move o personagem limitado à elipse da arena; clique esquerdo em monstro seleciona o alvo e desfere o ataque básico com perseguição cinemática automática se necessário); mantidos integralmente todos os botões e joystick virtual para celulares/tablets sem qualquer alteração. Todos os arquivos estritamente < 1.000 linhas (Regra #7).
 * **Repositório Oficial:** `https://github.com/SeytaniR/etheria-campus`
 * **Fonte Bruta de Assets:** `https://github.com/SeytaniR/mcrework` (`https://seytanir.github.io/mcrework/`)
 

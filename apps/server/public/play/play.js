@@ -384,10 +384,9 @@ class EtheriaPlayClient {
       const bounds = this.getMapBounds();
       worldPt.x = Math.max(18, Math.min(bounds.width - 18, worldPt.x));
       worldPt.y = Math.max(20, Math.min(bounds.height - 18, worldPt.y));
-      // Em batalha na arena: clique sobre monstro seleciona alvo de ataque teleguiado
+      // Em batalha na arena: clique esquerdo seleciona alvo e realiza ataque básico, ou se move pelo chão
       if (this.actionCombatArena?.isActive) {
-        const mob = (this.actionCombatArena.monsters || []).find((m) => m.isAlive && Math.hypot(m.x - worldPt.x, m.y - 20 - worldPt.y) <= 45);
-        if (mob) { this.actionCombatArena.selectedTargetMob = mob; return; }
+        if (window.PlayNativeAppController?.handleArenaPointer(this, worldPt)) return;
       }
       // Se o jogador tocar diretamente sobre um NPC e já estiver próximo, abre o modal de Quest/Diálogo
       for (const npc of this.currentMap.npcs || []) {

@@ -5,6 +5,24 @@ Qualquer IA trabalhando neste repositório **DEVE** incrementar a versão e regi
 
 ---
 
+## [v0.53.0] - 2026-11-16
+### Modo Janela Nativa de Jogo (Anti-Browser) e Controle Completo de Combate via Mouse no PC
+* **Desativação Total de Funções Nativas de Navegador (`PlayNativeAppController.js`):**
+  * Desenvolvido novo módulo modular de inicialização autônoma (`apps/server/public/play/js/PlayNativeAppController.js`), transformando o client em uma experiência 100% nativa de jogo desktop/mobile (como se não estivesse rodando dentro de um browser):
+    1. **Bloqueio de Menu de Contexto do Botão Direito (`contextmenu`):** Interceptado em fase de captura global em toda a janela, impedindo menus indesejados de copiar, inspecionar, salvar imagem ou abrir links.
+    2. **Bloqueio de Arrastar Elementos (`dragstart` / `dragover` / `drop`):** Proíbe o arraste acidental de imagens, botões, sprites e links internos, além de rejeitar drop de arquivos que pudessem navegar a aba para fora do jogo.
+    3. **Eliminação de Seleção Nativa de Texto (CSS + JS `selectstart`):** Aplicação das regras `user-select: none`, `-webkit-user-drag: none` e `-webkit-touch-callout: none` em todos os elementos da janela, preservando exclusivamente a digitação legítima em inputs e textareas.
+    4. **Bloqueio de Atalhos Interceptores de Navegador:** Prevenção de `Ctrl+S` (salvar página), `Ctrl+P` (imprimir), `Ctrl+U` (código-fonte), `Ctrl+F` e `F3` (barra nativa de busca do navegador) e `F1` (ajuda nativa).
+* **Controle Completo de Batalha com o Mouse (PC / Desktop):**
+  * **Clique Esquerdo no Chão da Arena:** Conduz o personagem suavemente para o ponto clicado dentro dos limites físicos da elipse da arena (`this.moveTargetX`, `this.moveTargetY`), cancelando automaticamente qualquer perseguição anterior.
+  * **Clique Esquerdo sobre Monstro:** Seleciona o monstro como alvo travado (`selectedTargetMob = mob`) e desfere imediatamente o ataque básico (`triggerAttack()`), com aproximação automática orientada pela cinemática se o monstro estiver fora do alcance inicial de ataque.
+* **Preservação Integral dos Controles Mobile (Smartphones / Tablets):**
+  * O joystick virtual touch (`actionJoystickZone`) e todos os botões de ação na tela continuam operando 100% intactos e sem qualquer alteração no mobile.
+* **Governança e Cumprimento Estrito de Regras:**
+  * Todos os arquivos de código mantidos rigorosamente abaixo de 1.000 linhas (Regra #7): `PlayNativeAppController.js` (159 linhas), `play.js` (981 linhas), `ActionCombatArena.js` (991 linhas), `index.html` (987 linhas), `ActionVfxRenderer.js` (759 linhas).
+
+---
+
 ## [v0.52.1] - 2026-11-16
 ### Expansão dos Efeitos do Véu para Tela Toda (Fullscreen Upside Down Atmosphere)
 * **Atmosfera Global do Véu Cobrindo 100% da Tela Visível:**
