@@ -500,7 +500,12 @@
     gap: 5px;
   }
   .stats-base-row {
-    padding: 4px 6px;
+    padding: 3px 6px;
+  }
+  .stats-base-list {
+    max-height: 175px;
+    overflow-y: auto;
+    padding-right: 2px;
   }
   .stats-btn-ctrl {
     width: 24px;
