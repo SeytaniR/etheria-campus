@@ -73,6 +73,9 @@ class PlayMapPresenceController {
         if (Array.isArray(res.otherPlayers)) {
           this.updateOtherPlayersList(res.otherPlayers);
         }
+        if (window.PlayPartyController) {
+          window.PlayPartyController.handleSyncUpdate(res.party, res.pendingInvites, res.otherPlayers);
+        }
       }
     } catch (_) {
       // Falha silenciosa para conexões intermitentes
@@ -144,12 +147,27 @@ class PlayMapPresenceController {
     ctx.font = 'bold 12px sans-serif';
     ctx.textAlign = 'center';
 
+    const localParty = window.PlayPartyController?.party;
+    const isAllyParty = Boolean(localParty && other.partyId && other.partyId === localParty.id);
+
+    // Indicador de Equipe e Coroa do Líder
+    if (isAllyParty) {
+      if (other.isPartyLeader) {
+        ctx.font = '14px sans-serif';
+        ctx.fillText('👑', other.posX, nameY - 14);
+      }
+      ctx.font = 'bold 9px sans-serif';
+      ctx.fillStyle = '#38bdf8';
+      ctx.fillText('[Equipe]', other.posX, nameY - 3);
+    }
+
+    ctx.font = 'bold 12px sans-serif';
     // Sombra do texto para máxima legibilidade
     ctx.fillStyle = 'rgba(2, 6, 23, 0.85)';
     ctx.fillText(`${other.name} (Nv.${other.level})`, other.posX + 1, nameY + 1);
 
-    // Cor do nome: Ciano brilhante para aventureiros amigáveis
-    ctx.fillStyle = '#67e8f9';
+    // Cor do nome: Dourado para líder aliado, Ciano brilhante para outros aventureiros
+    ctx.fillStyle = isAllyParty ? (other.isPartyLeader ? '#fde047' : '#38bdf8') : '#67e8f9';
     ctx.fillText(`${other.name} (Nv.${other.level})`, other.posX, nameY);
 
     // 3. Se o jogador estiver em combate: desenha as duas espadas se batendo sobre a cabeça

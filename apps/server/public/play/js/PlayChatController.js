@@ -295,8 +295,9 @@ class PlayChatController {
 
     try {
       const char = this.getActiveChar();
+      const charId = char?.id || 0;
       const mapId = client.currentMapId || char?.currentMapId || 1;
-      const url = `/api/play/chat/messages?sinceId=${this.lastMessageId}&mapId=${mapId}`;
+      const url = `/api/play/chat/messages?sinceId=${this.lastMessageId}&mapId=${mapId}&charId=${charId}`;
       const res = await client.api(url);
 
       if (res && res.success && Array.isArray(res.messages)) {
@@ -330,10 +331,37 @@ class PlayChatController {
     const input = document.getElementById('hudChatInput');
     if (!input) return;
 
-    const text = input.value.trim();
+    let text = input.value.trim();
     if (!text) return;
 
-    if (this.activeCategory === 'SISTEMA') {
+    let targetChannel = this.activeCategory;
+
+    // Atalhos de comando slash (/p, /party, /equipe, /m, /mundo, /l, /local, /g, /guilda)
+    const slashMatch = text.match(/^\/(p|party|equipe|m|mundo|l|local|g|guilda|guild|s|sistema)\b\s*(.*)$/i);
+    if (slashMatch) {
+      const cmd = slashMatch[1].toLowerCase();
+      const rest = slashMatch[2].trim();
+      if (cmd === 'p' || cmd === 'party' || cmd === 'equipe') {
+        targetChannel = 'EQUIPE';
+        this.switchChannel('EQUIPE');
+      } else if (cmd === 'm' || cmd === 'mundo') {
+        targetChannel = 'MUNDO';
+        this.switchChannel('MUNDO');
+      } else if (cmd === 'l' || cmd === 'local') {
+        targetChannel = 'LOCAL';
+        this.switchChannel('LOCAL');
+      } else if (cmd === 'g' || cmd === 'guilda' || cmd === 'guild') {
+        targetChannel = 'GUILDA';
+        this.switchChannel('GUILDA');
+      }
+      text = rest;
+      if (!text) {
+        input.value = '';
+        return;
+      }
+    }
+
+    if (targetChannel === 'SISTEMA') {
       this.addSystemNotice('O canal Sistema é exclusivo para anúncios do servidor. Selecione Mundo ou Local para conversar.');
       return;
     }
@@ -351,6 +379,11 @@ class PlayChatController {
       return;
     }
 
+    if (targetChannel === 'EQUIPE' && window.PlayPartyController && !window.PlayPartyController.hasParty()) {
+      this.addSystemNotice('Você precisa estar em uma equipe para conversar no canal de Equipe.');
+      return;
+    }
+
     const mapId = client.currentMapId || char?.currentMapId || 1;
 
     try {
@@ -358,7 +391,7 @@ class PlayChatController {
       const res = await client.api('/api/play/chat/send', {
         method: 'POST',
         body: JSON.stringify({
-          channel: this.activeCategory,
+          channel: targetChannel,
           message: text,
           charId,
           mapId,

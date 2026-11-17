@@ -14,6 +14,7 @@ import { randomUUID } from 'node:crypto';
 import { MapSpawnResolver } from './MapSpawnResolver.js';
 import { CombatUtilityHelper } from './CombatUtilityHelper.js';
 import { MonsterCombatBuilder, type MonsterScalingContext, type MonsterVariantTier } from './MonsterCombatBuilder.js';
+import { PartyService } from './PartyService.js';
 
 export interface ActiveStatusInstance {
   code: string;
@@ -237,9 +238,13 @@ export class TemporaryCombatController {
       throw new Error(`Este mapa possui taxa de encontro zero (zona segura).`);
     }
 
+    const party = PartyService.getPartyByCharacterId(characterId);
+    const inParty = Boolean(party && party.members.length > 1);
+    const maxAllowedPets = inParty ? 1 : 3;
+
     const pc = await this.prisma.playerCharacter.findUnique({
       where: { id: Number(characterId) },
-      include: { pets: { take: 3, include: { monsterTemplate: true } } },
+      include: { pets: { take: maxAllowedPets, include: { monsterTemplate: true } } },
     });
 
     // Regra Proporcional de Spawn:
@@ -534,9 +539,13 @@ export class TemporaryCombatController {
       I18nCache.getTranslations(this.prisma, 'pt-BR'),
     ]);
 
+    const party = PartyService.getPartyByCharacterId(characterId);
+    const inParty = Boolean(party && party.members.length > 1);
+    const maxPets = inParty ? 1 : 3;
+
     const petUnits: CombatUnit[] = [];
     if (pc && pc.pets && pc.pets.length > 0) {
-      pc.pets.slice(0, 3).forEach((cp: any, idx: number) => {
+      pc.pets.slice(0, maxPets).forEach((cp: any, idx: number) => {
         const tpl = cp.monsterTemplate;
         if (!tpl) return;
         const pLv = cp.level || charLevel;

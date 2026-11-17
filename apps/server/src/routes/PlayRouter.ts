@@ -21,6 +21,8 @@ import { ItemContainerOpeningService } from '../controllers/ItemContainerOpening
 import { CharacterProgressionService } from '../controllers/CharacterProgressionService.js';
 import { GameChatService } from '../controllers/GameChatService.js';
 import { MapPresenceService } from '../controllers/MapPresenceService.js';
+import { PartyService } from '../controllers/PartyService.js';
+import { PartyRouter } from './PartyRouter.js';
 
 export interface PlayRouterDeps {
   prisma: PrismaClient;
@@ -34,7 +36,16 @@ export interface PlayRouterDeps {
 }
 
 export class PlayRouter {
-  constructor(private readonly deps: PlayRouterDeps) {}
+  private readonly partyRouter: PartyRouter;
+
+  constructor(private readonly deps: PlayRouterDeps) {
+    this.partyRouter = new PartyRouter({
+      prisma: deps.prisma,
+      readJsonBody: deps.readJsonBody,
+      sendJson: deps.sendJson,
+      verifyCharacterOwnership: (uid, r, cid) => this.verifyCharacterOwnership(uid, r, cid),
+    });
+  }
 
   /**
    * Valida se um personagem pertence à conta autenticada (ou se o usuário é ADMIN/GM).
@@ -118,6 +129,11 @@ export class PlayRouter {
     if (!Number.isInteger(userAccountId) || userAccountId <= 0) {
       this.deps.sendJson(res, 401, { error: 'Token de sessão inválido. Faça login em /play.' });
       return true;
+    }
+
+    // 👥 Roteador de Equipes (Parties de até 3 Jogadores)
+    if (pathname.startsWith('/api/play/party')) {
+      return await this.partyRouter.handle(req, res, pathname, method, { userAccountId, role: session.role });
     }
 
     // --- Bootstrap do Jogo (Personagens do Usuário, Mapas, Classes e Offset) ---
@@ -306,9 +322,14 @@ export class PlayRouter {
         isInCombat: dto.isInCombat,
       });
 
+      const party = PartyService.getPartyByCharacterId(charId);
+      const pendingInvites = PartyService.getPendingInvites(charId);
+
       this.deps.sendJson(res, 200, {
         ...syncResult,
         otherPlayers,
+        party: party || null,
+        pendingInvites,
       });
       return true;
     }
@@ -334,11 +355,20 @@ export class PlayRouter {
       const charId = Number(traverseMatch[1]);
       MapPresenceService.removePlayer(charId);
       const dto = await this.deps.readJsonBody<{ portalId: number }>(req);
-      this.deps.sendJson(
-        res,
-        200,
-        await this.deps.playController.traversePortal(userAccountId, charId, Number(dto.portalId))
-      );
+      const travelResult = await this.deps.playController.traversePortal(userAccountId, charId, Number(dto.portalId));
+
+      // Se for Líder de equipe, sincroniza o mapa para os seguidores na fila indiana
+      const party = PartyService.getPartyByCharacterId(charId);
+      if (party && party.leaderCharacterId === charId && (travelResult as any)?.currentMapId) {
+        PartyService.syncLeaderMapChange(
+          charId,
+          Number((travelResult as any).currentMapId),
+          Number((travelResult as any).posX ?? 500),
+          Number((travelResult as any).posY ?? 500)
+        );
+      }
+
+      this.deps.sendJson(res, 200, travelResult);
       return true;
     }
 
@@ -508,7 +538,12 @@ export class PlayRouter {
       const mapId = urlObj.searchParams.get('mapId') ? Number(urlObj.searchParams.get('mapId')) : undefined;
       const guildId = urlObj.searchParams.get('guildId') ? Number(urlObj.searchParams.get('guildId')) : undefined;
       const factionId = urlObj.searchParams.get('factionId') || undefined;
-      const teamId = urlObj.searchParams.get('teamId') ? Number(urlObj.searchParams.get('teamId')) : undefined;
+      const charId = urlObj.searchParams.get('charId') ? Number(urlObj.searchParams.get('charId')) : undefined;
+      let teamId: string | number | undefined = urlObj.searchParams.get('teamId') || undefined;
+      if (!teamId && charId) {
+        const p = PartyService.getPartyByCharacterId(charId);
+        if (p) teamId = p.id;
+      }
 
       const messages = GameChatService.getMessages({
         sinceId,
@@ -623,20 +658,51 @@ export class PlayRouter {
         this.deps.sendJson(res, 403, { error: 'Acesso negado: esta batalha não pertence à sua conta.' });
         return true;
       }
+      // 🏆 Cálculo de Recompensas em Equipe (+30% dividido com Math.ceil) e Avanço Coletivo de Quests
+      const party = PartyService.getPartyByCharacterId(victoryData.characterId);
+      const partySize = party ? party.members.length : 1;
+      const rewards = PartyService.calculatePartyRewards(victoryData.expReward, victoryData.goldReward, partySize);
+
+      const awardedExp = rewards.expPerMember;
+      const awardedGold = rewards.goldPerMember;
+
       const progressResult = await this.deps.questsController.recordBattleVictoryBatch(
         victoryData.characterId,
         victoryData.defeatedMonsters,
-        victoryData.goldReward
+        awardedGold
       );
       const progression = await CharacterProgressionService.awardProgression(
         this.deps.prisma,
         victoryData.characterId,
-        victoryData.expReward
+        awardedExp
       );
+
+      // Concede a mesma recompensa dividida e avanço de abates para os companheiros de equipe
+      if (party && party.members.length > 1) {
+        for (const member of party.members) {
+          if (member.characterId !== victoryData.characterId) {
+            try {
+              await this.deps.questsController.recordBattleVictoryBatch(
+                member.characterId,
+                victoryData.defeatedMonsters,
+                awardedGold
+              );
+              await CharacterProgressionService.awardProgression(
+                this.deps.prisma,
+                member.characterId,
+                awardedExp
+              );
+            } catch {}
+          }
+        }
+      }
+
       this.deps.sendJson(res, 200, {
         alreadyRecorded: false,
-        expGained: victoryData.expReward,
-        goldGained: victoryData.goldReward,
+        expGained: awardedExp,
+        goldGained: awardedGold,
+        partyBonusApplied: partySize > 1,
+        partyMembersCount: partySize,
         playerProgression: progression?.player ?? null,
         petsProgression: progression?.pets ?? [],
         ...progressResult,

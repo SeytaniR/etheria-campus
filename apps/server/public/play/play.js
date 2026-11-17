@@ -356,6 +356,7 @@ class EtheriaPlayClient {
     return ((sector % 8) + 8) % 8;
   }
   setDpad(dx, dy) {
+    if (window.PlayPartyController?.isFollower()) return;
     this.dpadDx = dx;
     this.dpadDy = dy;
     if (dx !== 0 || dy !== 0) {
@@ -374,6 +375,7 @@ class EtheriaPlayClient {
       if (['INPUT', 'SELECT', 'TEXTAREA'].includes(document.activeElement?.tagName)) return;
       const k = e.key.toLowerCase();
       if (['w', 'a', 's', 'd', 'arrowup', 'arrowdown', 'arrowleft', 'arrowright'].includes(k)) {
+        if (window.PlayPartyController?.isFollower()) return;
         this.keysDown.add(k);
         this.currentPath = null; this.moveTargetX = null; this.moveTargetY = null; this.targetDestX = null; this.targetDestY = null;
       }
@@ -387,6 +389,7 @@ class EtheriaPlayClient {
         return;
       }
       if (!this.activeChar || !this.currentMap) return;
+      if (window.PlayPartyController?.isFollower() && !this.actionCombatArena?.isActive) return;
       const rect = canvas.getBoundingClientRect();
       const sx = e.clientX - rect.left;
       const sy = e.clientY - rect.top;
@@ -506,6 +509,10 @@ class EtheriaPlayClient {
     requestAnimationFrame((t) => this.gameLoop(t));
   }
   updatePhysics(dt, now) {
+    if (window.PlayPartyController?.isFollower()) {
+      window.PlayPartyController.updateFollowerMovement(dt);
+      return;
+    }
     let vx = this.dpadDx;
     let vy = this.dpadDy;
     if (this.keysDown.has('w') || this.keysDown.has('arrowup')) vy -= 1;
@@ -846,8 +853,17 @@ class EtheriaPlayClient {
         const sprite = this.getOrCreateSprite(`char_${char.mcreworkCharKey}`, char.atlasJsonUrl, char.atlasWebpUrl, char.thumbUrl);
         const groundOffsetY = char.groundOffsetY || 0;
         sprite.draw(ctx, this.playerX, this.playerY, this.isMoving ? 1 : 0, this.playerDir, now, this.mesh, groundOffsetY, 0.70, false, char.shadowOffsetX || 0, char.shadowOffsetY || 0);
-        ctx.fillStyle = '#fde047'; ctx.font = 'bold 13px sans-serif'; ctx.textAlign = 'center';
-        ctx.fillText(`${char.name}${char.isReborn ? ' ✨' : ''}${this.gmNoClip ? ' [NO-CLIP]' : ''}`, this.playerX, this.playerY - 66 + Math.round(groundOffsetY * 0.70));
+        const nameY = this.playerY - 66 + Math.round(groundOffsetY * 0.70);
+        ctx.textAlign = 'center';
+        if (window.PlayPartyController?.isLeader()) {
+          ctx.font = '14px sans-serif'; ctx.fillText('👑', this.playerX, nameY - 14);
+        }
+        if (window.PlayPartyController?.hasParty()) {
+          ctx.font = 'bold 9px sans-serif'; ctx.fillStyle = '#38bdf8';
+          ctx.fillText('[Equipe]', this.playerX, nameY - 3);
+        }
+        ctx.fillStyle = '#fde047'; ctx.font = 'bold 13px sans-serif';
+        ctx.fillText(`${char.name}${char.isReborn ? ' ✨' : ''}${this.gmNoClip ? ' [NO-CLIP]' : ''}`, this.playerX, nameY);
       } else if (item.type === 'OTHER_PLAYER') {
         if (window.PlayMapPresenceController) {
           window.PlayMapPresenceController.drawOtherPlayer(ctx, item.data, now, this.mesh, this.zoom);

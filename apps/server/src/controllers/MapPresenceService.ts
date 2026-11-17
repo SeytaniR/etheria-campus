@@ -10,6 +10,7 @@
  */
 
 import type { PrismaClient } from '@prisma/client';
+import { PartyService } from './PartyService.js';
 
 export interface MapPlayerPresence {
   characterId: number;
@@ -30,6 +31,10 @@ export interface MapPlayerPresence {
   dir: number;
   isMoving: boolean;
   isInCombat: boolean;
+  partyId?: string | null;
+  isPartyLeader?: boolean;
+  partyLeaderId?: number | null;
+  partyMemberIndex?: number;
   lastSeenAt: number;
 }
 
@@ -97,6 +102,18 @@ export class MapPresenceService {
       this.playersByMap.set(mapId, mapPlayers);
     }
 
+    const party = PartyService.getPartyByCharacterId(characterId);
+    let partyMemberIndex = 0;
+    if (party) {
+      const mIdx = party.members.findIndex((m) => m.characterId === characterId);
+      partyMemberIndex = mIdx >= 0 ? mIdx : 0;
+      PartyService.syncMemberVitals(characterId, {
+        mapId,
+        posX: Number(dto.posX) || 500,
+        posY: Number(dto.posY) || 500,
+      });
+    }
+
     const presenceData: MapPlayerPresence = {
       characterId,
       name: meta?.name || 'Aventureiro',
@@ -116,6 +133,10 @@ export class MapPresenceService {
       dir: dto.dir !== undefined ? Number(dto.dir) : 0,
       isMoving: Boolean(dto.isMoving),
       isInCombat: Boolean(dto.isInCombat),
+      partyId: party?.id ?? null,
+      isPartyLeader: party ? party.leaderCharacterId === characterId : false,
+      partyLeaderId: party?.leaderCharacterId ?? null,
+      partyMemberIndex,
       lastSeenAt: now,
     };
 
@@ -133,6 +154,28 @@ export class MapPresenceService {
     }
 
     return others;
+  }
+
+  /**
+   * Retorna jogadores no mesmo mapa próximos ao personagem para formação de equipe.
+   */
+  public static getNearbyPlayers(characterId: number, mapId: number, maxDistance: number = 400): MapPlayerPresence[] {
+    const mapPlayers = this.playersByMap.get(mapId);
+    if (!mapPlayers) return [];
+
+    const me = mapPlayers.get(characterId);
+    const myX = me ? me.posX : 500;
+    const myY = me ? me.posY : 500;
+
+    const nearby: MapPlayerPresence[] = [];
+    for (const [id, p] of mapPlayers.entries()) {
+      if (id === characterId) continue;
+      const dist = Math.hypot(p.posX - myX, p.posY - myY);
+      if (dist <= maxDistance) {
+        nearby.push(p);
+      }
+    }
+    return nearby;
   }
 
   /**

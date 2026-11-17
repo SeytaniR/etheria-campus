@@ -13,6 +13,7 @@
 
 import type { PrismaClient } from '@prisma/client';
 import { ChatModerationFilter } from '../security/ChatModerationFilter.js';
+import { PartyService } from './PartyService.js';
 
 export type ChatCategory = 'SISTEMA' | 'MUNDO' | 'LOCAL' | 'GUILDA' | 'FACCÃO' | 'EQUIPE';
 
@@ -27,7 +28,7 @@ export interface ChatMessageDto {
   mapId?: number;
   guildId?: number;
   factionId?: string;
-  teamId?: number;
+  teamId?: string | number;
   text: string;
   timestamp: number;
   isCensored?: boolean;
@@ -45,7 +46,7 @@ export interface GetMessagesQuery {
   mapId?: number;
   guildId?: number;
   factionId?: string;
-  teamId?: number;
+  teamId?: string | number;
   limit?: number;
 }
 
@@ -129,9 +130,13 @@ export class GameChatService {
       throw new Error('Você ainda não possui uma Facção para conversar neste canal.');
     }
 
+    let teamPartyId: string | undefined = undefined;
     if (category === 'EQUIPE') {
-      // Futuro: vincular à equipe/party ativa do jogador
-      throw new Error('Você não está em nenhuma Equipe/Grupo no momento.');
+      const party = PartyService.getPartyByCharacterId(character.id);
+      if (!party) {
+        throw new Error('Você não está em nenhuma Equipe no momento.');
+      }
+      teamPartyId = party.id;
     }
 
     // 3. Aplica o filtro comunitário de conduta 16+
@@ -150,6 +155,7 @@ export class GameChatService {
       senderElement: character.elementCode || 'NEUTRAL',
       senderLevel: character.level || 1,
       mapId: category === 'LOCAL' ? effectiveMapId : undefined,
+      teamId: teamPartyId,
       text: moderation.censoredText,
       timestamp: Date.now(),
       isCensored: moderation.hasProfanity,
@@ -236,7 +242,7 @@ export class GameChatService {
       // 6. Mensagens de EQUIPE: apenas se o jogador estiver na mesma equipe
       if (msg.category === 'EQUIPE') {
         if (!teamId || !msg.teamId) return false;
-        return msg.teamId === teamId;
+        return String(msg.teamId) === String(teamId);
       }
 
       return false;
