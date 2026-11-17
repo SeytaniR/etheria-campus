@@ -15,6 +15,7 @@ npx prisma db push --skip-generate
 npx tsx src/seedTenNewMonsters.ts || true
 npx tsx src/seedBatchTwoMonsters.ts || true
 npx tsx src/seedBatchThreeMonsters.ts || true
+npx tsx src/seedBatchFourMonsters.ts || true
 cd ../..
 npm run build:packages
 node scripts/seed_12_level70_equipment_sets.mjs || true

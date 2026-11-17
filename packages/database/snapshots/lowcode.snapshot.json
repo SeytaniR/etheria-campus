@@ -1,6 +1,6 @@
 {
   "version": "0.2.0",
-  "exportedAt": "2026-11-17T16:53:19.633Z",
+  "exportedAt": "2026-11-17T17:10:10.377Z",
   "i18nTranslations": [
     {
       "id": 1,
@@ -25666,6 +25666,406 @@
       "key": "item_template:equip_lv70_bloodlich_ornament2:description",
       "locale": "en",
       "text": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Grão-Lich do Sangue Carmesim: Lv. 70 (Rank SS) - Especializado: Necromante]."
+    },
+    {
+      "key": "skill.skill_mob_golden_rampage.name",
+      "locale": "pt-BR",
+      "text": "Investida Dourada Destruidora"
+    },
+    {
+      "key": "skill.skill_mob_golden_rampage.name",
+      "locale": "en-US",
+      "text": "Investida Dourada Destruidora"
+    },
+    {
+      "key": "skill.skill_mob_golden_rampage.description",
+      "locale": "pt-BR",
+      "text": "O Minotauro Colossal investe com fúria titânica, esmagando o solo e causando dano físico massivo em cone."
+    },
+    {
+      "key": "skill.skill_mob_golden_rampage.description",
+      "locale": "en-US",
+      "text": "O Minotauro Colossal investe com fúria titânica, esmagando o solo e causando dano físico massivo em cone."
+    },
+    {
+      "key": "monster.monster_48.name",
+      "locale": "pt-BR",
+      "text": "Minotauro Dourado Colossal"
+    },
+    {
+      "key": "monster.monster_48.name",
+      "locale": "en-US",
+      "text": "Minotauro Dourado Colossal"
+    },
+    {
+      "key": "monster.monster_48.description",
+      "locale": "pt-BR",
+      "text": "Colosso bestial de armadura áurea e chifres massivos que rege os vales flamejantes com força titânica."
+    },
+    {
+      "key": "monster.monster_48.description",
+      "locale": "en-US",
+      "text": "Colosso bestial de armadura áurea e chifres massivos que rege os vales flamejantes com força titânica."
+    },
+    {
+      "key": "skill.skill_mob_wyvern_tempest_blast.name",
+      "locale": "pt-BR",
+      "text": "Sopro das Tempestades Celestes"
+    },
+    {
+      "key": "skill.skill_mob_wyvern_tempest_blast.name",
+      "locale": "en-US",
+      "text": "Sopro das Tempestades Celestes"
+    },
+    {
+      "key": "skill.skill_mob_wyvern_tempest_blast.description",
+      "locale": "pt-BR",
+      "text": "Dispara uma rajada de vento cortante de alta velocidade que perfura defesas mágicas."
+    },
+    {
+      "key": "skill.skill_mob_wyvern_tempest_blast.description",
+      "locale": "en-US",
+      "text": "Dispara uma rajada de vento cortante de alta velocidade que perfura defesas mágicas."
+    },
+    {
+      "key": "monster.monster_49.name",
+      "locale": "pt-BR",
+      "text": "Wyvern Alado das Alturas"
+    },
+    {
+      "key": "monster.monster_49.name",
+      "locale": "en-US",
+      "text": "Wyvern Alado das Alturas"
+    },
+    {
+      "key": "monster.monster_49.description",
+      "locale": "pt-BR",
+      "text": "Dragão alado serpentino que domina as correntes de vento dos picos celestes com agilidade sobre-humana."
+    },
+    {
+      "key": "monster.monster_49.description",
+      "locale": "en-US",
+      "text": "Dragão alado serpentino que domina as correntes de vento dos picos celestes com agilidade sobre-humana."
+    },
+    {
+      "key": "skill.skill_mob_spore_cataclysm.name",
+      "locale": "pt-BR",
+      "text": "Cataclismo de Esporos Venenosos"
+    },
+    {
+      "key": "skill.skill_mob_spore_cataclysm.name",
+      "locale": "en-US",
+      "text": "Cataclismo de Esporos Venenosos"
+    },
+    {
+      "key": "skill.skill_mob_spore_cataclysm.description",
+      "locale": "pt-BR",
+      "text": "Libera uma nuvem densa de toxinas fúngicas em área, corroendo a vitalidade dos alvos próximos."
+    },
+    {
+      "key": "skill.skill_mob_spore_cataclysm.description",
+      "locale": "en-US",
+      "text": "Libera uma nuvem densa de toxinas fúngicas em área, corroendo a vitalidade dos alvos próximos."
+    },
+    {
+      "key": "monster.monster_50.name",
+      "locale": "pt-BR",
+      "text": "Rei Cogumelo Tóxico Ancestral"
+    },
+    {
+      "key": "monster.monster_50.name",
+      "locale": "en-US",
+      "text": "Rei Cogumelo Tóxico Ancestral"
+    },
+    {
+      "key": "monster.monster_50.description",
+      "locale": "pt-BR",
+      "text": "Monarca fúngico milenar que excreta esporos mortais capazes de derreter escudos e armaduras."
+    },
+    {
+      "key": "monster.monster_50.description",
+      "locale": "en-US",
+      "text": "Monarca fúngico milenar que excreta esporos mortais capazes de derreter escudos e armaduras."
+    },
+    {
+      "key": "skill.skill_mob_vampiric_talon.name",
+      "locale": "pt-BR",
+      "text": "Garras Malditas de Sangue"
+    },
+    {
+      "key": "skill.skill_mob_vampiric_talon.name",
+      "locale": "en-US",
+      "text": "Garras Malditas de Sangue"
+    },
+    {
+      "key": "skill.skill_mob_vampiric_talon.description",
+      "locale": "pt-BR",
+      "text": "Desfere um golpe cortante com unhas necróticas drenando a energia vital da presa."
+    },
+    {
+      "key": "skill.skill_mob_vampiric_talon.description",
+      "locale": "en-US",
+      "text": "Desfere um golpe cortante com unhas necróticas drenando a energia vital da presa."
+    },
+    {
+      "key": "monster.monster_51.name",
+      "locale": "pt-BR",
+      "text": "Lorde Jiangshi das Criptas Reais"
+    },
+    {
+      "key": "monster.monster_51.name",
+      "locale": "en-US",
+      "text": "Lorde Jiangshi das Criptas Reais"
+    },
+    {
+      "key": "monster.monster_51.description",
+      "locale": "pt-BR",
+      "text": "Antigo imperador embalsamado reanimado por artes proibidas, com unhas afiadas como navalhas e saltos fantasmagóricos."
+    },
+    {
+      "key": "monster.monster_51.description",
+      "locale": "en-US",
+      "text": "Antigo imperador embalsamado reanimado por artes proibidas, com unhas afiadas como navalhas e saltos fantasmagóricos."
+    },
+    {
+      "key": "skill.skill_mob_grizzly_crush.name",
+      "locale": "pt-BR",
+      "text": "Patada Esmagadora do Urso"
+    },
+    {
+      "key": "skill.skill_mob_grizzly_crush.name",
+      "locale": "en-US",
+      "text": "Patada Esmagadora do Urso"
+    },
+    {
+      "key": "skill.skill_mob_grizzly_crush.description",
+      "locale": "pt-BR",
+      "text": "Despenca uma pata colossal sobre a vítima, abalando a terra ao redor com força bruta."
+    },
+    {
+      "key": "skill.skill_mob_grizzly_crush.description",
+      "locale": "en-US",
+      "text": "Despenca uma pata colossal sobre a vítima, abalando a terra ao redor com força bruta."
+    },
+    {
+      "key": "monster.monster_52.name",
+      "locale": "pt-BR",
+      "text": "Urso Pardo das Estepes Selvagens"
+    },
+    {
+      "key": "monster.monster_52.name",
+      "locale": "en-US",
+      "text": "Urso Pardo das Estepes Selvagens"
+    },
+    {
+      "key": "monster.monster_52.description",
+      "locale": "pt-BR",
+      "text": "Predador maciço das planícies com musculatura densa e garras brutais que despedaçam presas em segundos."
+    },
+    {
+      "key": "monster.monster_52.description",
+      "locale": "en-US",
+      "text": "Predador maciço das planícies com musculatura densa e garras brutais que despedaçam presas em segundos."
+    },
+    {
+      "key": "skill.skill_mob_submerged_slam.name",
+      "locale": "pt-BR",
+      "text": "Golpe da Carapaça Submersa"
+    },
+    {
+      "key": "skill.skill_mob_submerged_slam.name",
+      "locale": "en-US",
+      "text": "Golpe da Carapaça Submersa"
+    },
+    {
+      "key": "skill.skill_mob_submerged_slam.description",
+      "locale": "pt-BR",
+      "text": "Gira a carapaça pesada impulsionada por jatos de água lodosa atingindo múltiplos inimigos."
+    },
+    {
+      "key": "skill.skill_mob_submerged_slam.description",
+      "locale": "en-US",
+      "text": "Gira a carapaça pesada impulsionada por jatos de água lodosa atingindo múltiplos inimigos."
+    },
+    {
+      "key": "monster.monster_53.name",
+      "locale": "pt-BR",
+      "text": "Dragão Encouraçado dos Lagos Profundos"
+    },
+    {
+      "key": "monster.monster_53.name",
+      "locale": "en-US",
+      "text": "Dragão Encouraçado dos Lagos Profundos"
+    },
+    {
+      "key": "monster.monster_53.description",
+      "locale": "pt-BR",
+      "text": "Besta anfíbia encouraçada com placas quelônias intransponíveis que habita as águas calmas de grandes lagos."
+    },
+    {
+      "key": "monster.monster_53.description",
+      "locale": "en-US",
+      "text": "Besta anfíbia encouraçada com placas quelônias intransponíveis que habita as águas calmas de grandes lagos."
+    },
+    {
+      "key": "skill.skill_mob_fairy_radiance.name",
+      "locale": "pt-BR",
+      "text": "Resplendor Feérico Solar"
+    },
+    {
+      "key": "skill.skill_mob_fairy_radiance.name",
+      "locale": "en-US",
+      "text": "Resplendor Feérico Solar"
+    },
+    {
+      "key": "skill.skill_mob_fairy_radiance.description",
+      "locale": "pt-BR",
+      "text": "Invoca feixes cintilantes de poeira feérica que cegam e queimam magicamente o alvo."
+    },
+    {
+      "key": "skill.skill_mob_fairy_radiance.description",
+      "locale": "en-US",
+      "text": "Invoca feixes cintilantes de poeira feérica que cegam e queimam magicamente o alvo."
+    },
+    {
+      "key": "monster.monster_54.name",
+      "locale": "pt-BR",
+      "text": "Guardião Feérico da Coroa Dourada"
+    },
+    {
+      "key": "monster.monster_54.name",
+      "locale": "en-US",
+      "text": "Guardião Feérico da Coroa Dourada"
+    },
+    {
+      "key": "monster.monster_54.description",
+      "locale": "pt-BR",
+      "text": "Espírito élfico da alta realeza feérica que resguarda os santuários ancestrais e bosques sagrados."
+    },
+    {
+      "key": "monster.monster_54.description",
+      "locale": "en-US",
+      "text": "Espírito élfico da alta realeza feérica que resguarda os santuários ancestrais e bosques sagrados."
+    },
+    {
+      "key": "skill.skill_mob_hydro_pulse.name",
+      "locale": "pt-BR",
+      "text": "Pulso Hidro-Propulsor"
+    },
+    {
+      "key": "skill.skill_mob_hydro_pulse.name",
+      "locale": "en-US",
+      "text": "Pulso Hidro-Propulsor"
+    },
+    {
+      "key": "skill.skill_mob_hydro_pulse.description",
+      "locale": "pt-BR",
+      "text": "Dispara uma rajada pressurizada de vapor aquático através de pistões mecânicos."
+    },
+    {
+      "key": "skill.skill_mob_hydro_pulse.description",
+      "locale": "en-US",
+      "text": "Dispara uma rajada pressurizada de vapor aquático através de pistões mecânicos."
+    },
+    {
+      "key": "monster.monster_55.name",
+      "locale": "pt-BR",
+      "text": "Nautilus Mecânico Submerso"
+    },
+    {
+      "key": "monster.monster_55.name",
+      "locale": "en-US",
+      "text": "Nautilus Mecânico Submerso"
+    },
+    {
+      "key": "monster.monster_55.description",
+      "locale": "pt-BR",
+      "text": "Polvo de latão e engrenagens movido a vapor criado para patrulhar docas e forjas submersas."
+    },
+    {
+      "key": "monster.monster_55.description",
+      "locale": "en-US",
+      "text": "Polvo de latão e engrenagens movido a vapor criado para patrulhar docas e forjas submersas."
+    },
+    {
+      "key": "skill.skill_mob_sacred_glare.name",
+      "locale": "pt-BR",
+      "text": "Clarão Sagrado dos Querubins"
+    },
+    {
+      "key": "skill.skill_mob_sacred_glare.name",
+      "locale": "en-US",
+      "text": "Clarão Sagrado dos Querubins"
+    },
+    {
+      "key": "skill.skill_mob_sacred_glare.description",
+      "locale": "pt-BR",
+      "text": "Emite uma centelha de luz sagrada que atinge o alvo com dano mágico concentrado."
+    },
+    {
+      "key": "skill.skill_mob_sacred_glare.description",
+      "locale": "en-US",
+      "text": "Emite uma centelha de luz sagrada que atinge o alvo com dano mágico concentrado."
+    },
+    {
+      "key": "monster.monster_56.name",
+      "locale": "pt-BR",
+      "text": "Querubim Celestial das Nuvens"
+    },
+    {
+      "key": "monster.monster_56.name",
+      "locale": "en-US",
+      "text": "Querubim Celestial das Nuvens"
+    },
+    {
+      "key": "monster.monster_56.description",
+      "locale": "pt-BR",
+      "text": "Pequena entidade sacra alada que flutua entre os templos celestes entoando hinos de admoestação."
+    },
+    {
+      "key": "monster.monster_56.description",
+      "locale": "en-US",
+      "text": "Pequena entidade sacra alada que flutua entre os templos celestes entoando hinos de admoestação."
+    },
+    {
+      "key": "skill.skill_mob_glacial_touch.name",
+      "locale": "pt-BR",
+      "text": "Toque Espiritual Glacial"
+    },
+    {
+      "key": "skill.skill_mob_glacial_touch.name",
+      "locale": "en-US",
+      "text": "Toque Espiritual Glacial"
+    },
+    {
+      "key": "skill.skill_mob_glacial_touch.description",
+      "locale": "pt-BR",
+      "text": "Envolve o alvo com geada ectoplásmica que congela o ar ao redor."
+    },
+    {
+      "key": "skill.skill_mob_glacial_touch.description",
+      "locale": "en-US",
+      "text": "Envolve o alvo com geada ectoplásmica que congela o ar ao redor."
+    },
+    {
+      "key": "monster.monster_57.name",
+      "locale": "pt-BR",
+      "text": "Donzela Espiritual da Nevasca"
+    },
+    {
+      "key": "monster.monster_57.name",
+      "locale": "en-US",
+      "text": "Donzela Espiritual da Nevasca"
+    },
+    {
+      "key": "monster.monster_57.description",
+      "locale": "pt-BR",
+      "text": "Aparição fantasmagórica gélida que surge durante as nevascas solitárias sussurrando canções melancólicas."
+    },
+    {
+      "key": "monster.monster_57.description",
+      "locale": "en-US",
+      "text": "Aparição fantasmagórica gélida que surge durante as nevascas solitárias sussurrando canções melancólicas."
     }
   ],
   "biomes": [
@@ -82106,6 +82506,476 @@
         }
       ],
       "isActive": true
+    },
+    {
+      "id": 48,
+      "code": "monster_48",
+      "mcreworkMonsterKey": "creature_100001",
+      "nameI18nKey": "monster.monster_48.name",
+      "descriptionI18nKey": "monster.monster_48.description",
+      "groundOffsetY": -2,
+      "shadowOffsetX": 0,
+      "shadowOffsetY": 0,
+      "raceCode": "BEAST",
+      "fixedElementCode": "FIRE",
+      "rarityTier": "SS",
+      "combatStyle": "MELEE",
+      "attackRange": 85,
+      "damageType": "PHYSICAL",
+      "isTamableAsPet": true,
+      "baseAttributesJson": {
+        "STR": 36,
+        "VIT": 40,
+        "AGI": 22,
+        "DEX": 24,
+        "INT": 14,
+        "WIS": 18
+      },
+      "baseCombatAttributesJson": {
+        "BATTLE_MOVE_SPEED": 145,
+        "ATTACK_SPEED": 1.15,
+        "CRIT_RATE": 18,
+        "CRIT_DMG": 185,
+        "PHYS_ACCURACY": 110,
+        "MAG_ACCURACY": 95,
+        "PHYS_EVASION": 24,
+        "MAG_EVASION": 20
+      },
+      "skillIdsJson": [
+        86
+      ],
+      "lootTableJson": [
+        {
+          "itemTemplateId": 35,
+          "minQty": 1,
+          "maxQty": 1,
+          "chancePct": 80
+        }
+      ],
+      "isActive": true
+    },
+    {
+      "id": 49,
+      "code": "monster_49",
+      "mcreworkMonsterKey": "creature_200007",
+      "nameI18nKey": "monster.monster_49.name",
+      "descriptionI18nKey": "monster.monster_49.description",
+      "groundOffsetY": -4,
+      "shadowOffsetX": 0,
+      "shadowOffsetY": 0,
+      "raceCode": "DRAGON",
+      "fixedElementCode": "AIR",
+      "rarityTier": "S",
+      "combatStyle": "RANGED",
+      "attackRange": 220,
+      "damageType": "MAGICAL",
+      "isTamableAsPet": true,
+      "baseAttributesJson": {
+        "STR": 26,
+        "VIT": 28,
+        "AGI": 32,
+        "DEX": 28,
+        "INT": 30,
+        "WIS": 24
+      },
+      "baseCombatAttributesJson": {
+        "BATTLE_MOVE_SPEED": 165,
+        "ATTACK_SPEED": 1.25,
+        "CRIT_RATE": 16,
+        "CRIT_DMG": 175,
+        "PHYS_ACCURACY": 105,
+        "MAG_ACCURACY": 115,
+        "PHYS_EVASION": 28,
+        "MAG_EVASION": 28
+      },
+      "skillIdsJson": [
+        87
+      ],
+      "lootTableJson": [
+        {
+          "itemTemplateId": 42,
+          "minQty": 1,
+          "maxQty": 1,
+          "chancePct": 80
+        }
+      ],
+      "isActive": true
+    },
+    {
+      "id": 50,
+      "code": "monster_50",
+      "mcreworkMonsterKey": "creature_200009",
+      "nameI18nKey": "monster.monster_50.name",
+      "descriptionI18nKey": "monster.monster_50.description",
+      "groundOffsetY": -2,
+      "shadowOffsetX": 0,
+      "shadowOffsetY": 0,
+      "raceCode": "PLANT",
+      "fixedElementCode": "EARTH",
+      "rarityTier": "S",
+      "combatStyle": "MELEE",
+      "attackRange": 90,
+      "damageType": "PHYSICAL",
+      "isTamableAsPet": true,
+      "baseAttributesJson": {
+        "STR": 28,
+        "VIT": 38,
+        "AGI": 14,
+        "DEX": 18,
+        "INT": 28,
+        "WIS": 30
+      },
+      "baseCombatAttributesJson": {
+        "BATTLE_MOVE_SPEED": 125,
+        "ATTACK_SPEED": 0.95,
+        "CRIT_RATE": 14,
+        "CRIT_DMG": 165,
+        "PHYS_ACCURACY": 102,
+        "MAG_ACCURACY": 110,
+        "PHYS_EVASION": 18,
+        "MAG_EVASION": 22
+      },
+      "skillIdsJson": [
+        88
+      ],
+      "lootTableJson": [
+        {
+          "itemTemplateId": 37,
+          "minQty": 1,
+          "maxQty": 1,
+          "chancePct": 80
+        }
+      ],
+      "isActive": true
+    },
+    {
+      "id": 51,
+      "code": "monster_51",
+      "mcreworkMonsterKey": "creature_200004",
+      "nameI18nKey": "monster.monster_51.name",
+      "descriptionI18nKey": "monster.monster_51.description",
+      "groundOffsetY": 0,
+      "shadowOffsetX": 0,
+      "shadowOffsetY": 0,
+      "raceCode": "DEMON",
+      "fixedElementCode": "NEUTRAL",
+      "rarityTier": "A",
+      "combatStyle": "MELEE",
+      "attackRange": 80,
+      "damageType": "PHYSICAL",
+      "isTamableAsPet": true,
+      "baseAttributesJson": {
+        "STR": 28,
+        "VIT": 30,
+        "AGI": 24,
+        "DEX": 22,
+        "INT": 20,
+        "WIS": 18
+      },
+      "baseCombatAttributesJson": {
+        "BATTLE_MOVE_SPEED": 140,
+        "ATTACK_SPEED": 1.1,
+        "CRIT_RATE": 15,
+        "CRIT_DMG": 160,
+        "PHYS_ACCURACY": 104,
+        "MAG_ACCURACY": 100,
+        "PHYS_EVASION": 20,
+        "MAG_EVASION": 20
+      },
+      "skillIdsJson": [
+        89
+      ],
+      "lootTableJson": [
+        {
+          "itemTemplateId": 36,
+          "minQty": 1,
+          "maxQty": 1,
+          "chancePct": 80
+        }
+      ],
+      "isActive": true
+    },
+    {
+      "id": 52,
+      "code": "monster_52",
+      "mcreworkMonsterKey": "creature_000025",
+      "nameI18nKey": "monster.monster_52.name",
+      "descriptionI18nKey": "monster.monster_52.description",
+      "groundOffsetY": 0,
+      "shadowOffsetX": 0,
+      "shadowOffsetY": 0,
+      "raceCode": "BEAST",
+      "fixedElementCode": "EARTH",
+      "rarityTier": "A",
+      "combatStyle": "MELEE",
+      "attackRange": 85,
+      "damageType": "PHYSICAL",
+      "isTamableAsPet": true,
+      "baseAttributesJson": {
+        "STR": 30,
+        "VIT": 32,
+        "AGI": 18,
+        "DEX": 20,
+        "INT": 12,
+        "WIS": 16
+      },
+      "baseCombatAttributesJson": {
+        "BATTLE_MOVE_SPEED": 135,
+        "ATTACK_SPEED": 1.05,
+        "CRIT_RATE": 14,
+        "CRIT_DMG": 165,
+        "PHYS_ACCURACY": 102,
+        "MAG_ACCURACY": 92,
+        "PHYS_EVASION": 18,
+        "MAG_EVASION": 16
+      },
+      "skillIdsJson": [
+        90
+      ],
+      "lootTableJson": [
+        {
+          "itemTemplateId": 35,
+          "minQty": 1,
+          "maxQty": 1,
+          "chancePct": 80
+        }
+      ],
+      "isActive": true
+    },
+    {
+      "id": 53,
+      "code": "monster_53",
+      "mcreworkMonsterKey": "creature_000048",
+      "nameI18nKey": "monster.monster_53.name",
+      "descriptionI18nKey": "monster.monster_53.description",
+      "groundOffsetY": -2,
+      "shadowOffsetX": 0,
+      "shadowOffsetY": 0,
+      "raceCode": "REPTILIAN",
+      "fixedElementCode": "WATER",
+      "rarityTier": "B",
+      "combatStyle": "MELEE",
+      "attackRange": 95,
+      "damageType": "PHYSICAL",
+      "isTamableAsPet": true,
+      "baseAttributesJson": {
+        "STR": 24,
+        "VIT": 28,
+        "AGI": 15,
+        "DEX": 18,
+        "INT": 16,
+        "WIS": 20
+      },
+      "baseCombatAttributesJson": {
+        "BATTLE_MOVE_SPEED": 130,
+        "ATTACK_SPEED": 0.95,
+        "CRIT_RATE": 12,
+        "CRIT_DMG": 155,
+        "PHYS_ACCURACY": 98,
+        "MAG_ACCURACY": 98,
+        "PHYS_EVASION": 16,
+        "MAG_EVASION": 18
+      },
+      "skillIdsJson": [
+        91
+      ],
+      "lootTableJson": [
+        {
+          "itemTemplateId": 43,
+          "minQty": 1,
+          "maxQty": 1,
+          "chancePct": 80
+        }
+      ],
+      "isActive": true
+    },
+    {
+      "id": 54,
+      "code": "monster_54",
+      "mcreworkMonsterKey": "creature_200008",
+      "nameI18nKey": "monster.monster_54.name",
+      "descriptionI18nKey": "monster.monster_54.description",
+      "groundOffsetY": -2,
+      "shadowOffsetX": 0,
+      "shadowOffsetY": 0,
+      "raceCode": "FAIRY",
+      "fixedElementCode": "AIR",
+      "rarityTier": "B",
+      "combatStyle": "RANGED",
+      "attackRange": 210,
+      "damageType": "MAGICAL",
+      "isTamableAsPet": true,
+      "baseAttributesJson": {
+        "STR": 14,
+        "VIT": 20,
+        "AGI": 26,
+        "DEX": 24,
+        "INT": 26,
+        "WIS": 22
+      },
+      "baseCombatAttributesJson": {
+        "BATTLE_MOVE_SPEED": 155,
+        "ATTACK_SPEED": 1.15,
+        "CRIT_RATE": 15,
+        "CRIT_DMG": 160,
+        "PHYS_ACCURACY": 96,
+        "MAG_ACCURACY": 108,
+        "PHYS_EVASION": 22,
+        "MAG_EVASION": 24
+      },
+      "skillIdsJson": [
+        92
+      ],
+      "lootTableJson": [
+        {
+          "itemTemplateId": 39,
+          "minQty": 1,
+          "maxQty": 1,
+          "chancePct": 80
+        }
+      ],
+      "isActive": true
+    },
+    {
+      "id": 55,
+      "code": "monster_55",
+      "mcreworkMonsterKey": "creature_000010",
+      "nameI18nKey": "monster.monster_55.name",
+      "descriptionI18nKey": "monster.monster_55.description",
+      "groundOffsetY": -3,
+      "shadowOffsetX": 0,
+      "shadowOffsetY": 0,
+      "raceCode": "ROBOTIC",
+      "fixedElementCode": "WATER",
+      "rarityTier": "C",
+      "combatStyle": "RANGED",
+      "attackRange": 190,
+      "damageType": "MAGICAL",
+      "isTamableAsPet": true,
+      "baseAttributesJson": {
+        "STR": 16,
+        "VIT": 22,
+        "AGI": 20,
+        "DEX": 22,
+        "INT": 24,
+        "WIS": 18
+      },
+      "baseCombatAttributesJson": {
+        "BATTLE_MOVE_SPEED": 145,
+        "ATTACK_SPEED": 1.1,
+        "CRIT_RATE": 12,
+        "CRIT_DMG": 150,
+        "PHYS_ACCURACY": 95,
+        "MAG_ACCURACY": 104,
+        "PHYS_EVASION": 18,
+        "MAG_EVASION": 18
+      },
+      "skillIdsJson": [
+        93
+      ],
+      "lootTableJson": [
+        {
+          "itemTemplateId": 38,
+          "minQty": 1,
+          "maxQty": 1,
+          "chancePct": 80
+        }
+      ],
+      "isActive": true
+    },
+    {
+      "id": 56,
+      "code": "monster_56",
+      "mcreworkMonsterKey": "creature_100003",
+      "nameI18nKey": "monster.monster_56.name",
+      "descriptionI18nKey": "monster.monster_56.description",
+      "groundOffsetY": -4,
+      "shadowOffsetX": 0,
+      "shadowOffsetY": 0,
+      "raceCode": "CELESTIAL",
+      "fixedElementCode": "AIR",
+      "rarityTier": "C",
+      "combatStyle": "RANGED",
+      "attackRange": 200,
+      "damageType": "MAGICAL",
+      "isTamableAsPet": true,
+      "baseAttributesJson": {
+        "STR": 12,
+        "VIT": 18,
+        "AGI": 22,
+        "DEX": 20,
+        "INT": 24,
+        "WIS": 22
+      },
+      "baseCombatAttributesJson": {
+        "BATTLE_MOVE_SPEED": 150,
+        "ATTACK_SPEED": 1.1,
+        "CRIT_RATE": 13,
+        "CRIT_DMG": 150,
+        "PHYS_ACCURACY": 94,
+        "MAG_ACCURACY": 105,
+        "PHYS_EVASION": 20,
+        "MAG_EVASION": 22
+      },
+      "skillIdsJson": [
+        94
+      ],
+      "lootTableJson": [
+        {
+          "itemTemplateId": 40,
+          "minQty": 1,
+          "maxQty": 1,
+          "chancePct": 80
+        }
+      ],
+      "isActive": true
+    },
+    {
+      "id": 57,
+      "code": "monster_57",
+      "mcreworkMonsterKey": "creature_000042",
+      "nameI18nKey": "monster.monster_57.name",
+      "descriptionI18nKey": "monster.monster_57.description",
+      "groundOffsetY": -4,
+      "shadowOffsetX": 0,
+      "shadowOffsetY": 0,
+      "raceCode": "SPIRIT",
+      "fixedElementCode": "WATER",
+      "rarityTier": "D",
+      "combatStyle": "RANGED",
+      "attackRange": 190,
+      "damageType": "MAGICAL",
+      "isTamableAsPet": true,
+      "baseAttributesJson": {
+        "STR": 10,
+        "VIT": 16,
+        "AGI": 18,
+        "DEX": 18,
+        "INT": 20,
+        "WIS": 18
+      },
+      "baseCombatAttributesJson": {
+        "BATTLE_MOVE_SPEED": 140,
+        "ATTACK_SPEED": 1.05,
+        "CRIT_RATE": 10,
+        "CRIT_DMG": 145,
+        "PHYS_ACCURACY": 92,
+        "MAG_ACCURACY": 100,
+        "PHYS_EVASION": 16,
+        "MAG_EVASION": 18
+      },
+      "skillIdsJson": [
+        95
+      ],
+      "lootTableJson": [
+        {
+          "itemTemplateId": 44,
+          "minQty": 1,
+          "maxQty": 1,
+          "chancePct": 80
+        }
+      ],
+      "isActive": true
     }
   ],
   "monsterBiomes": [
@@ -82743,6 +83613,126 @@
     {
       "monsterTemplateId": 47,
       "biomeId": 32
+    },
+    {
+      "monsterTemplateId": 48,
+      "biomeId": 29
+    },
+    {
+      "monsterTemplateId": 48,
+      "biomeId": 12
+    },
+    {
+      "monsterTemplateId": 48,
+      "biomeId": 9
+    },
+    {
+      "monsterTemplateId": 49,
+      "biomeId": 30
+    },
+    {
+      "monsterTemplateId": 49,
+      "biomeId": 31
+    },
+    {
+      "monsterTemplateId": 49,
+      "biomeId": 13
+    },
+    {
+      "monsterTemplateId": 50,
+      "biomeId": 20
+    },
+    {
+      "monsterTemplateId": 50,
+      "biomeId": 8
+    },
+    {
+      "monsterTemplateId": 50,
+      "biomeId": 4
+    },
+    {
+      "monsterTemplateId": 51,
+      "biomeId": 33
+    },
+    {
+      "monsterTemplateId": 51,
+      "biomeId": 34
+    },
+    {
+      "monsterTemplateId": 51,
+      "biomeId": 37
+    },
+    {
+      "monsterTemplateId": 52,
+      "biomeId": 9
+    },
+    {
+      "monsterTemplateId": 52,
+      "biomeId": 13
+    },
+    {
+      "monsterTemplateId": 52,
+      "biomeId": 1
+    },
+    {
+      "monsterTemplateId": 53,
+      "biomeId": 21
+    },
+    {
+      "monsterTemplateId": 53,
+      "biomeId": 19
+    },
+    {
+      "monsterTemplateId": 53,
+      "biomeId": 18
+    },
+    {
+      "monsterTemplateId": 54,
+      "biomeId": 6
+    },
+    {
+      "monsterTemplateId": 54,
+      "biomeId": 3
+    },
+    {
+      "monsterTemplateId": 54,
+      "biomeId": 38
+    },
+    {
+      "monsterTemplateId": 55,
+      "biomeId": 39
+    },
+    {
+      "monsterTemplateId": 55,
+      "biomeId": 22
+    },
+    {
+      "monsterTemplateId": 55,
+      "biomeId": 17
+    },
+    {
+      "monsterTemplateId": 56,
+      "biomeId": 40
+    },
+    {
+      "monsterTemplateId": 56,
+      "biomeId": 31
+    },
+    {
+      "monsterTemplateId": 56,
+      "biomeId": 38
+    },
+    {
+      "monsterTemplateId": 57,
+      "biomeId": 24
+    },
+    {
+      "monsterTemplateId": 57,
+      "biomeId": 25
+    },
+    {
+      "monsterTemplateId": 57,
+      "biomeId": 27
     }
   ],
   "skillTemplates": [
@@ -85941,6 +86931,276 @@
           "flatAmount": 20,
           "critBonusPct": 12,
           "elementCode": "NEUTRAL"
+        }
+      ],
+      "isActive": true
+    },
+    {
+      "id": 86,
+      "code": "skill_mob_golden_rampage",
+      "nameI18nKey": "skill.skill_mob_golden_rampage.name",
+      "descriptionI18nKey": "skill.skill_mob_golden_rampage.description",
+      "mcreworkIconKey": "10001",
+      "castActionId": 5,
+      "castMovement": "STATIONARY_CAST",
+      "mcreworkVfxKey": "10008",
+      "mpCost": 40,
+      "cooldownSeconds": 10,
+      "castRange": 110,
+      "aoeRadius": 160,
+      "targetScope": "AOE_TARGET",
+      "effectBlocksJson": [
+        {
+          "blockType": "DAMAGE",
+          "damageType": "PHYSICAL",
+          "scaleStat": "PHYS_ATK",
+          "scalePct": 260,
+          "flatAmount": 120,
+          "critBonusPct": 15,
+          "elementCode": "FIRE"
+        }
+      ],
+      "isActive": true
+    },
+    {
+      "id": 87,
+      "code": "skill_mob_wyvern_tempest_blast",
+      "nameI18nKey": "skill.skill_mob_wyvern_tempest_blast.name",
+      "descriptionI18nKey": "skill.skill_mob_wyvern_tempest_blast.description",
+      "mcreworkIconKey": "10006",
+      "castActionId": 7,
+      "castMovement": "STATIONARY_CAST",
+      "mcreworkVfxKey": "10012",
+      "mpCost": 35,
+      "cooldownSeconds": 8,
+      "castRange": 240,
+      "aoeRadius": 120,
+      "targetScope": "AOE_TARGET",
+      "effectBlocksJson": [
+        {
+          "blockType": "DAMAGE",
+          "damageType": "MAGICAL",
+          "scaleStat": "MAG_ATK",
+          "scalePct": 230,
+          "flatAmount": 80,
+          "critBonusPct": 14,
+          "elementCode": "AIR"
+        }
+      ],
+      "isActive": true
+    },
+    {
+      "id": 88,
+      "code": "skill_mob_spore_cataclysm",
+      "nameI18nKey": "skill.skill_mob_spore_cataclysm.name",
+      "descriptionI18nKey": "skill.skill_mob_spore_cataclysm.description",
+      "mcreworkIconKey": "10003",
+      "castActionId": 6,
+      "castMovement": "STATIONARY_CAST",
+      "mcreworkVfxKey": "10014",
+      "mpCost": 32,
+      "cooldownSeconds": 9,
+      "castRange": 100,
+      "aoeRadius": 180,
+      "targetScope": "AOE_TARGET",
+      "effectBlocksJson": [
+        {
+          "blockType": "DAMAGE",
+          "damageType": "MAGICAL",
+          "scaleStat": "MAG_ATK",
+          "scalePct": 210,
+          "flatAmount": 95,
+          "critBonusPct": 12,
+          "elementCode": "EARTH"
+        }
+      ],
+      "isActive": true
+    },
+    {
+      "id": 89,
+      "code": "skill_mob_vampiric_talon",
+      "nameI18nKey": "skill.skill_mob_vampiric_talon.name",
+      "descriptionI18nKey": "skill.skill_mob_vampiric_talon.description",
+      "mcreworkIconKey": "10008",
+      "castActionId": 5,
+      "castMovement": "STATIONARY_CAST",
+      "mcreworkVfxKey": "10011",
+      "mpCost": 26,
+      "cooldownSeconds": 7,
+      "castRange": 90,
+      "aoeRadius": 0,
+      "targetScope": "SINGLE_TARGET",
+      "effectBlocksJson": [
+        {
+          "blockType": "DAMAGE",
+          "damageType": "PHYSICAL",
+          "scaleStat": "PHYS_ATK",
+          "scalePct": 200,
+          "flatAmount": 60,
+          "critBonusPct": 14,
+          "elementCode": "NEUTRAL"
+        }
+      ],
+      "isActive": true
+    },
+    {
+      "id": 90,
+      "code": "skill_mob_grizzly_crush",
+      "nameI18nKey": "skill.skill_mob_grizzly_crush.name",
+      "descriptionI18nKey": "skill.skill_mob_grizzly_crush.description",
+      "mcreworkIconKey": "10002",
+      "castActionId": 5,
+      "castMovement": "STATIONARY_CAST",
+      "mcreworkVfxKey": "10008",
+      "mpCost": 28,
+      "cooldownSeconds": 8,
+      "castRange": 95,
+      "aoeRadius": 130,
+      "targetScope": "AOE_TARGET",
+      "effectBlocksJson": [
+        {
+          "blockType": "DAMAGE",
+          "damageType": "PHYSICAL",
+          "scaleStat": "PHYS_ATK",
+          "scalePct": 210,
+          "flatAmount": 70,
+          "critBonusPct": 12,
+          "elementCode": "EARTH"
+        }
+      ],
+      "isActive": true
+    },
+    {
+      "id": 91,
+      "code": "skill_mob_submerged_slam",
+      "nameI18nKey": "skill.skill_mob_submerged_slam.name",
+      "descriptionI18nKey": "skill.skill_mob_submerged_slam.description",
+      "mcreworkIconKey": "10005",
+      "castActionId": 5,
+      "castMovement": "STATIONARY_CAST",
+      "mcreworkVfxKey": "10013",
+      "mpCost": 24,
+      "cooldownSeconds": 7,
+      "castRange": 100,
+      "aoeRadius": 140,
+      "targetScope": "AOE_TARGET",
+      "effectBlocksJson": [
+        {
+          "blockType": "DAMAGE",
+          "damageType": "PHYSICAL",
+          "scaleStat": "PHYS_ATK",
+          "scalePct": 185,
+          "flatAmount": 50,
+          "critBonusPct": 10,
+          "elementCode": "WATER"
+        }
+      ],
+      "isActive": true
+    },
+    {
+      "id": 92,
+      "code": "skill_mob_fairy_radiance",
+      "nameI18nKey": "skill.skill_mob_fairy_radiance.name",
+      "descriptionI18nKey": "skill.skill_mob_fairy_radiance.description",
+      "mcreworkIconKey": "10006",
+      "castActionId": 7,
+      "castMovement": "STATIONARY_CAST",
+      "mcreworkVfxKey": "10015",
+      "mpCost": 22,
+      "cooldownSeconds": 6,
+      "castRange": 220,
+      "aoeRadius": 0,
+      "targetScope": "SINGLE_TARGET",
+      "effectBlocksJson": [
+        {
+          "blockType": "DAMAGE",
+          "damageType": "MAGICAL",
+          "scaleStat": "MAG_ATK",
+          "scalePct": 190,
+          "flatAmount": 45,
+          "critBonusPct": 12,
+          "elementCode": "AIR"
+        }
+      ],
+      "isActive": true
+    },
+    {
+      "id": 93,
+      "code": "skill_mob_hydro_pulse",
+      "nameI18nKey": "skill.skill_mob_hydro_pulse.name",
+      "descriptionI18nKey": "skill.skill_mob_hydro_pulse.description",
+      "mcreworkIconKey": "10004",
+      "castActionId": 7,
+      "castMovement": "STATIONARY_CAST",
+      "mcreworkVfxKey": "10013",
+      "mpCost": 18,
+      "cooldownSeconds": 6,
+      "castRange": 200,
+      "aoeRadius": 0,
+      "targetScope": "SINGLE_TARGET",
+      "effectBlocksJson": [
+        {
+          "blockType": "DAMAGE",
+          "damageType": "MAGICAL",
+          "scaleStat": "MAG_ATK",
+          "scalePct": 175,
+          "flatAmount": 35,
+          "critBonusPct": 10,
+          "elementCode": "WATER"
+        }
+      ],
+      "isActive": true
+    },
+    {
+      "id": 94,
+      "code": "skill_mob_sacred_glare",
+      "nameI18nKey": "skill.skill_mob_sacred_glare.name",
+      "descriptionI18nKey": "skill.skill_mob_sacred_glare.description",
+      "mcreworkIconKey": "10006",
+      "castActionId": 7,
+      "castMovement": "STATIONARY_CAST",
+      "mcreworkVfxKey": "10015",
+      "mpCost": 18,
+      "cooldownSeconds": 6,
+      "castRange": 210,
+      "aoeRadius": 0,
+      "targetScope": "SINGLE_TARGET",
+      "effectBlocksJson": [
+        {
+          "blockType": "DAMAGE",
+          "damageType": "MAGICAL",
+          "scaleStat": "MAG_ATK",
+          "scalePct": 170,
+          "flatAmount": 30,
+          "critBonusPct": 12,
+          "elementCode": "AIR"
+        }
+      ],
+      "isActive": true
+    },
+    {
+      "id": 95,
+      "code": "skill_mob_glacial_touch",
+      "nameI18nKey": "skill.skill_mob_glacial_touch.name",
+      "descriptionI18nKey": "skill.skill_mob_glacial_touch.description",
+      "mcreworkIconKey": "10005",
+      "castActionId": 7,
+      "castMovement": "STATIONARY_CAST",
+      "mcreworkVfxKey": "10012",
+      "mpCost": 15,
+      "cooldownSeconds": 5,
+      "castRange": 200,
+      "aoeRadius": 0,
+      "targetScope": "SINGLE_TARGET",
+      "effectBlocksJson": [
+        {
+          "blockType": "DAMAGE",
+          "damageType": "MAGICAL",
+          "scaleStat": "MAG_ATK",
+          "scalePct": 160,
+          "flatAmount": 25,
+          "critBonusPct": 10,
+          "elementCode": "WATER"
         }
       ],
       "isActive": true
