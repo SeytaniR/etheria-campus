@@ -83,7 +83,7 @@ export class CharacterProgressionService {
 
     if (expGain <= 0) {
       const expMap = await this.getExperienceMap(prismaOrTx, oldLevel);
-      const currentMaxXp = expMap.get(oldLevel) ?? (oldLevel * 200);
+      const currentMaxXp = expMap.get(oldLevel) ?? (oldLevel * 42000);
       return {
         leveledUp: false,
         oldLevel,
@@ -104,10 +104,13 @@ export class CharacterProgressionService {
     let statPointsGained = 0;
 
     const expMap = await this.getExperienceMap(prismaOrTx, currentLevel);
+    const maxConfiguredLevel = expMap.size > 0
+      ? Math.min(1000, Math.max(...Array.from(expMap.keys())))
+      : 200;
 
     while (true) {
-      if (currentLevel >= 100) break;
-      const requiredExp = expMap.get(currentLevel) ?? (currentLevel * 200);
+      if (currentLevel >= maxConfiguredLevel) break;
+      const requiredExp = expMap.get(currentLevel) ?? (currentLevel * 42000);
       if (requiredExp > 0 && currentExp >= requiredExp) {
         currentExp -= requiredExp;
         currentLevel += 1;
@@ -120,7 +123,7 @@ export class CharacterProgressionService {
       }
     }
 
-    const currentMaxXp = expMap.get(currentLevel) ?? (currentLevel * 200);
+    const currentMaxXp = expMap.get(currentLevel) ?? (currentLevel * 42000);
 
     await prismaOrTx.playerCharacter.update({
       where: { id: characterId },
@@ -179,6 +182,9 @@ export class CharacterProgressionService {
 
     const minPetLevel = Math.min(...pets.map((p: any) => p.level || 1));
     const expMap = await this.getExperienceMap(prismaOrTx, minPetLevel);
+    const maxConfiguredLevel = expMap.size > 0
+      ? Math.min(1000, Math.max(...Array.from(expMap.keys())))
+      : 200;
 
     const results: PetProgressionResult[] = [];
 
@@ -190,8 +196,8 @@ export class CharacterProgressionService {
       let levelsGained = 0;
 
       while (true) {
-        if (currentLevel >= 100) break;
-        const requiredExp = expMap.get(currentLevel) ?? (currentLevel * 200);
+        if (currentLevel >= maxConfiguredLevel) break;
+        const requiredExp = expMap.get(currentLevel) ?? (currentLevel * 42000);
         if (requiredExp > 0 && currentExp >= requiredExp) {
           currentExp -= requiredExp;
           currentLevel += 1;
@@ -201,7 +207,7 @@ export class CharacterProgressionService {
         }
       }
 
-      const currentMaxXp = expMap.get(currentLevel) ?? (currentLevel * 200);
+      const currentMaxXp = expMap.get(currentLevel) ?? (currentLevel * 42000);
 
       await prismaOrTx.characterPet.update({
         where: { id: pet.id },

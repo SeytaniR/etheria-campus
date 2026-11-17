@@ -1,6 +1,6 @@
 {
   "version": "0.2.0",
-  "exportedAt": "2026-11-17T12:29:02.220Z",
+  "exportedAt": "2026-11-17T13:43:01.627Z",
   "i18nTranslations": [
     {
       "id": 1,
@@ -97594,2203 +97594,2203 @@
   "levelExperienceTemplates": [
     {
       "level": 1,
-      "experienceToNext": "50",
+      "experienceToNext": "42000",
       "totalExperience": "0",
       "statPointsReward": 5,
       "skillPointsReward": 1,
       "hpBonus": 0,
       "mpBonus": 0,
       "bracketTier": 1,
-      "updatedAt": "2026-11-13T06:33:04.123Z"
+      "updatedAt": "2026-11-17T13:43:01.627Z"
     },
     {
       "level": 2,
-      "experienceToNext": "166",
-      "totalExperience": "50",
+      "experienceToNext": "84000",
+      "totalExperience": "42000",
       "statPointsReward": 5,
       "skillPointsReward": 1,
       "hpBonus": 0,
       "mpBonus": 0,
       "bracketTier": 1,
-      "updatedAt": "2026-11-13T06:33:04.124Z"
+      "updatedAt": "2026-11-17T13:43:01.627Z"
     },
     {
       "level": 3,
-      "experienceToNext": "300",
-      "totalExperience": "216",
+      "experienceToNext": "126000",
+      "totalExperience": "126000",
       "statPointsReward": 5,
       "skillPointsReward": 1,
       "hpBonus": 0,
       "mpBonus": 0,
       "bracketTier": 1,
-      "updatedAt": "2026-11-13T06:33:04.125Z"
+      "updatedAt": "2026-11-17T13:43:01.627Z"
     },
     {
       "level": 4,
-      "experienceToNext": "448",
-      "totalExperience": "516",
+      "experienceToNext": "168000",
+      "totalExperience": "252000",
       "statPointsReward": 5,
       "skillPointsReward": 1,
       "hpBonus": 0,
       "mpBonus": 0,
       "bracketTier": 1,
-      "updatedAt": "2026-11-13T06:33:04.126Z"
+      "updatedAt": "2026-11-17T13:43:01.627Z"
     },
     {
       "level": 5,
-      "experienceToNext": "608",
-      "totalExperience": "964",
+      "experienceToNext": "210000",
+      "totalExperience": "420000",
       "statPointsReward": 5,
       "skillPointsReward": 1,
       "hpBonus": 0,
       "mpBonus": 0,
       "bracketTier": 1,
-      "updatedAt": "2026-11-13T06:33:04.127Z"
+      "updatedAt": "2026-11-17T13:43:01.627Z"
     },
     {
       "level": 6,
-      "experienceToNext": "778",
-      "totalExperience": "1572",
+      "experienceToNext": "252000",
+      "totalExperience": "630000",
       "statPointsReward": 5,
       "skillPointsReward": 1,
       "hpBonus": 0,
       "mpBonus": 0,
       "bracketTier": 1,
-      "updatedAt": "2026-11-13T06:33:04.129Z"
+      "updatedAt": "2026-11-17T13:43:01.627Z"
     },
     {
       "level": 7,
-      "experienceToNext": "958",
-      "totalExperience": "2350",
+      "experienceToNext": "294000",
+      "totalExperience": "882000",
       "statPointsReward": 5,
       "skillPointsReward": 1,
       "hpBonus": 0,
       "mpBonus": 0,
       "bracketTier": 1,
-      "updatedAt": "2026-11-13T06:33:04.130Z"
+      "updatedAt": "2026-11-17T13:43:01.627Z"
     },
     {
       "level": 8,
-      "experienceToNext": "1145",
-      "totalExperience": "3308",
+      "experienceToNext": "336000",
+      "totalExperience": "1176000",
       "statPointsReward": 5,
       "skillPointsReward": 1,
       "hpBonus": 0,
       "mpBonus": 0,
       "bracketTier": 1,
-      "updatedAt": "2026-11-13T06:33:04.132Z"
+      "updatedAt": "2026-11-17T13:43:01.627Z"
     },
     {
       "level": 9,
-      "experienceToNext": "1340",
-      "totalExperience": "4453",
+      "experienceToNext": "378000",
+      "totalExperience": "1512000",
       "statPointsReward": 5,
       "skillPointsReward": 1,
       "hpBonus": 0,
       "mpBonus": 0,
       "bracketTier": 1,
-      "updatedAt": "2026-11-13T06:33:04.133Z"
+      "updatedAt": "2026-11-17T13:43:01.627Z"
     },
     {
       "level": 10,
-      "experienceToNext": "1542",
-      "totalExperience": "5793",
+      "experienceToNext": "420000",
+      "totalExperience": "1890000",
       "statPointsReward": 5,
       "skillPointsReward": 1,
       "hpBonus": 0,
       "mpBonus": 0,
       "bracketTier": 1,
-      "updatedAt": "2026-11-13T06:33:04.134Z"
+      "updatedAt": "2026-11-17T13:43:01.627Z"
     },
     {
       "level": 11,
-      "experienceToNext": "1751",
-      "totalExperience": "7335",
+      "experienceToNext": "462000",
+      "totalExperience": "2310000",
       "statPointsReward": 5,
       "skillPointsReward": 1,
       "hpBonus": 0,
       "mpBonus": 0,
       "bracketTier": 2,
-      "updatedAt": "2026-11-13T06:33:04.134Z"
+      "updatedAt": "2026-11-17T13:43:01.627Z"
     },
     {
       "level": 12,
-      "experienceToNext": "1966",
-      "totalExperience": "9086",
+      "experienceToNext": "504000",
+      "totalExperience": "2772000",
       "statPointsReward": 5,
       "skillPointsReward": 1,
       "hpBonus": 0,
       "mpBonus": 0,
       "bracketTier": 2,
-      "updatedAt": "2026-11-13T06:33:04.135Z"
+      "updatedAt": "2026-11-17T13:43:01.627Z"
     },
     {
       "level": 13,
-      "experienceToNext": "2187",
-      "totalExperience": "11052",
+      "experienceToNext": "546000",
+      "totalExperience": "3276000",
       "statPointsReward": 5,
       "skillPointsReward": 1,
       "hpBonus": 0,
       "mpBonus": 0,
       "bracketTier": 2,
-      "updatedAt": "2026-11-13T06:33:04.136Z"
+      "updatedAt": "2026-11-17T13:43:01.627Z"
     },
     {
       "level": 14,
-      "experienceToNext": "2414",
-      "totalExperience": "13239",
+      "experienceToNext": "588000",
+      "totalExperience": "3822000",
       "statPointsReward": 5,
       "skillPointsReward": 1,
       "hpBonus": 0,
       "mpBonus": 0,
       "bracketTier": 2,
-      "updatedAt": "2026-11-13T06:33:04.136Z"
+      "updatedAt": "2026-11-17T13:43:01.627Z"
     },
     {
       "level": 15,
-      "experienceToNext": "2646",
-      "totalExperience": "15653",
+      "experienceToNext": "630000",
+      "totalExperience": "4410000",
       "statPointsReward": 5,
       "skillPointsReward": 1,
       "hpBonus": 0,
       "mpBonus": 0,
       "bracketTier": 2,
-      "updatedAt": "2026-11-13T06:33:04.137Z"
+      "updatedAt": "2026-11-17T13:43:01.627Z"
     },
     {
       "level": 16,
-      "experienceToNext": "2884",
-      "totalExperience": "18299",
+      "experienceToNext": "672000",
+      "totalExperience": "5040000",
       "statPointsReward": 5,
       "skillPointsReward": 1,
       "hpBonus": 0,
       "mpBonus": 0,
       "bracketTier": 2,
-      "updatedAt": "2026-11-13T06:33:04.138Z"
+      "updatedAt": "2026-11-17T13:43:01.627Z"
     },
     {
       "level": 17,
-      "experienceToNext": "3126",
-      "totalExperience": "21183",
+      "experienceToNext": "714000",
+      "totalExperience": "5712000",
       "statPointsReward": 5,
       "skillPointsReward": 1,
       "hpBonus": 0,
       "mpBonus": 0,
       "bracketTier": 2,
-      "updatedAt": "2026-11-13T06:33:04.139Z"
+      "updatedAt": "2026-11-17T13:43:01.627Z"
     },
     {
       "level": 18,
-      "experienceToNext": "3373",
-      "totalExperience": "24309",
+      "experienceToNext": "756000",
+      "totalExperience": "6426000",
       "statPointsReward": 5,
       "skillPointsReward": 1,
       "hpBonus": 0,
       "mpBonus": 0,
       "bracketTier": 2,
-      "updatedAt": "2026-11-13T06:33:04.139Z"
+      "updatedAt": "2026-11-17T13:43:01.627Z"
     },
     {
       "level": 19,
-      "experienceToNext": "3625",
-      "totalExperience": "27682",
+      "experienceToNext": "798000",
+      "totalExperience": "7182000",
       "statPointsReward": 5,
       "skillPointsReward": 1,
       "hpBonus": 0,
       "mpBonus": 0,
       "bracketTier": 2,
-      "updatedAt": "2026-11-13T06:33:04.140Z"
+      "updatedAt": "2026-11-17T13:43:01.627Z"
     },
     {
       "level": 20,
-      "experienceToNext": "3882",
-      "totalExperience": "31307",
+      "experienceToNext": "840000",
+      "totalExperience": "7980000",
       "statPointsReward": 5,
       "skillPointsReward": 1,
       "hpBonus": 0,
       "mpBonus": 0,
       "bracketTier": 2,
-      "updatedAt": "2026-11-13T06:33:04.141Z"
+      "updatedAt": "2026-11-17T13:43:01.627Z"
     },
     {
       "level": 21,
-      "experienceToNext": "4142",
-      "totalExperience": "35189",
+      "experienceToNext": "882000",
+      "totalExperience": "8820000",
       "statPointsReward": 5,
       "skillPointsReward": 1,
       "hpBonus": 0,
       "mpBonus": 0,
       "bracketTier": 3,
-      "updatedAt": "2026-11-13T06:33:04.141Z"
+      "updatedAt": "2026-11-17T13:43:01.627Z"
     },
     {
       "level": 22,
-      "experienceToNext": "4407",
-      "totalExperience": "39331",
+      "experienceToNext": "924000",
+      "totalExperience": "9702000",
       "statPointsReward": 5,
       "skillPointsReward": 1,
       "hpBonus": 0,
       "mpBonus": 0,
       "bracketTier": 3,
-      "updatedAt": "2026-11-13T06:33:04.142Z"
+      "updatedAt": "2026-11-17T13:43:01.627Z"
     },
     {
       "level": 23,
-      "experienceToNext": "4676",
-      "totalExperience": "43738",
+      "experienceToNext": "966000",
+      "totalExperience": "10626000",
       "statPointsReward": 5,
       "skillPointsReward": 1,
       "hpBonus": 0,
       "mpBonus": 0,
       "bracketTier": 3,
-      "updatedAt": "2026-11-13T06:33:04.143Z"
+      "updatedAt": "2026-11-17T13:43:01.627Z"
     },
     {
       "level": 24,
-      "experienceToNext": "4949",
-      "totalExperience": "48414",
+      "experienceToNext": "1008000",
+      "totalExperience": "11592000",
       "statPointsReward": 5,
       "skillPointsReward": 1,
       "hpBonus": 0,
       "mpBonus": 0,
       "bracketTier": 3,
-      "updatedAt": "2026-11-13T06:33:04.144Z"
+      "updatedAt": "2026-11-17T13:43:01.627Z"
     },
     {
       "level": 25,
-      "experienceToNext": "5226",
-      "totalExperience": "53363",
+      "experienceToNext": "1050000",
+      "totalExperience": "12600000",
       "statPointsReward": 5,
       "skillPointsReward": 1,
       "hpBonus": 0,
       "mpBonus": 0,
       "bracketTier": 3,
-      "updatedAt": "2026-11-13T06:33:04.144Z"
+      "updatedAt": "2026-11-17T13:43:01.627Z"
     },
     {
       "level": 26,
-      "experienceToNext": "5507",
-      "totalExperience": "58589",
+      "experienceToNext": "1092000",
+      "totalExperience": "13650000",
       "statPointsReward": 5,
       "skillPointsReward": 1,
       "hpBonus": 0,
       "mpBonus": 0,
       "bracketTier": 3,
-      "updatedAt": "2026-11-13T06:33:04.145Z"
+      "updatedAt": "2026-11-17T13:43:01.627Z"
     },
     {
       "level": 27,
-      "experienceToNext": "5792",
-      "totalExperience": "64096",
+      "experienceToNext": "1134000",
+      "totalExperience": "14742000",
       "statPointsReward": 5,
       "skillPointsReward": 1,
       "hpBonus": 0,
       "mpBonus": 0,
       "bracketTier": 3,
-      "updatedAt": "2026-11-13T06:33:04.146Z"
+      "updatedAt": "2026-11-17T13:43:01.627Z"
     },
     {
       "level": 28,
-      "experienceToNext": "6080",
-      "totalExperience": "69888",
+      "experienceToNext": "1176000",
+      "totalExperience": "15876000",
       "statPointsReward": 5,
       "skillPointsReward": 1,
       "hpBonus": 0,
       "mpBonus": 0,
       "bracketTier": 3,
-      "updatedAt": "2026-11-13T06:33:04.146Z"
+      "updatedAt": "2026-11-17T13:43:01.627Z"
     },
     {
       "level": 29,
-      "experienceToNext": "6371",
-      "totalExperience": "75968",
+      "experienceToNext": "1218000",
+      "totalExperience": "17052000",
       "statPointsReward": 5,
       "skillPointsReward": 1,
       "hpBonus": 0,
       "mpBonus": 0,
       "bracketTier": 3,
-      "updatedAt": "2026-11-13T06:33:04.147Z"
+      "updatedAt": "2026-11-17T13:43:01.627Z"
     },
     {
       "level": 30,
-      "experienceToNext": "6667",
-      "totalExperience": "82339",
+      "experienceToNext": "1260000",
+      "totalExperience": "18270000",
       "statPointsReward": 5,
       "skillPointsReward": 1,
       "hpBonus": 0,
       "mpBonus": 0,
       "bracketTier": 3,
-      "updatedAt": "2026-11-13T06:33:04.148Z"
+      "updatedAt": "2026-11-17T13:43:01.627Z"
     },
     {
       "level": 31,
-      "experienceToNext": "6965",
-      "totalExperience": "89006",
+      "experienceToNext": "1302000",
+      "totalExperience": "19530000",
       "statPointsReward": 5,
       "skillPointsReward": 1,
       "hpBonus": 0,
       "mpBonus": 0,
       "bracketTier": 4,
-      "updatedAt": "2026-11-13T06:33:04.149Z"
+      "updatedAt": "2026-11-17T13:43:01.627Z"
     },
     {
       "level": 32,
-      "experienceToNext": "7267",
-      "totalExperience": "95971",
+      "experienceToNext": "1344000",
+      "totalExperience": "20832000",
       "statPointsReward": 5,
       "skillPointsReward": 1,
       "hpBonus": 0,
       "mpBonus": 0,
       "bracketTier": 4,
-      "updatedAt": "2026-11-13T06:33:04.149Z"
+      "updatedAt": "2026-11-17T13:43:01.627Z"
     },
     {
       "level": 33,
-      "experienceToNext": "7572",
-      "totalExperience": "103238",
+      "experienceToNext": "1386000",
+      "totalExperience": "22176000",
       "statPointsReward": 5,
       "skillPointsReward": 1,
       "hpBonus": 0,
       "mpBonus": 0,
       "bracketTier": 4,
-      "updatedAt": "2026-11-13T06:33:04.150Z"
+      "updatedAt": "2026-11-17T13:43:01.627Z"
     },
     {
       "level": 34,
-      "experienceToNext": "7881",
-      "totalExperience": "110810",
+      "experienceToNext": "1428000",
+      "totalExperience": "23562000",
       "statPointsReward": 5,
       "skillPointsReward": 1,
       "hpBonus": 0,
       "mpBonus": 0,
       "bracketTier": 4,
-      "updatedAt": "2026-11-13T06:33:04.151Z"
+      "updatedAt": "2026-11-17T13:43:01.627Z"
     },
     {
       "level": 35,
-      "experienceToNext": "8192",
-      "totalExperience": "118691",
+      "experienceToNext": "1470000",
+      "totalExperience": "24990000",
       "statPointsReward": 5,
       "skillPointsReward": 1,
       "hpBonus": 0,
       "mpBonus": 0,
       "bracketTier": 4,
-      "updatedAt": "2026-11-13T06:33:04.151Z"
+      "updatedAt": "2026-11-17T13:43:01.627Z"
     },
     {
       "level": 36,
-      "experienceToNext": "8507",
-      "totalExperience": "126883",
+      "experienceToNext": "1512000",
+      "totalExperience": "26460000",
       "statPointsReward": 5,
       "skillPointsReward": 1,
       "hpBonus": 0,
       "mpBonus": 0,
       "bracketTier": 4,
-      "updatedAt": "2026-11-13T06:33:04.152Z"
+      "updatedAt": "2026-11-17T13:43:01.627Z"
     },
     {
       "level": 37,
-      "experienceToNext": "8824",
-      "totalExperience": "135390",
+      "experienceToNext": "1554000",
+      "totalExperience": "27972000",
       "statPointsReward": 5,
       "skillPointsReward": 1,
       "hpBonus": 0,
       "mpBonus": 0,
       "bracketTier": 4,
-      "updatedAt": "2026-11-13T06:33:04.153Z"
+      "updatedAt": "2026-11-17T13:43:01.627Z"
     },
     {
       "level": 38,
-      "experienceToNext": "9145",
-      "totalExperience": "144214",
+      "experienceToNext": "1596000",
+      "totalExperience": "29526000",
       "statPointsReward": 5,
       "skillPointsReward": 1,
       "hpBonus": 0,
       "mpBonus": 0,
       "bracketTier": 4,
-      "updatedAt": "2026-11-13T06:33:04.153Z"
+      "updatedAt": "2026-11-17T13:43:01.627Z"
     },
     {
       "level": 39,
-      "experienceToNext": "9469",
-      "totalExperience": "153359",
+      "experienceToNext": "1638000",
+      "totalExperience": "31122000",
       "statPointsReward": 5,
       "skillPointsReward": 1,
       "hpBonus": 0,
       "mpBonus": 0,
       "bracketTier": 4,
-      "updatedAt": "2026-11-13T06:33:04.154Z"
+      "updatedAt": "2026-11-17T13:43:01.627Z"
     },
     {
       "level": 40,
-      "experienceToNext": "9795",
-      "totalExperience": "162828",
+      "experienceToNext": "1680000",
+      "totalExperience": "32760000",
       "statPointsReward": 5,
       "skillPointsReward": 1,
       "hpBonus": 0,
       "mpBonus": 0,
       "bracketTier": 4,
-      "updatedAt": "2026-11-13T06:33:04.155Z"
+      "updatedAt": "2026-11-17T13:43:01.627Z"
     },
     {
       "level": 41,
-      "experienceToNext": "10124",
-      "totalExperience": "172623",
+      "experienceToNext": "1722000",
+      "totalExperience": "34440000",
       "statPointsReward": 5,
       "skillPointsReward": 1,
       "hpBonus": 0,
       "mpBonus": 0,
       "bracketTier": 5,
-      "updatedAt": "2026-11-13T06:33:04.156Z"
+      "updatedAt": "2026-11-17T13:43:01.627Z"
     },
     {
       "level": 42,
-      "experienceToNext": "10457",
-      "totalExperience": "182747",
+      "experienceToNext": "1764000",
+      "totalExperience": "36162000",
       "statPointsReward": 5,
       "skillPointsReward": 1,
       "hpBonus": 0,
       "mpBonus": 0,
       "bracketTier": 5,
-      "updatedAt": "2026-11-13T06:33:04.156Z"
+      "updatedAt": "2026-11-17T13:43:01.627Z"
     },
     {
       "level": 43,
-      "experienceToNext": "10792",
-      "totalExperience": "193204",
+      "experienceToNext": "1806000",
+      "totalExperience": "37926000",
       "statPointsReward": 5,
       "skillPointsReward": 1,
       "hpBonus": 0,
       "mpBonus": 0,
       "bracketTier": 5,
-      "updatedAt": "2026-11-13T06:33:04.157Z"
+      "updatedAt": "2026-11-17T13:43:01.627Z"
     },
     {
       "level": 44,
-      "experienceToNext": "11129",
-      "totalExperience": "203996",
+      "experienceToNext": "1848000",
+      "totalExperience": "39732000",
       "statPointsReward": 5,
       "skillPointsReward": 1,
       "hpBonus": 0,
       "mpBonus": 0,
       "bracketTier": 5,
-      "updatedAt": "2026-11-13T06:33:04.158Z"
+      "updatedAt": "2026-11-17T13:43:01.627Z"
     },
     {
       "level": 45,
-      "experienceToNext": "11470",
-      "totalExperience": "215125",
+      "experienceToNext": "1890000",
+      "totalExperience": "41580000",
       "statPointsReward": 5,
       "skillPointsReward": 1,
       "hpBonus": 0,
       "mpBonus": 0,
       "bracketTier": 5,
-      "updatedAt": "2026-11-13T06:33:04.158Z"
+      "updatedAt": "2026-11-17T13:43:01.627Z"
     },
     {
       "level": 46,
-      "experienceToNext": "11813",
-      "totalExperience": "226595",
+      "experienceToNext": "1932000",
+      "totalExperience": "43470000",
       "statPointsReward": 5,
       "skillPointsReward": 1,
       "hpBonus": 0,
       "mpBonus": 0,
       "bracketTier": 5,
-      "updatedAt": "2026-11-13T06:33:04.159Z"
+      "updatedAt": "2026-11-17T13:43:01.627Z"
     },
     {
       "level": 47,
-      "experienceToNext": "12158",
-      "totalExperience": "238408",
+      "experienceToNext": "1974000",
+      "totalExperience": "45402000",
       "statPointsReward": 5,
       "skillPointsReward": 1,
       "hpBonus": 0,
       "mpBonus": 0,
       "bracketTier": 5,
-      "updatedAt": "2026-11-13T06:33:04.160Z"
+      "updatedAt": "2026-11-17T13:43:01.627Z"
     },
     {
       "level": 48,
-      "experienceToNext": "12507",
-      "totalExperience": "250566",
+      "experienceToNext": "2016000",
+      "totalExperience": "47376000",
       "statPointsReward": 5,
       "skillPointsReward": 1,
       "hpBonus": 0,
       "mpBonus": 0,
       "bracketTier": 5,
-      "updatedAt": "2026-11-13T06:33:04.161Z"
+      "updatedAt": "2026-11-17T13:43:01.627Z"
     },
     {
       "level": 49,
-      "experienceToNext": "12857",
-      "totalExperience": "263073",
+      "experienceToNext": "2058000",
+      "totalExperience": "49392000",
       "statPointsReward": 5,
       "skillPointsReward": 1,
       "hpBonus": 0,
       "mpBonus": 0,
       "bracketTier": 5,
-      "updatedAt": "2026-11-13T06:33:04.161Z"
+      "updatedAt": "2026-11-17T13:43:01.627Z"
     },
     {
       "level": 50,
-      "experienceToNext": "13211",
-      "totalExperience": "275930",
+      "experienceToNext": "2100000",
+      "totalExperience": "51450000",
       "statPointsReward": 5,
       "skillPointsReward": 1,
       "hpBonus": 0,
       "mpBonus": 0,
       "bracketTier": 5,
-      "updatedAt": "2026-11-13T06:33:04.162Z"
+      "updatedAt": "2026-11-17T13:43:01.627Z"
     },
     {
       "level": 51,
-      "experienceToNext": "13567",
-      "totalExperience": "289141",
+      "experienceToNext": "2142000",
+      "totalExperience": "53550000",
       "statPointsReward": 5,
       "skillPointsReward": 1,
       "hpBonus": 0,
       "mpBonus": 0,
       "bracketTier": 6,
-      "updatedAt": "2026-11-13T06:33:04.163Z"
+      "updatedAt": "2026-11-17T13:43:01.627Z"
     },
     {
       "level": 52,
-      "experienceToNext": "13925",
-      "totalExperience": "302708",
+      "experienceToNext": "2184000",
+      "totalExperience": "55692000",
       "statPointsReward": 5,
       "skillPointsReward": 1,
       "hpBonus": 0,
       "mpBonus": 0,
       "bracketTier": 6,
-      "updatedAt": "2026-11-13T06:33:04.163Z"
+      "updatedAt": "2026-11-17T13:43:01.627Z"
     },
     {
       "level": 53,
-      "experienceToNext": "14286",
-      "totalExperience": "316633",
+      "experienceToNext": "2226000",
+      "totalExperience": "57876000",
       "statPointsReward": 5,
       "skillPointsReward": 1,
       "hpBonus": 0,
       "mpBonus": 0,
       "bracketTier": 6,
-      "updatedAt": "2026-11-13T06:33:04.164Z"
+      "updatedAt": "2026-11-17T13:43:01.627Z"
     },
     {
       "level": 54,
-      "experienceToNext": "14649",
-      "totalExperience": "330919",
+      "experienceToNext": "2268000",
+      "totalExperience": "60102000",
       "statPointsReward": 5,
       "skillPointsReward": 1,
       "hpBonus": 0,
       "mpBonus": 0,
       "bracketTier": 6,
-      "updatedAt": "2026-11-13T06:33:04.165Z"
+      "updatedAt": "2026-11-17T13:43:01.627Z"
     },
     {
       "level": 55,
-      "experienceToNext": "15014",
-      "totalExperience": "345568",
+      "experienceToNext": "2310000",
+      "totalExperience": "62370000",
       "statPointsReward": 5,
       "skillPointsReward": 1,
       "hpBonus": 0,
       "mpBonus": 0,
       "bracketTier": 6,
-      "updatedAt": "2026-11-13T06:33:04.165Z"
+      "updatedAt": "2026-11-17T13:43:01.627Z"
     },
     {
       "level": 56,
-      "experienceToNext": "15382",
-      "totalExperience": "360582",
+      "experienceToNext": "2352000",
+      "totalExperience": "64680000",
       "statPointsReward": 5,
       "skillPointsReward": 1,
       "hpBonus": 0,
       "mpBonus": 0,
       "bracketTier": 6,
-      "updatedAt": "2026-11-13T06:33:04.166Z"
+      "updatedAt": "2026-11-17T13:43:01.627Z"
     },
     {
       "level": 57,
-      "experienceToNext": "15752",
-      "totalExperience": "375964",
+      "experienceToNext": "2394000",
+      "totalExperience": "67032000",
       "statPointsReward": 5,
       "skillPointsReward": 1,
       "hpBonus": 0,
       "mpBonus": 0,
       "bracketTier": 6,
-      "updatedAt": "2026-11-13T06:33:04.167Z"
+      "updatedAt": "2026-11-17T13:43:01.627Z"
     },
     {
       "level": 58,
-      "experienceToNext": "16125",
-      "totalExperience": "391716",
+      "experienceToNext": "2436000",
+      "totalExperience": "69426000",
       "statPointsReward": 5,
       "skillPointsReward": 1,
       "hpBonus": 0,
       "mpBonus": 0,
       "bracketTier": 6,
-      "updatedAt": "2026-11-13T06:33:04.168Z"
+      "updatedAt": "2026-11-17T13:43:01.627Z"
     },
     {
       "level": 59,
-      "experienceToNext": "16500",
-      "totalExperience": "407841",
+      "experienceToNext": "2478000",
+      "totalExperience": "71862000",
       "statPointsReward": 5,
       "skillPointsReward": 1,
       "hpBonus": 0,
       "mpBonus": 0,
       "bracketTier": 6,
-      "updatedAt": "2026-11-13T06:33:04.168Z"
+      "updatedAt": "2026-11-17T13:43:01.627Z"
     },
     {
       "level": 60,
-      "experienceToNext": "16877",
-      "totalExperience": "424341",
+      "experienceToNext": "2520000",
+      "totalExperience": "74340000",
       "statPointsReward": 5,
       "skillPointsReward": 1,
       "hpBonus": 0,
       "mpBonus": 0,
       "bracketTier": 6,
-      "updatedAt": "2026-11-13T06:33:04.169Z"
+      "updatedAt": "2026-11-17T13:43:01.627Z"
     },
     {
       "level": 61,
-      "experienceToNext": "17256",
-      "totalExperience": "441218",
+      "experienceToNext": "2562000",
+      "totalExperience": "76860000",
       "statPointsReward": 5,
       "skillPointsReward": 1,
       "hpBonus": 0,
       "mpBonus": 0,
       "bracketTier": 7,
-      "updatedAt": "2026-11-13T06:33:04.170Z"
+      "updatedAt": "2026-11-17T13:43:01.627Z"
     },
     {
       "level": 62,
-      "experienceToNext": "17637",
-      "totalExperience": "458474",
+      "experienceToNext": "2604000",
+      "totalExperience": "79422000",
       "statPointsReward": 5,
       "skillPointsReward": 1,
       "hpBonus": 0,
       "mpBonus": 0,
       "bracketTier": 7,
-      "updatedAt": "2026-11-13T06:33:04.170Z"
+      "updatedAt": "2026-11-17T13:43:01.627Z"
     },
     {
       "level": 63,
-      "experienceToNext": "18021",
-      "totalExperience": "476111",
+      "experienceToNext": "2646000",
+      "totalExperience": "82026000",
       "statPointsReward": 5,
       "skillPointsReward": 1,
       "hpBonus": 0,
       "mpBonus": 0,
       "bracketTier": 7,
-      "updatedAt": "2026-11-13T06:33:04.171Z"
+      "updatedAt": "2026-11-17T13:43:01.627Z"
     },
     {
       "level": 64,
-      "experienceToNext": "18407",
-      "totalExperience": "494132",
+      "experienceToNext": "2688000",
+      "totalExperience": "84672000",
       "statPointsReward": 5,
       "skillPointsReward": 1,
       "hpBonus": 0,
       "mpBonus": 0,
       "bracketTier": 7,
-      "updatedAt": "2026-11-13T06:33:04.172Z"
+      "updatedAt": "2026-11-17T13:43:01.627Z"
     },
     {
       "level": 65,
-      "experienceToNext": "18795",
-      "totalExperience": "512539",
+      "experienceToNext": "2730000",
+      "totalExperience": "87360000",
       "statPointsReward": 5,
       "skillPointsReward": 1,
       "hpBonus": 0,
       "mpBonus": 0,
       "bracketTier": 7,
-      "updatedAt": "2026-11-13T06:33:04.173Z"
+      "updatedAt": "2026-11-17T13:43:01.627Z"
     },
     {
       "level": 66,
-      "experienceToNext": "19185",
-      "totalExperience": "531334",
+      "experienceToNext": "2772000",
+      "totalExperience": "90090000",
       "statPointsReward": 5,
       "skillPointsReward": 1,
       "hpBonus": 0,
       "mpBonus": 0,
       "bracketTier": 7,
-      "updatedAt": "2026-11-13T06:33:04.174Z"
+      "updatedAt": "2026-11-17T13:43:01.627Z"
     },
     {
       "level": 67,
-      "experienceToNext": "19577",
-      "totalExperience": "550519",
+      "experienceToNext": "2814000",
+      "totalExperience": "92862000",
       "statPointsReward": 5,
       "skillPointsReward": 1,
       "hpBonus": 0,
       "mpBonus": 0,
       "bracketTier": 7,
-      "updatedAt": "2026-11-13T06:33:04.174Z"
+      "updatedAt": "2026-11-17T13:43:01.627Z"
     },
     {
       "level": 68,
-      "experienceToNext": "19971",
-      "totalExperience": "570096",
+      "experienceToNext": "2856000",
+      "totalExperience": "95676000",
       "statPointsReward": 5,
       "skillPointsReward": 1,
       "hpBonus": 0,
       "mpBonus": 0,
       "bracketTier": 7,
-      "updatedAt": "2026-11-13T06:33:04.175Z"
+      "updatedAt": "2026-11-17T13:43:01.627Z"
     },
     {
       "level": 69,
-      "experienceToNext": "20367",
-      "totalExperience": "590067",
+      "experienceToNext": "2898000",
+      "totalExperience": "98532000",
       "statPointsReward": 5,
       "skillPointsReward": 1,
       "hpBonus": 0,
       "mpBonus": 0,
       "bracketTier": 7,
-      "updatedAt": "2026-11-13T06:33:04.176Z"
+      "updatedAt": "2026-11-17T13:43:01.627Z"
     },
     {
       "level": 70,
-      "experienceToNext": "20766",
-      "totalExperience": "610434",
+      "experienceToNext": "2940000",
+      "totalExperience": "101430000",
       "statPointsReward": 5,
       "skillPointsReward": 1,
       "hpBonus": 0,
       "mpBonus": 0,
       "bracketTier": 7,
-      "updatedAt": "2026-11-13T06:33:04.177Z"
+      "updatedAt": "2026-11-17T13:43:01.627Z"
     },
     {
       "level": 71,
-      "experienceToNext": "21166",
-      "totalExperience": "631200",
+      "experienceToNext": "2982000",
+      "totalExperience": "104370000",
       "statPointsReward": 5,
       "skillPointsReward": 1,
       "hpBonus": 0,
       "mpBonus": 0,
       "bracketTier": 8,
-      "updatedAt": "2026-11-13T06:33:04.177Z"
+      "updatedAt": "2026-11-17T13:43:01.627Z"
     },
     {
       "level": 72,
-      "experienceToNext": "21569",
-      "totalExperience": "652366",
+      "experienceToNext": "3024000",
+      "totalExperience": "107352000",
       "statPointsReward": 5,
       "skillPointsReward": 1,
       "hpBonus": 0,
       "mpBonus": 0,
       "bracketTier": 8,
-      "updatedAt": "2026-11-13T06:33:04.178Z"
+      "updatedAt": "2026-11-17T13:43:01.627Z"
     },
     {
       "level": 73,
-      "experienceToNext": "21973",
-      "totalExperience": "673935",
+      "experienceToNext": "3066000",
+      "totalExperience": "110376000",
       "statPointsReward": 5,
       "skillPointsReward": 1,
       "hpBonus": 0,
       "mpBonus": 0,
       "bracketTier": 8,
-      "updatedAt": "2026-11-13T06:33:04.179Z"
+      "updatedAt": "2026-11-17T13:43:01.627Z"
     },
     {
       "level": 74,
-      "experienceToNext": "22379",
-      "totalExperience": "695908",
+      "experienceToNext": "3108000",
+      "totalExperience": "113442000",
       "statPointsReward": 5,
       "skillPointsReward": 1,
       "hpBonus": 0,
       "mpBonus": 0,
       "bracketTier": 8,
-      "updatedAt": "2026-11-13T06:33:04.179Z"
+      "updatedAt": "2026-11-17T13:43:01.627Z"
     },
     {
       "level": 75,
-      "experienceToNext": "22788",
-      "totalExperience": "718287",
+      "experienceToNext": "3150000",
+      "totalExperience": "116550000",
       "statPointsReward": 5,
       "skillPointsReward": 1,
       "hpBonus": 0,
       "mpBonus": 0,
       "bracketTier": 8,
-      "updatedAt": "2026-11-13T06:33:04.180Z"
+      "updatedAt": "2026-11-17T13:43:01.627Z"
     },
     {
       "level": 76,
-      "experienceToNext": "23198",
-      "totalExperience": "741075",
+      "experienceToNext": "3192000",
+      "totalExperience": "119700000",
       "statPointsReward": 5,
       "skillPointsReward": 1,
       "hpBonus": 0,
       "mpBonus": 0,
       "bracketTier": 8,
-      "updatedAt": "2026-11-13T06:33:04.181Z"
+      "updatedAt": "2026-11-17T13:43:01.627Z"
     },
     {
       "level": 77,
-      "experienceToNext": "23610",
-      "totalExperience": "764273",
+      "experienceToNext": "3234000",
+      "totalExperience": "122892000",
       "statPointsReward": 5,
       "skillPointsReward": 1,
       "hpBonus": 0,
       "mpBonus": 0,
       "bracketTier": 8,
-      "updatedAt": "2026-11-13T06:33:04.181Z"
+      "updatedAt": "2026-11-17T13:43:01.627Z"
     },
     {
       "level": 78,
-      "experienceToNext": "24025",
-      "totalExperience": "787883",
+      "experienceToNext": "3276000",
+      "totalExperience": "126126000",
       "statPointsReward": 5,
       "skillPointsReward": 1,
       "hpBonus": 0,
       "mpBonus": 0,
       "bracketTier": 8,
-      "updatedAt": "2026-11-13T06:33:04.182Z"
+      "updatedAt": "2026-11-17T13:43:01.627Z"
     },
     {
       "level": 79,
-      "experienceToNext": "24441",
-      "totalExperience": "811908",
+      "experienceToNext": "3318000",
+      "totalExperience": "129402000",
       "statPointsReward": 5,
       "skillPointsReward": 1,
       "hpBonus": 0,
       "mpBonus": 0,
       "bracketTier": 8,
-      "updatedAt": "2026-11-13T06:33:04.183Z"
+      "updatedAt": "2026-11-17T13:43:01.627Z"
     },
     {
       "level": 80,
-      "experienceToNext": "24859",
-      "totalExperience": "836349",
+      "experienceToNext": "3360000",
+      "totalExperience": "132720000",
       "statPointsReward": 5,
       "skillPointsReward": 1,
       "hpBonus": 0,
       "mpBonus": 0,
       "bracketTier": 8,
-      "updatedAt": "2026-11-13T06:33:04.183Z"
+      "updatedAt": "2026-11-17T13:43:01.627Z"
     },
     {
       "level": 81,
-      "experienceToNext": "25278",
-      "totalExperience": "861208",
+      "experienceToNext": "3402000",
+      "totalExperience": "136080000",
       "statPointsReward": 5,
       "skillPointsReward": 1,
       "hpBonus": 0,
       "mpBonus": 0,
       "bracketTier": 9,
-      "updatedAt": "2026-11-13T06:33:04.184Z"
+      "updatedAt": "2026-11-17T13:43:01.627Z"
     },
     {
       "level": 82,
-      "experienceToNext": "25700",
-      "totalExperience": "886486",
+      "experienceToNext": "3444000",
+      "totalExperience": "139482000",
       "statPointsReward": 5,
       "skillPointsReward": 1,
       "hpBonus": 0,
       "mpBonus": 0,
       "bracketTier": 9,
-      "updatedAt": "2026-11-13T06:33:04.185Z"
+      "updatedAt": "2026-11-17T13:43:01.627Z"
     },
     {
       "level": 83,
-      "experienceToNext": "26124",
-      "totalExperience": "912186",
+      "experienceToNext": "3486000",
+      "totalExperience": "142926000",
       "statPointsReward": 5,
       "skillPointsReward": 1,
       "hpBonus": 0,
       "mpBonus": 0,
       "bracketTier": 9,
-      "updatedAt": "2026-11-13T06:33:04.185Z"
+      "updatedAt": "2026-11-17T13:43:01.627Z"
     },
     {
       "level": 84,
-      "experienceToNext": "26549",
-      "totalExperience": "938310",
+      "experienceToNext": "3528000",
+      "totalExperience": "146412000",
       "statPointsReward": 5,
       "skillPointsReward": 1,
       "hpBonus": 0,
       "mpBonus": 0,
       "bracketTier": 9,
-      "updatedAt": "2026-11-13T06:33:04.186Z"
+      "updatedAt": "2026-11-17T13:43:01.627Z"
     },
     {
       "level": 85,
-      "experienceToNext": "26976",
-      "totalExperience": "964859",
+      "experienceToNext": "3570000",
+      "totalExperience": "149940000",
       "statPointsReward": 5,
       "skillPointsReward": 1,
       "hpBonus": 0,
       "mpBonus": 0,
       "bracketTier": 9,
-      "updatedAt": "2026-11-13T06:33:04.187Z"
+      "updatedAt": "2026-11-17T13:43:01.627Z"
     },
     {
       "level": 86,
-      "experienceToNext": "27405",
-      "totalExperience": "991835",
+      "experienceToNext": "3612000",
+      "totalExperience": "153510000",
       "statPointsReward": 5,
       "skillPointsReward": 1,
       "hpBonus": 0,
       "mpBonus": 0,
       "bracketTier": 9,
-      "updatedAt": "2026-11-13T06:33:04.187Z"
+      "updatedAt": "2026-11-17T13:43:01.627Z"
     },
     {
       "level": 87,
-      "experienceToNext": "27836",
-      "totalExperience": "1019240",
+      "experienceToNext": "3654000",
+      "totalExperience": "157122000",
       "statPointsReward": 5,
       "skillPointsReward": 1,
       "hpBonus": 0,
       "mpBonus": 0,
       "bracketTier": 9,
-      "updatedAt": "2026-11-13T06:33:04.189Z"
+      "updatedAt": "2026-11-17T13:43:01.627Z"
     },
     {
       "level": 88,
-      "experienceToNext": "28268",
-      "totalExperience": "1047076",
+      "experienceToNext": "3696000",
+      "totalExperience": "160776000",
       "statPointsReward": 5,
       "skillPointsReward": 1,
       "hpBonus": 0,
       "mpBonus": 0,
       "bracketTier": 9,
-      "updatedAt": "2026-11-13T06:33:04.189Z"
+      "updatedAt": "2026-11-17T13:43:01.627Z"
     },
     {
       "level": 89,
-      "experienceToNext": "28703",
-      "totalExperience": "1075344",
+      "experienceToNext": "3738000",
+      "totalExperience": "164472000",
       "statPointsReward": 5,
       "skillPointsReward": 1,
       "hpBonus": 0,
       "mpBonus": 0,
       "bracketTier": 9,
-      "updatedAt": "2026-11-13T06:33:04.190Z"
+      "updatedAt": "2026-11-17T13:43:01.627Z"
     },
     {
       "level": 90,
-      "experienceToNext": "29139",
-      "totalExperience": "1104047",
+      "experienceToNext": "3780000",
+      "totalExperience": "168210000",
       "statPointsReward": 5,
       "skillPointsReward": 1,
       "hpBonus": 0,
       "mpBonus": 0,
       "bracketTier": 9,
-      "updatedAt": "2026-11-13T06:33:04.191Z"
+      "updatedAt": "2026-11-17T13:43:01.627Z"
     },
     {
       "level": 91,
-      "experienceToNext": "29576",
-      "totalExperience": "1133186",
+      "experienceToNext": "3822000",
+      "totalExperience": "171990000",
       "statPointsReward": 5,
       "skillPointsReward": 1,
       "hpBonus": 0,
       "mpBonus": 0,
       "bracketTier": 10,
-      "updatedAt": "2026-11-13T06:33:04.191Z"
+      "updatedAt": "2026-11-17T13:43:01.627Z"
     },
     {
       "level": 92,
-      "experienceToNext": "30016",
-      "totalExperience": "1162762",
+      "experienceToNext": "3864000",
+      "totalExperience": "175812000",
       "statPointsReward": 5,
       "skillPointsReward": 1,
       "hpBonus": 0,
       "mpBonus": 0,
       "bracketTier": 10,
-      "updatedAt": "2026-11-13T06:33:04.192Z"
+      "updatedAt": "2026-11-17T13:43:01.627Z"
     },
     {
       "level": 93,
-      "experienceToNext": "30457",
-      "totalExperience": "1192778",
+      "experienceToNext": "3906000",
+      "totalExperience": "179676000",
       "statPointsReward": 5,
       "skillPointsReward": 1,
       "hpBonus": 0,
       "mpBonus": 0,
       "bracketTier": 10,
-      "updatedAt": "2026-11-13T06:33:04.193Z"
+      "updatedAt": "2026-11-17T13:43:01.627Z"
     },
     {
       "level": 94,
-      "experienceToNext": "30900",
-      "totalExperience": "1223235",
+      "experienceToNext": "3948000",
+      "totalExperience": "183582000",
       "statPointsReward": 5,
       "skillPointsReward": 1,
       "hpBonus": 0,
       "mpBonus": 0,
       "bracketTier": 10,
-      "updatedAt": "2026-11-13T06:33:04.193Z"
+      "updatedAt": "2026-11-17T13:43:01.627Z"
     },
     {
       "level": 95,
-      "experienceToNext": "31345",
-      "totalExperience": "1254135",
+      "experienceToNext": "3990000",
+      "totalExperience": "187530000",
       "statPointsReward": 5,
       "skillPointsReward": 1,
       "hpBonus": 0,
       "mpBonus": 0,
       "bracketTier": 10,
-      "updatedAt": "2026-11-13T06:33:04.194Z"
+      "updatedAt": "2026-11-17T13:43:01.627Z"
     },
     {
       "level": 96,
-      "experienceToNext": "31791",
-      "totalExperience": "1285480",
+      "experienceToNext": "4032000",
+      "totalExperience": "191520000",
       "statPointsReward": 5,
       "skillPointsReward": 1,
       "hpBonus": 0,
       "mpBonus": 0,
       "bracketTier": 10,
-      "updatedAt": "2026-11-13T06:33:04.195Z"
+      "updatedAt": "2026-11-17T13:43:01.627Z"
     },
     {
       "level": 97,
-      "experienceToNext": "32239",
-      "totalExperience": "1317271",
+      "experienceToNext": "4074000",
+      "totalExperience": "195552000",
       "statPointsReward": 5,
       "skillPointsReward": 1,
       "hpBonus": 0,
       "mpBonus": 0,
       "bracketTier": 10,
-      "updatedAt": "2026-11-13T06:33:04.195Z"
+      "updatedAt": "2026-11-17T13:43:01.627Z"
     },
     {
       "level": 98,
-      "experienceToNext": "32689",
-      "totalExperience": "1349510",
+      "experienceToNext": "4116000",
+      "totalExperience": "199626000",
       "statPointsReward": 5,
       "skillPointsReward": 1,
       "hpBonus": 0,
       "mpBonus": 0,
       "bracketTier": 10,
-      "updatedAt": "2026-11-13T06:33:04.196Z"
+      "updatedAt": "2026-11-17T13:43:01.627Z"
     },
     {
       "level": 99,
-      "experienceToNext": "33140",
-      "totalExperience": "1382199",
+      "experienceToNext": "4158000",
+      "totalExperience": "203742000",
       "statPointsReward": 5,
       "skillPointsReward": 1,
       "hpBonus": 0,
       "mpBonus": 0,
       "bracketTier": 10,
-      "updatedAt": "2026-11-13T06:33:04.199Z"
+      "updatedAt": "2026-11-17T13:43:01.627Z"
     },
     {
       "level": 100,
-      "experienceToNext": "33593",
-      "totalExperience": "1415339",
+      "experienceToNext": "4200000",
+      "totalExperience": "207900000",
       "statPointsReward": 5,
       "skillPointsReward": 1,
       "hpBonus": 0,
       "mpBonus": 0,
       "bracketTier": 10,
-      "updatedAt": "2026-11-13T06:33:04.200Z"
+      "updatedAt": "2026-11-17T13:43:01.627Z"
     },
     {
       "level": 101,
-      "experienceToNext": "34048",
-      "totalExperience": "1448932",
+      "experienceToNext": "4242000",
+      "totalExperience": "212100000",
       "statPointsReward": 5,
       "skillPointsReward": 1,
       "hpBonus": 0,
       "mpBonus": 0,
       "bracketTier": 11,
-      "updatedAt": "2026-11-13T06:33:04.202Z"
+      "updatedAt": "2026-11-17T13:43:01.627Z"
     },
     {
       "level": 102,
-      "experienceToNext": "34504",
-      "totalExperience": "1482980",
+      "experienceToNext": "4284000",
+      "totalExperience": "216342000",
       "statPointsReward": 5,
       "skillPointsReward": 1,
       "hpBonus": 0,
       "mpBonus": 0,
       "bracketTier": 11,
-      "updatedAt": "2026-11-13T06:33:04.203Z"
+      "updatedAt": "2026-11-17T13:43:01.627Z"
     },
     {
       "level": 103,
-      "experienceToNext": "34962",
-      "totalExperience": "1517484",
+      "experienceToNext": "4326000",
+      "totalExperience": "220626000",
       "statPointsReward": 5,
       "skillPointsReward": 1,
       "hpBonus": 0,
       "mpBonus": 0,
       "bracketTier": 11,
-      "updatedAt": "2026-11-13T06:33:04.203Z"
+      "updatedAt": "2026-11-17T13:43:01.627Z"
     },
     {
       "level": 104,
-      "experienceToNext": "35421",
-      "totalExperience": "1552446",
+      "experienceToNext": "4368000",
+      "totalExperience": "224952000",
       "statPointsReward": 5,
       "skillPointsReward": 1,
       "hpBonus": 0,
       "mpBonus": 0,
       "bracketTier": 11,
-      "updatedAt": "2026-11-13T06:33:04.204Z"
+      "updatedAt": "2026-11-17T13:43:01.627Z"
     },
     {
       "level": 105,
-      "experienceToNext": "35882",
-      "totalExperience": "1587867",
+      "experienceToNext": "4410000",
+      "totalExperience": "229320000",
       "statPointsReward": 5,
       "skillPointsReward": 1,
       "hpBonus": 0,
       "mpBonus": 0,
       "bracketTier": 11,
-      "updatedAt": "2026-11-13T06:33:04.206Z"
+      "updatedAt": "2026-11-17T13:43:01.627Z"
     },
     {
       "level": 106,
-      "experienceToNext": "36345",
-      "totalExperience": "1623749",
+      "experienceToNext": "4452000",
+      "totalExperience": "233730000",
       "statPointsReward": 5,
       "skillPointsReward": 1,
       "hpBonus": 0,
       "mpBonus": 0,
       "bracketTier": 11,
-      "updatedAt": "2026-11-13T06:33:04.207Z"
+      "updatedAt": "2026-11-17T13:43:01.627Z"
     },
     {
       "level": 107,
-      "experienceToNext": "36809",
-      "totalExperience": "1660094",
+      "experienceToNext": "4494000",
+      "totalExperience": "238182000",
       "statPointsReward": 5,
       "skillPointsReward": 1,
       "hpBonus": 0,
       "mpBonus": 0,
       "bracketTier": 11,
-      "updatedAt": "2026-11-13T06:33:04.208Z"
+      "updatedAt": "2026-11-17T13:43:01.627Z"
     },
     {
       "level": 108,
-      "experienceToNext": "37275",
-      "totalExperience": "1696903",
+      "experienceToNext": "4536000",
+      "totalExperience": "242676000",
       "statPointsReward": 5,
       "skillPointsReward": 1,
       "hpBonus": 0,
       "mpBonus": 0,
       "bracketTier": 11,
-      "updatedAt": "2026-11-13T06:33:04.208Z"
+      "updatedAt": "2026-11-17T13:43:01.627Z"
     },
     {
       "level": 109,
-      "experienceToNext": "37742",
-      "totalExperience": "1734178",
+      "experienceToNext": "4578000",
+      "totalExperience": "247212000",
       "statPointsReward": 5,
       "skillPointsReward": 1,
       "hpBonus": 0,
       "mpBonus": 0,
       "bracketTier": 11,
-      "updatedAt": "2026-11-13T06:33:04.209Z"
+      "updatedAt": "2026-11-17T13:43:01.627Z"
     },
     {
       "level": 110,
-      "experienceToNext": "38211",
-      "totalExperience": "1771920",
+      "experienceToNext": "4620000",
+      "totalExperience": "251790000",
       "statPointsReward": 5,
       "skillPointsReward": 1,
       "hpBonus": 0,
       "mpBonus": 0,
       "bracketTier": 11,
-      "updatedAt": "2026-11-13T06:33:04.211Z"
+      "updatedAt": "2026-11-17T13:43:01.627Z"
     },
     {
       "level": 111,
-      "experienceToNext": "38681",
-      "totalExperience": "1810131",
+      "experienceToNext": "4662000",
+      "totalExperience": "256410000",
       "statPointsReward": 5,
       "skillPointsReward": 1,
       "hpBonus": 0,
       "mpBonus": 0,
       "bracketTier": 12,
-      "updatedAt": "2026-11-13T06:33:04.211Z"
+      "updatedAt": "2026-11-17T13:43:01.627Z"
     },
     {
       "level": 112,
-      "experienceToNext": "39153",
-      "totalExperience": "1848812",
+      "experienceToNext": "4704000",
+      "totalExperience": "261072000",
       "statPointsReward": 5,
       "skillPointsReward": 1,
       "hpBonus": 0,
       "mpBonus": 0,
       "bracketTier": 12,
-      "updatedAt": "2026-11-13T06:33:04.212Z"
+      "updatedAt": "2026-11-17T13:43:01.627Z"
     },
     {
       "level": 113,
-      "experienceToNext": "39627",
-      "totalExperience": "1887965",
+      "experienceToNext": "4746000",
+      "totalExperience": "265776000",
       "statPointsReward": 5,
       "skillPointsReward": 1,
       "hpBonus": 0,
       "mpBonus": 0,
       "bracketTier": 12,
-      "updatedAt": "2026-11-13T06:33:04.213Z"
+      "updatedAt": "2026-11-17T13:43:01.627Z"
     },
     {
       "level": 114,
-      "experienceToNext": "40102",
-      "totalExperience": "1927592",
+      "experienceToNext": "4788000",
+      "totalExperience": "270522000",
       "statPointsReward": 5,
       "skillPointsReward": 1,
       "hpBonus": 0,
       "mpBonus": 0,
       "bracketTier": 12,
-      "updatedAt": "2026-11-13T06:33:04.213Z"
+      "updatedAt": "2026-11-17T13:43:01.627Z"
     },
     {
       "level": 115,
-      "experienceToNext": "40578",
-      "totalExperience": "1967694",
+      "experienceToNext": "4830000",
+      "totalExperience": "275310000",
       "statPointsReward": 5,
       "skillPointsReward": 1,
       "hpBonus": 0,
       "mpBonus": 0,
       "bracketTier": 12,
-      "updatedAt": "2026-11-13T06:33:04.214Z"
+      "updatedAt": "2026-11-17T13:43:01.627Z"
     },
     {
       "level": 116,
-      "experienceToNext": "41056",
-      "totalExperience": "2008272",
+      "experienceToNext": "4872000",
+      "totalExperience": "280140000",
       "statPointsReward": 5,
       "skillPointsReward": 1,
       "hpBonus": 0,
       "mpBonus": 0,
       "bracketTier": 12,
-      "updatedAt": "2026-11-13T06:33:04.215Z"
+      "updatedAt": "2026-11-17T13:43:01.627Z"
     },
     {
       "level": 117,
-      "experienceToNext": "41536",
-      "totalExperience": "2049328",
+      "experienceToNext": "4914000",
+      "totalExperience": "285012000",
       "statPointsReward": 5,
       "skillPointsReward": 1,
       "hpBonus": 0,
       "mpBonus": 0,
       "bracketTier": 12,
-      "updatedAt": "2026-11-13T06:33:04.215Z"
+      "updatedAt": "2026-11-17T13:43:01.627Z"
     },
     {
       "level": 118,
-      "experienceToNext": "42017",
-      "totalExperience": "2090864",
+      "experienceToNext": "4956000",
+      "totalExperience": "289926000",
       "statPointsReward": 5,
       "skillPointsReward": 1,
       "hpBonus": 0,
       "mpBonus": 0,
       "bracketTier": 12,
-      "updatedAt": "2026-11-13T06:33:04.216Z"
+      "updatedAt": "2026-11-17T13:43:01.627Z"
     },
     {
       "level": 119,
-      "experienceToNext": "42499",
-      "totalExperience": "2132881",
+      "experienceToNext": "4998000",
+      "totalExperience": "294882000",
       "statPointsReward": 5,
       "skillPointsReward": 1,
       "hpBonus": 0,
       "mpBonus": 0,
       "bracketTier": 12,
-      "updatedAt": "2026-11-13T06:33:04.217Z"
+      "updatedAt": "2026-11-17T13:43:01.627Z"
     },
     {
       "level": 120,
-      "experienceToNext": "42983",
-      "totalExperience": "2175380",
+      "experienceToNext": "5040000",
+      "totalExperience": "299880000",
       "statPointsReward": 5,
       "skillPointsReward": 1,
       "hpBonus": 0,
       "mpBonus": 0,
       "bracketTier": 12,
-      "updatedAt": "2026-11-13T06:33:04.218Z"
+      "updatedAt": "2026-11-17T13:43:01.627Z"
     },
     {
       "level": 121,
-      "experienceToNext": "43468",
-      "totalExperience": "2218363",
+      "experienceToNext": "5082000",
+      "totalExperience": "304920000",
       "statPointsReward": 5,
       "skillPointsReward": 1,
       "hpBonus": 0,
       "mpBonus": 0,
       "bracketTier": 13,
-      "updatedAt": "2026-11-13T06:33:04.218Z"
+      "updatedAt": "2026-11-17T13:43:01.627Z"
     },
     {
       "level": 122,
-      "experienceToNext": "43955",
-      "totalExperience": "2261831",
+      "experienceToNext": "5124000",
+      "totalExperience": "310002000",
       "statPointsReward": 5,
       "skillPointsReward": 1,
       "hpBonus": 0,
       "mpBonus": 0,
       "bracketTier": 13,
-      "updatedAt": "2026-11-13T06:33:04.219Z"
+      "updatedAt": "2026-11-17T13:43:01.627Z"
     },
     {
       "level": 123,
-      "experienceToNext": "44443",
-      "totalExperience": "2305786",
+      "experienceToNext": "5166000",
+      "totalExperience": "315126000",
       "statPointsReward": 5,
       "skillPointsReward": 1,
       "hpBonus": 0,
       "mpBonus": 0,
       "bracketTier": 13,
-      "updatedAt": "2026-11-13T06:33:04.220Z"
+      "updatedAt": "2026-11-17T13:43:01.627Z"
     },
     {
       "level": 124,
-      "experienceToNext": "44933",
-      "totalExperience": "2350229",
+      "experienceToNext": "5208000",
+      "totalExperience": "320292000",
       "statPointsReward": 5,
       "skillPointsReward": 1,
       "hpBonus": 0,
       "mpBonus": 0,
       "bracketTier": 13,
-      "updatedAt": "2026-11-13T06:33:04.220Z"
+      "updatedAt": "2026-11-17T13:43:01.627Z"
     },
     {
       "level": 125,
-      "experienceToNext": "45424",
-      "totalExperience": "2395162",
+      "experienceToNext": "5250000",
+      "totalExperience": "325500000",
       "statPointsReward": 5,
       "skillPointsReward": 1,
       "hpBonus": 0,
       "mpBonus": 0,
       "bracketTier": 13,
-      "updatedAt": "2026-11-13T06:33:04.221Z"
+      "updatedAt": "2026-11-17T13:43:01.627Z"
     },
     {
       "level": 126,
-      "experienceToNext": "45917",
-      "totalExperience": "2440586",
+      "experienceToNext": "5292000",
+      "totalExperience": "330750000",
       "statPointsReward": 5,
       "skillPointsReward": 1,
       "hpBonus": 0,
       "mpBonus": 0,
       "bracketTier": 13,
-      "updatedAt": "2026-11-13T06:33:04.222Z"
+      "updatedAt": "2026-11-17T13:43:01.627Z"
     },
     {
       "level": 127,
-      "experienceToNext": "46411",
-      "totalExperience": "2486503",
+      "experienceToNext": "5334000",
+      "totalExperience": "336042000",
       "statPointsReward": 5,
       "skillPointsReward": 1,
       "hpBonus": 0,
       "mpBonus": 0,
       "bracketTier": 13,
-      "updatedAt": "2026-11-13T06:33:04.223Z"
+      "updatedAt": "2026-11-17T13:43:01.627Z"
     },
     {
       "level": 128,
-      "experienceToNext": "46906",
-      "totalExperience": "2532914",
+      "experienceToNext": "5376000",
+      "totalExperience": "341376000",
       "statPointsReward": 5,
       "skillPointsReward": 1,
       "hpBonus": 0,
       "mpBonus": 0,
       "bracketTier": 13,
-      "updatedAt": "2026-11-13T06:33:04.223Z"
+      "updatedAt": "2026-11-17T13:43:01.627Z"
     },
     {
       "level": 129,
-      "experienceToNext": "47403",
-      "totalExperience": "2579820",
+      "experienceToNext": "5418000",
+      "totalExperience": "346752000",
       "statPointsReward": 5,
       "skillPointsReward": 1,
       "hpBonus": 0,
       "mpBonus": 0,
       "bracketTier": 13,
-      "updatedAt": "2026-11-13T06:33:04.224Z"
+      "updatedAt": "2026-11-17T13:43:01.627Z"
     },
     {
       "level": 130,
-      "experienceToNext": "47901",
-      "totalExperience": "2627223",
+      "experienceToNext": "5460000",
+      "totalExperience": "352170000",
       "statPointsReward": 5,
       "skillPointsReward": 1,
       "hpBonus": 0,
       "mpBonus": 0,
       "bracketTier": 13,
-      "updatedAt": "2026-11-13T06:33:04.225Z"
+      "updatedAt": "2026-11-17T13:43:01.627Z"
     },
     {
       "level": 131,
-      "experienceToNext": "48401",
-      "totalExperience": "2675124",
+      "experienceToNext": "5502000",
+      "totalExperience": "357630000",
       "statPointsReward": 5,
       "skillPointsReward": 1,
       "hpBonus": 0,
       "mpBonus": 0,
       "bracketTier": 14,
-      "updatedAt": "2026-11-13T06:33:04.225Z"
+      "updatedAt": "2026-11-17T13:43:01.627Z"
     },
     {
       "level": 132,
-      "experienceToNext": "48902",
-      "totalExperience": "2723525",
+      "experienceToNext": "5544000",
+      "totalExperience": "363132000",
       "statPointsReward": 5,
       "skillPointsReward": 1,
       "hpBonus": 0,
       "mpBonus": 0,
       "bracketTier": 14,
-      "updatedAt": "2026-11-13T06:33:04.226Z"
+      "updatedAt": "2026-11-17T13:43:01.627Z"
     },
     {
       "level": 133,
-      "experienceToNext": "49404",
-      "totalExperience": "2772427",
+      "experienceToNext": "5586000",
+      "totalExperience": "368676000",
       "statPointsReward": 5,
       "skillPointsReward": 1,
       "hpBonus": 0,
       "mpBonus": 0,
       "bracketTier": 14,
-      "updatedAt": "2026-11-13T06:33:04.227Z"
+      "updatedAt": "2026-11-17T13:43:01.627Z"
     },
     {
       "level": 134,
-      "experienceToNext": "49908",
-      "totalExperience": "2821831",
+      "experienceToNext": "5628000",
+      "totalExperience": "374262000",
       "statPointsReward": 5,
       "skillPointsReward": 1,
       "hpBonus": 0,
       "mpBonus": 0,
       "bracketTier": 14,
-      "updatedAt": "2026-11-13T06:33:04.227Z"
+      "updatedAt": "2026-11-17T13:43:01.627Z"
     },
     {
       "level": 135,
-      "experienceToNext": "50413",
-      "totalExperience": "2871739",
+      "experienceToNext": "5670000",
+      "totalExperience": "379890000",
       "statPointsReward": 5,
       "skillPointsReward": 1,
       "hpBonus": 0,
       "mpBonus": 0,
       "bracketTier": 14,
-      "updatedAt": "2026-11-13T06:33:04.228Z"
+      "updatedAt": "2026-11-17T13:43:01.627Z"
     },
     {
       "level": 136,
-      "experienceToNext": "50919",
-      "totalExperience": "2922152",
+      "experienceToNext": "5712000",
+      "totalExperience": "385560000",
       "statPointsReward": 5,
       "skillPointsReward": 1,
       "hpBonus": 0,
       "mpBonus": 0,
       "bracketTier": 14,
-      "updatedAt": "2026-11-13T06:33:04.229Z"
+      "updatedAt": "2026-11-17T13:43:01.627Z"
     },
     {
       "level": 137,
-      "experienceToNext": "51427",
-      "totalExperience": "2973071",
+      "experienceToNext": "5754000",
+      "totalExperience": "391272000",
       "statPointsReward": 5,
       "skillPointsReward": 1,
       "hpBonus": 0,
       "mpBonus": 0,
       "bracketTier": 14,
-      "updatedAt": "2026-11-13T06:33:04.230Z"
+      "updatedAt": "2026-11-17T13:43:01.627Z"
     },
     {
       "level": 138,
-      "experienceToNext": "51936",
-      "totalExperience": "3024498",
+      "experienceToNext": "5796000",
+      "totalExperience": "397026000",
       "statPointsReward": 5,
       "skillPointsReward": 1,
       "hpBonus": 0,
       "mpBonus": 0,
       "bracketTier": 14,
-      "updatedAt": "2026-11-13T06:33:04.230Z"
+      "updatedAt": "2026-11-17T13:43:01.627Z"
     },
     {
       "level": 139,
-      "experienceToNext": "52447",
-      "totalExperience": "3076434",
+      "experienceToNext": "5838000",
+      "totalExperience": "402822000",
       "statPointsReward": 5,
       "skillPointsReward": 1,
       "hpBonus": 0,
       "mpBonus": 0,
       "bracketTier": 14,
-      "updatedAt": "2026-11-13T06:33:04.231Z"
+      "updatedAt": "2026-11-17T13:43:01.627Z"
     },
     {
       "level": 140,
-      "experienceToNext": "52959",
-      "totalExperience": "3128881",
+      "experienceToNext": "5880000",
+      "totalExperience": "408660000",
       "statPointsReward": 5,
       "skillPointsReward": 1,
       "hpBonus": 0,
       "mpBonus": 0,
       "bracketTier": 14,
-      "updatedAt": "2026-11-13T06:33:04.232Z"
+      "updatedAt": "2026-11-17T13:43:01.627Z"
     },
     {
       "level": 141,
-      "experienceToNext": "53472",
-      "totalExperience": "3181840",
+      "experienceToNext": "5922000",
+      "totalExperience": "414540000",
       "statPointsReward": 5,
       "skillPointsReward": 1,
       "hpBonus": 0,
       "mpBonus": 0,
       "bracketTier": 15,
-      "updatedAt": "2026-11-13T06:33:04.232Z"
+      "updatedAt": "2026-11-17T13:43:01.627Z"
     },
     {
       "level": 142,
-      "experienceToNext": "53986",
-      "totalExperience": "3235312",
+      "experienceToNext": "5964000",
+      "totalExperience": "420462000",
       "statPointsReward": 5,
       "skillPointsReward": 1,
       "hpBonus": 0,
       "mpBonus": 0,
       "bracketTier": 15,
-      "updatedAt": "2026-11-13T06:33:04.233Z"
+      "updatedAt": "2026-11-17T13:43:01.627Z"
     },
     {
       "level": 143,
-      "experienceToNext": "54502",
-      "totalExperience": "3289298",
+      "experienceToNext": "6006000",
+      "totalExperience": "426426000",
       "statPointsReward": 5,
       "skillPointsReward": 1,
       "hpBonus": 0,
       "mpBonus": 0,
       "bracketTier": 15,
-      "updatedAt": "2026-11-13T06:33:04.234Z"
+      "updatedAt": "2026-11-17T13:43:01.627Z"
     },
     {
       "level": 144,
-      "experienceToNext": "55019",
-      "totalExperience": "3343800",
+      "experienceToNext": "6048000",
+      "totalExperience": "432432000",
       "statPointsReward": 5,
       "skillPointsReward": 1,
       "hpBonus": 0,
       "mpBonus": 0,
       "bracketTier": 15,
-      "updatedAt": "2026-11-13T06:33:04.234Z"
+      "updatedAt": "2026-11-17T13:43:01.627Z"
     },
     {
       "level": 145,
-      "experienceToNext": "55538",
-      "totalExperience": "3398819",
+      "experienceToNext": "6090000",
+      "totalExperience": "438480000",
       "statPointsReward": 5,
       "skillPointsReward": 1,
       "hpBonus": 0,
       "mpBonus": 0,
       "bracketTier": 15,
-      "updatedAt": "2026-11-13T06:33:04.235Z"
+      "updatedAt": "2026-11-17T13:43:01.627Z"
     },
     {
       "level": 146,
-      "experienceToNext": "56057",
-      "totalExperience": "3454357",
+      "experienceToNext": "6132000",
+      "totalExperience": "444570000",
       "statPointsReward": 5,
       "skillPointsReward": 1,
       "hpBonus": 0,
       "mpBonus": 0,
       "bracketTier": 15,
-      "updatedAt": "2026-11-13T06:33:04.236Z"
+      "updatedAt": "2026-11-17T13:43:01.627Z"
     },
     {
       "level": 147,
-      "experienceToNext": "56578",
-      "totalExperience": "3510414",
+      "experienceToNext": "6174000",
+      "totalExperience": "450702000",
       "statPointsReward": 5,
       "skillPointsReward": 1,
       "hpBonus": 0,
       "mpBonus": 0,
       "bracketTier": 15,
-      "updatedAt": "2026-11-13T06:33:04.237Z"
+      "updatedAt": "2026-11-17T13:43:01.627Z"
     },
     {
       "level": 148,
-      "experienceToNext": "57101",
-      "totalExperience": "3566992",
+      "experienceToNext": "6216000",
+      "totalExperience": "456876000",
       "statPointsReward": 5,
       "skillPointsReward": 1,
       "hpBonus": 0,
       "mpBonus": 0,
       "bracketTier": 15,
-      "updatedAt": "2026-11-13T06:33:04.237Z"
+      "updatedAt": "2026-11-17T13:43:01.627Z"
     },
     {
       "level": 149,
-      "experienceToNext": "57624",
-      "totalExperience": "3624093",
+      "experienceToNext": "6258000",
+      "totalExperience": "463092000",
       "statPointsReward": 5,
       "skillPointsReward": 1,
       "hpBonus": 0,
       "mpBonus": 0,
       "bracketTier": 15,
-      "updatedAt": "2026-11-13T06:33:04.238Z"
+      "updatedAt": "2026-11-17T13:43:01.627Z"
     },
     {
       "level": 150,
-      "experienceToNext": "58149",
-      "totalExperience": "3681717",
+      "experienceToNext": "6300000",
+      "totalExperience": "469350000",
       "statPointsReward": 5,
       "skillPointsReward": 1,
       "hpBonus": 0,
       "mpBonus": 0,
       "bracketTier": 15,
-      "updatedAt": "2026-11-13T06:33:04.239Z"
+      "updatedAt": "2026-11-17T13:43:01.627Z"
     },
     {
       "level": 151,
-      "experienceToNext": "58675",
-      "totalExperience": "3739866",
+      "experienceToNext": "6342000",
+      "totalExperience": "475650000",
       "statPointsReward": 5,
       "skillPointsReward": 1,
       "hpBonus": 0,
       "mpBonus": 0,
       "bracketTier": 16,
-      "updatedAt": "2026-11-13T06:33:04.239Z"
+      "updatedAt": "2026-11-17T13:43:01.627Z"
     },
     {
       "level": 152,
-      "experienceToNext": "59203",
-      "totalExperience": "3798541",
+      "experienceToNext": "6384000",
+      "totalExperience": "481992000",
       "statPointsReward": 5,
       "skillPointsReward": 1,
       "hpBonus": 0,
       "mpBonus": 0,
       "bracketTier": 16,
-      "updatedAt": "2026-11-13T06:33:04.240Z"
+      "updatedAt": "2026-11-17T13:43:01.627Z"
     },
     {
       "level": 153,
-      "experienceToNext": "59732",
-      "totalExperience": "3857744",
+      "experienceToNext": "6426000",
+      "totalExperience": "488376000",
       "statPointsReward": 5,
       "skillPointsReward": 1,
       "hpBonus": 0,
       "mpBonus": 0,
       "bracketTier": 16,
-      "updatedAt": "2026-11-13T06:33:04.241Z"
+      "updatedAt": "2026-11-17T13:43:01.627Z"
     },
     {
       "level": 154,
-      "experienceToNext": "60262",
-      "totalExperience": "3917476",
+      "experienceToNext": "6468000",
+      "totalExperience": "494802000",
       "statPointsReward": 5,
       "skillPointsReward": 1,
       "hpBonus": 0,
       "mpBonus": 0,
       "bracketTier": 16,
-      "updatedAt": "2026-11-13T06:33:04.241Z"
+      "updatedAt": "2026-11-17T13:43:01.627Z"
     },
     {
       "level": 155,
-      "experienceToNext": "60793",
-      "totalExperience": "3977738",
+      "experienceToNext": "6510000",
+      "totalExperience": "501270000",
       "statPointsReward": 5,
       "skillPointsReward": 1,
       "hpBonus": 0,
       "mpBonus": 0,
       "bracketTier": 16,
-      "updatedAt": "2026-11-13T06:33:04.242Z"
+      "updatedAt": "2026-11-17T13:43:01.627Z"
     },
     {
       "level": 156,
-      "experienceToNext": "61325",
-      "totalExperience": "4038531",
+      "experienceToNext": "6552000",
+      "totalExperience": "507780000",
       "statPointsReward": 5,
       "skillPointsReward": 1,
       "hpBonus": 0,
       "mpBonus": 0,
       "bracketTier": 16,
-      "updatedAt": "2026-11-13T06:33:04.243Z"
+      "updatedAt": "2026-11-17T13:43:01.627Z"
     },
     {
       "level": 157,
-      "experienceToNext": "61859",
-      "totalExperience": "4099856",
+      "experienceToNext": "6594000",
+      "totalExperience": "514332000",
       "statPointsReward": 5,
       "skillPointsReward": 1,
       "hpBonus": 0,
       "mpBonus": 0,
       "bracketTier": 16,
-      "updatedAt": "2026-11-13T06:33:04.244Z"
+      "updatedAt": "2026-11-17T13:43:01.627Z"
     },
     {
       "level": 158,
-      "experienceToNext": "62394",
-      "totalExperience": "4161715",
+      "experienceToNext": "6636000",
+      "totalExperience": "520926000",
       "statPointsReward": 5,
       "skillPointsReward": 1,
       "hpBonus": 0,
       "mpBonus": 0,
       "bracketTier": 16,
-      "updatedAt": "2026-11-13T06:33:04.244Z"
+      "updatedAt": "2026-11-17T13:43:01.627Z"
     },
     {
       "level": 159,
-      "experienceToNext": "62930",
-      "totalExperience": "4224109",
+      "experienceToNext": "6678000",
+      "totalExperience": "527562000",
       "statPointsReward": 5,
       "skillPointsReward": 1,
       "hpBonus": 0,
       "mpBonus": 0,
       "bracketTier": 16,
-      "updatedAt": "2026-11-13T06:33:04.245Z"
+      "updatedAt": "2026-11-17T13:43:01.627Z"
     },
     {
       "level": 160,
-      "experienceToNext": "63467",
-      "totalExperience": "4287039",
+      "experienceToNext": "6720000",
+      "totalExperience": "534240000",
       "statPointsReward": 5,
       "skillPointsReward": 1,
       "hpBonus": 0,
       "mpBonus": 0,
       "bracketTier": 16,
-      "updatedAt": "2026-11-13T06:33:04.246Z"
+      "updatedAt": "2026-11-17T13:43:01.627Z"
     },
     {
       "level": 161,
-      "experienceToNext": "64006",
-      "totalExperience": "4350506",
+      "experienceToNext": "6762000",
+      "totalExperience": "540960000",
       "statPointsReward": 5,
       "skillPointsReward": 1,
       "hpBonus": 0,
       "mpBonus": 0,
       "bracketTier": 17,
-      "updatedAt": "2026-11-13T06:33:04.247Z"
+      "updatedAt": "2026-11-17T13:43:01.627Z"
     },
     {
       "level": 162,
-      "experienceToNext": "64546",
-      "totalExperience": "4414512",
+      "experienceToNext": "6804000",
+      "totalExperience": "547722000",
       "statPointsReward": 5,
       "skillPointsReward": 1,
       "hpBonus": 0,
       "mpBonus": 0,
       "bracketTier": 17,
-      "updatedAt": "2026-11-13T06:33:04.247Z"
+      "updatedAt": "2026-11-17T13:43:01.627Z"
     },
     {
       "level": 163,
-      "experienceToNext": "65087",
-      "totalExperience": "4479058",
+      "experienceToNext": "6846000",
+      "totalExperience": "554526000",
       "statPointsReward": 5,
       "skillPointsReward": 1,
       "hpBonus": 0,
       "mpBonus": 0,
       "bracketTier": 17,
-      "updatedAt": "2026-11-13T06:33:04.248Z"
+      "updatedAt": "2026-11-17T13:43:01.627Z"
     },
     {
       "level": 164,
-      "experienceToNext": "65629",
-      "totalExperience": "4544145",
+      "experienceToNext": "6888000",
+      "totalExperience": "561372000",
       "statPointsReward": 5,
       "skillPointsReward": 1,
       "hpBonus": 0,
       "mpBonus": 0,
       "bracketTier": 17,
-      "updatedAt": "2026-11-13T06:33:04.249Z"
+      "updatedAt": "2026-11-17T13:43:01.627Z"
     },
     {
       "level": 165,
-      "experienceToNext": "66173",
-      "totalExperience": "4609774",
+      "experienceToNext": "6930000",
+      "totalExperience": "568260000",
       "statPointsReward": 5,
       "skillPointsReward": 1,
       "hpBonus": 0,
       "mpBonus": 0,
       "bracketTier": 17,
-      "updatedAt": "2026-11-13T06:33:04.250Z"
+      "updatedAt": "2026-11-17T13:43:01.627Z"
     },
     {
       "level": 166,
-      "experienceToNext": "66717",
-      "totalExperience": "4675947",
+      "experienceToNext": "6972000",
+      "totalExperience": "575190000",
       "statPointsReward": 5,
       "skillPointsReward": 1,
       "hpBonus": 0,
       "mpBonus": 0,
       "bracketTier": 17,
-      "updatedAt": "2026-11-13T06:33:04.250Z"
+      "updatedAt": "2026-11-17T13:43:01.627Z"
     },
     {
       "level": 167,
-      "experienceToNext": "67263",
-      "totalExperience": "4742664",
+      "experienceToNext": "7014000",
+      "totalExperience": "582162000",
       "statPointsReward": 5,
       "skillPointsReward": 1,
       "hpBonus": 0,
       "mpBonus": 0,
       "bracketTier": 17,
-      "updatedAt": "2026-11-13T06:33:04.251Z"
+      "updatedAt": "2026-11-17T13:43:01.627Z"
     },
     {
       "level": 168,
-      "experienceToNext": "67810",
-      "totalExperience": "4809927",
+      "experienceToNext": "7056000",
+      "totalExperience": "589176000",
       "statPointsReward": 5,
       "skillPointsReward": 1,
       "hpBonus": 0,
       "mpBonus": 0,
       "bracketTier": 17,
-      "updatedAt": "2026-11-13T06:33:04.252Z"
+      "updatedAt": "2026-11-17T13:43:01.627Z"
     },
     {
       "level": 169,
-      "experienceToNext": "68359",
-      "totalExperience": "4877737",
+      "experienceToNext": "7098000",
+      "totalExperience": "596232000",
       "statPointsReward": 5,
       "skillPointsReward": 1,
       "hpBonus": 0,
       "mpBonus": 0,
       "bracketTier": 17,
-      "updatedAt": "2026-11-13T06:33:04.252Z"
+      "updatedAt": "2026-11-17T13:43:01.627Z"
     },
     {
       "level": 170,
-      "experienceToNext": "68908",
-      "totalExperience": "4946096",
+      "experienceToNext": "7140000",
+      "totalExperience": "603330000",
       "statPointsReward": 5,
       "skillPointsReward": 1,
       "hpBonus": 0,
       "mpBonus": 0,
       "bracketTier": 17,
-      "updatedAt": "2026-11-13T06:33:04.253Z"
+      "updatedAt": "2026-11-17T13:43:01.627Z"
     },
     {
       "level": 171,
-      "experienceToNext": "69459",
-      "totalExperience": "5015004",
+      "experienceToNext": "7182000",
+      "totalExperience": "610470000",
       "statPointsReward": 5,
       "skillPointsReward": 1,
       "hpBonus": 0,
       "mpBonus": 0,
       "bracketTier": 18,
-      "updatedAt": "2026-11-13T06:33:04.254Z"
+      "updatedAt": "2026-11-17T13:43:01.627Z"
     },
     {
       "level": 172,
-      "experienceToNext": "70011",
-      "totalExperience": "5084463",
+      "experienceToNext": "7224000",
+      "totalExperience": "617652000",
       "statPointsReward": 5,
       "skillPointsReward": 1,
       "hpBonus": 0,
       "mpBonus": 0,
       "bracketTier": 18,
-      "updatedAt": "2026-11-13T06:33:04.254Z"
+      "updatedAt": "2026-11-17T13:43:01.627Z"
     },
     {
       "level": 173,
-      "experienceToNext": "70564",
-      "totalExperience": "5154474",
+      "experienceToNext": "7266000",
+      "totalExperience": "624876000",
       "statPointsReward": 5,
       "skillPointsReward": 1,
       "hpBonus": 0,
       "mpBonus": 0,
       "bracketTier": 18,
-      "updatedAt": "2026-11-13T06:33:04.255Z"
+      "updatedAt": "2026-11-17T13:43:01.627Z"
     },
     {
       "level": 174,
-      "experienceToNext": "71118",
-      "totalExperience": "5225038",
+      "experienceToNext": "7308000",
+      "totalExperience": "632142000",
       "statPointsReward": 5,
       "skillPointsReward": 1,
       "hpBonus": 0,
       "mpBonus": 0,
       "bracketTier": 18,
-      "updatedAt": "2026-11-13T06:33:04.256Z"
+      "updatedAt": "2026-11-17T13:43:01.627Z"
     },
     {
       "level": 175,
-      "experienceToNext": "71673",
-      "totalExperience": "5296156",
+      "experienceToNext": "7350000",
+      "totalExperience": "639450000",
       "statPointsReward": 5,
       "skillPointsReward": 1,
       "hpBonus": 0,
       "mpBonus": 0,
       "bracketTier": 18,
-      "updatedAt": "2026-11-13T06:33:04.257Z"
+      "updatedAt": "2026-11-17T13:43:01.627Z"
     },
     {
       "level": 176,
-      "experienceToNext": "72230",
-      "totalExperience": "5367829",
+      "experienceToNext": "7392000",
+      "totalExperience": "646800000",
       "statPointsReward": 5,
       "skillPointsReward": 1,
       "hpBonus": 0,
       "mpBonus": 0,
       "bracketTier": 18,
-      "updatedAt": "2026-11-13T06:33:04.257Z"
+      "updatedAt": "2026-11-17T13:43:01.627Z"
     },
     {
       "level": 177,
-      "experienceToNext": "72787",
-      "totalExperience": "5440059",
+      "experienceToNext": "7434000",
+      "totalExperience": "654192000",
       "statPointsReward": 5,
       "skillPointsReward": 1,
       "hpBonus": 0,
       "mpBonus": 0,
       "bracketTier": 18,
-      "updatedAt": "2026-11-13T06:33:04.258Z"
+      "updatedAt": "2026-11-17T13:43:01.627Z"
     },
     {
       "level": 178,
-      "experienceToNext": "73346",
-      "totalExperience": "5512846",
+      "experienceToNext": "7476000",
+      "totalExperience": "661626000",
       "statPointsReward": 5,
       "skillPointsReward": 1,
       "hpBonus": 0,
       "mpBonus": 0,
       "bracketTier": 18,
-      "updatedAt": "2026-11-13T06:33:04.259Z"
+      "updatedAt": "2026-11-17T13:43:01.627Z"
     },
     {
       "level": 179,
-      "experienceToNext": "73906",
-      "totalExperience": "5586192",
+      "experienceToNext": "7518000",
+      "totalExperience": "669102000",
       "statPointsReward": 5,
       "skillPointsReward": 1,
       "hpBonus": 0,
       "mpBonus": 0,
       "bracketTier": 18,
-      "updatedAt": "2026-11-13T06:33:04.260Z"
+      "updatedAt": "2026-11-17T13:43:01.627Z"
     },
     {
       "level": 180,
-      "experienceToNext": "74467",
-      "totalExperience": "5660098",
+      "experienceToNext": "7560000",
+      "totalExperience": "676620000",
       "statPointsReward": 5,
       "skillPointsReward": 1,
       "hpBonus": 0,
       "mpBonus": 0,
       "bracketTier": 18,
-      "updatedAt": "2026-11-13T06:33:04.260Z"
+      "updatedAt": "2026-11-17T13:43:01.627Z"
     },
     {
       "level": 181,
-      "experienceToNext": "75030",
-      "totalExperience": "5734565",
+      "experienceToNext": "7602000",
+      "totalExperience": "684180000",
       "statPointsReward": 5,
       "skillPointsReward": 1,
       "hpBonus": 0,
       "mpBonus": 0,
       "bracketTier": 19,
-      "updatedAt": "2026-11-13T06:33:04.261Z"
+      "updatedAt": "2026-11-17T13:43:01.627Z"
     },
     {
       "level": 182,
-      "experienceToNext": "75593",
-      "totalExperience": "5809595",
+      "experienceToNext": "7644000",
+      "totalExperience": "691782000",
       "statPointsReward": 5,
       "skillPointsReward": 1,
       "hpBonus": 0,
       "mpBonus": 0,
       "bracketTier": 19,
-      "updatedAt": "2026-11-13T06:33:04.262Z"
+      "updatedAt": "2026-11-17T13:43:01.627Z"
     },
     {
       "level": 183,
-      "experienceToNext": "76157",
-      "totalExperience": "5885188",
+      "experienceToNext": "7686000",
+      "totalExperience": "699426000",
       "statPointsReward": 5,
       "skillPointsReward": 1,
       "hpBonus": 0,
       "mpBonus": 0,
       "bracketTier": 19,
-      "updatedAt": "2026-11-13T06:33:04.264Z"
+      "updatedAt": "2026-11-17T13:43:01.627Z"
     },
     {
       "level": 184,
-      "experienceToNext": "76723",
-      "totalExperience": "5961345",
+      "experienceToNext": "7728000",
+      "totalExperience": "707112000",
       "statPointsReward": 5,
       "skillPointsReward": 1,
       "hpBonus": 0,
       "mpBonus": 0,
       "bracketTier": 19,
-      "updatedAt": "2026-11-13T06:33:04.265Z"
+      "updatedAt": "2026-11-17T13:43:01.627Z"
     },
     {
       "level": 185,
-      "experienceToNext": "77290",
-      "totalExperience": "6038068",
+      "experienceToNext": "7770000",
+      "totalExperience": "714840000",
       "statPointsReward": 5,
       "skillPointsReward": 1,
       "hpBonus": 0,
       "mpBonus": 0,
       "bracketTier": 19,
-      "updatedAt": "2026-11-13T06:33:04.267Z"
+      "updatedAt": "2026-11-17T13:43:01.627Z"
     },
     {
       "level": 186,
-      "experienceToNext": "77858",
-      "totalExperience": "6115358",
+      "experienceToNext": "7812000",
+      "totalExperience": "722610000",
       "statPointsReward": 5,
       "skillPointsReward": 1,
       "hpBonus": 0,
       "mpBonus": 0,
       "bracketTier": 19,
-      "updatedAt": "2026-11-13T06:33:04.268Z"
+      "updatedAt": "2026-11-17T13:43:01.627Z"
     },
     {
       "level": 187,
-      "experienceToNext": "78427",
-      "totalExperience": "6193216",
+      "experienceToNext": "7854000",
+      "totalExperience": "730422000",
       "statPointsReward": 5,
       "skillPointsReward": 1,
       "hpBonus": 0,
       "mpBonus": 0,
       "bracketTier": 19,
-      "updatedAt": "2026-11-13T06:33:04.268Z"
+      "updatedAt": "2026-11-17T13:43:01.627Z"
     },
     {
       "level": 188,
-      "experienceToNext": "78997",
-      "totalExperience": "6271643",
+      "experienceToNext": "7896000",
+      "totalExperience": "738276000",
       "statPointsReward": 5,
       "skillPointsReward": 1,
       "hpBonus": 0,
       "mpBonus": 0,
       "bracketTier": 19,
-      "updatedAt": "2026-11-13T06:33:04.270Z"
+      "updatedAt": "2026-11-17T13:43:01.627Z"
     },
     {
       "level": 189,
-      "experienceToNext": "79568",
-      "totalExperience": "6350640",
+      "experienceToNext": "7938000",
+      "totalExperience": "746172000",
       "statPointsReward": 5,
       "skillPointsReward": 1,
       "hpBonus": 0,
       "mpBonus": 0,
       "bracketTier": 19,
-      "updatedAt": "2026-11-13T06:33:04.272Z"
+      "updatedAt": "2026-11-17T13:43:01.627Z"
     },
     {
       "level": 190,
-      "experienceToNext": "80140",
-      "totalExperience": "6430208",
+      "experienceToNext": "7980000",
+      "totalExperience": "754110000",
       "statPointsReward": 5,
       "skillPointsReward": 1,
       "hpBonus": 0,
       "mpBonus": 0,
       "bracketTier": 19,
-      "updatedAt": "2026-11-13T06:33:04.273Z"
+      "updatedAt": "2026-11-17T13:43:01.627Z"
     },
     {
       "level": 191,
-      "experienceToNext": "80714",
-      "totalExperience": "6510348",
+      "experienceToNext": "8022000",
+      "totalExperience": "762090000",
       "statPointsReward": 5,
       "skillPointsReward": 1,
       "hpBonus": 0,
       "mpBonus": 0,
       "bracketTier": 20,
-      "updatedAt": "2026-11-13T06:33:04.274Z"
+      "updatedAt": "2026-11-17T13:43:01.627Z"
     },
     {
       "level": 192,
-      "experienceToNext": "81288",
-      "totalExperience": "6591062",
+      "experienceToNext": "8064000",
+      "totalExperience": "770112000",
       "statPointsReward": 5,
       "skillPointsReward": 1,
       "hpBonus": 0,
       "mpBonus": 0,
       "bracketTier": 20,
-      "updatedAt": "2026-11-13T06:33:04.275Z"
+      "updatedAt": "2026-11-17T13:43:01.627Z"
     },
     {
       "level": 193,
-      "experienceToNext": "81864",
-      "totalExperience": "6672350",
+      "experienceToNext": "8106000",
+      "totalExperience": "778176000",
       "statPointsReward": 5,
       "skillPointsReward": 1,
       "hpBonus": 0,
       "mpBonus": 0,
       "bracketTier": 20,
-      "updatedAt": "2026-11-13T06:33:04.276Z"
+      "updatedAt": "2026-11-17T13:43:01.627Z"
     },
     {
       "level": 194,
-      "experienceToNext": "82441",
-      "totalExperience": "6754214",
+      "experienceToNext": "8148000",
+      "totalExperience": "786282000",
       "statPointsReward": 5,
       "skillPointsReward": 1,
       "hpBonus": 0,
       "mpBonus": 0,
       "bracketTier": 20,
-      "updatedAt": "2026-11-13T06:33:04.278Z"
+      "updatedAt": "2026-11-17T13:43:01.627Z"
     },
     {
       "level": 195,
-      "experienceToNext": "83019",
-      "totalExperience": "6836655",
+      "experienceToNext": "8190000",
+      "totalExperience": "794430000",
       "statPointsReward": 5,
       "skillPointsReward": 1,
       "hpBonus": 0,
       "mpBonus": 0,
       "bracketTier": 20,
-      "updatedAt": "2026-11-13T06:33:04.279Z"
+      "updatedAt": "2026-11-17T13:43:01.627Z"
     },
     {
       "level": 196,
-      "experienceToNext": "83598",
-      "totalExperience": "6919674",
+      "experienceToNext": "8232000",
+      "totalExperience": "802620000",
       "statPointsReward": 5,
       "skillPointsReward": 1,
       "hpBonus": 0,
       "mpBonus": 0,
       "bracketTier": 20,
-      "updatedAt": "2026-11-13T06:33:04.281Z"
+      "updatedAt": "2026-11-17T13:43:01.627Z"
     },
     {
       "level": 197,
-      "experienceToNext": "84178",
-      "totalExperience": "7003272",
+      "experienceToNext": "8274000",
+      "totalExperience": "810852000",
       "statPointsReward": 5,
       "skillPointsReward": 1,
       "hpBonus": 0,
       "mpBonus": 0,
       "bracketTier": 20,
-      "updatedAt": "2026-11-13T06:33:04.281Z"
+      "updatedAt": "2026-11-17T13:43:01.627Z"
     },
     {
       "level": 198,
-      "experienceToNext": "84759",
-      "totalExperience": "7087450",
+      "experienceToNext": "8316000",
+      "totalExperience": "819126000",
       "statPointsReward": 5,
       "skillPointsReward": 1,
       "hpBonus": 0,
       "mpBonus": 0,
       "bracketTier": 20,
-      "updatedAt": "2026-11-13T06:33:04.282Z"
+      "updatedAt": "2026-11-17T13:43:01.627Z"
     },
     {
       "level": 199,
-      "experienceToNext": "85341",
-      "totalExperience": "7172209",
+      "experienceToNext": "8358000",
+      "totalExperience": "827442000",
       "statPointsReward": 5,
       "skillPointsReward": 1,
       "hpBonus": 0,
       "mpBonus": 0,
       "bracketTier": 20,
-      "updatedAt": "2026-11-13T06:33:04.283Z"
+      "updatedAt": "2026-11-17T13:43:01.627Z"
     },
     {
       "level": 200,
       "experienceToNext": "0",
-      "totalExperience": "7257550",
+      "totalExperience": "835800000",
       "statPointsReward": 5,
       "skillPointsReward": 1,
       "hpBonus": 0,
       "mpBonus": 0,
       "bracketTier": 20,
-      "updatedAt": "2026-11-13T06:33:04.284Z"
+      "updatedAt": "2026-11-17T13:43:01.627Z"
     }
   ],
   "worldMapTemplates": [

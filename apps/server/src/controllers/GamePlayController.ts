@@ -18,6 +18,7 @@ import { PrismaClient, SnapshotManager, I18nCache } from '@etheria/database';
 import { MapPolygonMesh, type MapPolygon } from '@etheria/shared';
 import { MapSpawnResolver } from './MapSpawnResolver.js';
 import { CharacterInventoryService } from './CharacterInventoryService.js';
+import { CharacterProgressionService } from './CharacterProgressionService.js';
 import { AssetMirrorService } from './AssetMirrorService.js';
 
 export interface CreateCharacterDto {
@@ -157,8 +158,8 @@ export class GamePlayController {
       mapNameById.set(m.id, m.namePtBr);
     }
 
-    const characters = (
-      await this.prisma.playerCharacter.findMany({
+    const [rawCharacters, expMap] = await Promise.all([
+      this.prisma.playerCharacter.findMany({
         where: { userAccountId },
         orderBy: { id: 'asc' },
         include: {
@@ -169,8 +170,10 @@ export class GamePlayController {
             },
           },
         },
-      })
-    ).map((c) => this.serializeCharacter(c, i18nMap, mapNameById));
+      }),
+      CharacterProgressionService.getExperienceMap(this.prisma, 1),
+    ]);
+    const characters = rawCharacters.map((c) => this.serializeCharacter(c, i18nMap, mapNameById, expMap));
 
     const [availableMonstersAsPets, uiLayoutTemplates] = await Promise.all([
       this.prisma.monsterTemplate.findMany({
@@ -224,7 +227,12 @@ export class GamePlayController {
   /**
    * Serializa um registro `PlayerCharacter` convertendo `BigInt` (`experience`) e enriquecendo URLs de sprite.
    */
-  private serializeCharacter(c: any, i18nMap: Map<string, string>, mapNameById?: Map<number, string>) {
+  private serializeCharacter(
+    c: any,
+    i18nMap: Map<string, string>,
+    mapNameById?: Map<number, string>,
+    expMap?: Map<number, number>
+  ) {
     const classNamePtBr = c.classTemplate
       ? (i18nMap.get(c.classTemplate.nameI18nKey) ?? c.classTemplate.code)
       : `Classe #${c.classTemplateId}`;
@@ -244,6 +252,9 @@ export class GamePlayController {
     const shadowOffsetY = isUsingReborn
       ? (ct?.rebornShadowOffsetY ?? 0)
       : (ct?.shadowOffsetY ?? 0);
+
+    const charLvl = c.level || 1;
+    const charMaxXp = expMap?.get(charLvl) ?? (charLvl * 42000);
 
     return {
       id: c.id,
@@ -272,7 +283,7 @@ export class GamePlayController {
       elementNamePtBr,
       level: c.level,
       experience: Number(c.experience ?? 0),
-      maxXp: (c.level || 1) * 200,
+      maxXp: charMaxXp,
       gold: Number(c.gold ?? 0),
       unspentStatPoints: c.unspentStatPoints,
       distributedStatsJson: c.distributedStatsJson,
@@ -303,11 +314,13 @@ export class GamePlayController {
         const mt = cp.monsterTemplate;
         const petKey = mt?.mcreworkMonsterKey || 'creature_000001';
         const petName = cp.nickname || (mt ? (i18nMap.get(mt.nameI18nKey) ?? mt.code) : `Pet #${cp.id}`);
+        const petLvl = cp.level || 1;
+        const petMaxXp = expMap?.get(petLvl) ?? (petLvl * 42000);
         return {
           id: cp.id,
           monsterTemplateId: cp.monsterTemplateId,
           nickname: petName,
-          level: cp.level || 1,
+          level: petLvl,
           elementCode: mt?.fixedElementCode || cp.elementCode || 'NEUTRAL',
           raceCode: mt?.raceCode || 'BEAST',
           rarityTier: mt?.rarityTier || 'F',
@@ -320,8 +333,8 @@ export class GamePlayController {
           hpPct: 100,
           mpPct: 100,
           experience: Number(cp.experience ?? 0),
-          maxXp: (cp.level || 1) * 200,
-          xpPct: Math.min(100, Math.max(0, Math.round((Number(cp.experience ?? 0) / Math.max(1, (cp.level || 1) * 200)) * 100))),
+          maxXp: petMaxXp,
+          xpPct: Math.min(100, Math.max(0, Math.round((Number(cp.experience ?? 0) / Math.max(1, petMaxXp)) * 100))),
           thumbUrl: `${this.mcreworkPagesBaseUrl}/assets/monsters/${petKey}/thumb.webp`,
         };
       }),
@@ -332,7 +345,10 @@ export class GamePlayController {
    * Retorna os detalhes autoritativos completos de um Personagem para a ficha de atributos/status.
    */
   public async getCharacterById(userAccountId: number, role: string, characterId: number) {
-    const i18nMap = await I18nCache.getTranslations(this.prisma, 'pt-BR');
+    const [i18nMap, expMap] = await Promise.all([
+      I18nCache.getTranslations(this.prisma, 'pt-BR'),
+      CharacterProgressionService.getExperienceMap(this.prisma, 1),
+    ]);
     const isElevated = ['ADMIN', 'GM'].includes(role);
     const c = await this.prisma.playerCharacter.findFirst({
       where: isElevated ? { id: characterId } : { id: characterId, userAccountId },
@@ -353,7 +369,7 @@ export class GamePlayController {
     if (map) {
       mapNameById.set(map.id, i18nMap.get(map.nameI18nKey) ?? map.code);
     }
-    return this.serializeCharacter(c, i18nMap, mapNameById);
+    return this.serializeCharacter(c, i18nMap, mapNameById, expMap);
   }
 
   /**

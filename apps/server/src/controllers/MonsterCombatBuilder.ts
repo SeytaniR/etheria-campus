@@ -104,6 +104,62 @@ export class MonsterCombatBuilder {
     COMMON: { hp: 1.0, atk: 1.0, def: 1.0, critBonus: 0.00, accBonus: 0, spawnWeight: 140 },
   };
 
+  /**
+   * Unidade base de XP por nível de um monstro Rank F Comum (28 XP).
+   * Como 1.500 × 28 = 42.000 (MMC exato de 1500, 1200, 1000, 700, 300, 150 e 100),
+   * todas as classes de raridade entregam valores inteiros perfeitos de XP.
+   */
+  public static readonly BASE_UNIT_XP_PER_LEVEL = 28;
+  public static readonly DEFAULT_BASE_KILL_TARGET = 1500;
+
+  /**
+   * Pesos de XP por Rank (relativos ao Rank F = 1.0x):
+   * F = 1.00x (100% dos abates -> 1.500 na âncora 1500)
+   * D = 1.25x (80% dos abates -> 1.200 na âncora 1500)
+   * C = 1.50x (66,67% dos abates -> 1.000 na âncora 1500)
+   * B = 15/7x (~2.1429x, 46,67% dos abates -> 700 na âncora 1500)
+   * A = 5.00x (20% dos abates -> 300 na âncora 1500)
+   * S = 10.00x (10% dos abates -> 150 na âncora 1500)
+   * SS = 15.00x (6,67% dos abates -> 100 na âncora 1500)
+   */
+  public static readonly RANK_XP_WEIGHTS: Record<string, number> = {
+    F: 1.0,
+    COMMON: 1.0,
+    D: 1.25,
+    C: 1.5,
+    B: 15 / 7,
+    A: 5.0,
+    S: 10.0,
+    SS: 15.0,
+  };
+
+  /**
+   * Multiplicadores de XP por Hierarquia (Variante):
+   * NORMAL = 1.00x (100% dos abates)
+   * LEADER = 1 / 0.85 (~1.1765x -> exatamente 15% a menos de abates)
+   * BOSS   = 1 / 0.70 (~1.4286x -> exatamente 30% a menos de abates)
+   */
+  public static readonly VARIANT_XP_WEIGHTS: Record<MonsterVariantTier, number> = {
+    NORMAL: 1.0,
+    LEADER: 1 / 0.85,
+    BOSS: 1 / 0.70,
+  };
+
+  public static calculateMonsterExpReward(
+    level: number,
+    rarityTier?: string | null,
+    variantTier: MonsterVariantTier = 'NORMAL'
+  ): number {
+    const mobLvl = Math.max(1, Math.round(Number(level) || 1));
+    const rKey = String(rarityTier || 'F').trim().toUpperCase();
+    const rankWeight = MonsterCombatBuilder.RANK_XP_WEIGHTS[rKey] ?? 1.0;
+    const variantWeight = MonsterCombatBuilder.VARIANT_XP_WEIGHTS[variantTier] ?? 1.0;
+    return Math.max(
+      1,
+      Math.round(MonsterCombatBuilder.BASE_UNIT_XP_PER_LEVEL * mobLvl * rankWeight * variantWeight)
+    );
+  }
+
   public static async loadScalingContext(prisma: any): Promise<MonsterScalingContext> {
     const [conversions, battleMoveAttr, elementMatchups] = await Promise.all([
       prisma.attributeConversion.findMany(),
@@ -231,6 +287,7 @@ export class MonsterCombatBuilder {
     const modelScale = variantTier === 'BOSS' ? 1.65 : variantTier === 'LEADER' ? 1.28 : 1.0;
     const nameColorHex = variantTier === 'BOSS' ? '#fb7185' : variantTier === 'LEADER' ? '#38bdf8' : '#f8fafc';
     const rewardMultiplier = variantTier === 'BOSS' ? 4 : variantTier === 'LEADER' ? 2 : 1;
+    const expReward = this.calculateMonsterExpReward(mobLvl, rTier, variantTier);
 
     return {
       id: `mob_${template.id}_${index}`,
@@ -242,6 +299,7 @@ export class MonsterCombatBuilder {
       modelScale,
       nameColorHex,
       rewardMultiplier,
+      expReward,
       hp: maxHp,
       maxHp,
       mp: maxMp,

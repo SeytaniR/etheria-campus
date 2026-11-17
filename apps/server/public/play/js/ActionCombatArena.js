@@ -715,7 +715,7 @@ class ActionCombatArena {
     const aliveMobs = this.monsters.filter((m) => m.isAlive);
     if (aliveMobs.length === 0) {
       this.combatState = 'RESULT';
-      const expGained = this.monsters.reduce((acc, m) => acc + (Number(m.level) || 1) * 65 * Math.max(1, Number(m.rewardMultiplier) || 1), 0);
+      const expGained = this.monsters.reduce((acc, m) => acc + (Number(m.expReward) || (Number(m.level) || 1) * 28), 0);
       const goldGained = this.monsters.reduce((acc, m) => acc + Math.max(10, (Number(m.level) || 1) * 18) * Math.max(1, Number(m.rewardMultiplier) || 1), 0);
       const res = await this.recordBattleVictoryOnServer();
       const vData = { expGained, goldGained, ...(res || {}) };

@@ -12,6 +12,7 @@
 import { PrismaClient, SnapshotManager } from '@etheria/database';
 
 export interface ProceduralCurveDto {
+  baseKillTarget?: number;
   baseExperience?: number;
   growthExponent?: number;
   flatIncrement?: number;
@@ -78,18 +79,32 @@ export class AdminExperienceController {
   }
 
   /**
-   * Gera a curva procedural global para todos os níveis de 1 até maxLevel.
-   * Fórmula: XP(L) = Math.round(baseXP * Math.pow(L, exponent) + (L - 1) * flatIncrement)
+   * Gera a curva procedural global para todos os níveis de 1 até maxLevel (limite máximo = 1000).
+   * Quando `baseKillTarget` é informado (ex: 1500), utiliza a Constante MMC Base (28 XP × baseKillTarget = 42.000 no Nv.1)
+   * com progressão linear proporcional ao nível dos monstros (`XP(L) = (baseKillTarget * 28) * L`),
+   * garantindo a mesma meta exata de abates em todos os níveis (1500 F, 1200 D, 1000 C, 700 B, 300 A, 150 S, 100 SS; -15% Líder, -30% Boss).
    */
   public async generateProceduralCurve(dto: ProceduralCurveDto) {
-    const baseXP = Math.max(10, Number(dto.baseExperience) || 100);
-    const exponent = Math.max(1.0, Math.min(3.5, Number(dto.growthExponent) || 1.45));
-    const flatInc = Math.max(0, Number(dto.flatIncrement) || 50);
-    const maxLevel = Math.max(10, Math.min(200, Number(dto.maxLevel) || 100));
+    const hasKillTarget = dto.baseKillTarget !== undefined && Number(dto.baseKillTarget) > 0;
+    const baseKillTarget = hasKillTarget
+      ? Math.max(1, Math.round(Number(dto.baseKillTarget)))
+      : 1500;
+
+    const baseXP = hasKillTarget
+      ? baseKillTarget * 28
+      : Math.max(10, Number(dto.baseExperience) || (1500 * 28));
+    const exponent = dto.growthExponent !== undefined
+      ? Math.max(1.0, Math.min(3.5, Number(dto.growthExponent) || 1.0))
+      : 1.0;
+    const flatInc = dto.flatIncrement !== undefined
+      ? Math.max(0, Number(dto.flatIncrement) || 0)
+      : 0;
+    // Limite máximo oficial expandido até Nível 1000; o admin define o maxLevel atual do jogo
+    const maxLevel = Math.max(2, Math.min(1000, Math.round(Number(dto.maxLevel) || 200)));
     const statPts = Math.max(0, Number(dto.statPointsReward) ?? 5);
     const skillPts = Math.max(0, Number(dto.skillPointsReward) ?? 1);
-    const hpBonus = Math.max(0, Number(dto.hpBonus) ?? 20);
-    const mpBonus = Math.max(0, Number(dto.mpBonus) ?? 10);
+    const hpBonus = Math.max(0, Number(dto.hpBonus) ?? 0);
+    const mpBonus = Math.max(0, Number(dto.mpBonus) ?? 0);
 
     let cumulativeTotal = BigInt(0);
     const records: Array<{
@@ -108,7 +123,6 @@ export class AdminExperienceController {
       let expToNext = BigInt(0);
 
       if (lvl < maxLevel) {
-        // Cálculo procedural exponencial + linear suave
         const rawXp = Math.round(baseXP * Math.pow(lvl, exponent) + (lvl - 1) * flatInc);
         expToNext = BigInt(Math.max(10, rawXp));
       }
@@ -127,13 +141,14 @@ export class AdminExperienceController {
       cumulativeTotal += expToNext;
     }
 
-    // Executa em transação atômica: limpa e recria a progressão inteira
-    await this.prisma.$transaction(async (tx) => {
-      await tx.levelExperienceTemplate.deleteMany({});
-      for (const r of records) {
-        await tx.levelExperienceTemplate.create({ data: r });
-      }
-    });
+    // Executa em transação atômica em lote (createMany suporta até 1.000 níveis em milissegundos)
+    await this.prisma.$transaction(
+      async (tx) => {
+        await tx.levelExperienceTemplate.deleteMany({});
+        await tx.levelExperienceTemplate.createMany({ data: records });
+      },
+      { timeout: 30000 }
+    );
 
     try {
       await this.snapshotManager.exportToDisk();
@@ -143,8 +158,9 @@ export class AdminExperienceController {
 
     return {
       success: true,
-      message: `Curva procedural gerada com sucesso para ${records.length} níveis!`,
+      message: `Curva procedural gerada com sucesso para ${records.length} níveis (Meta Base: ${Math.round(baseXP / 28)} abates Rank F Comum)!`,
       totalLevels: records.length,
+      baseKillTarget: Math.round(baseXP / 28),
       maxLevelExperience: cumulativeTotal.toString(),
       levels: await this.getLevelExperienceTemplates(),
     };
@@ -182,20 +198,25 @@ export class AdminExperienceController {
     const hpB = typeof dto.hpBonus === 'number' ? dto.hpBonus : undefined;
     const mpB = typeof dto.mpBonus === 'number' ? dto.mpBonus : undefined;
 
+    const maxLevelNum = allLevels[allLevels.length - 1].level;
+
     // Atualiza os registros do grupo
     for (const lvlRec of targetLevels) {
-      let newExp = Number(lvlRec.experienceToNext);
-
-      if (dto.bracketBaseXp && dto.bracketGrowthExponent) {
-        // Sub-gerador procedural do bracket
-        const stepInBracket = lvlRec.level - minLvl + 1;
-        newExp = Math.round(dto.bracketBaseXp * Math.pow(stepInBracket, dto.bracketGrowthExponent));
+      if (lvlRec.level === maxLevelNum) {
+        lvlRec.experienceToNext = BigInt(0);
       } else {
-        if (mult !== 1.0) newExp = Math.round(newExp * mult);
-        if (offset !== 0) newExp = Math.max(10, newExp + offset);
-      }
+        let newExp = Number(lvlRec.experienceToNext);
 
-      lvlRec.experienceToNext = BigInt(newExp);
+        if (dto.bracketBaseXp && dto.bracketGrowthExponent) {
+          const stepInBracket = lvlRec.level - minLvl + 1;
+          newExp = Math.round(dto.bracketBaseXp * Math.pow(stepInBracket, dto.bracketGrowthExponent));
+        } else {
+          if (mult !== 1.0) newExp = Math.round(newExp * mult);
+          if (offset !== 0) newExp = Math.max(10, newExp + offset);
+        }
+
+        lvlRec.experienceToNext = BigInt(newExp);
+      }
       if (typeof statPts === 'number') lvlRec.statPointsReward = statPts;
       if (typeof skillPts === 'number') lvlRec.skillPointsReward = skillPts;
       if (typeof hpB === 'number') lvlRec.hpBonus = hpB;
@@ -209,22 +230,25 @@ export class AdminExperienceController {
       cumulative += l.experienceToNext;
     }
 
-    // Grava tudo no banco em transação
-    await this.prisma.$transaction(async (tx) => {
-      for (const l of allLevels) {
-        await tx.levelExperienceTemplate.update({
-          where: { level: l.level },
-          data: {
+    // Grava tudo no banco em transação batch (createMany) para suportar até 1000 níveis instantaneamente
+    await this.prisma.$transaction(
+      async (tx) => {
+        await tx.levelExperienceTemplate.deleteMany({});
+        await tx.levelExperienceTemplate.createMany({
+          data: allLevels.map((l) => ({
+            level: l.level,
             experienceToNext: l.experienceToNext,
             totalExperience: l.totalExperience,
             statPointsReward: l.statPointsReward,
             skillPointsReward: l.skillPointsReward,
             hpBonus: l.hpBonus,
             mpBonus: l.mpBonus,
-          },
+            bracketTier: l.bracketTier,
+          })),
         });
-      }
-    });
+      },
+      { timeout: 30000 }
+    );
 
     try {
       await this.snapshotManager.exportToDisk();
@@ -280,21 +304,24 @@ export class AdminExperienceController {
       cumulative += l.experienceToNext;
     }
 
-    await this.prisma.$transaction(async (tx) => {
-      for (const l of allLevels) {
-        await tx.levelExperienceTemplate.update({
-          where: { level: l.level },
-          data: {
+    await this.prisma.$transaction(
+      async (tx) => {
+        await tx.levelExperienceTemplate.deleteMany({});
+        await tx.levelExperienceTemplate.createMany({
+          data: allLevels.map((l) => ({
+            level: l.level,
             experienceToNext: l.experienceToNext,
             totalExperience: l.totalExperience,
             statPointsReward: l.statPointsReward,
             skillPointsReward: l.skillPointsReward,
             hpBonus: l.hpBonus,
             mpBonus: l.mpBonus,
-          },
+            bracketTier: l.bracketTier,
+          })),
         });
-      }
-    });
+      },
+      { timeout: 30000 }
+    );
 
     try {
       await this.snapshotManager.exportToDisk();
@@ -320,23 +347,23 @@ export class AdminExperienceController {
   }
 
   /**
-   * Semeia a progressão inicial balanceada de 1 a 100 se o banco estiver vazio.
+   * Semeia a progressão inicial balanceada (Base 1500 abates Rank F Comum, Nível Máximo 200) se o banco estiver vazio.
    */
   public async seedInitialLevelExperienceIfEmpty() {
     const count = await this.prisma.levelExperienceTemplate.count();
     if (count > 0) return;
 
-    console.log('🌱 [AdminExperienceController] Semeando tabela de Níveis e XP (1 a 100)...');
+    console.log('🌱 [AdminExperienceController] Semeando tabela de Níveis e XP (1 a 200, Base 1500 abates)...');
     await this.generateProceduralCurve({
-      baseExperience: 100,
-      growthExponent: 1.48,
-      flatIncrement: 60,
-      maxLevel: 100,
+      baseKillTarget: 1500,
+      growthExponent: 1.0,
+      flatIncrement: 0,
+      maxLevel: 200,
       statPointsReward: 5,
       skillPointsReward: 1,
-      hpBonus: 25,
-      mpBonus: 10,
+      hpBonus: 0,
+      mpBonus: 0,
     });
-    console.log('✅ [AdminExperienceController] Tabela de Níveis e XP semeada com sucesso (100 níveis).');
+    console.log('✅ [AdminExperienceController] Tabela de Níveis e XP semeada com sucesso.');
   }
 }

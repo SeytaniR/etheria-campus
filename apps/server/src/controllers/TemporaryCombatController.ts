@@ -37,6 +37,7 @@ export interface CombatUnit {
   modelScale?: number;
   nameColorHex?: string;
   rewardMultiplier?: number;
+  expReward?: number;
   hp: number;
   maxHp: number;
   mp: number;
@@ -735,7 +736,10 @@ export class TemporaryCombatController {
       battle.isFinished = true;
       battle.winner = 'PLAYER';
       const totalExp = battle.monsters.reduce(
-        (acc, m) => acc + (m.level || 1) * 45 * Math.max(1, Number(m.rewardMultiplier) || 1),
+        (acc, m) =>
+          acc +
+          (Number(m.expReward) ||
+            MonsterCombatBuilder.calculateMonsterExpReward(m.level || 1, m.rarityTier, m.variantTier || 'NORMAL')),
         0
       );
       const totalGold = battle.monsters.reduce(
@@ -838,7 +842,10 @@ export class TemporaryCombatController {
       mob.isAlive = false;
     }
     const expReward = battle.monsters.reduce(
-      (acc, m) => acc + (m.level || 1) * 65 * Math.max(1, Number(m.rewardMultiplier) || 1),
+      (acc, m) =>
+        acc +
+        (Number(m.expReward) ||
+          MonsterCombatBuilder.calculateMonsterExpReward(m.level || 1, m.rarityTier, m.variantTier || 'NORMAL')),
       0
     );
     const goldReward = battle.monsters.reduce(

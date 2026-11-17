@@ -2,10 +2,10 @@
  * @file apps/server/public/admin/js/AdminExperienceTab.js
  * @module @etheria/server
  * @description Submódulo da Aba Tabela de Níveis e Experiência (`level_experience_templates`) da Rota `/admin`.
- *   - Permite geração procedural global com base numérica (Base XP, Exponente, Incremento Linear, Bônus).
- *   - Permite edições em lote de 10 em 10 níveis (Grupos / Brackets: 1-10, 11-20, etc.) com multiplicadores e recompensas.
- *   - Permite ajuste fino individual de cada nível com recálculo automático da curva acumulada total.
- *   - Gráfico 2D Canvas interativo em tempo real com faixas coloridas para cada bracket de 10 níveis.
+ *   - Controle por Número Único Mestre (`baseKillTarget`, padrão 1500 abates Rank F Comum por nível).
+ *   - Simulador em tempo real auto-ajustável para todos os Ranks (F, D, C, B, A, S, SS) e Tipos (Comum, Líder -15%, Boss -30%).
+ *   - Nível Máximo configurável pelo administrador com teto oficial de até 1.000 níveis.
+ *   - Edições em lote de 10 em 10 níveis (Brackets dinâmicos G1..G100) e ajuste individual por nível.
  */
 
 class AdminExperienceTab {
@@ -20,6 +20,8 @@ class AdminExperienceTab {
       try {
         const query = typeof bracket === 'number' && bracket > 0 ? `?bracket=${bracket}` : '';
         this.levelExperienceTemplates = await this.api(`/api/admin/experience${query}`);
+        this.syncMasterInputsFromTable();
+        this.renderBracketFilterChips();
         this.renderExperienceCrudTable();
         this.renderXpCurveCanvas();
       } catch (err) {
@@ -27,32 +29,93 @@ class AdminExperienceTab {
       }
     };
 
-    app.setExperienceBracketFilter = function (bracket) {
-      this.experienceBracketFilter = bracket;
-      const chips = document.querySelectorAll('.xp-bracket-chip');
-      chips.forEach((c) => {
-        c.className = c.dataset.bracket === String(bracket) ? 'btn-primary xp-bracket-chip' : 'xp-bracket-chip';
-      });
-      this.renderExperienceCrudTable();
-      this.renderXpCurveCanvas();
+    app.syncMasterInputsFromTable = function () {
+      const list = this.levelExperienceTemplates || [];
+      if (list.length === 0) return;
+
+      const lvl1 = list.find((l) => l.level === 1) || list[0];
+      const maxLvl = list[list.length - 1]?.level || list.length;
+      const inferredKillTarget = lvl1 && lvl1.experienceToNext > 0
+        ? Math.max(1, Math.round(lvl1.experienceToNext / 28))
+        : 1500;
+
+      const masterKillInput = document.getElementById('xpMasterKillTargetInput');
+      if (masterKillInput) masterKillInput.value = String(inferredKillTarget);
+
+      const masterMaxLvlInput = document.getElementById('xpMasterMaxLevelInput');
+      if (masterMaxLvlInput) masterMaxLvlInput.value = String(maxLvl);
+
+      const procKillInput = document.getElementById('procKillTargetInput');
+      if (procKillInput) procKillInput.value = String(inferredKillTarget);
+
+      const procBaseXpInput = document.getElementById('procBaseXpInput');
+      if (procBaseXpInput) procBaseXpInput.value = String(inferredKillTarget * 28);
+
+      const procMaxLvlInput = document.getElementById('procMaxLevelInput');
+      if (procMaxLvlInput) procMaxLvlInput.value = String(maxLvl);
+
+      this.updateMasterKillSimulationPreview();
     };
 
-    app.openProceduralCurveModal = function () {
-      const modal = document.getElementById('xpProceduralModal');
-      if (modal) modal.style.display = 'flex';
+    app.updateMasterKillSimulationPreview = function () {
+      const killInput = document.getElementById('xpMasterKillTargetInput');
+      const simContainer = document.getElementById('xpMasterKillSimTable');
+      const baseXpBadge = document.getElementById('xpMasterBaseXpPreviewBadge');
+      if (!killInput || !simContainer) return;
+
+      const baseKills = Math.max(1, Math.round(Number(killInput.value) || 1500));
+      const baseXpLvl1 = baseKills * 28;
+      if (baseXpBadge) {
+        baseXpBadge.textContent = `Base Nv.1: ${baseXpLvl1.toLocaleString('pt-BR')} XP (Fórmula: ${baseXpLvl1.toLocaleString('pt-BR')} × Nível)`;
+      }
+
+      const ranks = [
+        { code: 'F', color: '#94a3b8', weight: 1.0, xpLvl1: 28 },
+        { code: 'D', color: '#fde047', weight: 1.25, xpLvl1: 35 },
+        { code: 'C', color: '#4ade80', weight: 1.5, xpLvl1: 42 },
+        { code: 'B', color: '#38bdf8', weight: 15 / 7, xpLvl1: 60 },
+        { code: 'A', color: '#c084fc', weight: 5.0, xpLvl1: 140 },
+        { code: 'S', color: '#fb923c', weight: 10.0, xpLvl1: 280 },
+        { code: 'SS', color: '#f43f5e', weight: 15.0, xpLvl1: 420 },
+      ];
+
+      simContainer.innerHTML = ranks
+        .map((r) => {
+          const commonKills = Math.max(1, Math.round(baseKills / r.weight));
+          const leaderKills = Math.max(1, Math.round(commonKills * 0.85));
+          const bossKills = Math.max(1, Math.round(commonKills * 0.70));
+          return `
+            <div style="background:rgba(2,6,23,0.75); border:1px solid ${r.color}55; border-radius:8px; padding:8px 10px; display:flex; flex-direction:column; gap:3px;">
+              <div style="display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-weight:800; font-size:0.82rem; color:${r.color};">Rank ${r.code}</span>
+                <span style="font-size:0.68rem; color:#64748b;">${r.xpLvl1}×Nv XP</span>
+              </div>
+              <div style="font-size:0.78rem; color:#f8fafc;">
+                👾 Comum: <strong style="color:#38bdf8;">${commonKills.toLocaleString('pt-BR')}</strong>
+              </div>
+              <div style="font-size:0.73rem; color:#cbd5e1;">
+                💠 Líder (-15%): <strong style="color:#4ade80;">${leaderKills.toLocaleString('pt-BR')}</strong>
+              </div>
+              <div style="font-size:0.73rem; color:#cbd5e1;">
+                👑 Boss (-30%): <strong style="color:#fb7185;">${bossKills.toLocaleString('pt-BR')}</strong>
+              </div>
+            </div>
+          `;
+        })
+        .join('');
     };
 
-    app.applyProceduralCurve = async function () {
-      const baseExperience = Number(document.getElementById('procBaseXpInput')?.value) || 100;
-      const growthExponent = Number(document.getElementById('procExponentInput')?.value) || 1.48;
-      const flatIncrement = Number(document.getElementById('procFlatIncInput')?.value) || 60;
-      const maxLevel = Number(document.getElementById('procMaxLevelInput')?.value) || 100;
-      const statPointsReward = Number(document.getElementById('procStatPtsInput')?.value) ?? 5;
-      const skillPointsReward = Number(document.getElementById('procSkillPtsInput')?.value) ?? 1;
-      const hpBonus = Number(document.getElementById('procHpBonusInput')?.value) ?? 25;
-      const mpBonus = Number(document.getElementById('procMpBonusInput')?.value) ?? 10;
+    app.applyMasterSingleNumberCurve = async function () {
+      const baseKillTarget = Math.max(1, Math.round(Number(document.getElementById('xpMasterKillTargetInput')?.value) || 1500));
+      const rawMaxLvl = Number(document.getElementById('xpMasterMaxLevelInput')?.value) || 200;
+      const maxLevel = Math.max(2, Math.min(1000, Math.round(rawMaxLvl)));
 
-      if (!confirm(`Deseja recalcular e regenerar proceduralmente toda a curva para ${maxLevel} níveis com Base XP = ${baseExperience} e Exponente = ${growthExponent}?`)) {
+      if (rawMaxLvl > 1000) {
+        alert('O limite máximo absoluto do sistema é Nível 1.000. O valor foi ajustado para 1.000.');
+        document.getElementById('xpMasterMaxLevelInput').value = '1000';
+      }
+
+      if (!confirm(`Aplicar Número Único = ${baseKillTarget} abates (Rank F Comum) e Nível Máximo = ${maxLevel}?\n\nToda a tabela de níveis (1 até ${maxLevel}) será auto-ajustada proporcionalmente.`)) {
         return;
       }
 
@@ -60,6 +123,95 @@ class AdminExperienceTab {
         const res = await this.api('/api/admin/experience/procedural', {
           method: 'POST',
           body: JSON.stringify({
+            baseKillTarget,
+            growthExponent: 1.0,
+            flatIncrement: 0,
+            maxLevel,
+            statPointsReward: 5,
+            skillPointsReward: 1,
+            hpBonus: 0,
+            mpBonus: 0,
+          }),
+        });
+
+        if (this.experienceBracketFilter !== 'ALL' && Number(this.experienceBracketFilter) > Math.ceil(maxLevel / 10)) {
+          this.experienceBracketFilter = 'ALL';
+        }
+        alert(res.message || 'Tabela de XP atualizada com sucesso!');
+        await this.loadLevelExperienceTemplates();
+      } catch (err) {
+        alert(`Erro ao aplicar configuração: ${err.message}`);
+      }
+    };
+
+    app.renderBracketFilterChips = function () {
+      const container = document.getElementById('xpBracketChipsContainer');
+      if (!container) return;
+
+      const totalLevels = (this.levelExperienceTemplates || []).length || 200;
+      const totalBrackets = Math.ceil(totalLevels / 10);
+      const currentFilter = String(this.experienceBracketFilter);
+
+      let html = `
+        <button type="button" class="${currentFilter === 'ALL' ? 'btn-primary ' : ''}xp-bracket-chip" data-bracket="ALL" onclick="AdminApp.setExperienceBracketFilter('ALL')" style="font-size:0.75rem; padding:4px 10px;">
+          Todos (1-${totalLevels})
+        </button>
+      `;
+
+      for (let t = 1; t <= totalBrackets; t++) {
+        const minL = (t - 1) * 10 + 1;
+        const maxL = Math.min(totalLevels, t * 10);
+        const isSel = currentFilter === String(t);
+        html += `
+          <button type="button" class="${isSel ? 'btn-primary ' : ''}xp-bracket-chip" data-bracket="${t}" onclick="AdminApp.setExperienceBracketFilter(${t})" style="font-size:0.75rem; padding:4px 10px;">
+            G${t} (${minL}-${maxL})
+          </button>
+        `;
+      }
+
+      container.innerHTML = html;
+    };
+
+    app.setExperienceBracketFilter = function (bracket) {
+      this.experienceBracketFilter = bracket;
+      this.renderBracketFilterChips();
+      this.renderExperienceCrudTable();
+      this.renderXpCurveCanvas();
+    };
+
+    app.openProceduralCurveModal = function () {
+      this.syncMasterInputsFromTable();
+      const modal = document.getElementById('xpProceduralModal');
+      if (modal) modal.style.display = 'flex';
+    };
+
+    app.onProcKillTargetInputChange = function () {
+      const k = Math.max(1, Math.round(Number(document.getElementById('procKillTargetInput')?.value) || 1500));
+      const baseInput = document.getElementById('procBaseXpInput');
+      if (baseInput) baseInput.value = String(k * 28);
+    };
+
+    app.applyProceduralCurve = async function () {
+      const baseKillTarget = Number(document.getElementById('procKillTargetInput')?.value) || undefined;
+      const baseExperience = Number(document.getElementById('procBaseXpInput')?.value) || 42000;
+      const growthExponent = Number(document.getElementById('procExponentInput')?.value) || 1.0;
+      const flatIncrement = Number(document.getElementById('procFlatIncInput')?.value) || 0;
+      const rawMaxLevel = Number(document.getElementById('procMaxLevelInput')?.value) || 200;
+      const maxLevel = Math.max(2, Math.min(1000, Math.round(rawMaxLevel)));
+      const statPointsReward = Number(document.getElementById('procStatPtsInput')?.value) ?? 5;
+      const skillPointsReward = Number(document.getElementById('procSkillPtsInput')?.value) ?? 1;
+      const hpBonus = Number(document.getElementById('procHpBonusInput')?.value) ?? 0;
+      const mpBonus = Number(document.getElementById('procMpBonusInput')?.value) ?? 0;
+
+      if (!confirm(`Deseja recalcular e regenerar proceduralmente toda a curva para ${maxLevel} níveis (limite máx 1.000)?`)) {
+        return;
+      }
+
+      try {
+        const res = await this.api('/api/admin/experience/procedural', {
+          method: 'POST',
+          body: JSON.stringify({
+            baseKillTarget,
             baseExperience,
             growthExponent,
             flatIncrement,
@@ -106,11 +258,7 @@ class AdminExperienceTab {
       const rawHp = document.getElementById('bracketHpBonusInput')?.value;
       const rawMp = document.getElementById('bracketMpBonusInput')?.value;
 
-      const payload = {
-        multiplier,
-        flatOffset,
-      };
-
+      const payload = { multiplier, flatOffset };
       if (rawStat !== '') payload.statPointsReward = Number(rawStat);
       if (rawSkill !== '') payload.skillPointsReward = Number(rawSkill);
       if (rawHp !== '') payload.hpBonus = Number(rawHp);
@@ -152,8 +300,8 @@ class AdminExperienceTab {
       const experienceToNext = Number(document.getElementById('levelEditExpInput')?.value) || 0;
       const statPointsReward = Number(document.getElementById('levelEditStatPtsInput')?.value) ?? 5;
       const skillPointsReward = Number(document.getElementById('levelEditSkillPtsInput')?.value) ?? 1;
-      const hpBonus = Number(document.getElementById('levelEditHpBonusInput')?.value) ?? 20;
-      const mpBonus = Number(document.getElementById('levelEditMpBonusInput')?.value) ?? 10;
+      const hpBonus = Number(document.getElementById('levelEditHpBonusInput')?.value) ?? 0;
+      const mpBonus = Number(document.getElementById('levelEditMpBonusInput')?.value) ?? 0;
 
       try {
         await this.api(`/api/admin/experience/${lvl}`, {
@@ -200,17 +348,19 @@ class AdminExperienceTab {
         return l.bracketTier === Number(bF);
       });
 
-      const maxLevel = this.levelExperienceTemplates.length > 0 ? this.levelExperienceTemplates[this.levelExperienceTemplates.length - 1] : null;
+      const maxLevel = this.levelExperienceTemplates.length > 0
+        ? this.levelExperienceTemplates[this.levelExperienceTemplates.length - 1]
+        : null;
       const countBadge = document.getElementById('experienceCounterBadge');
       if (countBadge) {
         const totalXpStr = maxLevel ? maxLevel.totalExperience.toLocaleString('pt-BR') : '0';
-        countBadge.textContent = `${this.levelExperienceTemplates.length} Níveis | XP Total no Nível Máx: ${totalXpStr}`;
+        countBadge.textContent = `👑 Nível Máx Atual: ${this.levelExperienceTemplates.length} (Limite: 1.000) | XP Acumulada até o Topo: ${totalXpStr}`;
       }
 
-      const bracketColors = {
-        1: '#38bdf8', 2: '#4ade80', 3: '#fbbf24', 4: '#fb923c', 5: '#f43f5e',
-        6: '#c084fc', 7: '#a855f7', 8: '#06b6d4', 9: '#eab308', 10: '#ec4899',
-      };
+      const bracketColors = [
+        '#38bdf8', '#4ade80', '#fbbf24', '#fb923c', '#f43f5e',
+        '#c084fc', '#a855f7', '#06b6d4', '#eab308', '#ec4899',
+      ];
 
       container.innerHTML = `
         <table class="data-table" style="width:100%; border-collapse:collapse; font-size:0.83rem;">
@@ -219,17 +369,19 @@ class AdminExperienceTab {
               <th style="padding:10px; width:80px;">Nível</th>
               <th style="padding:10px; width:130px;">Grupo / Faixa</th>
               <th style="padding:10px;">XP p/ Próximo Nível (Editar)</th>
+              <th style="padding:10px;">Abates Rank F / SS (Comum)</th>
               <th style="padding:10px;">XP Total Acumulada</th>
-              <th style="padding:10px; width:120px;">Pontos Status</th>
-              <th style="padding:10px; width:110px;">Pontos Skill</th>
-              <th style="padding:10px; width:130px;">Bônus HP / MP</th>
-              <th style="padding:10px; text-align:right; width:110px;">Ações</th>
+              <th style="padding:10px; width:115px;">Pontos Status</th>
+              <th style="padding:10px; width:105px;">Pontos Skill</th>
+              <th style="padding:10px; text-align:right; width:105px;">Ações</th>
             </tr>
           </thead>
           <tbody>
             ${filtered.map((item) => {
-              const bColor = bracketColors[item.bracketTier] || '#38bdf8';
+              const bColor = bracketColors[(item.bracketTier - 1) % bracketColors.length] || '#38bdf8';
               const isMax = item.level === this.levelExperienceTemplates.length;
+              const fKills = isMax ? 0 : Math.max(1, Math.round(item.experienceToNext / (28 * item.level)));
+              const ssKills = isMax ? 0 : Math.max(1, Math.round(item.experienceToNext / (420 * item.level)));
               return `
                 <tr style="border-bottom:1px solid rgba(255,255,255,0.05); transition:background 0.15s;" onmouseover="this.style.background='rgba(255,255,255,0.03)'" onmouseout="this.style.background='transparent'">
                   <td style="padding:8px 10px;">
@@ -239,29 +391,29 @@ class AdminExperienceTab {
                   </td>
                   <td style="padding:8px 10px;">
                     <span style="color:${bColor}; font-weight:600; font-size:0.78rem;">
-                      📁 Grupo ${item.bracketTier} (${(item.bracketTier - 1) * 10 + 1}-${item.bracketTier * 10})
+                      📁 G${item.bracketTier} (${(item.bracketTier - 1) * 10 + 1}-${item.bracketTier * 10})
                     </span>
                   </td>
                   <td style="padding:8px 10px;">
-                    ${isMax ? '<span style="color:#64748b; font-style:italic;">👑 Nível Máximo (0 XP)</span>' : `
+                    ${isMax ? '<span style="color:#fde047; font-weight:700;">👑 Nível Máximo Atingível (0 XP)</span>' : `
                       <div style="display:flex; gap:6px; align-items:center;">
                         <input type="number" id="inlineExp_${item.level}" value="${item.experienceToNext}"
-                               style="width:130px; font-size:0.80rem; font-weight:700; color:#38bdf8; background:rgba(15,23,42,0.8); border:1px solid #334155; border-radius:4px; padding:3px 6px;" />
+                               style="width:135px; font-size:0.80rem; font-weight:700; color:#38bdf8; background:rgba(15,23,42,0.8); border:1px solid #334155; border-radius:4px; padding:3px 6px;" />
                         <button type="button" onclick="AdminApp.saveInlineLevelExp(${item.level})" style="font-size:0.70rem; padding:3px 7px;" title="Salvar e recalcular curva">💾</button>
                       </div>
                     `}
+                  </td>
+                  <td style="padding:8px 10px; font-size:0.76rem; color:#94a3b8;">
+                    ${isMax ? '—' : `<span style="color:#cbd5e1;">${fKills.toLocaleString('pt-BR')} F</span> / <span style="color:#f43f5e; font-weight:700;">${ssKills.toLocaleString('pt-BR')} SS</span>`}
                   </td>
                   <td style="padding:8px 10px; font-weight:600; color:#cbd5e1;">
                     ${item.totalExperience.toLocaleString('pt-BR')} XP
                   </td>
                   <td style="padding:8px 10px; color:#4ade80; font-weight:700;">
-                    +${item.statPointsReward} Pontos
+                    +${item.statPointsReward} Pts
                   </td>
                   <td style="padding:8px 10px; color:#fbbf24; font-weight:700;">
-                    +${item.skillPointsReward} Ponto
-                  </td>
-                  <td style="padding:8px 10px; font-size:0.78rem; color:#94a3b8;">
-                    <span style="color:#4ade80;">+${item.hpBonus} HP</span> | <span style="color:#38bdf8;">+${item.mpBonus} MP</span>
+                    +${item.skillPointsReward} Pt
                   </td>
                   <td style="padding:8px 10px; text-align:right;">
                     <button class="btn-primary" style="padding:4px 8px; font-size:0.75rem;" onclick="AdminApp.openEditLevelModal(${item.level})">✏️ Detalhes</button>
@@ -292,44 +444,34 @@ class AdminExperienceTab {
         return;
       }
 
-      const paddingLeft = 60;
+      const paddingLeft = 65;
       const paddingRight = 20;
       const paddingTop = 25;
       const paddingBottom = 35;
       const plotW = w - paddingLeft - paddingRight;
       const plotH = h - paddingTop - paddingBottom;
 
-      // Encontra máximos para escala
       const maxXp = Math.max(...list.map((l) => l.experienceToNext), 100);
-      const maxTotal = list[list.length - 1]?.totalExperience || 100;
       const totalLevels = list.length;
 
-      // 1. Faixas de fundo coloridas para cada bracket de 10 níveis
       const bracketColors = ['#38bdf8', '#4ade80', '#fbbf24', '#fb923c', '#f43f5e', '#c084fc', '#a855f7', '#06b6d4', '#eab308', '#ec4899'];
       const totalBrackets = Math.ceil(totalLevels / 10);
+      const labelStep = Math.max(1, Math.ceil(totalBrackets / 20));
+
       for (let b = 0; b < totalBrackets; b++) {
         const x1 = paddingLeft + (b * 10 / totalLevels) * plotW;
         const x2 = paddingLeft + (Math.min(totalLevels, (b + 1) * 10) / totalLevels) * plotW;
         ctx.fillStyle = (b % 2 === 0) ? 'rgba(255,255,255,0.02)' : 'rgba(255,255,255,0.05)';
         ctx.fillRect(x1, paddingTop, x2 - x1, plotH);
 
-        // Divisor vertical
-        ctx.beginPath();
-        ctx.setLineDash([2, 4]);
-        ctx.strokeStyle = `${bracketColors[b % bracketColors.length]}44`;
-        ctx.moveTo(x2, paddingTop);
-        ctx.lineTo(x2, paddingTop + plotH);
-        ctx.stroke();
-        ctx.setLineDash([]);
-
-        // Rótulo do Bracket no topo
-        ctx.fillStyle = `${bracketColors[b % bracketColors.length]}aa`;
-        ctx.font = '9px sans-serif';
-        ctx.textAlign = 'center';
-        ctx.fillText(`G${b + 1}`, (x1 + x2) / 2, paddingTop - 8);
+        if (b % labelStep === 0) {
+          ctx.fillStyle = `${bracketColors[b % bracketColors.length]}aa`;
+          ctx.font = '9px sans-serif';
+          ctx.textAlign = 'center';
+          ctx.fillText(`G${b + 1}`, (x1 + x2) / 2, paddingTop - 8);
+        }
       }
 
-      // 2. Eixos
       ctx.strokeStyle = '#334155';
       ctx.lineWidth = 1;
       ctx.beginPath();
@@ -338,7 +480,6 @@ class AdminExperienceTab {
       ctx.lineTo(paddingLeft + plotW, paddingTop + plotH);
       ctx.stroke();
 
-      // Rótulos do eixo Y
       ctx.fillStyle = '#64748b';
       ctx.font = '10px sans-serif';
       ctx.textAlign = 'right';
@@ -346,27 +487,25 @@ class AdminExperienceTab {
       ctx.fillText(`${(maxXp / 2000).toFixed(0)}k`, paddingLeft - 8, paddingTop + plotH / 2);
       ctx.fillText('0', paddingLeft - 8, paddingTop + plotH);
 
-      // Rótulos do eixo X
       ctx.textAlign = 'center';
-      for (let lvl = 10; lvl <= totalLevels; lvl += 20) {
-        const x = paddingLeft + ((lvl - 1) / (totalLevels - 1)) * plotW;
+      const xStep = Math.max(10, Math.round(totalLevels / 10));
+      for (let lvl = xStep; lvl <= totalLevels; lvl += xStep) {
+        const x = paddingLeft + ((lvl - 1) / Math.max(1, totalLevels - 1)) * plotW;
         ctx.fillText(`Lv.${lvl}`, x, paddingTop + plotH + 18);
       }
 
-      // 3. Traçado da Curva de XP p/ Próximo Nível (Ciano / Azul Brilhante)
       ctx.beginPath();
       ctx.strokeStyle = '#38bdf8';
       ctx.lineWidth = 2.5;
 
       list.forEach((l, idx) => {
-        const x = paddingLeft + (idx / (totalLevels - 1)) * plotW;
+        const x = paddingLeft + (idx / Math.max(1, totalLevels - 1)) * plotW;
         const y = paddingTop + plotH - (l.experienceToNext / maxXp) * plotH;
         if (idx === 0) ctx.moveTo(x, y);
         else ctx.lineTo(x, y);
       });
       ctx.stroke();
 
-      // 4. Preenchimento gradiente suave sob a curva
       ctx.lineTo(paddingLeft + plotW, paddingTop + plotH);
       ctx.lineTo(paddingLeft, paddingTop + plotH);
       ctx.closePath();
@@ -376,7 +515,6 @@ class AdminExperienceTab {
       ctx.fillStyle = grad;
       ctx.fill();
 
-      // Legenda
       ctx.fillStyle = '#38bdf8';
       ctx.font = 'bold 10px sans-serif';
       ctx.textAlign = 'left';
@@ -385,7 +523,6 @@ class AdminExperienceTab {
   }
 
   static injectTabAndModalDom() {
-    // 1. Injeta Botão da Aba (#tabBtnExperience) na barra de navegação após tabBtnFlyingMounts
     const navTabs = document.querySelector('.nav-tabs');
     if (navTabs && !document.getElementById('tabBtnExperience')) {
       const btn = document.createElement('button');
@@ -401,7 +538,6 @@ class AdminExperienceTab {
       }
     }
 
-    // 2. Injeta Painel da Aba (#tabExperience) dentro de #adminApp
     const adminApp = document.getElementById('adminApp');
     if (adminApp && !document.getElementById('tabExperience')) {
       const panel = document.createElement('div');
@@ -414,22 +550,62 @@ class AdminExperienceTab {
         <div class="panel">
           <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
             <div>
-              <h3 style="margin:0; color:#38bdf8;">📈 Tabela de Níveis, Experiência (XP) & Progressão</h3>
+              <h3 style="margin:0; color:#38bdf8;">📈 Tabela de Níveis, Experiência (XP) & Escalonamento por Número Único</h3>
               <p style="font-size:0.8rem; color:var(--text-muted); margin:4px 0 0;">
-                Calibre a curva de progressão de 1 a 100 de forma procedural matemática, edite em lote por grupos de 10 níveis ou ajuste nível a nível.
+                Controle o ritmo de progressão de todos os mapas, raridades (F a SS) e variantes (Comum, Líder -15%, Boss -30%) ajustando apenas 1 número, e defina o Nível Máximo atingível (até 1.000).
               </p>
             </div>
-            <div style="display:flex; gap:8px; align-items:center;">
-              <span id="experienceCounterBadge" style="font-size:0.8rem; color:var(--text-muted);"></span>
-              <button class="btn-primary" onclick="AdminApp.openProceduralCurveModal()" style="font-weight:700;">⚡ Gerador Procedural</button>
+            <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+              <span id="experienceCounterBadge" style="font-size:0.8rem; color:#fde047; font-weight:700;"></span>
+              <button class="btn-primary" onclick="AdminApp.openProceduralCurveModal()" style="font-weight:700;">⚙️ Opções Avançadas da Curva</button>
             </div>
           </div>
 
-          <!-- GRÁFICO 2D INTERATIVO DA CURVA DE XP COM FAIXAS DE 10 EM 10 NÍVEIS -->
+          <!-- PAINEL DE CONTROLE MESTRE: NÚMERO ÚNICO DE ESCALONAMENTO + NÍVEL MÁXIMO ATÉ 1.000 -->
+          <div style="background:linear-gradient(135deg, rgba(15,23,42,0.95), rgba(30,41,59,0.9)); border:1.5px solid #38bdf8; border-radius:10px; padding:14px; margin-top:14px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:12px;">
+              <div>
+                <span style="font-size:0.9rem; font-weight:800; color:#fde047;">🎯 Controle Mestre por Número Único & Limite de Nível (Máx 1.000)</span>
+                <div style="font-size:0.74rem; color:#94a3b8; margin-top:2px;">
+                  Altere o número de abates base (Rank F Comum) para auto-ajustar proporcionalmente todos os Ranks e Tipos em todos os níveis.
+                </div>
+              </div>
+              <span id="xpMasterBaseXpPreviewBadge" style="font-size:0.76rem; color:#38bdf8; background:rgba(56,189,248,0.12); border:1px solid rgba(56,189,248,0.35); padding:4px 10px; border-radius:6px; font-weight:700;">
+                Base Nv.1: 42.000 XP
+              </span>
+            </div>
+
+            <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:12px; align-items:end; margin-bottom:12px;">
+              <div class="field">
+                <label style="color:#38bdf8; font-weight:700;">🔢 Número Único: Abates Rank F Comum p/ Upar 1 Nível *</label>
+                <input type="number" id="xpMasterKillTargetInput" value="1500" min="1" max="100000" step="50"
+                       oninput="AdminApp.updateMasterKillSimulationPreview()"
+                       style="font-size:1rem; font-weight:800; color:#fde047; border:1.5px solid #38bdf8;" />
+              </div>
+              <div class="field">
+                <label style="color:#4ade80; font-weight:700;">👑 Nível Máximo Atingível pelo Jogador (Limite: 1.000) *</label>
+                <input type="number" id="xpMasterMaxLevelInput" value="200" min="2" max="1000" step="10"
+                       style="font-size:1rem; font-weight:800; color:#4ade80; border:1.5px solid #22c55e;" />
+              </div>
+              <div>
+                <button type="button" class="btn-success" onclick="AdminApp.applyMasterSingleNumberCurve()"
+                        style="width:100%; padding:10px 14px; font-weight:800; font-size:0.88rem; min-height:42px;">
+                  ⚡ Aplicar Número Único & Nível Máximo
+                </button>
+              </div>
+            </div>
+
+            <div style="font-size:0.74rem; color:#cbd5e1; font-weight:700; margin-bottom:6px;">
+              📊 Quantidade Exata de Monstros de Mesmo Nível p/ Subir 1 Nível (Auto-Ajustada):
+            </div>
+            <div id="xpMasterKillSimTable" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(125px, 1fr)); gap:8px;"></div>
+          </div>
+
+          <!-- GRÁFICO 2D INTERATIVO DA CURVA DE XP -->
           <div style="background:rgba(15,23,42,0.85); border:1px solid #334155; border-radius:10px; padding:12px; margin-top:14px;">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-              <span style="font-size:0.80rem; font-weight:700; color:#cbd5e1;">📊 Curva de Progressão & Faixas de 10 em 10 Níveis (G1 a G10)</span>
-              <span style="font-size:0.75rem; color:#94a3b8;">Curva Exponencial + Linear</span>
+              <span style="font-size:0.80rem; font-weight:700; color:#cbd5e1;">📊 Curva de Progressão de XP por Nível</span>
+              <span style="font-size:0.75rem; color:#94a3b8;">Escalonamento Proporcional Constante por Nível</span>
             </div>
             <canvas id="xpCurveCanvas" width="900" height="180" style="width:100%; height:180px; display:block; background:#0b1120; border-radius:8px; border:1px solid #1e293b;"></canvas>
           </div>
@@ -444,14 +620,7 @@ class AdminExperienceTab {
                 </button>
               </div>
             </div>
-            <div style="display:flex; gap:6px; flex-wrap:wrap;">
-              <button type="button" class="btn-primary xp-bracket-chip" data-bracket="ALL" onclick="AdminApp.setExperienceBracketFilter('ALL')" style="font-size:0.75rem; padding:4px 10px;">Todos (1-100)</button>
-              ${[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((t) => `
-                <button type="button" class="xp-bracket-chip" data-bracket="${t}" onclick="AdminApp.setExperienceBracketFilter(${t})" style="font-size:0.75rem; padding:4px 10px;">
-                  G${t} (${(t - 1) * 10 + 1}-${t * 10})
-                </button>
-              `).join('')}
-            </div>
+            <div id="xpBracketChipsContainer" style="display:flex; gap:6px; flex-wrap:wrap; max-height:115px; overflow-y:auto;"></div>
           </div>
 
           <div id="experienceTableContainer" style="overflow-x:auto; margin-top:12px;"></div>
@@ -476,29 +645,33 @@ class AdminExperienceTab {
       pModal.innerHTML = `
         <div class="modal-box" style="max-width:680px; width:95%; padding:18px;">
           <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border); padding-bottom:10px; margin-bottom:14px;">
-            <h3 style="color:#38bdf8; margin:0; font-size:1.05rem;">⚡ Gerador Procedural Global de Níveis & XP</h3>
+            <h3 style="color:#38bdf8; margin:0; font-size:1.05rem;">⚙️ Gerador Procedural Global de Níveis & XP</h3>
             <button class="btn-danger" onclick="document.getElementById('xpProceduralModal').style.display='none'" style="padding:4px 10px;">✕</button>
           </div>
           <p style="font-size:0.80rem; color:var(--text-muted); margin-bottom:14px;">
-            Altere a base matemática para recalcular a curva de progressão inteira. A fórmula utiliza:
-            <code style="color:#38bdf8;">XP(L) = BaseXP × L^Exponente + (L - 1) × IncrementoLinear</code>.
+            Configure o Número Único de Abates (Rank F Comum) e o Nível Máximo da Curva (até 1.000 níveis).
+            Fórmula: <code style="color:#38bdf8;">XP(L) = (AbatesBase × 28) × L^Exponente + (L - 1) × IncrementoLinear</code>.
           </p>
           <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:14px;">
             <div class="field">
-              <label>Número Base de XP (Nível 1) *</label>
-              <input type="number" id="procBaseXpInput" value="100" min="10" />
+              <label style="color:#fde047; font-weight:700;">Número Único: Abates Rank F Comum *</label>
+              <input type="number" id="procKillTargetInput" value="1500" min="1" oninput="AdminApp.onProcKillTargetInputChange()" />
             </div>
             <div class="field">
-              <label>Exponente de Crescimento (1.0 a 3.0) *</label>
-              <input type="number" step="0.01" id="procExponentInput" value="1.48" min="1.0" max="3.0" />
+              <label style="color:#4ade80; font-weight:700;">Nível Máximo Atingível (2 a 1.000) *</label>
+              <input type="number" id="procMaxLevelInput" value="200" min="2" max="1000" />
+            </div>
+            <div class="field">
+              <label>Número Base de XP (Nível 1 = Abates × 28)</label>
+              <input type="number" id="procBaseXpInput" value="42000" min="10" />
+            </div>
+            <div class="field">
+              <label>Exponente de Crescimento (1.0 = Constante por Nível)</label>
+              <input type="number" step="0.01" id="procExponentInput" value="1.00" min="1.0" max="3.5" />
             </div>
             <div class="field">
               <label>Incremento Linear por Nível</label>
-              <input type="number" id="procFlatIncInput" value="60" min="0" />
-            </div>
-            <div class="field">
-              <label>Nível Máximo da Curva</label>
-              <input type="number" id="procMaxLevelInput" value="100" min="10" max="200" />
+              <input type="number" id="procFlatIncInput" value="0" min="0" />
             </div>
             <div class="field">
               <label>Pontos de Status por Nível</label>
@@ -509,12 +682,11 @@ class AdminExperienceTab {
               <input type="number" id="procSkillPtsInput" value="1" min="0" />
             </div>
             <div class="field">
-              <label>Bônus Base de HP por Nível</label>
-              <input type="number" id="procHpBonusInput" value="25" min="0" />
-            </div>
-            <div class="field">
-              <label>Bônus Base de MP por Nível</label>
-              <input type="number" id="procMpBonusInput" value="10" min="0" />
+              <label>Bônus Base de HP / MP por Nível</label>
+              <div style="display:flex; gap:6px;">
+                <input type="number" id="procHpBonusInput" value="0" min="0" placeholder="HP" />
+                <input type="number" id="procMpBonusInput" value="0" min="0" placeholder="MP" />
+              </div>
             </div>
           </div>
           <div style="display:flex; justify-content:flex-end; gap:8px;">
