@@ -1,0 +1,2196 @@
+[
+  {
+    "code": "equip_lv70_sovereignblade_head",
+    "slot": "HEAD",
+    "namePtBr": "Diadema do Soberano Astral",
+    "nameEn": "Diadema do Soberano Astral",
+    "descPtBr": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Soberano da Espada Astral: Lv. 70 (Rank SS) - Especializado: Espadachim].",
+    "descEn": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Soberano da Espada Astral: Lv. 70 (Rank SS) - Especializado: Espadachim].",
+    "icon": "assets/equipment/icons/equip_normal_050313.png",
+    "combatStats": {
+      "PHYS_ATK": 390,
+      "MAX_HP": 1150,
+      "PHYS_DEF": 210,
+      "CRIT_RATE": 90
+    }
+  },
+  {
+    "code": "equip_lv70_sovereignblade_shoulder",
+    "slot": "SHOULDER",
+    "namePtBr": "Ombreiras do Soberano Astral",
+    "nameEn": "Ombreiras do Soberano Astral",
+    "descPtBr": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Soberano da Espada Astral: Lv. 70 (Rank SS) - Especializado: Espadachim].",
+    "descEn": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Soberano da Espada Astral: Lv. 70 (Rank SS) - Especializado: Espadachim].",
+    "icon": "assets/equipment/icons/equip_normal_050413.png",
+    "combatStats": {
+      "PHYS_ATK": 310,
+      "MAX_HP": 980,
+      "PHYS_DEF": 240,
+      "PHYS_EVASION": 75
+    }
+  },
+  {
+    "code": "equip_lv70_sovereignblade_chest",
+    "slot": "CHEST",
+    "namePtBr": "Couraça do Soberano Astral",
+    "nameEn": "Couraça do Soberano Astral",
+    "descPtBr": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Soberano da Espada Astral: Lv. 70 (Rank SS) - Especializado: Espadachim].",
+    "descEn": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Soberano da Espada Astral: Lv. 70 (Rank SS) - Especializado: Espadachim].",
+    "icon": "assets/equipment/icons/equip_normal_050513.png",
+    "combatStats": {
+      "PHYS_ATK": 470,
+      "MAX_HP": 1650,
+      "PHYS_DEF": 320,
+      "CRIT_DMG": 90
+    }
+  },
+  {
+    "code": "equip_lv70_sovereignblade_belt",
+    "slot": "BELT",
+    "namePtBr": "Cinturão do Soberano Astral",
+    "nameEn": "Cinturão do Soberano Astral",
+    "descPtBr": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Soberano da Espada Astral: Lv. 70 (Rank SS) - Especializado: Espadachim].",
+    "descEn": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Soberano da Espada Astral: Lv. 70 (Rank SS) - Especializado: Espadachim].",
+    "icon": "assets/equipment/icons/equip_normal_050613.png",
+    "combatStats": {
+      "PHYS_ATK": 265,
+      "MAX_HP": 920,
+      "PHYS_DEF": 195,
+      "MP_REGEN": 40
+    }
+  },
+  {
+    "code": "equip_lv70_sovereignblade_legs",
+    "slot": "LEGS",
+    "namePtBr": "Grevas do Soberano Astral",
+    "nameEn": "Grevas do Soberano Astral",
+    "descPtBr": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Soberano da Espada Astral: Lv. 70 (Rank SS) - Especializado: Espadachim].",
+    "descEn": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Soberano da Espada Astral: Lv. 70 (Rank SS) - Especializado: Espadachim].",
+    "icon": "assets/equipment/icons/equip_normal_050713.png",
+    "combatStats": {
+      "PHYS_ATK": 360,
+      "MAX_HP": 1320,
+      "PHYS_DEF": 265,
+      "PHYS_EVASION": 85
+    }
+  },
+  {
+    "code": "equip_lv70_sovereignblade_feet",
+    "slot": "FEET",
+    "namePtBr": "Botas do Soberano Astral",
+    "nameEn": "Botas do Soberano Astral",
+    "descPtBr": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Soberano da Espada Astral: Lv. 70 (Rank SS) - Especializado: Espadachim].",
+    "descEn": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Soberano da Espada Astral: Lv. 70 (Rank SS) - Especializado: Espadachim].",
+    "icon": "assets/equipment/icons/equip_normal_050813.png",
+    "combatStats": {
+      "PHYS_ATK": 255,
+      "MAX_HP": 880,
+      "PHYS_DEF": 210,
+      "BATTLE_MOVE_SPEED": 105,
+      "PHYS_EVASION": 80
+    }
+  },
+  {
+    "code": "equip_lv70_sovereignblade_weapon1",
+    "slot": "WEAPON_1",
+    "namePtBr": "Espada Longa do Soberano Astral",
+    "nameEn": "Espada Longa do Soberano Astral",
+    "descPtBr": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Soberano da Espada Astral: Lv. 70 (Rank SS) - Especializado: Espadachim].",
+    "descEn": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Soberano da Espada Astral: Lv. 70 (Rank SS) - Especializado: Espadachim].",
+    "icon": "assets/equipment/icons/equip_normal_050113.png",
+    "combatStats": {
+      "PHYS_ATK": 920,
+      "CRIT_RATE": 155,
+      "CRIT_DMG": 140,
+      "PHYS_ACCURACY": 105,
+      "ATTACK_SPEED": 35
+    }
+  },
+  {
+    "code": "equip_lv70_sovereignblade_weapon2",
+    "slot": "WEAPON_2",
+    "namePtBr": "Wakizashi do Soberano Astral",
+    "nameEn": "Wakizashi do Soberano Astral",
+    "descPtBr": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Soberano da Espada Astral: Lv. 70 (Rank SS) - Especializado: Espadachim].",
+    "descEn": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Soberano da Espada Astral: Lv. 70 (Rank SS) - Especializado: Espadachim].",
+    "icon": "assets/equipment/icons/equip_normal_050213.png",
+    "combatStats": {
+      "PHYS_ATK": 610,
+      "PHYS_DEF": 260,
+      "CRIT_RATE": 115,
+      "CRIT_DMG": 105,
+      "PHYS_ACCURACY": 85
+    }
+  },
+  {
+    "code": "equip_lv70_sovereignblade_ring",
+    "slot": "RING",
+    "namePtBr": "Anel Real do Soberano Astral",
+    "nameEn": "Anel Real do Soberano Astral",
+    "descPtBr": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Soberano da Espada Astral: Lv. 70 (Rank SS) - Especializado: Espadachim].",
+    "descEn": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Soberano da Espada Astral: Lv. 70 (Rank SS) - Especializado: Espadachim].",
+    "icon": "assets/equipment/icons/equip_normal_001013.png",
+    "combatStats": {
+      "PHYS_ATK": 295,
+      "MAX_HP": 860,
+      "CRIT_RATE": 115,
+      "HP_REGEN": 55
+    }
+  },
+  {
+    "code": "equip_lv70_sovereignblade_necklace",
+    "slot": "NECKLACE",
+    "namePtBr": "Colar Real do Soberano Astral",
+    "nameEn": "Colar Real do Soberano Astral",
+    "descPtBr": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Soberano da Espada Astral: Lv. 70 (Rank SS) - Especializado: Espadachim].",
+    "descEn": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Soberano da Espada Astral: Lv. 70 (Rank SS) - Especializado: Espadachim].",
+    "icon": "assets/equipment/icons/equip_normal_000913.png",
+    "combatStats": {
+      "PHYS_ATK": 325,
+      "MAX_HP": 980,
+      "CRIT_DMG": 110,
+      "PHYS_ACCURACY": 80
+    }
+  },
+  {
+    "code": "equip_lv70_sovereignblade_ornament1",
+    "slot": "ORNAMENT_1",
+    "namePtBr": "Broche Rubro do Soberano Astral",
+    "nameEn": "Broche Rubro do Soberano Astral",
+    "descPtBr": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Soberano da Espada Astral: Lv. 70 (Rank SS) - Especializado: Espadachim].",
+    "descEn": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Soberano da Espada Astral: Lv. 70 (Rank SS) - Especializado: Espadachim].",
+    "icon": "assets/equipment/icons/equip_normal_001113.png",
+    "combatStats": {
+      "PHYS_ATK": 275,
+      "CRIT_RATE": 100,
+      "PHYS_ACCURACY": 75,
+      "BATTLE_MOVE_SPEED": 45
+    }
+  },
+  {
+    "code": "equip_lv70_sovereignblade_ornament2",
+    "slot": "ORNAMENT_2",
+    "namePtBr": "Pingente de Safira do Soberano Astral",
+    "nameEn": "Pingente de Safira do Soberano Astral",
+    "descPtBr": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Soberano da Espada Astral: Lv. 70 (Rank SS) - Especializado: Espadachim].",
+    "descEn": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Soberano da Espada Astral: Lv. 70 (Rank SS) - Especializado: Espadachim].",
+    "icon": "assets/equipment/icons/equip_normal_001213.png",
+    "combatStats": {
+      "PHYS_ATK": 275,
+      "MAX_HP": 1200,
+      "PHYS_DEF": 220,
+      "CRIT_DMG": 95
+    }
+  },
+  {
+    "code": "equip_lv70_valkyriestorm_head",
+    "slot": "HEAD",
+    "namePtBr": "Elmo Alado da Valquíria das Tempestades",
+    "nameEn": "Elmo Alado da Valquíria das Tempestades",
+    "descPtBr": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Valquíria das Tempestades: Lv. 70 (Rank SS) - Especializado: Ladina].",
+    "descEn": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Valquíria das Tempestades: Lv. 70 (Rank SS) - Especializado: Ladina].",
+    "icon": "assets/equipment/icons/equip_normal_050312.png",
+    "combatStats": {
+      "PHYS_ATK": 390,
+      "MAX_HP": 1150,
+      "PHYS_DEF": 210,
+      "CRIT_RATE": 90
+    }
+  },
+  {
+    "code": "equip_lv70_valkyriestorm_shoulder",
+    "slot": "SHOULDER",
+    "namePtBr": "Espaldares da Valquíria das Tempestades",
+    "nameEn": "Espaldares da Valquíria das Tempestades",
+    "descPtBr": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Valquíria das Tempestades: Lv. 70 (Rank SS) - Especializado: Ladina].",
+    "descEn": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Valquíria das Tempestades: Lv. 70 (Rank SS) - Especializado: Ladina].",
+    "icon": "assets/equipment/icons/equip_normal_050412.png",
+    "combatStats": {
+      "PHYS_ATK": 310,
+      "MAX_HP": 980,
+      "PHYS_DEF": 240,
+      "PHYS_EVASION": 75
+    }
+  },
+  {
+    "code": "equip_lv70_valkyriestorm_chest",
+    "slot": "CHEST",
+    "namePtBr": "Peitoral da Valquíria das Tempestades",
+    "nameEn": "Peitoral da Valquíria das Tempestades",
+    "descPtBr": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Valquíria das Tempestades: Lv. 70 (Rank SS) - Especializado: Ladina].",
+    "descEn": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Valquíria das Tempestades: Lv. 70 (Rank SS) - Especializado: Ladina].",
+    "icon": "assets/equipment/icons/equip_normal_050512.png",
+    "combatStats": {
+      "PHYS_ATK": 470,
+      "MAX_HP": 1650,
+      "PHYS_DEF": 320,
+      "CRIT_DMG": 90
+    }
+  },
+  {
+    "code": "equip_lv70_valkyriestorm_belt",
+    "slot": "BELT",
+    "namePtBr": "Cinto da Valquíria das Tempestades",
+    "nameEn": "Cinto da Valquíria das Tempestades",
+    "descPtBr": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Valquíria das Tempestades: Lv. 70 (Rank SS) - Especializado: Ladina].",
+    "descEn": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Valquíria das Tempestades: Lv. 70 (Rank SS) - Especializado: Ladina].",
+    "icon": "assets/equipment/icons/equip_normal_050612.png",
+    "combatStats": {
+      "PHYS_ATK": 265,
+      "MAX_HP": 920,
+      "PHYS_DEF": 195,
+      "MP_REGEN": 40
+    }
+  },
+  {
+    "code": "equip_lv70_valkyriestorm_legs",
+    "slot": "LEGS",
+    "namePtBr": "Perneiras da Valquíria das Tempestades",
+    "nameEn": "Perneiras da Valquíria das Tempestades",
+    "descPtBr": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Valquíria das Tempestades: Lv. 70 (Rank SS) - Especializado: Ladina].",
+    "descEn": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Valquíria das Tempestades: Lv. 70 (Rank SS) - Especializado: Ladina].",
+    "icon": "assets/equipment/icons/equip_normal_050712.png",
+    "combatStats": {
+      "PHYS_ATK": 360,
+      "MAX_HP": 1320,
+      "PHYS_DEF": 265,
+      "PHYS_EVASION": 85
+    }
+  },
+  {
+    "code": "equip_lv70_valkyriestorm_feet",
+    "slot": "FEET",
+    "namePtBr": "Botas Aladas da Valquíria das Tempestades",
+    "nameEn": "Botas Aladas da Valquíria das Tempestades",
+    "descPtBr": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Valquíria das Tempestades: Lv. 70 (Rank SS) - Especializado: Ladina].",
+    "descEn": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Valquíria das Tempestades: Lv. 70 (Rank SS) - Especializado: Ladina].",
+    "icon": "assets/equipment/icons/equip_normal_050812.png",
+    "combatStats": {
+      "PHYS_ATK": 255,
+      "MAX_HP": 880,
+      "PHYS_DEF": 210,
+      "BATTLE_MOVE_SPEED": 105,
+      "PHYS_EVASION": 80
+    }
+  },
+  {
+    "code": "equip_lv70_valkyriestorm_weapon1",
+    "slot": "WEAPON_1",
+    "namePtBr": "Lâmina Solar da Valquíria",
+    "nameEn": "Lâmina Solar da Valquíria",
+    "descPtBr": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Valquíria das Tempestades: Lv. 70 (Rank SS) - Especializado: Ladina].",
+    "descEn": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Valquíria das Tempestades: Lv. 70 (Rank SS) - Especializado: Ladina].",
+    "icon": "assets/equipment/icons/equip_normal_050108.png",
+    "combatStats": {
+      "PHYS_ATK": 920,
+      "CRIT_RATE": 155,
+      "CRIT_DMG": 140,
+      "PHYS_ACCURACY": 105,
+      "ATTACK_SPEED": 35
+    }
+  },
+  {
+    "code": "equip_lv70_valkyriestorm_weapon2",
+    "slot": "WEAPON_2",
+    "namePtBr": "Adaga Curva dos Ventos Celestes",
+    "nameEn": "Adaga Curva dos Ventos Celestes",
+    "descPtBr": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Valquíria das Tempestades: Lv. 70 (Rank SS) - Especializado: Ladina].",
+    "descEn": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Valquíria das Tempestades: Lv. 70 (Rank SS) - Especializado: Ladina].",
+    "icon": "assets/equipment/icons/equip_normal_050212.png",
+    "combatStats": {
+      "PHYS_ATK": 610,
+      "PHYS_DEF": 260,
+      "CRIT_RATE": 115,
+      "CRIT_DMG": 105,
+      "PHYS_ACCURACY": 85
+    }
+  },
+  {
+    "code": "equip_lv70_valkyriestorm_ring",
+    "slot": "RING",
+    "namePtBr": "Anel Alado da Valquíria",
+    "nameEn": "Anel Alado da Valquíria",
+    "descPtBr": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Valquíria das Tempestades: Lv. 70 (Rank SS) - Especializado: Ladina].",
+    "descEn": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Valquíria das Tempestades: Lv. 70 (Rank SS) - Especializado: Ladina].",
+    "icon": "assets/equipment/icons/equip_normal_011013.png",
+    "combatStats": {
+      "PHYS_ATK": 295,
+      "MAX_HP": 860,
+      "CRIT_RATE": 115,
+      "HP_REGEN": 55
+    }
+  },
+  {
+    "code": "equip_lv70_valkyriestorm_necklace",
+    "slot": "NECKLACE",
+    "namePtBr": "Torques Alado da Valquíria",
+    "nameEn": "Torques Alado da Valquíria",
+    "descPtBr": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Valquíria das Tempestades: Lv. 70 (Rank SS) - Especializado: Ladina].",
+    "descEn": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Valquíria das Tempestades: Lv. 70 (Rank SS) - Especializado: Ladina].",
+    "icon": "assets/equipment/icons/equip_normal_010913.png",
+    "combatStats": {
+      "PHYS_ATK": 325,
+      "MAX_HP": 980,
+      "CRIT_DMG": 110,
+      "PHYS_ACCURACY": 80
+    }
+  },
+  {
+    "code": "equip_lv70_valkyriestorm_ornament1",
+    "slot": "ORNAMENT_1",
+    "namePtBr": "Insígnia Solar da Valquíria",
+    "nameEn": "Insígnia Solar da Valquíria",
+    "descPtBr": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Valquíria das Tempestades: Lv. 70 (Rank SS) - Especializado: Ladina].",
+    "descEn": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Valquíria das Tempestades: Lv. 70 (Rank SS) - Especializado: Ladina].",
+    "icon": "assets/equipment/icons/equip_normal_011114.png",
+    "combatStats": {
+      "PHYS_ATK": 275,
+      "CRIT_RATE": 100,
+      "PHYS_ACCURACY": 75,
+      "BATTLE_MOVE_SPEED": 45
+    }
+  },
+  {
+    "code": "equip_lv70_valkyriestorm_ornament2",
+    "slot": "ORNAMENT_2",
+    "namePtBr": "Pluma Celeste da Valquíria",
+    "nameEn": "Pluma Celeste da Valquíria",
+    "descPtBr": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Valquíria das Tempestades: Lv. 70 (Rank SS) - Especializado: Ladina].",
+    "descEn": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Valquíria das Tempestades: Lv. 70 (Rank SS) - Especializado: Ladina].",
+    "icon": "assets/equipment/icons/equip_normal_011214.png",
+    "combatStats": {
+      "PHYS_ATK": 275,
+      "MAX_HP": 1200,
+      "PHYS_DEF": 220,
+      "CRIT_DMG": 95
+    }
+  },
+  {
+    "code": "equip_lv70_draconicwarlord_head",
+    "slot": "HEAD",
+    "namePtBr": "Elmo de Chifres do Senhor Dracônico",
+    "nameEn": "Elmo de Chifres do Senhor Dracônico",
+    "descPtBr": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Senhor da Guerra Dracônico: Lv. 70 (Rank SS) - Especializado: Guerreira].",
+    "descEn": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Senhor da Guerra Dracônico: Lv. 70 (Rank SS) - Especializado: Guerreira].",
+    "icon": "assets/equipment/icons/equip_normal_010311.png",
+    "combatStats": {
+      "MAX_HP": 1950,
+      "PHYS_DEF": 310,
+      "MAG_DEF": 240,
+      "PHYS_ATK": 260
+    }
+  },
+  {
+    "code": "equip_lv70_draconicwarlord_shoulder",
+    "slot": "SHOULDER",
+    "namePtBr": "Ombreiras de Escamas do Senhor Dracônico",
+    "nameEn": "Ombreiras de Escamas do Senhor Dracônico",
+    "descPtBr": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Senhor da Guerra Dracônico: Lv. 70 (Rank SS) - Especializado: Guerreira].",
+    "descEn": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Senhor da Guerra Dracônico: Lv. 70 (Rank SS) - Especializado: Guerreira].",
+    "icon": "assets/equipment/icons/equip_normal_010411.png",
+    "combatStats": {
+      "MAX_HP": 1750,
+      "PHYS_DEF": 340,
+      "MAG_DEF": 260,
+      "HP_REGEN": 65
+    }
+  },
+  {
+    "code": "equip_lv70_draconicwarlord_chest",
+    "slot": "CHEST",
+    "namePtBr": "Armadura Pesada do Senhor Dracônico",
+    "nameEn": "Armadura Pesada do Senhor Dracônico",
+    "descPtBr": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Senhor da Guerra Dracônico: Lv. 70 (Rank SS) - Especializado: Guerreira].",
+    "descEn": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Senhor da Guerra Dracônico: Lv. 70 (Rank SS) - Especializado: Guerreira].",
+    "icon": "assets/equipment/icons/equip_normal_010511.png",
+    "combatStats": {
+      "MAX_HP": 2600,
+      "PHYS_DEF": 440,
+      "MAG_DEF": 320,
+      "HP_REGEN": 95
+    }
+  },
+  {
+    "code": "equip_lv70_draconicwarlord_belt",
+    "slot": "BELT",
+    "namePtBr": "Cinturão de Garra do Senhor Dracônico",
+    "nameEn": "Cinturão de Garra do Senhor Dracônico",
+    "descPtBr": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Senhor da Guerra Dracônico: Lv. 70 (Rank SS) - Especializado: Guerreira].",
+    "descEn": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Senhor da Guerra Dracônico: Lv. 70 (Rank SS) - Especializado: Guerreira].",
+    "icon": "assets/equipment/icons/equip_normal_010611.png",
+    "combatStats": {
+      "MAX_HP": 1550,
+      "PHYS_DEF": 270,
+      "MAG_DEF": 210,
+      "HP_REGEN": 60
+    }
+  },
+  {
+    "code": "equip_lv70_draconicwarlord_legs",
+    "slot": "LEGS",
+    "namePtBr": "Coxotes Rubros do Senhor Dracônico",
+    "nameEn": "Coxotes Rubros do Senhor Dracônico",
+    "descPtBr": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Senhor da Guerra Dracônico: Lv. 70 (Rank SS) - Especializado: Guerreira].",
+    "descEn": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Senhor da Guerra Dracônico: Lv. 70 (Rank SS) - Especializado: Guerreira].",
+    "icon": "assets/equipment/icons/equip_normal_010711.png",
+    "combatStats": {
+      "MAX_HP": 2100,
+      "PHYS_DEF": 370,
+      "MAG_DEF": 275,
+      "PHYS_ATK": 240
+    }
+  },
+  {
+    "code": "equip_lv70_draconicwarlord_feet",
+    "slot": "FEET",
+    "namePtBr": "Sabatons Dourados do Senhor Dracônico",
+    "nameEn": "Sabatons Dourados do Senhor Dracônico",
+    "descPtBr": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Senhor da Guerra Dracônico: Lv. 70 (Rank SS) - Especializado: Guerreira].",
+    "descEn": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Senhor da Guerra Dracônico: Lv. 70 (Rank SS) - Especializado: Guerreira].",
+    "icon": "assets/equipment/icons/equip_normal_010811.png",
+    "combatStats": {
+      "MAX_HP": 1450,
+      "PHYS_DEF": 285,
+      "MAG_DEF": 220,
+      "BATTLE_MOVE_SPEED": 75
+    }
+  },
+  {
+    "code": "equip_lv70_draconicwarlord_weapon1",
+    "slot": "WEAPON_1",
+    "namePtBr": "Machado Carniceiro Dracônico",
+    "nameEn": "Machado Carniceiro Dracônico",
+    "descPtBr": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Senhor da Guerra Dracônico: Lv. 70 (Rank SS) - Especializado: Guerreira].",
+    "descEn": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Senhor da Guerra Dracônico: Lv. 70 (Rank SS) - Especializado: Guerreira].",
+    "icon": "assets/equipment/icons/equip_normal_010114.png",
+    "combatStats": {
+      "PHYS_ATK": 920,
+      "CRIT_RATE": 155,
+      "CRIT_DMG": 140,
+      "PHYS_ACCURACY": 105,
+      "ATTACK_SPEED": 35
+    }
+  },
+  {
+    "code": "equip_lv70_draconicwarlord_weapon2",
+    "slot": "WEAPON_2",
+    "namePtBr": "Escudo de Escamas Rubras Dracônico",
+    "nameEn": "Escudo de Escamas Rubras Dracônico",
+    "descPtBr": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Senhor da Guerra Dracônico: Lv. 70 (Rank SS) - Especializado: Guerreira].",
+    "descEn": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Senhor da Guerra Dracônico: Lv. 70 (Rank SS) - Especializado: Guerreira].",
+    "icon": "assets/equipment/icons/equip_normal_010211.png",
+    "combatStats": {
+      "MAX_HP": 2400,
+      "PHYS_DEF": 460,
+      "MAG_DEF": 380,
+      "HP_REGEN": 90,
+      "PHYS_ATK": 320
+    }
+  },
+  {
+    "code": "equip_lv70_draconicwarlord_ring",
+    "slot": "RING",
+    "namePtBr": "Anel de Sangue Dracônico",
+    "nameEn": "Anel de Sangue Dracônico",
+    "descPtBr": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Senhor da Guerra Dracônico: Lv. 70 (Rank SS) - Especializado: Guerreira].",
+    "descEn": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Senhor da Guerra Dracônico: Lv. 70 (Rank SS) - Especializado: Guerreira].",
+    "icon": "assets/equipment/icons/equip_normal_011014.png",
+    "combatStats": {
+      "PHYS_ATK": 295,
+      "MAX_HP": 860,
+      "CRIT_RATE": 115,
+      "HP_REGEN": 55
+    }
+  },
+  {
+    "code": "equip_lv70_draconicwarlord_necklace",
+    "slot": "NECKLACE",
+    "namePtBr": "Colar de Rubi Dracônico",
+    "nameEn": "Colar de Rubi Dracônico",
+    "descPtBr": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Senhor da Guerra Dracônico: Lv. 70 (Rank SS) - Especializado: Guerreira].",
+    "descEn": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Senhor da Guerra Dracônico: Lv. 70 (Rank SS) - Especializado: Guerreira].",
+    "icon": "assets/equipment/icons/equip_normal_010914.png",
+    "combatStats": {
+      "PHYS_ATK": 325,
+      "MAX_HP": 980,
+      "CRIT_DMG": 110,
+      "PHYS_ACCURACY": 80
+    }
+  },
+  {
+    "code": "equip_lv70_draconicwarlord_ornament1",
+    "slot": "ORNAMENT_1",
+    "namePtBr": "Coração de Magma Dracônico",
+    "nameEn": "Coração de Magma Dracônico",
+    "descPtBr": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Senhor da Guerra Dracônico: Lv. 70 (Rank SS) - Especializado: Guerreira].",
+    "descEn": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Senhor da Guerra Dracônico: Lv. 70 (Rank SS) - Especializado: Guerreira].",
+    "icon": "assets/equipment/icons/equip_normal_011111.png",
+    "combatStats": {
+      "PHYS_ATK": 275,
+      "CRIT_RATE": 100,
+      "PHYS_ACCURACY": 75,
+      "BATTLE_MOVE_SPEED": 45
+    }
+  },
+  {
+    "code": "equip_lv70_draconicwarlord_ornament2",
+    "slot": "ORNAMENT_2",
+    "namePtBr": "Pedra Ancestral do Bastião Dracônico",
+    "nameEn": "Pedra Ancestral do Bastião Dracônico",
+    "descPtBr": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Senhor da Guerra Dracônico: Lv. 70 (Rank SS) - Especializado: Guerreira].",
+    "descEn": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Senhor da Guerra Dracônico: Lv. 70 (Rank SS) - Especializado: Guerreira].",
+    "icon": "assets/equipment/icons/equip_normal_001214.png",
+    "combatStats": {
+      "PHYS_ATK": 275,
+      "MAX_HP": 1200,
+      "PHYS_DEF": 220,
+      "CRIT_DMG": 95
+    }
+  },
+  {
+    "code": "equip_lv70_lunarpriestess_head",
+    "slot": "HEAD",
+    "namePtBr": "Tiara da Meia-Lua Sagrada",
+    "nameEn": "Tiara da Meia-Lua Sagrada",
+    "descPtBr": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Sacerdotisa do Santuário Lunar: Lv. 70 (Rank SS) - Especializado: Curandeira].",
+    "descEn": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Sacerdotisa do Santuário Lunar: Lv. 70 (Rank SS) - Especializado: Curandeira].",
+    "icon": "assets/equipment/icons/equip_normal_040311.png",
+    "combatStats": {
+      "MAG_ATK": 380,
+      "MAX_MP": 820,
+      "MAG_DEF": 210,
+      "CRIT_RATE": 85
+    }
+  },
+  {
+    "code": "equip_lv70_lunarpriestess_shoulder",
+    "slot": "SHOULDER",
+    "namePtBr": "Manto Lunar de Safira",
+    "nameEn": "Manto Lunar de Safira",
+    "descPtBr": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Sacerdotisa do Santuário Lunar: Lv. 70 (Rank SS) - Especializado: Curandeira].",
+    "descEn": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Sacerdotisa do Santuário Lunar: Lv. 70 (Rank SS) - Especializado: Curandeira].",
+    "icon": "assets/equipment/icons/equip_normal_040411.png",
+    "combatStats": {
+      "MAG_ATK": 290,
+      "MAX_MP": 640,
+      "MAG_DEF": 280,
+      "MAG_EVASION": 70
+    }
+  },
+  {
+    "code": "equip_lv70_lunarpriestess_chest",
+    "slot": "CHEST",
+    "namePtBr": "Túnica do Santuário Lunar",
+    "nameEn": "Túnica do Santuário Lunar",
+    "descPtBr": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Sacerdotisa do Santuário Lunar: Lv. 70 (Rank SS) - Especializado: Curandeira].",
+    "descEn": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Sacerdotisa do Santuário Lunar: Lv. 70 (Rank SS) - Especializado: Curandeira].",
+    "icon": "assets/equipment/icons/equip_normal_040511.png",
+    "combatStats": {
+      "MAG_ATK": 460,
+      "MAX_MP": 980,
+      "MAG_DEF": 360,
+      "HP_REGEN": 80
+    }
+  },
+  {
+    "code": "equip_lv70_lunarpriestess_belt",
+    "slot": "BELT",
+    "namePtBr": "Faixa Estelar do Santuário Lunar",
+    "nameEn": "Faixa Estelar do Santuário Lunar",
+    "descPtBr": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Sacerdotisa do Santuário Lunar: Lv. 70 (Rank SS) - Especializado: Curandeira].",
+    "descEn": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Sacerdotisa do Santuário Lunar: Lv. 70 (Rank SS) - Especializado: Curandeira].",
+    "icon": "assets/equipment/icons/equip_normal_040611.png",
+    "combatStats": {
+      "MAG_ATK": 250,
+      "MAX_MP": 540,
+      "MP_REGEN": 55,
+      "MAG_DEF": 185
+    }
+  },
+  {
+    "code": "equip_lv70_lunarpriestess_legs",
+    "slot": "LEGS",
+    "namePtBr": "Saiote do Santuário Lunar",
+    "nameEn": "Saiote do Santuário Lunar",
+    "descPtBr": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Sacerdotisa do Santuário Lunar: Lv. 70 (Rank SS) - Especializado: Curandeira].",
+    "descEn": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Sacerdotisa do Santuário Lunar: Lv. 70 (Rank SS) - Especializado: Curandeira].",
+    "icon": "assets/equipment/icons/equip_normal_040711.png",
+    "combatStats": {
+      "MAG_ATK": 350,
+      "MAX_MP": 740,
+      "MAG_DEF": 295,
+      "MAG_EVASION": 80
+    }
+  },
+  {
+    "code": "equip_lv70_lunarpriestess_feet",
+    "slot": "FEET",
+    "namePtBr": "Botas Sagradas do Santuário Lunar",
+    "nameEn": "Botas Sagradas do Santuário Lunar",
+    "descPtBr": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Sacerdotisa do Santuário Lunar: Lv. 70 (Rank SS) - Especializado: Curandeira].",
+    "descEn": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Sacerdotisa do Santuário Lunar: Lv. 70 (Rank SS) - Especializado: Curandeira].",
+    "icon": "assets/equipment/icons/equip_normal_040811.png",
+    "combatStats": {
+      "MAG_ATK": 230,
+      "MAX_MP": 480,
+      "MAG_DEF": 225,
+      "BATTLE_MOVE_SPEED": 90,
+      "MAG_EVASION": 70
+    }
+  },
+  {
+    "code": "equip_lv70_lunarpriestess_weapon1",
+    "slot": "WEAPON_1",
+    "namePtBr": "Báculo Esmeralda da Vida Eterna",
+    "nameEn": "Báculo Esmeralda da Vida Eterna",
+    "descPtBr": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Sacerdotisa do Santuário Lunar: Lv. 70 (Rank SS) - Especializado: Curandeira].",
+    "descEn": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Sacerdotisa do Santuário Lunar: Lv. 70 (Rank SS) - Especializado: Curandeira].",
+    "icon": "assets/equipment/icons/equip_normal_040110.png",
+    "combatStats": {
+      "MAG_ATK": 780,
+      "HEAL_POWER": 620,
+      "MAX_MP": 1050,
+      "CRIT_RATE": 120,
+      "MAG_ACCURACY": 95
+    }
+  },
+  {
+    "code": "equip_lv70_lunarpriestess_weapon2",
+    "slot": "WEAPON_2",
+    "namePtBr": "Escritura Sagrada da Redenção Lunar",
+    "nameEn": "Escritura Sagrada da Redenção Lunar",
+    "descPtBr": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Sacerdotisa do Santuário Lunar: Lv. 70 (Rank SS) - Especializado: Curandeira].",
+    "descEn": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Sacerdotisa do Santuário Lunar: Lv. 70 (Rank SS) - Especializado: Curandeira].",
+    "icon": "assets/equipment/icons/equip_normal_040211.png",
+    "combatStats": {
+      "MAG_ATK": 590,
+      "MAG_DEF": 310,
+      "MAX_MP": 760,
+      "HEAL_POWER": 410,
+      "MAG_ACCURACY": 85
+    }
+  },
+  {
+    "code": "equip_lv70_lunarpriestess_ring",
+    "slot": "RING",
+    "namePtBr": "Anel de Safira Lunar",
+    "nameEn": "Anel de Safira Lunar",
+    "descPtBr": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Sacerdotisa do Santuário Lunar: Lv. 70 (Rank SS) - Especializado: Curandeira].",
+    "descEn": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Sacerdotisa do Santuário Lunar: Lv. 70 (Rank SS) - Especializado: Curandeira].",
+    "icon": "assets/equipment/icons/equip_normal_001014.png",
+    "combatStats": {
+      "MAG_ATK": 285,
+      "MAX_MP": 540,
+      "CRIT_RATE": 110,
+      "HP_REGEN": 50
+    }
+  },
+  {
+    "code": "equip_lv70_lunarpriestess_necklace",
+    "slot": "NECKLACE",
+    "namePtBr": "Colar de Lágrimas Lunares",
+    "nameEn": "Colar de Lágrimas Lunares",
+    "descPtBr": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Sacerdotisa do Santuário Lunar: Lv. 70 (Rank SS) - Especializado: Curandeira].",
+    "descEn": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Sacerdotisa do Santuário Lunar: Lv. 70 (Rank SS) - Especializado: Curandeira].",
+    "icon": "assets/equipment/icons/equip_normal_000914.png",
+    "combatStats": {
+      "MAG_ATK": 315,
+      "MAX_MP": 640,
+      "CRIT_DMG": 105,
+      "MAG_ACCURACY": 75
+    }
+  },
+  {
+    "code": "equip_lv70_lunarpriestess_ornament1",
+    "slot": "ORNAMENT_1",
+    "namePtBr": "Cruz Radiante do Santuário Lunar",
+    "nameEn": "Cruz Radiante do Santuário Lunar",
+    "descPtBr": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Sacerdotisa do Santuário Lunar: Lv. 70 (Rank SS) - Especializado: Curandeira].",
+    "descEn": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Sacerdotisa do Santuário Lunar: Lv. 70 (Rank SS) - Especializado: Curandeira].",
+    "icon": "assets/equipment/icons/equip_normal_400301.png",
+    "combatStats": {
+      "MAG_ATK": 265,
+      "HEAL_POWER": 260,
+      "CRIT_RATE": 95,
+      "MAG_ACCURACY": 70
+    }
+  },
+  {
+    "code": "equip_lv70_lunarpriestess_ornament2",
+    "slot": "ORNAMENT_2",
+    "namePtBr": "Insígnia Alada da Graça Lunar",
+    "nameEn": "Insígnia Alada da Graça Lunar",
+    "descPtBr": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Sacerdotisa do Santuário Lunar: Lv. 70 (Rank SS) - Especializado: Curandeira].",
+    "descEn": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Sacerdotisa do Santuário Lunar: Lv. 70 (Rank SS) - Especializado: Curandeira].",
+    "icon": "assets/equipment/icons/equip_normal_011215.png",
+    "combatStats": {
+      "MAG_ATK": 265,
+      "MAX_HP": 1100,
+      "MAG_DEF": 210,
+      "MP_REGEN": 50
+    }
+  },
+  {
+    "code": "equip_lv70_astralranger_head",
+    "slot": "HEAD",
+    "namePtBr": "Visor da Patrulheira do Horizonte",
+    "nameEn": "Visor da Patrulheira do Horizonte",
+    "descPtBr": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Patrulheira do Horizonte Astral: Lv. 70 (Rank SS) - Especializado: Caçadora].",
+    "descEn": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Patrulheira do Horizonte Astral: Lv. 70 (Rank SS) - Especializado: Caçadora].",
+    "icon": "assets/equipment/icons/equip_normal_030311.png",
+    "combatStats": {
+      "PHYS_ATK": 390,
+      "MAX_HP": 1150,
+      "PHYS_DEF": 210,
+      "CRIT_RATE": 90
+    }
+  },
+  {
+    "code": "equip_lv70_astralranger_shoulder",
+    "slot": "SHOULDER",
+    "namePtBr": "Ombreiras Estelares do Horizonte",
+    "nameEn": "Ombreiras Estelares do Horizonte",
+    "descPtBr": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Patrulheira do Horizonte Astral: Lv. 70 (Rank SS) - Especializado: Caçadora].",
+    "descEn": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Patrulheira do Horizonte Astral: Lv. 70 (Rank SS) - Especializado: Caçadora].",
+    "icon": "assets/equipment/icons/equip_normal_030411.png",
+    "combatStats": {
+      "PHYS_ATK": 310,
+      "MAX_HP": 980,
+      "PHYS_DEF": 240,
+      "PHYS_EVASION": 75
+    }
+  },
+  {
+    "code": "equip_lv70_astralranger_chest",
+    "slot": "CHEST",
+    "namePtBr": "Gibão da Patrulheira do Horizonte",
+    "nameEn": "Gibão da Patrulheira do Horizonte",
+    "descPtBr": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Patrulheira do Horizonte Astral: Lv. 70 (Rank SS) - Especializado: Caçadora].",
+    "descEn": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Patrulheira do Horizonte Astral: Lv. 70 (Rank SS) - Especializado: Caçadora].",
+    "icon": "assets/equipment/icons/equip_normal_030511.png",
+    "combatStats": {
+      "PHYS_ATK": 470,
+      "MAX_HP": 1650,
+      "PHYS_DEF": 320,
+      "CRIT_DMG": 90
+    }
+  },
+  {
+    "code": "equip_lv70_astralranger_belt",
+    "slot": "BELT",
+    "namePtBr": "Cinto de Vento do Horizonte",
+    "nameEn": "Cinto de Vento do Horizonte",
+    "descPtBr": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Patrulheira do Horizonte Astral: Lv. 70 (Rank SS) - Especializado: Caçadora].",
+    "descEn": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Patrulheira do Horizonte Astral: Lv. 70 (Rank SS) - Especializado: Caçadora].",
+    "icon": "assets/equipment/icons/equip_normal_030611.png",
+    "combatStats": {
+      "PHYS_ATK": 265,
+      "MAX_HP": 920,
+      "PHYS_DEF": 195,
+      "MP_REGEN": 40
+    }
+  },
+  {
+    "code": "equip_lv70_astralranger_legs",
+    "slot": "LEGS",
+    "namePtBr": "Perneiras Ágeis do Horizonte",
+    "nameEn": "Perneiras Ágeis do Horizonte",
+    "descPtBr": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Patrulheira do Horizonte Astral: Lv. 70 (Rank SS) - Especializado: Caçadora].",
+    "descEn": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Patrulheira do Horizonte Astral: Lv. 70 (Rank SS) - Especializado: Caçadora].",
+    "icon": "assets/equipment/icons/equip_normal_030711.png",
+    "combatStats": {
+      "PHYS_ATK": 360,
+      "MAX_HP": 1320,
+      "PHYS_DEF": 265,
+      "PHYS_EVASION": 85
+    }
+  },
+  {
+    "code": "equip_lv70_astralranger_feet",
+    "slot": "FEET",
+    "namePtBr": "Botas Silvestres do Horizonte",
+    "nameEn": "Botas Silvestres do Horizonte",
+    "descPtBr": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Patrulheira do Horizonte Astral: Lv. 70 (Rank SS) - Especializado: Caçadora].",
+    "descEn": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Patrulheira do Horizonte Astral: Lv. 70 (Rank SS) - Especializado: Caçadora].",
+    "icon": "assets/equipment/icons/equip_normal_030811.png",
+    "combatStats": {
+      "PHYS_ATK": 255,
+      "MAX_HP": 880,
+      "PHYS_DEF": 210,
+      "BATTLE_MOVE_SPEED": 105,
+      "PHYS_EVASION": 80
+    }
+  },
+  {
+    "code": "equip_lv70_astralranger_weapon1",
+    "slot": "WEAPON_1",
+    "namePtBr": "Balestra de Repetição do Horizonte",
+    "nameEn": "Balestra de Repetição do Horizonte",
+    "descPtBr": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Patrulheira do Horizonte Astral: Lv. 70 (Rank SS) - Especializado: Caçadora].",
+    "descEn": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Patrulheira do Horizonte Astral: Lv. 70 (Rank SS) - Especializado: Caçadora].",
+    "icon": "assets/equipment/icons/equip_normal_030111.png",
+    "combatStats": {
+      "PHYS_ATK": 920,
+      "CRIT_RATE": 155,
+      "CRIT_DMG": 140,
+      "PHYS_ACCURACY": 105,
+      "ATTACK_SPEED": 35
+    }
+  },
+  {
+    "code": "equip_lv70_astralranger_weapon2",
+    "slot": "WEAPON_2",
+    "namePtBr": "Aljava de Flechas Estelares",
+    "nameEn": "Aljava de Flechas Estelares",
+    "descPtBr": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Patrulheira do Horizonte Astral: Lv. 70 (Rank SS) - Especializado: Caçadora].",
+    "descEn": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Patrulheira do Horizonte Astral: Lv. 70 (Rank SS) - Especializado: Caçadora].",
+    "icon": "assets/equipment/icons/equip_normal_030211.png",
+    "combatStats": {
+      "PHYS_ATK": 610,
+      "PHYS_DEF": 260,
+      "CRIT_RATE": 115,
+      "CRIT_DMG": 105,
+      "PHYS_ACCURACY": 85
+    }
+  },
+  {
+    "code": "equip_lv70_astralranger_ring",
+    "slot": "RING",
+    "namePtBr": "Anel Esmeralda da Floresta Astral",
+    "nameEn": "Anel Esmeralda da Floresta Astral",
+    "descPtBr": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Patrulheira do Horizonte Astral: Lv. 70 (Rank SS) - Especializado: Caçadora].",
+    "descEn": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Patrulheira do Horizonte Astral: Lv. 70 (Rank SS) - Especializado: Caçadora].",
+    "icon": "assets/equipment/icons/equip_normal_001007.png",
+    "combatStats": {
+      "PHYS_ATK": 295,
+      "MAX_HP": 860,
+      "CRIT_RATE": 115,
+      "HP_REGEN": 55
+    }
+  },
+  {
+    "code": "equip_lv70_astralranger_necklace",
+    "slot": "NECKLACE",
+    "namePtBr": "Amuleto Esmeralda da Caçada Astral",
+    "nameEn": "Amuleto Esmeralda da Caçada Astral",
+    "descPtBr": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Patrulheira do Horizonte Astral: Lv. 70 (Rank SS) - Especializado: Caçadora].",
+    "descEn": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Patrulheira do Horizonte Astral: Lv. 70 (Rank SS) - Especializado: Caçadora].",
+    "icon": "assets/equipment/icons/equip_normal_000907.png",
+    "combatStats": {
+      "PHYS_ATK": 325,
+      "MAX_HP": 980,
+      "CRIT_DMG": 110,
+      "PHYS_ACCURACY": 80
+    }
+  },
+  {
+    "code": "equip_lv70_astralranger_ornament1",
+    "slot": "ORNAMENT_1",
+    "namePtBr": "Gema Verdejante do Horizonte",
+    "nameEn": "Gema Verdejante do Horizonte",
+    "descPtBr": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Patrulheira do Horizonte Astral: Lv. 70 (Rank SS) - Especializado: Caçadora].",
+    "descEn": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Patrulheira do Horizonte Astral: Lv. 70 (Rank SS) - Especializado: Caçadora].",
+    "icon": "assets/equipment/icons/equip_normal_001107.png",
+    "combatStats": {
+      "PHYS_ATK": 275,
+      "CRIT_RATE": 100,
+      "PHYS_ACCURACY": 75,
+      "BATTLE_MOVE_SPEED": 45
+    }
+  },
+  {
+    "code": "equip_lv70_astralranger_ornament2",
+    "slot": "ORNAMENT_2",
+    "namePtBr": "Talismã de Jade da Patrulheira",
+    "nameEn": "Talismã de Jade da Patrulheira",
+    "descPtBr": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Patrulheira do Horizonte Astral: Lv. 70 (Rank SS) - Especializado: Caçadora].",
+    "descEn": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Patrulheira do Horizonte Astral: Lv. 70 (Rank SS) - Especializado: Caçadora].",
+    "icon": "assets/equipment/icons/equip_normal_001207.png",
+    "combatStats": {
+      "PHYS_ATK": 275,
+      "MAX_HP": 1200,
+      "PHYS_DEF": 220,
+      "CRIT_DMG": 95
+    }
+  },
+  {
+    "code": "equip_lv70_bloodphantom_head",
+    "slot": "HEAD",
+    "namePtBr": "Bandana Alada da Sombra Carmesim",
+    "nameEn": "Bandana Alada da Sombra Carmesim",
+    "descPtBr": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Sombra Carmesim do Crepúsculo: Lv. 70 (Rank SS) - Especializado: Assassina].",
+    "descEn": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Sombra Carmesim do Crepúsculo: Lv. 70 (Rank SS) - Especializado: Assassina].",
+    "icon": "assets/equipment/icons/equip_normal_060312.png",
+    "combatStats": {
+      "PHYS_ATK": 390,
+      "MAX_HP": 1150,
+      "PHYS_DEF": 210,
+      "CRIT_RATE": 90
+    }
+  },
+  {
+    "code": "equip_lv70_bloodphantom_shoulder",
+    "slot": "SHOULDER",
+    "namePtBr": "Ombreiras Ocultas da Sombra Carmesim",
+    "nameEn": "Ombreiras Ocultas da Sombra Carmesim",
+    "descPtBr": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Sombra Carmesim do Crepúsculo: Lv. 70 (Rank SS) - Especializado: Assassina].",
+    "descEn": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Sombra Carmesim do Crepúsculo: Lv. 70 (Rank SS) - Especializado: Assassina].",
+    "icon": "assets/equipment/icons/equip_normal_060412.png",
+    "combatStats": {
+      "PHYS_ATK": 310,
+      "MAX_HP": 980,
+      "PHYS_DEF": 240,
+      "PHYS_EVASION": 75
+    }
+  },
+  {
+    "code": "equip_lv70_bloodphantom_chest",
+    "slot": "CHEST",
+    "namePtBr": "Kimono Furtivo da Sombra Carmesim",
+    "nameEn": "Kimono Furtivo da Sombra Carmesim",
+    "descPtBr": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Sombra Carmesim do Crepúsculo: Lv. 70 (Rank SS) - Especializado: Assassina].",
+    "descEn": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Sombra Carmesim do Crepúsculo: Lv. 70 (Rank SS) - Especializado: Assassina].",
+    "icon": "assets/equipment/icons/equip_normal_060512.png",
+    "combatStats": {
+      "PHYS_ATK": 470,
+      "MAX_HP": 1650,
+      "PHYS_DEF": 320,
+      "CRIT_DMG": 90
+    }
+  },
+  {
+    "code": "equip_lv70_bloodphantom_belt",
+    "slot": "BELT",
+    "namePtBr": "Faixa Tática da Sombra Carmesim",
+    "nameEn": "Faixa Tática da Sombra Carmesim",
+    "descPtBr": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Sombra Carmesim do Crepúsculo: Lv. 70 (Rank SS) - Especializado: Assassina].",
+    "descEn": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Sombra Carmesim do Crepúsculo: Lv. 70 (Rank SS) - Especializado: Assassina].",
+    "icon": "assets/equipment/icons/equip_normal_060612.png",
+    "combatStats": {
+      "PHYS_ATK": 265,
+      "MAX_HP": 920,
+      "PHYS_DEF": 195,
+      "MP_REGEN": 40
+    }
+  },
+  {
+    "code": "equip_lv70_bloodphantom_legs",
+    "slot": "LEGS",
+    "namePtBr": "Calças Furtivas da Sombra Carmesim",
+    "nameEn": "Calças Furtivas da Sombra Carmesim",
+    "descPtBr": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Sombra Carmesim do Crepúsculo: Lv. 70 (Rank SS) - Especializado: Assassina].",
+    "descEn": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Sombra Carmesim do Crepúsculo: Lv. 70 (Rank SS) - Especializado: Assassina].",
+    "icon": "assets/equipment/icons/equip_normal_060712.png",
+    "combatStats": {
+      "PHYS_ATK": 360,
+      "MAX_HP": 1320,
+      "PHYS_DEF": 265,
+      "PHYS_EVASION": 85
+    }
+  },
+  {
+    "code": "equip_lv70_bloodphantom_feet",
+    "slot": "FEET",
+    "namePtBr": "Tabi Silenciosas da Sombra Carmesim",
+    "nameEn": "Tabi Silenciosas da Sombra Carmesim",
+    "descPtBr": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Sombra Carmesim do Crepúsculo: Lv. 70 (Rank SS) - Especializado: Assassina].",
+    "descEn": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Sombra Carmesim do Crepúsculo: Lv. 70 (Rank SS) - Especializado: Assassina].",
+    "icon": "assets/equipment/icons/equip_normal_060812.png",
+    "combatStats": {
+      "PHYS_ATK": 255,
+      "MAX_HP": 880,
+      "PHYS_DEF": 210,
+      "BATTLE_MOVE_SPEED": 105,
+      "PHYS_EVASION": 80
+    }
+  },
+  {
+    "code": "equip_lv70_bloodphantom_weapon1",
+    "slot": "WEAPON_1",
+    "namePtBr": "Lâmina Negra do Crepúsculo",
+    "nameEn": "Lâmina Negra do Crepúsculo",
+    "descPtBr": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Sombra Carmesim do Crepúsculo: Lv. 70 (Rank SS) - Especializado: Assassina].",
+    "descEn": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Sombra Carmesim do Crepúsculo: Lv. 70 (Rank SS) - Especializado: Assassina].",
+    "icon": "assets/equipment/icons/equip_normal_050112.png",
+    "combatStats": {
+      "PHYS_ATK": 920,
+      "CRIT_RATE": 155,
+      "CRIT_DMG": 140,
+      "PHYS_ACCURACY": 105,
+      "ATTACK_SPEED": 35
+    }
+  },
+  {
+    "code": "equip_lv70_bloodphantom_weapon2",
+    "slot": "WEAPON_2",
+    "namePtBr": "Adaga Venenosa do Crepúsculo",
+    "nameEn": "Adaga Venenosa do Crepúsculo",
+    "descPtBr": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Sombra Carmesim do Crepúsculo: Lv. 70 (Rank SS) - Especializado: Assassina].",
+    "descEn": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Sombra Carmesim do Crepúsculo: Lv. 70 (Rank SS) - Especializado: Assassina].",
+    "icon": "assets/equipment/icons/equip_normal_050211.png",
+    "combatStats": {
+      "PHYS_ATK": 610,
+      "PHYS_DEF": 260,
+      "CRIT_RATE": 115,
+      "CRIT_DMG": 105,
+      "PHYS_ACCURACY": 85
+    }
+  },
+  {
+    "code": "equip_lv70_bloodphantom_ring",
+    "slot": "RING",
+    "namePtBr": "Anel Carmesim do Assassinato",
+    "nameEn": "Anel Carmesim do Assassinato",
+    "descPtBr": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Sombra Carmesim do Crepúsculo: Lv. 70 (Rank SS) - Especializado: Assassina].",
+    "descEn": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Sombra Carmesim do Crepúsculo: Lv. 70 (Rank SS) - Especializado: Assassina].",
+    "icon": "assets/equipment/icons/equip_normal_011012.png",
+    "combatStats": {
+      "PHYS_ATK": 295,
+      "MAX_HP": 860,
+      "CRIT_RATE": 115,
+      "HP_REGEN": 55
+    }
+  },
+  {
+    "code": "equip_lv70_bloodphantom_necklace",
+    "slot": "NECKLACE",
+    "namePtBr": "Gargantilha de Sangue Noturno",
+    "nameEn": "Gargantilha de Sangue Noturno",
+    "descPtBr": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Sombra Carmesim do Crepúsculo: Lv. 70 (Rank SS) - Especializado: Assassina].",
+    "descEn": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Sombra Carmesim do Crepúsculo: Lv. 70 (Rank SS) - Especializado: Assassina].",
+    "icon": "assets/equipment/icons/equip_normal_010912.png",
+    "combatStats": {
+      "PHYS_ATK": 325,
+      "MAX_HP": 980,
+      "CRIT_DMG": 110,
+      "PHYS_ACCURACY": 80
+    }
+  },
+  {
+    "code": "equip_lv70_bloodphantom_ornament1",
+    "slot": "ORNAMENT_1",
+    "namePtBr": "Presa Envenenada do Crepúsculo",
+    "nameEn": "Presa Envenenada do Crepúsculo",
+    "descPtBr": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Sombra Carmesim do Crepúsculo: Lv. 70 (Rank SS) - Especializado: Assassina].",
+    "descEn": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Sombra Carmesim do Crepúsculo: Lv. 70 (Rank SS) - Especializado: Assassina].",
+    "icon": "assets/equipment/icons/equip_normal_001111.png",
+    "combatStats": {
+      "PHYS_ATK": 275,
+      "CRIT_RATE": 100,
+      "PHYS_ACCURACY": 75,
+      "BATTLE_MOVE_SPEED": 45
+    }
+  },
+  {
+    "code": "equip_lv70_bloodphantom_ornament2",
+    "slot": "ORNAMENT_2",
+    "namePtBr": "Cristal Sombrio da Furtividade",
+    "nameEn": "Cristal Sombrio da Furtividade",
+    "descPtBr": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Sombra Carmesim do Crepúsculo: Lv. 70 (Rank SS) - Especializado: Assassina].",
+    "descEn": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Sombra Carmesim do Crepúsculo: Lv. 70 (Rank SS) - Especializado: Assassina].",
+    "icon": "assets/equipment/icons/equip_normal_001211.png",
+    "combatStats": {
+      "PHYS_ATK": 275,
+      "MAX_HP": 1200,
+      "PHYS_DEF": 220,
+      "CRIT_DMG": 95
+    }
+  },
+  {
+    "code": "equip_lv70_celestialmuse_head",
+    "slot": "HEAD",
+    "namePtBr": "Boina Real da Musa Celestial",
+    "nameEn": "Boina Real da Musa Celestial",
+    "descPtBr": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Musa da Sinfonia Celestial: Lv. 70 (Rank SS) - Especializado: Barda].",
+    "descEn": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Musa da Sinfonia Celestial: Lv. 70 (Rank SS) - Especializado: Barda].",
+    "icon": "assets/equipment/icons/equip_normal_020312.png",
+    "combatStats": {
+      "MAG_ATK": 380,
+      "MAX_MP": 820,
+      "MAG_DEF": 210,
+      "CRIT_RATE": 85
+    }
+  },
+  {
+    "code": "equip_lv70_celestialmuse_shoulder",
+    "slot": "SHOULDER",
+    "namePtBr": "Ombreiras de Cristal da Musa Celestial",
+    "nameEn": "Ombreiras de Cristal da Musa Celestial",
+    "descPtBr": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Musa da Sinfonia Celestial: Lv. 70 (Rank SS) - Especializado: Barda].",
+    "descEn": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Musa da Sinfonia Celestial: Lv. 70 (Rank SS) - Especializado: Barda].",
+    "icon": "assets/equipment/icons/equip_normal_020412.png",
+    "combatStats": {
+      "MAG_ATK": 290,
+      "MAX_MP": 640,
+      "MAG_DEF": 280,
+      "MAG_EVASION": 70
+    }
+  },
+  {
+    "code": "equip_lv70_celestialmuse_chest",
+    "slot": "CHEST",
+    "namePtBr": "Veste Sinfônica da Musa Celestial",
+    "nameEn": "Veste Sinfônica da Musa Celestial",
+    "descPtBr": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Musa da Sinfonia Celestial: Lv. 70 (Rank SS) - Especializado: Barda].",
+    "descEn": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Musa da Sinfonia Celestial: Lv. 70 (Rank SS) - Especializado: Barda].",
+    "icon": "assets/equipment/icons/equip_normal_020512.png",
+    "combatStats": {
+      "MAG_ATK": 460,
+      "MAX_MP": 980,
+      "MAG_DEF": 360,
+      "HP_REGEN": 80
+    }
+  },
+  {
+    "code": "equip_lv70_celestialmuse_belt",
+    "slot": "BELT",
+    "namePtBr": "Cinto Harmônico da Musa Celestial",
+    "nameEn": "Cinto Harmônico da Musa Celestial",
+    "descPtBr": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Musa da Sinfonia Celestial: Lv. 70 (Rank SS) - Especializado: Barda].",
+    "descEn": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Musa da Sinfonia Celestial: Lv. 70 (Rank SS) - Especializado: Barda].",
+    "icon": "assets/equipment/icons/equip_normal_020612.png",
+    "combatStats": {
+      "MAG_ATK": 250,
+      "MAX_MP": 540,
+      "MP_REGEN": 55,
+      "MAG_DEF": 185
+    }
+  },
+  {
+    "code": "equip_lv70_celestialmuse_legs",
+    "slot": "LEGS",
+    "namePtBr": "Calças Melódicas da Musa Celestial",
+    "nameEn": "Calças Melódicas da Musa Celestial",
+    "descPtBr": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Musa da Sinfonia Celestial: Lv. 70 (Rank SS) - Especializado: Barda].",
+    "descEn": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Musa da Sinfonia Celestial: Lv. 70 (Rank SS) - Especializado: Barda].",
+    "icon": "assets/equipment/icons/equip_normal_020712.png",
+    "combatStats": {
+      "MAG_ATK": 350,
+      "MAX_MP": 740,
+      "MAG_DEF": 295,
+      "MAG_EVASION": 80
+    }
+  },
+  {
+    "code": "equip_lv70_celestialmuse_feet",
+    "slot": "FEET",
+    "namePtBr": "Botas Aladas da Musa Celestial",
+    "nameEn": "Botas Aladas da Musa Celestial",
+    "descPtBr": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Musa da Sinfonia Celestial: Lv. 70 (Rank SS) - Especializado: Barda].",
+    "descEn": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Musa da Sinfonia Celestial: Lv. 70 (Rank SS) - Especializado: Barda].",
+    "icon": "assets/equipment/icons/equip_normal_020812.png",
+    "combatStats": {
+      "MAG_ATK": 230,
+      "MAX_MP": 480,
+      "MAG_DEF": 225,
+      "BATTLE_MOVE_SPEED": 90,
+      "MAG_EVASION": 70
+    }
+  },
+  {
+    "code": "equip_lv70_celestialmuse_weapon1",
+    "slot": "WEAPON_1",
+    "namePtBr": "Harpa Dourada da Sinfonia Celestial",
+    "nameEn": "Harpa Dourada da Sinfonia Celestial",
+    "descPtBr": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Musa da Sinfonia Celestial: Lv. 70 (Rank SS) - Especializado: Barda].",
+    "descEn": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Musa da Sinfonia Celestial: Lv. 70 (Rank SS) - Especializado: Barda].",
+    "icon": "assets/equipment/icons/equip_normal_020111.png",
+    "combatStats": {
+      "MAG_ATK": 780,
+      "HEAL_POWER": 620,
+      "MAX_MP": 1050,
+      "CRIT_RATE": 120,
+      "MAG_ACCURACY": 95
+    }
+  },
+  {
+    "code": "equip_lv70_celestialmuse_weapon2",
+    "slot": "WEAPON_2",
+    "namePtBr": "Batuta Floral da Ressonância",
+    "nameEn": "Batuta Floral da Ressonância",
+    "descPtBr": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Musa da Sinfonia Celestial: Lv. 70 (Rank SS) - Especializado: Barda].",
+    "descEn": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Musa da Sinfonia Celestial: Lv. 70 (Rank SS) - Especializado: Barda].",
+    "icon": "assets/equipment/icons/equip_normal_020211.png",
+    "combatStats": {
+      "MAG_ATK": 590,
+      "MAG_DEF": 310,
+      "MAX_MP": 760,
+      "HEAL_POWER": 410,
+      "MAG_ACCURACY": 85
+    }
+  },
+  {
+    "code": "equip_lv70_celestialmuse_ring",
+    "slot": "RING",
+    "namePtBr": "Anel Harmônico de Coral Celestial",
+    "nameEn": "Anel Harmônico de Coral Celestial",
+    "descPtBr": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Musa da Sinfonia Celestial: Lv. 70 (Rank SS) - Especializado: Barda].",
+    "descEn": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Musa da Sinfonia Celestial: Lv. 70 (Rank SS) - Especializado: Barda].",
+    "icon": "assets/equipment/icons/equip_normal_011008.png",
+    "combatStats": {
+      "MAG_ATK": 285,
+      "MAX_MP": 540,
+      "CRIT_RATE": 110,
+      "HP_REGEN": 50
+    }
+  },
+  {
+    "code": "equip_lv70_celestialmuse_necklace",
+    "slot": "NECKLACE",
+    "namePtBr": "Colar de Pérolas Ressonantes",
+    "nameEn": "Colar de Pérolas Ressonantes",
+    "descPtBr": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Musa da Sinfonia Celestial: Lv. 70 (Rank SS) - Especializado: Barda].",
+    "descEn": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Musa da Sinfonia Celestial: Lv. 70 (Rank SS) - Especializado: Barda].",
+    "icon": "assets/equipment/icons/equip_normal_010908.png",
+    "combatStats": {
+      "MAG_ATK": 315,
+      "MAX_MP": 640,
+      "CRIT_DMG": 105,
+      "MAG_ACCURACY": 75
+    }
+  },
+  {
+    "code": "equip_lv70_celestialmuse_ornament1",
+    "slot": "ORNAMENT_1",
+    "namePtBr": "Leque Dourado da Musa Celestial",
+    "nameEn": "Leque Dourado da Musa Celestial",
+    "descPtBr": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Musa da Sinfonia Celestial: Lv. 70 (Rank SS) - Especializado: Barda].",
+    "descEn": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Musa da Sinfonia Celestial: Lv. 70 (Rank SS) - Especializado: Barda].",
+    "icon": "assets/equipment/icons/equip_normal_001109.png",
+    "combatStats": {
+      "MAG_ATK": 265,
+      "HEAL_POWER": 260,
+      "CRIT_RATE": 95,
+      "MAG_ACCURACY": 70
+    }
+  },
+  {
+    "code": "equip_lv70_celestialmuse_ornament2",
+    "slot": "ORNAMENT_2",
+    "namePtBr": "Esfera Acústica do Éter",
+    "nameEn": "Esfera Acústica do Éter",
+    "descPtBr": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Musa da Sinfonia Celestial: Lv. 70 (Rank SS) - Especializado: Barda].",
+    "descEn": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Musa da Sinfonia Celestial: Lv. 70 (Rank SS) - Especializado: Barda].",
+    "icon": "assets/equipment/icons/equip_normal_001212.png",
+    "combatStats": {
+      "MAG_ATK": 265,
+      "MAX_HP": 1100,
+      "MAG_DEF": 210,
+      "MP_REGEN": 50
+    }
+  },
+  {
+    "code": "equip_lv70_dragoonemperor_head",
+    "slot": "HEAD",
+    "namePtBr": "Elmo Imperial Dragoon dos Céus",
+    "nameEn": "Elmo Imperial Dragoon dos Céus",
+    "descPtBr": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Imperador Dragoon dos Céus: Lv. 70 (Rank SS) - Especializado: Lanceiro].",
+    "descEn": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Imperador Dragoon dos Céus: Lv. 70 (Rank SS) - Especializado: Lanceiro].",
+    "icon": "assets/equipment/icons/equip_normal_010313.png",
+    "combatStats": {
+      "PHYS_ATK": 390,
+      "MAX_HP": 1150,
+      "PHYS_DEF": 210,
+      "CRIT_RATE": 90
+    }
+  },
+  {
+    "code": "equip_lv70_dragoonemperor_shoulder",
+    "slot": "SHOULDER",
+    "namePtBr": "Ombreiras Imperiais Dragoon dos Céus",
+    "nameEn": "Ombreiras Imperiais Dragoon dos Céus",
+    "descPtBr": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Imperador Dragoon dos Céus: Lv. 70 (Rank SS) - Especializado: Lanceiro].",
+    "descEn": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Imperador Dragoon dos Céus: Lv. 70 (Rank SS) - Especializado: Lanceiro].",
+    "icon": "assets/equipment/icons/equip_normal_010413.png",
+    "combatStats": {
+      "PHYS_ATK": 310,
+      "MAX_HP": 980,
+      "PHYS_DEF": 240,
+      "PHYS_EVASION": 75
+    }
+  },
+  {
+    "code": "equip_lv70_dragoonemperor_chest",
+    "slot": "CHEST",
+    "namePtBr": "Peitoral Imperial Dragoon dos Céus",
+    "nameEn": "Peitoral Imperial Dragoon dos Céus",
+    "descPtBr": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Imperador Dragoon dos Céus: Lv. 70 (Rank SS) - Especializado: Lanceiro].",
+    "descEn": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Imperador Dragoon dos Céus: Lv. 70 (Rank SS) - Especializado: Lanceiro].",
+    "icon": "assets/equipment/icons/equip_normal_010513.png",
+    "combatStats": {
+      "PHYS_ATK": 470,
+      "MAX_HP": 1650,
+      "PHYS_DEF": 320,
+      "CRIT_DMG": 90
+    }
+  },
+  {
+    "code": "equip_lv70_dragoonemperor_belt",
+    "slot": "BELT",
+    "namePtBr": "Cinturão Imperial Dragoon dos Céus",
+    "nameEn": "Cinturão Imperial Dragoon dos Céus",
+    "descPtBr": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Imperador Dragoon dos Céus: Lv. 70 (Rank SS) - Especializado: Lanceiro].",
+    "descEn": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Imperador Dragoon dos Céus: Lv. 70 (Rank SS) - Especializado: Lanceiro].",
+    "icon": "assets/equipment/icons/equip_normal_010613.png",
+    "combatStats": {
+      "PHYS_ATK": 265,
+      "MAX_HP": 920,
+      "PHYS_DEF": 195,
+      "MP_REGEN": 40
+    }
+  },
+  {
+    "code": "equip_lv70_dragoonemperor_legs",
+    "slot": "LEGS",
+    "namePtBr": "Grevas Imperiais Dragoon dos Céus",
+    "nameEn": "Grevas Imperiais Dragoon dos Céus",
+    "descPtBr": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Imperador Dragoon dos Céus: Lv. 70 (Rank SS) - Especializado: Lanceiro].",
+    "descEn": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Imperador Dragoon dos Céus: Lv. 70 (Rank SS) - Especializado: Lanceiro].",
+    "icon": "assets/equipment/icons/equip_normal_010713.png",
+    "combatStats": {
+      "PHYS_ATK": 360,
+      "MAX_HP": 1320,
+      "PHYS_DEF": 265,
+      "PHYS_EVASION": 85
+    }
+  },
+  {
+    "code": "equip_lv70_dragoonemperor_feet",
+    "slot": "FEET",
+    "namePtBr": "Sabatons Imperiais Dragoon dos Céus",
+    "nameEn": "Sabatons Imperiais Dragoon dos Céus",
+    "descPtBr": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Imperador Dragoon dos Céus: Lv. 70 (Rank SS) - Especializado: Lanceiro].",
+    "descEn": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Imperador Dragoon dos Céus: Lv. 70 (Rank SS) - Especializado: Lanceiro].",
+    "icon": "assets/equipment/icons/equip_normal_010813.png",
+    "combatStats": {
+      "PHYS_ATK": 255,
+      "MAX_HP": 880,
+      "PHYS_DEF": 210,
+      "BATTLE_MOVE_SPEED": 105,
+      "PHYS_EVASION": 80
+    }
+  },
+  {
+    "code": "equip_lv70_dragoonemperor_weapon1",
+    "slot": "WEAPON_1",
+    "namePtBr": "Lança Perfuratriz do Imperador Dragoon",
+    "nameEn": "Lança Perfuratriz do Imperador Dragoon",
+    "descPtBr": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Imperador Dragoon dos Céus: Lv. 70 (Rank SS) - Especializado: Lanceiro].",
+    "descEn": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Imperador Dragoon dos Céus: Lv. 70 (Rank SS) - Especializado: Lanceiro].",
+    "icon": "assets/equipment/icons/equip_normal_060112.png",
+    "combatStats": {
+      "PHYS_ATK": 920,
+      "CRIT_RATE": 155,
+      "CRIT_DMG": 140,
+      "PHYS_ACCURACY": 105,
+      "ATTACK_SPEED": 35
+    }
+  },
+  {
+    "code": "equip_lv70_dragoonemperor_weapon2",
+    "slot": "WEAPON_2",
+    "namePtBr": "Garra de Investida Rubra Dragoon",
+    "nameEn": "Garra de Investida Rubra Dragoon",
+    "descPtBr": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Imperador Dragoon dos Céus: Lv. 70 (Rank SS) - Especializado: Lanceiro].",
+    "descEn": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Imperador Dragoon dos Céus: Lv. 70 (Rank SS) - Especializado: Lanceiro].",
+    "icon": "assets/equipment/icons/equip_normal_060210.png",
+    "combatStats": {
+      "PHYS_ATK": 610,
+      "PHYS_DEF": 260,
+      "CRIT_RATE": 115,
+      "CRIT_DMG": 105,
+      "PHYS_ACCURACY": 85
+    }
+  },
+  {
+    "code": "equip_lv70_dragoonemperor_ring",
+    "slot": "RING",
+    "namePtBr": "Anel Imperial de Topázio Dragoon",
+    "nameEn": "Anel Imperial de Topázio Dragoon",
+    "descPtBr": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Imperador Dragoon dos Céus: Lv. 70 (Rank SS) - Especializado: Lanceiro].",
+    "descEn": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Imperador Dragoon dos Céus: Lv. 70 (Rank SS) - Especializado: Lanceiro].",
+    "icon": "assets/equipment/icons/equip_normal_011011.png",
+    "combatStats": {
+      "PHYS_ATK": 295,
+      "MAX_HP": 860,
+      "CRIT_RATE": 115,
+      "HP_REGEN": 55
+    }
+  },
+  {
+    "code": "equip_lv70_dragoonemperor_necklace",
+    "slot": "NECKLACE",
+    "namePtBr": "Medalhão Imperial Dragoon dos Céus",
+    "nameEn": "Medalhão Imperial Dragoon dos Céus",
+    "descPtBr": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Imperador Dragoon dos Céus: Lv. 70 (Rank SS) - Especializado: Lanceiro].",
+    "descEn": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Imperador Dragoon dos Céus: Lv. 70 (Rank SS) - Especializado: Lanceiro].",
+    "icon": "assets/equipment/icons/equip_normal_010911.png",
+    "combatStats": {
+      "PHYS_ATK": 325,
+      "MAX_HP": 980,
+      "CRIT_DMG": 110,
+      "PHYS_ACCURACY": 80
+    }
+  },
+  {
+    "code": "equip_lv70_dragoonemperor_ornament1",
+    "slot": "ORNAMENT_1",
+    "namePtBr": "Orbe Solar da Perfuração Celeste",
+    "nameEn": "Orbe Solar da Perfuração Celeste",
+    "descPtBr": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Imperador Dragoon dos Céus: Lv. 70 (Rank SS) - Especializado: Lanceiro].",
+    "descEn": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Imperador Dragoon dos Céus: Lv. 70 (Rank SS) - Especializado: Lanceiro].",
+    "icon": "assets/equipment/icons/equip_normal_011109.png",
+    "combatStats": {
+      "PHYS_ATK": 275,
+      "CRIT_RATE": 100,
+      "PHYS_ACCURACY": 75,
+      "BATTLE_MOVE_SPEED": 45
+    }
+  },
+  {
+    "code": "equip_lv70_dragoonemperor_ornament2",
+    "slot": "ORNAMENT_2",
+    "namePtBr": "Flama Espiral do Imperador Dragoon",
+    "nameEn": "Flama Espiral do Imperador Dragoon",
+    "descPtBr": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Imperador Dragoon dos Céus: Lv. 70 (Rank SS) - Especializado: Lanceiro].",
+    "descEn": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Imperador Dragoon dos Céus: Lv. 70 (Rank SS) - Especializado: Lanceiro].",
+    "icon": "assets/equipment/icons/equip_normal_011211.png",
+    "combatStats": {
+      "PHYS_ATK": 275,
+      "MAX_HP": 1200,
+      "PHYS_DEF": 220,
+      "CRIT_DMG": 95
+    }
+  },
+  {
+    "code": "equip_lv70_arcanesovereign_head",
+    "slot": "HEAD",
+    "namePtBr": "Mitra do Arquimago Primordial",
+    "nameEn": "Mitra do Arquimago Primordial",
+    "descPtBr": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Arquimago da Chama Primordial: Lv. 70 (Rank SS) - Especializado: Mago].",
+    "descEn": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Arquimago da Chama Primordial: Lv. 70 (Rank SS) - Especializado: Mago].",
+    "icon": "assets/equipment/icons/equip_normal_040312.png",
+    "combatStats": {
+      "MAG_ATK": 380,
+      "MAX_MP": 820,
+      "MAG_DEF": 210,
+      "CRIT_RATE": 85
+    }
+  },
+  {
+    "code": "equip_lv70_arcanesovereign_shoulder",
+    "slot": "SHOULDER",
+    "namePtBr": "Espaldares Rúnicos do Arquimago Primordial",
+    "nameEn": "Espaldares Rúnicos do Arquimago Primordial",
+    "descPtBr": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Arquimago da Chama Primordial: Lv. 70 (Rank SS) - Especializado: Mago].",
+    "descEn": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Arquimago da Chama Primordial: Lv. 70 (Rank SS) - Especializado: Mago].",
+    "icon": "assets/equipment/icons/equip_normal_040412.png",
+    "combatStats": {
+      "MAG_ATK": 290,
+      "MAX_MP": 640,
+      "MAG_DEF": 280,
+      "MAG_EVASION": 70
+    }
+  },
+  {
+    "code": "equip_lv70_arcanesovereign_chest",
+    "slot": "CHEST",
+    "namePtBr": "Manto Real do Arquimago Primordial",
+    "nameEn": "Manto Real do Arquimago Primordial",
+    "descPtBr": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Arquimago da Chama Primordial: Lv. 70 (Rank SS) - Especializado: Mago].",
+    "descEn": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Arquimago da Chama Primordial: Lv. 70 (Rank SS) - Especializado: Mago].",
+    "icon": "assets/equipment/icons/equip_normal_040512.png",
+    "combatStats": {
+      "MAG_ATK": 460,
+      "MAX_MP": 980,
+      "MAG_DEF": 360,
+      "HP_REGEN": 80
+    }
+  },
+  {
+    "code": "equip_lv70_arcanesovereign_belt",
+    "slot": "BELT",
+    "namePtBr": "Cinto de Runas do Arquimago Primordial",
+    "nameEn": "Cinto de Runas do Arquimago Primordial",
+    "descPtBr": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Arquimago da Chama Primordial: Lv. 70 (Rank SS) - Especializado: Mago].",
+    "descEn": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Arquimago da Chama Primordial: Lv. 70 (Rank SS) - Especializado: Mago].",
+    "icon": "assets/equipment/icons/equip_normal_040612.png",
+    "combatStats": {
+      "MAG_ATK": 250,
+      "MAX_MP": 540,
+      "MP_REGEN": 55,
+      "MAG_DEF": 185
+    }
+  },
+  {
+    "code": "equip_lv70_arcanesovereign_legs",
+    "slot": "LEGS",
+    "namePtBr": "Saiote Ígneo do Arquimago Primordial",
+    "nameEn": "Saiote Ígneo do Arquimago Primordial",
+    "descPtBr": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Arquimago da Chama Primordial: Lv. 70 (Rank SS) - Especializado: Mago].",
+    "descEn": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Arquimago da Chama Primordial: Lv. 70 (Rank SS) - Especializado: Mago].",
+    "icon": "assets/equipment/icons/equip_normal_040712.png",
+    "combatStats": {
+      "MAG_ATK": 350,
+      "MAX_MP": 740,
+      "MAG_DEF": 295,
+      "MAG_EVASION": 80
+    }
+  },
+  {
+    "code": "equip_lv70_arcanesovereign_feet",
+    "slot": "FEET",
+    "namePtBr": "Botas Arcanas do Arquimago Primordial",
+    "nameEn": "Botas Arcanas do Arquimago Primordial",
+    "descPtBr": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Arquimago da Chama Primordial: Lv. 70 (Rank SS) - Especializado: Mago].",
+    "descEn": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Arquimago da Chama Primordial: Lv. 70 (Rank SS) - Especializado: Mago].",
+    "icon": "assets/equipment/icons/equip_normal_040812.png",
+    "combatStats": {
+      "MAG_ATK": 230,
+      "MAX_MP": 480,
+      "MAG_DEF": 225,
+      "BATTLE_MOVE_SPEED": 90,
+      "MAG_EVASION": 70
+    }
+  },
+  {
+    "code": "equip_lv70_arcanesovereign_weapon1",
+    "slot": "WEAPON_1",
+    "namePtBr": "Cetro do Núcleo Primordial",
+    "nameEn": "Cetro do Núcleo Primordial",
+    "descPtBr": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Arquimago da Chama Primordial: Lv. 70 (Rank SS) - Especializado: Mago].",
+    "descEn": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Arquimago da Chama Primordial: Lv. 70 (Rank SS) - Especializado: Mago].",
+    "icon": "assets/equipment/icons/equip_normal_120004.png",
+    "combatStats": {
+      "MAG_ATK": 920,
+      "MAX_MP": 1050,
+      "CRIT_RATE": 150,
+      "CRIT_DMG": 135,
+      "MAG_ACCURACY": 105
+    }
+  },
+  {
+    "code": "equip_lv70_arcanesovereign_weapon2",
+    "slot": "WEAPON_2",
+    "namePtBr": "Grimório das Runas Primordiais",
+    "nameEn": "Grimório das Runas Primordiais",
+    "descPtBr": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Arquimago da Chama Primordial: Lv. 70 (Rank SS) - Especializado: Mago].",
+    "descEn": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Arquimago da Chama Primordial: Lv. 70 (Rank SS) - Especializado: Mago].",
+    "icon": "assets/equipment/icons/equip_normal_040212.png",
+    "combatStats": {
+      "MAG_ATK": 590,
+      "MAG_DEF": 310,
+      "MAX_MP": 760,
+      "HEAL_POWER": 120,
+      "MAG_ACCURACY": 85
+    }
+  },
+  {
+    "code": "equip_lv70_arcanesovereign_ring",
+    "slot": "RING",
+    "namePtBr": "Anel de Diamante Primordial",
+    "nameEn": "Anel de Diamante Primordial",
+    "descPtBr": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Arquimago da Chama Primordial: Lv. 70 (Rank SS) - Especializado: Mago].",
+    "descEn": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Arquimago da Chama Primordial: Lv. 70 (Rank SS) - Especializado: Mago].",
+    "icon": "assets/equipment/icons/equip_normal_001015.png",
+    "combatStats": {
+      "MAG_ATK": 285,
+      "MAX_MP": 540,
+      "CRIT_RATE": 110,
+      "HP_REGEN": 50
+    }
+  },
+  {
+    "code": "equip_lv70_arcanesovereign_necklace",
+    "slot": "NECKLACE",
+    "namePtBr": "Colar de Cristais Primordiais",
+    "nameEn": "Colar de Cristais Primordiais",
+    "descPtBr": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Arquimago da Chama Primordial: Lv. 70 (Rank SS) - Especializado: Mago].",
+    "descEn": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Arquimago da Chama Primordial: Lv. 70 (Rank SS) - Especializado: Mago].",
+    "icon": "assets/equipment/icons/equip_normal_000915.png",
+    "combatStats": {
+      "MAG_ATK": 315,
+      "MAX_MP": 640,
+      "CRIT_DMG": 105,
+      "MAG_ACCURACY": 75
+    }
+  },
+  {
+    "code": "equip_lv70_arcanesovereign_ornament1",
+    "slot": "ORNAMENT_1",
+    "namePtBr": "Varinha Catalisadora Primordial",
+    "nameEn": "Varinha Catalisadora Primordial",
+    "descPtBr": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Arquimago da Chama Primordial: Lv. 70 (Rank SS) - Especializado: Mago].",
+    "descEn": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Arquimago da Chama Primordial: Lv. 70 (Rank SS) - Especializado: Mago].",
+    "icon": "assets/equipment/icons/equip_normal_001115.png",
+    "combatStats": {
+      "MAG_ATK": 265,
+      "HEAL_POWER": 80,
+      "CRIT_RATE": 95,
+      "MAG_ACCURACY": 70
+    }
+  },
+  {
+    "code": "equip_lv70_arcanesovereign_ornament2",
+    "slot": "ORNAMENT_2",
+    "namePtBr": "Prisma de Ametista Primordial",
+    "nameEn": "Prisma de Ametista Primordial",
+    "descPtBr": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Arquimago da Chama Primordial: Lv. 70 (Rank SS) - Especializado: Mago].",
+    "descEn": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Arquimago da Chama Primordial: Lv. 70 (Rank SS) - Especializado: Mago].",
+    "icon": "assets/equipment/icons/equip_normal_011208.png",
+    "combatStats": {
+      "MAG_ATK": 265,
+      "MAX_HP": 1100,
+      "MAG_DEF": 210,
+      "MP_REGEN": 50
+    }
+  },
+  {
+    "code": "equip_lv70_seraphiccrusader_head",
+    "slot": "HEAD",
+    "namePtBr": "Elmo Alado do Cruzado Seráfico",
+    "nameEn": "Elmo Alado do Cruzado Seráfico",
+    "descPtBr": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Cruzado Seráfico de Aethelgard: Lv. 70 (Rank SS) - Especializado: Paladino].",
+    "descEn": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Cruzado Seráfico de Aethelgard: Lv. 70 (Rank SS) - Especializado: Paladino].",
+    "icon": "assets/equipment/icons/equip_normal_010312.png",
+    "combatStats": {
+      "MAX_HP": 1950,
+      "PHYS_DEF": 310,
+      "MAG_DEF": 240,
+      "PHYS_ATK": 260
+    }
+  },
+  {
+    "code": "equip_lv70_seraphiccrusader_shoulder",
+    "slot": "SHOULDER",
+    "namePtBr": "Ombreiras Douradas do Cruzado Seráfico",
+    "nameEn": "Ombreiras Douradas do Cruzado Seráfico",
+    "descPtBr": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Cruzado Seráfico de Aethelgard: Lv. 70 (Rank SS) - Especializado: Paladino].",
+    "descEn": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Cruzado Seráfico de Aethelgard: Lv. 70 (Rank SS) - Especializado: Paladino].",
+    "icon": "assets/equipment/icons/equip_normal_010412.png",
+    "combatStats": {
+      "MAX_HP": 1750,
+      "PHYS_DEF": 340,
+      "MAG_DEF": 260,
+      "HP_REGEN": 65
+    }
+  },
+  {
+    "code": "equip_lv70_seraphiccrusader_chest",
+    "slot": "CHEST",
+    "namePtBr": "Couraça Sacra do Cruzado Seráfico",
+    "nameEn": "Couraça Sacra do Cruzado Seráfico",
+    "descPtBr": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Cruzado Seráfico de Aethelgard: Lv. 70 (Rank SS) - Especializado: Paladino].",
+    "descEn": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Cruzado Seráfico de Aethelgard: Lv. 70 (Rank SS) - Especializado: Paladino].",
+    "icon": "assets/equipment/icons/equip_normal_010512.png",
+    "combatStats": {
+      "MAX_HP": 2600,
+      "PHYS_DEF": 440,
+      "MAG_DEF": 320,
+      "HP_REGEN": 95
+    }
+  },
+  {
+    "code": "equip_lv70_seraphiccrusader_belt",
+    "slot": "BELT",
+    "namePtBr": "Cinturão de Ouro do Cruzado Seráfico",
+    "nameEn": "Cinturão de Ouro do Cruzado Seráfico",
+    "descPtBr": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Cruzado Seráfico de Aethelgard: Lv. 70 (Rank SS) - Especializado: Paladino].",
+    "descEn": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Cruzado Seráfico de Aethelgard: Lv. 70 (Rank SS) - Especializado: Paladino].",
+    "icon": "assets/equipment/icons/equip_normal_010612.png",
+    "combatStats": {
+      "MAX_HP": 1550,
+      "PHYS_DEF": 270,
+      "MAG_DEF": 210,
+      "HP_REGEN": 60
+    }
+  },
+  {
+    "code": "equip_lv70_seraphiccrusader_legs",
+    "slot": "LEGS",
+    "namePtBr": "Grevas Rúnicas do Cruzado Seráfico",
+    "nameEn": "Grevas Rúnicas do Cruzado Seráfico",
+    "descPtBr": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Cruzado Seráfico de Aethelgard: Lv. 70 (Rank SS) - Especializado: Paladino].",
+    "descEn": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Cruzado Seráfico de Aethelgard: Lv. 70 (Rank SS) - Especializado: Paladino].",
+    "icon": "assets/equipment/icons/equip_normal_010712.png",
+    "combatStats": {
+      "MAX_HP": 2100,
+      "PHYS_DEF": 370,
+      "MAG_DEF": 275,
+      "PHYS_ATK": 240
+    }
+  },
+  {
+    "code": "equip_lv70_seraphiccrusader_feet",
+    "slot": "FEET",
+    "namePtBr": "Sabatons Alados do Cruzado Seráfico",
+    "nameEn": "Sabatons Alados do Cruzado Seráfico",
+    "descPtBr": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Cruzado Seráfico de Aethelgard: Lv. 70 (Rank SS) - Especializado: Paladino].",
+    "descEn": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Cruzado Seráfico de Aethelgard: Lv. 70 (Rank SS) - Especializado: Paladino].",
+    "icon": "assets/equipment/icons/equip_normal_010812.png",
+    "combatStats": {
+      "MAX_HP": 1450,
+      "PHYS_DEF": 285,
+      "MAG_DEF": 220,
+      "BATTLE_MOVE_SPEED": 75
+    }
+  },
+  {
+    "code": "equip_lv70_seraphiccrusader_weapon1",
+    "slot": "WEAPON_1",
+    "namePtBr": "Martelo Sagrado da Luz Seráfica",
+    "nameEn": "Martelo Sagrado da Luz Seráfica",
+    "descPtBr": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Cruzado Seráfico de Aethelgard: Lv. 70 (Rank SS) - Especializado: Paladino].",
+    "descEn": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Cruzado Seráfico de Aethelgard: Lv. 70 (Rank SS) - Especializado: Paladino].",
+    "icon": "assets/equipment/icons/equip_normal_010108.png",
+    "combatStats": {
+      "PHYS_ATK": 680,
+      "MAG_ATK": 680,
+      "HEAL_POWER": 380,
+      "MAX_HP": 1800,
+      "PHYS_ACCURACY": 95
+    }
+  },
+  {
+    "code": "equip_lv70_seraphiccrusader_weapon2",
+    "slot": "WEAPON_2",
+    "namePtBr": "Égide Real do Cruzado Seráfico",
+    "nameEn": "Égide Real do Cruzado Seráfico",
+    "descPtBr": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Cruzado Seráfico de Aethelgard: Lv. 70 (Rank SS) - Especializado: Paladino].",
+    "descEn": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Cruzado Seráfico de Aethelgard: Lv. 70 (Rank SS) - Especializado: Paladino].",
+    "icon": "assets/equipment/icons/equip_normal_010213.png",
+    "combatStats": {
+      "MAX_HP": 2400,
+      "PHYS_DEF": 460,
+      "MAG_DEF": 380,
+      "HP_REGEN": 90,
+      "PHYS_ATK": 320
+    }
+  },
+  {
+    "code": "equip_lv70_seraphiccrusader_ring",
+    "slot": "RING",
+    "namePtBr": "Anel Sagrado de Aethelgard",
+    "nameEn": "Anel Sagrado de Aethelgard",
+    "descPtBr": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Cruzado Seráfico de Aethelgard: Lv. 70 (Rank SS) - Especializado: Paladino].",
+    "descEn": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Cruzado Seráfico de Aethelgard: Lv. 70 (Rank SS) - Especializado: Paladino].",
+    "icon": "assets/equipment/icons/equip_normal_011015.png",
+    "combatStats": {
+      "PHYS_ATK": 295,
+      "MAX_HP": 860,
+      "CRIT_RATE": 115,
+      "HP_REGEN": 55
+    }
+  },
+  {
+    "code": "equip_lv70_seraphiccrusader_necklace",
+    "slot": "NECKLACE",
+    "namePtBr": "Colar de Relíquias Seráficas",
+    "nameEn": "Colar de Relíquias Seráficas",
+    "descPtBr": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Cruzado Seráfico de Aethelgard: Lv. 70 (Rank SS) - Especializado: Paladino].",
+    "descEn": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Cruzado Seráfico de Aethelgard: Lv. 70 (Rank SS) - Especializado: Paladino].",
+    "icon": "assets/equipment/icons/equip_normal_010915.png",
+    "combatStats": {
+      "PHYS_ATK": 325,
+      "MAX_HP": 980,
+      "CRIT_DMG": 110,
+      "PHYS_ACCURACY": 80
+    }
+  },
+  {
+    "code": "equip_lv70_seraphiccrusader_ornament1",
+    "slot": "ORNAMENT_1",
+    "namePtBr": "Estandarte Sagrado do Cruzado",
+    "nameEn": "Estandarte Sagrado do Cruzado",
+    "descPtBr": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Cruzado Seráfico de Aethelgard: Lv. 70 (Rank SS) - Especializado: Paladino].",
+    "descEn": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Cruzado Seráfico de Aethelgard: Lv. 70 (Rank SS) - Especializado: Paladino].",
+    "icon": "assets/equipment/icons/equip_normal_001215.png",
+    "combatStats": {
+      "PHYS_ATK": 275,
+      "CRIT_RATE": 100,
+      "PHYS_ACCURACY": 75,
+      "BATTLE_MOVE_SPEED": 45
+    }
+  },
+  {
+    "code": "equip_lv70_seraphiccrusader_ornament2",
+    "slot": "ORNAMENT_2",
+    "namePtBr": "Magatama Celeste da Proteção",
+    "nameEn": "Magatama Celeste da Proteção",
+    "descPtBr": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Cruzado Seráfico de Aethelgard: Lv. 70 (Rank SS) - Especializado: Paladino].",
+    "descEn": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Cruzado Seráfico de Aethelgard: Lv. 70 (Rank SS) - Especializado: Paladino].",
+    "icon": "assets/equipment/icons/equip_normal_011209.png",
+    "combatStats": {
+      "PHYS_ATK": 275,
+      "MAX_HP": 1200,
+      "PHYS_DEF": 220,
+      "CRIT_DMG": 95
+    }
+  },
+  {
+    "code": "equip_lv70_hellfireartillery_head",
+    "slot": "HEAD",
+    "namePtBr": "Chapéu Tático do Artilheiro Infernal",
+    "nameEn": "Chapéu Tático do Artilheiro Infernal",
+    "descPtBr": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Artilheiro da Forja Infernal: Lv. 70 (Rank SS) - Especializado: Atirador].",
+    "descEn": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Artilheiro da Forja Infernal: Lv. 70 (Rank SS) - Especializado: Atirador].",
+    "icon": "assets/equipment/icons/equip_normal_030312.png",
+    "combatStats": {
+      "PHYS_ATK": 390,
+      "MAX_HP": 1150,
+      "PHYS_DEF": 210,
+      "CRIT_RATE": 90
+    }
+  },
+  {
+    "code": "equip_lv70_hellfireartillery_shoulder",
+    "slot": "SHOULDER",
+    "namePtBr": "Ombreiras Balísticas do Artilheiro Infernal",
+    "nameEn": "Ombreiras Balísticas do Artilheiro Infernal",
+    "descPtBr": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Artilheiro da Forja Infernal: Lv. 70 (Rank SS) - Especializado: Atirador].",
+    "descEn": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Artilheiro da Forja Infernal: Lv. 70 (Rank SS) - Especializado: Atirador].",
+    "icon": "assets/equipment/icons/equip_normal_030412.png",
+    "combatStats": {
+      "PHYS_ATK": 310,
+      "MAX_HP": 980,
+      "PHYS_DEF": 240,
+      "PHYS_EVASION": 75
+    }
+  },
+  {
+    "code": "equip_lv70_hellfireartillery_chest",
+    "slot": "CHEST",
+    "namePtBr": "Sobretudo Blindado do Artilheiro Infernal",
+    "nameEn": "Sobretudo Blindado do Artilheiro Infernal",
+    "descPtBr": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Artilheiro da Forja Infernal: Lv. 70 (Rank SS) - Especializado: Atirador].",
+    "descEn": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Artilheiro da Forja Infernal: Lv. 70 (Rank SS) - Especializado: Atirador].",
+    "icon": "assets/equipment/icons/equip_normal_030512.png",
+    "combatStats": {
+      "PHYS_ATK": 470,
+      "MAX_HP": 1650,
+      "PHYS_DEF": 320,
+      "CRIT_DMG": 90
+    }
+  },
+  {
+    "code": "equip_lv70_hellfireartillery_belt",
+    "slot": "BELT",
+    "namePtBr": "Cinto de Munição do Artilheiro Infernal",
+    "nameEn": "Cinto de Munição do Artilheiro Infernal",
+    "descPtBr": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Artilheiro da Forja Infernal: Lv. 70 (Rank SS) - Especializado: Atirador].",
+    "descEn": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Artilheiro da Forja Infernal: Lv. 70 (Rank SS) - Especializado: Atirador].",
+    "icon": "assets/equipment/icons/equip_normal_030612.png",
+    "combatStats": {
+      "PHYS_ATK": 265,
+      "MAX_HP": 920,
+      "PHYS_DEF": 195,
+      "MP_REGEN": 40
+    }
+  },
+  {
+    "code": "equip_lv70_hellfireartillery_legs",
+    "slot": "LEGS",
+    "namePtBr": "Perneiras Táticas do Artilheiro Infernal",
+    "nameEn": "Perneiras Táticas do Artilheiro Infernal",
+    "descPtBr": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Artilheiro da Forja Infernal: Lv. 70 (Rank SS) - Especializado: Atirador].",
+    "descEn": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Artilheiro da Forja Infernal: Lv. 70 (Rank SS) - Especializado: Atirador].",
+    "icon": "assets/equipment/icons/equip_normal_030712.png",
+    "combatStats": {
+      "PHYS_ATK": 360,
+      "MAX_HP": 1320,
+      "PHYS_DEF": 265,
+      "PHYS_EVASION": 85
+    }
+  },
+  {
+    "code": "equip_lv70_hellfireartillery_feet",
+    "slot": "FEET",
+    "namePtBr": "Botas de Recuo do Artilheiro Infernal",
+    "nameEn": "Botas de Recuo do Artilheiro Infernal",
+    "descPtBr": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Artilheiro da Forja Infernal: Lv. 70 (Rank SS) - Especializado: Atirador].",
+    "descEn": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Artilheiro da Forja Infernal: Lv. 70 (Rank SS) - Especializado: Atirador].",
+    "icon": "assets/equipment/icons/equip_normal_030812.png",
+    "combatStats": {
+      "PHYS_ATK": 255,
+      "MAX_HP": 880,
+      "PHYS_DEF": 210,
+      "BATTLE_MOVE_SPEED": 105,
+      "PHYS_EVASION": 80
+    }
+  },
+  {
+    "code": "equip_lv70_hellfireartillery_weapon1",
+    "slot": "WEAPON_1",
+    "namePtBr": "Canhão de Cano Duplo da Forja Infernal",
+    "nameEn": "Canhão de Cano Duplo da Forja Infernal",
+    "descPtBr": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Artilheiro da Forja Infernal: Lv. 70 (Rank SS) - Especializado: Atirador].",
+    "descEn": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Artilheiro da Forja Infernal: Lv. 70 (Rank SS) - Especializado: Atirador].",
+    "icon": "assets/equipment/icons/equip_normal_030112.png",
+    "combatStats": {
+      "PHYS_ATK": 920,
+      "CRIT_RATE": 155,
+      "CRIT_DMG": 140,
+      "PHYS_ACCURACY": 105,
+      "ATTACK_SPEED": 35
+    }
+  },
+  {
+    "code": "equip_lv70_hellfireartillery_weapon2",
+    "slot": "WEAPON_2",
+    "namePtBr": "Cartucheira Incendiária de Magma",
+    "nameEn": "Cartucheira Incendiária de Magma",
+    "descPtBr": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Artilheiro da Forja Infernal: Lv. 70 (Rank SS) - Especializado: Atirador].",
+    "descEn": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Artilheiro da Forja Infernal: Lv. 70 (Rank SS) - Especializado: Atirador].",
+    "icon": "assets/equipment/icons/equip_normal_030212.png",
+    "combatStats": {
+      "PHYS_ATK": 610,
+      "PHYS_DEF": 260,
+      "CRIT_RATE": 115,
+      "CRIT_DMG": 105,
+      "PHYS_ACCURACY": 85
+    }
+  },
+  {
+    "code": "equip_lv70_hellfireartillery_ring",
+    "slot": "RING",
+    "namePtBr": "Anel de Ignição Balística",
+    "nameEn": "Anel de Ignição Balística",
+    "descPtBr": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Artilheiro da Forja Infernal: Lv. 70 (Rank SS) - Especializado: Atirador].",
+    "descEn": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Artilheiro da Forja Infernal: Lv. 70 (Rank SS) - Especializado: Atirador].",
+    "icon": "assets/equipment/icons/equip_normal_001008.png",
+    "combatStats": {
+      "PHYS_ATK": 295,
+      "MAX_HP": 860,
+      "CRIT_RATE": 115,
+      "HP_REGEN": 55
+    }
+  },
+  {
+    "code": "equip_lv70_hellfireartillery_necklace",
+    "slot": "NECKLACE",
+    "namePtBr": "Corrente de Pólvora Rubra",
+    "nameEn": "Corrente de Pólvora Rubra",
+    "descPtBr": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Artilheiro da Forja Infernal: Lv. 70 (Rank SS) - Especializado: Atirador].",
+    "descEn": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Artilheiro da Forja Infernal: Lv. 70 (Rank SS) - Especializado: Atirador].",
+    "icon": "assets/equipment/icons/equip_normal_000908.png",
+    "combatStats": {
+      "PHYS_ATK": 325,
+      "MAX_HP": 980,
+      "CRIT_DMG": 110,
+      "PHYS_ACCURACY": 80
+    }
+  },
+  {
+    "code": "equip_lv70_hellfireartillery_ornament1",
+    "slot": "ORNAMENT_1",
+    "namePtBr": "Mira Laser da Forja Infernal",
+    "nameEn": "Mira Laser da Forja Infernal",
+    "descPtBr": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Artilheiro da Forja Infernal: Lv. 70 (Rank SS) - Especializado: Atirador].",
+    "descEn": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Artilheiro da Forja Infernal: Lv. 70 (Rank SS) - Especializado: Atirador].",
+    "icon": "assets/equipment/icons/equip_normal_400501.png",
+    "combatStats": {
+      "PHYS_ATK": 275,
+      "CRIT_RATE": 100,
+      "PHYS_ACCURACY": 75,
+      "BATTLE_MOVE_SPEED": 45
+    }
+  },
+  {
+    "code": "equip_lv70_hellfireartillery_ornament2",
+    "slot": "ORNAMENT_2",
+    "namePtBr": "Núcleo de Âmbar Pressurizado",
+    "nameEn": "Núcleo de Âmbar Pressurizado",
+    "descPtBr": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Artilheiro da Forja Infernal: Lv. 70 (Rank SS) - Especializado: Atirador].",
+    "descEn": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Artilheiro da Forja Infernal: Lv. 70 (Rank SS) - Especializado: Atirador].",
+    "icon": "assets/equipment/icons/equip_normal_011213.png",
+    "combatStats": {
+      "PHYS_ATK": 275,
+      "MAX_HP": 1200,
+      "PHYS_DEF": 220,
+      "CRIT_DMG": 95
+    }
+  },
+  {
+    "code": "equip_lv70_abyssaloverlord_head",
+    "slot": "HEAD",
+    "namePtBr": "Coroa de Chifres da Noite Eterna",
+    "nameEn": "Coroa de Chifres da Noite Eterna",
+    "descPtBr": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Soberano da Noite Eterna: Lv. 70 (Rank SS) - Especializado: Necromante].",
+    "descEn": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Soberano da Noite Eterna: Lv. 70 (Rank SS) - Especializado: Necromante].",
+    "icon": "assets/equipment/icons/equip_normal_030313.png",
+    "combatStats": {
+      "MAG_ATK": 380,
+      "MAX_MP": 820,
+      "MAG_DEF": 210,
+      "CRIT_RATE": 85
+    }
+  },
+  {
+    "code": "equip_lv70_abyssaloverlord_shoulder",
+    "slot": "SHOULDER",
+    "namePtBr": "Ombreiras Abissais da Noite Eterna",
+    "nameEn": "Ombreiras Abissais da Noite Eterna",
+    "descPtBr": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Soberano da Noite Eterna: Lv. 70 (Rank SS) - Especializado: Necromante].",
+    "descEn": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Soberano da Noite Eterna: Lv. 70 (Rank SS) - Especializado: Necromante].",
+    "icon": "assets/equipment/icons/equip_normal_030413.png",
+    "combatStats": {
+      "MAG_ATK": 290,
+      "MAX_MP": 640,
+      "MAG_DEF": 280,
+      "MAG_EVASION": 70
+    }
+  },
+  {
+    "code": "equip_lv70_abyssaloverlord_chest",
+    "slot": "CHEST",
+    "namePtBr": "Couraça Espectral da Noite Eterna",
+    "nameEn": "Couraça Espectral da Noite Eterna",
+    "descPtBr": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Soberano da Noite Eterna: Lv. 70 (Rank SS) - Especializado: Necromante].",
+    "descEn": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Soberano da Noite Eterna: Lv. 70 (Rank SS) - Especializado: Necromante].",
+    "icon": "assets/equipment/icons/equip_normal_030513.png",
+    "combatStats": {
+      "MAG_ATK": 460,
+      "MAX_MP": 980,
+      "MAG_DEF": 360,
+      "HP_REGEN": 80
+    }
+  },
+  {
+    "code": "equip_lv70_abyssaloverlord_belt",
+    "slot": "BELT",
+    "namePtBr": "Cinturão de Almas da Noite Eterna",
+    "nameEn": "Cinturão de Almas da Noite Eterna",
+    "descPtBr": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Soberano da Noite Eterna: Lv. 70 (Rank SS) - Especializado: Necromante].",
+    "descEn": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Soberano da Noite Eterna: Lv. 70 (Rank SS) - Especializado: Necromante].",
+    "icon": "assets/equipment/icons/equip_normal_030613.png",
+    "combatStats": {
+      "MAG_ATK": 250,
+      "MAX_MP": 540,
+      "MP_REGEN": 55,
+      "MAG_DEF": 185
+    }
+  },
+  {
+    "code": "equip_lv70_abyssaloverlord_legs",
+    "slot": "LEGS",
+    "namePtBr": "Perneiras Abissais da Noite Eterna",
+    "nameEn": "Perneiras Abissais da Noite Eterna",
+    "descPtBr": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Soberano da Noite Eterna: Lv. 70 (Rank SS) - Especializado: Necromante].",
+    "descEn": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Soberano da Noite Eterna: Lv. 70 (Rank SS) - Especializado: Necromante].",
+    "icon": "assets/equipment/icons/equip_normal_030713.png",
+    "combatStats": {
+      "MAG_ATK": 350,
+      "MAX_MP": 740,
+      "MAG_DEF": 295,
+      "MAG_EVASION": 80
+    }
+  },
+  {
+    "code": "equip_lv70_abyssaloverlord_feet",
+    "slot": "FEET",
+    "namePtBr": "Botas Profanas da Noite Eterna",
+    "nameEn": "Botas Profanas da Noite Eterna",
+    "descPtBr": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Soberano da Noite Eterna: Lv. 70 (Rank SS) - Especializado: Necromante].",
+    "descEn": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Soberano da Noite Eterna: Lv. 70 (Rank SS) - Especializado: Necromante].",
+    "icon": "assets/equipment/icons/equip_normal_030813.png",
+    "combatStats": {
+      "MAG_ATK": 230,
+      "MAX_MP": 480,
+      "MAG_DEF": 225,
+      "BATTLE_MOVE_SPEED": 90,
+      "MAG_EVASION": 70
+    }
+  },
+  {
+    "code": "equip_lv70_abyssaloverlord_weapon1",
+    "slot": "WEAPON_1",
+    "namePtBr": "Báculo Púrpura da Noite Eterna",
+    "nameEn": "Báculo Púrpura da Noite Eterna",
+    "descPtBr": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Soberano da Noite Eterna: Lv. 70 (Rank SS) - Especializado: Necromante].",
+    "descEn": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Soberano da Noite Eterna: Lv. 70 (Rank SS) - Especializado: Necromante].",
+    "icon": "assets/equipment/icons/equip_normal_040112.png",
+    "combatStats": {
+      "MAG_ATK": 920,
+      "MAX_MP": 1050,
+      "CRIT_RATE": 150,
+      "CRIT_DMG": 135,
+      "MAG_ACCURACY": 105
+    }
+  },
+  {
+    "code": "equip_lv70_abyssaloverlord_weapon2",
+    "slot": "WEAPON_2",
+    "namePtBr": "Necronomicon da Noite Eterna",
+    "nameEn": "Necronomicon da Noite Eterna",
+    "descPtBr": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Soberano da Noite Eterna: Lv. 70 (Rank SS) - Especializado: Necromante].",
+    "descEn": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Soberano da Noite Eterna: Lv. 70 (Rank SS) - Especializado: Necromante].",
+    "icon": "assets/equipment/icons/equip_normal_400201.png",
+    "combatStats": {
+      "MAG_ATK": 590,
+      "MAG_DEF": 310,
+      "MAX_MP": 760,
+      "HEAL_POWER": 120,
+      "MAG_ACCURACY": 85
+    }
+  },
+  {
+    "code": "equip_lv70_abyssaloverlord_ring",
+    "slot": "RING",
+    "namePtBr": "Anel do Vórtice da Noite Eterna",
+    "nameEn": "Anel do Vórtice da Noite Eterna",
+    "descPtBr": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Soberano da Noite Eterna: Lv. 70 (Rank SS) - Especializado: Necromante].",
+    "descEn": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Soberano da Noite Eterna: Lv. 70 (Rank SS) - Especializado: Necromante].",
+    "icon": "assets/equipment/icons/equip_normal_310004.png",
+    "combatStats": {
+      "MAG_ATK": 285,
+      "MAX_MP": 540,
+      "CRIT_RATE": 110,
+      "HP_REGEN": 50
+    }
+  },
+  {
+    "code": "equip_lv70_abyssaloverlord_necklace",
+    "slot": "NECKLACE",
+    "namePtBr": "Colar de Orbes da Noite Eterna",
+    "nameEn": "Colar de Orbes da Noite Eterna",
+    "descPtBr": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Soberano da Noite Eterna: Lv. 70 (Rank SS) - Especializado: Necromante].",
+    "descEn": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Soberano da Noite Eterna: Lv. 70 (Rank SS) - Especializado: Necromante].",
+    "icon": "assets/equipment/icons/equip_normal_400401.png",
+    "combatStats": {
+      "MAG_ATK": 315,
+      "MAX_MP": 640,
+      "CRIT_DMG": 105,
+      "MAG_ACCURACY": 75
+    }
+  },
+  {
+    "code": "equip_lv70_abyssaloverlord_ornament1",
+    "slot": "ORNAMENT_1",
+    "namePtBr": "Diadema de Osso da Noite Eterna",
+    "nameEn": "Diadema de Osso da Noite Eterna",
+    "descPtBr": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Soberano da Noite Eterna: Lv. 70 (Rank SS) - Especializado: Necromante].",
+    "descEn": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Soberano da Noite Eterna: Lv. 70 (Rank SS) - Especializado: Necromante].",
+    "icon": "assets/equipment/icons/equip_normal_400101.png",
+    "combatStats": {
+      "MAG_ATK": 265,
+      "HEAL_POWER": 80,
+      "CRIT_RATE": 95,
+      "MAG_ACCURACY": 70
+    }
+  },
+  {
+    "code": "equip_lv70_abyssaloverlord_ornament2",
+    "slot": "ORNAMENT_2",
+    "namePtBr": "Pêndulo de Almas Abissais",
+    "nameEn": "Pêndulo de Almas Abissais",
+    "descPtBr": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Soberano da Noite Eterna: Lv. 70 (Rank SS) - Especializado: Necromante].",
+    "descEn": "Relíquia mítica de alto escalão imbuída com poder ancestral. [Conjunto Soberano da Noite Eterna: Lv. 70 (Rank SS) - Especializado: Necromante].",
+    "icon": "assets/equipment/icons/equip_normal_011115.png",
+    "combatStats": {
+      "MAG_ATK": 265,
+      "MAX_HP": 1100,
+      "MAG_DEF": 210,
+      "MP_REGEN": 50
+    }
+  }
+]

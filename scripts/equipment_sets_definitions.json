@@ -860,5 +860,253 @@
       "PHYS_EVASION": 75,
       "BATTLE_MOVE_SPEED": 85
     }
+  },
+  {
+    "code": "set_lv70_sovereignblade",
+    "namePtBr": "Conjunto do Soberano da Espada Astral",
+    "descriptionPtBr": "Armadura real forjada em éter púrpura e ouro estelar para mestres da lâmina. Especializado: Espadachim (Ataque Físico, Crítico e Velocidade de Ataque).",
+    "prefix": "equip_lv70_sovereignblade",
+    "requiredLevel": 70,
+    "rarityTier": "SS",
+    "minPiecesFull": 12,
+    "minPiecesHalf": 6,
+    "halfBonusRatioPct": 40,
+    "fullBonusRatioPct": 100,
+    "bonusCombatStatsJson": {
+      "MAX_HP": 3400,
+      "PHYS_ATK": 640,
+      "CRIT_RATE": 18,
+      "CRIT_DMG": 42,
+      "ATTACK_SPEED": 0.9,
+      "BATTLE_MOVE_SPEED": 85
+    }
+  },
+  {
+    "code": "set_lv70_valkyriestorm",
+    "namePtBr": "Conjunto da Valquíria das Tempestades",
+    "descriptionPtBr": "Traje alado consagrado pelos ventos celestes que confere reflexos relâmpago e esquiva suprema. Especializado: Ladina (Esquiva, Velocidade e Crítico).",
+    "prefix": "equip_lv70_valkyriestorm",
+    "requiredLevel": 70,
+    "rarityTier": "SS",
+    "minPiecesFull": 12,
+    "minPiecesHalf": 6,
+    "halfBonusRatioPct": 40,
+    "fullBonusRatioPct": 100,
+    "bonusCombatStatsJson": {
+      "MAX_HP": 3100,
+      "PHYS_ATK": 580,
+      "PHYS_EVASION": 95,
+      "CRIT_RATE": 19,
+      "ATTACK_SPEED": 0.95,
+      "BATTLE_MOVE_SPEED": 105
+    }
+  },
+  {
+    "code": "set_lv70_draconicwarlord",
+    "namePtBr": "Conjunto do Senhor da Guerra Dracônico",
+    "descriptionPtBr": "Couraça colossal de escamas e chifres de dragão primordial com vitalidade e defesa intransponíveis. Especializado: Guerreira (HP Máximo, Defesa Física e Força Bruta).",
+    "prefix": "equip_lv70_draconicwarlord",
+    "requiredLevel": 70,
+    "rarityTier": "SS",
+    "minPiecesFull": 12,
+    "minPiecesHalf": 6,
+    "halfBonusRatioPct": 40,
+    "fullBonusRatioPct": 100,
+    "bonusCombatStatsJson": {
+      "MAX_HP": 5200,
+      "PHYS_ATK": 520,
+      "PHYS_DEF": 450,
+      "MAG_DEF": 240,
+      "BATTLE_MOVE_SPEED": 50,
+      "HP_REGEN": 120
+    }
+  },
+  {
+    "code": "set_lv70_lunarpriestess",
+    "namePtBr": "Conjunto da Sacerdotisa do Santuário Lunar",
+    "descriptionPtBr": "Vestes sagradas tecidas sob a luz da meia-lua astral que amplificam milagres de cura e proteção divina. Especializado: Curandeira (Poder de Cura, MP e Defesa Mágica).",
+    "prefix": "equip_lv70_lunarpriestess",
+    "requiredLevel": 70,
+    "rarityTier": "SS",
+    "minPiecesFull": 12,
+    "minPiecesHalf": 6,
+    "halfBonusRatioPct": 40,
+    "fullBonusRatioPct": 100,
+    "bonusCombatStatsJson": {
+      "MAX_HP": 4000,
+      "MAX_MP": 1350,
+      "HEAL_POWER": 490,
+      "MAG_DEF": 350,
+      "PHYS_DEF": 270,
+      "BATTLE_MOVE_SPEED": 55,
+      "HP_REGEN": 90
+    }
+  },
+  {
+    "code": "set_lv70_astralranger",
+    "namePtBr": "Conjunto da Patrulheira do Horizonte Astral",
+    "descriptionPtBr": "Indumentária élfica estelar que garante alcance estendido, passos de vento e disparos certeiros. Especializado: Caçadora (Alcance, Mobilidade e Precisão Crítica).",
+    "prefix": "equip_lv70_astralranger",
+    "requiredLevel": 70,
+    "rarityTier": "SS",
+    "minPiecesFull": 12,
+    "minPiecesHalf": 6,
+    "halfBonusRatioPct": 40,
+    "fullBonusRatioPct": 100,
+    "bonusCombatStatsJson": {
+      "MAX_HP": 3300,
+      "PHYS_ATK": 610,
+      "CRIT_RATE": 18,
+      "CRIT_DMG": 38,
+      "BATTLE_MOVE_SPEED": 100,
+      "ATTACK_RANGE": 55
+    }
+  },
+  {
+    "code": "set_lv70_bloodphantom",
+    "namePtBr": "Conjunto da Sombra Carmesim do Crepúsculo",
+    "descriptionPtBr": "Vestimenta furtiva banhada em névoa rubra para execuções letais instantâneas. Especializado: Assassina (Dano Crítico Explosivo, Taxa Crítica e Evasão).",
+    "prefix": "equip_lv70_bloodphantom",
+    "requiredLevel": 70,
+    "rarityTier": "SS",
+    "minPiecesFull": 12,
+    "minPiecesHalf": 6,
+    "halfBonusRatioPct": 40,
+    "fullBonusRatioPct": 100,
+    "bonusCombatStatsJson": {
+      "MAX_HP": 3150,
+      "PHYS_ATK": 660,
+      "CRIT_RATE": 22,
+      "CRIT_DMG": 50,
+      "PHYS_EVASION": 90,
+      "BATTLE_MOVE_SPEED": 100
+    }
+  },
+  {
+    "code": "set_lv70_celestialmuse",
+    "namePtBr": "Conjunto da Musa da Sinfonia Celestial",
+    "descriptionPtBr": "Traje harmônico resplandecente que acelera feitiços, restaura energias e encanta o campo de batalha. Especializado: Barda (Velocidade, Magia, Cura e Regeneração de MP).",
+    "prefix": "equip_lv70_celestialmuse",
+    "requiredLevel": 70,
+    "rarityTier": "SS",
+    "minPiecesFull": 12,
+    "minPiecesHalf": 6,
+    "halfBonusRatioPct": 40,
+    "fullBonusRatioPct": 100,
+    "bonusCombatStatsJson": {
+      "MAX_HP": 3250,
+      "MAG_ATK": 460,
+      "HEAL_POWER": 390,
+      "ATTACK_SPEED": 0.85,
+      "BATTLE_MOVE_SPEED": 95,
+      "CRIT_RATE": 13,
+      "MP_REGEN": 70
+    }
+  },
+  {
+    "code": "set_lv70_dragoonemperor",
+    "namePtBr": "Conjunto do Imperador Dragoon dos Céus",
+    "descriptionPtBr": "Armadura imperial dourada projetada para investidas aéreas e estocadas que perfuram qualquer blindagem. Especializado: Lanceiro (Penetração Física, Ataque e Defesa).",
+    "prefix": "equip_lv70_dragoonemperor",
+    "requiredLevel": 70,
+    "rarityTier": "SS",
+    "minPiecesFull": 12,
+    "minPiecesHalf": 6,
+    "halfBonusRatioPct": 40,
+    "fullBonusRatioPct": 100,
+    "bonusCombatStatsJson": {
+      "MAX_HP": 3800,
+      "PHYS_ATK": 600,
+      "PHYS_PEN": 260,
+      "PHYS_DEF": 320,
+      "CRIT_RATE": 16,
+      "CRIT_DMG": 32,
+      "BATTLE_MOVE_SPEED": 80
+    }
+  },
+  {
+    "code": "set_lv70_arcanesovereign",
+    "namePtBr": "Conjunto do Arquimago da Chama Primordial",
+    "descriptionPtBr": "Manto real inscrito com runas primordiais de destruição arcana e penetração elemental absoluta. Especializado: Mago (Ataque Mágico Massivo, Penetração e Crítico).",
+    "prefix": "equip_lv70_arcanesovereign",
+    "requiredLevel": 70,
+    "rarityTier": "SS",
+    "minPiecesFull": 12,
+    "minPiecesHalf": 6,
+    "halfBonusRatioPct": 40,
+    "fullBonusRatioPct": 100,
+    "bonusCombatStatsJson": {
+      "MAX_HP": 2950,
+      "MAG_ATK": 740,
+      "MAG_PEN": 255,
+      "MAG_DEF": 240,
+      "CRIT_RATE": 17.5,
+      "CRIT_DMG": 42,
+      "BATTLE_MOVE_SPEED": 60
+    }
+  },
+  {
+    "code": "set_lv70_seraphiccrusader",
+    "namePtBr": "Conjunto do Cruzado Seráfico de Aethelgard",
+    "descriptionPtBr": "Armadura sacrossanta alada de ouro e safira com baluarte defensivo duplo e bênção curativa. Especializado: Paladino (Defesa Física/Mágica, HP, Ataque e Cura).",
+    "prefix": "equip_lv70_seraphiccrusader",
+    "requiredLevel": 70,
+    "rarityTier": "SS",
+    "minPiecesFull": 12,
+    "minPiecesHalf": 6,
+    "halfBonusRatioPct": 40,
+    "fullBonusRatioPct": 100,
+    "bonusCombatStatsJson": {
+      "MAX_HP": 5000,
+      "PHYS_DEF": 470,
+      "MAG_DEF": 360,
+      "MAG_ATK": 390,
+      "PHYS_ATK": 390,
+      "HEAL_POWER": 220,
+      "BATTLE_MOVE_SPEED": 50
+    }
+  },
+  {
+    "code": "set_lv70_hellfireartillery",
+    "namePtBr": "Conjunto do Artilheiro da Forja Infernal",
+    "descriptionPtBr": "Equipamento balístico de grosso calibre com poder de fogo avassalador e perfuração blindada. Especializado: Atirador (Ataque Físico, Penetração, Alcance e Crítico).",
+    "prefix": "equip_lv70_hellfireartillery",
+    "requiredLevel": 70,
+    "rarityTier": "SS",
+    "minPiecesFull": 12,
+    "minPiecesHalf": 6,
+    "halfBonusRatioPct": 40,
+    "fullBonusRatioPct": 100,
+    "bonusCombatStatsJson": {
+      "MAX_HP": 3050,
+      "PHYS_ATK": 720,
+      "PHYS_PEN": 275,
+      "CRIT_RATE": 18,
+      "CRIT_DMG": 44,
+      "BATTLE_MOVE_SPEED": 70,
+      "ATTACK_RANGE": 65
+    }
+  },
+  {
+    "code": "set_lv70_abyssaloverlord",
+    "namePtBr": "Conjunto do Soberano da Noite Eterna",
+    "descriptionPtBr": "Paramentos abissais que drenam a força vital dos inimigos e comandam as trevas eternas. Especializado: Necromante (Ataque Mágico, HP, Penetração Mágica e Regeneração).",
+    "prefix": "equip_lv70_abyssaloverlord",
+    "requiredLevel": 70,
+    "rarityTier": "SS",
+    "minPiecesFull": 12,
+    "minPiecesHalf": 6,
+    "halfBonusRatioPct": 40,
+    "fullBonusRatioPct": 100,
+    "bonusCombatStatsJson": {
+      "MAX_HP": 3600,
+      "MAG_ATK": 640,
+      "MAG_PEN": 235,
+      "MAG_DEF": 260,
+      "CRIT_RATE": 16,
+      "CRIT_DMG": 36,
+      "HP_REGEN": 85,
+      "BATTLE_MOVE_SPEED": 60
+    }
   }
 ]
