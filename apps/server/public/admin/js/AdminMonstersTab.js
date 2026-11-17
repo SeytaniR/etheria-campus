@@ -20,6 +20,12 @@ class AdminMonstersTab {
     app.monsterPreviewAction = 0;
     app.monsterPreviewDir = 0;
     app.monsterPreviewAnimFrame = null;
+    app.monsterPreviewMapImg = null;
+    app.monsterPreviewPanX = 0;
+    app.monsterPreviewPanY = 0;
+    app.monsterPreviewMapSpawn = { x: 1000, y: 750 };
+    app.monsterPreviewSpriteCache = new Map();
+    app.monsterPreviewDragAttached = false;
     app.monsterCrudSearchQuery = '';
     app.monsterCrudRankFilter = 'ALL';
     app.monsterCrudElementFilter = 'ALL';
@@ -32,9 +38,12 @@ class AdminMonstersTab {
       document.head.appendChild(script);
     }
 
-    // Injeta o DOM desacoplado do modal
+    // Injeta o DOM desacoplado do modal e helpers de preview 2.5D
     if (window.AdminMonsterModalDom && typeof window.AdminMonsterModalDom.injectModalDom === 'function') {
       window.AdminMonsterModalDom.injectModalDom();
+    }
+    if (window.AdminMonsterModalDom && typeof window.AdminMonsterModalDom.attachHelpers === 'function') {
+      window.AdminMonsterModalDom.attachHelpers(app);
     }
 
     app.loadMonsterTemplates = async function () {
@@ -100,21 +109,6 @@ class AdminMonstersTab {
       this.renderMonsterGallery();
     };
 
-    app.adjustMonsterGroundOffset = function (delta) {
-      const input = document.getElementById('monsterGroundOffsetYInput');
-      if (!input) return;
-      let val = (Number(input.value) || 0) + delta;
-      val = Math.max(-60, Math.min(60, val));
-      input.value = String(val);
-      this.updateMonsterGroundOffsetPreview();
-    };
-
-    app.resetMonsterGroundOffset = function () {
-      const input = document.getElementById('monsterGroundOffsetYInput');
-      if (input) input.value = '0';
-      this.updateMonsterGroundOffsetPreview();
-    };
-
     app.setMonsterPreviewAction = function (action) {
       this.monsterPreviewAction = Number(action) || 0;
       document.querySelectorAll('.monster-anim-btn').forEach((btn) => {
@@ -127,79 +121,6 @@ class AdminMonstersTab {
       this.monsterPreviewDir = (this.monsterPreviewDir + 1) % 8;
       const dirBadge = document.getElementById('monsterPreviewDirBadge');
       if (dirBadge) dirBadge.textContent = `Dir: ${this.monsterPreviewDir}`;
-    };
-
-    app.updateMonsterGroundOffsetPreview = function () {
-      const heroImg = document.getElementById('monsterHeroImg');
-      const offsetInput = document.getElementById('monsterGroundOffsetYInput');
-      const statusBadge = document.getElementById('monsterGroundStatusBadge');
-      if (offsetInput) {
-        const offsetY = Number(offsetInput.value) || 0;
-        if (heroImg) {
-          heroImg.style.transform = `translateY(${offsetY}px)`;
-        }
-        if (statusBadge) {
-          if (offsetY === 0) {
-            statusBadge.textContent = '🟢 Pés no solo (0px)';
-            statusBadge.style.color = '#86efac';
-          } else if (offsetY > 0) {
-            statusBadge.textContent = `🔵 Afundado +${offsetY}px no chão`;
-            statusBadge.style.color = '#38bdf8';
-          } else {
-            statusBadge.textContent = `🟡 Flutuando ${Math.abs(offsetY)}px acima do solo`;
-            statusBadge.style.color = '#fde047';
-          }
-        }
-      }
-    };
-
-    app.startMonsterPreviewLoop = function () {
-      if (this.monsterPreviewAnimFrame) {
-        cancelAnimationFrame(this.monsterPreviewAnimFrame);
-      }
-      const startTime = performance.now();
-      const renderStep = (now) => {
-        const modal = document.getElementById('monsterModal');
-        if (!modal || modal.style.display === 'none') {
-          this.monsterPreviewAnimFrame = null;
-          return;
-        }
-        const canvas = document.getElementById('monsterPreviewCanvas');
-        if (canvas && this.monsterPreviewSheet) {
-          const ctx = canvas.getContext('2d');
-          const w = canvas.width;
-          const h = canvas.height;
-          ctx.clearRect(0, w, h);
-
-          // Desenha piso isométrico 2.5D e linha de referência do solo
-          const groundY = h - 26;
-          ctx.fillStyle = '#14532d';
-          ctx.fillRect(0, groundY, w, h - groundY);
-          ctx.strokeStyle = '#86efac';
-          ctx.lineWidth = 2;
-          ctx.beginPath();
-          ctx.moveTo(0, groundY);
-          ctx.lineTo(w, groundY);
-          ctx.stroke();
-
-          const offsetY = Number(document.getElementById('monsterGroundOffsetYInput')?.value) || 0;
-          const elapsed = now - startTime;
-          this.monsterPreviewSheet.draw(
-            ctx,
-            Math.round(w / 2),
-            groundY + 4,
-            this.monsterPreviewAction,
-            this.monsterPreviewDir,
-            elapsed,
-            1.0,
-            offsetY,
-            0.85,
-            false
-          );
-        }
-        this.monsterPreviewAnimFrame = requestAnimationFrame(renderStep);
-      };
-      this.monsterPreviewAnimFrame = requestAnimationFrame(renderStep);
     };
 
     app.renderMonsterGallery = function () {
@@ -247,19 +168,19 @@ class AdminMonstersTab {
         if (heroLabel) heroLabel.textContent = `${found.suggestedName} (${found.mcreworkMonsterKey})`;
         if (heroBadge) heroBadge.textContent = `${found.isPet ? '🐾 Domável como Pet' : '👾 Monstro Selvagem'}`;
 
-        if (window.McreworkSpriteSheet) {
-          const atlasJson = found.atlasJsonUrl || `https://seytanir.github.io/mcrework/assets/monsters/${found.mcreworkMonsterKey}/atlas.json`;
-          const atlasWebp = found.atlasWebpUrl || `https://seytanir.github.io/mcrework/assets/monsters/${found.mcreworkMonsterKey}/atlas.webp`;
-          this.monsterPreviewSheet = new window.McreworkSpriteSheet(atlasJson, atlasWebp, found.thumbUrl);
-          this.monsterPreviewSheet.load();
+        if (typeof this.getOrCreateMonsterPreviewSprite === 'function') {
+          this.getOrCreateMonsterPreviewSprite(monsterKey);
+        }
+        if (typeof this.startMonsterPreviewLoop === 'function') {
           this.startMonsterPreviewLoop();
         }
       } else {
         if (heroLabel) heroLabel.textContent = 'Selecione um Monstro na Galeria';
         if (heroBadge) heroBadge.textContent = '';
-        this.monsterPreviewSheet = null;
       }
-      this.updateMonsterGroundOffsetPreview();
+      if (typeof this.updateMonsterGroundOffsetPreview === 'function') {
+        this.updateMonsterGroundOffsetPreview();
+      }
     };
 
     app.pickMcreworkMonster = function (monsterKey) {
@@ -339,6 +260,13 @@ class AdminMonstersTab {
       this.monsterPreviewAction = 0;
       this.monsterPreviewDir = 0;
 
+      if (typeof this.ensureMonsterPreviewMapLoaded === 'function') {
+        this.ensureMonsterPreviewMapLoaded();
+      }
+      if (typeof this.setupMonsterPreviewDrag === 'function') {
+        this.setupMonsterPreviewDrag();
+      }
+
       const searchInput = document.getElementById('monsterSearchInput');
       if (searchInput) searchInput.value = '';
       const catSel = document.getElementById('monsterCategoryFilterSelect');
@@ -365,6 +293,10 @@ class AdminMonstersTab {
         document.getElementById('monsterDescriptionInput').value = existingMonster.descriptionPtBr || '';
         document.getElementById('monsterDescI18nDisplay').textContent = `Chave i18n: monster.${existingMonster.code}.description`;
         document.getElementById('monsterGroundOffsetYInput').value = String(existingMonster.groundOffsetY || 0);
+        const shXEl = document.getElementById('monsterShadowOffsetXInput');
+        if (shXEl) shXEl.value = String(existingMonster.shadowOffsetX || 0);
+        const shYEl = document.getElementById('monsterShadowOffsetYInput');
+        if (shYEl) shYEl.value = String(existingMonster.shadowOffsetY || 0);
         const mStyle = existingMonster.combatStyle || 'MELEE';
         const sEl = document.getElementById('monsterCombatStyleSelect'); if (sEl) sEl.value = mStyle;
         const rEl = document.getElementById('monsterAttackRangeInput'); if (rEl) rEl.value = String(existingMonster.attackRange || (mStyle === 'RANGED' ? 220 : 60));
@@ -415,6 +347,10 @@ class AdminMonstersTab {
         document.getElementById('monsterDescriptionInput').value = '';
         document.getElementById('monsterDescI18nDisplay').textContent = `Chave i18n: monster.monster_${nextId}.description (Auto-gerada)`;
         document.getElementById('monsterGroundOffsetYInput').value = '0';
+        const shXEl = document.getElementById('monsterShadowOffsetXInput');
+        if (shXEl) shXEl.value = '0';
+        const shYEl = document.getElementById('monsterShadowOffsetYInput');
+        if (shYEl) shYEl.value = '0';
         const sEl = document.getElementById('monsterCombatStyleSelect'); if (sEl) sEl.value = 'MELEE';
         const rEl = document.getElementById('monsterAttackRangeInput'); if (rEl) rEl.value = '60';
         const dtEl = document.getElementById('monsterDamageTypeSelect'); if (dtEl) dtEl.value = 'PHYSICAL';
@@ -500,6 +436,8 @@ class AdminMonstersTab {
         const isTamableAsPet = document.getElementById('monsterTamableSelect').value === 'true';
         const isActive = document.getElementById('monsterActiveSelect').value === 'true';
         const groundOffsetY = Number(document.getElementById('monsterGroundOffsetYInput').value) || 0;
+        const shadowOffsetX = Number(document.getElementById('monsterShadowOffsetXInput')?.value) || 0;
+        const shadowOffsetY = Number(document.getElementById('monsterShadowOffsetYInput')?.value) || 0;
 
         if (!mcreworkMonsterKey) {
           alert('Toque em um modelo de Monstro da galeria para selecioná-lo.');
@@ -523,6 +461,8 @@ class AdminMonstersTab {
           descriptionPtBr,
           mcreworkMonsterKey,
           groundOffsetY,
+          shadowOffsetX,
+          shadowOffsetY,
           raceCode,
           fixedElementCode,
           rarityTier,

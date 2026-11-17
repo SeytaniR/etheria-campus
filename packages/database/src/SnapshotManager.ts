@@ -203,7 +203,8 @@ export class SnapshotManager {
             where: { id: m.id },
             create: {
               id: m.id, code: m.code, nameI18nKey: m.nameI18nKey, descriptionI18nKey: m.descriptionI18nKey,
-              mcreworkMonsterKey: m.mcreworkMonsterKey, groundOffsetY: m.groundOffsetY,
+              mcreworkMonsterKey: m.mcreworkMonsterKey, groundOffsetY: m.groundOffsetY ?? 0,
+              shadowOffsetX: m.shadowOffsetX ?? 0, shadowOffsetY: m.shadowOffsetY ?? 0,
               raceCode: m.raceCode, combatStyle: m.combatStyle || 'MELEE', attackRange: m.attackRange || 60,
               damageType: m.damageType || 'PHYSICAL',
               rarityTier: m.rarityTier, fixedElementCode: m.fixedElementCode,
@@ -215,7 +216,8 @@ export class SnapshotManager {
             },
             update: {
               code: m.code, nameI18nKey: m.nameI18nKey, descriptionI18nKey: m.descriptionI18nKey,
-              mcreworkMonsterKey: m.mcreworkMonsterKey, groundOffsetY: m.groundOffsetY,
+              mcreworkMonsterKey: m.mcreworkMonsterKey, groundOffsetY: m.groundOffsetY ?? 0,
+              shadowOffsetX: m.shadowOffsetX ?? 0, shadowOffsetY: m.shadowOffsetY ?? 0,
               raceCode: m.raceCode, combatStyle: m.combatStyle || 'MELEE', attackRange: m.attackRange || 60,
               damageType: m.damageType || 'PHYSICAL',
               rarityTier: m.rarityTier, fixedElementCode: m.fixedElementCode,

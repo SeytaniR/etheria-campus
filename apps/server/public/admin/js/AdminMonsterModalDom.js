@@ -233,49 +233,81 @@ class AdminMonsterModalDom {
         <div id="monsterDropsListContainer" style="display:flex; flex-direction:column; gap:6px; max-height:180px; overflow-y:auto;"></div>
       </div>
 
-      <!-- BLOCO 5: PALCO 2.5D ANIMADO & CATÁLOGO DO MCREWORK -->
+      <!-- BLOCO 5: PALCO DO MAPA 2.5D INTERATIVO, CALIBRAÇÃO DE SOLO & SOMBRA & CATÁLOGO DO MCREWORK -->
       <div style="background:rgba(15,23,42,0.85); border:1.5px solid #f43f5e; border-radius:10px; padding:12px; margin-bottom:12px;">
-        <div style="font-size:0.82rem; font-weight:700; color:#fde047; margin-bottom:8px;">
-          5️⃣ 🎨 Modelo 2.5D Animado, Calibração de Solo & Catálogo do mcrework
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; flex-wrap:wrap; gap:6px;">
+          <div style="font-size:0.84rem; font-weight:700; color:#fde047;">
+            5️⃣ 🎨 Palco 2.5D Real no Mapa, Calibração de Solo & Sombra
+          </div>
+          <span style="font-size:0.7rem; color:#fca5a5; background:rgba(244,63,94,0.15); padding:2px 8px; border-radius:6px; border:1px solid rgba(244,63,94,0.3);">
+            Arraste o mapa no canvas para posicionar
+          </span>
         </div>
 
-        <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap; background:rgba(2,6,23,0.75); border:1px solid #334155; border-radius:10px; padding:10px; margin-bottom:10px;">
-          <!-- Canvas 2.5D Real Animado -->
-          <div style="position:relative; width:140px; height:140px; background:radial-gradient(ellipse at center bottom, #4c0519 0%, #020617 75%); border:1.5px solid #f43f5e; border-radius:8px; overflow:hidden; flex-shrink:0; margin:0 auto;">
-            <canvas id="monsterPreviewCanvas" width="140" height="140" style="width:140px; height:140px; display:block;"></canvas>
-            <span id="monsterPreviewDirBadge" style="position:absolute; top:4px; left:5px; font-size:0.62rem; color:#fde047; background:rgba(0,0,0,0.7); padding:1px 5px; border-radius:4px;">Dir: 0</span>
-            <span style="position:absolute; top:4px; right:5px; font-size:0.62rem; color:#fca5a5; background:rgba(0,0,0,0.7); padding:1px 5px; border-radius:4px;">2.5D Live</span>
+        <div style="display:flex; flex-wrap:wrap; align-items:stretch; gap:12px; background:rgba(2,6,23,0.75); border:1px solid #334155; border-radius:10px; padding:10px; margin-bottom:10px;">
+          <!-- Canvas 2.5D Real Animado no Mapa -->
+          <div style="display:flex; flex-direction:column; gap:6px; align-items:center;">
+            <div style="position:relative; width:340px; height:180px; max-width:100%; border-radius:8px; border:1px solid #f43f5e; overflow:hidden; background:#020617; cursor:grab;">
+              <canvas id="monsterPreviewCanvas" width="340" height="180" style="width:340px; height:180px; max-width:100%; display:block;"></canvas>
+            </div>
+            <!-- Controles Rápidos de Ação e Rotação -->
+            <div style="display:flex; gap:4px; flex-wrap:wrap; justify-content:center;">
+              <button type="button" class="monster-anim-btn btn-primary" data-action="0" onclick="AdminApp.setMonsterPreviewAction(0)" style="padding:3px 8px; font-size:0.7rem;">🧍 Idle</button>
+              <button type="button" class="monster-anim-btn" data-action="1" onclick="AdminApp.setMonsterPreviewAction(1)" style="padding:3px 8px; font-size:0.7rem;">🏃 Andar</button>
+              <button type="button" class="monster-anim-btn" data-action="3" onclick="AdminApp.setMonsterPreviewAction(3)" style="padding:3px 8px; font-size:0.7rem;">🗡️ Ataque</button>
+              <button type="button" class="monster-anim-btn" data-action="5" onclick="AdminApp.setMonsterPreviewAction(5)" style="padding:3px 8px; font-size:0.7rem;">💥 Dano</button>
+              <button type="button" class="monster-anim-btn" data-action="6" onclick="AdminApp.setMonsterPreviewAction(6)" style="padding:3px 8px; font-size:0.7rem;">💀 Morte</button>
+              <button type="button" class="monster-anim-btn" data-action="7" onclick="AdminApp.setMonsterPreviewAction(7)" style="padding:3px 8px; font-size:0.7rem;">🔥 Skill</button>
+              <button type="button" onclick="AdminApp.rotateMonsterPreviewDir()" style="padding:3px 8px; font-size:0.7rem; background:#334155;">🔄 Girar</button>
+              <button type="button" onclick="AdminApp.resetMonsterPreviewPan()" title="Centralizar no Ponto de Spawn" style="padding:3px 7px; font-size:0.7rem;">🎯 Spawn</button>
+            </div>
           </div>
 
-          <div style="flex:1; display:flex; flex-direction:column; gap:6px; min-width:200px;">
+          <!-- Painel Lateral: Modelo Selecionado, Ground Offset e Sombra X/Y -->
+          <div style="flex:1; min-width:240px; display:flex; flex-direction:column; justify-content:space-between; gap:6px;">
             <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
               <strong id="monsterHeroLabel" style="font-size:0.92rem; color:#fde047;">Selecione um Monstro</strong>
               <span id="monsterHeroBadge" style="font-size:0.72rem; padding:2px 8px; border-radius:99px; background:rgba(244,63,94,0.2); color:#fb7185; font-weight:700;"></span>
             </div>
 
-            <!-- Botões de Teste das Animações 2.5D -->
-            <div style="display:flex; gap:4px; flex-wrap:wrap; align-items:center;">
-              <span style="font-size:0.7rem; color:var(--text-muted); margin-right:2px;">Ação:</span>
-              <button type="button" class="monster-anim-btn btn-primary" data-action="0" onclick="AdminApp.setMonsterPreviewAction(0)" style="padding:4px 8px; font-size:0.7rem;">🧍 Idle</button>
-              <button type="button" class="monster-anim-btn" data-action="1" onclick="AdminApp.setMonsterPreviewAction(1)" style="padding:4px 8px; font-size:0.7rem;">🏃 Andar</button>
-              <button type="button" class="monster-anim-btn" data-action="3" onclick="AdminApp.setMonsterPreviewAction(3)" style="padding:4px 8px; font-size:0.7rem;">🗡️ Ataque</button>
-              <button type="button" class="monster-anim-btn" data-action="5" onclick="AdminApp.setMonsterPreviewAction(5)" style="padding:4px 8px; font-size:0.7rem;">💥 Dano</button>
-              <button type="button" class="monster-anim-btn" data-action="6" onclick="AdminApp.setMonsterPreviewAction(6)" style="padding:4px 8px; font-size:0.7rem;">💀 Morte</button>
-              <button type="button" class="monster-anim-btn" data-action="7" onclick="AdminApp.setMonsterPreviewAction(7)" style="padding:4px 8px; font-size:0.7rem;">🔥 Skill</button>
-              <button type="button" onclick="AdminApp.rotateMonsterPreviewDir()" style="padding:4px 8px; font-size:0.7rem; background:#334155;">↻ Girar</button>
+            <!-- Calibragem de Distância ao Solo (Ground Offset Y) -->
+            <div style="background:rgba(2,6,23,0.65); border:1px solid var(--border); border-radius:6px; padding:6px 8px;">
+              <span style="font-size:0.72rem; color:#fde047; font-weight:700; display:block; margin-bottom:3px;">📏 Posição do Modelo ao Chão (Ground Offset Y):</span>
+              <div style="display:flex; align-items:center; gap:3px; flex-wrap:wrap;">
+                <button type="button" onclick="AdminApp.adjustMonsterGroundOffset(-5)" style="padding:2px 6px; font-size:0.72rem;">⬆ -5</button>
+                <button type="button" onclick="AdminApp.adjustMonsterGroundOffset(-1)" style="padding:2px 6px; font-size:0.72rem;">⬆ -1</button>
+                <input type="number" id="monsterGroundOffsetYInput" value="0" min="-80" max="80" oninput="AdminApp.updateMonsterGroundOffsetPreview()" style="width:52px; text-align:center; padding:2px; font-size:0.78rem;" />
+                <button type="button" onclick="AdminApp.adjustMonsterGroundOffset(1)" style="padding:2px 6px; font-size:0.72rem;">+1 ⬇</button>
+                <button type="button" onclick="AdminApp.adjustMonsterGroundOffset(5)" style="padding:2px 6px; font-size:0.72rem;">+5 ⬇</button>
+                <button type="button" onclick="AdminApp.resetMonsterGroundOffset()" title="Zerar" style="padding:2px 6px; font-size:0.7rem;">↩0</button>
+              </div>
             </div>
 
-            <!-- Calibragem de Distância ao Solo -->
-            <div style="display:flex; align-items:center; gap:4px; flex-wrap:wrap;">
-              <span style="font-size:0.72rem; color:var(--text-muted);">Solo (Y):</span>
-              <button type="button" onclick="AdminApp.adjustMonsterGroundOffset(-5)" style="padding:4px 8px; font-size:0.72rem;">-5</button>
-              <button type="button" onclick="AdminApp.adjustMonsterGroundOffset(-1)" style="padding:4px 8px; font-size:0.72rem;">-1</button>
-              <input type="number" id="monsterGroundOffsetYInput" value="0" min="-60" max="60" oninput="AdminApp.updateMonsterGroundOffsetPreview()" style="width:50px; text-align:center; padding:3px; font-size:0.8rem;" />
-              <button type="button" onclick="AdminApp.adjustMonsterGroundOffset(1)" style="padding:4px 8px; font-size:0.72rem;">+1</button>
-              <button type="button" onclick="AdminApp.adjustMonsterGroundOffset(5)" style="padding:4px 8px; font-size:0.72rem;">+5</button>
-              <button type="button" onclick="AdminApp.resetMonsterGroundOffset()" title="Zerar" style="padding:4px 7px; font-size:0.72rem;">↩0</button>
-              <span id="monsterGroundStatusBadge" style="font-size:0.72rem; color:#86efac; font-weight:600; margin-left:4px;">🟢 Pés no solo (0px)</span>
+            <!-- Calibragem de Posição da Sombra (Shadow Offset X e Y) -->
+            <div style="background:rgba(2,6,23,0.65); border:1px solid var(--border); border-radius:6px; padding:6px 8px; display:flex; flex-direction:column; gap:4px;">
+              <div style="display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:0.72rem; color:#38bdf8; font-weight:700;">🌑 Alinhamento da Sombra (X / Y):</span>
+                <button type="button" onclick="AdminApp.resetMonsterShadowOffset()" style="padding:1px 6px; font-size:0.66rem;">↩ Zerar Sombra</button>
+              </div>
+              <div style="display:flex; align-items:center; gap:3px; flex-wrap:wrap;">
+                <span style="font-size:0.68rem; color:var(--text-muted); width:40px;">Eixo X:</span>
+                <button type="button" onclick="AdminApp.adjustMonsterShadowOffset('X', -5)" style="padding:2px 5px; font-size:0.7rem;">⬅-5</button>
+                <button type="button" onclick="AdminApp.adjustMonsterShadowOffset('X', -1)" style="padding:2px 5px; font-size:0.7rem;">⬅-1</button>
+                <input type="number" id="monsterShadowOffsetXInput" value="0" min="-80" max="80" oninput="AdminApp.updateMonsterGroundOffsetPreview()" style="width:46px; text-align:center; padding:2px; font-size:0.75rem;" />
+                <button type="button" onclick="AdminApp.adjustMonsterShadowOffset('X', 1)" style="padding:2px 5px; font-size:0.7rem;">+1➡</button>
+                <button type="button" onclick="AdminApp.adjustMonsterShadowOffset('X', 5)" style="padding:2px 5px; font-size:0.7rem;">+5➡</button>
+              </div>
+              <div style="display:flex; align-items:center; gap:3px; flex-wrap:wrap;">
+                <span style="font-size:0.68rem; color:var(--text-muted); width:40px;">Eixo Y:</span>
+                <button type="button" onclick="AdminApp.adjustMonsterShadowOffset('Y', -5)" style="padding:2px 5px; font-size:0.7rem;">⬆-5</button>
+                <button type="button" onclick="AdminApp.adjustMonsterShadowOffset('Y', -1)" style="padding:2px 5px; font-size:0.7rem;">⬆-1</button>
+                <input type="number" id="monsterShadowOffsetYInput" value="0" min="-80" max="80" oninput="AdminApp.updateMonsterGroundOffsetPreview()" style="width:46px; text-align:center; padding:2px; font-size:0.75rem;" />
+                <button type="button" onclick="AdminApp.adjustMonsterShadowOffset('Y', 1)" style="padding:2px 5px; font-size:0.7rem;">+1⬇</button>
+                <button type="button" onclick="AdminApp.adjustMonsterShadowOffset('Y', 5)" style="padding:2px 5px; font-size:0.7rem;">+5⬇</button>
+              </div>
             </div>
+
+            <span id="monsterGroundStatusBadge" style="font-size:0.72rem; color:#86efac; font-weight:600;">🟢 Pés no solo (0px)</span>
           </div>
         </div>
 
@@ -301,6 +333,226 @@ class AdminMonsterModalDom {
     </div>`;
 
     document.body.appendChild(modalDiv);
+  }
+
+  static attachHelpers(app) {
+    app.ensureMonsterPreviewMapLoaded = function () {
+      const map1 = (this.savedMaps || []).find((m) => Number(m.id) === 1) || (this.savedMaps || [])[0];
+      if (map1) {
+        this.monsterPreviewMapSpawn = {
+          x: Number(map1.spawnX) || 1000,
+          y: Number(map1.spawnY) || 750,
+        };
+      }
+      if (!this.monsterPreviewMapImg) {
+        const img = new Image();
+        img.crossOrigin = 'anonymous';
+        const mapId = map1 ? map1.id : 1;
+        img.src = `/api/assets/map-image/${mapId}`;
+        this.monsterPreviewMapImg = img;
+      }
+    };
+
+    app.setupMonsterPreviewDrag = function () {
+      const cvs = document.getElementById('monsterPreviewCanvas');
+      if (!cvs || this.monsterPreviewDragAttached) return;
+      this.monsterPreviewDragAttached = true;
+      let dragging = false;
+      let lastX = 0;
+      let lastY = 0;
+      cvs.addEventListener('pointerdown', (e) => {
+        dragging = true;
+        lastX = e.clientX;
+        lastY = e.clientY;
+        try { cvs.setPointerCapture(e.pointerId); } catch (_) {}
+      });
+      cvs.addEventListener('pointermove', (e) => {
+        if (!dragging) return;
+        this.monsterPreviewPanX += e.clientX - lastX;
+        this.monsterPreviewPanY += e.clientY - lastY;
+        lastX = e.clientX;
+        lastY = e.clientY;
+      });
+      const stopDrag = () => { dragging = false; };
+      cvs.addEventListener('pointerup', stopDrag);
+      cvs.addEventListener('pointercancel', stopDrag);
+    };
+
+    app.resetMonsterPreviewPan = function () {
+      this.monsterPreviewPanX = 0;
+      this.monsterPreviewPanY = 0;
+    };
+
+    app.adjustMonsterGroundOffset = function (delta) {
+      const input = document.getElementById('monsterGroundOffsetYInput');
+      if (!input) return;
+      let val = (Number(input.value) || 0) + delta;
+      val = Math.max(-80, Math.min(80, val));
+      input.value = String(val);
+      this.updateMonsterGroundOffsetPreview();
+    };
+
+    app.resetMonsterGroundOffset = function () {
+      const input = document.getElementById('monsterGroundOffsetYInput');
+      if (input) input.value = '0';
+      this.updateMonsterGroundOffsetPreview();
+    };
+
+    app.adjustMonsterShadowOffset = function (axis, delta) {
+      const input = document.getElementById(axis === 'X' ? 'monsterShadowOffsetXInput' : 'monsterShadowOffsetYInput');
+      if (!input) return;
+      let val = (Number(input.value) || 0) + delta;
+      val = Math.max(-80, Math.min(80, val));
+      input.value = String(val);
+      this.updateMonsterGroundOffsetPreview();
+    };
+
+    app.resetMonsterShadowOffset = function () {
+      const inX = document.getElementById('monsterShadowOffsetXInput');
+      const inY = document.getElementById('monsterShadowOffsetYInput');
+      if (inX) inX.value = '0';
+      if (inY) inY.value = '0';
+      this.updateMonsterGroundOffsetPreview();
+    };
+
+    app.getOrCreateMonsterPreviewSprite = function (monsterKey) {
+      if (!monsterKey || typeof window.McreworkSpriteSheet !== 'function') return null;
+      if (this.monsterPreviewSpriteCache.has(monsterKey)) {
+        return this.monsterPreviewSpriteCache.get(monsterKey);
+      }
+      const found = (this.mcreworkMonsters || []).find((m) => m.mcreworkMonsterKey === monsterKey);
+      const baseUrl = 'https://seytanir.github.io/mcrework';
+      const jsonUrl = found?.atlasJsonUrl || `${baseUrl}/assets/monsters/${monsterKey}/atlas.json`;
+      const webpUrl = found?.atlasWebpUrl || `${baseUrl}/assets/monsters/${monsterKey}/atlas.webp`;
+      const thumbUrl = found?.thumbUrl || `${baseUrl}/assets/monsters/${monsterKey}/thumb.webp`;
+      const sprite = new window.McreworkSpriteSheet(jsonUrl, webpUrl, thumbUrl);
+      sprite.load();
+      this.monsterPreviewSpriteCache.set(monsterKey, sprite);
+      return sprite;
+    };
+
+    app.updateMonsterGroundOffsetPreview = function () {
+      const offsetInput = document.getElementById('monsterGroundOffsetYInput');
+      const shadowXInput = document.getElementById('monsterShadowOffsetXInput');
+      const shadowYInput = document.getElementById('monsterShadowOffsetYInput');
+      const statusBadge = document.getElementById('monsterGroundStatusBadge');
+      if (offsetInput && statusBadge) {
+        const offsetY = Number(offsetInput.value) || 0;
+        const sX = Number(shadowXInput?.value) || 0;
+        const sY = Number(shadowYInput?.value) || 0;
+        const shadowStr = (sX !== 0 || sY !== 0) ? ` • Sombra [${sX}, ${sY}]` : '';
+        if (offsetY === 0) {
+          statusBadge.textContent = `🟢 Pés no solo (0px)${shadowStr}`;
+          statusBadge.style.color = '#86efac';
+        } else if (offsetY > 0) {
+          statusBadge.textContent = `🔵 Afundado +${offsetY}px${shadowStr}`;
+          statusBadge.style.color = '#38bdf8';
+        } else {
+          statusBadge.textContent = `🟡 Flutuando ${Math.abs(offsetY)}px${shadowStr}`;
+          statusBadge.style.color = '#fde047';
+        }
+      }
+    };
+
+    app.startMonsterPreviewLoop = function () {
+      if (this.monsterPreviewAnimFrame) {
+        cancelAnimationFrame(this.monsterPreviewAnimFrame);
+      }
+      const startTime = performance.now();
+      const dirLabels = ['⬇ Sul', '↙ SO', '⬅ Oeste', '↖ NO', '⬆ Norte', '↗ NE', '➡ Leste', '↘ SE'];
+      const renderStep = (now) => {
+        const modal = document.getElementById('monsterModal');
+        if (!modal || modal.style.display === 'none') {
+          this.monsterPreviewAnimFrame = null;
+          return;
+        }
+        const canvas = document.getElementById('monsterPreviewCanvas');
+        if (canvas) {
+          const ctx = canvas.getContext('2d');
+          const w = canvas.width;
+          const h = canvas.height;
+          ctx.clearRect(0, 0, w, h);
+
+          const footX = Math.round(w / 2);
+          const footY = Math.round(h * 0.76);
+
+          // 1. Cenário real do Mapa #1 (com pan interativo)
+          const mapImg = this.monsterPreviewMapImg;
+          if (mapImg && mapImg.complete && mapImg.naturalWidth > 0) {
+            const worldCenterX = this.monsterPreviewMapSpawn.x - this.monsterPreviewPanX;
+            const worldCenterY = this.monsterPreviewMapSpawn.y - this.monsterPreviewPanY;
+            const sx = Math.max(0, Math.min(mapImg.naturalWidth - w, worldCenterX - footX));
+            const sy = Math.max(0, Math.min(mapImg.naturalHeight - h, worldCenterY - footY));
+            ctx.drawImage(mapImg, sx, sy, w, h, 0, 0, w, h);
+          } else {
+            const grad = ctx.createRadialGradient(footX, footY, 10, footX, footY, 180);
+            grad.addColorStop(0, '#1e293b');
+            grad.addColorStop(1, '#020617');
+            ctx.fillStyle = grad;
+            ctx.fillRect(0, 0, w, h);
+          }
+
+          // 2. Mira de referência do solo (Nível 0 dos pés)
+          ctx.save();
+          ctx.strokeStyle = 'rgba(244, 63, 94, 0.75)';
+          ctx.lineWidth = 1;
+          ctx.setLineDash([4, 3]);
+          ctx.beginPath();
+          ctx.moveTo(footX - 50, footY);
+          ctx.lineTo(footX + 50, footY);
+          ctx.moveTo(footX, footY - 18);
+          ctx.lineTo(footX, footY + 18);
+          ctx.stroke();
+          ctx.restore();
+
+          // 3. Modelo 2.5D animado + Sombra ajustável
+          const key = this.selectedMcreworkMonsterKey;
+          const offsetY = Number(document.getElementById('monsterGroundOffsetYInput')?.value) || 0;
+          const shadowX = Number(document.getElementById('monsterShadowOffsetXInput')?.value) || 0;
+          const shadowY = Number(document.getElementById('monsterShadowOffsetYInput')?.value) || 0;
+
+          if (key) {
+            const sprite = this.getOrCreateMonsterPreviewSprite(key);
+            if (sprite) {
+              const elapsed = now - startTime;
+              sprite.draw(
+                ctx,
+                footX,
+                footY,
+                this.monsterPreviewAction,
+                this.monsterPreviewDir,
+                elapsed,
+                null,
+                offsetY,
+                0.70,
+                false,
+                shadowX,
+                shadowY
+              );
+            }
+          }
+
+          // 4. Legenda superior do Mapa e Direção
+          const map1 = (this.savedMaps || []).find((m) => Number(m.id) === 1) || (this.savedMaps || [])[0];
+          const mapLabel = map1 ? `🗺️ #${map1.id}: ${map1.namePtBr}` : '🗺️ Mapa #1';
+          ctx.fillStyle = 'rgba(2, 6, 23, 0.78)';
+          ctx.fillRect(6, 6, 210, 20);
+          ctx.fillStyle = '#fca5a5';
+          ctx.font = 'bold 10px sans-serif';
+          ctx.textAlign = 'left';
+          ctx.fillText(`${mapLabel} (Arraste o chão)`, 10, 19);
+
+          const dirText = dirLabels[this.monsterPreviewDir || 0] || '⬇ Sul';
+          ctx.fillStyle = 'rgba(2, 6, 23, 0.78)';
+          ctx.fillRect(w - 74, 6, 68, 20);
+          ctx.fillStyle = '#fde047';
+          ctx.textAlign = 'center';
+          ctx.fillText(dirText, w - 40, 19);
+        }
+        this.monsterPreviewAnimFrame = requestAnimationFrame(renderStep);
+      };
+      this.monsterPreviewAnimFrame = requestAnimationFrame(renderStep);
+    };
   }
 }
 

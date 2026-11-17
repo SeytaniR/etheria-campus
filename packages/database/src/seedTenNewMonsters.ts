@@ -32,6 +32,8 @@ export interface NewMonsterDef {
   attackRange: number;
   damageType: 'PHYSICAL' | 'MAGICAL';
   groundOffsetY: number;
+  shadowOffsetX: number;
+  shadowOffsetY: number;
   baseAttributes: {
     STR: number;
     VIT: number;
@@ -87,6 +89,8 @@ export const TEN_NEW_MONSTERS: NewMonsterDef[] = [
     attackRange: 80,
     damageType: 'PHYSICAL',
     groundOffsetY: -8,
+    shadowOffsetX: 0,
+    shadowOffsetY: 0,
     baseAttributes: { STR: 32, VIT: 30, AGI: 12, DEX: 14, INT: 8, WIS: 8 },
     baseCombatAttributes: {
       BATTLE_MOVE_SPEED: 125,
@@ -125,7 +129,7 @@ export const TEN_NEW_MONSTERS: NewMonsterDef[] = [
       ],
     },
     biomes: [35, 29, 28], // DEMONIC_RIFT, LAVA_CALDERA, ASHLANDS
-    lootTemplateId: 42,
+    lootTemplateId: 36, // item_essencia_demoniaca_oaod7
   },
 
   // -------------------------------------------------------------------------
@@ -144,6 +148,8 @@ export const TEN_NEW_MONSTERS: NewMonsterDef[] = [
     attackRange: 85,
     damageType: 'PHYSICAL',
     groundOffsetY: -6,
+    shadowOffsetX: 0,
+    shadowOffsetY: 0,
     baseAttributes: { STR: 28, VIT: 36, AGI: 10, DEX: 12, INT: 12, WIS: 10 },
     baseCombatAttributes: {
       BATTLE_MOVE_SPEED: 115,
@@ -182,7 +188,7 @@ export const TEN_NEW_MONSTERS: NewMonsterDef[] = [
       ],
     },
     biomes: [26, 27, 24], // ETERNAL_GLACIER, BLIZZARD_PEAK, FROZEN_TUNDRA
-    lootTemplateId: 41,
+    lootTemplateId: 35, // item_essencia_de_selvagem_ghj3x
   },
 
   // -------------------------------------------------------------------------
@@ -201,6 +207,8 @@ export const TEN_NEW_MONSTERS: NewMonsterDef[] = [
     attackRange: 160,
     damageType: 'MAGICAL',
     groundOffsetY: -4,
+    shadowOffsetX: 0,
+    shadowOffsetY: 0,
     baseAttributes: { STR: 18, VIT: 22, AGI: 16, DEX: 15, INT: 24, WIS: 14 },
     baseCombatAttributes: {
       BATTLE_MOVE_SPEED: 150,
@@ -258,6 +266,8 @@ export const TEN_NEW_MONSTERS: NewMonsterDef[] = [
     attackRange: 75,
     damageType: 'PHYSICAL',
     groundOffsetY: 0,
+    shadowOffsetX: 0,
+    shadowOffsetY: 0,
     baseAttributes: { STR: 22, VIT: 25, AGI: 14, DEX: 16, INT: 18, WIS: 12 },
     baseCombatAttributes: {
       BATTLE_MOVE_SPEED: 140,
@@ -315,6 +325,8 @@ export const TEN_NEW_MONSTERS: NewMonsterDef[] = [
     attackRange: 65,
     damageType: 'PHYSICAL',
     groundOffsetY: 0,
+    shadowOffsetX: 0,
+    shadowOffsetY: 0,
     baseAttributes: { STR: 22, VIT: 24, AGI: 12, DEX: 10, INT: 6, WIS: 6 },
     baseCombatAttributes: {
       BATTLE_MOVE_SPEED: 135,
@@ -372,6 +384,8 @@ export const TEN_NEW_MONSTERS: NewMonsterDef[] = [
     attackRange: 140,
     damageType: 'PHYSICAL',
     groundOffsetY: -4,
+    shadowOffsetX: 0,
+    shadowOffsetY: 0,
     baseAttributes: { STR: 18, VIT: 18, AGI: 18, DEX: 16, INT: 8, WIS: 8 },
     baseCombatAttributes: {
       BATTLE_MOVE_SPEED: 155,
@@ -410,7 +424,7 @@ export const TEN_NEW_MONSTERS: NewMonsterDef[] = [
       ],
     },
     biomes: [30, 13, 12], // STORM_PLATEAU, ALPINE_HIGHLANDS, ROCKY_CANYON
-    lootTemplateId: 35,
+    lootTemplateId: 43, // item_essencia_reptiliana_wv5uc
   },
 
   // -------------------------------------------------------------------------
@@ -429,6 +443,8 @@ export const TEN_NEW_MONSTERS: NewMonsterDef[] = [
     attackRange: 55,
     damageType: 'PHYSICAL',
     groundOffsetY: 0,
+    shadowOffsetX: 0,
+    shadowOffsetY: 0,
     baseAttributes: { STR: 18, VIT: 16, AGI: 16, DEX: 14, INT: 5, WIS: 6 },
     baseCombatAttributes: {
       BATTLE_MOVE_SPEED: 150,
@@ -486,6 +502,8 @@ export const TEN_NEW_MONSTERS: NewMonsterDef[] = [
     attackRange: 150,
     damageType: 'MAGICAL',
     groundOffsetY: -4,
+    shadowOffsetX: 0,
+    shadowOffsetY: 0,
     baseAttributes: { STR: 8, VIT: 14, AGI: 14, DEX: 14, INT: 20, WIS: 16 },
     baseCombatAttributes: {
       BATTLE_MOVE_SPEED: 130,
@@ -524,7 +542,7 @@ export const TEN_NEW_MONSTERS: NewMonsterDef[] = [
       ],
     },
     biomes: [19, 20, 21], // MISTY_SWAMP, POISON_MANGROVE, MIRROR_LAKE
-    lootTemplateId: 41,
+    lootTemplateId: 44, // item_essencia_espiritual_3bffa
   },
 
   // -------------------------------------------------------------------------
@@ -543,6 +561,8 @@ export const TEN_NEW_MONSTERS: NewMonsterDef[] = [
     attackRange: 45,
     damageType: 'PHYSICAL',
     groundOffsetY: 0,
+    shadowOffsetX: 0,
+    shadowOffsetY: 0,
     baseAttributes: { STR: 14, VIT: 16, AGI: 12, DEX: 12, INT: 6, WIS: 5 },
     baseCombatAttributes: {
       BATTLE_MOVE_SPEED: 125,
@@ -600,6 +620,8 @@ export const TEN_NEW_MONSTERS: NewMonsterDef[] = [
     attackRange: 40,
     damageType: 'PHYSICAL',
     groundOffsetY: 0,
+    shadowOffsetX: 0,
+    shadowOffsetY: 0,
     baseAttributes: { STR: 12, VIT: 14, AGI: 8, DEX: 10, INT: 8, WIS: 6 },
     baseCombatAttributes: {
       BATTLE_MOVE_SPEED: 110,
@@ -639,7 +661,7 @@ export const TEN_NEW_MONSTERS: NewMonsterDef[] = [
       ],
     },
     biomes: [33, 32, 37], // ANCIENT_NECROPOLIS, DEADWOOD, ANCIENT_RUINS
-    lootTemplateId: 35,
+    lootTemplateId: 36, // item_essencia_demoniaca_oaod7
   },
 ];
 
@@ -733,7 +755,8 @@ export function updateSnapshotWithNewMonsters(): void {
     ensureI18n(mobNameKey, m.namePtBr);
     ensureI18n(mobDescKey, m.descriptionPtBr);
 
-    if (!existingMobIds.has(m.id) && !existingMobCodes.has(m.code)) {
+    const existing = snapshot.monsterTemplates.find((mob: any) => mob.id === m.id);
+    if (!existing) {
       snapshot.monsterTemplates.push({
         id: m.id,
         code: m.code,
@@ -741,6 +764,8 @@ export function updateSnapshotWithNewMonsters(): void {
         nameI18nKey: mobNameKey,
         descriptionI18nKey: mobDescKey,
         groundOffsetY: m.groundOffsetY,
+        shadowOffsetX: m.shadowOffsetX ?? 0,
+        shadowOffsetY: m.shadowOffsetY ?? 0,
         raceCode: m.raceCode,
         fixedElementCode: m.fixedElementCode,
         rarityTier: m.rarityTier,
@@ -758,6 +783,13 @@ export function updateSnapshotWithNewMonsters(): void {
       });
       existingMobIds.add(m.id);
       existingMobCodes.add(m.code);
+    } else {
+      existing.groundOffsetY = m.groundOffsetY;
+      existing.shadowOffsetX = m.shadowOffsetX ?? 0;
+      existing.shadowOffsetY = m.shadowOffsetY ?? 0;
+      existing.lootTableJson = [
+        { itemTemplateId: m.lootTemplateId, minQty: 1, maxQty: 1, chancePct: 80 },
+      ];
     }
   }
 
@@ -878,6 +910,8 @@ export async function seedMonstersIntoDatabase(prisma: PrismaClient): Promise<vo
         nameI18nKey: mobNameKey,
         descriptionI18nKey: mobDescKey,
         groundOffsetY: m.groundOffsetY,
+        shadowOffsetX: m.shadowOffsetX ?? 0,
+        shadowOffsetY: m.shadowOffsetY ?? 0,
         raceCode: m.raceCode,
         fixedElementCode: m.fixedElementCode,
         rarityTier: m.rarityTier,
@@ -899,6 +933,8 @@ export async function seedMonstersIntoDatabase(prisma: PrismaClient): Promise<vo
         nameI18nKey: mobNameKey,
         descriptionI18nKey: mobDescKey,
         groundOffsetY: m.groundOffsetY,
+        shadowOffsetX: m.shadowOffsetX ?? 0,
+        shadowOffsetY: m.shadowOffsetY ?? 0,
         raceCode: m.raceCode,
         fixedElementCode: m.fixedElementCode,
         rarityTier: m.rarityTier,

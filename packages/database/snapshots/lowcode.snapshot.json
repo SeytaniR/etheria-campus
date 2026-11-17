@@ -1,6 +1,6 @@
 {
   "version": "0.2.0",
-  "exportedAt": "2026-11-16T20:22:38.207Z",
+  "exportedAt": "2026-11-17T11:48:14.097Z",
   "i18nTranslations": [
     {
       "id": 1,
@@ -73694,13 +73694,15 @@
       ],
       "lootTableJson": [
         {
-          "itemTemplateId": 42,
+          "itemTemplateId": 36,
           "minQty": 1,
           "maxQty": 1,
           "chancePct": 80
         }
       ],
-      "isActive": true
+      "isActive": true,
+      "shadowOffsetX": 0,
+      "shadowOffsetY": 0
     },
     {
       "id": 19,
@@ -73739,13 +73741,15 @@
       ],
       "lootTableJson": [
         {
-          "itemTemplateId": 41,
+          "itemTemplateId": 35,
           "minQty": 1,
           "maxQty": 1,
           "chancePct": 80
         }
       ],
-      "isActive": true
+      "isActive": true,
+      "shadowOffsetX": 0,
+      "shadowOffsetY": 0
     },
     {
       "id": 20,
@@ -73790,7 +73794,9 @@
           "chancePct": 80
         }
       ],
-      "isActive": true
+      "isActive": true,
+      "shadowOffsetX": 0,
+      "shadowOffsetY": 0
     },
     {
       "id": 21,
@@ -73835,7 +73841,9 @@
           "chancePct": 80
         }
       ],
-      "isActive": true
+      "isActive": true,
+      "shadowOffsetX": 0,
+      "shadowOffsetY": 0
     },
     {
       "id": 22,
@@ -73880,7 +73888,9 @@
           "chancePct": 80
         }
       ],
-      "isActive": true
+      "isActive": true,
+      "shadowOffsetX": 0,
+      "shadowOffsetY": 0
     },
     {
       "id": 23,
@@ -73919,13 +73929,15 @@
       ],
       "lootTableJson": [
         {
-          "itemTemplateId": 35,
+          "itemTemplateId": 43,
           "minQty": 1,
           "maxQty": 1,
           "chancePct": 80
         }
       ],
-      "isActive": true
+      "isActive": true,
+      "shadowOffsetX": 0,
+      "shadowOffsetY": 0
     },
     {
       "id": 24,
@@ -73970,7 +73982,9 @@
           "chancePct": 80
         }
       ],
-      "isActive": true
+      "isActive": true,
+      "shadowOffsetX": 0,
+      "shadowOffsetY": 0
     },
     {
       "id": 25,
@@ -74009,13 +74023,15 @@
       ],
       "lootTableJson": [
         {
-          "itemTemplateId": 41,
+          "itemTemplateId": 44,
           "minQty": 1,
           "maxQty": 1,
           "chancePct": 80
         }
       ],
-      "isActive": true
+      "isActive": true,
+      "shadowOffsetX": 0,
+      "shadowOffsetY": 0
     },
     {
       "id": 26,
@@ -74060,7 +74076,9 @@
           "chancePct": 80
         }
       ],
-      "isActive": true
+      "isActive": true,
+      "shadowOffsetX": 0,
+      "shadowOffsetY": 0
     },
     {
       "id": 27,
@@ -74099,13 +74117,15 @@
       ],
       "lootTableJson": [
         {
-          "itemTemplateId": 35,
+          "itemTemplateId": 36,
           "minQty": 1,
           "maxQty": 1,
           "chancePct": 80
         }
       ],
-      "isActive": true
+      "isActive": true,
+      "shadowOffsetX": 0,
+      "shadowOffsetY": 0
     }
   ],
   "monsterBiomes": [

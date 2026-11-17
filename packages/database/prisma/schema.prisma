@@ -307,6 +307,8 @@ model MonsterTemplate {
   nameI18nKey        String         @map("name_i18n_key")
   descriptionI18nKey String?        @map("description_i18n_key")
   groundOffsetY      Int            @default(0) @map("ground_offset_y")
+  shadowOffsetX      Int            @default(0) @map("shadow_offset_x")
+  shadowOffsetY      Int            @default(0) @map("shadow_offset_y")
   raceCode           String         @map("race_code")
   fixedElementCode   String         @map("fixed_element_code") /// Elemento fixo quando atua como monstro inimigo
   rarityTier         String         @default("F") @map("rarity_tier") /// Tier de Raridade do Monstro: SS, S, A, B, C, D, F

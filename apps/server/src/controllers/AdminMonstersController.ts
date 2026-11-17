@@ -26,6 +26,8 @@ export interface MonsterTemplateDto {
   descriptionPtBr?: string;
   mcreworkMonsterKey: string;
   groundOffsetY?: number;
+  shadowOffsetX?: number;
+  shadowOffsetY?: number;
   raceCode: string;
   fixedElementCode: string;
   rarityTier?: string;
@@ -256,6 +258,8 @@ export class AdminMonstersController {
         nameI18nKey: nameKey,
         descriptionI18nKey: descText ? descKey : null,
         groundOffsetY: Number(dto.groundOffsetY) || 0,
+        shadowOffsetX: Number(dto.shadowOffsetX) || 0,
+        shadowOffsetY: Number(dto.shadowOffsetY) || 0,
         raceCode: dto.raceCode || 'BEAST',
         fixedElementCode: dto.fixedElementCode || 'NEUTRAL',
         rarityTier: this.normalizeRarityTier(dto.rarityTier),
@@ -334,6 +338,8 @@ export class AdminMonstersController {
         mcreworkMonsterKey: dto.mcreworkMonsterKey?.trim() || existing.mcreworkMonsterKey,
         descriptionI18nKey: descText ? descKey : null,
         groundOffsetY: dto.groundOffsetY !== undefined ? Number(dto.groundOffsetY) : existing.groundOffsetY,
+        shadowOffsetX: dto.shadowOffsetX !== undefined ? Number(dto.shadowOffsetX) : existing.shadowOffsetX,
+        shadowOffsetY: dto.shadowOffsetY !== undefined ? Number(dto.shadowOffsetY) : existing.shadowOffsetY,
         raceCode: dto.raceCode || existing.raceCode,
         fixedElementCode: dto.fixedElementCode || existing.fixedElementCode,
         rarityTier: dto.rarityTier ? this.normalizeRarityTier(dto.rarityTier) : existing.rarityTier,
