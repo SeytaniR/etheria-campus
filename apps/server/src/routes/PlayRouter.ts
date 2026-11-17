@@ -663,8 +663,22 @@ export class PlayRouter {
       const partySize = party ? party.members.length : 1;
       const rewards = PartyService.calculatePartyRewards(victoryData.expReward, victoryData.goldReward, partySize);
 
-      const awardedExp = rewards.expPerMember;
-      const awardedGold = rewards.goldPerMember;
+      // ⚖️ Limite de Nivelamento de Mapa (Map Leveling Scaling: -95% se map >= pLv+10, -50% se map <= pLv-30)
+      const battleMapId = Number((victoryData as any).mapId) || 1;
+      const [battleMap, primaryPc] = await Promise.all([
+        this.deps.prisma.gameMap.findUnique({ where: { id: battleMapId }, select: { requiredLevel: true } }),
+        this.deps.prisma.playerCharacter.findUnique({ where: { id: victoryData.characterId }, select: { level: true } }),
+      ]);
+      const mapLvl = battleMap?.requiredLevel ?? 1;
+      const primaryScaling = MonsterCombatBuilder.applyMapLevelingPenalty(
+        rewards.expPerMember,
+        rewards.goldPerMember,
+        primaryPc?.level ?? 1,
+        mapLvl
+      );
+
+      const awardedExp = primaryScaling.exp;
+      const awardedGold = primaryScaling.gold;
 
       const progressResult = await this.deps.questsController.recordBattleVictoryBatch(
         victoryData.characterId,
@@ -677,20 +691,26 @@ export class PlayRouter {
         awardedExp
       );
 
-      // Concede a mesma recompensa dividida e avanço de abates para os companheiros de equipe
+      // Concede a recompensa escalonada individualmente para os companheiros de equipe
       if (party && party.members.length > 1) {
         for (const member of party.members) {
           if (member.characterId !== victoryData.characterId) {
             try {
+              const memScaling = MonsterCombatBuilder.applyMapLevelingPenalty(
+                rewards.expPerMember,
+                rewards.goldPerMember,
+                member.level || 1,
+                mapLvl
+              );
               await this.deps.questsController.recordBattleVictoryBatch(
                 member.characterId,
                 victoryData.defeatedMonsters,
-                awardedGold
+                memScaling.gold
               );
               await CharacterProgressionService.awardProgression(
                 this.deps.prisma,
                 member.characterId,
-                awardedExp
+                memScaling.exp
               );
             } catch {}
           }
@@ -701,6 +721,8 @@ export class PlayRouter {
         alreadyRecorded: false,
         expGained: awardedExp,
         goldGained: awardedGold,
+        levelingPenaltyMultiplier: primaryScaling.penaltyMultiplier,
+        levelingPenaltyReason: primaryScaling.penaltyReason,
         partyBonusApplied: partySize > 1,
         partyMembersCount: partySize,
         playerProgression: progression?.player ?? null,
@@ -890,17 +912,25 @@ export class PlayRouter {
         state.victoryRecorded = true;
         if (state.characterId && (await this.verifyCharacterOwnership(userAccountId, session.role, state.characterId))) {
           const batch = this.deps.combatController.buildDefeatedBatch(state);
-          await this.deps.questsController.recordBattleVictoryBatch(
-            state.characterId,
-            batch,
-            Number(state.rewards?.gold) || 0
+          const [bMap, pc] = await Promise.all([
+            this.deps.prisma.gameMap.findUnique({ where: { id: state.mapId || 1 }, select: { requiredLevel: true } }),
+            this.deps.prisma.playerCharacter.findUnique({ where: { id: state.characterId }, select: { level: true } }),
+          ]);
+          const scaled = MonsterCombatBuilder.applyMapLevelingPenalty(
+            Number(state.rewards?.exp) || 0,
+            Number(state.rewards?.gold) || 0,
+            pc?.level ?? 1,
+            bMap?.requiredLevel ?? 1
           );
+          await this.deps.questsController.recordBattleVictoryBatch(state.characterId, batch, scaled.gold);
           const progression = await CharacterProgressionService.awardProgression(
             this.deps.prisma,
             state.characterId,
-            Number(state.rewards?.exp) || 0
+            scaled.exp
           );
           if (progression && state.rewards) {
+            state.rewards.exp = scaled.exp;
+            state.rewards.gold = scaled.gold;
             (state.rewards as any).playerProgression = progression.player;
             (state.rewards as any).petsProgression = progression.pets;
           }
@@ -917,17 +947,25 @@ export class PlayRouter {
         state.victoryRecorded = true;
         if (state.characterId && (await this.verifyCharacterOwnership(userAccountId, session.role, state.characterId))) {
           const batch = this.deps.combatController.buildDefeatedBatch(state);
-          await this.deps.questsController.recordBattleVictoryBatch(
-            state.characterId,
-            batch,
-            Number(state.rewards?.gold) || 0
+          const [bMap, pc] = await Promise.all([
+            this.deps.prisma.gameMap.findUnique({ where: { id: state.mapId || 1 }, select: { requiredLevel: true } }),
+            this.deps.prisma.playerCharacter.findUnique({ where: { id: state.characterId }, select: { level: true } }),
+          ]);
+          const scaled = MonsterCombatBuilder.applyMapLevelingPenalty(
+            Number(state.rewards?.exp) || 0,
+            Number(state.rewards?.gold) || 0,
+            pc?.level ?? 1,
+            bMap?.requiredLevel ?? 1
           );
+          await this.deps.questsController.recordBattleVictoryBatch(state.characterId, batch, scaled.gold);
           const progression = await CharacterProgressionService.awardProgression(
             this.deps.prisma,
             state.characterId,
-            Number(state.rewards?.exp) || 0
+            scaled.exp
           );
           if (progression && state.rewards) {
+            state.rewards.exp = scaled.exp;
+            state.rewards.gold = scaled.gold;
             (state.rewards as any).playerProgression = progression.player;
             (state.rewards as any).petsProgression = progression.pets;
           }

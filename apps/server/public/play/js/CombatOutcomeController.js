@@ -129,6 +129,7 @@ class CombatOutcomeController {
         </div>
 
         ${dropsHtml}
+        ${victoryData?.levelingPenaltyMultiplier === 0.05 ? '<div style="font-size:0.7rem; color:#f87171; text-align:center; padding:4px 8px; background:rgba(239,68,68,0.15); border:1px solid rgba(239,68,68,0.3); border-radius:6px; margin-top:4px;">⚠️ Limite de Nível: Mapa 10+ níveis acima (-95% EXP/Ouro)</div>' : (victoryData?.levelingPenaltyMultiplier === 0.50 ? '<div style="font-size:0.7rem; color:#fde047; text-align:center; padding:4px 8px; background:rgba(234,179,8,0.15); border:1px solid rgba(234,179,8,0.3); border-radius:6px; margin-top:4px;">⚠️ Limite de Nível: Mapa 30+ níveis abaixo (-50% EXP/Ouro)</div>' : '')}
       `;
 
       // Anima a barra de EXP após um breve delay

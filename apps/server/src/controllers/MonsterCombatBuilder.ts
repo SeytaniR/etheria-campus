@@ -213,6 +213,38 @@ export class MonsterCombatBuilder {
     );
   }
 
+  /**
+   * Limite de Nivelamento (Map Leveling Scaling):
+   * - Reduz em 95% o ganho de XP e Ouro se o mapa for 10 níveis ou mais acima do jogador (mapLevel >= playerLevel + 10).
+   * - Reduz em 50% o ganho de XP e Ouro se o mapa for 30 níveis ou mais abaixo do jogador (mapLevel <= playerLevel - 30).
+   * - Retorna os valores finais com Math.ceil para XP e Ouro.
+   */
+  public static applyMapLevelingPenalty(
+    baseExp: number,
+    baseGold: number,
+    playerLevel: number,
+    mapLevel: number
+  ): { exp: number; gold: number; penaltyMultiplier: number; penaltyReason: string | null } {
+    let penaltyMultiplier = 1.0;
+    let penaltyReason: string | null = null;
+
+    const pLevel = Math.max(1, Math.round(Number(playerLevel) || 1));
+    const mLevel = Math.max(1, Math.round(Number(mapLevel) || 1));
+
+    if (mLevel >= pLevel + 10) {
+      penaltyMultiplier = 0.05; // Redução de 95%
+      penaltyReason = 'MAP_OVERLEVEL_95';
+    } else if (mLevel <= pLevel - 30) {
+      penaltyMultiplier = 0.50; // Redução de 50%
+      penaltyReason = 'MAP_UNDERLEVEL_50';
+    }
+
+    const exp = baseExp > 0 ? Math.max(1, Math.ceil(baseExp * penaltyMultiplier)) : 0;
+    const gold = baseGold > 0 ? Math.max(0, Math.ceil(baseGold * penaltyMultiplier)) : 0;
+
+    return { exp, gold, penaltyMultiplier, penaltyReason };
+  }
+
   public static async loadScalingContext(prisma: any): Promise<MonsterScalingContext> {
     const [conversions, battleMoveAttr, elementMatchups] = await Promise.all([
       prisma.attributeConversion.findMany(),

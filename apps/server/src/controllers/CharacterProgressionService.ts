@@ -246,7 +246,9 @@ export class CharacterProgressionService {
   ): Promise<FullProgressionResult | null> {
     const playerResult = await this.awardCharacterExperience(prismaOrTx, characterId, expGain);
     if (!playerResult) return null;
-    const petsResult = await this.awardPetsExperience(prismaOrTx, characterId, expGain, targetPetIds);
+    // REGRA: O pet ganha 50% da XP que o jogador ganha, independente do seu nível
+    const petExpGain = expGain > 0 ? Math.max(1, Math.ceil(expGain * 0.50)) : 0;
+    const petsResult = await this.awardPetsExperience(prismaOrTx, characterId, petExpGain, targetPetIds);
     return {
       player: playerResult,
       pets: petsResult,

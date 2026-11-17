@@ -94,6 +94,7 @@ export interface FloatingCombatNumber {
 
 export interface TemporaryBattleState {
   battleId: string;
+  mapId?: number;
   createdAt?: number;
   characterId?: number;
   monsterTemplateId?: number;
@@ -346,7 +347,7 @@ export class TemporaryCombatController {
     }
 
     const firstTemplateId = Number(monsterUnits[0]?.monsterTemplateId || candidateTemplates[0]?.id || 1);
-    return this.buildBattleInstance(characterId, firstTemplateId, monsterUnits, scalingCtx);
+    return this.buildBattleInstance(characterId, firstTemplateId, monsterUnits, scalingCtx, Number(mapId));
   }
 
   /**
@@ -356,7 +357,8 @@ export class TemporaryCombatController {
     characterId: number,
     primaryMonsterTemplateId: number,
     monsterUnits: CombatUnit[],
-    scalingCtx: MonsterScalingContext
+    scalingCtx: MonsterScalingContext,
+    mapId?: number
   ): Promise<TemporaryBattleState> {
     let charName = 'Heroi';
     let charLevel = 1;
@@ -597,6 +599,7 @@ export class TemporaryCombatController {
     const battleId = randomUUID();
     const state: TemporaryBattleState = {
       battleId,
+      mapId: mapId || pc?.currentMapId || 1,
       characterId: Number(characterId) || 1,
       createdAt: Date.now(),
       monsterTemplateId: primaryMonsterTemplateId,
@@ -869,6 +872,7 @@ export class TemporaryCombatController {
     );
     return {
       characterId: Number(battle.characterId) || 1,
+      mapId: battle.mapId || 1,
       defeatedMonsters: this.buildDefeatedBatch(battle),
       expReward,
       goldReward,
