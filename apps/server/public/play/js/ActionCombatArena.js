@@ -716,7 +716,7 @@ class ActionCombatArena {
     if (aliveMobs.length === 0) {
       this.combatState = 'RESULT';
       const expGained = this.monsters.reduce((acc, m) => acc + (Number(m.expReward) || (Number(m.level) || 1) * 28), 0);
-      const goldGained = this.monsters.reduce((acc, m) => acc + Math.max(10, (Number(m.level) || 1) * 18) * Math.max(1, Number(m.rewardMultiplier) || 1), 0);
+      const goldGained = this.monsters.reduce((acc, m) => acc + (Number(m.goldReward) || Math.ceil((Number(m.level) || 1) * 10 * ({ SS: 2.5, S: 1.8, A: 1.6, B: 1.35, C: 1.2, F: 0.8 }[m.rarityTier] || 1.0) * (m.variantTier === 'BOSS' ? 1.5 : m.variantTier === 'LEADER' ? 1.3 : 1.0))), 0);
       const res = await this.recordBattleVictoryOnServer();
       const vData = { expGained, goldGained, ...(res || {}) };
       if (window.CombatOutcomeController) {

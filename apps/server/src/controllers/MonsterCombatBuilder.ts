@@ -145,6 +145,59 @@ export class MonsterCombatBuilder {
     BOSS: 1 / 0.70,
   };
 
+  /**
+   * Unidade base de Ouro por nível de monstro (10 de ouro a cada nível).
+   */
+  public static readonly BASE_UNIT_GOLD_PER_LEVEL = 10;
+
+  /**
+   * Boost de Ouro por Raridade / Rank:
+   * Rank F  = -20% de ouro (0.80x)
+   * Rank D  = 1.0x ouro (sem bônus, sem perda, 1.00x)
+   * Rank C  = +20% de ouro (1.20x)
+   * Rank B  = +35% de ouro (1.35x)
+   * Rank A  = +60% de ouro (1.60x)
+   * Rank S  = +80% de ouro (1.80x)
+   * Rank SS = +150% de ouro (2.50x)
+   */
+  public static readonly RANK_GOLD_WEIGHTS: Record<string, number> = {
+    F: 0.80,
+    COMMON: 0.80,
+    D: 1.00,
+    C: 1.20,
+    B: 1.35,
+    A: 1.60,
+    S: 1.80,
+    SS: 2.50,
+  };
+
+  /**
+   * Multiplicadores de Ouro por Hierarquia (Variante):
+   * NORMAL = 1.00x (sem bônus)
+   * LEADER = 1.30x (bônus de +30%)
+   * BOSS   = 1.50x (bônus de +50%)
+   */
+  public static readonly VARIANT_GOLD_WEIGHTS: Record<MonsterVariantTier, number> = {
+    NORMAL: 1.00,
+    LEADER: 1.30,
+    BOSS: 1.50,
+  };
+
+  public static calculateMonsterGoldReward(
+    level: number,
+    rarityTier?: string | null,
+    variantTier: MonsterVariantTier = 'NORMAL'
+  ): number {
+    const mobLvl = Math.max(1, Math.round(Number(level) || 1));
+    const rKey = String(rarityTier || 'D').trim().toUpperCase();
+    const rankWeight = MonsterCombatBuilder.RANK_GOLD_WEIGHTS[rKey] ?? 1.00;
+    const variantWeight = MonsterCombatBuilder.VARIANT_GOLD_WEIGHTS[variantTier] ?? 1.00;
+    return Math.max(
+      1,
+      Math.ceil(mobLvl * MonsterCombatBuilder.BASE_UNIT_GOLD_PER_LEVEL * rankWeight * variantWeight)
+    );
+  }
+
   public static calculateMonsterExpReward(
     level: number,
     rarityTier?: string | null,
@@ -288,6 +341,7 @@ export class MonsterCombatBuilder {
     const nameColorHex = variantTier === 'BOSS' ? '#fb7185' : variantTier === 'LEADER' ? '#38bdf8' : '#f8fafc';
     const rewardMultiplier = variantTier === 'BOSS' ? 4 : variantTier === 'LEADER' ? 2 : 1;
     const expReward = this.calculateMonsterExpReward(mobLvl, rTier, variantTier);
+    const goldReward = this.calculateMonsterGoldReward(mobLvl, rTier, variantTier);
 
     return {
       id: `mob_${template.id}_${index}`,
@@ -300,6 +354,7 @@ export class MonsterCombatBuilder {
       nameColorHex,
       rewardMultiplier,
       expReward,
+      goldReward,
       hp: maxHp,
       maxHp,
       mp: maxMp,

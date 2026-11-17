@@ -743,7 +743,10 @@ export class TemporaryCombatController {
         0
       );
       const totalGold = battle.monsters.reduce(
-        (acc, m) => acc + Math.max(10, (m.level || 1) * 18) * Math.max(1, Number(m.rewardMultiplier) || 1),
+        (acc, m) =>
+          acc +
+          (Number((m as any).goldReward) ||
+            MonsterCombatBuilder.calculateMonsterGoldReward(m.level || 1, m.rarityTier, m.variantTier || 'NORMAL')),
         0
       );
       battle.rewards = { exp: totalExp, gold: totalGold };
@@ -849,7 +852,10 @@ export class TemporaryCombatController {
       0
     );
     const goldReward = battle.monsters.reduce(
-      (acc, m) => acc + Math.max(10, (m.level || 1) * 18) * Math.max(1, Number(m.rewardMultiplier) || 1),
+      (acc, m) =>
+        acc +
+        (Number((m as any).goldReward) ||
+          MonsterCombatBuilder.calculateMonsterGoldReward(m.level || 1, m.rarityTier, m.variantTier || 'NORMAL')),
       0
     );
     return {
