@@ -18,6 +18,7 @@ npx tsx src/seedBatchThreeMonsters.ts || true
 cd ../..
 npm run build:packages
 node scripts/seed_12_level70_equipment_sets.mjs || true
+node scripts/seed_12_level70_batch2_equipment_sets.mjs || true
 npm --workspace=@etheria/server run build
 sudo systemctl restart etheria-campus.service
 sleep 3

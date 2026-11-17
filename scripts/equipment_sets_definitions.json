@@ -1108,5 +1108,253 @@
       "HP_REGEN": 85,
       "BATTLE_MOVE_SPEED": 60
     }
+  },
+  {
+    "code": "set_lv70_solardawn",
+    "namePtBr": "Conjunto da Alvorada Solar Ígnea",
+    "descriptionPtBr": "Armadura dourada consagrada aos raios solares que canaliza poder ígneo devastador. Especializado: Espadachim (Ataque Físico, Dano Crítico e Alta Velocidade de Ataque).",
+    "prefix": "equip_lv70_solardawn",
+    "requiredLevel": 70,
+    "rarityTier": "SS",
+    "minPiecesFull": 12,
+    "minPiecesHalf": 6,
+    "halfBonusRatioPct": 40,
+    "fullBonusRatioPct": 100,
+    "bonusCombatStatsJson": {
+      "MAX_HP": 3500,
+      "PHYS_ATK": 650,
+      "CRIT_RATE": 18.5,
+      "CRIT_DMG": 44,
+      "ATTACK_SPEED": 0.95,
+      "BATTLE_MOVE_SPEED": 90
+    }
+  },
+  {
+    "code": "set_lv70_nightstalker",
+    "namePtBr": "Conjunto do Rastreador das Sombras Noturnas",
+    "descriptionPtBr": "Vestimenta de couro furtivo imbuída com essência de sombra e veneno letal. Especializado: Ladina (Evasão Suprema, Velocidade e Taxa Crítica).",
+    "prefix": "equip_lv70_nightstalker",
+    "requiredLevel": 70,
+    "rarityTier": "SS",
+    "minPiecesFull": 12,
+    "minPiecesHalf": 6,
+    "halfBonusRatioPct": 40,
+    "fullBonusRatioPct": 100,
+    "bonusCombatStatsJson": {
+      "MAX_HP": 3100,
+      "PHYS_ATK": 590,
+      "PHYS_EVASION": 100,
+      "CRIT_RATE": 20,
+      "ATTACK_SPEED": 1,
+      "BATTLE_MOVE_SPEED": 110
+    }
+  },
+  {
+    "code": "set_lv70_crimsontitan",
+    "namePtBr": "Conjunto do Titã Carmesim Esmagador",
+    "descriptionPtBr": "Armadura colossal forjada em aço sanguíneo para resistir a golpes titânicos e esmagar muralhas. Especializado: Guerreira (HP Máximo, Defesa Física e Golpe Esmagador).",
+    "prefix": "equip_lv70_crimsontitan",
+    "requiredLevel": 70,
+    "rarityTier": "SS",
+    "minPiecesFull": 12,
+    "minPiecesHalf": 6,
+    "halfBonusRatioPct": 40,
+    "fullBonusRatioPct": 100,
+    "bonusCombatStatsJson": {
+      "MAX_HP": 5500,
+      "PHYS_ATK": 530,
+      "PHYS_DEF": 460,
+      "MAG_DEF": 250,
+      "HP_REGEN": 130,
+      "BATTLE_MOVE_SPEED": 55
+    }
+  },
+  {
+    "code": "set_lv70_emeraldgenesis",
+    "namePtBr": "Conjunto da Guardiã da Gênese Esmeralda",
+    "descriptionPtBr": "Mantos tecidos com cipós sagrados e folhas celestiais do jardim primordial. Especializado: Curandeira (Poder de Cura, Reserva de MP e Vitalidade).",
+    "prefix": "equip_lv70_emeraldgenesis",
+    "requiredLevel": 70,
+    "rarityTier": "SS",
+    "minPiecesFull": 12,
+    "minPiecesHalf": 6,
+    "halfBonusRatioPct": 40,
+    "fullBonusRatioPct": 100,
+    "bonusCombatStatsJson": {
+      "MAX_HP": 4100,
+      "MAX_MP": 1400,
+      "HEAL_POWER": 510,
+      "MAG_DEF": 360,
+      "PHYS_DEF": 280,
+      "HP_REGEN": 100,
+      "BATTLE_MOVE_SPEED": 60
+    }
+  },
+  {
+    "code": "set_lv70_windrunner",
+    "namePtBr": "Conjunto da Corredora dos Ventos Ancestrais",
+    "descriptionPtBr": "Traje de caça élfico que concede a agilidade dos tufões e alcance sem precedentes. Especializado: Caçadora (Alcance de Ataque, Velocidade de Movimento e Precisão Crítica).",
+    "prefix": "equip_lv70_windrunner",
+    "requiredLevel": 70,
+    "rarityTier": "SS",
+    "minPiecesFull": 12,
+    "minPiecesHalf": 6,
+    "halfBonusRatioPct": 40,
+    "fullBonusRatioPct": 100,
+    "bonusCombatStatsJson": {
+      "MAX_HP": 3350,
+      "PHYS_ATK": 620,
+      "CRIT_RATE": 19,
+      "CRIT_DMG": 40,
+      "BATTLE_MOVE_SPEED": 105,
+      "ATTACK_RANGE": 60
+    }
+  },
+  {
+    "code": "set_lv70_voideclipse",
+    "namePtBr": "Conjunto da Executora do Eclipse do Vazio",
+    "descriptionPtBr": "Indumentária de seda sombria banhada no vácuo celestial para execuções sem chance de defesa. Especializado: Assassina (Dano Crítico Letal, Penetração Física e Velocidade).",
+    "prefix": "equip_lv70_voideclipse",
+    "requiredLevel": 70,
+    "rarityTier": "SS",
+    "minPiecesFull": 12,
+    "minPiecesHalf": 6,
+    "halfBonusRatioPct": 40,
+    "fullBonusRatioPct": 100,
+    "bonusCombatStatsJson": {
+      "MAX_HP": 3200,
+      "PHYS_ATK": 670,
+      "CRIT_RATE": 23,
+      "CRIT_DMG": 52,
+      "PHYS_PEN": 260,
+      "BATTLE_MOVE_SPEED": 105
+    }
+  },
+  {
+    "code": "set_lv70_royalsymphony",
+    "namePtBr": "Conjunto do Maestro da Sinfonia Real",
+    "descriptionPtBr": "Cota de malha aristocrática bordada a fios de ouro que afina os acordes mais gloriosos no campo. Especializado: Barda (Velocidade de Conjuração, Magia, Cura e Regeneração de MP).",
+    "prefix": "equip_lv70_royalsymphony",
+    "requiredLevel": 70,
+    "rarityTier": "SS",
+    "minPiecesFull": 12,
+    "minPiecesHalf": 6,
+    "halfBonusRatioPct": 40,
+    "fullBonusRatioPct": 100,
+    "bonusCombatStatsJson": {
+      "MAX_HP": 3300,
+      "MAG_ATK": 480,
+      "HEAL_POWER": 400,
+      "ATTACK_SPEED": 0.9,
+      "BATTLE_MOVE_SPEED": 100,
+      "CRIT_RATE": 14,
+      "MP_REGEN": 75
+    }
+  },
+  {
+    "code": "set_lv70_glacialdragoon",
+    "namePtBr": "Conjunto do Lanceiro do Dragão Glacial",
+    "descriptionPtBr": "Armadura de placas de gelo negro e aço reforçado feita para perfurar as mais duras couraças. Especializado: Lanceiro (Penetração Física, Ataque e Defesa Blindada).",
+    "prefix": "equip_lv70_glacialdragoon",
+    "requiredLevel": 70,
+    "rarityTier": "SS",
+    "minPiecesFull": 12,
+    "minPiecesHalf": 6,
+    "halfBonusRatioPct": 40,
+    "fullBonusRatioPct": 100,
+    "bonusCombatStatsJson": {
+      "MAX_HP": 3900,
+      "PHYS_ATK": 610,
+      "PHYS_PEN": 270,
+      "PHYS_DEF": 340,
+      "CRIT_RATE": 16.5,
+      "CRIT_DMG": 34,
+      "BATTLE_MOVE_SPEED": 85
+    }
+  },
+  {
+    "code": "set_lv70_crystalarchon",
+    "namePtBr": "Conjunto do Arconte do Cristal Astral",
+    "descriptionPtBr": "Vestimenta de cristal ressonante pulsando com pura energia taumatúrgica do cosmos. Especializado: Mago (Ataque Mágico Titânico, Penetração Mágica e Poder Crítico).",
+    "prefix": "equip_lv70_crystalarchon",
+    "requiredLevel": 70,
+    "rarityTier": "SS",
+    "minPiecesFull": 12,
+    "minPiecesHalf": 6,
+    "halfBonusRatioPct": 40,
+    "fullBonusRatioPct": 100,
+    "bonusCombatStatsJson": {
+      "MAX_HP": 3000,
+      "MAG_ATK": 760,
+      "MAG_PEN": 265,
+      "MAG_DEF": 250,
+      "CRIT_RATE": 18,
+      "CRIT_DMG": 44,
+      "BATTLE_MOVE_SPEED": 65
+    }
+  },
+  {
+    "code": "set_lv70_divinearchon",
+    "namePtBr": "Conjunto do Arconte Sagrado Imortal",
+    "descriptionPtBr": "Armadura sacra impenetrável consagrada pelos altos coros celestes para proteção inviolável. Especializado: Paladino (Defesa Física/Mágica Dupla, HP Supremo e Cura).",
+    "prefix": "equip_lv70_divinearchon",
+    "requiredLevel": 70,
+    "rarityTier": "SS",
+    "minPiecesFull": 12,
+    "minPiecesHalf": 6,
+    "halfBonusRatioPct": 40,
+    "fullBonusRatioPct": 100,
+    "bonusCombatStatsJson": {
+      "MAX_HP": 5200,
+      "PHYS_DEF": 480,
+      "MAG_DEF": 370,
+      "PHYS_ATK": 400,
+      "MAG_ATK": 400,
+      "HEAL_POWER": 230,
+      "BATTLE_MOVE_SPEED": 55
+    }
+  },
+  {
+    "code": "set_lv70_siegemarksman",
+    "namePtBr": "Conjunto do Franco-Atirador do Cerco Pesado",
+    "descriptionPtBr": "Traje de combate blindado com sistemas de ancoragem balística para disparos perfurantes de longo alcance. Especializado: Atirador (Ataque Físico, Penetração, Alcance e Dano Crítico).",
+    "prefix": "equip_lv70_siegemarksman",
+    "requiredLevel": 70,
+    "rarityTier": "SS",
+    "minPiecesFull": 12,
+    "minPiecesHalf": 6,
+    "halfBonusRatioPct": 40,
+    "fullBonusRatioPct": 100,
+    "bonusCombatStatsJson": {
+      "MAX_HP": 3100,
+      "PHYS_ATK": 735,
+      "PHYS_PEN": 285,
+      "CRIT_RATE": 18.5,
+      "CRIT_DMG": 46,
+      "BATTLE_MOVE_SPEED": 70,
+      "ATTACK_RANGE": 70
+    }
+  },
+  {
+    "code": "set_lv70_bloodlich",
+    "namePtBr": "Conjunto do Grão-Lich do Sangue Carmesim",
+    "descriptionPtBr": "Paramentos funerários vermelhos que canalizam a arte proibida do sangue e roubam o vigor vital. Especializado: Necromante (Ataque Mágico, Penetração, Vitalidade e Drenagem de Sangue).",
+    "prefix": "equip_lv70_bloodlich",
+    "requiredLevel": 70,
+    "rarityTier": "SS",
+    "minPiecesFull": 12,
+    "minPiecesHalf": 6,
+    "halfBonusRatioPct": 40,
+    "fullBonusRatioPct": 100,
+    "bonusCombatStatsJson": {
+      "MAX_HP": 3700,
+      "MAG_ATK": 660,
+      "MAG_PEN": 245,
+      "MAG_DEF": 270,
+      "CRIT_RATE": 16.5,
+      "CRIT_DMG": 38,
+      "HP_REGEN": 90,
+      "BATTLE_MOVE_SPEED": 65
+    }
   }
 ]
