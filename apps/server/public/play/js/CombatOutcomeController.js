@@ -327,8 +327,10 @@ class CombatOutcomeController {
           // 4. Dissolve a escuridão e materializa no santuário
           if (fadeEl) fadeEl.classList.remove('active');
           if (window.LevelUpVfxController) {
-            // Efeito sagrado de renascimento (luz celestial suave)
-            window.LevelUpVfxController.trigger(client.playerX, client.playerY, client.activeChar.level, 0);
+            // Efeito sagrado de renascimento (luz celestial suave no santuário, sem level-up)
+            if (typeof window.LevelUpVfxController.triggerRespawn === 'function') {
+              window.LevelUpVfxController.triggerRespawn(client.playerX, client.playerY);
+            }
           }
           client.showNotification?.('Sua essência foi restaurada no santuário sagrado.', 'info');
         }, 500);

@@ -86,6 +86,36 @@ class LevelUpVfxController {
     } catch {}
   }
 
+  playRespawnSfx() {
+    try {
+      const ctx = this.getAudioContext();
+      if (!ctx) return;
+      if (ctx.state === 'suspended') ctx.resume();
+
+      // Tom límpido e suave de restauração/cura (acorde suave C5 -> G5 em onda senoidal)
+      const freqs = [523.25, 783.99];
+      const now = ctx.currentTime;
+
+      freqs.forEach((freq, idx) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(freq, now + idx * 0.05);
+
+        gain.gain.setValueAtTime(0.001, now + idx * 0.05);
+        gain.gain.exponentialRampToValueAtTime(0.06, now + idx * 0.05 + 0.04);
+        gain.gain.exponentialRampToValueAtTime(0.0001, now + idx * 0.05 + 0.55);
+
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+
+        osc.start(now + idx * 0.05);
+        osc.stop(now + idx * 0.05 + 0.60);
+      });
+    } catch {}
+  }
+
   /**
    * Dispara a celebração visual de Level Up em torno das coordenadas do herói.
    */
@@ -118,6 +148,7 @@ class LevelUpVfxController {
       worldY,
       newLevel,
       statPointsGained,
+      isRespawn: false,
       startTime: now,
       duration,
       sparkles,
@@ -130,6 +161,47 @@ class LevelUpVfxController {
     if (window.PlayHudController?.pulseLevelBadge) {
       window.PlayHudController.pulseLevelBadge(newLevel);
     }
+  }
+
+  /**
+   * Dispara o efeito sagrado de renascimento (luz celestial suave e partículas etéreas no santuário),
+   * SEM acionar level up, sem alterar o badge de nível e sem banner flutuante.
+   */
+  triggerRespawn(worldX, worldY) {
+    const now = performance.now();
+    const duration = 2000; // ms
+
+    // Partículas celestiais suaves em tons ciano e branco
+    const sparkles = [];
+    const count = 20;
+    for (let i = 0; i < count; i++) {
+      const angle = Math.random() * Math.PI * 2;
+      const dist = 6 + Math.random() * 26;
+      const type = Math.random() > 0.4 ? 'cyan' : 'white';
+      sparkles.push({
+        offsetX: Math.cos(angle) * dist,
+        y: (Math.sin(angle) * dist * 0.5),
+        baseVy: -(45 + Math.random() * 55),
+        size: 2.8 + Math.random() * 2.2,
+        type,
+        delay: Math.random() * 300,
+        swayFreq: 2.0 + Math.random() * 2.0,
+        swayAmp: 3 + Math.random() * 5,
+        phase: Math.random() * Math.PI * 2,
+      });
+    }
+
+    const effect = {
+      worldX,
+      worldY,
+      isRespawn: true,
+      startTime: now,
+      duration,
+      sparkles,
+    };
+
+    this.activeEffects.push(effect);
+    this.playRespawnSfx();
   }
 
   /**
@@ -157,36 +229,55 @@ class LevelUpVfxController {
       const floorRy = floorRx * 0.52;
 
       ctx.save();
-      // Duplo fill concêntrico (Zero shadowBlur!)
-      ctx.beginPath();
-      ctx.ellipse(wx, wy, floorRx * 1.35, floorRy * 1.35, 0, 0, Math.PI * 2);
-      ctx.fillStyle = `rgba(245, 158, 11, ${0.20 * floorPulse})`;
-      ctx.fill();
+      if (fx.isRespawn) {
+        // Halo suave de restauração no santuário (Ciano e Branco etéreo)
+        ctx.beginPath();
+        ctx.ellipse(wx, wy, floorRx * 1.25, floorRy * 1.25, 0, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(56, 189, 248, ${0.16 * floorPulse})`;
+        ctx.fill();
 
-      ctx.beginPath();
-      ctx.ellipse(wx, wy, floorRx, floorRy, 0, 0, Math.PI * 2);
-      ctx.fillStyle = `rgba(254, 240, 138, ${0.38 * floorPulse})`;
-      ctx.fill();
+        ctx.beginPath();
+        ctx.ellipse(wx, wy, floorRx * 0.88, floorRy * 0.88, 0, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(224, 242, 254, ${0.28 * floorPulse})`;
+        ctx.fill();
 
-      // Anel rúnico externo com traços pontilhados rotativos
-      const rotAngle = (now / 600) % (Math.PI * 2);
-      ctx.beginPath();
-      ctx.ellipse(wx, wy, floorRx * 0.95, floorRy * 0.95, 0, 0, Math.PI * 2);
-      ctx.strokeStyle = `rgba(253, 224, 71, ${0.85 * floorPulse})`;
-      ctx.lineWidth = 2.2 / zoom;
-      ctx.setLineDash([8 / zoom, 6 / zoom]);
-      ctx.lineDashOffset = -rotAngle * 18;
-      ctx.stroke();
+        ctx.beginPath();
+        ctx.ellipse(wx, wy, floorRx * 0.82, floorRy * 0.82, 0, 0, Math.PI * 2);
+        ctx.strokeStyle = `rgba(186, 230, 253, ${0.72 * floorPulse})`;
+        ctx.lineWidth = 1.6 / zoom;
+        ctx.stroke();
+      } else {
+        // Duplo fill concêntrico (Zero shadowBlur!)
+        ctx.beginPath();
+        ctx.ellipse(wx, wy, floorRx * 1.35, floorRy * 1.35, 0, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(245, 158, 11, ${0.20 * floorPulse})`;
+        ctx.fill();
 
-      // Anel rúnico interno invertido
-      ctx.beginPath();
-      ctx.ellipse(wx, wy, floorRx * 0.65, floorRy * 0.65, 0, 0, Math.PI * 2);
-      ctx.strokeStyle = `rgba(254, 240, 138, ${0.60 * floorPulse})`;
-      ctx.lineWidth = 1.4 / zoom;
-      ctx.setLineDash([5 / zoom, 5 / zoom]);
-      ctx.lineDashOffset = rotAngle * 12;
-      ctx.stroke();
-      ctx.setLineDash([]);
+        ctx.beginPath();
+        ctx.ellipse(wx, wy, floorRx, floorRy, 0, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(254, 240, 138, ${0.38 * floorPulse})`;
+        ctx.fill();
+
+        // Anel rúnico externo com traços pontilhados rotativos
+        const rotAngle = (now / 600) % (Math.PI * 2);
+        ctx.beginPath();
+        ctx.ellipse(wx, wy, floorRx * 0.95, floorRy * 0.95, 0, 0, Math.PI * 2);
+        ctx.strokeStyle = `rgba(253, 224, 71, ${0.85 * floorPulse})`;
+        ctx.lineWidth = 2.2 / zoom;
+        ctx.setLineDash([8 / zoom, 6 / zoom]);
+        ctx.lineDashOffset = -rotAngle * 18;
+        ctx.stroke();
+
+        // Anel rúnico interno invertido
+        ctx.beginPath();
+        ctx.ellipse(wx, wy, floorRx * 0.65, floorRy * 0.65, 0, 0, Math.PI * 2);
+        ctx.strokeStyle = `rgba(254, 240, 138, ${0.60 * floorPulse})`;
+        ctx.lineWidth = 1.4 / zoom;
+        ctx.setLineDash([5 / zoom, 5 / zoom]);
+        ctx.lineDashOffset = rotAngle * 12;
+        ctx.stroke();
+        ctx.setLineDash([]);
+      }
 
       ctx.restore();
     }
@@ -216,17 +307,21 @@ class LevelUpVfxController {
       ctx.save();
 
       // 2.1 Anéis Celestiais Ascendentes (Ondas de Luz Subindo em Espiral)
-      const ringCount = 3;
+      const ringCount = fx.isRespawn ? 2 : 3;
       for (let r = 0; r < ringCount; r++) {
         const ringProg = ((elapsed + r * 350) % 1100) / 1100;
-        const ringY = wy - ringProg * 84;
-        const ringRx = (36 + ringProg * 22);
+        const ringY = wy - ringProg * (fx.isRespawn ? 60 : 84);
+        const ringRx = (32 + ringProg * (fx.isRespawn ? 16 : 22));
         const ringRy = ringRx * 0.44;
         const ringAlpha = (1.0 - ringProg) * floorPulse;
 
         ctx.beginPath();
         ctx.ellipse(wx, ringY, ringRx, ringRy, 0, 0, Math.PI * 2);
-        ctx.strokeStyle = `rgba(254, 240, 138, ${0.75 * ringAlpha})`;
+        if (fx.isRespawn) {
+          ctx.strokeStyle = `rgba(186, 230, 253, ${0.65 * ringAlpha})`;
+        } else {
+          ctx.strokeStyle = `rgba(254, 240, 138, ${0.75 * ringAlpha})`;
+        }
         ctx.lineWidth = 1.8 / zoom;
         ctx.stroke();
       }
@@ -252,7 +347,10 @@ class LevelUpVfxController {
       ctx.globalAlpha = 1.0;
 
       // 2.3 Tipografia Flutuante Heróica ("✦ LEVEL UP! ✦ Nível X")
-      this.drawFloatingBanner(ctx, wx, wy, fx, progress, zoom);
+      // Exclusivo para LEVEL UP legítimo (NUNCA em renascimento no santuário!)
+      if (!fx.isRespawn) {
+        this.drawFloatingBanner(ctx, wx, wy, fx, progress, zoom);
+      }
 
       ctx.restore();
     }
