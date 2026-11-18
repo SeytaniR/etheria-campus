@@ -68,7 +68,11 @@ export interface InventorySlotDto {
 
 export class CharacterInventoryService {
   public static resolveIconUrl(mcreworkIconKey: string | null | undefined): string {
-    const key = mcreworkIconKey || 'assets/items/icons/item_normal_060009.png';
+    const key = (mcreworkIconKey || 'assets/items/icons/item_normal_060009.png').trim();
+    if (key.startsWith('/play/') || key.startsWith('play/')) {
+      return key.startsWith('/') ? key : `/${key}`;
+    }
+    if (key.startsWith('http://') || key.startsWith('https://')) return key;
     return `/api/assets/mcrework/${key.replace(/^\/+/, '')}`;
   }
 

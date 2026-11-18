@@ -155,13 +155,17 @@ export class AdminItemsController {
         }
       }
 
+        const resolvedIconUrl = (iconKey.startsWith('/play/') || iconKey.startsWith('play/'))
+          ? (iconKey.startsWith('/') ? iconKey : `/${iconKey}`)
+          : `${this.mcreworkPagesBaseUrl}/${iconKey.replace(/^\/+/, '')}`;
+
       return {
         id: item.id,
         code: item.code,
         namePtBr: transMap.get(item.nameI18nKey) || item.code,
         descriptionPtBr: transMap.get(item.descriptionI18nKey) || '',
         mcreworkIconKey: item.mcreworkIconKey,
-        iconUrl: `${this.mcreworkPagesBaseUrl}/${iconKey.replace(/^\/+/, '')}`,
+        iconUrl: resolvedIconUrl,
         itemCategory: item.itemCategory,
         rarityTier: item.rarityTier,
         requiredLevel: item.requiredLevel,
