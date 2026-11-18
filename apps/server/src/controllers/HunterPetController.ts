@@ -336,4 +336,96 @@ export class HunterPetController {
 
     return false;
   }
+
+  /**
+   * Retorna todas as regras de custos configuradas para o Admin.
+   */
+  public static async getAdminCostRules(prisma: PrismaClient) {
+    try {
+      const rows = await (prisma as any).hunterPetCostRule.findMany({ orderBy: { id: 'asc' } });
+      if (Array.isArray(rows) && rows.length > 0) {
+        return rows;
+      }
+    } catch (err) {
+      console.warn('[HunterPetController] Falha ao ler hunterPetCostRule:', err);
+    }
+    return Object.entries(DEFAULT_HUNTER_COST_RULES).map(([rarityTier, essenceCost], idx) => ({
+      id: idx + 1,
+      rarityTier,
+      essenceCost,
+      goldCost: 0,
+    }));
+  }
+
+  /**
+   * Salva alterações de custos no banco e exporta para o snapshot canônico.
+   */
+  public static async updateAdminCostRules(
+    prisma: PrismaClient,
+    rules: Array<{ rarityTier: string; essenceCost: number; goldCost?: number }>
+  ) {
+    if (!Array.isArray(rules) || rules.length === 0) {
+      throw new Error('Lista de regras de custos inválida.');
+    }
+
+    const updatedRows = [];
+    for (const r of rules) {
+      const tier = String(r.rarityTier || '').trim().toUpperCase();
+      const essenceCost = Math.max(1, Math.round(Number(r.essenceCost) || 30));
+      const goldCost = Math.max(0, Math.round(Number(r.goldCost) || 0));
+      if (!tier) continue;
+
+      const saved = await (prisma as any).hunterPetCostRule.upsert({
+        where: { rarityTier: tier },
+        update: { essenceCost, goldCost },
+        create: { rarityTier: tier, essenceCost, goldCost },
+      });
+      updatedRows.push(saved);
+    }
+
+    try {
+      const sm = new SnapshotManager(prisma);
+      await sm.exportToDisk();
+    } catch (snapErr) {
+      console.warn('[HunterPetController] Erro ao sincronizar snapshot de custos de caçador:', snapErr);
+    }
+
+    return updatedRows;
+  }
+
+  /**
+   * Roteador de endpoints HTTP de Caçador para a rota `/admin`.
+   */
+  public static async handleAdminHunterRoute(
+    req: http.IncomingMessage,
+    res: http.ServerResponse,
+    pathname: string,
+    method: string,
+    prisma: PrismaClient,
+    sendJson: (res: http.ServerResponse, statusCode: number, data: unknown) => void,
+    readJsonBody: <T = any>(req: http.IncomingMessage) => Promise<T>
+  ): Promise<boolean> {
+    if (pathname === '/api/admin/hunter/costs') {
+      if (method === 'GET') {
+        try {
+          const list = await this.getAdminCostRules(prisma);
+          sendJson(res, 200, list);
+        } catch (err: any) {
+          sendJson(res, 500, { error: err.message || 'Erro ao carregar custos do Caçador.' });
+        }
+        return true;
+      }
+      if (method === 'PUT') {
+        try {
+          const body = await readJsonBody<{ rules: Array<{ rarityTier: string; essenceCost: number; goldCost?: number }> }>(req);
+          const updated = await this.updateAdminCostRules(prisma, body.rules);
+          sendJson(res, 200, { success: true, rules: updated });
+        } catch (err: any) {
+          sendJson(res, 400, { error: err.message || 'Erro ao salvar custos do Caçador.' });
+        }
+        return true;
+      }
+    }
+    return false;
+  }
 }

@@ -173,7 +173,10 @@
               Todo NPC que você criar enquanto edita os mapas (ou por aqui) entra direto nesta tabela com <strong>ID e Chave auto-incrementados (`npc_1`, `npc_2`...)</strong>, mostrando em quais mapas e coordenadas ele está posicionado.
             </p>
           </div>
-          <button class="btn-primary" onclick="AdminApp.openNpcTemplateModal(null)">➕ Novo NPC do mcrework</button>
+          <div style="display:flex; gap:8px; flex-wrap:wrap;">
+            <button type="button" class="btn-secondary" onclick="AdminApp.openHunterCostRulesModal()" style="background:#78350f; border:1px solid #d97706; color:#fef3c7; font-weight:700;">🐾 Custos do Caçador (Pets)</button>
+            <button type="button" class="btn-primary" onclick="AdminApp.openNpcTemplateModal(null)">➕ Novo NPC do mcrework</button>
+          </div>
         </div>
         <div style="overflow-x:auto;">
           <table class="crud-table">

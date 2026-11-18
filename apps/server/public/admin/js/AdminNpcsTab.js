@@ -335,6 +335,106 @@ class AdminNpcsTab {
         alert(`Erro ao excluir NPC: ${err.message}`);
       }
     };
+
+    app.openHunterCostRulesModal = async function () {
+      let modal = document.getElementById('hunterCostRulesModal');
+      if (!modal) {
+        modal = document.createElement('div');
+        modal.id = 'hunterCostRulesModal';
+        modal.className = 'modal-backdrop';
+        modal.innerHTML = `
+          <div class="modal-box" style="max-width:540px; max-height:90dvh; display:flex; flex-direction:column; overflow:hidden;">
+            <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border); padding-bottom:8px;">
+              <h3 style="margin:0; display:flex; align-items:center; gap:8px;">
+                <span>🐾</span> <span>Tabela de Custos do Caçador (Criação de Pets)</span>
+              </h3>
+              <button class="btn-danger" type="button" onclick="document.getElementById('hunterCostRulesModal').style.display='none'">✕ Fechar</button>
+            </div>
+            <p style="font-size:0.78rem; color:var(--text-muted); margin:10px 0 6px 0;">
+              Defina a quantidade de <strong>Essências de Monstros</strong> exigida para invocar um pet de cada raridade. Qualquer alteração aqui é sincronizada em tempo real com a rota <code>/play</code> e salva no snapshot do projeto.
+            </p>
+            <div id="hunterCostRulesList" style="flex:1; overflow-y:auto; display:flex; flex-direction:column; gap:8px; margin:8px 0; padding-right:4px;">
+              <div style="color:var(--text-muted); font-size:0.85rem; padding:12px; text-align:center;">Carregando regras...</div>
+            </div>
+            <div style="display:flex; justify-content:flex-end; gap:8px; border-top:1px solid var(--border); padding-top:10px; margin-top:6px;">
+              <button type="button" class="btn-secondary" onclick="document.getElementById('hunterCostRulesModal').style.display='none'">Cancelar</button>
+              <button type="button" class="btn-primary" onclick="AdminApp.saveHunterCostRules()" style="background:#10b981; border-color:#059669;">💾 Salvar Tabela de Custos</button>
+            </div>
+          </div>
+        `;
+        document.body.appendChild(modal);
+      }
+
+      modal.style.display = 'flex';
+      const container = document.getElementById('hunterCostRulesList');
+      container.innerHTML = '<div style="color:var(--text-muted); font-size:0.85rem; padding:12px; text-align:center;">Carregando regras...</div>';
+
+      try {
+        const rules = await this.api('/api/admin/hunter/costs');
+        const rarityColors = {
+          F: { bg: 'rgba(148, 163, 184, 0.2)', border: '#94a3b8', text: '#cbd5e1' },
+          D: { bg: 'rgba(96, 165, 250, 0.2)', border: '#60a5fa', text: '#93c5fd' },
+          C: { bg: 'rgba(74, 222, 128, 0.2)', border: '#4ade80', text: '#86efac' },
+          B: { bg: 'rgba(168, 85, 247, 0.2)', border: '#a855f7', text: '#d8b4fe' },
+          A: { bg: 'rgba(245, 158, 11, 0.2)', border: '#f59e0b', text: '#fde68a' },
+          S: { bg: 'rgba(239, 68, 68, 0.2)', border: '#ef4444', text: '#fca5a5' },
+          SS: { bg: 'rgba(236, 72, 153, 0.2)', border: '#ec4899', text: '#fbcfe8' },
+        };
+
+        const tiers = ['F', 'D', 'C', 'B', 'A', 'S', 'SS'];
+        container.innerHTML = tiers.map((tier) => {
+          const rule = (Array.isArray(rules) ? rules : []).find((r) => r.rarityTier === tier) || {
+            rarityTier: tier,
+            essenceCost: tier === 'F' ? 30 : tier === 'D' ? 70 : tier === 'C' ? 120 : tier === 'B' ? 300 : tier === 'A' ? 700 : tier === 'S' ? 1600 : 3500,
+            goldCost: 0,
+          };
+          const colors = rarityColors[tier] || { bg: '#334155', border: '#64748b', text: '#fff' };
+          return `
+            <div style="display:flex; align-items:center; justify-content:space-between; gap:10px; background:#0f172a; border:1px solid var(--border); padding:8px 12px; border-radius:8px;">
+              <div style="display:flex; align-items:center; gap:8px;">
+                <span style="font-weight:900; font-size:0.85rem; padding:3px 10px; border-radius:6px; background:${colors.bg}; border:1px solid ${colors.border}; color:${colors.text};">
+                  Rank ${tier}
+                </span>
+                <span style="font-size:0.75rem; color:var(--text-muted);">Criação de Pet</span>
+              </div>
+              <div style="display:flex; align-items:center; gap:6px;">
+                <label style="font-size:0.72rem; color:var(--text-muted); margin:0;">Essências:</label>
+                <input type="number" id="hunterCost_${tier}" value="${rule.essenceCost}" min="1" max="99999" step="1"
+                       style="width:90px; padding:4px 8px; font-weight:700; color:#38bdf8; background:#020617; border:1px solid var(--border); border-radius:6px; text-align:right;" />
+              </div>
+            </div>
+          `;
+        }).join('');
+      } catch (err) {
+        container.innerHTML = `<div style="color:#f87171; padding:12px; text-align:center;">Erro ao carregar regras: ${err.message}</div>`;
+      }
+    };
+
+    app.saveHunterCostRules = async function () {
+      const tiers = ['F', 'D', 'C', 'B', 'A', 'S', 'SS'];
+      const payload = [];
+
+      for (const tier of tiers) {
+        const inp = document.getElementById(`hunterCost_${tier}`);
+        const val = inp ? Number(inp.value) : 0;
+        if (!val || val <= 0) {
+          alert(`O custo de essências para o Rank ${tier} deve ser no mínimo 1.`);
+          return;
+        }
+        payload.push({ rarityTier: tier, essenceCost: val, goldCost: 0 });
+      }
+
+      try {
+        await this.api('/api/admin/hunter/costs', {
+          method: 'PUT',
+          body: JSON.stringify({ rules: payload }),
+        });
+        alert('✅ Tabela de Custos do Caçador atualizada e sincronizada com sucesso!');
+        document.getElementById('hunterCostRulesModal').style.display = 'none';
+      } catch (err) {
+        alert(`Erro ao salvar regras de custo: ${err.message}`);
+      }
+    };
   }
 }
 

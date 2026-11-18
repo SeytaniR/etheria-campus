@@ -24,6 +24,7 @@ import type { AdminQuestsController } from '../controllers/AdminQuestsController
 import type { AdminAttributesController } from '../controllers/AdminAttributesController.js';
 import type { AdminExperienceController } from '../controllers/AdminExperienceController.js';
 import type { AdminWorldMapsController } from '../controllers/AdminWorldMapsController.js';
+import { HunterPetController } from '../controllers/HunterPetController.js';
 
 export interface AdminRouterDeps {
   prisma: PrismaClient;
@@ -681,6 +682,18 @@ export class AdminRouter {
       if (this.enforceTablePermission(res, session, 'ATTRIBUTES', 'READ_WRITE')) {
         this.deps.sendJson(res, 200, await this.deps.experienceController.updateSingleLevel(Number(levelMatch[1]), await this.deps.readJsonBody(req)));
       }
+      return true;
+    }
+
+    if (await HunterPetController.handleAdminHunterRoute(
+      req,
+      res,
+      pathname,
+      method,
+      this.deps.prisma,
+      this.deps.sendJson,
+      this.deps.readJsonBody
+    )) {
       return true;
     }
 
