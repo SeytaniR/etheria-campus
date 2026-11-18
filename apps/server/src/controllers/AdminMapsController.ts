@@ -363,6 +363,9 @@ export class AdminMapsController {
     let finalNamePtBr = (dto.namePtBr ?? '').trim();
     let finalDescPtBr = (dto.descriptionPtBr ?? '').trim();
 
+    await SnapshotManager.syncTableSequence(this.prisma, 'i18n_translations');
+    await SnapshotManager.syncTableSequence(this.prisma, 'class_templates');
+
     await this.prisma.$transaction(async (tx) => {
       if (targetId) {
         const autoCode = `class_${targetId}`;
@@ -518,6 +521,9 @@ export class AdminMapsController {
     let savedNpc: any;
     let finalNamePtBr = (dto.namePtBr ?? '').trim();
 
+    await SnapshotManager.syncTableSequence(this.prisma, 'i18n_translations');
+    await SnapshotManager.syncTableSequence(this.prisma, 'npc_templates');
+
     await this.prisma.$transaction(async (tx) => {
       if (targetId) {
         const autoCode = `npc_${targetId}`;
@@ -638,6 +644,11 @@ export class AdminMapsController {
     };
 
     let savedMapId = id;
+
+    await SnapshotManager.syncTableSequence(this.prisma, 'i18n_translations');
+    await SnapshotManager.syncTableSequence(this.prisma, 'maps');
+    await SnapshotManager.syncTableSequence(this.prisma, 'map_portals');
+    await SnapshotManager.syncTableSequence(this.prisma, 'map_npcs');
 
     await this.prisma.$transaction(async (tx) => {
       if (savedMapId) {
@@ -857,6 +868,7 @@ export class AdminMapsController {
         include: { npcTemplate: true },
       });
     } else {
+      await SnapshotManager.syncTableSequence(this.prisma, 'map_npcs');
       savedNpc = await this.prisma.mapNpc.create({
         data: {
           mapId,

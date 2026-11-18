@@ -328,6 +328,9 @@ export class AdminItemsController {
       throw new Error('A categoria do item é obrigatória.');
     }
 
+    await SnapshotManager.syncTableSequence(this.prisma, 'i18n_translations');
+    await SnapshotManager.syncTableSequence(this.prisma, 'item_templates');
+
     const cleanName = dto.namePtBr.trim();
     const code = await this.resolveUniqueItemCode(cleanName, dto.code);
     const nameI18nKey = `item.${code}.name`;

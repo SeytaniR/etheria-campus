@@ -203,12 +203,19 @@ export class AdminSkillsController {
    * Cria um novo Buff ou Debuff na tabela `status_effect_templates`.
    */
   public async createStatusEffectTemplate(dto: StatusEffectDto) {
+    await SnapshotManager.syncTableSequence(this.prisma, 'i18n_translations');
+    await SnapshotManager.syncTableSequence(this.prisma, 'status_effect_templates');
+
     const maxItem = await this.prisma.statusEffectTemplate.findFirst({
       orderBy: { id: 'desc' },
       select: { id: true },
     });
-    const nextId = (maxItem?.id ?? 0) + 1;
-    const code = `status_${nextId}`;
+    let nextId = (maxItem?.id ?? 0) + 1;
+    let code = `status_${nextId}`;
+    while (await this.prisma.statusEffectTemplate.findUnique({ where: { code }, select: { id: true } })) {
+      nextId++;
+      code = `status_${nextId}`;
+    }
     const nameKey = `status.${code}.name`;
     const descKey = `status.${code}.description`;
 
@@ -333,7 +340,15 @@ export class AdminSkillsController {
   }
 
   public async deleteStatusEffectTemplate(id: number) {
+    const existing = await this.prisma.statusEffectTemplate.findUnique({ where: { id } });
+    if (!existing) {
+      throw new Error(`Buff/Debuff #${id} não encontrado.`);
+    }
     const deleted = await this.prisma.statusEffectTemplate.delete({ where: { id } });
+    const keysToDelete = [existing.nameI18nKey, existing.descriptionI18nKey].filter(Boolean) as string[];
+    if (keysToDelete.length > 0) {
+      await this.prisma.i18nTranslation.deleteMany({ where: { key: { in: keysToDelete } } });
+    }
     await this.snapshotManager.exportToDisk();
     return deleted;
   }
@@ -369,12 +384,19 @@ export class AdminSkillsController {
    * Cria uma nova Habilidade na tabela `skill_templates`.
    */
   public async createSkillTemplate(dto: SkillTemplateDto) {
+    await SnapshotManager.syncTableSequence(this.prisma, 'i18n_translations');
+    await SnapshotManager.syncTableSequence(this.prisma, 'skill_templates');
+
     const maxItem = await this.prisma.skillTemplate.findFirst({
       orderBy: { id: 'desc' },
       select: { id: true },
     });
-    const nextId = (maxItem?.id ?? 0) + 1;
-    const code = `skill_${nextId}`;
+    let nextId = (maxItem?.id ?? 0) + 1;
+    let code = `skill_${nextId}`;
+    while (await this.prisma.skillTemplate.findUnique({ where: { code }, select: { id: true } })) {
+      nextId++;
+      code = `skill_${nextId}`;
+    }
     const nameKey = `skill.${code}.name`;
     const descKey = `skill.${code}.description`;
 
@@ -500,7 +522,15 @@ export class AdminSkillsController {
   }
 
   public async deleteSkillTemplate(id: number) {
+    const existing = await this.prisma.skillTemplate.findUnique({ where: { id } });
+    if (!existing) {
+      throw new Error(`Habilidade #${id} não encontrada.`);
+    }
     const deleted = await this.prisma.skillTemplate.delete({ where: { id } });
+    const keysToDelete = [existing.nameI18nKey, existing.descriptionI18nKey].filter(Boolean) as string[];
+    if (keysToDelete.length > 0) {
+      await this.prisma.i18nTranslation.deleteMany({ where: { key: { in: keysToDelete } } });
+    }
     await this.snapshotManager.exportToDisk();
     return deleted;
   }

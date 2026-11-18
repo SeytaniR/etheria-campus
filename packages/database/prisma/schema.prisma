@@ -470,7 +470,7 @@ model ItemTemplate {
   updatedAt             DateTime                 @default(now()) @updatedAt @map("updated_at")
 
   equipmentSlot         EquipmentSlot?           @relation(fields: [equipmentSlotCode], references: [code])
-  equipmentSet          EquipmentSet?            @relation(fields: [equipmentSetId], references: [id])
+  equipmentSet          EquipmentSet?            @relation(fields: [equipmentSetId], references: [id], onDelete: SetNull)
   inventoryStacks       CharacterInventoryItem[]
 
   @@map("item_templates")
@@ -582,7 +582,7 @@ model CharacterPet {
   equippedItemsJson   Json             @default("{}") @map("equipped_items_json") /// Mapeia PET_EQUIP_1..6 -> ID do item
 
   character           PlayerCharacter  @relation(fields: [characterId], references: [id], onDelete: Cascade)
-  monsterTemplate     MonsterTemplate? @relation(fields: [monsterTemplateId], references: [id])
+  monsterTemplate     MonsterTemplate? @relation(fields: [monsterTemplateId], references: [id], onDelete: SetNull)
 
   @@map("character_pets")
 }

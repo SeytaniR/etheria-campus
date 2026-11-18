@@ -909,6 +909,12 @@ export async function seedBatchThreeIntoDatabase(prisma: PrismaClient) {
     }
   }
 
+  for (const tbl of ['i18n_translations', 'skill_templates', 'monster_templates', 'monster_biomes']) {
+    await prisma.$executeRawUnsafe(
+      `SELECT setval(pg_get_serial_sequence('public."${tbl}"', 'id'), COALESCE((SELECT MAX(id) FROM public."${tbl}"), 0) + 1, false);`
+    ).catch(() => {});
+  }
+
   console.log('✅ Terceiro lote de 10 monstros, habilidades e biomas inseridos com sucesso!');
 }
 

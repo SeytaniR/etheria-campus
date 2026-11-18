@@ -441,6 +441,7 @@ export class AdminUiLayoutsController {
 
   public async seedInitialUiLayoutsIfEmpty(): Promise<void> {
     try {
+      await SnapshotManager.syncTableSequence(this.prisma, 'client_ui_layout_templates');
       const defaults = AdminUiLayoutsController.getDefaultSeeds();
       let createdAny = false;
 
@@ -518,6 +519,12 @@ export class AdminUiLayoutsController {
 
     if (!code || !namePtBr || !domSelector) {
       throw new Error('Código, Nome em Português e Seletor DOM são obrigatórios.');
+    }
+
+    await SnapshotManager.syncTableSequence(this.prisma, 'client_ui_layout_templates');
+    const existingCode = await this.prisma.clientUiLayoutTemplate.findUnique({ where: { code } });
+    if (existingCode) {
+      throw new Error(`Já existe um layout de UI com o código "${code}".`);
     }
 
     const validCategories = ['EXPLORE_HUD', 'COMBAT_HUD', 'MODAL', 'INTERFACE'];

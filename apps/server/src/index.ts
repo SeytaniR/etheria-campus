@@ -401,16 +401,19 @@ export class EtheriaServerApp {
     });
     server.listen(port, '0.0.0.0', () => {
       console.log(`🚀 [Etheria Campus Server] Rodando em http://localhost:${port}/admin`);
-      void this.prewarmMapImages();
-      void this.monstersController.ensureInitialMonsters();
-      void this.skillsController.ensureInitialSkillsAndBuffs();
-      void this.questsController.ensureInitialQuests();
-      void this.uiLayoutsController.seedInitialUiLayoutsIfEmpty();
-      void this.equipmentsController.seedInitialEquipmentsIfEmpty();
-      void this.itemsController.seedInitialItemsIfEmpty();
-      void this.mountsController.seedInitialFlyingMountsIfEmpty();
-      void this.experienceController.seedInitialLevelExperienceIfEmpty();
-      void this.worldMapsController.seedInitialWorldMapsIfEmpty();
+      void (async () => {
+        await SnapshotManager.syncAllSequences(this.prisma);
+        void this.prewarmMapImages();
+        void this.monstersController.ensureInitialMonsters();
+        void this.skillsController.ensureInitialSkillsAndBuffs();
+        void this.questsController.ensureInitialQuests();
+        void this.uiLayoutsController.seedInitialUiLayoutsIfEmpty();
+        void this.equipmentsController.seedInitialEquipmentsIfEmpty();
+        void this.itemsController.seedInitialItemsIfEmpty();
+        void this.mountsController.seedInitialFlyingMountsIfEmpty();
+        void this.experienceController.seedInitialLevelExperienceIfEmpty();
+        void this.worldMapsController.seedInitialWorldMapsIfEmpty();
+      })();
     });
     return server;
   }

@@ -85,6 +85,8 @@ export class AdminAttributesController {
       throw new Error('Atributo Base e Atributo de Combate são obrigatórios.');
     }
 
+    await SnapshotManager.syncTableSequence(this.prisma, 'attribute_conversions');
+
     const updated = await this.prisma.attributeConversion.upsert({
       where: {
         baseAttributeCode_combatAttributeCode: {
@@ -113,6 +115,8 @@ export class AdminAttributesController {
     if (!Array.isArray(items)) {
       throw new Error('Lista de conversões inválida.');
     }
+
+    await SnapshotManager.syncTableSequence(this.prisma, 'attribute_conversions');
 
     await this.prisma.$transaction(async (tx) => {
       for (const item of items) {

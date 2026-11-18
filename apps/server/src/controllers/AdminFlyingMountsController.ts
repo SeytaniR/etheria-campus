@@ -146,16 +146,21 @@ export class AdminFlyingMountsController {
       throw new Error('O modelo visual da montaria (mcrework) é obrigatório.');
     }
 
+    await SnapshotManager.syncTableSequence(this.prisma, 'i18n_translations');
+    await SnapshotManager.syncTableSequence(this.prisma, 'flying_mount_templates');
+
     const cleanName = dto.namePtBr.trim();
     const slug = cleanName
       .toLowerCase()
       .normalize('NFD')
       .replace(/[\u0300-\u036f]/g, '')
       .replace(/[^a-z0-9]+/g, '_')
-      .replace(/^_+|_+$/g, '');
+      .replace(/^_+|_+$/g, '') || 'mount';
 
-    const randSuffix = Math.random().toString(36).substring(2, 7);
-    const code = dto.code && dto.code.trim() ? dto.code.trim() : `mount_${slug}_${randSuffix}`;
+    let code = dto.code && dto.code.trim() ? dto.code.trim() : `mount_${slug}_${Math.random().toString(36).substring(2, 7)}`;
+    while (await this.prisma.flyingMountTemplate.findUnique({ where: { code }, select: { id: true } })) {
+      code = `mount_${slug}_${Math.random().toString(36).substring(2, 7)}`;
+    }
 
     const nameI18nKey = `mount.${code}.name`;
     const descI18nKey = `mount.${code}.desc`;

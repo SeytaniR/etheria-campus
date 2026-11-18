@@ -187,13 +187,18 @@ export class AdminEquipmentsController {
 
     return items.map((item) => {
       const iconKey = item.mcreworkIconKey || 'assets/equipment/icons/equip_normal_200001.png';
+      const resolvedIconUrl = (iconKey.startsWith('/play/') || iconKey.startsWith('play/'))
+        ? (iconKey.startsWith('/') ? iconKey : `/${iconKey}`)
+        : (iconKey.startsWith('http://') || iconKey.startsWith('https://'))
+        ? iconKey
+        : `${this.mcreworkPagesBaseUrl}/${iconKey.replace(/^\/+/, '')}`;
       return {
         id: item.id,
         code: item.code,
         namePtBr: transMap.get(item.nameI18nKey) || item.code,
         descriptionPtBr: transMap.get(item.descriptionI18nKey) || '',
         mcreworkIconKey: item.mcreworkIconKey,
-        iconUrl: `${this.mcreworkPagesBaseUrl}/${iconKey.replace(/^\/+/, '')}`,
+        iconUrl: resolvedIconUrl,
         itemCategory: item.itemCategory,
         equipmentSlotCode: item.equipmentSlotCode,
         equipmentSetId: item.equipmentSetId,
@@ -226,16 +231,21 @@ export class AdminEquipmentsController {
       throw new Error('O slot de equipamento é obrigatório.');
     }
 
+    await SnapshotManager.syncTableSequence(this.prisma, 'i18n_translations');
+    await SnapshotManager.syncTableSequence(this.prisma, 'item_templates');
+
     const cleanName = dto.namePtBr.trim();
     const slug = cleanName
       .toLowerCase()
       .normalize('NFD')
       .replace(/[\u0300-\u036f]/g, '')
       .replace(/[^a-z0-9]+/g, '_')
-      .replace(/^_+|_+$/g, '');
+      .replace(/^_+|_+$/g, '') || 'equip';
 
-    const randSuffix = Math.random().toString(36).substring(2, 7);
-    const code = dto.code && dto.code.trim() ? dto.code.trim() : `equip_${slug}_${randSuffix}`;
+    let code = dto.code && dto.code.trim() ? dto.code.trim() : `equip_${slug}_${Math.random().toString(36).substring(2, 7)}`;
+    while (await this.prisma.itemTemplate.findUnique({ where: { code }, select: { id: true } })) {
+      code = `equip_${slug}_${Math.random().toString(36).substring(2, 7)}`;
+    }
 
     const nameI18nKey = `item.${code}.name`;
     const descI18nKey = `item.${code}.desc`;
@@ -269,9 +279,9 @@ export class AdminEquipmentsController {
         equipmentSetId: dto.equipmentSetId ? Number(dto.equipmentSetId) : null,
         rarityTier: dto.rarityTier || 'COMMON',
         requiredLevel: dto.requiredLevel ?? 1,
-        priceGold: 0,
+        priceGold: dto.priceGold !== undefined ? Math.max(0, Number(dto.priceGold) || 0) : 0,
         reqClassCodesJson: dto.reqClassCodesJson || [],
-        baseStatBonusesJson: {},
+        baseStatBonusesJson: dto.baseStatBonusesJson || {},
         combatStatBonusesJson: dto.combatStatBonusesJson || {},
         specialEffectJson: dto.specialEffectJson || {},
         isActive: dto.isActive !== undefined ? dto.isActive : true,

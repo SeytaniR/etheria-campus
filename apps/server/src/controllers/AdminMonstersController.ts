@@ -212,6 +212,26 @@ export class AdminMonstersController {
     return valid.includes(upper) ? upper : 'F';
   }
 
+  private normalizeRaceCode(raw?: string): string {
+    const valid = ['HUMAN', 'PLANT', 'DRAGON', 'REPTILIAN', 'AQUATIC', 'ROBOTIC', 'CELESTIAL', 'DEMON', 'FAIRY', 'SPIRIT', 'BEAST'];
+    const aliases: Record<string, string> = {
+      HUMANOID: 'HUMAN',
+      UNDEAD: 'SPIRIT',
+      ELEMENTAL: 'SPIRIT',
+      GOLEM: 'ROBOTIC',
+      INSECT: 'BEAST',
+    };
+    const upper = String(raw || 'BEAST').trim().toUpperCase();
+    if (valid.includes(upper)) return upper;
+    return aliases[upper] || 'BEAST';
+  }
+
+  private normalizeElementCode(raw?: string): string {
+    const valid = ['FIRE', 'EARTH', 'AIR', 'WATER', 'NEUTRAL'];
+    const upper = String(raw || 'NEUTRAL').trim().toUpperCase();
+    return valid.includes(upper) ? upper : 'NEUTRAL';
+  }
+
   /**
    * Cria um novo template de monstro com ID auto-incremental e chaves i18n automáticas.
    */
@@ -220,12 +240,19 @@ export class AdminMonstersController {
       throw new Error('A chave do monstro no mcrework é obrigatória.');
     }
 
+    await SnapshotManager.syncTableSequence(this.prisma, 'i18n_translations');
+    await SnapshotManager.syncTableSequence(this.prisma, 'monster_templates');
+
     const maxTemplate = await this.prisma.monsterTemplate.findFirst({
       orderBy: { id: 'desc' },
       select: { id: true },
     });
-    const nextId = (maxTemplate?.id ?? 0) + 1;
-    const code = `monster_${nextId}`;
+    let nextId = (maxTemplate?.id ?? 0) + 1;
+    let code = `monster_${nextId}`;
+    while (await this.prisma.monsterTemplate.findUnique({ where: { code }, select: { id: true } })) {
+      nextId++;
+      code = `monster_${nextId}`;
+    }
     const nameKey = `monster.${code}.name`;
     const descKey = `monster.${code}.description`;
 
@@ -261,8 +288,8 @@ export class AdminMonstersController {
         groundOffsetY: Number(dto.groundOffsetY) || 0,
         shadowOffsetX: Number(dto.shadowOffsetX) || 0,
         shadowOffsetY: Number(dto.shadowOffsetY) || 0,
-        raceCode: dto.raceCode || 'BEAST',
-        fixedElementCode: dto.fixedElementCode || 'NEUTRAL',
+        raceCode: this.normalizeRaceCode(dto.raceCode),
+        fixedElementCode: this.normalizeElementCode(dto.fixedElementCode),
         rarityTier: this.normalizeRarityTier(dto.rarityTier),
         combatStyle,
         attackRange,
@@ -292,11 +319,11 @@ export class AdminMonstersController {
       },
     });
 
+    await MonsterMetaQuestService.syncAllMetaQuests(this.prisma);
     await this.snapshotManager.exportToDisk();
     if (this.assetMirrorService && created.mcreworkMonsterKey) {
       await this.assetMirrorService.mirrorMonsterAssets(created.mcreworkMonsterKey);
     }
-    await MonsterMetaQuestService.syncAllMetaQuests(this.prisma);
     return created;
   }
 
@@ -342,8 +369,8 @@ export class AdminMonstersController {
         groundOffsetY: dto.groundOffsetY !== undefined ? Number(dto.groundOffsetY) : existing.groundOffsetY,
         shadowOffsetX: dto.shadowOffsetX !== undefined ? Number(dto.shadowOffsetX) : existing.shadowOffsetX,
         shadowOffsetY: dto.shadowOffsetY !== undefined ? Number(dto.shadowOffsetY) : existing.shadowOffsetY,
-        raceCode: dto.raceCode || existing.raceCode,
-        fixedElementCode: dto.fixedElementCode || existing.fixedElementCode,
+        raceCode: dto.raceCode ? this.normalizeRaceCode(dto.raceCode) : existing.raceCode,
+        fixedElementCode: dto.fixedElementCode ? this.normalizeElementCode(dto.fixedElementCode) : existing.fixedElementCode,
         rarityTier: dto.rarityTier ? this.normalizeRarityTier(dto.rarityTier) : existing.rarityTier,
         combatStyle: dto.combatStyle ? (dto.combatStyle === 'RANGED' ? 'RANGED' : 'MELEE') : existing.combatStyle,
         attackRange: dto.attackRange !== undefined ? Math.max(10, Math.min(1000, Number(dto.attackRange))) : existing.attackRange,
@@ -359,11 +386,11 @@ export class AdminMonstersController {
       },
     });
 
+    await MonsterMetaQuestService.syncAllMetaQuests(this.prisma);
     await this.snapshotManager.exportToDisk();
     if (this.assetMirrorService && updated.mcreworkMonsterKey) {
       await this.assetMirrorService.mirrorMonsterAssets(updated.mcreworkMonsterKey);
     }
-    await MonsterMetaQuestService.syncAllMetaQuests(this.prisma);
     return updated;
   }
 
@@ -371,9 +398,24 @@ export class AdminMonstersController {
    * Remove um template de monstro do banco de dados.
    */
   public async deleteMonsterTemplate(id: number) {
+    const existing = await this.prisma.monsterTemplate.findUnique({ where: { id } });
+    if (!existing) {
+      throw new Error(`Template de monstro #${id} não encontrado.`);
+    }
+    await this.prisma.characterPet.updateMany({
+      where: { monsterTemplateId: id },
+      data: { monsterTemplateId: null },
+    });
+    await this.prisma.monsterBiome.deleteMany({
+      where: { monsterTemplateId: id },
+    });
     const deleted = await this.prisma.monsterTemplate.delete({
       where: { id },
     });
+    const keysToDelete = [existing.nameI18nKey, existing.descriptionI18nKey].filter(Boolean) as string[];
+    if (keysToDelete.length > 0) {
+      await this.prisma.i18nTranslation.deleteMany({ where: { key: { in: keysToDelete } } });
+    }
     await MonsterMetaQuestService.syncAllMetaQuests(this.prisma);
     await this.snapshotManager.exportToDisk();
     return deleted;

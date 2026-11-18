@@ -12,7 +12,7 @@
  *   - Auto-aceitação automática para personagens desde a criação, sem necessidade de NPC.
  */
 
-import { PrismaClient } from '@etheria/database';
+import { PrismaClient, SnapshotManager } from '@etheria/database';
 import type { MetaQuestConfigDto, MetaQuestStageDto } from './MetaQuestProceduralEngine.js';
 
 export class MonsterMetaQuestService {
@@ -37,6 +37,9 @@ export class MonsterMetaQuestService {
    * Garante a existência do item 'Medalha de Caçador' (não comercializável) no banco de dados.
    */
   public static async getOrSeedHunterMedal(prisma: any): Promise<any> {
+    await SnapshotManager.syncTableSequence(prisma, 'i18n_translations');
+    await SnapshotManager.syncTableSequence(prisma, 'item_templates');
+
     let item = await prisma.itemTemplate.findUnique({
       where: { code: this.HUNTER_MEDAL_CODE },
     });
@@ -122,6 +125,8 @@ export class MonsterMetaQuestService {
    * Sincroniza proceduralmente todas as Quests Meta para monstros e tipos de monstros.
    */
   public static async syncAllMetaQuests(prisma: any): Promise<{ mobQuestsCount: number; raceQuestsCount: number }> {
+    await SnapshotManager.syncTableSequence(prisma, 'i18n_translations');
+    await SnapshotManager.syncTableSequence(prisma, 'quest_templates');
     const medal = await this.getOrSeedHunterMedal(prisma);
     const stages = this.buildProceduralStages(medal.id);
 
@@ -339,6 +344,8 @@ export class MonsterMetaQuestService {
     const missing = metaQuests.filter((q: any) => !enrolledSet.has(q.id));
 
     if (missing.length === 0) return 0;
+
+    await SnapshotManager.syncTableSequence(prisma, 'character_quest_progress');
 
     for (const q of missing) {
       await prisma.characterQuestProgress.upsert({

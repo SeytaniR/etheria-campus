@@ -45,6 +45,7 @@ export class AdminWorldMapsController {
    */
   public async seedInitialWorldMapsIfEmpty(): Promise<void> {
     try {
+      await SnapshotManager.syncTableSequence(this.prisma, 'world_map_templates');
       for (const seed of INITIAL_WORLD_MAP_SEEDS) {
         await this.prisma.worldMapTemplate.upsert({
           where: { code: seed.code },

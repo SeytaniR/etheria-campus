@@ -145,16 +145,21 @@ export class AdminEquipmentSetsController {
       throw new Error('O nome do conjunto em português é obrigatório.');
     }
 
+    await SnapshotManager.syncTableSequence(this.prisma, 'i18n_translations');
+    await SnapshotManager.syncTableSequence(this.prisma, 'equipment_sets');
+
     const cleanName = dto.namePtBr.trim();
     const slug = cleanName
       .toLowerCase()
       .normalize('NFD')
       .replace(/[\u0300-\u036f]/g, '')
       .replace(/[^a-z0-9]+/g, '_')
-      .replace(/^_+|_+$/g, '');
+      .replace(/^_+|_+$/g, '') || 'set';
 
-    const randSuffix = Math.random().toString(36).substring(2, 6);
-    const code = dto.code && dto.code.trim() ? dto.code.trim() : `set_${slug}_${randSuffix}`;
+    let code = dto.code && dto.code.trim() ? dto.code.trim() : `set_${slug}_${Math.random().toString(36).substring(2, 6)}`;
+    while (await (this.prisma as any).equipmentSet.findUnique({ where: { code }, select: { id: true } })) {
+      code = `set_${slug}_${Math.random().toString(36).substring(2, 6)}`;
+    }
 
     const nameI18nKey = `equipment_set.${code}.name`;
     const descI18nKey = `equipment_set.${code}.desc`;

@@ -201,17 +201,17 @@ class AdminMonstersTab {
 
     app.populateMonsterDropdowns = function () {
       const fallbackRaces = [
-        { code: 'BEAST', namePtBr: 'Besta / Fera' },
+        { code: 'BEAST', namePtBr: 'Selvagem / Fera' },
         { code: 'PLANT', namePtBr: 'Planta / Flora' },
-        { code: 'AQUATIC', namePtBr: 'Aquático / Anfíbio' },
-        { code: 'INSECT', namePtBr: 'Inseto / Aracnídeo' },
         { code: 'DRAGON', namePtBr: 'Dragão / Dracônico' },
-        { code: 'UNDEAD', namePtBr: 'Morto-Vivo / Espectro' },
+        { code: 'REPTILIAN', namePtBr: 'Reptiliano' },
+        { code: 'AQUATIC', namePtBr: 'Aquático / Anfíbio' },
+        { code: 'ROBOTIC', namePtBr: 'Robótico / Constructo' },
+        { code: 'CELESTIAL', namePtBr: 'Celestial / Divino' },
         { code: 'DEMON', namePtBr: 'Demônio / Abissal' },
-        { code: 'ELEMENTAL', namePtBr: 'Elemental Puro' },
-        { code: 'GOLEM', namePtBr: 'Golem / Constructo' },
-        { code: 'HUMANOID', namePtBr: 'Humanoide / Guerreiro' },
-        { code: 'CELESTIAL', namePtBr: 'Celestial / Místico' },
+        { code: 'FAIRY', namePtBr: 'Fada / Élfico' },
+        { code: 'SPIRIT', namePtBr: 'Espírito / Espectral' },
+        { code: 'HUMAN', namePtBr: 'Humano' },
       ];
       const racesList = Array.isArray(this.races) && this.races.length > 0 ? this.races : fallbackRaces;
       const raceSelect = document.getElementById('monsterRaceSelect');

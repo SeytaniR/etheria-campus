@@ -396,7 +396,7 @@ export class AdminQuestsController {
       rewardsJson = {
         exp: firstStage?.rewardExp || 0,
         gold: firstStage?.rewardGold || 0,
-        statPoints: 0,
+        statPoints: firstStage?.rewardStatPoints ?? 1,
         rewardItemTemplateId: firstStage?.rewardItemTemplateId || null,
         rewardItemQuantity: firstStage?.rewardItemQuantity || 0,
         triggerReborn: Boolean(firstStage?.triggerReborn),
@@ -409,6 +409,9 @@ export class AdminQuestsController {
     const finalOffer = (dto.dialogueOfferPtBr ?? '').trim();
     const finalActive = (dto.dialogueActivePtBr ?? '').trim();
     const finalComplete = (dto.dialogueCompletePtBr ?? '').trim();
+
+    await SnapshotManager.syncTableSequence(this.prisma, 'i18n_translations');
+    await SnapshotManager.syncTableSequence(this.prisma, 'quest_templates');
 
     let saved: any;
 
@@ -431,9 +434,10 @@ export class AdminQuestsController {
       }
 
       let targetId = explicitId;
+      let existingQuest = targetId ? await tx.questTemplate.findUnique({ where: { id: targetId } }) : null;
 
       if (!targetId) {
-        const tempCode = `quest_pending_${Date.now()}`;
+        const tempCode = `quest_pending_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`;
         const created = await tx.questTemplate.create({
           data: {
             code: tempCode,
@@ -460,12 +464,24 @@ export class AdminQuestsController {
         targetId = created.id;
       }
 
-      const autoCode = `quest_${targetId}`;
-      const titleKey = `quest.${autoCode}.title`;
-      const descKey = `quest.${autoCode}.description`;
-      const offerKey = `quest.${autoCode}.dialogue_offer`;
-      const activeKey = `quest.${autoCode}.dialogue_active`;
-      const completeKey = `quest.${autoCode}.dialogue_complete`;
+      let autoCode = existingQuest?.code && !existingQuest.code.startsWith('quest_pending_')
+        ? existingQuest.code
+        : `quest_${targetId}`;
+      let codeNum = Number(targetId) || 1;
+      while (true) {
+        const collision = await tx.questTemplate.findUnique({ where: { code: autoCode }, select: { id: true } });
+        if (!collision || collision.id === targetId) break;
+        codeNum++;
+        autoCode = `quest_${codeNum}`;
+      }
+
+      const titleKey = existingQuest?.titleI18nKey && !existingQuest.titleI18nKey.includes('quest_pending_')
+        ? existingQuest.titleI18nKey
+        : `quest.${autoCode}.title`;
+      const descKey = existingQuest?.descriptionI18nKey || `quest.${autoCode}.description`;
+      const offerKey = existingQuest?.dialogueOfferI18nKey || `quest.${autoCode}.dialogue_offer`;
+      const activeKey = existingQuest?.dialogueActiveI18nKey || `quest.${autoCode}.dialogue_active`;
+      const completeKey = existingQuest?.dialogueCompleteI18nKey || `quest.${autoCode}.dialogue_complete`;
 
       if (!finalTitle) finalTitle = `Missão #${targetId}`;
 

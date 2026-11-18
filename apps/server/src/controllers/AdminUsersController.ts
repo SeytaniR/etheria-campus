@@ -11,6 +11,7 @@
  */
 
 import type { PrismaClient } from '@etheria/database';
+import { SnapshotManager } from '@etheria/database';
 import {
   AdminAuthService,
   type AdminTokenPayload,
@@ -92,6 +93,16 @@ export class AdminUsersController {
 
     if (!username || !email || password.length < 4) {
       throw new Error('Preencha username, email e uma senha de pelo menos 4 caracteres.');
+    }
+
+    await SnapshotManager.syncTableSequence(this.prisma, 'user_accounts');
+
+    const dupUser = await this.prisma.userAccount.findFirst({
+      where: { OR: [{ username }, { email }] },
+      select: { id: true, username: true, email: true },
+    });
+    if (dupUser) {
+      throw new Error(`Já existe uma conta cadastrada com este username ou e-mail (#${dupUser.id} ${dupUser.username}).`);
     }
 
     const passwordHash = AdminAuthService.hashPassword(password);

@@ -57,8 +57,67 @@ export interface LowCodeDatabaseSnapshot {
  * entre o banco PostgreSQL e o arquivo `packages/database/snapshots/lowcode.snapshot.json`.
  */
 export class SnapshotManager {
+  public static readonly AUTOINCREMENT_TABLES = [
+    'i18n_translations',
+    'biomes',
+    'map_types',
+    'maps',
+    'map_portals',
+    'npc_templates',
+    'map_npcs',
+    'element_matchups',
+    'race_matchups',
+    'attribute_conversions',
+    'class_templates',
+    'monster_rarities',
+    'monster_templates',
+    'monster_biomes',
+    'skill_templates',
+    'status_effect_templates',
+    'equipment_sets',
+    'item_templates',
+    'flying_mount_templates',
+    'user_accounts',
+    'player_characters',
+    'character_inventory_items',
+    'character_pets',
+    'arena_formations',
+    'quest_templates',
+    'character_quest_progress',
+    'world_map_templates',
+    'client_ui_layout_templates',
+  ] as const;
+
   private readonly prisma: PrismaClient;
   private readonly snapshotFilePath: string;
+
+  /**
+   * Sincroniza a sequência SERIAL/autoincrement de uma tabela específica no PostgreSQL
+   * para que o próximo `create()` utilize `MAX(id) + 1`, evitando erro `Unique constraint failed on the fields: ('id')`.
+   */
+  public static async syncTableSequence(prisma: PrismaClient | any, tableName: string): Promise<void> {
+    if (!this.AUTOINCREMENT_TABLES.includes(tableName as any)) return;
+    try {
+      await prisma.$executeRawUnsafe(`
+        SELECT setval(
+          pg_get_serial_sequence('public."${tableName}"', 'id'),
+          COALESCE((SELECT MAX(id) FROM public."${tableName}"), 0) + 1,
+          false
+        );
+      `);
+    } catch (err: any) {
+      console.warn(`[SnapshotManager] Aviso ao sincronizar sequência de ${tableName}:`, err?.message || err);
+    }
+  }
+
+  /**
+   * Sincroniza todas as 28 sequências SERIAL/autoincrement do banco PostgreSQL.
+   */
+  public static async syncAllSequences(prisma: PrismaClient | any): Promise<void> {
+    for (const table of this.AUTOINCREMENT_TABLES) {
+      await this.syncTableSequence(prisma, table);
+    }
+  }
 
   /**
    * @param prisma Instância ativa do PrismaClient conectada ao PostgreSQL.
@@ -481,6 +540,9 @@ export class SnapshotManager {
           });
         }
       }
+
+      // 11. Sincroniza todas as sequências SERIAL/autoincrement do PostgreSQL
+      await SnapshotManager.syncAllSequences(this.prisma);
 
       return { restored: true, message: `Snapshot importado com sucesso a partir de ${this.snapshotFilePath}` };
     } catch (err: any) {
