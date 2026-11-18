@@ -663,17 +663,52 @@ class PlayGmController {
         `;
       };
 
+      // 4. Renderizador da Aba Constelação (Placeholder Futuro)
+      const renderConstellationTabContent = () => `
+        <div class="stats-placeholder-card constellation-theme">
+          <div class="stats-placeholder-glow"></div>
+          <img class="stats-placeholder-icon" src="/play/assets/hud/tab_constellation.png" alt="Constelação" />
+          <div class="stats-placeholder-title">🌌 Sistema de Constelações Astrais</div>
+          <p class="stats-placeholder-desc">
+            Desperte as estrelas ancestrais de Etheria. Em breve você poderá conectar nodos estelares, alinhar signos astrais e desbloquear bênçãos passivas de grande poder para seu personagem.
+          </p>
+          <div class="stats-placeholder-badge">⏳ Em Desenvolvimento</div>
+        </div>
+      `;
+
+      // 5. Renderizador da Aba Arma Celestial (Placeholder Futuro)
+      const renderCelestialWeaponTabContent = () => `
+        <div class="stats-placeholder-card celestial-theme">
+          <div class="stats-placeholder-glow"></div>
+          <img class="stats-placeholder-icon" src="/play/assets/hud/tab_celestial_weapon.png" alt="Arma Celestial" />
+          <div class="stats-placeholder-title">⚔️ Armamento Celestial Divino</div>
+          <p class="stats-placeholder-desc">
+            Forje relíquias divinas imbuídas com a essência pura dos éteres. Em breve você poderá empunhar, evoluir e ascender armas celestiais exclusivas com habilidades únicas de transcendência.
+          </p>
+          <div class="stats-placeholder-badge">⏳ Em Desenvolvimento</div>
+        </div>
+      `;
+
       modalBody.innerHTML = `
-        <!-- Barra de Abas do Modal -->
+        <!-- Barra de Abas do Modal (Apenas Ícones Customizados Oficiais) -->
         <div class="stats-modal-tabs">
-          <button type="button" class="stats-tab-btn ${activeTab === 'equip' ? 'active' : ''}" onclick="PlayApp.switchStatsModalTab('equip')">
-            🛡️ Equipamentos (${equippedCount}/12)
+          <button type="button" class="stats-tab-btn ${activeTab === 'equip' ? 'active' : ''}" onclick="PlayApp.switchStatsModalTab('equip')" title="Equipamentos (${equippedCount}/12)">
+            <img class="stats-tab-icon" src="/play/assets/hud/tab_equip.png" alt="Equipamentos" />
           </button>
-          <button type="button" class="stats-tab-btn ${activeTab === 'stats' ? 'active' : ''}" onclick="PlayApp.switchStatsModalTab('stats')">
-            ⚡ Atributos & Matriz ${remainingUnspent > 0 ? `<span class="stats-tab-points-pill">★ ${remainingUnspent}</span>` : ''}
+          <button type="button" class="stats-tab-btn ${activeTab === 'stats' ? 'active' : ''}" onclick="PlayApp.switchStatsModalTab('stats')" title="Atributos & Matriz de Combate">
+            <img class="stats-tab-icon" src="/play/assets/hud/tab_stats.png" alt="Atributos" />
+            ${remainingUnspent > 0 ? `<span class="stats-tab-points-pill">★${remainingUnspent}</span>` : ''}
           </button>
-          <button type="button" class="stats-tab-btn ${activeTab === 'skills' ? 'active' : ''}" onclick="PlayApp.switchStatsModalTab('skills')">
-            🔮 Habilidades (${charSkills.length})
+          <button type="button" class="stats-tab-btn ${activeTab === 'skills' ? 'active' : ''}" onclick="PlayApp.switchStatsModalTab('skills')" title="Habilidades da Classe (${charSkills.length})">
+            <img class="stats-tab-icon" src="/play/assets/hud/tab_skills.png" alt="Habilidades" />
+          </button>
+          <button type="button" class="stats-tab-btn ${activeTab === 'constellation' ? 'active' : ''}" onclick="PlayApp.switchStatsModalTab('constellation')" title="Constelação (Em Breve)">
+            <img class="stats-tab-icon" src="/play/assets/hud/tab_constellation.png" alt="Constelação" />
+            <span class="stats-tab-soon-pill">Breve</span>
+          </button>
+          <button type="button" class="stats-tab-btn ${activeTab === 'celestial_weapon' ? 'active' : ''}" onclick="PlayApp.switchStatsModalTab('celestial_weapon')" title="Arma Celestial (Em Breve)">
+            <img class="stats-tab-icon" src="/play/assets/hud/tab_celestial_weapon.png" alt="Arma Celestial" />
+            <span class="stats-tab-soon-pill">Breve</span>
           </button>
         </div>
 
@@ -692,7 +727,17 @@ class PlayGmController {
         </div>
 
         <!-- Conteúdo da Aba Ativa -->
-        ${activeTab === 'equip' ? renderEquipTabContent() : (activeTab === 'skills' ? renderSkillsTabContent() : renderStatsTabContent())}
+        ${
+          activeTab === 'equip'
+            ? renderEquipTabContent()
+            : activeTab === 'skills'
+            ? renderSkillsTabContent()
+            : activeTab === 'constellation'
+            ? renderConstellationTabContent()
+            : activeTab === 'celestial_weapon'
+            ? renderCelestialWeaponTabContent()
+            : renderStatsTabContent()
+        }
       `;
     };
 

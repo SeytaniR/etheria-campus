@@ -1,35 +1,27 @@
 /**
  * @file apps/server/public/play/css/play_stats_modal.css
- * @description Estilos responsivos para o modal de Ficha de Atributos & Matriz Procedural de Combate.
- * Suporta Desktop, Mobile Vertical (Portrait) e Mobile Horizontal (Landscape) mantendo 60+ FPS.
+ * @description Estilos responsivos do Modal de Personagem (Ficha de Atributos, Equipamentos, Habilidades,
+ * Constelação e Arma Celestial). Otimizado para Desktop, Mobile Vertical (Portrait) e Mobile Horizontal (Landscape).
  */
 
+/* ==========================================================================
+   1. Backdrop e Diálogo do Modal
+   ========================================================================== */
 .stats-modal-backdrop {
-  position: fixed;
-  inset: 0;
-  z-index: 95;
-  background: rgba(2, 6, 23, 0.82);
-  backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
-  display: none;
-  align-items: center;
-  justify-content: center;
-  padding: 10px;
-  user-select: none;
-  -webkit-user-select: none;
+  position: fixed; inset: 0;
+  z-index: 95; background: rgba(2, 6, 23, 0.85);
+  backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px);
+  display: none; align-items: center;
+  justify-content: center; padding: 8px;
+  user-select: none; -webkit-user-select: none;
 }
 
 .stats-modal-dialog {
-  background: #090e1a;
-  border: 1.5px solid #1e293b;
-  border-radius: 12px;
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.9), 0 0 15px rgba(56, 189, 248, 0.15);
-  width: min(96vw, 680px);
-  max-height: 92dvh;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  color: #f8fafc;
+  background: #090e1a; border: 1.5px solid #1e293b;
+  border-radius: 12px; box-shadow: 0 20px 50px rgba(0, 0, 0, 0.9), 0 0 20px rgba(56, 189, 248, 0.15);
+  width: min(94vw, 720px); max-height: 90dvh;
+  display: flex; flex-direction: column;
+  overflow: hidden; color: #f8fafc;
   animation: statsModalFadeIn 0.18s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
@@ -39,540 +31,334 @@
 }
 
 .stats-modal-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 10px 14px;
-  background: #0b1325;
-  border-bottom: 1px solid #1e293b;
+  display: flex; justify-content: space-between;
+  align-items: center; padding: 8px 12px;
+  background: #0b1325; border-bottom: 1px solid #1e293b;
   flex-shrink: 0;
 }
 
 .stats-modal-title {
-  font-size: 0.98rem;
-  font-weight: 800;
-  color: #fde047;
-  display: flex;
-  align-items: center;
-  gap: 6px;
+  font-size: 0.92rem; font-weight: 800;
+  color: #fde047; display: flex;
+  align-items: center; gap: 6px;
   margin: 0;
 }
 
 .stats-modal-close {
-  background: rgba(239, 68, 68, 0.18);
-  border: 1px solid rgba(239, 68, 68, 0.4);
-  color: #fca5a5;
-  width: 28px;
-  height: 28px;
-  border-radius: 6px;
-  font-size: 0.85rem;
-  font-weight: 800;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  background: rgba(239, 68, 68, 0.18); border: 1px solid rgba(239, 68, 68, 0.4);
+  color: #fca5a5; width: 28px;
+  height: 28px; border-radius: 6px;
+  font-size: 0.85rem; font-weight: 800;
+  cursor: pointer; display: flex;
+  align-items: center; justify-content: center;
   transition: all 0.15s ease;
 }
 
-.stats-modal-close:hover {
-  background: #ef4444;
-  color: #ffffff;
-}
+.stats-modal-close:hover { background: #ef4444; color: #ffffff; }
 
-/* Barra de Abas do Modal (Equipamentos vs Atributos) */
+/* ==========================================================================
+   2. Barra de Abas do Modal (Apenas Ícones Customizados Oficiais)
+   ========================================================================== */
 .stats-modal-tabs {
-  display: flex;
-  gap: 8px;
-  padding: 8px 12px;
-  background: #070c18;
-  border-bottom: 1px solid #1e293b;
+  display: grid; grid-template-columns: repeat(5, 1fr);
+  gap: 6px; padding: 6px 10px;
+  background: #070c18; border-bottom: 1px solid #1e293b;
   flex-shrink: 0;
 }
 
 .stats-tab-btn {
-  flex: 1;
-  padding: 8px 14px;
-  border-radius: 6px;
-  border: 1px solid #1e293b;
-  background: #0f172a;
-  color: #94a3b8;
-  font-size: 0.82rem;
-  font-weight: 800;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  transition: all 0.15s ease;
+  display: flex; align-items: center;
+  justify-content: center; position: relative;
+  height: 44px; border-radius: 8px;
+  border: 1.5px solid #1e293b; background: rgba(15, 23, 42, 0.85);
+  cursor: pointer; transition: all 0.15s ease;
+  padding: 0;
 }
 
-.stats-tab-btn:hover {
-  background: #1e293b;
-  color: #f8fafc;
+.stats-tab-btn:hover { background: rgba(30, 41, 59, 0.95); border-color: #38bdf8; transform: translateY(-1px); }
+
+.stats-tab-btn.active { background: linear-gradient(180deg, rgba(14, 116, 144, 0.4) 0%, rgba(15, 23, 42, 0.95) 100%); border-color: #38bdf8; box-shadow: 0 0 12px rgba(56, 189, 248, 0.35); }
+
+.stats-tab-icon {
+  width: 32px; height: 32px;
+  object-fit: contain; filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5));
+  transition: transform 0.15s ease;
 }
 
-.stats-tab-btn.active {
-  background: linear-gradient(180deg, #1e3a5f 0%, #0d1e38 100%);
-  border-color: #38bdf8;
-  color: #38bdf8;
-  box-shadow: 0 0 12px rgba(56, 189, 248, 0.25);
-}
+.stats-tab-btn:hover .stats-tab-icon { transform: scale(1.1); }
+
+.stats-tab-btn.active .stats-tab-icon { transform: scale(1.08); filter: drop-shadow(0 0 6px rgba(56, 189, 248, 0.7)); }
 
 .stats-tab-points-pill {
-  background: #eab308;
-  color: #020617;
-  font-size: 0.70rem;
-  font-weight: 900;
-  padding: 1px 6px;
-  border-radius: 99px;
-  margin-left: 2px;
+  position: absolute; top: -3px;
+  right: -3px; background: #eab308;
+  color: #020617; font-size: 0.62rem;
+  font-weight: 900; padding: 1px 5px;
+  border-radius: 99px; box-shadow: 0 0 6px rgba(234, 179, 8, 0.6);
+  animation: statsPulseBadge 1.8s infinite;
 }
 
-/* Paperdoll de 12 Slots de Equipamento */
-.stats-paperdoll-wrapper {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
+.stats-tab-soon-pill {
+  position: absolute; bottom: 2px;
+  right: 2px; background: rgba(30, 41, 59, 0.85);
+  color: #94a3b8; font-size: 0.50rem;
+  font-weight: 800; padding: 0 4px;
+  border-radius: 3px; border: 1px solid rgba(255, 255, 255, 0.1);
+  text-transform: uppercase; letter-spacing: 0.3px;
 }
 
-.stats-paperdoll-container {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background: #060b17;
-  border: 1px solid #1e293b;
-  border-radius: 8px;
-  padding: 10px;
-  gap: 8px;
-}
-
-.stats-paperdoll-col {
-  display: grid;
-  grid-template-columns: repeat(2, 44px);
-  gap: 6px;
-}
-
-.stats-paperdoll-center {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 0 8px;
-  text-align: center;
-}
-
-.stats-paperdoll-avatar {
-  width: 76px;
-  height: 76px;
-  object-fit: contain;
-  border-radius: 8px;
-  border: 1.5px solid #38bdf8;
-  background: #020617;
-  box-shadow: 0 0 16px rgba(56, 189, 248, 0.2);
-}
-
-.stats-slot-box {
-  width: 44px;
-  height: 44px;
-  border-radius: 6px;
-  background: #020617;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  position: relative;
-  cursor: pointer;
-  transition: all 0.15s ease;
-  user-select: none;
-}
-
-.stats-slot-box:hover {
-  transform: scale(1.05);
-}
-
-.stats-slot-box.selected {
-  outline: 2px solid #fde047;
-  box-shadow: 0 0 12px rgba(253, 224, 71, 0.6);
-}
-
-.stats-slot-code {
-  position: absolute;
-  bottom: 1px;
-  left: 2px;
-  font-size: 0.52rem;
-  color: #64748b;
-  font-weight: 800;
-  pointer-events: none;
-}
-
-/* Painel de Detalhes do Slot Selecionado */
-.stats-slot-detail-card {
-  background: #091122;
-  border: 1.5px solid #38bdf8;
-  border-radius: 8px;
-  padding: 10px 12px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  animation: statsConfirmPop 0.16s ease-out;
-}
-
-.stats-slot-detail-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  border-bottom: 1px solid #1e293b;
-  padding-bottom: 6px;
-}
-
-.stats-slot-detail-info {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.stats-slot-detail-icon {
-  width: 36px;
-  height: 36px;
-  object-fit: contain;
-  border-radius: 6px;
-  background: #020617;
-  border: 1px solid #334155;
-}
-
-.stats-slot-detail-name {
-  font-size: 0.86rem;
-  font-weight: 800;
-  color: #fde047;
-}
-
-.stats-slot-detail-sub {
-  font-size: 0.70rem;
-  color: #94a3b8;
-  margin-top: 1px;
-}
-
-.stats-slot-detail-stats {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  font-size: 0.72rem;
-  font-family: monospace;
-}
-
-.stats-stat-badge {
-  background: #0f172a;
-  border: 1px solid #334155;
-  border-radius: 4px;
-  padding: 2px 6px;
-  color: #86efac;
-}
-
-.stats-btn-unequip {
-  background: rgba(239, 68, 68, 0.18);
-  border: 1.5px solid #ef4444;
-  color: #fca5a5;
-  font-weight: 800;
-  font-size: 0.78rem;
-  padding: 6px 12px;
-  border-radius: 6px;
-  cursor: pointer;
-  align-self: flex-start;
-  transition: all 0.15s ease;
-}
-
-.stats-btn-unequip:hover {
-  background: #ef4444;
-  color: #ffffff;
-}
-
-/* Lista de Bônus de Conjuntos */
-.stats-sets-list {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.stats-set-item {
-  background: #070d1c;
-  border: 1px solid #eab308;
-  border-radius: 6px;
-  padding: 6px 8px;
-  font-size: 0.72rem;
-}
-
+/* ==========================================================================
+   3. Banner do Herói
+   ========================================================================== */
 .stats-modal-body {
-  padding: 12px;
-  overflow-y: auto;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  flex: 1;
+  padding: 10px 12px; overflow-y: auto;
+  display: flex; flex-direction: column;
+  gap: 10px; flex: 1;
 }
 
-/* Banner de Perfil do Personagem */
 .stats-hero-banner {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  background: linear-gradient(90deg, #0d1933 0%, #070d1c 100%);
-  border: 1px solid #1e3a5f;
-  border-radius: 8px;
-  padding: 8px 12px;
+  display: flex; align-items: center;
+  justify-content: space-between; background: linear-gradient(90deg, #0d1933 0%, #070d1c 100%);
+  border: 1px solid #1e3a5f; border-radius: 8px;
+  padding: 6px 10px; flex-shrink: 0;
+}
+
+.stats-hero-profile { display: flex; align-items: center; gap: 8px; }
+
+.stats-hero-thumb {
+  width: 40px; height: 40px;
+  border-radius: 8px; object-fit: cover;
+  border: 1.5px solid #38bdf8; background: #020617;
   flex-shrink: 0;
 }
 
-.stats-hero-profile {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
+.stats-hero-name { font-size: 0.88rem; font-weight: 800; color: #fde047; }
 
-.stats-hero-thumb {
-  width: 44px;
-  height: 44px;
-  border-radius: 8px;
-  object-fit: cover;
-  border: 1.5px solid #38bdf8;
-  background: #020617;
-}
-
-.stats-hero-name {
-  font-size: 0.92rem;
-  font-weight: 800;
-  color: #fde047;
-}
-
-.stats-hero-meta {
-  font-size: 0.72rem;
-  color: #94a3b8;
-  margin-top: 1px;
-}
+.stats-hero-meta { font-size: 0.70rem; color: #94a3b8; margin-top: 1px; }
 
 .stats-points-badge {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  padding: 4px 10px;
-  border-radius: 99px;
-  font-size: 0.76rem;
-  font-weight: 800;
+  display: flex; align-items: center;
+  gap: 4px; padding: 3px 8px;
+  border-radius: 99px; font-size: 0.72rem;
+  font-weight: 800; flex-shrink: 0;
 }
 
 .stats-points-badge.has-points {
-  background: rgba(245, 158, 11, 0.2);
-  border: 1.5px solid #f59e0b;
-  color: #fef08a;
-  box-shadow: 0 0 10px rgba(245, 158, 11, 0.25);
+  background: rgba(245, 158, 11, 0.2); border: 1.5px solid #f59e0b;
+  color: #fef08a; box-shadow: 0 0 10px rgba(245, 158, 11, 0.25);
   animation: statsPulseBadge 1.8s infinite ease-in-out;
 }
 
-.stats-points-badge.zero-points {
-  background: rgba(30, 41, 59, 0.6);
-  border: 1px solid #334155;
-  color: #94a3b8;
-}
+.stats-points-badge.zero-points { background: rgba(30, 41, 59, 0.6); border: 1px solid #334155; color: #94a3b8; }
 
 @keyframes statsPulseBadge {
   0%, 100% { transform: scale(1); }
   50% { transform: scale(1.04); }
 }
 
-/* Grid Principal em 2 Colunas (Desktop & Paisagem) */
-.stats-main-grid {
-  display: grid;
-  grid-template-columns: 1fr 1.05fr;
-  gap: 12px;
+/* ==========================================================================
+   4. Aba 1: Equipamentos (Paperdoll de 12 Slots)
+   ========================================================================== */
+.stats-paperdoll-wrapper { display: flex; flex-direction: column; gap: 8px; }
+
+.stats-paperdoll-container {
+  display: flex; justify-content: space-between;
+  align-items: center; background: #060b17;
+  border: 1px solid #1e293b; border-radius: 8px;
+  padding: 10px; gap: 8px;
 }
 
-.stats-section-box {
-  background: #060b17;
-  border: 1px solid #1e293b;
-  border-radius: 8px;
-  padding: 10px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
+.stats-paperdoll-col { display: grid; grid-template-columns: repeat(2, 44px); gap: 6px; }
+
+.stats-paperdoll-center {
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  padding: 0 8px; text-align: center;
 }
 
-.stats-section-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  border-bottom: 1px solid #1e293b;
-  padding-bottom: 6px;
+.stats-paperdoll-avatar {
+  width: 74px; height: 74px;
+  object-fit: contain; border-radius: 8px;
+  border: 1.5px solid #38bdf8; background: #020617;
+  box-shadow: 0 0 14px rgba(56, 189, 248, 0.2);
 }
 
-.stats-section-title {
-  font-size: 0.80rem;
-  font-weight: 800;
-  color: #38bdf8;
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  margin: 0;
+.stats-slot-box {
+  width: 44px; height: 44px;
+  border-radius: 6px; background: #020617;
+  display: flex; align-items: center;
+  justify-content: center; position: relative;
+  cursor: pointer; transition: all 0.15s ease;
+  user-select: none;
 }
 
-/* Linha de Atributo Base com Controles Táteis + / - */
-.stats-base-list {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
+.stats-slot-box:hover { transform: scale(1.05); }
+
+.stats-slot-box.selected { outline: 2px solid #fde047; box-shadow: 0 0 12px rgba(253, 224, 71, 0.6); }
+
+.stats-slot-code {
+  position: absolute; bottom: 1px;
+  left: 2px; font-size: 0.50rem;
+  color: #64748b; font-weight: 800;
+  pointer-events: none;
 }
 
-.stats-base-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background: #0f172a;
-  border: 1px solid #1e293b;
-  border-radius: 6px;
-  padding: 6px 8px;
-  transition: border-color 0.15s ease;
+.stats-slot-detail-card {
+  background: #091122; border: 1.5px solid #38bdf8;
+  border-radius: 8px; padding: 8px 10px;
+  display: flex; flex-direction: column;
+  gap: 6px; animation: statsConfirmPop 0.16s ease-out;
 }
 
-.stats-base-row.is-allocated {
-  border-color: #22c55e;
-  background: rgba(34, 197, 94, 0.08);
+.stats-slot-detail-header {
+  display: flex; align-items: center;
+  justify-content: space-between; border-bottom: 1px solid #1e293b;
+  padding-bottom: 4px;
 }
 
-.stats-attr-info {
-  display: flex;
-  flex-direction: column;
-  gap: 1px;
+.stats-slot-detail-info { display: flex; align-items: center; gap: 8px; }
+
+.stats-slot-detail-icon {
+  width: 36px; height: 36px;
+  object-fit: contain; border-radius: 6px;
+  background: #020617; border: 1px solid #334155;
 }
 
-.stats-attr-label {
-  font-size: 0.74rem;
-  font-weight: 800;
-  color: #f1f5f9;
-}
+.stats-slot-detail-name { font-size: 0.84rem; font-weight: 800; color: #fde047; }
 
-.stats-attr-desc {
-  font-size: 0.65rem;
-  color: #64748b;
-}
+.stats-slot-detail-sub { font-size: 0.68rem; color: #94a3b8; }
 
-.stats-attr-controls {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.stats-val-display {
-  min-width: 48px;
-  text-align: right;
-  font-size: 0.90rem;
-  font-weight: 900;
-  color: #f8fafc;
+.stats-slot-detail-stats {
+  display: flex; flex-wrap: wrap;
+  gap: 4px; font-size: 0.70rem;
   font-family: monospace;
 }
 
-.stats-pending-pill {
-  color: #4ade80;
-  font-size: 0.74rem;
-  font-weight: 800;
-  margin-left: 2px;
+.stats-stat-badge {
+  background: #0f172a; border: 1px solid #334155;
+  border-radius: 4px; padding: 1px 5px;
+  color: #86efac;
 }
 
+.stats-btn-unequip {
+  background: rgba(239, 68, 68, 0.18); border: 1.5px solid #ef4444;
+  color: #fca5a5; font-weight: 800;
+  font-size: 0.75rem; padding: 5px 10px;
+  border-radius: 5px; cursor: pointer;
+  align-self: flex-start; transition: all 0.15s ease;
+}
+
+.stats-btn-unequip:hover { background: #ef4444; color: #ffffff; }
+
+.stats-sets-list { display: flex; flex-direction: column; gap: 4px; }
+
+.stats-set-item {
+  background: #070d1c; border: 1px solid #eab308;
+  border-radius: 6px; padding: 5px 8px;
+  font-size: 0.70rem;
+}
+
+/* ==========================================================================
+   5. Aba 2: Atributos & Matriz Procedural
+   ========================================================================== */
+.stats-main-grid { display: grid; grid-template-columns: 1fr 1.05fr; gap: 10px; }
+
+.stats-section-box {
+  background: #060b17; border: 1px solid #1e293b;
+  border-radius: 8px; padding: 8px 10px;
+  display: flex; flex-direction: column;
+  gap: 6px;
+}
+
+.stats-section-header {
+  display: flex; justify-content: space-between;
+  align-items: center; border-bottom: 1px solid #1e293b;
+  padding-bottom: 4px;
+}
+
+.stats-section-title {
+  font-size: 0.78rem; font-weight: 800;
+  color: #38bdf8; display: flex;
+  align-items: center; gap: 5px;
+  margin: 0;
+}
+
+.stats-base-list { display: flex; flex-direction: column; gap: 5px; }
+
+.stats-base-row {
+  display: flex; justify-content: space-between;
+  align-items: center; background: #0f172a;
+  border: 1px solid #1e293b; border-radius: 6px;
+  padding: 5px 8px; transition: border-color 0.15s ease;
+}
+
+.stats-base-row.is-allocated { border-color: #22c55e; background: rgba(34, 197, 94, 0.08); }
+
+.stats-attr-info { display: flex; flex-direction: column; gap: 1px; }
+
+.stats-attr-label { font-size: 0.72rem; font-weight: 800; color: #f1f5f9; }
+
+.stats-attr-desc { font-size: 0.62rem; color: #64748b; }
+
+.stats-attr-controls { display: flex; align-items: center; gap: 5px; }
+
+.stats-val-display {
+  min-width: 44px; text-align: right;
+  font-size: 0.88rem; font-weight: 900;
+  color: #f8fafc; font-family: monospace;
+}
+
+.stats-pending-pill { color: #4ade80; font-size: 0.72rem; font-weight: 800; margin-left: 2px; }
+
 .stats-btn-ctrl {
-  width: 28px;
-  height: 28px;
-  border-radius: 5px;
-  border: none;
-  font-size: 0.95rem;
-  font-weight: 900;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  width: 26px; height: 26px;
+  border-radius: 5px; border: none;
+  font-size: 0.90rem; font-weight: 900;
+  cursor: pointer; display: flex;
+  align-items: center; justify-content: center;
   transition: all 0.12s ease;
 }
 
-.stats-btn-minus {
-  background: #1e293b;
-  border: 1px solid #475569;
-  color: #94a3b8;
-}
+.stats-btn-minus { background: #1e293b; border: 1px solid #475569; color: #94a3b8; }
 
-.stats-btn-minus:not(:disabled):hover {
-  background: #ef4444;
-  border-color: #ef4444;
-  color: #ffffff;
-}
+.stats-btn-minus:not(:disabled):hover { background: #ef4444; border-color: #ef4444; color: #ffffff; }
 
-.stats-btn-plus {
-  background: #0284c7;
-  border: 1px solid #38bdf8;
-  color: #ffffff;
-}
+.stats-btn-plus { background: #0284c7; border: 1px solid #38bdf8; color: #ffffff; }
 
-.stats-btn-plus:not(:disabled):hover {
-  background: #38bdf8;
-  color: #020617;
-}
+.stats-btn-plus:not(:disabled):hover { background: #38bdf8; color: #020617; }
 
-.stats-btn-ctrl:disabled {
-  opacity: 0.28;
-  cursor: not-allowed;
-}
+.stats-btn-ctrl:disabled { opacity: 0.28; cursor: not-allowed; }
 
-/* Barra de Ações (Salvar e Redefinir) */
-.stats-actions-bar {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-top: 4px;
-}
+.stats-actions-bar { display: flex; align-items: center; gap: 6px; margin-top: 4px; }
 
 .stats-btn-save {
-  flex: 1;
-  background: linear-gradient(180deg, #16a34a 0%, #15803d 100%);
-  border: 1.5px solid #4ade80;
-  border-radius: 6px;
-  color: #ffffff;
-  font-weight: 800;
-  font-size: 0.80rem;
-  padding: 8px 12px;
-  cursor: pointer;
-  box-shadow: 0 4px 12px rgba(22, 163, 74, 0.35);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
+  flex: 1; background: linear-gradient(180deg, #16a34a 0%, #15803d 100%);
+  border: 1.5px solid #4ade80; border-radius: 6px;
+  color: #ffffff; font-weight: 800;
+  font-size: 0.78rem; padding: 6px 10px;
+  cursor: pointer; box-shadow: 0 3px 10px rgba(22, 163, 74, 0.35);
+  display: flex; align-items: center;
+  justify-content: center; gap: 5px;
   transition: all 0.15s ease;
 }
 
-.stats-btn-save:hover {
-  filter: brightness(1.1);
-  transform: translateY(-1px);
-}
+.stats-btn-save:hover { filter: brightness(1.1); transform: translateY(-1px); }
 
 .stats-btn-reset {
-  background: #1e293b;
-  border: 1px solid #475569;
-  border-radius: 6px;
-  color: #cbd5e1;
-  font-weight: 700;
-  font-size: 0.76rem;
-  padding: 8px 10px;
-  cursor: pointer;
+  background: #1e293b; border: 1px solid #475569;
+  border-radius: 6px; color: #cbd5e1;
+  font-weight: 700; font-size: 0.74rem;
+  padding: 6px 8px; cursor: pointer;
   transition: all 0.15s ease;
 }
 
-.stats-btn-reset:hover {
-  background: #334155;
-}
+.stats-btn-reset:hover { background: #334155; }
 
-/* Painel de Confirmação In-Modal */
 .stats-confirm-box {
-  background: #1e1b4b;
-  border: 1.5px solid #a855f7;
-  border-radius: 8px;
-  padding: 10px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  animation: statsConfirmPop 0.16s ease-out;
+  background: #1e1b4b; border: 1.5px solid #a855f7;
+  border-radius: 8px; padding: 8px;
+  display: flex; flex-direction: column;
+  gap: 6px; animation: statsConfirmPop 0.16s ease-out;
 }
 
 @keyframes statsConfirmPop {
@@ -580,366 +366,255 @@
   to { opacity: 1; transform: scale(1); }
 }
 
-.stats-confirm-title {
-  font-size: 0.78rem;
-  font-weight: 800;
-  color: #e9d5ff;
-}
+.stats-confirm-title { font-size: 0.76rem; font-weight: 800; color: #e9d5ff; }
 
-.stats-confirm-text {
-  font-size: 0.72rem;
-  color: #c4b5fd;
-  line-height: 1.35;
-}
+.stats-confirm-text { font-size: 0.70rem; color: #c4b5fd; line-height: 1.3; }
 
-.stats-confirm-actions {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
+.stats-confirm-actions { display: flex; align-items: center; gap: 5px; }
 
 .stats-btn-confirm {
-  flex: 1;
-  background: #9333ea;
-  border: 1px solid #c084fc;
-  color: #ffffff;
-  font-weight: 800;
-  font-size: 0.75rem;
-  padding: 6px 10px;
-  border-radius: 6px;
+  flex: 1; background: #9333ea;
+  border: 1px solid #c084fc; color: #ffffff;
+  font-weight: 800; font-size: 0.74rem;
+  padding: 5px 8px; border-radius: 5px;
   cursor: pointer;
 }
 
 .stats-btn-cancel {
-  background: #334155;
-  border: 1px solid #475569;
-  color: #f1f5f9;
-  font-weight: 700;
-  font-size: 0.75rem;
-  padding: 6px 10px;
-  border-radius: 6px;
-  cursor: pointer;
+  background: #334155; border: 1px solid #475569;
+  color: #f1f5f9; font-weight: 700;
+  font-size: 0.74rem; padding: 5px 8px;
+  border-radius: 5px; cursor: pointer;
 }
 
-/* Grid de Atributos de Combate Derivados */
 .stats-combat-grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 5px;
-  max-height: 280px;
-  overflow-y: auto;
-  padding-right: 2px;
+  display: grid; grid-template-columns: 1fr;
+  gap: 4px; max-height: 260px;
+  overflow-y: auto; padding-right: 2px;
 }
 
 .stats-combat-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background: rgba(15, 23, 42, 0.75);
-  border: 1px solid #1e293b;
-  border-radius: 5px;
-  padding: 4px 8px;
+  display: flex; justify-content: space-between;
+  align-items: center; background: rgba(15, 23, 42, 0.75);
+  border: 1px solid #1e293b; border-radius: 5px;
+  padding: 4px 7px;
 }
 
-.stats-combat-name {
-  font-size: 0.72rem;
-  color: #cbd5e1;
-}
+.stats-combat-name { font-size: 0.70rem; color: #cbd5e1; }
 
-.stats-combat-code {
-  font-size: 0.62rem;
-  color: #64748b;
-  margin-left: 3px;
-  font-family: monospace;
-}
+.stats-combat-code { font-size: 0.60rem; color: #64748b; margin-left: 3px; font-family: monospace; }
 
-.stats-combat-val {
-  font-size: 0.82rem;
-  font-weight: 800;
-  color: #38bdf8;
-  font-family: monospace;
-}
+.stats-combat-val { font-size: 0.80rem; font-weight: 800; color: #38bdf8; font-family: monospace; }
 
-.stats-combat-preview {
-  color: #4ade80;
-  font-size: 0.75rem;
-  font-weight: 800;
-  margin-left: 3px;
-}
+.stats-combat-preview { color: #4ade80; font-size: 0.72rem; font-weight: 800; margin-left: 3px; }
 
 /* ==========================================================================
-   Responsividade: Mobile Vertical (Portrait) & Mobile Horizontal (Landscape)
+   6. Aba 3: Habilidades da Classe (Skills)
    ========================================================================== */
-@media (max-width: 640px) and (orientation: portrait) {
-  .stats-modal-dialog {
-    width: 96vw;
-    max-height: 90dvh;
-  }
-  .stats-main-grid {
-    grid-template-columns: 1fr;
-    gap: 10px;
-  }
-  .stats-combat-grid {
-    max-height: 200px;
-  }
-  .stats-btn-ctrl {
-    width: 34px;
-    height: 34px;
-    font-size: 1.15rem;
-  }
-  .stats-btn-save {
-    padding: 10px;
-    font-size: 0.86rem;
-  }
-}
-
-@media (max-height: 520px) and (orientation: landscape) {
-  .stats-modal-dialog {
-    width: min(96vw, 720px);
-    max-height: 94dvh;
-  }
-  .stats-modal-header {
-    padding: 6px 12px;
-  }
-  .stats-modal-tabs {
-    padding: 4px 10px;
-    gap: 6px;
-  }
-  .stats-tab-btn {
-    padding: 5px 8px;
-    font-size: 0.76rem;
-  }
-  .stats-modal-body {
-    padding: 8px 10px;
-    gap: 8px;
-  }
-  .stats-hero-banner {
-    padding: 5px 10px;
-  }
-  .stats-hero-thumb {
-    width: 32px;
-    height: 32px;
-  }
-  .stats-main-grid {
-    grid-template-columns: 1fr 1fr;
-    gap: 8px;
-  }
-  .stats-section-box {
-    padding: 6px 8px;
-    gap: 5px;
-  }
-  .stats-base-row {
-    padding: 3px 6px;
-  }
-  .stats-base-list {
-    max-height: 175px;
-    overflow-y: auto;
-    padding-right: 2px;
-  }
-  .stats-btn-ctrl {
-    width: 24px;
-    height: 24px;
-    font-size: 0.85rem;
-  }
-  .stats-combat-grid {
-    max-height: 180px;
-    gap: 3px;
-  }
-  .stats-combat-row {
-    padding: 3px 6px;
-  }
-}
-
-/* ==========================================================================
-   Aba de Habilidades do Personagem (Grimório / Skills)
-   ========================================================================== */
-.stats-skills-container {
-  display: grid;
-  grid-template-columns: 240px 1fr;
-  gap: 10px;
-  min-height: 360px;
-}
-
-@media (max-width: 600px) {
-  .stats-skills-container {
-    grid-template-columns: 1fr;
-  }
-}
+.stats-skills-container { display: grid; grid-template-columns: 210px 1fr; gap: 8px; min-height: 320px; }
 
 .stats-skills-list {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  max-height: 400px;
-  overflow-y: auto;
-  padding-right: 4px;
+  display: flex; flex-direction: column;
+  gap: 5px; max-height: 360px;
+  overflow-y: auto; padding-right: 2px;
 }
 
 .stats-skill-item {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 8px 10px;
-  background: rgba(15, 23, 42, 0.7);
-  border: 1px solid rgba(56, 189, 248, 0.2);
-  border-radius: 8px;
-  cursor: pointer;
+  display: flex; align-items: center;
+  gap: 7px; padding: 6px 8px;
+  background: rgba(15, 23, 42, 0.7); border: 1px solid rgba(56, 189, 248, 0.2);
+  border-radius: 6px; cursor: pointer;
   transition: all 0.15s ease;
 }
 
-.stats-skill-item:hover {
-  background: rgba(30, 41, 59, 0.9);
-  border-color: #38bdf8;
-  transform: translateX(2px);
-}
+.stats-skill-item:hover { background: rgba(30, 41, 59, 0.9); border-color: #38bdf8; transform: translateX(2px); }
 
-.stats-skill-item.selected {
-  background: linear-gradient(90deg, rgba(14, 116, 144, 0.4), rgba(15, 23, 42, 0.8));
-  border-color: #38bdf8;
-  box-shadow: 0 0 10px rgba(56, 189, 248, 0.3);
-}
+.stats-skill-item.selected { background: linear-gradient(90deg, rgba(14, 116, 144, 0.4), rgba(15, 23, 42, 0.8)); border-color: #38bdf8; box-shadow: 0 0 10px rgba(56, 189, 248, 0.3); }
 
 .stats-skill-icon-thumb {
-  width: 38px;
-  height: 38px;
-  border-radius: 6px;
-  background: #020617;
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  object-fit: contain;
+  width: 34px; height: 34px;
+  border-radius: 5px; background: #020617;
+  border: 1px solid rgba(255, 255, 255, 0.15); object-fit: contain;
   flex-shrink: 0;
 }
 
 .stats-skill-meta {
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
-  min-width: 0;
+  display: flex; flex-direction: column;
+  gap: 2px; min-width: 0;
   flex: 1;
 }
 
 .stats-skill-name {
-  font-size: 0.80rem;
-  font-weight: 800;
-  color: #f8fafc;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  font-size: 0.76rem; font-weight: 800;
+  color: #f8fafc; white-space: nowrap;
+  overflow: hidden; text-overflow: ellipsis;
 }
 
-.stats-skill-tags-row {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  flex-wrap: wrap;
-}
+.stats-skill-tags-row { display: flex; align-items: center; gap: 3px; flex-wrap: wrap; }
 
 .stats-skill-badge {
-  font-size: 0.60rem;
-  font-weight: 700;
-  padding: 1px 5px;
-  border-radius: 3px;
+  font-size: 0.58rem; font-weight: 700;
+  padding: 1px 4px; border-radius: 3px;
   font-family: monospace;
 }
 
-.stats-skill-badge.active-type {
-  background: rgba(56, 189, 248, 0.2);
-  color: #38bdf8;
-  border: 1px solid rgba(56, 189, 248, 0.4);
-}
+.stats-skill-badge.active-type { background: rgba(56, 189, 248, 0.2); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.4); }
 
-.stats-skill-badge.passive-type {
-  background: rgba(245, 158, 11, 0.2);
-  color: #fbbf24;
-  border: 1px solid rgba(245, 158, 11, 0.4);
-}
+.stats-skill-badge.passive-type { background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.4); }
 
-.stats-skill-badge.cost {
-  background: rgba(30, 41, 59, 0.8);
-  color: #94a3b8;
-  border: 1px solid rgba(255, 255, 255, 0.05);
-}
+.stats-skill-badge.cost { background: rgba(30, 41, 59, 0.8); color: #94a3b8; border: 1px solid rgba(255, 255, 255, 0.05); }
 
-/* Painel de Detalhes da Habilidade Selecionada */
 .stats-skill-details-card {
-  background: rgba(15, 23, 42, 0.85);
-  border: 1px solid rgba(56, 189, 248, 0.3);
-  border-radius: 10px;
-  padding: 12px 14px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
-  overflow-y: auto;
-  max-height: 400px;
+  background: rgba(15, 23, 42, 0.85); border: 1px solid rgba(56, 189, 248, 0.3);
+  border-radius: 8px; padding: 10px 12px;
+  display: flex; flex-direction: column;
+  gap: 8px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+  overflow-y: auto; max-height: 360px;
 }
 
 .stats-skill-details-header {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-  padding-bottom: 8px;
+  display: flex; align-items: center;
+  gap: 10px; border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  padding-bottom: 6px;
 }
 
 .stats-skill-details-icon {
-  width: 48px;
-  height: 48px;
-  border-radius: 8px;
-  background: #020617;
-  border: 2px solid #38bdf8;
-  box-shadow: 0 0 12px rgba(56, 189, 248, 0.35);
-  object-fit: contain;
-  flex-shrink: 0;
+  width: 44px; height: 44px;
+  border-radius: 6px; background: #020617;
+  border: 2px solid #38bdf8; box-shadow: 0 0 10px rgba(56, 189, 248, 0.35);
+  object-fit: contain; flex-shrink: 0;
 }
 
-.stats-skill-details-title-box {
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
-  min-width: 0;
-}
+.stats-skill-details-title-box { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
 
-.stats-skill-details-title {
-  font-size: 1rem;
-  font-weight: 800;
-  color: #fde047;
-  letter-spacing: 0.3px;
-}
+.stats-skill-details-title { font-size: 0.94rem; font-weight: 800; color: #fde047; }
 
 .stats-skill-details-desc {
-  font-size: 0.76rem;
-  color: #cbd5e1;
-  line-height: 1.45;
-  background: rgba(30, 41, 59, 0.4);
-  padding: 8px 10px;
-  border-radius: 6px;
+  font-size: 0.74rem; color: #cbd5e1;
+  line-height: 1.4; background: rgba(30, 41, 59, 0.4);
+  padding: 6px 8px; border-radius: 6px;
   border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
-.stats-skill-props-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 6px;
-}
+.stats-skill-props-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 5px; }
 
 .stats-skill-prop-item {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 5px 8px;
-  background: rgba(2, 6, 23, 0.5);
-  border-radius: 5px;
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  font-size: 0.70rem;
+  display: flex; align-items: center;
+  justify-content: space-between; padding: 4px 6px;
+  background: rgba(2, 6, 23, 0.5); border-radius: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.05); font-size: 0.68rem;
 }
 
-.stats-skill-prop-label {
-  color: #94a3b8;
-  font-weight: 600;
+.stats-skill-prop-label { color: #94a3b8; font-weight: 600; }
+
+.stats-skill-prop-value { color: #f8fafc; font-weight: 800; font-family: monospace; }
+
+/* ==========================================================================
+   7. Abas 4 e 5: Placeholders Constelação & Arma Celestial
+   ========================================================================== */
+.stats-placeholder-card {
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  text-align: center; padding: 30px 18px;
+  background: rgba(15, 23, 42, 0.65); border: 1.5px dashed rgba(56, 189, 248, 0.3);
+  border-radius: 12px; position: relative;
+  overflow: hidden; min-height: 280px;
+  gap: 10px;
 }
 
-.stats-skill-prop-value {
-  color: #f8fafc;
-  font-weight: 800;
-  font-family: monospace;
+.stats-placeholder-glow {
+  position: absolute; width: 180px;
+  height: 180px; border-radius: 50%;
+  filter: blur(50px); pointer-events: none;
+  opacity: 0.25;
+}
+
+.constellation-theme .stats-placeholder-glow { background: radial-gradient(circle, #38bdf8 0%, #818cf8 60%, transparent 100%); }
+
+.celestial-theme .stats-placeholder-glow { background: radial-gradient(circle, #facc15 0%, #f97316 60%, transparent 100%); }
+
+.stats-placeholder-icon {
+  width: 68px; height: 68px;
+  object-fit: contain; filter: drop-shadow(0 0 16px rgba(56, 189, 248, 0.4));
+  animation: statsFloatIcon 3s infinite ease-in-out; z-index: 1;
+}
+
+@keyframes statsFloatIcon {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
+}
+
+.stats-placeholder-title {
+  font-size: 1rem; font-weight: 800;
+  color: #fde047; text-shadow: 0 0 10px rgba(253, 224, 71, 0.3);
+  z-index: 1;
+}
+
+.stats-placeholder-desc {
+  font-size: 0.76rem; color: #cbd5e1;
+  max-width: 440px; line-height: 1.45;
+  margin: 0; z-index: 1;
+}
+
+.stats-placeholder-badge {
+  display: inline-block; padding: 4px 12px;
+  border-radius: 99px; font-size: 0.70rem;
+  font-weight: 800; background: rgba(56, 189, 248, 0.15);
+  border: 1px solid rgba(56, 189, 248, 0.4); color: #38bdf8;
+  text-transform: uppercase; letter-spacing: 0.5px;
+  z-index: 1;
+}
+
+/* ==========================================================================
+   8. Responsividade: Mobile Vertical (Portrait <= 600px)
+   ========================================================================== */
+@media (max-width: 600px) { .stats-modal-dialog { width: 96vw; max-height: 92dvh; }
+  .stats-modal-tabs { gap: 4px; padding: 5px 6px; }
+  .stats-tab-btn { height: 40px; }
+  .stats-tab-icon { width: 28px; height: 28px; }
+  .stats-hero-banner { padding: 5px 8px; }
+  .stats-hero-thumb { width: 34px; height: 34px; }
+  .stats-hero-name { font-size: 0.82rem; }
+  .stats-hero-meta { font-size: 0.65rem; }
+  .stats-paperdoll-col { grid-template-columns: repeat(2, 38px); gap: 4px; }
+  .stats-slot-box { width: 38px; height: 38px; }
+  .stats-paperdoll-avatar { width: 60px; height: 60px; }
+  .stats-main-grid { grid-template-columns: 1fr; gap: 8px; }
+  .stats-combat-grid { max-height: 200px; }
+  .stats-skills-container { grid-template-columns: 1fr; gap: 8px; }
+  .stats-skills-list { max-height: 160px; }
+  .stats-skill-details-card { max-height: 220px; }
+}
+
+/* ==========================================================================
+   9. Responsividade: Mobile Horizontal (Landscape <= 520px de Altura)
+   ========================================================================== */
+@media (max-height: 520px) and (orientation: landscape) { .stats-modal-dialog { width: min(96vw, 760px); max-height: 95dvh; }
+  .stats-modal-header { padding: 4px 10px; }
+  .stats-modal-title { font-size: 0.84rem; }
+  .stats-modal-tabs { padding: 3px 8px; gap: 4px; }
+  .stats-tab-btn { height: 36px; }
+  .stats-tab-icon { width: 26px; height: 26px; }
+  .stats-modal-body { padding: 6px 10px; gap: 6px; }
+  .stats-hero-banner { padding: 3px 8px; }
+  .stats-hero-thumb { width: 28px; height: 28px; }
+  .stats-hero-name { font-size: 0.78rem; }
+  .stats-hero-meta { font-size: 0.62rem; }
+  .stats-points-badge { padding: 2px 6px; font-size: 0.66rem; }
+  /* Paperdoll em Landscape: Linha Horizontal Split */
+  .stats-paperdoll-wrapper { display: grid; grid-template-columns: auto 1fr; gap: 8px; align-items: start; }
+  .stats-paperdoll-col { grid-template-columns: repeat(2, 36px); gap: 4px; }
+  .stats-slot-box { width: 36px; height: 36px; }
+  .stats-paperdoll-avatar { width: 54px; height: 54px; }
+  .stats-slot-detail-card { max-height: 180px; overflow-y: auto; }
+  .stats-main-grid { grid-template-columns: 1fr 1fr; gap: 8px; }
+  .stats-base-list { max-height: 160px; overflow-y: auto; }
+  .stats-combat-grid { max-height: 160px; }
+  .stats-skills-container { grid-template-columns: 190px 1fr; gap: 8px; min-height: 190px; }
+  .stats-skills-list { max-height: 190px; }
+  .stats-skill-details-card { max-height: 190px; }
+  .stats-placeholder-card { padding: 16px 12px; min-height: 180px; gap: 6px; }
+  .stats-placeholder-icon { width: 48px; height: 48px; }
+  .stats-placeholder-title { font-size: 0.88rem; }
+  .stats-placeholder-desc { font-size: 0.70rem; max-width: 520px; }
 }
