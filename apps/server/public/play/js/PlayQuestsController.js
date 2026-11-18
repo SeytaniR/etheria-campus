@@ -435,12 +435,17 @@ const PlayQuestsController = {
      */
     client.openQuestLogModal = async function (filter) {
       if (filter) this.questLogFilter = filter;
+      else if (!this.questLogFilter) this.questLogFilter = 'META';
       await this.loadCharacterQuests();
 
       const bodyEl = document.getElementById('questLogModalBody');
       const allQuests = this.questState?.quests || [];
 
       const filtered = allQuests.filter((q) => {
+        if (this.questLogFilter === 'META') {
+          return q.category === 'META';
+        }
+        if (q.category === 'META') return false;
         if (this.questLogFilter === 'ACTIVE') {
           return q.status === 'IN_PROGRESS' || q.status === 'READY_TO_TURN_IN';
         }
@@ -456,19 +461,25 @@ const PlayQuestsController = {
         return true;
       });
 
+      const metaQuestsCount = allQuests.filter((q) => q.category === 'META').length;
+      const metaReadyCount = allQuests.filter((q) => q.category === 'META' && q.status === 'READY_TO_TURN_IN').length;
+
       const tabsHtml = `
         <div style="display:flex; gap:6px; flex-wrap:wrap; border-bottom:1px solid #334155; padding-bottom:8px;">
+          <button class="${this.questLogFilter === 'META' ? 'btn-primary' : ''}" onclick="PlayApp.openQuestLogModal('META')" style="font-size:0.76rem; padding:5px 10px; background:${this.questLogFilter === 'META' ? 'linear-gradient(135deg, #0284c7, #0369a1)' : '#0f172a'}; color:#38bdf8; font-weight:800; border:1.5px solid ${this.questLogFilter === 'META' ? '#38bdf8' : '#334155'};">
+            🎯 Metas de Caça (${metaQuestsCount}) ${metaReadyCount > 0 ? `<span style="background:#22c55e; color:#020617; border-radius:99px; padding:1px 6px; font-size:0.68rem; margin-left:3px;">★ ${metaReadyCount}</span>` : ''}
+          </button>
           <button class="${this.questLogFilter === 'ACTIVE' ? 'btn-primary' : ''}" onclick="PlayApp.openQuestLogModal('ACTIVE')" style="font-size:0.76rem; padding:5px 10px;">
-            ⏳ Em Andamento (${allQuests.filter((q) => q.status === 'IN_PROGRESS' || q.status === 'READY_TO_TURN_IN').length})
+            ⏳ Em Andamento (${allQuests.filter((q) => q.category !== 'META' && (q.status === 'IN_PROGRESS' || q.status === 'READY_TO_TURN_IN')).length})
           </button>
           <button class="${this.questLogFilter === 'AVAILABLE' ? 'btn-primary' : ''}" onclick="PlayApp.openQuestLogModal('AVAILABLE')" style="font-size:0.76rem; padding:5px 10px;">
-            ❗ Disponíveis (${allQuests.filter((q) => q.status === 'AVAILABLE').length})
+            ❗ Disponíveis (${allQuests.filter((q) => q.category !== 'META' && q.status === 'AVAILABLE').length})
           </button>
           <button class="${this.questLogFilter === 'LOCKED' ? 'btn-primary' : ''}" onclick="PlayApp.openQuestLogModal('LOCKED')" style="font-size:0.76rem; padding:5px 10px;">
-            🔒 Próximos Episódios (${allQuests.filter((q) => q.status === 'LOCKED').length})
+            🔒 Próximos Episódios (${allQuests.filter((q) => q.category !== 'META' && q.status === 'LOCKED').length})
           </button>
           <button class="${this.questLogFilter === 'COMPLETED' ? 'btn-primary' : ''}" onclick="PlayApp.openQuestLogModal('COMPLETED')" style="font-size:0.76rem; padding:5px 10px;">
-            ✅ Concluídas (${allQuests.filter((q) => q.status === 'COMPLETED').length})
+            ✅ Concluídas (${allQuests.filter((q) => q.category !== 'META' && q.status === 'COMPLETED').length})
           </button>
         </div>
       `;
@@ -476,11 +487,12 @@ const PlayQuestsController = {
       const listHtml = filtered.length
         ? filtered
             .map((q) => {
+              const isMeta = q.category === 'META';
               const statusBadge =
                 q.status === 'READY_TO_TURN_IN'
-                  ? `<span style="background:#ef4444; color:#fff; padding:2px 8px; border-radius:99px; font-size:0.7rem; font-weight:700;">? Pronta para Entregar</span>`
+                  ? `<span style="background:#22c55e; color:#020617; padding:2px 8px; border-radius:99px; font-size:0.7rem; font-weight:800; box-shadow:0 0 8px rgba(34,197,94,0.5);">🎁 Recompensa Disponível</span>`
                   : q.status === 'IN_PROGRESS'
-                  ? `<span style="background:#475569; color:#f8fafc; padding:2px 8px; border-radius:99px; font-size:0.7rem; font-weight:700;">? Em Andamento</span>`
+                  ? `<span style="background:#475569; color:#f8fafc; padding:2px 8px; border-radius:99px; font-size:0.7rem; font-weight:700;">⏳ Em Andamento</span>`
                   : q.status === 'AVAILABLE'
                   ? `<span style="background:#ff2e4c; color:#fff; padding:2px 8px; border-radius:99px; font-size:0.7rem; font-weight:700;">! Disponível</span>`
                   : q.status === 'LOCKED'
@@ -490,6 +502,67 @@ const PlayQuestsController = {
               const mapHint = q.giverMapNamePtBr
                 ? `📍 ${q.giverMapNamePtBr}`
                 : `🌍 Qualquer mapa onde ${q.giverNpcNamePtBr} estiver`;
+
+              // Renderização Especial para Quests Meta Procedurais
+              if (isMeta) {
+                const curStage = q.metaStageInfo?.currentStage || 1;
+                const totStages = q.metaStageInfo?.totalStages || 5;
+                const obj = (q.objectives || [])[0] || {};
+                const curKills = Number(obj.currentCount || 0);
+                const reqKills = Number(obj.requiredCount || 10);
+                const pct = Math.min(100, Math.max(0, Math.round((curKills / Math.max(1, reqKills)) * 100)));
+
+                return `
+                  <div style="background:#0b1329; border:1.5px solid ${q.status === 'READY_TO_TURN_IN' ? '#22c55e' : '#1e3a5f'}; border-radius:10px; padding:12px; display:flex; flex-direction:column; gap:8px; box-shadow:0 4px 14px rgba(0,0,0,0.4);">
+                    <div style="display:flex; justify-content:space-between; align-items:center; gap:6px; flex-wrap:wrap;">
+                      <div style="display:flex; align-items:center; gap:8px;">
+                        <span style="font-size:1.3rem;">🎯</span>
+                        <div>
+                          <strong style="color:#fde047; font-size:0.92rem;">${q.titlePtBr}</strong>
+                          <div style="font-size:0.68rem; color:#38bdf8; font-weight:700;">Estágio ${curStage} de ${totStages} &bull; Meta: ${reqKills.toLocaleString('pt-BR')} abates</div>
+                        </div>
+                      </div>
+                      ${statusBadge}
+                    </div>
+
+                    <div style="font-size:0.74rem; color:#cbd5e1; line-height:1.4;">${q.descriptionPtBr}</div>
+
+                    <!-- Barra de Progresso de Abates -->
+                    <div style="background:#070d1c; border:1px solid #1e293b; border-radius:8px; padding:8px 10px; display:flex; flex-direction:column; gap:4px;">
+                      <div style="display:flex; justify-content:space-between; font-size:0.72rem; font-weight:800;">
+                        <span style="color:#94a3b8;">Progresso Acumulado:</span>
+                        <span style="color:${pct >= 100 ? '#4ade80' : '#38bdf8'}; font-family:monospace;">${curKills.toLocaleString('pt-BR')} / ${reqKills.toLocaleString('pt-BR')} (${pct}%)</span>
+                      </div>
+                      <div style="background:#1e293b; border-radius:99px; height:8px; overflow:hidden;">
+                        <div style="background:linear-gradient(90deg, #0284c7 0%, #22c55e 100%); width:${pct}%; height:100%; transition:width 0.3s ease;"></div>
+                      </div>
+                    </div>
+
+                    <!-- Resumo das Recompensas do Estágio Atual -->
+                    <div style="background:rgba(15,23,42,0.8); border:1px solid rgba(255,255,255,0.06); border-radius:8px; padding:6px 10px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:6px;">
+                      <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap; font-size:0.72rem; font-weight:800;">
+                        <span style="color:#fde047;">💰 +${(q.rewards?.gold || 0).toLocaleString('pt-BR')} Ouro</span>
+                        <span style="color:#38bdf8;">⚡ +${(q.rewards?.exp || 0).toLocaleString('pt-BR')} XP</span>
+                        <span style="color:#a855f7;">★ +1 Ponto Atributo</span>
+                        <span style="color:#f472b6; display:flex; align-items:center; gap:3px;">
+                          <img src="/play/assets/hud/item_hunter_medal.png" style="width:16px; height:16px; object-fit:contain;" alt="Medalha" />
+                          1x Medalha de Caçador
+                        </span>
+                      </div>
+
+                      ${
+                        q.status === 'READY_TO_TURN_IN'
+                          ? `<button class="btn-primary" style="background:linear-gradient(135deg, #16a34a, #15803d); border:1.5px solid #4ade80; color:#fff; font-weight:900; padding:6px 14px; font-size:0.80rem; border-radius:6px; cursor:pointer; box-shadow:0 0 10px rgba(34,197,94,0.4);" onclick="PlayApp.claimMetaQuest(${q.id})">
+                              🎁 Resgatar Recompensa
+                            </button>`
+                          : q.status === 'COMPLETED'
+                          ? `<span style="color:#4ade80; font-weight:800; font-size:0.76rem;">👑 Maestria Completa!</span>`
+                          : `<span style="color:#64748b; font-size:0.72rem;">Em Progresso...</span>`
+                      }
+                    </div>
+                  </div>
+                `;
+              }
 
               return `
                 <div style="background:#0f172a; border:1px solid #334155; border-radius:10px; padding:10px 12px; display:flex; flex-direction:column; gap:6px;">
@@ -530,6 +603,30 @@ const PlayQuestsController = {
 
       bodyEl.innerHTML = `${tabsHtml}<div style="display:flex; flex-direction:column; gap:8px; margin-top:4px;">${listHtml}</div>`;
       document.getElementById('questLogModal').style.display = 'flex';
+    };
+
+    /**
+     * Resgata instantaneamente a recompensa de uma Quest Meta sem necessidade de NPC.
+     */
+    client.claimMetaQuest = async function (questId) {
+      if (!this.activeChar) return;
+      try {
+        const result = await this.api(`/api/play/characters/${this.activeChar.id}/quests/${questId}/claim-meta`, {
+          method: 'POST',
+          body: JSON.stringify({ mapId: null }),
+        });
+        if (result && result.character) {
+          Object.assign(this.activeChar, result.character);
+          if (typeof this.renderStatsModalView === 'function') this.renderStatsModalView();
+          if (window.PlayHudController && typeof window.PlayHudController.updatePlayerVitals === 'function') {
+            window.PlayHudController.updatePlayerVitals();
+          }
+        }
+        this.showNotification?.('🎉 Meta de Caça Resgatada! +1 Ponto de Atributo, Medalha de Caçador, Ouro e XP!', 'success');
+        await this.openQuestLogModal('META');
+      } catch (err) {
+        alert(`Erro ao resgatar meta de caça: ${err.message}`);
+      }
     };
 
     /**

@@ -13,6 +13,7 @@
 
 import { I18nCache } from '@etheria/database';
 import { MetaQuestProceduralEngine, type MetaQuestConfigDto } from './MetaQuestProceduralEngine.js';
+import { MonsterMetaQuestService } from './MonsterMetaQuestService.js';
 import {
   CharacterInventoryService,
   type DefeatedMonsterDropUnit,
@@ -49,6 +50,9 @@ export class QuestProgressService {
    * resolvendo dinamicamente estágio ativo de Quests `META` e estoque da mochila para `COLLECT_ITEM`.
    */
   public async getCharacterQuestState(characterId: number, currentMapId: number | null = null) {
+    if (characterId) {
+      await MonsterMetaQuestService.ensurePlayerMetaQuests(this.prisma, characterId);
+    }
     const [character, allQuests, progressRows, bagMap, items, monsters, races, i18nMap] = await Promise.all([
       this.prisma.playerCharacter.findUnique({ where: { id: Number(characterId) } }),
       this.getAllQuestsFn(),
@@ -571,16 +575,15 @@ export class QuestProgressService {
     if (quest.playerState !== 'TURN_IN_READY') {
       throw new Error('Os objetivos desta missão ainda não foram concluídos.');
     }
-    if (!quest.turnInMapAllowed) {
+    const isMeta = quest.questCategory === 'META' && Boolean(quest.metaStageInfo);
+    if (!isMeta && !quest.turnInMapAllowed) {
       throw new Error(`Esta missão só pode ser concluída no mapa: ${quest.turnInMapNamePtBr}`);
     }
 
     const rewards = quest.rewards || {};
     const expGain = Math.max(0, Number(rewards.exp) || 0);
     const goldGain = Math.max(0, Number(rewards.gold) || 0);
-    // REGRA SAGRADA MANDATÓRIA: Nenhuma missão pode conceder pontos livres de atributo para distribuir.
-    // Apenas a evolução de nível concede estritamente 5 pontos de atributo base por level up.
-    const statPointsGain = 0;
+    const statPointsGain = Math.max(0, Number(rewards.rewardStatPoints ?? rewards.statPoints) || 0);
     const rewardItemTemplateId = rewards.rewardItemTemplateId ? Number(rewards.rewardItemTemplateId) : null;
     const rewardItemQuantity = rewardItemTemplateId ? Math.max(1, Number(rewards.rewardItemQuantity) || 1) : 0;
     const triggerReborn = Boolean(rewards.triggerReborn);
@@ -588,7 +591,6 @@ export class QuestProgressService {
     const objectives = Array.isArray(quest.objectives) ? quest.objectives : [];
     const nextCounts = [...(quest.progressCounts || objectives.map(() => 0))];
 
-    const isMeta = quest.questCategory === 'META' && Boolean(quest.metaStageInfo);
     const currentStage = isMeta ? Number(quest.metaStageInfo.currentStage) || 1 : 1;
     const totalStages = isMeta ? Number(quest.metaStageInfo.totalStages) || 1 : 1;
     const hasNextStage = isMeta && currentStage < totalStages;
@@ -614,14 +616,17 @@ export class QuestProgressService {
         }
       }
 
-      // 2. Aplica EXP, Level Up, Pontos de Atributo (Exclusivo Level Up) para Jogador e Pets
+      // 2. Aplica EXP, Level Up, Pontos de Atributo para Jogador e Pets
       const progression = await CharacterProgressionService.awardProgression(tx, pc.id, expGain);
       const newGold = BigInt(Math.max(0, Number(pc.gold || 0) + goldGain));
+      const baseUnspent = progression?.player?.unspentStatPoints ?? pc.unspentStatPoints;
+      const finalUnspent = baseUnspent + statPointsGain;
 
       const updatedPc = await tx.playerCharacter.update({
         where: { id: pc.id },
         data: {
           gold: newGold,
+          unspentStatPoints: finalUnspent,
           isReborn: triggerReborn ? true : pc.isReborn,
         },
       });
@@ -666,8 +671,8 @@ export class QuestProgressService {
         exp: playerProg?.newExp ?? Number(updatedPc.experience),
         maxXp: playerProg?.maxXp ?? (updatedPc.level * 200),
         gold: Number(updatedPc.gold),
-        freePoints: playerProg?.unspentStatPoints ?? updatedPc.unspentStatPoints,
-        unspentStatPoints: playerProg?.unspentStatPoints ?? updatedPc.unspentStatPoints,
+        freePoints: finalUnspent,
+        unspentStatPoints: finalUnspent,
         isReborn: updatedPc.isReborn,
         playerProgression: playerProg ?? null,
         petsProgression: progression?.pets ?? [],
@@ -685,6 +690,9 @@ export class QuestProgressService {
           const alreadyDeliv = Math.max(0, Number(nextCounts[0] || 0));
           const remBag = bagAfterConsume.get(Number(metaCfg.itemTemplateId)) || 0;
           nextStageReady = alreadyDeliv + remBag >= nextStageReq;
+        } else if (metaCfg.targetType === 'KILL_MONSTER' || metaCfg.targetType === 'KILL_RACE') {
+          const currentKills = Math.max(0, Number(nextCounts[0] || 0));
+          nextStageReady = currentKills >= nextStageReq;
         }
 
         await tx.characterQuestProgress.update({

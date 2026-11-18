@@ -20,6 +20,7 @@ import { MapSpawnResolver } from './MapSpawnResolver.js';
 import { CharacterInventoryService } from './CharacterInventoryService.js';
 import { CharacterProgressionService } from './CharacterProgressionService.js';
 import { AssetMirrorService } from './AssetMirrorService.js';
+import { MonsterMetaQuestService } from './MonsterMetaQuestService.js';
 
 export interface CreateCharacterDto {
   name: string;
@@ -174,6 +175,16 @@ export class GamePlayController {
       CharacterProgressionService.getExperienceMap(this.prisma, 1),
     ]);
     const characters = rawCharacters.map((c) => this.serializeCharacter(c, i18nMap, mapNameById, expMap));
+
+    // Garante que todas as Quests Meta procedurais estejam sincronizadas e ativas para os personagens do jogador
+    try {
+      await MonsterMetaQuestService.syncAllMetaQuests(this.prisma);
+      for (const rc of rawCharacters) {
+        await MonsterMetaQuestService.ensurePlayerMetaQuests(this.prisma, rc.id);
+      }
+    } catch (err) {
+      console.warn('Erro ao sincronizar Quests Meta no bootstrap:', err);
+    }
 
     const [availableMonstersAsPets, uiLayoutTemplates] = await Promise.all([
       this.prisma.monsterTemplate.findMany({
@@ -454,6 +465,7 @@ export class GamePlayController {
     });
 
     const i18nMap = await I18nCache.getTranslations(this.prisma, 'pt-BR');
+    await MonsterMetaQuestService.ensurePlayerMetaQuests(this.prisma, created.id);
 
     return this.serializeCharacter(created, i18nMap);
   }

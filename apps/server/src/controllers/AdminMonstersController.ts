@@ -13,6 +13,7 @@
 import { PrismaClient } from '@prisma/client';
 import { SnapshotManager } from '@etheria/database';
 import type { AssetMirrorService } from './AssetMirrorService.js';
+import { MonsterMetaQuestService } from './MonsterMetaQuestService.js';
 
 export interface MonsterDropEntryDto {
   itemTemplateId: number;
@@ -295,6 +296,7 @@ export class AdminMonstersController {
     if (this.assetMirrorService && created.mcreworkMonsterKey) {
       await this.assetMirrorService.mirrorMonsterAssets(created.mcreworkMonsterKey);
     }
+    await MonsterMetaQuestService.syncAllMetaQuests(this.prisma);
     return created;
   }
 
@@ -361,6 +363,7 @@ export class AdminMonstersController {
     if (this.assetMirrorService && updated.mcreworkMonsterKey) {
       await this.assetMirrorService.mirrorMonsterAssets(updated.mcreworkMonsterKey);
     }
+    await MonsterMetaQuestService.syncAllMetaQuests(this.prisma);
     return updated;
   }
 
@@ -371,6 +374,7 @@ export class AdminMonstersController {
     const deleted = await this.prisma.monsterTemplate.delete({
       where: { id },
     });
+    await MonsterMetaQuestService.syncAllMetaQuests(this.prisma);
     await this.snapshotManager.exportToDisk();
     return deleted;
   }

@@ -629,7 +629,7 @@ export class PlayRouter {
       return true;
     }
 
-    const turnInQuestMatch = pathname.match(/^\/api\/play\/characters\/(\d+)\/quests(?:\/(\d+))?\/turn-in$/);
+    const turnInQuestMatch = pathname.match(/^\/api\/play\/characters\/(\d+)\/quests(?:\/(\d+))?\/(?:turn-in|claim-meta)$/);
     if (turnInQuestMatch && method === 'POST') {
       const charId = Number(turnInQuestMatch[1]);
       if (!(await this.verifyCharacterOwnership(userAccountId, session.role, charId))) {

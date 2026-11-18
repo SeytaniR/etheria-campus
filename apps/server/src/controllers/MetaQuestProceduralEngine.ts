@@ -106,13 +106,17 @@ export class MetaQuestProceduralEngine {
       const itemTrack = tracks.item;
       const itemId = itemTrack?.enabled && itemTrack.itemTemplateId ? Number(itemTrack.itemTemplateId) : null;
       const itemQty = itemId ? Math.max(1, this.computeScaledRewardValue(itemTrack, s)) : 0;
+      const statTrack = tracks.statPoints;
+      const statPoints = statTrack?.enabled
+        ? this.computeScaledRewardValue(statTrack, s)
+        : (cfg.targetType === 'KILL_MONSTER' || cfg.targetType === 'KILL_RACE' ? 1 : 0);
 
       stages.push({
         stageIndex: s,
         requiredCount,
         rewardExp: this.computeScaledRewardValue(tracks.exp, s),
         rewardGold: this.computeScaledRewardValue(tracks.gold, s),
-        rewardStatPoints: 0, // REGRA SAGRADA: 0 pontos livres em quests (apenas Level Up concede pontos distribuíveis)
+        rewardStatPoints: statPoints,
         rewardItemTemplateId: itemId,
         rewardItemQuantity: itemQty,
         triggerReborn: false,
@@ -193,7 +197,7 @@ export class MetaQuestProceduralEngine {
         requiredCount: reqCount,
         rewardExp: Math.max(0, Math.min(MetaQuestProceduralEngine.MAX_TARGET_COUNT, Math.round(Number(provided.rewardExp ?? fallback.rewardExp) || 0))),
         rewardGold: Math.max(0, Math.min(MetaQuestProceduralEngine.MAX_TARGET_COUNT, Math.round(Number(provided.rewardGold ?? fallback.rewardGold) || 0))),
-        rewardStatPoints: 0, // REGRA SAGRADA: 0 pontos livres em quests
+        rewardStatPoints: Math.max(0, Math.round(Number(provided.rewardStatPoints ?? fallback.rewardStatPoints) || 0)),
         rewardItemTemplateId,
         rewardItemQuantity,
         triggerReborn: Boolean(provided.triggerReborn),
