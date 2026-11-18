@@ -254,21 +254,14 @@ export class TemporaryCombatController {
       .filter((cp: any) => cp.deploySlot && (inParty ? Number(cp.deploySlot) === 1 : [1, 2, 3].includes(Number(cp.deploySlot))) && !CharacterPetService.isPetTemporarilyDisabled(cp.monsterTemplate))
       .slice(0, maxAllowedPets);
     const numPets = activeDeployedPets.length;
-    const alliesCount = 1 + numPets;
-    let minMobs = 1;
-    let maxMobs = 7;
-    if (alliesCount === 2) {
-      minMobs = 3;
-      maxMobs = 10;
-    } else if (alliesCount > 2) {
-      const extraAllies = alliesCount - 2;
-      minMobs = 3 + extraAllies * 1;
-      maxMobs = 10 + extraAllies * 2;
+    const extraPartyMembers = inParty && party ? Math.max(0, party.members.length - 1) : 0;
+    const extraAllies = numPets + extraPartyMembers;
+    // Regra de Spawn: Solo (com ou sem pet base) spawna 2 a 6 monstros; cada pet ou integrante na equipe adiciona de 1 a 2 monstros
+    let totalMonstersToSpawn = Math.floor(Math.random() * 5) + 2; // 2 a 6
+    for (let i = 0; i < extraAllies; i++) {
+      totalMonstersToSpawn += Math.floor(Math.random() * 2) + 1; // +1 a +2 por pet ou membro extra
     }
-    const totalMonstersToSpawn = Math.max(
-      1,
-      Math.min(25, Math.floor(Math.random() * (maxMobs - minMobs + 1)) + minMobs)
-    );
+    totalMonstersToSpawn = Math.max(2, Math.min(25, totalMonstersToSpawn));
 
     const candidateTemplates = await MapSpawnResolver.findEligibleMonstersForMap<MonsterTemplate>(
       this.prisma,

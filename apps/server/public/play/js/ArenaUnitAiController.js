@@ -138,6 +138,27 @@ class ArenaUnitAiController {
 
     const range = Math.max(48, Number(unit.attackRange) || (unit.combatStyle === 'RANGED' ? 220 : 60));
 
+    // Calcula penalidade de aglomeração de foco (distribui aggro entre Pets e Jogador) e prioridade de Vanguarda dos Pets
+    const getAggroSpreadMod = (en) => {
+      if (aliveEnemies.length <= 1) return 0;
+      let engagedByAllies = 0;
+      for (const ally of allies) {
+        if (!ally || !ally.isAlive || ally === unit) continue;
+        if (ally.targetMob === en || (ally.aiState && ally.aiState.lastTargetId === en.id)) {
+          engagedByAllies += 1;
+        }
+      }
+      let mod = engagedByAllies * 145;
+      // Quando monstros escolhem alvos, Pets na linha de frente atraem aggro natural (especialmente o Pet Tank)
+      if (unit.team === 'ENEMY' && !en.isPlayer) {
+        mod -= en.tacticalRole === 'TANK_PROTECTOR' ? 110 : 65;
+      }
+      if (unit.targetMob === en) {
+        mod -= 30;
+      }
+      return mod;
+    };
+
     // A) Papel TANK_PROTECTOR: intercepta inimigos se aproximando dos Rangeds aliados
     if (unit.tacticalRole === 'TANK_PROTECTOR') {
       const rangedAllies = allies.filter((a) => a && a.isAlive && a !== unit && a.combatStyle === 'RANGED');
@@ -147,7 +168,7 @@ class ArenaUnitAiController {
 
       for (const allyR of rangedAllies) {
         for (const en of aliveEnemies) {
-          const dThreat = Math.hypot(en.x - allyR.x, en.y - allyR.y);
+          const dThreat = Math.hypot(en.x - allyR.x, en.y - allyR.y) + getAggroSpreadMod(en) * 0.4;
           if (dThreat < closestThreatToRanged) {
             closestThreatToRanged = dThreat;
             bestThreat = en;
@@ -172,7 +193,7 @@ class ArenaUnitAiController {
       }
     }
 
-    // B) Unidade RANGED: prioriza inimigo mais próximo DENTRO do alcance
+    // B) Unidade RANGED: prioriza inimigo mais próximo DENTRO do alcance (distribuindo foco entre Pets e Jogador)
     if (unit.combatStyle === 'RANGED') {
       const inRange = aliveEnemies.filter((e) => Math.hypot(e.x - unit.x, e.y - unit.y) <= range);
       if (inRange.length > 0) {
@@ -185,8 +206,8 @@ class ArenaUnitAiController {
         let bestScore = Infinity;
         for (const en of inRange) {
           const d = Math.hypot(en.x - unit.x, en.y - unit.y);
-          const hpBonus = unit.isTopDamage ? (en.hp / Math.max(1, en.maxHp)) * 55 : 0;
-          const score = d + hpBonus;
+          const hpBonus = unit.isTopDamage ? (en.hp / Math.max(1, en.maxHp)) * 40 : 0;
+          const score = d + hpBonus + getAggroSpreadMod(en);
           if (score < bestScore) {
             bestScore = score;
             best = en;
@@ -196,14 +217,14 @@ class ArenaUnitAiController {
       }
     }
 
-    // C) Unidade FRAGILE_SKIRMISHER (Melee pelas bordas): prefere alvos isolados/periféricos longe do centro inimigo
+    // C) Unidade FRAGILE_SKIRMISHER (Melee pelas bordas): prefere alvos periféricos respeitando distribuição de aggro
     if (unit.tacticalRole === 'FRAGILE_SKIRMISHER' && unit.combatStyle !== 'RANGED' && aliveEnemies.length > 1) {
       let bestEdgeTarget = aliveEnemies[0];
       let bestScore = Infinity;
       for (const en of aliveEnemies) {
         const dUnit = Math.hypot(en.x - unit.x, en.y - unit.y);
         const dFromCentroid = Math.hypot(en.x - enemyCentroid.x, en.y - enemyCentroid.y);
-        const score = dUnit - dFromCentroid * 0.55;
+        const score = dUnit - dFromCentroid * 0.45 + getAggroSpreadMod(en);
         if (score < bestScore) {
           bestScore = score;
           bestEdgeTarget = en;
@@ -212,7 +233,7 @@ class ArenaUnitAiController {
       return { target: bestEdgeTarget, interceptPos: null };
     }
 
-    // D) Padrão Melee / Top Dano / Busca de Alvo: inimigo mais próximo (desempate leve por foco ou baixo HP)
+    // D) Padrão Melee / Top Dano / Busca de Alvo: inimigo mais próximo com distribuição tática de aggro para os Pets
     let closest = aliveEnemies[0];
     let bestMetric = Infinity;
     const nowMs = typeof performance !== 'undefined' ? performance.now() : Date.now();
@@ -220,11 +241,12 @@ class ArenaUnitAiController {
     for (const en of aliveEnemies) {
       const d = Math.hypot(en.x - unit.x, en.y - unit.y);
       let mod = (avoidId && en.id === avoidId && aliveEnemies.length > 1) ? 260 : 0;
+      mod += getAggroSpreadMod(en);
       if (unit.isTopDamage) {
-        mod += (en.hp / Math.max(1, en.maxHp)) * 45;
+        mod += (en.hp / Math.max(1, en.maxHp)) * 35;
       }
       if (preferredEnemy === en) {
-        mod -= 35;
+        mod -= 45;
       }
       if (d + mod < bestMetric) {
         bestMetric = d + mod;

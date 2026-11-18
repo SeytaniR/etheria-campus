@@ -324,25 +324,28 @@ class ArenaPhysicsSolver {
     const placements = new Array(units.length);
     const occupied = [...alreadyPlaced];
 
+    const isAllyPetGroup = units.length > 0 && units[0]?.team === 'ALLY';
     const placeRowGroup = (group, forwardOffset) => {
       const perRow = 4;
       group.forEach((item, posIdx) => {
         const row = Math.floor(posIdx / perRow);
         const col = posIdx % perRow;
         const rowCount = Math.min(perRow, group.length - row * perRow);
-        const latOffset = (col - (rowCount - 1) / 2) * 72 + (row % 2 === 1 ? 24 : 0);
+        const latOffset = rowCount === 1 && isAllyPetGroup
+          ? 34
+          : (col - (rowCount - 1) / 2) * 82 + (row % 2 === 1 ? 26 : 0);
         const depthOffset = forwardOffset - row * 68;
 
         const rawX = anchorX + fwdX * depthOffset + rightX * latOffset;
         const rawY = anchorY + fwdY * depthOffset + rightY * latOffset;
-        const free = this.findNearestFreePoint(rawX, rawY, cx, cy, rx, ry, isBlockedFn, occupied, 52, 38);
+        const free = this.findNearestFreePoint(rawX, rawY, cx, cy, rx, ry, isBlockedFn, occupied, 58, 42);
         placements[item.idx] = free;
         occupied.push(free);
       });
     };
 
-    placeRowGroup(meleeUnits, 36);
-    placeRowGroup(rangedUnits, meleeUnits.length > 0 ? -92 : 0);
+    placeRowGroup(meleeUnits, isAllyPetGroup ? 86 : 36);
+    placeRowGroup(rangedUnits, isAllyPetGroup ? 44 : (meleeUnits.length > 0 ? -92 : 0));
     return placements;
   }
 

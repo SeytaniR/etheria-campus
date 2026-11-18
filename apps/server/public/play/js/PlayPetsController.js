@@ -2,13 +2,12 @@
  * @file apps/server/public/play/js/PlayPetsController.js
  * @module @etheria/client/pets
  * @description Controlador Cliente do Sistema Procedural de Pets na Rota `/play`:
- *   - Acompanhamento 2.5D em Tempo Real: O Pet do Slot 1 caminha junto ao jogador durante a exploração dos mapas.
- *   - Modal Completo de Pets (Responsivo Mobile Portrait/Landscape & Desktop):
- *     1. Aba Atributos & Formação: Exibe Elemento Sorteado, Raça, Raridade (F..SS + Multiplicadores),
- *        status "Inativado Temporariamente" quando o monstro é inativado no `/admin`, seleção de Slots 1..3
- *        e distribuição interativa dos 76 pontos iniciais (+4 pontos por Level Up) sobre a base fixa de 1 ponto.
- *     2. Aba Habilidades Livres (Máx. 3): Permite ao jogador fixar livremente até 3 habilidades da tabela `skill_templates`.
- *     3. Aba Catálogo / Gerar Pet: Lista todos os monstros ativos com `Pet Capturável = Sim` para geração procedural.
+ *   - Seguidor 2.5D com Física de Guia/Distanciamento (Tether Leash): O Pet do Slot 1 caminha
+ *     atrás/ao lado do jogador mantendo distância segura (66px-74px) sem jamais sobrepor o herói.
+ *   - Modal Minimalista e Compacto (Mobile Portrait, Mobile Landscape e Desktop):
+ *     1. Aba Status: Barra de seleção rápida, Slots 1..3/Reserva em pílulas, distribuição de 76+4/lv pontos e grade compacta de combate.
+ *     2. Aba Skills (Máx. 3): 3 slots compactos no topo + lista enxuta com busca instantânea.
+ *     3. Aba Capturáveis: Grade compacta de geração procedural com Elemento Aleatório e Raridade.
  */
 
 class PlayPetsController {
@@ -28,6 +27,7 @@ class PlayPetsController {
     this.followerDir = 0;
     this.followerIsMoving = false;
     this.lastMapId = null;
+    this.lastPetId = null;
   }
 
   init(clientApp) {
@@ -59,9 +59,6 @@ class PlayPetsController {
     return all.find((p) => Number(p.deploySlot) === 1 && !p.isTemporarilyDisabled) || null;
   }
 
-  /**
-   * Atualiza o estado de pets do personagem ativo e sincroniza a HUD lateral direita.
-   */
   applyPetsPayload(payload) {
     const client = this.getClient();
     if (!client || !client.activeChar || !payload) return;
@@ -92,7 +89,7 @@ class PlayPetsController {
   }
 
   // ============================================================================
-  // 1. SEGUIDOR 2.5D NO MAPA DE EXPLORAÇÃO (PET DO SLOT 1 CAMINHANDO JUNTO)
+  // 1. SEGUIDOR 2.5D NO MAPA (FÍSICA DE GUIA / TETHER SEM SOBREPOSIÇÃO)
   // ============================================================================
 
   updateFollowerPhysics(client, dt) {
@@ -104,52 +101,55 @@ class PlayPetsController {
       return;
     }
 
-    const dirAngles = [
-      Math.PI / 2,
-      (3 * Math.PI) / 4,
-      Math.PI,
-      -(3 * Math.PI) / 4,
-      -Math.PI / 2,
-      -Math.PI / 4,
-      0,
-      Math.PI / 4,
-    ];
-    const pAngle = dirAngles[client.playerDir] ?? Math.PI / 2;
-    // Posiciona o Pet 42px atrás e levemente à lateral do jogador
-    const followAngle = pAngle + Math.PI + 0.42;
-    const followDist = 42;
-    const targetX = client.playerX + Math.cos(followAngle) * followDist;
-    const targetY = client.playerY + Math.sin(followAngle) * (followDist * 0.82);
+    const px = Number(client.playerX) || 500;
+    const py = Number(client.playerY) || 500;
 
+    // Inicializa ou reposiciona se trocou de mapa/pet ou ficou muito longe (> 380px)
     if (
       this.followerX === null ||
       this.followerY === null ||
       this.lastMapId !== client.currentMap.id ||
-      Math.hypot(client.playerX - this.followerX, client.playerY - this.followerY) > 360
+      this.lastPetId !== pet.id ||
+      Math.hypot(px - this.followerX, py - this.followerY) > 380
     ) {
-      this.followerX = targetX;
-      this.followerY = targetY;
+      this.followerX = px - 74;
+      this.followerY = py + 16;
       this.followerDir = client.playerDir || 0;
       this.followerIsMoving = false;
       this.lastMapId = client.currentMap.id;
+      this.lastPetId = pet.id;
       return;
     }
 
-    const dx = targetX - this.followerX;
-    const dy = targetY - this.followerY;
+    const dx = px - this.followerX;
+    const dy = py - this.followerY;
     const dist = Math.hypot(dx, dy);
 
-    if (dist > 10) {
+    const minSafeDist = 58; // Se o jogador caminhar para cima do pet, o pet dá espaço
+    const stopFollowDist = 68; // Distância ideal em que o pet para atrás do jogador
+    const startFollowDist = 74; // Distância em que a guia puxa o pet para caminhar
+
+    if (dist > startFollowDist) {
+      // Caminha na direção do jogador, mas para exatamente a `stopFollowDist` (68px) dele
       this.followerIsMoving = true;
       this.followerDir = client.calculateDirection8(dx, dy);
-      const speed = (client.baseMoveSpeed || 168) * (dist > 95 ? 1.25 : 1.02);
-      const step = Math.min(dist, speed * dt);
+      const excess = dist - stopFollowDist;
+      const speed = (client.baseMoveSpeed || 168) * (dist > 130 ? 1.28 : 1.04);
+      const step = Math.min(excess, speed * dt);
       this.followerX += (dx / dist) * step;
       this.followerY += (dy / dist) * step;
+    } else if (dist < minSafeDist) {
+      // Jogador encostou no pet: afasta suavemente para o lado/trás mantendo 62px de separação
+      this.followerIsMoving = true;
+      const pushAngle = dist > 2 ? Math.atan2(-dy, -dx) + 0.35 : (Math.PI * 0.85);
+      const pushStep = Math.min(minSafeDist - dist + 4, (client.baseMoveSpeed || 168) * 0.95 * dt);
+      this.followerX += Math.cos(pushAngle) * pushStep;
+      this.followerY += Math.sin(pushAngle) * pushStep;
+      this.followerDir = client.calculateDirection8(px - this.followerX, py - this.followerY);
     } else {
-      this.followerIsMoving = Boolean(client.isMoving);
-      if (!client.isMoving) {
-        this.followerDir = client.playerDir;
+      this.followerIsMoving = false;
+      if (dist > 10) {
+        this.followerDir = client.calculateDirection8(dx, dy);
       }
     }
   }
@@ -179,27 +179,24 @@ class PlayPetsController {
       now,
       client.mesh,
       gOffset,
-      0.58,
+      0.56,
       false,
       pet.shadowOffsetX || 0,
       pet.shadowOffsetY || 0
     );
 
     const elStyle = client.getElementStyle ? client.getElementStyle(pet.elementCode) : { icon: '🐾' };
-    const labelY = this.followerY - 52 + Math.round(gOffset * 0.58);
+    const labelY = this.followerY - 50 + Math.round(gOffset * 0.56);
     ctx.save();
     ctx.textAlign = 'center';
-    ctx.font = 'bold 9px sans-serif';
-    ctx.fillStyle = '#38bdf8';
-    ctx.fillText(`[Pet • Rank ${pet.rarityTier || 'F'}]`, this.followerX, labelY - 11);
-    ctx.font = 'bold 11px sans-serif';
-    ctx.fillStyle = '#bae6fd';
-    ctx.fillText(`${elStyle.icon || '🐾'} ${pet.nickname} (Nv.${pet.level || 1})`, this.followerX, labelY);
+    ctx.font = 'bold 10px sans-serif';
+    ctx.fillStyle = '#7dd3fc';
+    ctx.fillText(`${elStyle.icon || '🐾'} ${pet.nickname} [${pet.rarityTier || 'F'}]`, this.followerX, labelY);
     ctx.restore();
   }
 
   // ============================================================================
-  // 2. MODAL COMPLETO DE GESTÃO DE PETS (ATRIBUTOS, SLOTS 1..3, 3 SKILLS, GERADOR)
+  // 2. MODAL COMPACTO & MINIMALISTA (MOBILE PORTRAIT, LANDSCAPE & DESKTOP)
   // ============================================================================
 
   openModal() {
@@ -324,7 +321,7 @@ class PlayPetsController {
       nextSkills = current.filter((id) => id !== sId);
     } else {
       if (current.length >= 3) {
-        alert('Um Pet pode ter no máximo 3 habilidades fixadas! Remova uma antes de fixar outra.');
+        alert('Máximo de 3 habilidades por Pet! Remova uma antes de fixar outra.');
         return;
       }
       nextSkills = [...current, sId];
@@ -348,7 +345,7 @@ class PlayPetsController {
     const client = this.getClient();
     const char = this.getActiveChar();
     if (!client || !char) return;
-    const nextName = prompt('Novo nome para o seu Pet (2 a 24 caracteres):', currentName || '');
+    const nextName = prompt('Novo nome do Pet (2 a 24 caracteres):', currentName || '');
     if (!nextName || !nextName.trim() || nextName.trim() === currentName) return;
 
     try {
@@ -407,79 +404,62 @@ class PlayPetsController {
     if (selectedPet && this.selectedPetId !== selectedPet.id) {
       this.selectedPetId = selectedPet.id;
     }
+    const pinnedCount = Array.isArray(selectedPet?.skillIdsJson) ? selectedPet.skillIdsJson.length : 0;
 
     modal.innerHTML = `
-      <div class="hud-modal-dialog pet-system-modal-dialog">
-        <div class="hud-modal-header" style="display:flex; justify-content:space-between; align-items:center; gap:8px; flex-wrap:wrap;">
-          <div style="display:flex; align-items:center; gap:8px;">
-            <h3 style="margin:0;">🐾 Companheiros & Pets (${equippedCount}/3 em Formação)</h3>
+      <div class="pm-modal">
+        <!-- Topo Ultra-Compacto -->
+        <div class="pm-topbar">
+          <div class="pm-title">
+            <span>🐾 Pets</span>
+            <span class="pm-count-badge">${equippedCount}/3</span>
           </div>
-          <div style="display:flex; align-items:center; gap:6px;">
-            <button type="button" class="pet-tab-btn ${this.activeTab === 'STATS' ? 'active' : ''}" onclick="window.PlayPetsController.switchTab('STATS')">📊 Atributos & Slots</button>
-            <button type="button" class="pet-tab-btn ${this.activeTab === 'SKILLS' ? 'active' : ''}" onclick="window.PlayPetsController.switchTab('SKILLS')">⚡ Habilidades (Máx 3)</button>
-            <button type="button" class="pet-tab-btn ${this.activeTab === 'GENERATE' ? 'active' : ''}" onclick="window.PlayPetsController.switchTab('GENERATE')">🥚 Catálogo Capturável</button>
-            <button type="button" class="hud-modal-close" onclick="window.PlayPetsController.closeModal()">✕</button>
+          <div class="pm-tabs">
+            <button type="button" class="pm-tab ${this.activeTab === 'STATS' ? 'active' : ''}" onclick="window.PlayPetsController.switchTab('STATS')">📊 Status</button>
+            <button type="button" class="pm-tab ${this.activeTab === 'SKILLS' ? 'active' : ''}" onclick="window.PlayPetsController.switchTab('SKILLS')">⚡ Skills (${pinnedCount}/3)</button>
+            <button type="button" class="pm-tab ${this.activeTab === 'GENERATE' ? 'active' : ''}" onclick="window.PlayPetsController.switchTab('GENERATE')">🥚 Capturáveis</button>
           </div>
+          <button type="button" class="pm-close" onclick="window.PlayPetsController.closeModal()">✕</button>
         </div>
 
-        <div class="pet-system-modal-layout">
-          <!-- Coluna Esquerda: Lista de Pets do Jogador -->
-          <div class="pet-roster-sidebar">
-            <div class="pet-roster-header">
-              <span>Meus Pets (${allPets.length})</span>
-              <button type="button" class="pet-mini-btn" onclick="window.PlayPetsController.switchTab('GENERATE')">+ Gerar</button>
-            </div>
-            <div class="pet-roster-list">
-              ${
-                allPets.length === 0
-                  ? `<div style="padding:16px 10px; text-align:center; color:#94a3b8; font-size:0.78rem;">
-                       Nenhum Pet gerado ainda.<br/>
-                       Use a aba <strong>🥚 Catálogo Capturável</strong> ao lado para gerar um Pet!
-                     </div>`
-                  : allPets.map((p) => this.renderRosterCardHtml(p, selectedPet?.id === p.id)).join('')
-              }
-            </div>
-          </div>
+        <!-- Barra Horizontal de Seleção Rápida de Pets (Compacta em Mobile e Desktop) -->
+        <div class="pm-pet-strip">
+          ${allPets.map((p) => this.renderPetChipHtml(p, selectedPet?.id === p.id)).join('')}
+          <button type="button" class="pm-add-chip ${this.activeTab === 'GENERATE' ? 'active' : ''}" onclick="window.PlayPetsController.switchTab('GENERATE')">
+            <span>＋</span>
+            <small>Novo Pet</small>
+          </button>
+        </div>
 
-          <!-- Painel Principal Direito -->
-          <div class="pet-main-content">
-            ${this.renderActiveTabContent(selectedPet)}
-          </div>
+        <!-- Corpo Principal -->
+        <div class="pm-body">
+          ${this.renderActiveTabContent(selectedPet)}
         </div>
       </div>
     `;
   }
 
-  renderRosterCardHtml(p, isSelected) {
+  renderPetChipHtml(p, isSelected) {
     const client = this.getClient();
-    const elStyle = client?.getElementStyle ? client.getElementStyle(p.elementCode) : { icon: '⚪', color: '#cbd5e1' };
+    const elStyle = client?.getElementStyle ? client.getElementStyle(p.elementCode) : { icon: '⚪' };
     const isDisabled = Boolean(p.isTemporarilyDisabled);
-    const slotBadge = isDisabled
-      ? `<span class="pet-badge-disabled">⚠️ Inativado Temporariamente</span>`
-      : p.deploySlot === 1
-      ? `<span class="pet-badge-slot1">⭐ Slot 1 (Mapa & Equipe)</span>`
-      : p.deploySlot === 2 || p.deploySlot === 3
-      ? `<span class="pet-badge-slot">⚔️ Slot ${p.deploySlot} (Solo)</span>`
-      : `<span class="pet-badge-reserve">📦 Reserva</span>`;
+    const slotTag = isDisabled ? '⚠️' : p.deploySlot === 1 ? '⭐1' : p.deploySlot ? `S${p.deploySlot}` : '';
 
     return `
-      <div class="pet-roster-item ${isSelected ? 'selected' : ''} ${isDisabled ? 'disabled-pet' : ''}" onclick="window.PlayPetsController.selectPet(${p.id})">
-        <div class="pet-roster-thumb-wrap">
+      <button type="button" class="pm-pet-chip ${isSelected ? 'selected' : ''} ${isDisabled ? 'disabled' : ''}" onclick="window.PlayPetsController.selectPet(${p.id})">
+        <div class="pm-chip-avatar">
           <img src="${p.thumbUrl}" alt="${p.nickname}" onerror="this.src='/play/assets/hud/menu_pets.png'" />
-          <span class="pet-rank-pill rank-${(p.rarityTier || 'F').toLowerCase()}">${p.rarityTier || 'F'}</span>
+          <span class="pm-rank rank-${(p.rarityTier || 'F').toLowerCase()}">${p.rarityTier || 'F'}</span>
+          ${slotTag ? `<span class="pm-chip-slot">${slotTag}</span>` : ''}
         </div>
-        <div class="pet-roster-meta">
-          <div class="pet-roster-name-row">
-            <strong>${p.nickname}</strong>
-            <span style="font-size:0.72rem; color:${elStyle.color};">${elStyle.icon} Nv.${p.level}</span>
-          </div>
-          <div style="font-size:0.68rem; color:#94a3b8;">${p.speciesNamePtBr || ''} • ${p.raceNamePtBr || p.raceCode}</div>
-          <div style="margin-top:3px; display:flex; align-items:center; justify-content:space-between; gap:4px;">
-            ${slotBadge}
-            ${p.unspentStatPoints > 0 ? `<span class="pet-unspent-pill">+${p.unspentStatPoints} pts</span>` : ''}
+        <div class="pm-chip-info">
+          <div class="pm-chip-name">${p.nickname}</div>
+          <div class="pm-chip-sub">
+            <span>${elStyle.icon} Nv.${p.level}</span>
+            ${p.unspentStatPoints > 0 ? `<span class="pm-dot-pts">+${p.unspentStatPoints}</span>` : ''}
           </div>
         </div>
-      </div>
+      </button>
     `;
   }
 
@@ -489,8 +469,9 @@ class PlayPetsController {
     }
     if (!pet) {
       return `
-        <div style="padding:36px 16px; text-align:center; color:#94a3b8;">
-          Selecione um Pet na lista ou gere um novo na aba <strong>🥚 Catálogo Capturável</strong>.
+        <div class="pm-empty">
+          <span>🥚 Nenhum Pet selecionado.</span>
+          <button type="button" class="pm-btn-primary" onclick="window.PlayPetsController.switchTab('GENERATE')">Gerar Primeiro Pet</button>
         </div>
       `;
     }
@@ -502,161 +483,124 @@ class PlayPetsController {
 
   renderStatsTabHtml(pet) {
     const client = this.getClient();
-    const elStyle = client?.getElementStyle ? client.getElementStyle(pet.elementCode) : { icon: '⚪', color: '#cbd5e1', bg: 'rgba(148,163,184,0.2)' };
+    const elStyle = client?.getElementStyle ? client.getElementStyle(pet.elementCode) : { icon: '⚪', color: '#cbd5e1', bg: 'rgba(148,163,184,0.18)' };
     const isDisabled = Boolean(pet.isTemporarilyDisabled);
     const pendingTotal = this.getTotalPendingPoints();
     const remainingPoints = Math.max(0, Number(pet.unspentStatPoints || 0) - pendingTotal);
     const fixed = pet.fixedBaseStats || { VIT: 1, STR: 1, INT: 1, WIS: 1, AGI: 1, DEX: 1 };
     const dist = pet.distributedStatsJson || { VIT: 0, STR: 0, INT: 0, WIS: 0, AGI: 0, DEX: 0 };
     const cs = pet.computedCombatStats || {};
-    const rp = pet.rarityProfile || { hp: 1, atk: 1, def: 1, critBonus: 0, accBonus: 0 };
+    const rp = pet.rarityProfile || { hp: 1, atk: 1, def: 1 };
 
-    const attrMeta = [
-      { key: 'VIT', label: 'Vitalidade (VIT)', desc: 'HP Máx e Defesa Física', color: '#4ade80' },
-      { key: 'STR', label: 'Força (STR)', desc: 'Ataque Físico e Dano Crítico', color: '#f87171' },
-      { key: 'INT', label: 'Inteligência (INT)', desc: 'MP Máx e Ataque Mágico', color: '#38bdf8' },
-      { key: 'WIS', label: 'Sabedoria (WIS)', desc: 'Defesa Mágica, Cura e Esquiva Mág.', color: '#c084fc' },
-      { key: 'AGI', label: 'Agilidade (AGI)', desc: 'Vel. Movimento, Esquiva e Ataque', color: '#fde047' },
-      { key: 'DEX', label: 'Destreza (DEX)', desc: 'Taxa Crítica e Precisão Fís/Mág', color: '#fb923c' },
+    const attrs = [
+      { key: 'VIT', name: 'VIT', hint: 'HP/DEF', color: '#4ade80' },
+      { key: 'STR', name: 'STR', hint: 'ATK Fís', color: '#f87171' },
+      { key: 'INT', name: 'INT', hint: 'MP/Mág', color: '#38bdf8' },
+      { key: 'WIS', name: 'WIS', hint: 'DEF Mág', color: '#c084fc' },
+      { key: 'AGI', name: 'AGI', hint: 'Vel/Esq', color: '#fde047' },
+      { key: 'DEX', name: 'DEX', hint: 'Crit/Prec', color: '#fb923c' },
     ];
 
     return `
-      <div class="pet-details-scroll">
-        ${
-          isDisabled
-            ? `<div class="pet-disabled-alert">
-                 ⚠️ <strong>INATIVADO TEMPORARIAMENTE:</strong> O monstro base deste Pet foi inativado ou desmarcado como Pet no servidor. Ele permanece salvo no seu inventário, mas não pode entrar em combate ou acompanhar no mapa até ser reativado.
-               </div>`
-            : ''
-        }
+      ${isDisabled ? `<div class="pm-alert-disabled">⚠️ <strong>Inativado Temporariamente:</strong> Monstro base desativado no servidor.</div>` : ''}
 
-        <!-- Cabeçalho do Pet -->
-        <div class="pet-hero-banner">
-          <div class="pet-hero-avatar">
+      <!-- Cabeçalho Compacto do Pet + Pílulas de Slot -->
+      <div class="pm-hero">
+        <div class="pm-hero-left">
+          <div class="pm-hero-avatar">
             <img src="${pet.thumbUrl}" alt="${pet.nickname}" />
-            <span class="pet-rank-pill rank-${(pet.rarityTier || 'F').toLowerCase()}">Rank ${pet.rarityTier || 'F'}</span>
+            <span class="pm-rank rank-${(pet.rarityTier || 'F').toLowerCase()}">${pet.rarityTier || 'F'}</span>
           </div>
-          <div class="pet-hero-info">
-            <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
-              <h4 style="margin:0; font-size:1.05rem; color:#fef08a;">${pet.nickname}</h4>
-              <button type="button" class="pet-mini-btn" onclick="window.PlayPetsController.promptRenamePet(${pet.id}, '${pet.nickname.replace(/'/g, "\\'")}')">✏️ Renomear</button>
-              <span style="font-size:0.75rem; padding:2px 8px; border-radius:99px; background:${elStyle.bg}; color:${elStyle.color}; font-weight:700;">
-                ${elStyle.icon} ${pet.elementNamePtBr || pet.elementCode} (Sorteado)
-              </span>
+          <div class="pm-hero-meta">
+            <div class="pm-hero-title-row">
+              <strong>${pet.nickname}</strong>
+              <button type="button" class="pm-icon-btn" title="Renomear" onclick="window.PlayPetsController.promptRenamePet(${pet.id}, '${pet.nickname.replace(/'/g, "\\'")}')">✏️</button>
+              <span class="pm-elem-pill" style="background:${elStyle.bg}; color:${elStyle.color};">${elStyle.icon} ${pet.elementNamePtBr || pet.elementCode}</span>
             </div>
-            <div style="font-size:0.76rem; color:#cbd5e1; margin-top:4px; display:flex; flex-wrap:wrap; gap:10px;">
-              <span>🧬 <strong>Tipo:</strong> ${pet.raceNamePtBr || pet.raceCode}</span>
-              <span>⚔️ <strong>Estilo:</strong> ${pet.combatStyle === 'RANGED' ? `À Distância (${pet.attackRange}px)` : `Corpo a Corpo (${pet.attackRange}px)`}</span>
-              <span>💥 <strong>Dano:</strong> ${pet.damageType === 'MAGICAL' ? '🔮 Mágico' : '🗡️ Físico'}</span>
+            <div class="pm-hero-tags">
+              <span>${pet.raceNamePtBr || pet.raceCode}</span> •
+              <span>${pet.combatStyle === 'RANGED' ? `🏹 ${pet.attackRange}px` : `⚔️ ${pet.attackRange}px`}</span> •
+              <span>${pet.damageType === 'MAGICAL' ? '🔮 Mág' : '🗡️ Fís'}</span> •
+              <span style="color:#fde047;">👑 ${rp.hp}x Status</span>
             </div>
-            <div style="font-size:0.72rem; color:#fde047; margin-top:3px;">
-              👑 <strong>Bônus de Raridade (${pet.rarityTier}):</strong> ${rp.hp}x HP/MP • ${rp.atk}x ATK • ${rp.def}x DEF ${rp.critBonus ? `• +${Math.round(rp.critBonus * 100)}% Crit` : ''} ${rp.accBonus ? `• +${rp.accBonus} Prec` : ''}
-            </div>
-            <!-- Barra de Nível e XP (Ganha 50% da XP do Jogador) -->
-            <div class="pet-xp-row">
-              <span style="font-weight:800; color:#38bdf8; font-size:0.76rem;">Nv. ${pet.level}</span>
-              <div class="pet-xp-bar-track">
-                <div class="pet-xp-bar-fill" style="width:${pet.xpPct || 0}%;"></div>
-              </div>
-              <span style="font-size:0.7rem; color:#94a3b8;">${Number(pet.experience || 0).toLocaleString('pt-BR')} / ${Number(pet.maxXp || 42000).toLocaleString('pt-BR')} XP (50% do Herói)</span>
+            <div class="pm-xp-line">
+              <span class="pm-lv-tag">Nv.${pet.level}</span>
+              <div class="pm-xp-track"><div class="pm-xp-fill" style="width:${pet.xpPct || 0}%;"></div></div>
+              <span class="pm-xp-txt">${pet.xpPct || 0}%</span>
             </div>
           </div>
         </div>
 
-        <!-- Seletor de Slot de Formação (Slots 1, 2, 3 ou Reserva) -->
-        <div class="pet-slot-selector-box">
-          <div style="font-size:0.75rem; font-weight:700; color:#e2e8f0; margin-bottom:6px;">
-            🛡️ Posição na Formação (Solo leva Slots 1, 2 e 3 • Equipe e Mapa usam o Slot 1):
-          </div>
-          <div style="display:flex; gap:6px; flex-wrap:wrap;">
-            <button type="button" class="pet-slot-btn ${pet.deploySlot === 1 ? 'active-slot1' : ''}" ${isDisabled ? 'disabled' : ''} onclick="window.PlayPetsController.setPetSlot(${pet.id}, 1)">
-              ⭐ Slot 1 (Principal / Mapa & Equipe)
-            </button>
-            <button type="button" class="pet-slot-btn ${pet.deploySlot === 2 ? 'active' : ''}" ${isDisabled ? 'disabled' : ''} onclick="window.PlayPetsController.setPetSlot(${pet.id}, 2)">
-              ⚔️ Slot 2 (Auxiliar Solo)
-            </button>
-            <button type="button" class="pet-slot-btn ${pet.deploySlot === 3 ? 'active' : ''}" ${isDisabled ? 'disabled' : ''} onclick="window.PlayPetsController.setPetSlot(${pet.id}, 3)">
-              ⚔️ Slot 3 (Auxiliar Solo)
-            </button>
-            <button type="button" class="pet-slot-btn ${pet.deploySlot === null ? 'active-reserve' : ''}" onclick="window.PlayPetsController.setPetSlot(${pet.id}, null)">
-              📦 Guardar na Reserva
-            </button>
-          </div>
+        <!-- Slots 1, 2, 3 e Reserva em linha compacta -->
+        <div class="pm-slots-bar">
+          <button type="button" class="pm-slot-pill ${pet.deploySlot === 1 ? 's1' : ''}" ${isDisabled ? 'disabled' : ''} onclick="window.PlayPetsController.setPetSlot(${pet.id}, 1)" title="Acompanha no mapa e entra em Equipe/Solo">⭐ Slot 1 (Mapa)</button>
+          <button type="button" class="pm-slot-pill ${pet.deploySlot === 2 ? 's2' : ''}" ${isDisabled ? 'disabled' : ''} onclick="window.PlayPetsController.setPetSlot(${pet.id}, 2)" title="Combate Solo">⚔️ Slot 2</button>
+          <button type="button" class="pm-slot-pill ${pet.deploySlot === 3 ? 's2' : ''}" ${isDisabled ? 'disabled' : ''} onclick="window.PlayPetsController.setPetSlot(${pet.id}, 3)" title="Combate Solo">⚔️ Slot 3</button>
+          <button type="button" class="pm-slot-pill ${pet.deploySlot === null ? 'res' : ''}" onclick="window.PlayPetsController.setPetSlot(${pet.id}, null)">📦 Reserva</button>
         </div>
+      </div>
 
-        <!-- Painel de Distribuição de Atributos Base (1 Fixo + 76 no Nv.1 + 4/Level Up) -->
-        <div class="pet-stats-grid-layout">
-          <div class="pet-base-attrs-panel">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-              <strong style="font-size:0.82rem; color:#f8fafc;">📊 Atributos Base (1 Fixo + Livres)</strong>
-              <span class="pet-points-avail-badge">Pontos Livres: <strong>${remainingPoints}</strong></span>
+      <!-- Grade Responsiva: Atributos Base (Esquerda) + Status de Combate (Direita) -->
+      <div class="pm-stats-split">
+        <div class="pm-card">
+          <div class="pm-card-head">
+            <span>Atributos Base</span>
+            <div style="display:flex; align-items:center; gap:6px;">
+              <span class="pm-pts-badge">Livres: <b>${remainingPoints}</b></span>
+              ${
+                pendingTotal > 0
+                  ? `<button type="button" class="pm-btn-save" onclick="window.PlayPetsController.confirmStatDistribution()">Salvar +${pendingTotal}</button>
+                     <button type="button" class="pm-btn-clear" onclick="window.PlayPetsController.resetPendingAllocations(); window.PlayPetsController.renderModal();">↺</button>`
+                  : ''
+              }
             </div>
-
-            <div class="pet-attr-rows">
-              ${attrMeta
-                .map((a) => {
-                  const baseVal = Number(fixed[a.key] ?? 1);
-                  const distVal = Number(dist[a.key] ?? 0);
-                  const pendVal = Number(this.pendingAllocations[a.key] ?? 0);
-                  const totalVal = baseVal + distVal + pendVal;
-                  return `
-                    <div class="pet-attr-row">
-                      <div style="flex:1; min-width:0;">
-                        <div style="font-size:0.78rem; font-weight:700; color:${a.color};">${a.label}</div>
-                        <div style="font-size:0.66rem; color:#94a3b8;">${a.desc}</div>
-                      </div>
-                      <div style="text-align:right; margin-right:8px;">
-                        <div style="font-size:0.86rem; font-weight:800; color:#f8fafc;">
-                          ${totalVal}
-                          ${pendVal > 0 ? `<span style="color:#4ade80; font-size:0.74rem;">(+${pendVal})</span>` : ''}
-                        </div>
-                        <div style="font-size:0.64rem; color:#64748b;">1 fixo + ${distVal} dist</div>
-                      </div>
-                      <div style="display:flex; gap:3px;">
-                        <button type="button" class="pet-alloc-btn" ${pendVal <= 0 ? 'disabled' : ''} onclick="window.PlayPetsController.adjustPendingStat('${a.key}', -1)">-1</button>
-                        <button type="button" class="pet-alloc-btn plus" ${remainingPoints <= 0 ? 'disabled' : ''} onclick="window.PlayPetsController.adjustPendingStat('${a.key}', 1)">+1</button>
-                        <button type="button" class="pet-alloc-btn plus" ${remainingPoints < 5 ? 'disabled' : ''} onclick="window.PlayPetsController.adjustPendingStat('${a.key}', 5)">+5</button>
-                        <button type="button" class="pet-alloc-btn plus" ${remainingPoints < 10 ? 'disabled' : ''} onclick="window.PlayPetsController.adjustPendingStat('${a.key}', 10)">+10</button>
-                      </div>
+          </div>
+          <div class="pm-attr-list">
+            ${attrs
+              .map((a) => {
+                const baseVal = Number(fixed[a.key] ?? 1) + Number(dist[a.key] ?? 0);
+                const pendVal = Number(this.pendingAllocations[a.key] ?? 0);
+                return `
+                  <div class="pm-attr-item">
+                    <div class="pm-attr-lbl">
+                      <b style="color:${a.color};">${a.name}</b>
+                      <small>${a.hint}</small>
                     </div>
-                  `;
-                })
-                .join('')}
-            </div>
-
-            ${
-              pendingTotal > 0
-                ? `<div style="display:flex; gap:8px; margin-top:10px;">
-                     <button type="button" class="pet-confirm-stats-btn" onclick="window.PlayPetsController.confirmStatDistribution()">
-                       ✅ Confirmar Distribuição (+${pendingTotal} pts)
-                     </button>
-                     <button type="button" class="pet-slot-btn" onclick="window.PlayPetsController.resetPendingAllocations(); window.PlayPetsController.renderModal();">
-                       Limpar
-                     </button>
-                   </div>`
-                : ''
-            }
+                    <div class="pm-attr-val">
+                      <span>${baseVal + pendVal}</span>
+                      ${pendVal > 0 ? `<em class="pm-pend">+${pendVal}</em>` : ''}
+                    </div>
+                    <div class="pm-attr-btns">
+                      <button type="button" ${pendVal <= 0 ? 'disabled' : ''} onclick="window.PlayPetsController.adjustPendingStat('${a.key}', -1)">-</button>
+                      <button type="button" class="p" ${remainingPoints < 1 ? 'disabled' : ''} onclick="window.PlayPetsController.adjustPendingStat('${a.key}', 1)">+1</button>
+                      <button type="button" class="p" ${remainingPoints < 5 ? 'disabled' : ''} onclick="window.PlayPetsController.adjustPendingStat('${a.key}', 5)">+5</button>
+                      <button type="button" class="p" ${remainingPoints < 10 ? 'disabled' : ''} onclick="window.PlayPetsController.adjustPendingStat('${a.key}', 10)">+10</button>
+                    </div>
+                  </div>
+                `;
+              })
+              .join('')}
           </div>
+        </div>
 
-          <!-- Status Finais de Combate (Derivados com Raridade + Não-Derivados do Monstro) -->
-          <div class="pet-combat-stats-panel">
-            <strong style="font-size:0.82rem; color:#f8fafc; display:block; margin-bottom:8px;">
-              ⚔️ Status de Combate (c/ Bônus Rank ${pet.rarityTier})
-            </strong>
-            <div class="pet-combat-stats-list">
-              <div class="pet-cstat-item"><span>❤️ HP Máximo</span><strong style="color:#4ade80;">${cs.maxHp || 100}</strong></div>
-              <div class="pet-cstat-item"><span>💧 MP Máximo</span><strong style="color:#38bdf8;">${cs.maxMp || 50}</strong></div>
-              <div class="pet-cstat-item"><span>🗡️ Ataque Físico</span><strong style="color:#f87171;">${cs.physAtk || 10}</strong></div>
-              <div class="pet-cstat-item"><span>🔮 Ataque Mágico</span><strong style="color:#c084fc;">${cs.magAtk || 10}</strong></div>
-              <div class="pet-cstat-item"><span>🛡️ Defesa Física</span><strong style="color:#fbbf24;">${cs.def || 8}</strong></div>
-              <div class="pet-cstat-item"><span>✨ Defesa Mágica</span><strong style="color:#a78bfa;">${cs.magDef || 8}</strong></div>
-              <div class="pet-cstat-item"><span>🏃 Vel. Movimento</span><strong style="color:#38bdf8;">${cs.battleMoveSpeed || 160} px/s</strong></div>
-              <div class="pet-cstat-item"><span>⚡ Vel. Ataque</span><strong style="color:#fde047;">${Number(cs.attackSpeed || 1.0).toFixed(2)} /s</strong></div>
-              <div class="pet-cstat-item"><span>💥 Taxa Crítica</span><strong style="color:#fb7185;">${cs.critRatePct ?? 5}%</strong></div>
-              <div class="pet-cstat-item"><span>🔥 Dano Crítico</span><strong style="color:#f43f5e;">${cs.critDmgPct ?? 150}%</strong></div>
-              <div class="pet-cstat-item"><span>🎯 Precisão Fís/Mág</span><strong style="color:#86efac;">${cs.physAccuracy ?? 95}% / ${cs.magAccuracy ?? 95}%</strong></div>
-              <div class="pet-cstat-item"><span>💨 Esquiva Fís/Mág</span><strong style="color:#67e8f9;">${cs.physEvasion ?? 5}% / ${cs.magEvasion ?? 5}%</strong></div>
-            </div>
+        <div class="pm-card">
+          <div class="pm-card-head">
+            <span>Status de Combate</span>
+            <small style="color:#fde047;">Rank ${pet.rarityTier} (${rp.hp}x)</small>
+          </div>
+          <div class="pm-cstats-grid">
+            <div class="pm-cstat"><span>❤️ HP</span><b style="color:#4ade80;">${cs.maxHp || 100}</b></div>
+            <div class="pm-cstat"><span>💧 MP</span><b style="color:#38bdf8;">${cs.maxMp || 50}</b></div>
+            <div class="pm-cstat"><span>🗡️ ATK Fís</span><b style="color:#f87171;">${cs.physAtk || 10}</b></div>
+            <div class="pm-cstat"><span>🔮 ATK Mág</span><b style="color:#c084fc;">${cs.magAtk || 10}</b></div>
+            <div class="pm-cstat"><span>🛡️ DEF Fís</span><b style="color:#fbbf24;">${cs.def || 8}</b></div>
+            <div class="pm-cstat"><span>✨ DEF Mág</span><b style="color:#a78bfa;">${cs.magDef || 8}</b></div>
+            <div class="pm-cstat"><span>🏃 Vel. Mov</span><b style="color:#38bdf8;">${cs.battleMoveSpeed || 160}</b></div>
+            <div class="pm-cstat"><span>⚡ Vel. Atq</span><b style="color:#fde047;">${Number(cs.attackSpeed || 1).toFixed(2)}/s</b></div>
+            <div class="pm-cstat"><span>💥 Crítico</span><b style="color:#fb7185;">${cs.critRatePct ?? 5}%</b></div>
+            <div class="pm-cstat"><span>🔥 Dano Crit</span><b style="color:#f43f5e;">${cs.critDmgPct ?? 150}%</b></div>
+            <div class="pm-cstat"><span>🎯 Precisão</span><b style="color:#86efac;">${cs.physAccuracy ?? 95}%</b></div>
+            <div class="pm-cstat"><span>💨 Esquiva</span><b style="color:#67e8f9;">${cs.physEvasion ?? 5}%</b></div>
           </div>
         </div>
       </div>
@@ -670,156 +614,104 @@ class PlayPetsController {
     const pinnedSkills = pinnedIds.map((id) => allSkills.find((s) => Number(s.id) === id)).filter(Boolean);
 
     const q = (this.skillSearchQuery || '').toLowerCase().trim();
-    const filteredSkills = allSkills.filter((sk) => {
-      if (!q) return true;
-      return `${sk.id} ${sk.namePtBr} ${sk.descriptionPtBr || ''} ${sk.code || ''}`.toLowerCase().includes(q);
-    });
+    const filtered = allSkills.filter((sk) => !q || `${sk.id} ${sk.namePtBr} ${sk.descriptionPtBr || ''}`.toLowerCase().includes(q));
 
     return `
-      <div class="pet-details-scroll">
-        <div class="pet-skills-header-box">
-          <div>
-            <strong style="font-size:0.88rem; color:#fef08a;">⚡ Habilidades Fixadas em ${pet.nickname} (${pinnedIds.length}/3)</strong>
-            <div style="font-size:0.72rem; color:#94a3b8; margin-top:2px;">
-              Escolha livremente até 3 habilidades da tabela de habilidades. Habilidades com elemento herdado usam o elemento do Pet (<strong>${pet.elementNamePtBr || pet.elementCode}</strong>).
-            </div>
-          </div>
-        </div>
-
-        <!-- 3 Slots de Habilidades do Pet -->
-        <div class="pet-pinned-skills-grid">
-          ${[0, 1, 2]
-            .map((slotIdx) => {
-              const sk = pinnedSkills[slotIdx];
-              if (!sk) {
-                return `
-                  <div class="pet-skill-slot-card empty">
-                    <span>❖ Slot de Habilidade #${slotIdx + 1} Vago</span>
-                    <small>Clique em "Fixar" em qualquer habilidade abaixo</small>
-                  </div>
-                `;
-              }
-              return `
-                <div class="pet-skill-slot-card">
-                  <img src="${sk.iconUrl}" alt="${sk.namePtBr}" />
-                  <div style="flex:1; min-width:0;">
-                    <div style="font-weight:700; font-size:0.8rem; color:#38bdf8;">${sk.namePtBr}</div>
-                    <div style="font-size:0.68rem; color:#cbd5e1;">💧 ${sk.mpCost || 0} MP • ⏳ ${sk.cooldownSeconds || 0}s</div>
-                  </div>
-                  <button type="button" class="pet-mini-btn danger" onclick="window.PlayPetsController.togglePetSkill(${pet.id}, ${sk.id})">Remover</button>
+      <!-- 3 Slots Fixados Compactos -->
+      <div class="pm-pinned-bar">
+        ${[0, 1, 2]
+          .map((idx) => {
+            const sk = pinnedSkills[idx];
+            if (!sk) {
+              return `<div class="pm-pin-slot empty"><span>Slot #${idx + 1} Livre</span></div>`;
+            }
+            return `
+              <div class="pm-pin-slot">
+                <img src="${sk.iconUrl}" alt="${sk.namePtBr}" />
+                <div class="pm-pin-meta">
+                  <b>${sk.namePtBr}</b>
+                  <small>${sk.mpCost || 0} MP • ${sk.cooldownSeconds || 0}s</small>
                 </div>
-              `;
-            })
-            .join('')}
-        </div>
+                <button type="button" class="pm-unpin-btn" onclick="window.PlayPetsController.togglePetSkill(${pet.id}, ${sk.id})">✕</button>
+              </div>
+            `;
+          })
+          .join('')}
+      </div>
 
-        <!-- Catálogo Completo de Habilidades Livres -->
-        <div style="margin-top:12px; display:flex; justify-content:space-between; align-items:center; gap:8px; flex-wrap:wrap;">
-          <strong style="font-size:0.82rem; color:#f8fafc;">📚 Todas as Habilidades Disponíveis (${filteredSkills.length})</strong>
-          <input
-            type="text"
-            placeholder="🔍 Buscar habilidade..."
-            value="${this.skillSearchQuery.replace(/"/g, '&quot;')}"
-            oninput="window.PlayPetsController.skillSearchQuery = this.value; window.PlayPetsController.renderModal();"
-            style="background:#0f172a; border:1px solid #334155; color:#f8fafc; padding:5px 10px; border-radius:6px; font-size:0.76rem; width:210px;"
-          />
-        </div>
+      <div class="pm-search-bar">
+        <span>📚 Habilidades Livres (${filtered.length})</span>
+        <input
+          type="text"
+          placeholder="🔍 Buscar skill..."
+          value="${this.skillSearchQuery.replace(/"/g, '&quot;')}"
+          oninput="window.PlayPetsController.skillSearchQuery = this.value; window.PlayPetsController.renderModal();"
+        />
+      </div>
 
-        <div class="pet-catalog-skills-list">
-          ${filteredSkills
-            .map((sk) => {
-              const isPinned = pinnedIds.includes(Number(sk.id));
-              return `
-                <div class="pet-catalog-skill-row ${isPinned ? 'pinned' : ''}">
-                  <img src="${sk.iconUrl}" alt="${sk.namePtBr}" />
-                  <div style="flex:1; min-width:0;">
-                    <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
-                      <strong style="font-size:0.8rem; color:${isPinned ? '#4ade80' : '#f8fafc'};">#${sk.id} ${sk.namePtBr}</strong>
-                      <span style="font-size:0.68rem; color:#38bdf8;">💧 ${sk.mpCost || 0} MP</span>
-                      <span style="font-size:0.68rem; color:#fde047;">⏳ CD: ${sk.cooldownSeconds || 0}s</span>
-                      <span style="font-size:0.68rem; color:#94a3b8;">📏 ${sk.castRange || 160}px</span>
-                    </div>
-                    <div style="font-size:0.71rem; color:#94a3b8; margin-top:2px;">${sk.descriptionPtBr || 'Habilidade de combate.'}</div>
+      <div class="pm-skills-list">
+        ${filtered
+          .map((sk) => {
+            const isPinned = pinnedIds.includes(Number(sk.id));
+            return `
+              <div class="pm-skill-row ${isPinned ? 'pinned' : ''}">
+                <img src="${sk.iconUrl}" alt="${sk.namePtBr}" />
+                <div class="pm-skill-info">
+                  <div class="pm-skill-top">
+                    <b>${sk.namePtBr}</b>
+                    <span>💧${sk.mpCost || 0}</span>
+                    <span>⏳${sk.cooldownSeconds || 0}s</span>
                   </div>
-                  <button
-                    type="button"
-                    class="pet-mini-btn ${isPinned ? 'danger' : 'primary'}"
-                    onclick="window.PlayPetsController.togglePetSkill(${pet.id}, ${sk.id})"
-                  >
-                    ${isPinned ? '✓ Fixada (Remover)' : '📌 Fixar no Pet'}
-                  </button>
+                  <div class="pm-skill-desc">${sk.descriptionPtBr || 'Habilidade de combate.'}</div>
                 </div>
-              `;
-            })
-            .join('')}
-        </div>
+                <button type="button" class="pm-skill-btn ${isPinned ? 'rem' : 'add'}" onclick="window.PlayPetsController.togglePetSkill(${pet.id}, ${sk.id})">
+                  ${isPinned ? 'Remover' : 'Fixar'}
+                </button>
+              </div>
+            `;
+          })
+          .join('')}
       </div>
     `;
   }
 
   renderGenerateTabHtml() {
     const client = this.getClient();
-    const tamableMonsters = Array.isArray(client?.availablePets) ? client.availablePets : [];
+    const tamable = Array.isArray(client?.availablePets) ? client.availablePets : [];
     const q = (this.generateSearchQuery || '').toLowerCase().trim();
-    const filtered = tamableMonsters.filter((m) => {
-      if (!q) return true;
-      return `${m.id} ${m.namePtBr} ${m.raceCode} ${m.rarityTier}`.toLowerCase().includes(q);
-    });
+    const filtered = tamable.filter((m) => !q || `${m.id} ${m.namePtBr} ${m.raceCode} ${m.rarityTier}`.toLowerCase().includes(q));
 
     return `
-      <div class="pet-details-scroll">
-        <div class="pet-skills-header-box" style="margin-bottom:10px;">
-          <div style="display:flex; justify-content:space-between; align-items:center; gap:8px; flex-wrap:wrap;">
-            <div>
-              <strong style="font-size:0.9rem; color:#fef08a;">🥚 Catálogo Procedural de Pets Capturáveis (${filtered.length})</strong>
-              <div style="font-size:0.72rem; color:#94a3b8; margin-top:2px;">
-                Exibe automaticamente todos os monstros ativos com <strong>"Pet Capturável = Sim"</strong>. Ao gerar, o Pet recebe <strong>Elemento Aleatório</strong>, <strong>1 ponto fixo</strong> em cada atributo base + <strong>76 pontos livres</strong> no Nv.1 (+4 por Level Up) e herda Raça, Raridade (F..SS) e Status Não-Derivados do monstro.
-              </div>
-            </div>
-            <input
-              type="text"
-              placeholder="🔍 Filtrar por nome, raça ou rank..."
-              value="${this.generateSearchQuery.replace(/"/g, '&quot;')}"
-              oninput="window.PlayPetsController.generateSearchQuery = this.value; window.PlayPetsController.renderModal();"
-              style="background:#0f172a; border:1px solid #334155; color:#f8fafc; padding:6px 10px; border-radius:6px; font-size:0.76rem; width:230px;"
-            />
-          </div>
-        </div>
+      <div class="pm-search-bar" style="margin-top:0;">
+        <span>🥚 Monstros Capturáveis (${filtered.length})</span>
+        <input
+          type="text"
+          placeholder="🔍 Nome, raça ou rank..."
+          value="${this.generateSearchQuery.replace(/"/g, '&quot;')}"
+          oninput="window.PlayPetsController.generateSearchQuery = this.value; window.PlayPetsController.renderModal();"
+        />
+      </div>
 
-        <div class="pet-generate-grid">
-          ${filtered
-            .map((m) => {
-              const cb = m.baseCombatAttributesJson || {};
-              return `
-                <div class="pet-generate-card">
-                  <div class="pet-generate-card-top">
-                    <div class="pet-roster-thumb-wrap" style="width:52px; height:52px;">
-                      <img src="${m.thumbUrl}" alt="${m.namePtBr}" style="width:48px; height:48px; object-fit:contain;" />
-                      <span class="pet-rank-pill rank-${(m.rarityTier || 'F').toLowerCase()}">${m.rarityTier || 'F'}</span>
-                    </div>
-                    <div style="flex:1; min-width:0;">
-                      <strong style="font-size:0.84rem; color:#f8fafc; display:block;">#${m.id} ${m.namePtBr}</strong>
-                      <div style="font-size:0.7rem; color:#94a3b8; margin-top:2px;">
-                        🧬 ${m.raceCode} • ${m.combatStyle === 'RANGED' ? `🏹 Ranged (${m.attackRange}px)` : `⚔️ Melee (${m.attackRange}px)`} • ${m.damageType === 'MAGICAL' ? '🔮 Mágico' : '🗡️ Físico'}
-                      </div>
-                      <div style="font-size:0.68rem; color:#38bdf8; margin-top:2px;">
-                        🏃 Mov: ${cb.BATTLE_MOVE_SPEED || 160} • ⚡ Aspd: ${cb.ATTACK_SPEED || 1.0}
-                      </div>
-                    </div>
-                  </div>
-                  <button
-                    type="button"
-                    class="pet-confirm-stats-btn"
-                    style="margin-top:8px; width:100%; padding:6px 10px; font-size:0.75rem;"
-                    onclick="window.PlayPetsController.generatePetFromMonster(${m.id})"
-                  >
-                    ✨ Gerar Pet Procedural (Nv.1 • +76 Pts)
-                  </button>
+      <div class="pm-gen-grid">
+        ${filtered
+          .map(
+            (m) => `
+            <div class="pm-gen-card">
+              <div class="pm-gen-top">
+                <div class="pm-chip-avatar">
+                  <img src="${m.thumbUrl}" alt="${m.namePtBr}" />
+                  <span class="pm-rank rank-${(m.rarityTier || 'F').toLowerCase()}">${m.rarityTier || 'F'}</span>
                 </div>
-              `;
-            })
-            .join('')}
-        </div>
+                <div class="pm-gen-meta">
+                  <b>${m.namePtBr}</b>
+                  <small>${m.raceCode} • ${m.combatStyle === 'RANGED' ? '🏹 Ranged' : '⚔️ Melee'} • ${m.damageType === 'MAGICAL' ? '🔮' : '🗡️'}</small>
+                </div>
+              </div>
+              <button type="button" class="pm-gen-btn" onclick="window.PlayPetsController.generatePetFromMonster(${m.id})">✨ Gerar Pet (+76 pts)</button>
+            </div>
+          `
+          )
+          .join('')}
       </div>
     `;
   }
@@ -829,73 +721,101 @@ class PlayPetsController {
     const style = document.createElement('style');
     style.id = 'playPetsSystemStyles';
     style.textContent = `
-      .pet-system-modal-dialog { width: min(96vw, 960px) !important; max-width: 960px !important; max-height: 90vh !important; display: flex; flex-direction: column; padding: 0 !important; overflow: hidden; }
-      .pet-system-modal-layout { display: grid; grid-template-columns: 270px 1fr; flex: 1; min-height: 0; overflow: hidden; }
-      @media (max-width: 760px) { .pet-system-modal-layout { grid-template-columns: 1fr; grid-template-rows: 175px 1fr; } }
-      .pet-roster-sidebar { background: rgba(2, 6, 23, 0.75); border-right: 1px solid rgba(148, 163, 184, 0.18); display: flex; flex-direction: column; min-height: 0; }
-      .pet-roster-header { padding: 10px 12px; font-size: 0.78rem; font-weight: 800; color: #cbd5e1; border-bottom: 1px solid rgba(148, 163, 184, 0.15); display: flex; justify-content: space-between; align-items: center; }
-      .pet-roster-list { flex: 1; overflow-y: auto; padding: 8px; display: flex; flex-direction: column; gap: 6px; }
-      .pet-roster-item { display: flex; gap: 8px; padding: 8px; border-radius: 8px; background: rgba(15, 23, 42, 0.85); border: 1px solid rgba(148, 163, 184, 0.2); cursor: pointer; transition: all 0.15s ease; }
-      .pet-roster-item.selected { border-color: #38bdf8; background: rgba(56, 189, 248, 0.14); }
-      .pet-roster-item.disabled-pet { opacity: 0.68; border-color: #ef4444; }
-      .pet-roster-thumb-wrap { position: relative; width: 46px; height: 46px; border-radius: 8px; background: #020617; border: 1px solid #334155; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-      .pet-roster-thumb-wrap img { width: 42px; height: 42px; object-fit: contain; }
-      .pet-rank-pill { position: absolute; bottom: -4px; right: -4px; font-size: 0.62rem; font-weight: 900; padding: 1px 5px; border-radius: 4px; background: #334155; color: #fff; border: 1px solid rgba(255,255,255,0.25); }
-      .pet-rank-pill.rank-ss { background: #e11d48; color: #fff; }
-      .pet-rank-pill.rank-s { background: #d97706; color: #fff; }
-      .pet-rank-pill.rank-a { background: #9333ea; color: #fff; }
-      .pet-rank-pill.rank-b { background: #0284c7; color: #fff; }
-      .pet-rank-pill.rank-c { background: #16a34a; color: #fff; }
-      .pet-roster-meta { flex: 1; min-width: 0; }
-      .pet-roster-name-row { display: flex; justify-content: space-between; align-items: center; gap: 4px; font-size: 0.8rem; color: #f8fafc; }
-      .pet-badge-slot1 { font-size: 0.63rem; padding: 1px 6px; border-radius: 4px; background: rgba(234,179,8,0.2); color: #fde047; border: 1px solid #eab308; font-weight: 700; }
-      .pet-badge-slot { font-size: 0.63rem; padding: 1px 6px; border-radius: 4px; background: rgba(56,189,248,0.2); color: #7dd3fc; border: 1px solid #38bdf8; font-weight: 700; }
-      .pet-badge-reserve { font-size: 0.63rem; padding: 1px 6px; border-radius: 4px; background: rgba(148,163,184,0.15); color: #94a3b8; }
-      .pet-badge-disabled { font-size: 0.62rem; padding: 1px 6px; border-radius: 4px; background: rgba(239,68,68,0.22); color: #fca5a5; border: 1px solid #ef4444; font-weight: 700; }
-      .pet-unspent-pill { font-size: 0.63rem; padding: 1px 5px; border-radius: 99px; background: #22c55e; color: #022c22; font-weight: 900; }
-      .pet-main-content { flex: 1; min-height: 0; overflow-y: auto; padding: 12px 14px; }
-      .pet-tab-btn { background: rgba(15, 23, 42, 0.9); border: 1px solid #334155; color: #cbd5e1; padding: 5px 10px; border-radius: 6px; font-size: 0.74rem; font-weight: 700; cursor: pointer; }
-      .pet-tab-btn.active { background: #0284c7; border-color: #38bdf8; color: #fff; }
-      .pet-disabled-alert { background: rgba(239, 68, 68, 0.16); border: 1.5px solid #ef4444; color: #fecaca; padding: 8px 12px; border-radius: 8px; font-size: 0.76rem; margin-bottom: 10px; }
-      .pet-hero-banner { display: flex; gap: 12px; align-items: center; background: rgba(15, 23, 42, 0.85); border: 1px solid rgba(56, 189, 248, 0.25); border-radius: 10px; padding: 10px 12px; margin-bottom: 10px; }
-      .pet-hero-avatar { position: relative; width: 64px; height: 64px; background: #020617; border: 1.5px solid #38bdf8; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-      .pet-hero-avatar img { width: 58px; height: 58px; object-fit: contain; }
-      .pet-hero-info { flex: 1; min-width: 0; }
-      .pet-xp-row { display: flex; align-items: center; gap: 8px; margin-top: 6px; }
-      .pet-xp-bar-track { flex: 1; height: 7px; background: #020617; border-radius: 99px; overflow: hidden; border: 1px solid #334155; }
-      .pet-xp-bar-fill { height: 100%; background: linear-gradient(90deg, #0284c7, #38bdf8); }
-      .pet-slot-selector-box { background: rgba(15, 23, 42, 0.65); border: 1px solid rgba(148, 163, 184, 0.2); border-radius: 8px; padding: 8px 10px; margin-bottom: 10px; }
-      .pet-slot-btn { background: #0f172a; border: 1px solid #334155; color: #cbd5e1; padding: 5px 10px; border-radius: 6px; font-size: 0.73rem; font-weight: 700; cursor: pointer; }
-      .pet-slot-btn.active-slot1 { background: rgba(234,179,8,0.22); border-color: #eab308; color: #fde047; }
-      .pet-slot-btn.active { background: rgba(56,189,248,0.22); border-color: #38bdf8; color: #7dd3fc; }
-      .pet-slot-btn.active-reserve { background: rgba(148,163,184,0.22); border-color: #94a3b8; color: #f8fafc; }
-      .pet-stats-grid-layout { display: grid; grid-template-columns: 1.15fr 0.85fr; gap: 10px; }
-      @media (max-width: 760px) { .pet-stats-grid-layout { grid-template-columns: 1fr; } }
-      .pet-base-attrs-panel, .pet-combat-stats-panel { background: rgba(15, 23, 42, 0.78); border: 1px solid rgba(148, 163, 184, 0.18); border-radius: 8px; padding: 10px; }
-      .pet-points-avail-badge { font-size: 0.74rem; padding: 2px 8px; border-radius: 99px; background: rgba(34, 197, 94, 0.2); color: #86efac; border: 1px solid #22c55e; }
-      .pet-attr-rows { display: flex; flex-direction: column; gap: 6px; }
-      .pet-attr-row { display: flex; align-items: center; justify-content: space-between; background: rgba(2, 6, 23, 0.65); padding: 5px 8px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.05); }
-      .pet-alloc-btn { background: #1e293b; border: 1px solid #475569; color: #e2e8f0; padding: 3px 6px; border-radius: 4px; font-size: 0.7rem; font-weight: 700; cursor: pointer; }
-      .pet-alloc-btn.plus { background: rgba(2, 132, 199, 0.3); border-color: #38bdf8; color: #7dd3fc; }
-      .pet-alloc-btn:disabled { opacity: 0.35; cursor: not-allowed; }
-      .pet-confirm-stats-btn { background: linear-gradient(135deg, #16a34a, #22c55e); border: 1px solid #4ade80; color: #022c22; font-weight: 900; padding: 7px 14px; border-radius: 6px; cursor: pointer; flex: 1; }
-      .pet-combat-stats-list { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
-      .pet-cstat-item { background: rgba(2, 6, 23, 0.6); padding: 5px 8px; border-radius: 6px; display: flex; flex-direction: column; font-size: 0.7rem; color: #94a3b8; }
-      .pet-cstat-item strong { font-size: 0.82rem; margin-top: 1px; }
-      .pet-pinned-skills-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 8px; }
-      @media (max-width: 680px) { .pet-pinned-skills-grid { grid-template-columns: 1fr; } }
-      .pet-skill-slot-card { display: flex; align-items: center; gap: 8px; background: rgba(15, 23, 42, 0.9); border: 1.5px solid #38bdf8; border-radius: 8px; padding: 8px; }
-      .pet-skill-slot-card.empty { flex-direction: column; justify-content: center; border-style: dashed; border-color: #475569; color: #64748b; font-size: 0.74rem; padding: 12px; }
-      .pet-skill-slot-card img, .pet-catalog-skill-row img { width: 38px; height: 38px; border-radius: 6px; border: 1px solid #38bdf8; background: #020617; object-fit: contain; flex-shrink: 0; }
-      .pet-catalog-skills-list { display: flex; flex-direction: column; gap: 6px; margin-top: 8px; }
-      .pet-catalog-skill-row { display: flex; align-items: center; gap: 10px; background: rgba(15, 23, 42, 0.75); border: 1px solid rgba(148, 163, 184, 0.18); border-radius: 8px; padding: 7px 10px; }
-      .pet-catalog-skill-row.pinned { border-color: #22c55e; background: rgba(34, 197, 94, 0.1); }
-      .pet-mini-btn { background: #1e293b; border: 1px solid #475569; color: #e2e8f0; padding: 4px 8px; border-radius: 5px; font-size: 0.71rem; font-weight: 700; cursor: pointer; white-space: nowrap; }
-      .pet-mini-btn.primary { background: #0284c7; border-color: #38bdf8; color: #fff; }
-      .pet-mini-btn.danger { background: rgba(239,68,68,0.2); border-color: #ef4444; color: #fca5a5; }
-      .pet-generate-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 8px; }
-      .pet-generate-card { background: rgba(15, 23, 42, 0.85); border: 1px solid rgba(148, 163, 184, 0.22); border-radius: 8px; padding: 9px; display: flex; flex-direction: column; justify-content: space-between; }
-      .pet-generate-card-top { display: flex; gap: 8px; align-items: center; }
+      .pm-modal { width: min(95vw, 760px); max-height: 88dvh; background: rgba(9, 14, 28, 0.97); border: 1px solid rgba(56, 189, 248, 0.32); border-radius: 14px; box-shadow: 0 18px 48px rgba(0,0,0,0.85); display: flex; flex-direction: column; overflow: hidden; color: #f8fafc; }
+      .pm-topbar { display: flex; align-items: center; justify-content: space-between; gap: 6px; padding: 8px 12px; background: rgba(2, 6, 23, 0.9); border-bottom: 1px solid rgba(148, 163, 184, 0.16); }
+      .pm-title { display: flex; align-items: center; gap: 6px; font-weight: 800; font-size: 0.88rem; color: #fde047; white-space: nowrap; }
+      .pm-count-badge { font-size: 0.68rem; padding: 1px 6px; border-radius: 99px; background: rgba(56, 189, 248, 0.2); color: #7dd3fc; border: 1px solid rgba(56, 189, 248, 0.4); }
+      .pm-tabs { display: flex; gap: 4px; background: #020617; padding: 3px; border-radius: 8px; border: 1px solid #1e293b; }
+      .pm-tab { background: transparent; border: none; color: #94a3b8; padding: 4px 9px; border-radius: 6px; font-size: 0.72rem; font-weight: 700; cursor: pointer; white-space: nowrap; transition: all 0.15s; }
+      .pm-tab.active { background: #0284c7; color: #fff; }
+      .pm-close { background: rgba(239, 68, 68, 0.18); border: 1px solid rgba(239, 68, 68, 0.4); color: #fca5a5; width: 26px; height: 26px; border-radius: 6px; cursor: pointer; font-weight: 800; font-size: 0.78rem; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+      .pm-pet-strip { display: flex; align-items: center; gap: 6px; padding: 7px 10px; background: rgba(2, 6, 23, 0.6); border-bottom: 1px solid rgba(148, 163, 184, 0.14); overflow-x: auto; scrollbar-width: thin; flex-shrink: 0; }
+      .pm-pet-chip { display: flex; align-items: center; gap: 7px; padding: 4px 8px 4px 5px; border-radius: 9px; background: rgba(15, 23, 42, 0.9); border: 1px solid rgba(148, 163, 184, 0.22); color: #e2e8f0; cursor: pointer; flex-shrink: 0; text-align: left; }
+      .pm-pet-chip.selected { border-color: #38bdf8; background: rgba(14, 165, 233, 0.18); box-shadow: 0 0 0 1px rgba(56, 189, 248, 0.3); }
+      .pm-pet-chip.disabled { opacity: 0.6; border-color: #ef4444; }
+      .pm-chip-avatar { position: relative; width: 34px; height: 34px; border-radius: 7px; background: #020617; border: 1px solid #334155; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+      .pm-chip-avatar img { width: 30px; height: 30px; object-fit: contain; }
+      .pm-rank { position: absolute; bottom: -3px; right: -3px; font-size: 0.54rem; font-weight: 900; padding: 0 4px; border-radius: 3px; background: #334155; color: #fff; line-height: 1.25; }
+      .pm-rank.rank-ss { background: #e11d48; } .pm-rank.rank-s { background: #d97706; } .pm-rank.rank-a { background: #9333ea; } .pm-rank.rank-b { background: #0284c7; } .pm-rank.rank-c { background: #16a34a; }
+      .pm-chip-slot { position: absolute; top: -4px; left: -4px; font-size: 0.52rem; font-weight: 900; padding: 0 3px; border-radius: 3px; background: #eab308; color: #020617; }
+      .pm-chip-info { display: flex; flex-direction: column; min-width: 0; }
+      .pm-chip-name { font-size: 0.72rem; font-weight: 800; color: #f8fafc; max-width: 84px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+      .pm-chip-sub { display: flex; align-items: center; gap: 4px; font-size: 0.63rem; color: #94a3b8; }
+      .pm-dot-pts { background: #22c55e; color: #022c22; font-weight: 900; padding: 0 4px; border-radius: 99px; font-size: 0.58rem; }
+      .pm-add-chip { display: flex; align-items: center; gap: 4px; padding: 6px 10px; border-radius: 9px; background: rgba(56, 189, 248, 0.1); border: 1px dashed rgba(56, 189, 248, 0.45); color: #7dd3fc; font-size: 0.72rem; font-weight: 700; cursor: pointer; flex-shrink: 0; }
+      .pm-body { flex: 1; min-height: 0; overflow-y: auto; padding: 10px; display: flex; flex-direction: column; gap: 8px; }
+      .pm-alert-disabled { background: rgba(239, 68, 68, 0.16); border: 1px solid #ef4444; color: #fecaca; padding: 6px 10px; border-radius: 7px; font-size: 0.72rem; }
+      .pm-hero { background: rgba(15, 23, 42, 0.75); border: 1px solid rgba(148, 163, 184, 0.18); border-radius: 10px; padding: 8px 10px; display: flex; flex-direction: column; gap: 7px; }
+      .pm-hero-left { display: flex; align-items: center; gap: 10px; }
+      .pm-hero-avatar { position: relative; width: 46px; height: 46px; border-radius: 9px; background: #020617; border: 1px solid #38bdf8; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+      .pm-hero-avatar img { width: 42px; height: 42px; object-fit: contain; }
+      .pm-hero-meta { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+      .pm-hero-title-row { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+      .pm-hero-title-row strong { font-size: 0.88rem; color: #fef08a; }
+      .pm-icon-btn { background: transparent; border: none; cursor: pointer; font-size: 0.74rem; padding: 0 2px; }
+      .pm-elem-pill { font-size: 0.65rem; padding: 1px 6px; border-radius: 99px; font-weight: 700; }
+      .pm-hero-tags { font-size: 0.68rem; color: #94a3b8; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+      .pm-xp-line { display: flex; align-items: center; gap: 6px; margin-top: 1px; }
+      .pm-lv-tag { font-size: 0.68rem; font-weight: 800; color: #38bdf8; }
+      .pm-xp-track { flex: 1; height: 5px; background: #020617; border-radius: 99px; overflow: hidden; border: 1px solid #1e293b; }
+      .pm-xp-fill { height: 100%; background: linear-gradient(90deg, #0284c7, #38bdf8); }
+      .pm-xp-txt { font-size: 0.63rem; color: #64748b; }
+      .pm-slots-bar { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; }
+      .pm-slot-pill { background: #020617; border: 1px solid #334155; color: #94a3b8; padding: 4px 6px; border-radius: 6px; font-size: 0.68rem; font-weight: 700; cursor: pointer; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+      .pm-slot-pill.s1 { background: rgba(234, 179, 8, 0.2); border-color: #eab308; color: #fde047; }
+      .pm-slot-pill.s2 { background: rgba(56, 189, 248, 0.2); border-color: #38bdf8; color: #7dd3fc; }
+      .pm-slot-pill.res { background: rgba(148, 163, 184, 0.2); border-color: #94a3b8; color: #f8fafc; }
+      .pm-stats-split { display: grid; grid-template-columns: 1.08fr 0.92fr; gap: 8px; }
+      @media (max-width: 640px) { .pm-stats-split { grid-template-columns: 1fr; } .pm-topbar { flex-wrap: wrap; } }
+      .pm-card { background: rgba(15, 23, 42, 0.72); border: 1px solid rgba(148, 163, 184, 0.16); border-radius: 10px; padding: 8px; display: flex; flex-direction: column; gap: 6px; }
+      .pm-card-head { display: flex; align-items: center; justify-content: space-between; font-size: 0.75rem; font-weight: 800; color: #e2e8f0; }
+      .pm-pts-badge { font-size: 0.68rem; padding: 1px 7px; border-radius: 99px; background: rgba(34, 197, 94, 0.18); color: #86efac; border: 1px solid rgba(34, 197, 94, 0.45); }
+      .pm-btn-save { background: #22c55e; border: none; color: #022c22; font-weight: 900; font-size: 0.68rem; padding: 2px 8px; border-radius: 5px; cursor: pointer; }
+      .pm-btn-clear { background: #1e293b; border: 1px solid #475569; color: #cbd5e1; font-size: 0.68rem; padding: 1px 6px; border-radius: 5px; cursor: pointer; }
+      .pm-attr-list { display: flex; flex-direction: column; gap: 4px; }
+      .pm-attr-item { display: flex; align-items: center; justify-content: space-between; gap: 6px; background: rgba(2, 6, 23, 0.65); padding: 4px 7px; border-radius: 6px; }
+      .pm-attr-lbl { display: flex; align-items: baseline; gap: 5px; min-width: 78px; }
+      .pm-attr-lbl b { font-size: 0.74rem; }
+      .pm-attr-lbl small { font-size: 0.62rem; color: #64748b; }
+      .pm-attr-val { font-size: 0.78rem; font-weight: 800; color: #f8fafc; min-width: 44px; text-align: right; }
+      .pm-pend { font-style: normal; color: #4ade80; font-size: 0.68rem; margin-left: 2px; }
+      .pm-attr-btns { display: flex; gap: 3px; }
+      .pm-attr-btns button { background: #1e293b; border: 1px solid #334155; color: #cbd5e1; padding: 2px 6px; border-radius: 4px; font-size: 0.66rem; font-weight: 800; cursor: pointer; }
+      .pm-attr-btns button.p { background: rgba(2, 132, 199, 0.28); border-color: #0284c7; color: #7dd3fc; }
+      .pm-attr-btns button:disabled { opacity: 0.3; cursor: not-allowed; }
+      .pm-cstats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; }
+      .pm-cstat { background: rgba(2, 6, 23, 0.6); padding: 4px 6px; border-radius: 6px; display: flex; flex-direction: column; font-size: 0.62rem; color: #94a3b8; }
+      .pm-cstat b { font-size: 0.75rem; margin-top: 1px; }
+      .pm-pinned-bar { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+      @media (max-width: 540px) { .pm-pinned-bar { grid-template-columns: 1fr; } }
+      .pm-pin-slot { display: flex; align-items: center; gap: 6px; background: rgba(15, 23, 42, 0.85); border: 1px solid #38bdf8; border-radius: 8px; padding: 5px 7px; }
+      .pm-pin-slot.empty { justify-content: center; border-style: dashed; border-color: #334155; color: #64748b; font-size: 0.68rem; padding: 8px; }
+      .pm-pin-slot img, .pm-skill-row img { width: 30px; height: 30px; border-radius: 6px; background: #020617; border: 1px solid #334155; object-fit: contain; flex-shrink: 0; }
+      .pm-pin-meta { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+      .pm-pin-meta b { font-size: 0.72rem; color: #7dd3fc; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+      .pm-pin-meta small { font-size: 0.62rem; color: #94a3b8; }
+      .pm-unpin-btn { background: rgba(239, 68, 68, 0.2); border: 1px solid #ef4444; color: #fca5a5; width: 22px; height: 22px; border-radius: 5px; cursor: pointer; font-size: 0.68rem; font-weight: 800; }
+      .pm-search-bar { display: flex; align-items: center; justify-content: space-between; gap: 8px; font-size: 0.74rem; font-weight: 800; color: #cbd5e1; margin-top: 4px; }
+      .pm-search-bar input { background: #020617; border: 1px solid #334155; color: #f8fafc; padding: 4px 8px; border-radius: 6px; font-size: 0.72rem; width: 170px; }
+      .pm-skills-list { display: flex; flex-direction: column; gap: 4px; }
+      .pm-skill-row { display: flex; align-items: center; gap: 8px; background: rgba(15, 23, 42, 0.72); border: 1px solid rgba(148, 163, 184, 0.16); border-radius: 8px; padding: 5px 8px; }
+      .pm-skill-row.pinned { border-color: #22c55e; background: rgba(34, 197, 94, 0.08); }
+      .pm-skill-info { flex: 1; min-width: 0; }
+      .pm-skill-top { display: flex; align-items: center; gap: 6px; font-size: 0.73rem; }
+      .pm-skill-top span { font-size: 0.64rem; color: #7dd3fc; }
+      .pm-skill-desc { font-size: 0.65rem; color: #94a3b8; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+      .pm-skill-btn { padding: 4px 8px; border-radius: 5px; font-size: 0.68rem; font-weight: 800; cursor: pointer; border: 1px solid transparent; }
+      .pm-skill-btn.add { background: #0284c7; color: #fff; }
+      .pm-skill-btn.rem { background: rgba(239, 68, 68, 0.2); border-color: #ef4444; color: #fca5a5; }
+      .pm-gen-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(175px, 1fr)); gap: 6px; }
+      .pm-gen-card { background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(148, 163, 184, 0.18); border-radius: 8px; padding: 7px; display: flex; flex-direction: column; gap: 6px; justify-content: space-between; }
+      .pm-gen-top { display: flex; align-items: center; gap: 7px; }
+      .pm-gen-meta { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+      .pm-gen-meta b { font-size: 0.74rem; color: #f8fafc; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+      .pm-gen-meta small { font-size: 0.62rem; color: #94a3b8; }
+      .pm-gen-btn { background: linear-gradient(135deg, #16a34a, #22c55e); border: none; color: #022c22; font-weight: 900; font-size: 0.69rem; padding: 5px 8px; border-radius: 6px; cursor: pointer; width: 100%; }
+      .pm-empty { padding: 24px 12px; text-align: center; color: #94a3b8; display: flex; flex-direction: column; align-items: center; gap: 10px; font-size: 0.78rem; }
+      .pm-btn-primary { background: #0284c7; border: none; color: #fff; padding: 6px 14px; border-radius: 6px; font-weight: 800; font-size: 0.74rem; cursor: pointer; }
     `;
     document.head.appendChild(style);
   }
