@@ -16,6 +16,7 @@ class AdminUiStageRenderer {
       { label: 'Mochila (Menu)', url: '/play/assets/hud/menu_inventory.png' },
       { label: 'Missões (Menu)', url: '/play/assets/hud/menu_quests.png' },
       { label: 'Eventos (Menu)', url: '/play/assets/hud/menu_events.png' },
+      { label: 'Equipe (Party)', url: '/play/assets/hud/menu_party.svg' },
       { label: 'Engrenagem Config', url: '/play/assets/hud/settings_gear_icon.png' },
       { label: 'Poção de Vida', url: '/play/assets/hud/shortcut_potion_hp.png' },
       { label: 'Poção de Mana', url: '/play/assets/hud/shortcut_potion_mp.png' },
@@ -47,6 +48,9 @@ class AdminUiStageRenderer {
       ],
       HUD_MINIMAP: [
         { key: '.hud-minimap-frame', label: '🧭 Moldura da Bússola', def: '/play/assets/hud/minimap_frame.png' },
+      ],
+      HUD_PARTY_BTN: [
+        { key: 'img', label: '👥 Ícone do Botão de Equipe', def: '/play/assets/hud/menu_party.svg' },
       ],
       HUD_JOYSTICK_EXPLORE: [
         { key: '.hud-joystick-ring', label: '⭕ Anel do Joystick', def: '/play/assets/hud/joystick_outer_ring.png' },
@@ -133,6 +137,13 @@ class AdminUiStageRenderer {
         <img src="/play/assets/hud/settings_gear_icon.png" alt="Configurações" />
       </button>
 
+      <!-- 3.1. Botão de Equipe / Grupo (Party) -->
+      <button type="button" id="hudPartyBtn" class="hud-party-btn" data-ui-code="HUD_PARTY_BTN" title="Equipe">
+        <span id="hudPartyCrown" class="hud-party-leader-crown" style="display:none;">👑</span>
+        <img id="hudPartyIconImg" class="hud-party-icon-img" src="/play/assets/hud/menu_party.svg" alt="Equipe" />
+        <span id="hudPartyBadge" class="hud-party-badge">1/3</span>
+      </button>
+
       <!-- 4. Barra de Atalhos Rápidos -->
       <div id="hudShortcutsSection" class="hud-shortcuts-section" data-ui-code="HUD_SHORTCUTS_DOCK">
         <div class="hud-shortcuts-dock">
@@ -151,16 +162,27 @@ class AdminUiStageRenderer {
         </div>
       </div>
 
-      <!-- 5. HUD de Pets Equipados -->
+      <!-- 5. HUD de Pets Equipados (Estrutura real idêntica ao /play) -->
       <div id="hudPetsSection" class="hud-pets-section" data-ui-code="HUD_PETS_PANEL" style="display:flex;">
-        <div class="hud-pet-card">
-          <div class="hud-pet-avatar-box">
-            <span style="font-size:1.1rem;">🐾</span>
-            <span class="hud-pet-lvl">10</span>
+        <div class="hud-pet-entry" title="Lobo Astral (Nv.10)">
+          <div class="hud-pet-avatar-wrapper">
+            <img class="hud-pet-avatar-img" src="/play/assets/hud/menu_pets.png" alt="Lobo Astral" />
+            <img class="hud-pet-avatar-frame" src="/play/assets/hud/pet_avatar_frame.png" alt="Frame" />
+            <div class="hud-pet-level-badge">Nv. 10</div>
           </div>
-          <div class="hud-pet-info">
-            <div class="hud-pet-name">Lobo Astral</div>
-            <div class="hud-pet-hp-track"><div class="hud-pet-hp-fill" style="width:90%;"></div></div>
+          <div class="hud-pet-bars-col">
+            <div class="hud-pet-stat-bar hud-pet-bar-hp">
+              <span class="hud-pet-stat-label">HP</span>
+              <div class="hud-pet-bar-track"><div class="hud-pet-bar-fill hud-pet-fill-hp" style="width: 90%;"></div></div>
+            </div>
+            <div class="hud-pet-stat-bar hud-pet-bar-mp">
+              <span class="hud-pet-stat-label">MP</span>
+              <div class="hud-pet-bar-track"><div class="hud-pet-bar-fill hud-pet-fill-mp" style="width: 80%;"></div></div>
+            </div>
+            <div class="hud-pet-stat-bar hud-pet-bar-xp">
+              <span class="hud-pet-stat-label">XP</span>
+              <div class="hud-pet-bar-track"><div class="hud-pet-bar-fill hud-pet-fill-xp" style="width: 60%;"></div></div>
+            </div>
           </div>
         </div>
       </div>

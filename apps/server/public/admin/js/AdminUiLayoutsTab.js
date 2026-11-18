@@ -383,6 +383,17 @@ class AdminUiLayoutsTab {
         cfg.scale = 1.0;
         cfg.widthPx = null;
         cfg.heightPx = null;
+        cfg.orientation = 'DEFAULT';
+      } else if (action === 'ROTATE') {
+        const defaultOri = tpl.code === 'HUD_BOTTOM_MENU' ? 'HORIZONTAL' : 'VERTICAL';
+        const curOri = cfg.orientation && cfg.orientation !== 'DEFAULT' ? cfg.orientation : defaultOri;
+        cfg.orientation = curOri === 'HORIZONTAL' ? 'VERTICAL' : 'HORIZONTAL';
+        cfg.widthPx = null;
+        cfg.heightPx = null;
+      } else if (action === 'HORIZONTAL' || action === 'VERTICAL') {
+        cfg.orientation = action;
+        cfg.widthPx = null;
+        cfg.heightPx = null;
       } else if (action === 'LEFT') {
         cfg.anchorX = 'LEFT';
         cfg.offsetX = 0;
@@ -541,6 +552,29 @@ class AdminUiLayoutsTab {
             <button type="button" onclick="AdminApp.quickAlignSelectedUi('RESET')" class="btn-danger" style="padding:5px; font-size:0.7rem;" title="Resetar Posição e Tamanho">⟲ Reset</button>
           </div>
         </div>
+
+        <!-- 1.5. Girar Barras de Ícones, Atalhos e Pets (Horizontal / Vertical) -->
+        ${
+          ['HUD_BOTTOM_MENU', 'HUD_SHORTCUTS_DOCK', 'HUD_PETS_PANEL'].includes(tpl.code)
+            ? (() => {
+                const defOri = tpl.code === 'HUD_BOTTOM_MENU' ? 'HORIZONTAL' : 'VERTICAL';
+                const effOri = cfg.orientation && cfg.orientation !== 'DEFAULT' ? cfg.orientation : defOri;
+                return `
+                  <div style="background:#020617; border:1px solid #38bdf8; border-radius:8px; padding:8px; display:flex; flex-direction:column; gap:6px;">
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                      <span style="font-size:0.72rem; font-weight:800; color:#fde047;">🔄 Girar Barra (Horizontal / Vertical)</span>
+                      <span style="font-size:0.65rem; color:#7dd3fc; font-weight:700;">Atual: ${effOri === 'HORIZONTAL' ? '↔️ Horizontal' : '↕️ Vertical'}</span>
+                    </div>
+                    <div style="display:grid; grid-template-columns:1fr 1fr auto; gap:5px;">
+                      <button type="button" class="${effOri === 'HORIZONTAL' ? 'btn-primary' : ''}" onclick="AdminApp.quickAlignSelectedUi('HORIZONTAL')" style="padding:5px 8px; font-size:0.71rem;">↔️ Horizontal</button>
+                      <button type="button" class="${effOri === 'VERTICAL' ? 'btn-primary' : ''}" onclick="AdminApp.quickAlignSelectedUi('VERTICAL')" style="padding:5px 8px; font-size:0.71rem;">↕️ Vertical</button>
+                      <button type="button" onclick="AdminApp.quickAlignSelectedUi('ROTATE')" style="padding:5px 10px; font-size:0.71rem; background:rgba(234,179,8,0.2); border:1px solid #eab308; color:#fde047;" title="Girar 90 graus">🔄 Girar 90°</button>
+                    </div>
+                  </div>
+                `;
+              })()
+            : ''
+        }
 
         <!-- 2. Sliders de Posição (Click & Drag ou Ajuste Fino) -->
         <div style="background:#020617; border:1px solid #1e293b; border-radius:8px; padding:9px; display:flex; flex-direction:column; gap:8px;">

@@ -21,6 +21,7 @@ export interface UiViewportLayoutConfig {
   iconUrl?: string | null;
   bgImageUrl?: string | null;
   customLabel?: string | null;
+  orientation?: 'DEFAULT' | 'HORIZONTAL' | 'VERTICAL' | null;
   subIcons?: Record<string, string> | null;
 }
 
@@ -126,6 +127,11 @@ function normalizeViewportConfig(raw: unknown): UiViewportLayoutConfig {
     }
   }
 
+  const validOrientations = ['DEFAULT', 'HORIZONTAL', 'VERTICAL'];
+  const orientation = validOrientations.includes(String(parsed.orientation || '').toUpperCase())
+    ? (String(parsed.orientation).toUpperCase() as UiViewportLayoutConfig['orientation'])
+    : 'DEFAULT';
+
   return {
     anchorX,
     anchorY,
@@ -146,6 +152,7 @@ function normalizeViewportConfig(raw: unknown): UiViewportLayoutConfig {
     iconUrl: strOrNull(parsed.iconUrl),
     bgImageUrl: strOrNull(parsed.bgImageUrl),
     customLabel: strOrNull(parsed.customLabel),
+    orientation,
     subIcons,
   };
 }
@@ -208,6 +215,16 @@ export class AdminUiLayoutsController {
         'Botão flutuante da engrenagem de configurações e fuga em batalha.',
         { offsetX: 0, offsetY: 0, scale: 1.0 },
         { offsetX: 0, offsetY: 0, scale: 1.0 },
+        { offsetX: 0, offsetY: 0, scale: 1.0 }
+      ),
+      mk(
+        'HUD_PARTY_BTN',
+        'Botão de Equipe / Grupo (Party)',
+        'EXPLORE_HUD',
+        '#hudPartyBtn',
+        'Botão flutuante para criar, gerenciar e visualizar membros da Equipe (até 3 jogadores).',
+        { offsetX: 0, offsetY: 0, scale: 1.0 },
+        { offsetX: 0, offsetY: 0, scale: 0.95 },
         { offsetX: 0, offsetY: 0, scale: 1.0 }
       ),
       mk(

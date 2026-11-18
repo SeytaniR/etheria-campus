@@ -64,7 +64,20 @@ class PlayClientHudEditor {
       textColor: local.textColor !== undefined ? local.textColor : base.textColor || null,
       borderRadiusPx:
         local.borderRadiusPx !== undefined ? local.borderRadiusPx : base.borderRadiusPx ?? null,
+      orientation:
+        local.orientation !== undefined ? local.orientation : base.orientation || 'DEFAULT',
     };
+  }
+
+  toggleBarOrientation(code) {
+    const cfg = this.getEffectiveConfig(code);
+    const defOri = code === 'HUD_BOTTOM_MENU' ? 'HORIZONTAL' : 'VERTICAL';
+    const curOri = cfg.orientation && cfg.orientation !== 'DEFAULT' ? cfg.orientation : defOri;
+    const nextOri = curOri === 'HORIZONTAL' ? 'VERTICAL' : 'HORIZONTAL';
+    this.setOverrideField(code, 'widthPx', null);
+    this.setOverrideField(code, 'heightPx', null);
+    this.setOverrideField(code, 'orientation', nextOri);
+    this.renderInspectorContent();
   }
 
   setOverrideField(code, field, value) {
@@ -255,10 +268,15 @@ class PlayClientHudEditor {
         💡 Toque direto em qualquer HUD na tela e <strong>arraste para mover</strong>, ou puxe as <strong>bolinhas amarelas dos cantos</strong> para aumentar/diminuir.
       </div>
 
-      <div style="display:grid; grid-template-columns:1fr auto auto; gap:6px; align-items:center;">
-        <select onchange="window.PlayClientHudEditor.selectHudByCode(this.value)" style="padding:5px 8px; font-size:0.76rem; background:#020617; color:#f8fafc; border:1px solid #334155; border-radius:6px;">
+      <div style="display:flex; gap:6px; align-items:center; flex-wrap:wrap;">
+        <select onchange="window.PlayClientHudEditor.selectHudByCode(this.value)" style="flex:1; min-width:150px; padding:5px 8px; font-size:0.76rem; background:#020617; color:#f8fafc; border:1px solid #334155; border-radius:6px;">
           ${optionsHtml}
         </select>
+        ${
+          ['HUD_BOTTOM_MENU', 'HUD_SHORTCUTS_DOCK', 'HUD_PETS_PANEL'].includes(this.selectedCode)
+            ? `<button type="button" onclick="window.PlayClientHudEditor.toggleBarOrientation('${this.selectedCode}')" style="padding:5px 8px; font-size:0.72rem; background:rgba(234,179,8,0.2); border:1px solid #eab308; color:#fde047;" title="Alternar entre Horizontal e Vertical">🔄 Girar H/V</button>`
+            : ''
+        }
         <button type="button" onclick="window.PlayClientHudEditor.setOverrideField('${this.selectedCode}', 'visible', ${cfg.visible === false ? 'true' : 'false'}); window.PlayClientHudEditor.renderInspectorContent();" style="padding:5px 8px; font-size:0.72rem; background:${cfg.visible !== false ? 'rgba(34,197,94,0.2)' : 'rgba(244,63,94,0.2)'}; border:1px solid ${cfg.visible !== false ? '#22c55e' : '#f43f5e'};">
           ${cfg.visible !== false ? '👁️ Visível' : '🚫 Oculto'}
         </button>

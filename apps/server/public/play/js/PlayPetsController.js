@@ -407,7 +407,7 @@ class PlayPetsController {
     const pinnedCount = Array.isArray(selectedPet?.skillIdsJson) ? selectedPet.skillIdsJson.length : 0;
 
     modal.innerHTML = `
-      <div class="pm-modal">
+      <div class="hud-modal-dialog pm-modal">
         <!-- Topo Ultra-Compacto -->
         <div class="pm-topbar">
           <div class="pm-title">
@@ -437,6 +437,9 @@ class PlayPetsController {
         </div>
       </div>
     `;
+    if (window.PlayUiLayoutApplier) {
+      window.PlayUiLayoutApplier.applyAll();
+    }
   }
 
   renderPetChipHtml(p, isSelected) {
@@ -721,7 +724,7 @@ class PlayPetsController {
     const style = document.createElement('style');
     style.id = 'playPetsSystemStyles';
     style.textContent = `
-      .pm-modal { width: min(95vw, 760px); max-height: 88dvh; background: rgba(9, 14, 28, 0.97); border: 1px solid rgba(56, 189, 248, 0.32); border-radius: 14px; box-shadow: 0 18px 48px rgba(0,0,0,0.85); display: flex; flex-direction: column; overflow: hidden; color: #f8fafc; }
+      .pm-modal { width: 86%; max-width: 560px; max-height: 88dvh; background: rgba(9, 14, 28, 0.97); border: 1.5px solid rgba(56, 189, 248, 0.38); border-radius: 14px; box-shadow: 0 18px 48px rgba(0,0,0,0.85); display: flex; flex-direction: column; overflow: hidden; color: #f8fafc; animation: none !important; }
       .pm-topbar { display: flex; align-items: center; justify-content: space-between; gap: 6px; padding: 8px 12px; background: rgba(2, 6, 23, 0.9); border-bottom: 1px solid rgba(148, 163, 184, 0.16); }
       .pm-title { display: flex; align-items: center; gap: 6px; font-weight: 800; font-size: 0.88rem; color: #fde047; white-space: nowrap; }
       .pm-count-badge { font-size: 0.68rem; padding: 1px 6px; border-radius: 99px; background: rgba(56, 189, 248, 0.2); color: #7dd3fc; border: 1px solid rgba(56, 189, 248, 0.4); }

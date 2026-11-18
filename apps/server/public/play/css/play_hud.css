@@ -764,6 +764,9 @@
   bottom: 6px;
   left: 0;
   right: 0;
+  width: fit-content;
+  margin-left: auto;
+  margin-right: auto;
   display: flex;
   flex-direction: column;
   justify-content: center;

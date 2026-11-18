@@ -152,6 +152,8 @@ class PlayUiLayoutApplier {
       accentColor: userEntry.accentColor !== undefined ? userEntry.accentColor : base.accentColor,
       borderRadiusPx:
         userEntry.borderRadiusPx !== undefined ? userEntry.borderRadiusPx : base.borderRadiusPx,
+      orientation:
+        userEntry.orientation !== undefined ? userEntry.orientation : base.orientation,
     };
   }
 
@@ -345,6 +347,64 @@ class PlayUiLayoutApplier {
         } catch {
           // ignore invalid subSelector
         }
+      }
+    }
+
+    // 5.5. Orientação / Giro de Barras de Ícones, Atalhos e Pets (HORIZONTAL / VERTICAL)
+    const orientation = String(cfg.orientation || 'DEFAULT').toUpperCase();
+    const bottomDock = el.querySelector('.hud-bottom-dock');
+    const shortcutsDock = el.querySelector('.hud-shortcuts-dock');
+    const isPetsSection = el.id === 'hudPetsSection' || el.classList?.contains('hud-pets-section');
+
+    if (bottomDock) {
+      const collapseBtn = el.querySelector('.hud-collapse-bottom-btn');
+      if (orientation === 'VERTICAL') {
+        bottomDock.style.setProperty('flex-direction', 'column', 'important');
+        bottomDock.style.setProperty('padding', '6px 3px', 'important');
+        el.style.setProperty('flex-direction', 'row', 'important');
+        el.style.setProperty('width', 'fit-content', 'important');
+        if (collapseBtn) {
+          collapseBtn.style.setProperty('width', '16px', 'important');
+          collapseBtn.style.setProperty('height', '44px', 'important');
+          collapseBtn.style.setProperty('border-radius', '8px 0 0 8px', 'important');
+        }
+      } else {
+        bottomDock.style.setProperty('flex-direction', 'row', 'important');
+        bottomDock.style.setProperty('padding', '3px 6px', 'important');
+        el.style.setProperty('flex-direction', 'column', 'important');
+        el.style.setProperty('width', 'fit-content', 'important');
+        if (collapseBtn) {
+          collapseBtn.style.setProperty('width', '44px', 'important');
+          collapseBtn.style.setProperty('height', '16px', 'important');
+          collapseBtn.style.setProperty('border-radius', '8px 8px 0 0', 'important');
+        }
+      }
+    } else if (shortcutsDock) {
+      const collapseBtn = el.querySelector('.hud-collapse-shortcuts-btn');
+      if (orientation === 'HORIZONTAL') {
+        shortcutsDock.style.setProperty('flex-direction', 'row', 'important');
+        shortcutsDock.style.setProperty('padding', '3px 4px', 'important');
+        el.style.setProperty('flex-direction', 'column', 'important');
+        if (collapseBtn) {
+          collapseBtn.style.setProperty('width', '42px', 'important');
+          collapseBtn.style.setProperty('height', '17px', 'important');
+          collapseBtn.style.setProperty('border-radius', '0 0 8px 8px', 'important');
+        }
+      } else {
+        shortcutsDock.style.setProperty('flex-direction', 'column', 'important');
+        shortcutsDock.style.setProperty('padding', '4px 3px', 'important');
+        el.style.setProperty('flex-direction', 'row', 'important');
+        if (collapseBtn) {
+          collapseBtn.style.setProperty('width', '17px', 'important');
+          collapseBtn.style.setProperty('height', '42px', 'important');
+          collapseBtn.style.setProperty('border-radius', '0 8px 8px 0', 'important');
+        }
+      }
+    } else if (isPetsSection) {
+      if (orientation === 'HORIZONTAL') {
+        el.style.setProperty('flex-direction', 'row', 'important');
+      } else {
+        el.style.setProperty('flex-direction', 'column', 'important');
       }
     }
 

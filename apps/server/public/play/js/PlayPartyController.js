@@ -87,7 +87,7 @@ class PlayPartyController {
     hudBtn.title = 'Equipe (Toque para gerenciar ou criar)';
     hudBtn.innerHTML = `
       <span id="hudPartyCrown" class="hud-party-leader-crown" style="display:none;">👑</span>
-      <span class="hud-party-icon">👥</span>
+      <img id="hudPartyIconImg" class="hud-party-icon-img" src="/play/assets/hud/menu_party.svg" alt="Equipe" />
       <span id="hudPartyBadge" class="hud-party-badge">0/3</span>
     `;
     hudBtn.addEventListener('click', (ev) => {
