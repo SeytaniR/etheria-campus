@@ -11,26 +11,85 @@
 
 class ArenaPhysicsSolver {
   /**
-   * Sorteia posições iniciais bem afastadas entre os dois times inimigos dentro da Arena 1300x940 px.
+   * Verifica se o ponto e uma margem corporal ao seu redor estão livres de paredes/colisão.
+   */
+  static isSpotFreeWithMargin(x, y, isBlockedFn, margin = 10) {
+    if (typeof isBlockedFn !== 'function') return true;
+    if (isBlockedFn(x, y)) return false;
+    if (margin <= 0) return true;
+    return (
+      !isBlockedFn(x + margin, y) &&
+      !isBlockedFn(x - margin, y) &&
+      !isBlockedFn(x, y + margin) &&
+      !isBlockedFn(x, y - margin)
+    );
+  }
+
+  /**
+   * Verifica se o corredor retilíneo entre (x1, y1) e (x2, y2) está totalmente livre de obstáculos.
+   */
+  static isCorridorClear(x1, y1, x2, y2, isBlockedFn, margin = 8) {
+    if (typeof isBlockedFn !== 'function') return true;
+    const dist = Math.hypot(x2 - x1, y2 - y1);
+    const steps = Math.max(2, Math.ceil(dist / 22));
+    for (let s = 0; s <= steps; s++) {
+      const t = s / steps;
+      const sx = x1 + (x2 - x1) * t;
+      const sy = y1 + (y2 - y1) * t;
+      if (!this.isSpotFreeWithMargin(sx, sy, isBlockedFn, margin)) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  /**
+   * Sorteia posições iniciais seguras e com linha de caminhada livre entre os dois times dentro da Arena.
    */
   static findFairSpawnPositions(cx, cy, rx, ry, isBlockedFn) {
-    const angles = [0, -Math.PI / 5, Math.PI / 5, Math.PI, (-4 * Math.PI) / 5, (4 * Math.PI) / 5, Math.PI / 2, -Math.PI / 2];
+    const angles = [];
+    for (let i = 0; i < 16; i++) {
+      angles.push((i * Math.PI * 2) / 16);
+    }
     const ryRatio = ry / Math.max(1, rx);
-    const blocked = (x, y) => typeof isBlockedFn === 'function' && isBlockedFn(x, y);
 
-    for (const dist of [840, 740, 640, 540, 440, 340, 260]) {
+    // 1. Tenta pares simétricos centrados em (cx, cy) com corredor livre de ponta a ponta
+    for (const dist of [320, 270, 220, 180, 140]) {
       const half = dist / 2;
       for (const ang of angles) {
         const px = Math.round(cx - Math.cos(ang) * half);
         const py = Math.round(cy - Math.sin(ang) * (half * ryRatio));
         const mx = Math.round(cx + Math.cos(ang) * half);
         const my = Math.round(cy + Math.sin(ang) * (half * ryRatio));
-        if (!blocked(px, py) && !blocked(mx, my)) {
+        if (
+          this.isPointValidInArena(px, py, cx, cy, rx, ry, isBlockedFn, 0.90) &&
+          this.isPointValidInArena(mx, my, cx, cy, rx, ry, isBlockedFn, 0.90) &&
+          this.isCorridorClear(px, py, cx, cy, isBlockedFn, 10) &&
+          this.isCorridorClear(cx, cy, mx, my, isBlockedFn, 10)
+        ) {
           return { px, py, mx, my };
         }
       }
     }
-    return { px: cx - 220, py: cy, mx: cx + 220, my: cy };
+
+    // 2. Corredor estreito: mantém o jogador na posição segura próxima a (cx, cy) e busca ângulo livre para os monstros
+    const safePlayer = this.findNearestFreePoint(cx, cy, cx, cy, rx, ry, isBlockedFn, [], 24, 24);
+    for (const mDist of [230, 190, 155, 125, 95]) {
+      for (const ang of angles) {
+        const mx = Math.round(safePlayer.x + Math.cos(ang) * mDist);
+        const my = Math.round(safePlayer.y + Math.sin(ang) * (mDist * ryRatio));
+        if (
+          this.isPointValidInArena(mx, my, cx, cy, rx, ry, isBlockedFn, 0.92) &&
+          this.isCorridorClear(safePlayer.x, safePlayer.y, mx, my, isBlockedFn, 8)
+        ) {
+          return { px: safePlayer.x, py: safePlayer.y, mx, my };
+        }
+      }
+    }
+
+    // 3. Fallback garantido livre de colisão
+    const safeMob = this.findNearestFreePoint(safePlayer.x + 120, safePlayer.y, cx, cy, rx, ry, isBlockedFn, [safePlayer], 48, 36);
+    return { px: safePlayer.x, py: safePlayer.y, mx: safeMob.x, my: safeMob.y };
   }
 
   /**
@@ -256,10 +315,13 @@ class ArenaPhysicsSolver {
     minSepX = 48,
     minSepY = 34
   ) {
-    const isSpotClean = (px, py) => {
-      if (!this.isPointValidInArena(px, py, cx, cy, rx, ry, isBlockedFn, 0.94)) {
-        return false;
-      }
+    const isSpotValidWithPad = (px, py) =>
+      this.isPointValidInArena(px, py, cx, cy, rx, ry, isBlockedFn, 0.93) &&
+      this.isSpotFreeWithMargin(px, py, isBlockedFn, 8);
+
+    const isSpotClean = (px, py, requireCorridor = false) => {
+      if (!isSpotValidWithPad(px, py)) return false;
+      if (requireCorridor && !this.isCorridorClear(cx, cy, px, py, isBlockedFn, 6)) return false;
       for (const other of placedUnits) {
         const dx = px - other.x;
         const dy = py - other.y;
@@ -271,22 +333,89 @@ class ArenaPhysicsSolver {
     };
 
     const initial = this.clampToArenaEllipse(targetX, targetY, cx, cy, rx, ry, 0.92);
-    if (isSpotClean(initial.x, initial.y)) {
+    if (isSpotClean(initial.x, initial.y, true) || isSpotClean(initial.x, initial.y, false)) {
       return { x: Math.round(initial.x), y: Math.round(initial.y) };
     }
 
-    for (let radius = 32; radius <= 240; radius += 32) {
-      for (let i = 0; i < 12; i++) {
-        const ang = (i * Math.PI * 2) / 12;
+    // 1. Prioriza pontos livres, sem sobreposição e com corredor livre até o centro
+    for (let radius = 24; radius <= 280; radius += 24) {
+      for (let i = 0; i < 16; i++) {
+        const ang = (i * Math.PI * 2) / 16;
         const candX = initial.x + Math.cos(ang) * radius;
         const candY = initial.y + Math.sin(ang) * (radius * 0.72);
-        if (isSpotClean(candX, candY)) {
+        if (isSpotClean(candX, candY, true)) {
           return { x: Math.round(candX), y: Math.round(candY) };
         }
       }
     }
 
-    return { x: Math.round(initial.x), y: Math.round(initial.y) };
+    // 2. Qualquer ponto livre e sem sobreposição na arena
+    for (let radius = 20; radius <= 340; radius += 24) {
+      for (let i = 0; i < 16; i++) {
+        const ang = (i * Math.PI * 2) / 16;
+        const candX = initial.x + Math.cos(ang) * radius;
+        const candY = initial.y + Math.sin(ang) * (radius * 0.72);
+        if (isSpotClean(candX, candY, false)) {
+          return { x: Math.round(candX), y: Math.round(candY) };
+        }
+      }
+    }
+
+    // 3. Fallback anti-colisão: se estiver muito lotado, relaxa separação entre unidades mas JAMAIS retorna ponto bloqueado!
+    if (isSpotValidWithPad(initial.x, initial.y)) {
+      return { x: Math.round(initial.x), y: Math.round(initial.y) };
+    }
+    for (const ref of [initial, { x: cx, y: cy }]) {
+      for (let radius = 14; radius <= 360; radius += 18) {
+        for (let i = 0; i < 16; i++) {
+          const ang = (i * Math.PI * 2) / 16;
+          const candX = ref.x + Math.cos(ang) * radius;
+          const candY = ref.y + Math.sin(ang) * (radius * 0.72);
+          if (this.isPointValidInArena(candX, candY, cx, cy, rx, ry, isBlockedFn, 0.94)) {
+            return { x: Math.round(candX), y: Math.round(candY) };
+          }
+        }
+      }
+    }
+
+    return { x: Math.round(cx), y: Math.round(cy) };
+  }
+
+  /**
+   * Ejeta imediatamente qualquer unidade que tenha entrado em área de colisão de volta para solo caminhável.
+   */
+  static ensureUnitOutOfCollision(unit, cx, cy, rx, ry, isBlockedFn) {
+    if (!unit || !unit.isAlive) return;
+    if (
+      this.isPointValidInArena(unit.x, unit.y, cx, cy, rx, ry, isBlockedFn, 0.96) &&
+      this.isSpotFreeWithMargin(unit.x, unit.y, isBlockedFn, 4)
+    ) {
+      return;
+    }
+
+    // Busca em espiral o ponto caminhável mais próximo (preferindo a direção do centro da arena)
+    const toCenterAng = Math.atan2(cy - unit.y, cx - unit.x);
+    for (let radius = 10; radius <= 340; radius += 14) {
+      for (let i = 0; i < 16; i++) {
+        const offset = (i % 2 === 0 ? i / 2 : -Math.ceil(i / 2)) * ((Math.PI * 2) / 16);
+        const ang = toCenterAng + offset;
+        const candX = unit.x + Math.cos(ang) * radius;
+        const candY = unit.y + Math.sin(ang) * (radius * 0.78);
+        if (
+          this.isPointValidInArena(candX, candY, cx, cy, rx, ry, isBlockedFn, 0.94) &&
+          this.isSpotFreeWithMargin(candX, candY, isBlockedFn, 6)
+        ) {
+          unit.x = Math.round(candX);
+          unit.y = Math.round(candY);
+          return;
+        }
+      }
+    }
+
+    if (!isBlockedFn || !isBlockedFn(cx, cy)) {
+      unit.x = Math.round(cx);
+      unit.y = Math.round(cy);
+    }
   }
 
   /**
@@ -355,6 +484,9 @@ class ArenaPhysicsSolver {
    */
   static resolveAllUnitCollisions(units, cx, cy, rx, ry, isBlockedFn) {
     const alive = units.filter((u) => u && u.isAlive);
+    for (const u of alive) {
+      this.ensureUnitOutOfCollision(u, cx, cy, rx, ry, isBlockedFn);
+    }
     const count = alive.length;
     if (count < 2) return;
 
@@ -411,6 +543,10 @@ class ArenaPhysicsSolver {
         }
       }
       if (!hadOverlap) break;
+    }
+
+    for (const u of alive) {
+      this.ensureUnitOutOfCollision(u, cx, cy, rx, ry, isBlockedFn);
     }
   }
 

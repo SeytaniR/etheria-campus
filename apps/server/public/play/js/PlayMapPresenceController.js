@@ -56,15 +56,19 @@ class PlayMapPresenceController {
 
     try {
       const charId = client.activeChar.id;
+      const inArena = Boolean(client.actionCombatArena?.isActive);
+      const savedPos = inArena ? client.actionCombatArena?.preCombatWorldPos : null;
+      const syncX = savedPos && typeof savedPos.x === 'number' ? savedPos.x : client.playerX;
+      const syncY = savedPos && typeof savedPos.y === 'number' ? savedPos.y : client.playerY;
       const res = await client.api(`/api/play/characters/${charId}/sync-position`, {
         method: 'POST',
         body: JSON.stringify({
           mapId: client.currentMap.id,
-          posX: Math.round(client.playerX),
-          posY: Math.round(client.playerY),
+          posX: Math.round(syncX),
+          posY: Math.round(syncY),
           dir: client.playerDir || 0,
-          isMoving: Boolean(client.isMoving),
-          isInCombat: Boolean(this.isLocalInCombat || client.actionCombatArena?.isActive),
+          isMoving: Boolean(client.isMoving && !inArena),
+          isInCombat: Boolean(this.isLocalInCombat || inArena),
           noClip: Boolean(client.gmNoClip),
         }),
       });

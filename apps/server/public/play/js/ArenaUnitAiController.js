@@ -352,9 +352,25 @@ class ArenaUnitAiController {
     const step = (Number(unit.speed) || 140) * speedScale * statusSpeedMult * dt;
     const nextX = unit.x + (steerX / sLen) * step;
     const nextY = unit.y + (steerY / sLen) * step;
+    const prevX = unit.x;
+    const prevY = unit.y;
 
     if (window.ArenaPhysicsSolver) {
-      window.ArenaPhysicsSolver.moveWithCollision(unit, nextX, nextY, cx, cy, rx, ry, isBlockedFn);
+      window.ArenaPhysicsSolver.ensureUnitOutOfCollision(unit, cx, cy, rx, ry, isBlockedFn);
+      const moved = window.ArenaPhysicsSolver.moveWithContinuousSlide
+        ? window.ArenaPhysicsSolver.moveWithContinuousSlide(unit, nextX, nextY, cx, cy, rx, ry, isBlockedFn)
+        : window.ArenaPhysicsSolver.moveWithCollision(unit, nextX, nextY, cx, cy, rx, ry, isBlockedFn);
+
+      if (!moved || Math.hypot(unit.x - prevX, unit.y - prevY) < 0.3) {
+        const baseAng = Math.atan2(steerY, steerX);
+        for (const off of [Math.PI * 0.42, -Math.PI * 0.42, Math.PI * 0.62, -Math.PI * 0.62]) {
+          const tx = prevX + Math.cos(baseAng + off) * step;
+          const ty = prevY + Math.sin(baseAng + off) * step;
+          if (window.ArenaPhysicsSolver.moveWithCollision(unit, tx, ty, cx, cy, rx, ry, isBlockedFn)) {
+            break;
+          }
+        }
+      }
     } else {
       unit.x = nextX;
       unit.y = nextY;

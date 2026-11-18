@@ -137,6 +137,8 @@ class ActionCombatArena {
   }
 
   isBlocked(x, y) {
+    const b = this.client?.getMapBounds ? this.client.getMapBounds() : { width: 2000, height: 1500 };
+    if (x < 28 || y < 28 || x > b.width - 28 || y > b.height - 28) return true;
     const mesh = this.client?.mesh;
     if (!mesh) return false;
     return typeof mesh.isPointBlocked === 'function' ? mesh.isPointBlocked(x, y) : (typeof mesh.isPointInCollision === 'function' ? mesh.isPointInCollision(x, y) : false);
@@ -146,10 +148,19 @@ class ActionCombatArena {
     if (window.ArenaPhysicsSolver) {
       return window.ArenaPhysicsSolver.findFairSpawnPositions(cx, cy, this.arenaRadiusX, this.arenaRadiusY, (x, y) => this.isBlocked(x, y));
     }
-    return { px: cx - 320, py: cy, mx: cx + 320, my: cy };
+    return { px: cx - 180, py: cy, mx: cx + 180, my: cy };
   }
 
   openArena(battleState) {
+    const wasAlreadyInArena = this.isActive && Boolean(this.preCombatWorldPos);
+    if (this.client && !wasAlreadyInArena) {
+      this.preCombatWorldPos = {
+        mapId: this.client.currentMap ? this.client.currentMap.id : 1,
+        x: this.client.playerX,
+        y: this.client.playerY,
+        dir: this.client.playerDir || 0,
+      };
+    }
     if (window.BattleTransitionController) window.BattleTransitionController.start(battleState, this);
     this.currentBattle = battleState;
     this.isActive = true;
@@ -161,8 +172,10 @@ class ActionCombatArena {
     this.totalRealPlayers = Number(battleState.totalRealPlayers) || 1;
 
     this.elementMatchups = battleState.elementMatchups || this.client?.elementMatchups || [];
-    this.arenaCenterX = Math.round(this.client?.playerX || 400);
-    this.arenaCenterY = Math.round(this.client?.playerY || 300);
+    const baseOriginX = this.preCombatWorldPos ? this.preCombatWorldPos.x : (this.client?.playerX || 400);
+    const baseOriginY = this.preCombatWorldPos ? this.preCombatWorldPos.y : (this.client?.playerY || 300);
+    this.arenaCenterX = Math.round(baseOriginX);
+    this.arenaCenterY = Math.round(baseOriginY);
     this.arenaRadiusX = 650;
     this.arenaRadiusY = 470;
 
@@ -220,44 +233,25 @@ class ActionCombatArena {
     };
 
     if (this.client) {
-      this.preCombatWorldPos = {
-        mapId: this.client.currentMap ? this.client.currentMap.id : 1,
-        x: this.client.playerX,
-        y: this.client.playerY,
-        dir: this.client.playerDir || 0,
-      };
       this.battleOutcome = null;
-      if (window.PlayMapPresenceController) {
-        window.PlayMapPresenceController.setLocalCombatStatus(true);
-      }
+      if (window.PlayMapPresenceController) window.PlayMapPresenceController.setLocalCombatStatus(true);
       this.client.playerX = spawns.px; this.client.playerY = spawns.py; this.client.playerDir = pDir;
       this.client.currentPath = null; this.client.moveTargetX = null; this.client.moveTargetY = null;
+      this.client.targetDestX = null; this.client.targetDestY = null;
     }
 
     const isBlockedFn = (x, y) => this.isBlocked(x, y);
     const pList = Array.isArray(battleState.pets) ? battleState.pets : [];
     const mStates = Array.isArray(battleState.monsters) ? battleState.monsters : [];
-
     const mDir = this.compute8Direction(spawns.px - spawns.mx, spawns.py - spawns.my);
     const getSp = (j, w, t) => this.getSprite(j, w, t);
-    const rawPetModels = pList.map((p, idx) =>
-      window.ArenaPhysicsSolver.createAiUnitModel(p, idx, false, spawns.px, spawns.py, pDir, battleSpeed, getSp)
-    );
-    const rawMobModels = mStates.map((m, idx) =>
-      window.ArenaPhysicsSolver.createAiUnitModel(m, idx, true, spawns.mx, spawns.my, mDir, battleSpeed, getSp, battleState.monsterTemplateId)
-    );
+    const rawPetModels = pList.map((p, idx) => window.ArenaPhysicsSolver.createAiUnitModel(p, idx, false, spawns.px, spawns.py, pDir, battleSpeed, getSp));
+    const rawMobModels = mStates.map((m, idx) => window.ArenaPhysicsSolver.createAiUnitModel(m, idx, true, spawns.mx, spawns.my, mDir, battleSpeed, getSp, battleState.monsterTemplateId));
 
     if (window.ArenaPhysicsSolver) {
-      const petCoords = window.ArenaPhysicsSolver.buildTeamFormationPositions(
-        spawns.px, spawns.py, spawns.mx, spawns.my, rawPetModels,
-        this.arenaCenterX, this.arenaCenterY, this.arenaRadiusX, this.arenaRadiusY, isBlockedFn, [{ x: spawns.px, y: spawns.py }]
-      );
+      const petCoords = window.ArenaPhysicsSolver.buildTeamFormationPositions(spawns.px, spawns.py, spawns.mx, spawns.my, rawPetModels, this.arenaCenterX, this.arenaCenterY, this.arenaRadiusX, this.arenaRadiusY, isBlockedFn, [{ x: spawns.px, y: spawns.py }]);
       rawPetModels.forEach((p, idx) => { if (petCoords[idx]) { p.x = petCoords[idx].x; p.y = petCoords[idx].y; } });
-
-      const mobCoords = window.ArenaPhysicsSolver.buildTeamFormationPositions(
-        spawns.mx, spawns.my, spawns.px, spawns.py, rawMobModels,
-        this.arenaCenterX, this.arenaCenterY, this.arenaRadiusX, this.arenaRadiusY, isBlockedFn, [{ x: spawns.px, y: spawns.py }, ...rawPetModels]
-      );
+      const mobCoords = window.ArenaPhysicsSolver.buildTeamFormationPositions(spawns.mx, spawns.my, spawns.px, spawns.py, rawMobModels, this.arenaCenterX, this.arenaCenterY, this.arenaRadiusX, this.arenaRadiusY, isBlockedFn, [{ x: spawns.px, y: spawns.py }, ...rawPetModels]);
       rawMobModels.forEach((m, idx) => { if (mobCoords[idx]) { m.x = mobCoords[idx].x; m.y = mobCoords[idx].y; } });
     }
 
@@ -265,10 +259,7 @@ class ActionCombatArena {
     this.monsters = rawMobModels;
 
     if (window.ArenaPhysicsSolver) {
-      window.ArenaPhysicsSolver.resolveAllUnitCollisions(
-        [this.player, ...this.pets, ...this.monsters],
-        this.arenaCenterX, this.arenaCenterY, this.arenaRadiusX, this.arenaRadiusY, isBlockedFn
-      );
+      window.ArenaPhysicsSolver.resolveAllUnitCollisions([this.player, ...this.pets, ...this.monsters], this.arenaCenterX, this.arenaCenterY, this.arenaRadiusX, this.arenaRadiusY, isBlockedFn);
     }
 
     if (this.aiController) {
@@ -409,12 +400,12 @@ class ActionCombatArena {
 
     if (this.client) {
       this.client.encounterCooldownUntil = performance.now() + 5000;
-      this.client.moveTargetX = null; this.client.moveTargetY = null; this.client.currentPath = null;
-      this.client.dpadDx = 0; this.client.dpadDy = 0; this.client.isMoving = false;
-
-      if (window.PlayMapPresenceController) {
-        window.PlayMapPresenceController.setLocalCombatStatus(false);
-      }
+      this.client.moveTargetX = null; this.client.moveTargetY = null;
+      this.client.targetDestX = null; this.client.targetDestY = null;
+      this.client.currentPath = null; this.client.dpadDx = 0; this.client.dpadDy = 0;
+      this.client.isMoving = false;
+      this.client.keysDown?.clear();
+      this.keysDown?.clear();
 
       if (this.battleOutcome === 'DEFEAT' && !window.CombatOutcomeController) {
         const charId = this.client?.activeChar?.id;
@@ -427,6 +418,21 @@ class ActionCombatArena {
         this.client.playerX = this.preCombatWorldPos.x;
         this.client.playerY = this.preCombatWorldPos.y;
         this.client.playerDir = this.preCombatWorldPos.dir;
+        if (this.client.activeChar) {
+          this.client.activeChar.posX = this.preCombatWorldPos.x;
+          this.client.activeChar.posY = this.preCombatWorldPos.y;
+        }
+        if (window.PlayPetsController) {
+          window.PlayPetsController.followerX = this.preCombatWorldPos.x - 74;
+          window.PlayPetsController.followerY = this.preCombatWorldPos.y + 16;
+          window.PlayPetsController.followerIsMoving = false;
+        }
+        const coordsEl = document.getElementById('hudCoords');
+        if (coordsEl) coordsEl.textContent = `X:${Math.round(this.client.playerX)} Y:${Math.round(this.client.playerY)}`;
+      }
+      this.preCombatWorldPos = null;
+      if (window.PlayMapPresenceController) {
+        window.PlayMapPresenceController.setLocalCombatStatus(false);
       }
     }
   }
