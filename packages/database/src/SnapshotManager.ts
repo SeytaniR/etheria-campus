@@ -51,6 +51,7 @@ export interface LowCodeDatabaseSnapshot {
   worldMapTemplates?: any[];
   clientUiLayoutTemplates?: any[];
   shopTemplates?: any[];
+  hunterPetCostRules?: any[];
 }
 
 /**
@@ -65,6 +66,7 @@ export class SnapshotManager {
     'maps',
     'map_portals',
     'shop_templates',
+    'hunter_pet_cost_rules',
     'npc_templates',
     'map_npcs',
     'element_matchups',
@@ -174,6 +176,7 @@ export class SnapshotManager {
       worldMapTemplates: await this.prisma.worldMapTemplate.findMany({ orderBy: { id: 'asc' } }),
       clientUiLayoutTemplates: await this.prisma.clientUiLayoutTemplate.findMany({ orderBy: { id: 'asc' } }),
       shopTemplates: await (this.prisma as any).shopTemplate?.findMany({ orderBy: { id: 'asc' } }).catch(() => []) ?? [],
+      hunterPetCostRules: await (this.prisma as any).hunterPetCostRule?.findMany({ orderBy: { id: 'asc' } }).catch(() => []) ?? [],
     };
 
     await fs.writeFile(this.snapshotFilePath, JSON.stringify(snapshot, null, 2), 'utf-8');

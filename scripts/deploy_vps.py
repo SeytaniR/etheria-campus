@@ -23,6 +23,7 @@ node scripts/seed_12_level70_equipment_sets.mjs || true
 node scripts/seed_12_level70_batch2_equipment_sets.mjs || true
 npx tsx scripts/seed_monster_meta_quests.ts || true
 npx tsx scripts/update_essence_icons_db.ts || true
+npx tsx scripts/seed_hunter_pet_cost_rules.ts || true
 npm --workspace=@etheria/server run build
 sudo systemctl restart etheria-campus.service
 sleep 3

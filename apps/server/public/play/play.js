@@ -83,6 +83,7 @@ class EtheriaPlayClient {
     if (window.PlayMapPresenceController) window.PlayMapPresenceController.init(this);
     if (window.PlayHudController) window.PlayHudController.init(this);
     if (window.PlayPetsController) window.PlayPetsController.init(this);
+    if (window.PlayHunterController) window.PlayHunterController.attach(this);
     if (window.ActionCombatArena) {
       this.actionCombatArena = new ActionCombatArena(this);
       this.actionArena = this.actionCombatArena;
@@ -696,7 +697,9 @@ class EtheriaPlayClient {
         const qInd = this.questState?.npcHeadIndicators?.[n.npcTemplateId];
         const stateLabels = { TURN_IN_READY: '❓ Entregar Missão', AVAILABLE: '❗ Nova Missão', IN_PROGRESS: '❓ Missão em Andamento' };
         textEl.textContent = `🧙 ${n.namePtBr}`;
-        btnEl.textContent = stateLabels[qInd?.state] || '💬 Conversar';
+        const nRoles = Array.isArray(n.rolesJson) ? n.rolesJson : [];
+        const defaultLabel = nRoles.includes('HUNTER') ? '🐾 Falar com Caçador' : '💬 Conversar';
+        btnEl.textContent = stateLabels[qInd?.state] || defaultLabel;
         btnEl.onclick = () => { if (typeof this.openNpcQuestModal === 'function') void this.openNpcQuestModal(n); };
         return;
       }

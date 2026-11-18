@@ -76443,7 +76443,8 @@
         {
           "type": "QUEST"
         }
-      ]
+      ],
+      "rolesJson": []
     },
     {
       "id": 2,
@@ -76455,7 +76456,8 @@
         {
           "type": "QUEST"
         }
-      ]
+      ],
+      "rolesJson": []
     },
     {
       "id": 3,
@@ -76467,6 +76469,9 @@
         {
           "type": "QUEST"
         }
+      ],
+      "rolesJson": [
+        "ARMORER"
       ]
     },
     {
@@ -76479,7 +76484,8 @@
         {
           "type": "QUEST"
         }
-      ]
+      ],
+      "rolesJson": []
     },
     {
       "id": 5,
@@ -76491,7 +76497,8 @@
         {
           "type": "QUEST"
         }
-      ]
+      ],
+      "rolesJson": []
     },
     {
       "id": 6,
@@ -76503,7 +76510,8 @@
         {
           "type": "QUEST"
         }
-      ]
+      ],
+      "rolesJson": []
     },
     {
       "id": 7,
@@ -76515,6 +76523,9 @@
         {
           "type": "QUEST"
         }
+      ],
+      "rolesJson": [
+        "ALCHEMIST"
       ]
     },
     {
@@ -76527,6 +76538,9 @@
         {
           "type": "QUEST"
         }
+      ],
+      "rolesJson": [
+        "HUNTER"
       ]
     },
     {
@@ -76539,7 +76553,8 @@
         {
           "type": "QUEST"
         }
-      ]
+      ],
+      "rolesJson": []
     },
     {
       "id": 10,
@@ -76551,7 +76566,8 @@
         {
           "type": "BATTLE"
         }
-      ]
+      ],
+      "rolesJson": []
     },
     {
       "id": 11,
@@ -76563,7 +76579,8 @@
         {
           "type": "QUEST"
         }
-      ]
+      ],
+      "rolesJson": []
     },
     {
       "id": 12,
@@ -76575,7 +76592,8 @@
         {
           "type": "QUEST"
         }
-      ]
+      ],
+      "rolesJson": []
     },
     {
       "id": 13,
@@ -76587,7 +76605,8 @@
         {
           "type": "QUEST"
         }
-      ]
+      ],
+      "rolesJson": []
     },
     {
       "id": 14,
@@ -76599,7 +76618,8 @@
         {
           "type": "QUEST"
         }
-      ]
+      ],
+      "rolesJson": []
     },
     {
       "id": 15,
@@ -76611,6 +76631,9 @@
         {
           "type": "QUEST"
         }
+      ],
+      "rolesJson": [
+        "HUNTER"
       ]
     },
     {
@@ -76619,7 +76642,8 @@
       "mcreworkNpcKey": "npc_100060",
       "nameI18nKey": "npc.npc_16.name",
       "isDecorationOnly": true,
-      "triggersJson": []
+      "triggersJson": [],
+      "rolesJson": []
     },
     {
       "id": 17,
@@ -76631,7 +76655,8 @@
         {
           "type": "QUEST"
         }
-      ]
+      ],
+      "rolesJson": []
     },
     {
       "id": 18,
@@ -76643,7 +76668,8 @@
         {
           "type": "QUEST"
         }
-      ]
+      ],
+      "rolesJson": []
     },
     {
       "id": 19,
@@ -76651,7 +76677,8 @@
       "mcreworkNpcKey": "npc_000024",
       "nameI18nKey": "npc.npc_19.name",
       "isDecorationOnly": true,
-      "triggersJson": []
+      "triggersJson": [],
+      "rolesJson": []
     },
     {
       "id": 20,
@@ -76663,7 +76690,8 @@
         {
           "type": "QUEST"
         }
-      ]
+      ],
+      "rolesJson": []
     },
     {
       "id": 21,
@@ -76671,7 +76699,8 @@
       "mcreworkNpcKey": "npc_000010",
       "nameI18nKey": "npc.npc_21.name",
       "isDecorationOnly": true,
-      "triggersJson": []
+      "triggersJson": [],
+      "rolesJson": []
     },
     {
       "id": 22,
@@ -76683,7 +76712,8 @@
         {
           "type": "QUEST"
         }
-      ]
+      ],
+      "rolesJson": []
     },
     {
       "id": 23,
@@ -76695,7 +76725,8 @@
         {
           "type": "QUEST"
         }
-      ]
+      ],
+      "rolesJson": []
     },
     {
       "id": 24,
@@ -76707,7 +76738,8 @@
         {
           "type": "QUEST"
         }
-      ]
+      ],
+      "rolesJson": []
     },
     {
       "id": 25,
@@ -76719,7 +76751,8 @@
         {
           "type": "QUEST"
         }
-      ]
+      ],
+      "rolesJson": []
     },
     {
       "id": 26,
@@ -76731,7 +76764,8 @@
         {
           "type": "QUEST"
         }
-      ]
+      ],
+      "rolesJson": []
     },
     {
       "id": 27,
@@ -76743,7 +76777,8 @@
         {
           "type": "QUEST"
         }
-      ]
+      ],
+      "rolesJson": []
     },
     {
       "id": 28,
@@ -76751,7 +76786,8 @@
       "mcreworkNpcKey": "npc_000079",
       "nameI18nKey": "npc.npc_28.name",
       "isDecorationOnly": false,
-      "triggersJson": []
+      "triggersJson": [],
+      "rolesJson": []
     },
     {
       "id": 29,
@@ -76759,7 +76795,8 @@
       "mcreworkNpcKey": "npc_000069",
       "nameI18nKey": "npc.npc_29.name",
       "isDecorationOnly": false,
-      "triggersJson": []
+      "triggersJson": [],
+      "rolesJson": []
     },
     {
       "id": 30,
@@ -76767,7 +76804,8 @@
       "mcreworkNpcKey": "npc_000070",
       "nameI18nKey": "npc.npc_30.name",
       "isDecorationOnly": false,
-      "triggersJson": []
+      "triggersJson": [],
+      "rolesJson": []
     },
     {
       "id": 31,
@@ -76775,7 +76813,8 @@
       "mcreworkNpcKey": "npc_000029",
       "nameI18nKey": "npc.npc_31.name",
       "isDecorationOnly": false,
-      "triggersJson": []
+      "triggersJson": [],
+      "rolesJson": []
     },
     {
       "id": 32,
@@ -76783,7 +76822,8 @@
       "mcreworkNpcKey": "npc_000016",
       "nameI18nKey": "npc.npc_32.name",
       "isDecorationOnly": false,
-      "triggersJson": []
+      "triggersJson": [],
+      "rolesJson": []
     },
     {
       "id": 33,
@@ -76791,7 +76831,8 @@
       "mcreworkNpcKey": "npc_000002",
       "nameI18nKey": "npc.npc_33.name",
       "isDecorationOnly": false,
-      "triggersJson": []
+      "triggersJson": [],
+      "rolesJson": []
     },
     {
       "id": 34,
@@ -76799,7 +76840,8 @@
       "mcreworkNpcKey": "npc_000018",
       "nameI18nKey": "npc.npc_34.name",
       "isDecorationOnly": false,
-      "triggersJson": []
+      "triggersJson": [],
+      "rolesJson": []
     }
   ],
   "mapNpcs": [
@@ -118575,6 +118617,50 @@
       },
       "isActive": true,
       "updatedAt": "2026-11-14T20:41:12.627Z"
+    }
+  ],
+  "hunterPetCostRules": [
+    {
+      "id": 1,
+      "rarityTier": "F",
+      "essenceCost": 30,
+      "goldCost": 0
+    },
+    {
+      "id": 2,
+      "rarityTier": "D",
+      "essenceCost": 70,
+      "goldCost": 0
+    },
+    {
+      "id": 3,
+      "rarityTier": "C",
+      "essenceCost": 120,
+      "goldCost": 0
+    },
+    {
+      "id": 4,
+      "rarityTier": "B",
+      "essenceCost": 300,
+      "goldCost": 0
+    },
+    {
+      "id": 5,
+      "rarityTier": "A",
+      "essenceCost": 700,
+      "goldCost": 0
+    },
+    {
+      "id": 6,
+      "rarityTier": "S",
+      "essenceCost": 1600,
+      "goldCost": 0
+    },
+    {
+      "id": 7,
+      "rarityTier": "SS",
+      "essenceCost": 3500,
+      "goldCost": 0
     }
   ]
 }

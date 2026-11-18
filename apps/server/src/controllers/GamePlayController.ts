@@ -585,6 +585,8 @@ export class GamePlayController {
           namePtBr: i18nMap.get(n.npcTemplate.nameI18nKey) ?? n.npcTemplate.code,
           mcreworkNpcKey: key,
           isDecorationOnly: n.npcTemplate.isDecorationOnly,
+          rolesJson: Array.isArray((n.npcTemplate as any).rolesJson) ? ((n.npcTemplate as any).rolesJson as string[]) : [],
+          shopTemplateId: n.npcTemplate.shopTemplateId || null,
           triggersJson: n.npcTemplate.triggersJson,
           posX: n.posX,
           posY: n.posY,

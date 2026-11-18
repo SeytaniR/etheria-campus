@@ -19,6 +19,7 @@ import { CharacterInventoryService } from '../controllers/CharacterInventoryServ
 import { MonsterCombatBuilder, type QuestBattleConfigDto } from '../controllers/MonsterCombatBuilder.js';
 import { ItemContainerOpeningService } from '../controllers/ItemContainerOpeningService.js';
 import { CharacterPetService } from '../controllers/CharacterPetService.js';
+import { HunterPetController } from '../controllers/HunterPetController.js';
 import { CharacterProgressionService } from '../controllers/CharacterProgressionService.js';
 import { GameChatService } from '../controllers/GameChatService.js';
 import { MapPresenceService } from '../controllers/MapPresenceService.js';
@@ -513,6 +514,11 @@ export class PlayRouter {
 
     // 🐾 Gestão Procedural de Pets (Geração, 76+4/lv Atributos, Slots 1..3 e 3 Habilidades Livres)
     if (await CharacterPetService.handlePlayPetsRoute(req, res, pathname, method, this.deps.prisma, (cId) => this.verifyCharacterOwnership(userAccountId, session.role, cId), this.deps.readJsonBody, this.deps.sendJson)) {
+      return true;
+    }
+
+    // 🏹 Função de Caçador (Geração de Pets por Essências e Custos de Raridade)
+    if (await HunterPetController.handlePlayHunterRoute(req, res, pathname, method, this.deps.prisma, (cId) => this.verifyCharacterOwnership(userAccountId, session.role, cId), this.deps.readJsonBody, this.deps.sendJson)) {
       return true;
     }
 
