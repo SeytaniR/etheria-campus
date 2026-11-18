@@ -160,6 +160,7 @@ class EtheriaPlayClient {
     this.mapsList = data.maps || [];
     this.myCharacters = data.characters || [];
     this.availablePets = data.availablePets || [];
+    this.skillTemplates = data.skillTemplates || [];
     this.uiLayoutTemplates = data.uiLayoutTemplates || [];
     if (window.PlayUiLayoutApplier) {
       window.PlayUiLayoutApplier.init(this.uiLayoutTemplates);

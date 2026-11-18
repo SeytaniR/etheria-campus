@@ -194,6 +194,11 @@ class PlayGmController {
       this.renderStatsModalView();
     };
 
+    client.selectSkill = function (skillId) {
+      this._selectedSkillId = Number(skillId);
+      this.renderStatsModalView();
+    };
+
     client.unequipCharacterSlot = async function (slotCode) {
       if (!this.activeChar) return;
       try {
@@ -243,6 +248,16 @@ class PlayGmController {
       const el = this.getElementStyle(c.elementCode);
       const modalBody = document.getElementById('statsModalBody');
       if (!modalBody) return;
+
+      const allSkills = Array.isArray(this.skillTemplates) ? this.skillTemplates : [];
+      const charSkillIds = Array.isArray(c.skillIdsJson) ? c.skillIdsJson.map(Number) : [];
+      let charSkills = allSkills.filter((sk) => charSkillIds.includes(Number(sk.id)));
+      if (charSkills.length === 0 && allSkills.length > 0) {
+        charSkills = allSkills.slice(0, 4);
+      }
+      if (!this._selectedSkillId && charSkills.length > 0) {
+        this._selectedSkillId = charSkills[0].id;
+      }
 
       // 1. Renderizador da Aba de Equipamentos (Paperdoll de 12 Slots)
       const renderEquipTabContent = () => {
@@ -495,6 +510,159 @@ class PlayGmController {
         `;
       };
 
+      // 3. Renderizador da Aba de Habilidades da Classe
+      const renderSkillsTabContent = () => {
+        if (charSkills.length === 0) {
+          return `
+            <div style="text-align:center; padding:35px 20px; color:#94a3b8; font-size:0.84rem; background:rgba(15,23,42,0.6); border-radius:10px; border:1px solid #1e293b;">
+              <span style="font-size:1.8rem; display:block; margin-bottom:8px;">🔮</span>
+              Nenhuma habilidade cadastrada para esta classe no momento.
+            </div>
+          `;
+        }
+
+        const selectedSkill = charSkills.find((sk) => sk.id === this._selectedSkillId) || charSkills[0];
+
+        const skillListHtml = charSkills.map((sk) => {
+          const isSelected = selectedSkill && selectedSkill.id === sk.id;
+          const isPassive = sk.skillType === 'PASSIVE';
+          const iconUrl = sk.iconUrl || '/play/assets/hud/action_skill_icon.png';
+          return `
+            <div class="stats-skill-item ${isSelected ? 'selected' : ''}" onclick="PlayApp.selectSkill(${sk.id})">
+              <img class="stats-skill-icon-thumb" src="${iconUrl}" alt="${sk.namePtBr}" onerror="this.src='/play/assets/hud/action_skill_icon.png'" />
+              <div class="stats-skill-meta">
+                <span class="stats-skill-name">${sk.namePtBr}</span>
+                <div class="stats-skill-tags-row">
+                  <span class="stats-skill-badge ${isPassive ? 'passive-type' : 'active-type'}">
+                    ${isPassive ? '🛡️ Passiva' : '🔮 Ativa'}
+                  </span>
+                  ${sk.mpCost > 0 ? `<span class="stats-skill-badge cost">💧 ${sk.mpCost} MP</span>` : ''}
+                  ${sk.cooldownSeconds > 0 ? `<span class="stats-skill-badge cost">⏱️ ${sk.cooldownSeconds}s</span>` : ''}
+                </div>
+              </div>
+            </div>
+          `;
+        }).join('');
+
+        const targetLabels = {
+          ENEMY_SINGLE: 'Inimigo Único',
+          ENEMY_AOE: 'Área Inimiga',
+          ALLY_SINGLE: 'Aliado Único',
+          SELF: 'Apenas Si Mesmo',
+          ALL_ALLIES: 'Todos os Aliados',
+          ALL: 'Todos na Arena',
+        };
+        const targetLabel = targetLabels[selectedSkill?.targetType] || selectedSkill?.targetType || 'Inimigo';
+
+        const triggerLabels = {
+          MANUAL: 'Disparo Manual',
+          MANUAL_AP: 'Disparo Manual (Stamina)',
+          ACTIVE: 'Ativa em Combate',
+          PASSIVE_ALWAYS: 'Passiva Permanente',
+          ON_HIT: 'Ao Golpear',
+          ON_CRIT: 'Ao Acertar Crítico',
+          ON_DAMAGE_TAKEN: 'Ao Receber Dano',
+          ON_KILL: 'Ao Abater Inimigo',
+          INTERVAL_TICK: 'A Cada Intervalo de Tempo',
+        };
+        const triggerLabel = triggerLabels[selectedSkill?.triggerType] || selectedSkill?.triggerType || 'Manual';
+
+        let effectProps = '';
+        if (selectedSkill?.damageMultiplier && selectedSkill.damageMultiplier > 0) {
+          effectProps += `
+            <div class="stats-skill-prop-item">
+              <span class="stats-skill-prop-label">Potência de Dano</span>
+              <span class="stats-skill-prop-value" style="color:#f87171;">💥 ${Math.round(selectedSkill.damageMultiplier * 100)}%</span>
+            </div>
+          `;
+        }
+        if (selectedSkill?.fixedDamage && selectedSkill.fixedDamage > 0) {
+          effectProps += `
+            <div class="stats-skill-prop-item">
+              <span class="stats-skill-prop-label">Dano Fixo Bônus</span>
+              <span class="stats-skill-prop-value" style="color:#fca5a5;">+${selectedSkill.fixedDamage}</span>
+            </div>
+          `;
+        }
+        if (selectedSkill?.healingMultiplier && selectedSkill.healingMultiplier > 0) {
+          effectProps += `
+            <div class="stats-skill-prop-item">
+              <span class="stats-skill-prop-label">Potência de Cura</span>
+              <span class="stats-skill-prop-value" style="color:#4ade80;">💚 ${Math.round(selectedSkill.healingMultiplier * 100)}%</span>
+            </div>
+          `;
+        }
+        if (selectedSkill?.fixedHealing && selectedSkill.fixedHealing > 0) {
+          effectProps += `
+            <div class="stats-skill-prop-item">
+              <span class="stats-skill-prop-label">Cura Fixa Bônus</span>
+              <span class="stats-skill-prop-value" style="color:#86efac;">+${selectedSkill.fixedHealing} HP</span>
+            </div>
+          `;
+        }
+
+        const detailsHtml = selectedSkill ? `
+          <div class="stats-skill-details-card">
+            <div class="stats-skill-details-header">
+              <img class="stats-skill-details-icon" src="${selectedSkill.iconUrl || '/play/assets/hud/action_skill_icon.png'}" alt="${selectedSkill.namePtBr}" />
+              <div class="stats-skill-details-title-box">
+                <span class="stats-skill-details-title">${selectedSkill.namePtBr}</span>
+                <div class="stats-skill-tags-row">
+                  <span class="stats-skill-badge ${selectedSkill.skillType === 'PASSIVE' ? 'passive-type' : 'active-type'}">
+                    ${selectedSkill.skillType === 'PASSIVE' ? '🛡️ Habilidade Passiva' : '🔮 Habilidade Ativa'}
+                  </span>
+                  ${selectedSkill.elementCode ? `<span class="stats-skill-badge cost" style="color:#38bdf8;">🌟 Elemento: ${selectedSkill.elementCode}</span>` : ''}
+                </div>
+              </div>
+            </div>
+
+            <div class="stats-skill-details-desc">
+              ${selectedSkill.descriptionPtBr || 'Nenhuma descrição detalhada disponível.'}
+            </div>
+
+            <div class="stats-skill-props-grid">
+              <div class="stats-skill-prop-item">
+                <span class="stats-skill-prop-label">Custo de Mana (MP)</span>
+                <span class="stats-skill-prop-value" style="color:#38bdf8;">💧 ${selectedSkill.mpCost > 0 ? selectedSkill.mpCost + ' MP' : 'Sem Custo'}</span>
+              </div>
+              <div class="stats-skill-prop-item">
+                <span class="stats-skill-prop-label">Tempo de Recarga</span>
+                <span class="stats-skill-prop-value" style="color:#fde047;">⏱️ ${selectedSkill.cooldownSeconds > 0 ? selectedSkill.cooldownSeconds + 's' : 'Instantâneo'}</span>
+              </div>
+              <div class="stats-skill-prop-item">
+                <span class="stats-skill-prop-label">Gatilho de Ativação</span>
+                <span class="stats-skill-prop-value">${triggerLabel}</span>
+              </div>
+              <div class="stats-skill-prop-item">
+                <span class="stats-skill-prop-label">Seleção de Alvo</span>
+                <span class="stats-skill-prop-value">${targetLabel}</span>
+              </div>
+              <div class="stats-skill-prop-item">
+                <span class="stats-skill-prop-label">Alcance de Disparo</span>
+                <span class="stats-skill-prop-value">🏹 ${selectedSkill.castRange} px</span>
+              </div>
+              <div class="stats-skill-prop-item">
+                <span class="stats-skill-prop-label">Área de Efeito (AoE)</span>
+                <span class="stats-skill-prop-value">💥 ${selectedSkill.aoeRadius > 0 ? selectedSkill.aoeRadius + ' px' : 'Alvo Único'}</span>
+              </div>
+              ${effectProps}
+            </div>
+          </div>
+        ` : '';
+
+        return `
+          <div class="stats-skills-container">
+            <div class="stats-skills-list">
+              <div style="font-size:0.72rem; font-weight:800; color:#38bdf8; padding:4px 2px; border-bottom:1px solid rgba(255,255,255,0.06); margin-bottom:4px;">
+                📜 Habilidades de ${c.classNamePtBr || 'Classe'} (${charSkills.length})
+              </div>
+              ${skillListHtml}
+            </div>
+            ${detailsHtml}
+          </div>
+        `;
+      };
+
       modalBody.innerHTML = `
         <!-- Barra de Abas do Modal -->
         <div class="stats-modal-tabs">
@@ -503,6 +671,9 @@ class PlayGmController {
           </button>
           <button type="button" class="stats-tab-btn ${activeTab === 'stats' ? 'active' : ''}" onclick="PlayApp.switchStatsModalTab('stats')">
             ⚡ Atributos & Matriz ${remainingUnspent > 0 ? `<span class="stats-tab-points-pill">★ ${remainingUnspent}</span>` : ''}
+          </button>
+          <button type="button" class="stats-tab-btn ${activeTab === 'skills' ? 'active' : ''}" onclick="PlayApp.switchStatsModalTab('skills')">
+            🔮 Habilidades (${charSkills.length})
           </button>
         </div>
 
@@ -521,7 +692,7 @@ class PlayGmController {
         </div>
 
         <!-- Conteúdo da Aba Ativa -->
-        ${activeTab === 'equip' ? renderEquipTabContent() : renderStatsTabContent()}
+        ${activeTab === 'equip' ? renderEquipTabContent() : (activeTab === 'skills' ? renderSkillsTabContent() : renderStatsTabContent())}
       `;
     };
 

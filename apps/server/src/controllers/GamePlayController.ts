@@ -209,6 +209,29 @@ export class GamePlayController {
       atlasWebpUrl: `${this.mcreworkPagesBaseUrl}/assets/monsters/${mt.mcreworkMonsterKey}/atlas.webp`,
     }));
 
+    const skillTemplates = (await this.prisma.skillTemplate.findMany({ where: { isActive: true }, orderBy: { id: 'asc' } })).map((sk: any) => ({
+      id: sk.id,
+      code: sk.code,
+      namePtBr: i18nMap.get(sk.nameI18nKey) ?? sk.code,
+      descriptionPtBr: sk.descriptionI18nKey ? (i18nMap.get(sk.descriptionI18nKey) ?? '') : '',
+      iconUrl: sk.mcreworkIconKey
+        ? (sk.mcreworkIconKey.startsWith('http') ? sk.mcreworkIconKey : `${this.mcreworkPagesBaseUrl}/${sk.mcreworkIconKey.replace(/^\/+/, '')}`)
+        : `${this.mcreworkPagesBaseUrl}/assets/skills/icons/100156.png`,
+      skillType: sk.skillType,
+      triggerType: sk.triggerType,
+      targetType: sk.targetType,
+      elementCode: sk.elementCode,
+      mpCost: sk.mpCost,
+      apCost: sk.apCost,
+      cooldownSeconds: sk.cooldownSeconds,
+      castRange: sk.castRange,
+      aoeRadius: sk.aoeRadius,
+      damageMultiplier: sk.damageMultiplier,
+      healingMultiplier: sk.healingMultiplier,
+      fixedDamage: sk.fixedDamage,
+      fixedHealing: sk.fixedHealing,
+    }));
+
     return {
       baseMoveSpeed: GamePlayController.AUTHORITATIVE_BASE_MOVE_SPEED,
       classTemplates,
@@ -221,6 +244,7 @@ export class GamePlayController {
       characters,
       availablePets,
       uiLayoutTemplates,
+      skillTemplates,
     };
   }
 
@@ -288,6 +312,7 @@ export class GamePlayController {
       unspentStatPoints: c.unspentStatPoints,
       distributedStatsJson: c.distributedStatsJson,
       equippedItemsJson: c.equippedItemsJson || {},
+      skillIdsJson: Array.isArray(c.classTemplate?.skillIdsJson) ? c.classTemplate.skillIdsJson : [],
       baseAttributesJson: c.classTemplate?.baseAttributesJson ?? {
         VIT: 10,
         STR: 10,

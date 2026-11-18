@@ -749,3 +749,197 @@
     padding: 3px 6px;
   }
 }
+
+/* ==========================================================================
+   Aba de Habilidades do Personagem (Grimório / Skills)
+   ========================================================================== */
+.stats-skills-container {
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  gap: 10px;
+  min-height: 360px;
+}
+
+@media (max-width: 600px) {
+  .stats-skills-container {
+    grid-template-columns: 1fr;
+  }
+}
+
+.stats-skills-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-height: 400px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.stats-skill-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  background: rgba(15, 23, 42, 0.7);
+  border: 1px solid rgba(56, 189, 248, 0.2);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.stats-skill-item:hover {
+  background: rgba(30, 41, 59, 0.9);
+  border-color: #38bdf8;
+  transform: translateX(2px);
+}
+
+.stats-skill-item.selected {
+  background: linear-gradient(90deg, rgba(14, 116, 144, 0.4), rgba(15, 23, 42, 0.8));
+  border-color: #38bdf8;
+  box-shadow: 0 0 10px rgba(56, 189, 248, 0.3);
+}
+
+.stats-skill-icon-thumb {
+  width: 38px;
+  height: 38px;
+  border-radius: 6px;
+  background: #020617;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
+.stats-skill-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+  flex: 1;
+}
+
+.stats-skill-name {
+  font-size: 0.80rem;
+  font-weight: 800;
+  color: #f8fafc;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.stats-skill-tags-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+.stats-skill-badge {
+  font-size: 0.60rem;
+  font-weight: 700;
+  padding: 1px 5px;
+  border-radius: 3px;
+  font-family: monospace;
+}
+
+.stats-skill-badge.active-type {
+  background: rgba(56, 189, 248, 0.2);
+  color: #38bdf8;
+  border: 1px solid rgba(56, 189, 248, 0.4);
+}
+
+.stats-skill-badge.passive-type {
+  background: rgba(245, 158, 11, 0.2);
+  color: #fbbf24;
+  border: 1px solid rgba(245, 158, 11, 0.4);
+}
+
+.stats-skill-badge.cost {
+  background: rgba(30, 41, 59, 0.8);
+  color: #94a3b8;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* Painel de Detalhes da Habilidade Selecionada */
+.stats-skill-details-card {
+  background: rgba(15, 23, 42, 0.85);
+  border: 1px solid rgba(56, 189, 248, 0.3);
+  border-radius: 10px;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+  overflow-y: auto;
+  max-height: 400px;
+}
+
+.stats-skill-details-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  padding-bottom: 8px;
+}
+
+.stats-skill-details-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 8px;
+  background: #020617;
+  border: 2px solid #38bdf8;
+  box-shadow: 0 0 12px rgba(56, 189, 248, 0.35);
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
+.stats-skill-details-title-box {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+
+.stats-skill-details-title {
+  font-size: 1rem;
+  font-weight: 800;
+  color: #fde047;
+  letter-spacing: 0.3px;
+}
+
+.stats-skill-details-desc {
+  font-size: 0.76rem;
+  color: #cbd5e1;
+  line-height: 1.45;
+  background: rgba(30, 41, 59, 0.4);
+  padding: 8px 10px;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.stats-skill-props-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 6px;
+}
+
+.stats-skill-prop-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 5px 8px;
+  background: rgba(2, 6, 23, 0.5);
+  border-radius: 5px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  font-size: 0.70rem;
+}
+
+.stats-skill-prop-label {
+  color: #94a3b8;
+  font-weight: 600;
+}
+
+.stats-skill-prop-value {
+  color: #f8fafc;
+  font-weight: 800;
+  font-family: monospace;
+}
