@@ -127,14 +127,33 @@ model MapPortal {
   @@map("map_portals")
 }
 
-/// Templates de NPCs (podem ser enfeites de cenário ou gatilhos para quests, lojas, lutas/boss/treinador, eventos).
+/// Templates de Lojas (`shop_templates`) que podem ser vinculadas genericamente a qualquer NPC.
+/// Cada loja possui um catálogo de itens (`item_templates`) e/ou equipamentos (`equipment_templates`) com preço em Ouro.
+model ShopTemplate {
+  id              Int           @id @default(autoincrement())
+  code            String        @unique
+  namePtBr        String        @map("name_pt_br")
+  descriptionPtBr String?       @map("description_pt_br")
+  catalogJson     Json          @default("[]") @map("catalog_json") /// [{entryType: "ITEM"|"EQUIPMENT", targetId: 1, priceGold: 100, requiredLevel: 1}]
+  isActive        Boolean       @default(true) @map("is_active")
+  createdAt       DateTime      @default(now()) @map("created_at")
+  updatedAt       DateTime      @updatedAt @map("updated_at")
+  npcs            NpcTemplate[]
+
+  @@map("shop_templates")
+}
+
+/// Templates de NPCs (podem acumular funções como TELEPORT, SHOP, ARMORER, HUNTER, ALCHEMIST, CHEF, MINER).
 model NpcTemplate {
-  id               Int      @id @default(autoincrement())
-  code             String   @unique
-  mcreworkNpcKey   String   @map("mcrework_npc_key")
-  nameI18nKey      String   @map("name_i18n_key")
-  isDecorationOnly Boolean  @default(false) @map("is_decoration_only")
-  triggersJson     Json     @default("[]") @map("triggers_json") /// Ex: [{type: "QUEST"|"SHOP"|"BATTLE"|"EVENT", config: {...}}]
+  id               Int           @id @default(autoincrement())
+  code             String        @unique
+  mcreworkNpcKey   String        @map("mcrework_npc_key")
+  nameI18nKey      String        @map("name_i18n_key")
+  isDecorationOnly Boolean       @default(false) @map("is_decoration_only")
+  rolesJson        Json          @default("[]") @map("roles_json") /// Ex: ["TELEPORT", "SHOP", "ARMORER", "HUNTER", "ALCHEMIST", "CHEF", "MINER"]
+  shopTemplateId   Int?          @map("shop_template_id")
+  triggersJson     Json          @default("[]") @map("triggers_json") /// Ex: [{type: "QUEST"|"SHOP"|"BATTLE"|"EVENT", config: {...}}]
+  shopTemplate     ShopTemplate? @relation(fields: [shopTemplateId], references: [id], onDelete: SetNull)
   placements       MapNpc[]
 
   @@map("npc_templates")

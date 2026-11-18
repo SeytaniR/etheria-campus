@@ -85,6 +85,7 @@ class EtheriaAdminStudio {
     if (window.AdminEquipmentSetsTab) window.AdminEquipmentSetsTab.attach(this);
     if (window.AdminItemsTab) window.AdminItemsTab.attach(this);
     if (window.AdminFlyingMountsTab) window.AdminFlyingMountsTab.attach(this);
+    if (window.AdminShopsTab) window.AdminShopsTab.attach(this);
     if (window.AdminExperienceTab) window.AdminExperienceTab.attach(this);
     if (window.AdminWorldMapsTab) window.AdminWorldMapsTab.attach(this);
 
@@ -133,6 +134,7 @@ class EtheriaAdminStudio {
     this.monsterRarities = data.monsterRarities || [];
     this.classTemplates = data.classTemplates || [];
     this.npcTemplates = data.npcTemplates || [];
+    this.shopTemplates = data.shopTemplates || [];
     this.allMonsterTemplates = data.monsterTemplates || [];
     this.savedMaps = data.maps || [];
 
@@ -150,6 +152,7 @@ class EtheriaAdminStudio {
     if (typeof this.loadEquipmentSlots === 'function') await this.loadEquipmentSlots();
     if (typeof this.loadItemTemplates === 'function') await this.loadItemTemplates();
     if (typeof this.loadFlyingMountTemplates === 'function') await this.loadFlyingMountTemplates();
+    if (typeof this.loadShops === 'function') await this.loadShops();
     if (typeof this.loadLevelExperienceTemplates === 'function') await this.loadLevelExperienceTemplates();
 
     if (this.savedMaps.length > 0 && !this.currentMapId) {

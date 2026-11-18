@@ -14,6 +14,7 @@ class AdminUsersTab {
       { code: 'NPCS', namePtBr: 'Tabela de NPCs', icon: '🧙', desc: 'Modelos de NPCs, nomes e posicionamentos' },
       { code: 'CLASSES', namePtBr: 'Personagens & Classes', icon: '🦸', desc: 'Classes, atributos base, sprites e reborns' },
       { code: 'MONSTERS', namePtBr: 'Monstros & Raridades', icon: '🐉', desc: 'Monstros, atributos, raridades e escalas' },
+      { code: 'SHOPS', namePtBr: 'Lojas & Mercadorias', icon: '🏪', desc: 'Lojas, catálogos e itens à venda' },
       { code: 'ATTRIBUTES', namePtBr: 'Atributos & Conversões', icon: '📊', desc: 'Atributos base, combate e conversões' },
       { code: 'SKILLS', namePtBr: 'Habilidades', icon: '⚡', desc: 'Habilidades ativas, passivas, alcances e custos' },
       { code: 'STATUS_EFFECTS', namePtBr: 'Buffs & Debuffs', icon: '💫', desc: 'Efeitos de status, DoTs, CC e gatilhos' },

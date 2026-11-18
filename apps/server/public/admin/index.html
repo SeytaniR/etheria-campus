@@ -35,6 +35,7 @@
       <div class="nav-tabs">
         <button id="tabBtnMaps" class="btn-primary" onclick="AdminApp.switchTab('maps')">🗺️ Mapas</button>
         <button id="tabBtnNpcs" onclick="AdminApp.switchTab('npcs')">🧙 Tabela de NPCs</button>
+        <button id="tabBtnShops" onclick="AdminApp.switchTab('shops')">🏪 Lojas</button>
         <button id="tabBtnClasses" onclick="AdminApp.switchTab('classes')">🦸 Personagens</button>
         <button id="tabBtnMonsters" onclick="AdminApp.switchTab('monsters')">🐉 Monstros</button>
         <button id="tabBtnUiLayouts" onclick="AdminApp.switchTab('ui-layouts')">📐 HUDs & Interfaces</button>
@@ -181,11 +182,41 @@
                 <th>ID / Chave</th>
                 <th>Visual (mcrework)</th>
                 <th>Nome (PT-BR)</th>
+                <th>Funções & Loja</th>
                 <th>Posicionamento nos Mapas</th>
                 <th>Ações</th>
               </tr>
             </thead>
             <tbody id="npcsTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    <!-- ABA: TABELA DE LOJAS E MERCADORIAS (shop_templates) -->
+    <div id="tabShops" style="display:none; padding:16px; max-width:1250px; margin:0 auto; width:100%; gap:16px; flex-direction:column;">
+      <div class="panel">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+          <div>
+            <h3>🏪 Lojas e Mercadorias (`shop_templates`)</h3>
+            <p style="font-size:0.8rem; color:var(--text-muted); margin-top:4px;">
+              Crie catálogos de mercadorias com equipamentos e consumíveis com preços em ouro e requisitos de nível. Essas lojas podem ser vinculadas a qualquer NPC no jogo (Armeiro, Alquimista, Caçador, Cozinheiro, Minerador ou Mercador padrão).
+            </p>
+          </div>
+          <button class="btn-primary" onclick="AdminApp.openShopModal(null)">➕ Nova Loja</button>
+        </div>
+        <div style="overflow-x:auto;">
+          <table class="crud-table">
+            <thead>
+              <tr>
+                <th>ID / Chave</th>
+                <th>Nome & Descrição</th>
+                <th>Catálogo de Mercadorias</th>
+                <th>NPCs Vinculados</th>
+                <th>Status</th>
+                <th>Ações</th>
+              </tr>
+            </thead>
+            <tbody id="shopsTableBody"></tbody>
           </table>
         </div>
       </div>
@@ -511,12 +542,110 @@
           <input type="text" id="npcAssetKeyInput" readonly placeholder="Toque em um NPC da galeria abaixo" />
         </div>
       </div>
+      <!-- FUNÇÕES DO NPC (TELEPORT, SHOP, ARMORER, HUNTER, ALCHEMIST, CHEF, MINER) & LOJA -->
+      <div style="background:rgba(15,23,42,0.9); border:1px solid var(--border); border-radius:8px; padding:10px; display:flex; flex-direction:column; gap:8px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:6px;">
+          <strong style="font-size:0.8rem; color:#f8fafc;">🎭 Funções do NPC (Marque quantas desejar):</strong>
+          <span style="font-size:0.7rem; color:var(--text-muted);">Um NPC pode ter múltiplas funções ao mesmo tempo (ex: Armeiro + Loja)</span>
+        </div>
+        <div style="display:flex; flex-wrap:wrap; gap:8px; font-size:0.75rem;">
+          <label style="cursor:pointer; display:flex; align-items:center; gap:4px; background:rgba(37,99,235,0.2); border:1px solid #3b82f6; padding:4px 8px; border-radius:6px;">
+            <input type="checkbox" name="npcRoleCheckbox" value="TELEPORT" />
+            <span style="color:#93c5fd; font-weight:600;">🌀 Teletransporte</span>
+          </label>
+          <label style="cursor:pointer; display:flex; align-items:center; gap:4px; background:rgba(5,150,105,0.2); border:1px solid #10b981; padding:4px 8px; border-radius:6px;">
+            <input type="checkbox" name="npcRoleCheckbox" value="SHOP" onchange="if (!this.checked) document.getElementById('npcShopTemplateSelect').value='';" />
+            <span style="color:#6ee7b7; font-weight:600;">🏪 Loja / Mercador</span>
+          </label>
+          <label style="cursor:pointer; display:flex; align-items:center; gap:4px; background:rgba(99,102,241,0.2); border:1px solid #6366f1; padding:4px 8px; border-radius:6px;">
+            <input type="checkbox" name="npcRoleCheckbox" value="ARMORER" />
+            <span style="color:#a5b4fc; font-weight:600;">🛡️ Armeiro</span>
+          </label>
+          <label style="cursor:pointer; display:flex; align-items:center; gap:4px; background:rgba(217,119,6,0.2); border:1px solid #f59e0b; padding:4px 8px; border-radius:6px;">
+            <input type="checkbox" name="npcRoleCheckbox" value="HUNTER" />
+            <span style="color:#fcd34d; font-weight:600;">🐾 Caçador (Pets)</span>
+          </label>
+          <label style="cursor:pointer; display:flex; align-items:center; gap:4px; background:rgba(124,58,237,0.2); border:1px solid #8b5cf6; padding:4px 8px; border-radius:6px;">
+            <input type="checkbox" name="npcRoleCheckbox" value="ALCHEMIST" />
+            <span style="color:#c4b5fd; font-weight:600;">⚗️ Alquimista</span>
+          </label>
+          <label style="cursor:pointer; display:flex; align-items:center; gap:4px; background:rgba(219,39,119,0.2); border:1px solid #ec4899; padding:4px 8px; border-radius:6px;">
+            <input type="checkbox" name="npcRoleCheckbox" value="CHEF" />
+            <span style="color:#f472b6; font-weight:600;">🍲 Cozinheiro</span>
+          </label>
+          <label style="cursor:pointer; display:flex; align-items:center; gap:4px; background:rgba(87,83,78,0.3); border:1px solid #78716c; padding:4px 8px; border-radius:6px;">
+            <input type="checkbox" name="npcRoleCheckbox" value="MINER" />
+            <span style="color:#d6d3d1; font-weight:600;">⛏️ Minerador</span>
+          </label>
+        </div>
+        <div style="display:flex; align-items:center; gap:10px; margin-top:2px;">
+          <label style="font-size:0.75rem; color:#6ee7b7; font-weight:700; white-space:nowrap;">🏪 Vincular Loja ao NPC:</label>
+          <select id="npcShopTemplateSelect" style="flex:1; padding:5px 8px; font-size:0.78rem; background:#020617; border:1px solid var(--border); border-radius:6px; color:#f8fafc;" onchange="if (this.value) { const chk = document.querySelector('input[name=\'npcRoleCheckbox\'][value=\'SHOP\']'); if (chk) chk.checked = true; }">
+            <option value="">-- Nenhuma Loja Vinculada --</option>
+          </select>
+        </div>
+      </div>
       <div id="npcModalPlacementsContainer" style="display:none; flex-direction:column; gap:6px; background:rgba(15,23,42,0.85); border:1px solid #4ade80; padding:8px 10px; border-radius:8px;"></div>
       <div style="display:flex; gap:6px; align-items:center;">
         <input type="text" id="npcSearchInput" placeholder="🔍 Buscar visual de NPC por chave (ex: npc_000010)..." oninput="AdminApp.filterNpcGallery()" style="padding:6px 10px; font-size:0.82rem;" />
       </div>
       <div id="mcreworkNpcsGrid" class="gallery-grid" style="flex:1; max-height:48vh; min-height:200px; overflow-y:auto; -webkit-overflow-scrolling:touch;"></div>
       <button class="btn-success" style="padding:10px; font-weight:700;" onclick="AdminApp.saveNewNpcTemplate()">💾 Salvar na Tabela de NPCs</button>
+    </div>
+  </div>
+  <!-- MODAL: CRIAR / EDITAR LOJA E CATÁLOGO DE MERCADORIAS (shop_templates) -->
+  <div id="shopModal" class="modal-backdrop">
+    <div class="modal-box" style="max-height:94dvh; max-width:960px; width:95%; display:flex; flex-direction:column; overflow:hidden;">
+      <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border); padding-bottom:8px;">
+        <h3 id="shopModalTitle">🏪 Cadastrar / Editar Loja</h3>
+        <button class="btn-danger" onclick="AdminApp.closeModal('shopModal')">✕ Fechar</button>
+      </div>
+      <div style="display:grid; grid-template-columns:2fr 1fr auto; gap:10px; align-items:end; margin-top:8px;">
+        <div class="field">
+          <label>Nome da Loja (PT-BR) *</label>
+          <input type="text" id="shopNameInput" placeholder="Ex: Empório Central de Etheria" />
+        </div>
+        <div class="field">
+          <label>Descrição / Diálogo do Mercador</label>
+          <input type="text" id="shopDescInput" placeholder="Ex: Equipamentos refinados e poções para aventureiros" />
+        </div>
+        <div class="field" style="display:flex; align-items:center; gap:6px; padding-bottom:6px;">
+          <label style="cursor:pointer; display:flex; align-items:center; gap:6px; font-size:0.8rem; color:#86efac; font-weight:700;">
+            <input type="checkbox" id="shopActiveInput" checked />
+            Loja Ativa
+          </label>
+        </div>
+      </div>
+
+      <div style="display:grid; grid-template-columns:1.2fr 1fr; gap:12px; margin-top:10px; flex:1; min-height:0; overflow:hidden;">
+        <!-- COLUNA ESQUERDA: MERCADORIAS CADASTRADAS NO CATÁLOGO -->
+        <div style="display:flex; flex-direction:column; gap:6px; min-height:0; background:rgba(2,6,23,0.6); border:1px solid var(--border); border-radius:8px; padding:8px;">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <strong style="font-size:0.82rem; color:#f8fafc;">📦 Catálogo da Loja</strong>
+            <span id="shopCatalogCountBadge" style="font-size:0.72rem; color:var(--accent); font-weight:700;">0 mercadorias</span>
+          </div>
+          <div id="shopCatalogList" style="flex:1; overflow-y:auto; display:flex; flex-direction:column; gap:6px; padding-right:4px;"></div>
+        </div>
+
+        <!-- COLUNA DIREITA: SELETOR DE ITENS E EQUIPAMENTOS PARA ADICIONAR -->
+        <div style="display:flex; flex-direction:column; gap:6px; min-height:0; background:rgba(2,6,23,0.6); border:1px solid var(--border); border-radius:8px; padding:8px;">
+          <div style="display:flex; justify-content:space-between; align-items:center; gap:6px;">
+            <strong style="font-size:0.82rem; color:#f8fafc;">➕ Adicionar Itens / Equipamentos</strong>
+            <div style="display:flex; gap:4px;">
+              <button type="button" class="btn-primary" onclick="AdminApp.setShopItemPickerCategory('ALL')" style="padding:2px 6px; font-size:0.68rem;">Todos</button>
+              <button type="button" onclick="AdminApp.setShopItemPickerCategory('ITEM')" style="padding:2px 6px; font-size:0.68rem;">Itens</button>
+              <button type="button" onclick="AdminApp.setShopItemPickerCategory('EQUIPMENT')" style="padding:2px 6px; font-size:0.68rem;">Equips</button>
+            </div>
+          </div>
+          <input type="text" placeholder="🔍 Buscar por nome ou código..." oninput="AdminApp.filterShopItemPicker(this.value)" style="padding:5px 8px; font-size:0.76rem;" />
+          <div id="shopItemPickerGrid" style="flex:1; overflow-y:auto; display:flex; flex-direction:column; gap:4px; padding-right:4px;"></div>
+        </div>
+      </div>
+
+      <div style="display:flex; justify-content:flex-end; gap:8px; margin-top:10px; border-top:1px solid var(--border); padding-top:8px;">
+        <button class="btn-danger" onclick="AdminApp.closeModal('shopModal')">Cancelar</button>
+        <button class="btn-success" style="font-weight:700; padding:8px 18px;" onclick="AdminApp.saveShop()">💾 Salvar Loja</button>
+      </div>
     </div>
   </div>
   <!-- Modal de Personagens (#classModal) injetado dinamicamente por AdminClassesTab.js -->
@@ -540,6 +669,7 @@
   <script src="/admin/js/AdminItemContainerPanel.js"></script>
   <script src="/admin/js/AdminItemsTab.js"></script>
   <script src="/admin/js/AdminFlyingMountsTab.js"></script>
+  <script src="/admin/js/AdminShopsTab.js"></script>
   <script src="/admin/js/AdminExperienceTab.js"></script>
   <script src="/admin/js/AdminArenaPreview.js"></script>
   <script src="/admin/js/AdminVfxColorPicker.js"></script>

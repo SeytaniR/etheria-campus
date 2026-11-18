@@ -18,6 +18,7 @@ import type { AdminEquipmentsController } from '../controllers/AdminEquipmentsCo
 import type { AdminEquipmentSetsController } from '../controllers/AdminEquipmentSetsController.js';
 import type { AdminItemsController } from '../controllers/AdminItemsController.js';
 import type { AdminFlyingMountsController } from '../controllers/AdminFlyingMountsController.js';
+import type { AdminShopsController } from '../controllers/AdminShopsController.js';
 import type { AdminSkillsController } from '../controllers/AdminSkillsController.js';
 import type { AdminQuestsController } from '../controllers/AdminQuestsController.js';
 import type { AdminAttributesController } from '../controllers/AdminAttributesController.js';
@@ -35,6 +36,7 @@ export interface AdminRouterDeps {
   equipmentSetsController: AdminEquipmentSetsController;
   itemsController: AdminItemsController;
   mountsController: AdminFlyingMountsController;
+  shopsController: AdminShopsController;
   skillsController: AdminSkillsController;
   questsController: AdminQuestsController;
   attributesController: AdminAttributesController;
@@ -502,6 +504,33 @@ export class AdminRouter {
     if (mountMatch && method === 'DELETE') {
       if (this.enforceTablePermission(res, session, 'MONSTERS', 'READ_WRITE')) {
         this.deps.sendJson(res, 200, await this.deps.mountsController.deleteFlyingMountTemplate(Number(mountMatch[1])));
+      }
+      return true;
+    }
+
+    // --- Lojas e Catálogos de Comércio (`shop_templates`) ---
+    if (pathname === '/api/admin/shop-templates' && method === 'GET') {
+      if (this.enforceTablePermission(res, session, 'SHOPS', 'READ')) {
+        this.deps.sendJson(res, 200, await this.deps.shopsController.getShopTemplates());
+      }
+      return true;
+    }
+    if (pathname === '/api/admin/shop-templates' && method === 'POST') {
+      if (this.enforceTablePermission(res, session, 'SHOPS', 'READ_WRITE')) {
+        this.deps.sendJson(res, 201, await this.deps.shopsController.createShopTemplate(await this.deps.readJsonBody(req)));
+      }
+      return true;
+    }
+    const shopMatch = pathname.match(/^\/api\/admin\/shop-templates\/(\d+)$/);
+    if (shopMatch && method === 'PUT') {
+      if (this.enforceTablePermission(res, session, 'SHOPS', 'READ_WRITE')) {
+        this.deps.sendJson(res, 200, await this.deps.shopsController.updateShopTemplate(Number(shopMatch[1]), await this.deps.readJsonBody(req)));
+      }
+      return true;
+    }
+    if (shopMatch && method === 'DELETE') {
+      if (this.enforceTablePermission(res, session, 'SHOPS', 'READ_WRITE')) {
+        this.deps.sendJson(res, 200, await this.deps.shopsController.deleteShopTemplate(Number(shopMatch[1])));
       }
       return true;
     }

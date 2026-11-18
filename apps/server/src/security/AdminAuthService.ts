@@ -22,6 +22,7 @@ export const ALL_TABLE_CODES = [
   'NPCS',
   'CLASSES',
   'MONSTERS',
+  'SHOPS',
   'ATTRIBUTES',
   'SKILLS',
   'STATUS_EFFECTS',

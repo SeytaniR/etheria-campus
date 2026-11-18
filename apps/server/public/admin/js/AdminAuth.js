@@ -122,6 +122,7 @@ class AdminAuth {
         'equipment-sets': 'MONSTERS',
         items: 'MONSTERS',
         mounts: 'MONSTERS',
+        shops: 'SHOPS',
         experience: 'ATTRIBUTES',
         attributes: 'ATTRIBUTES',
         skills: 'SKILLS',
@@ -141,6 +142,7 @@ class AdminAuth {
         'equipment-sets': document.getElementById('tabBtnEquipmentSets'),
         items: document.getElementById('tabBtnItems'),
         mounts: document.getElementById('tabBtnFlyingMounts'),
+        shops: document.getElementById('tabBtnShops'),
         experience: document.getElementById('tabBtnExperience'),
         attributes: document.getElementById('tabBtnAttributes'),
         skills: document.getElementById('tabBtnSkills'),
@@ -198,6 +200,7 @@ class AdminAuth {
         { id: 'tabEquipmentSets', btn: 'tabBtnEquipmentSets', key: 'equipment-sets', code: 'MONSTERS' },
         { id: 'tabItems', btn: 'tabBtnItems', key: 'items', code: 'MONSTERS' },
         { id: 'tabFlyingMounts', btn: 'tabBtnFlyingMounts', key: 'mounts', code: 'MONSTERS' },
+        { id: 'tabShops', btn: 'tabBtnShops', key: 'shops', code: 'SHOPS' },
         { id: 'tabExperience', btn: 'tabBtnExperience', key: 'experience', code: 'ATTRIBUTES' },
         { id: 'tabSkills', btn: 'tabBtnSkills', key: 'skills', code: 'SKILLS' },
         { id: 'tabStatusEffects', btn: 'tabBtnStatusEffects', key: 'status-effects', code: 'STATUS_EFFECTS' },
@@ -247,6 +250,9 @@ class AdminAuth {
       if (tab === 'mounts' && typeof this.renderFlyingMountsCrudTable === 'function') {
         this.renderFlyingMountsCrudTable();
       }
+      if (tab === 'shops' && typeof this.loadShops === 'function') {
+        this.loadShops();
+      }
       if (tab === 'experience' && typeof this.renderExperienceCrudTable === 'function') {
         this.renderExperienceCrudTable();
         if (typeof this.renderXpCurveCanvas === 'function') this.renderXpCurveCanvas();
@@ -288,6 +294,7 @@ class AdminAuth {
         'equipment-sets': 'MONSTERS',
         items: 'MONSTERS',
         mounts: 'MONSTERS',
+        shops: 'SHOPS',
         experience: 'ATTRIBUTES',
         attributes: 'ATTRIBUTES',
         skills: 'SKILLS',

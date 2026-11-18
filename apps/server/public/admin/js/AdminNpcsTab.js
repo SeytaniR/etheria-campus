@@ -102,6 +102,15 @@ class AdminNpcsTab {
         document.getElementById('npcNameInput').value = existingNpc.namePtBr || '';
         document.getElementById('npcAssetKeyInput').value = existingNpc.mcreworkNpcKey || '';
         this.renderNpcModalPlacements(existingNpc.id);
+
+        const roles = Array.isArray(existingNpc.rolesJson) ? existingNpc.rolesJson : [];
+        const roleSet = new Set(roles.map((r) => String(r).toUpperCase()));
+        document.querySelectorAll('input[name="npcRoleCheckbox"]').forEach((chk) => {
+          chk.checked = roleSet.has(chk.value.toUpperCase());
+        });
+        if (typeof this.populateNpcShopDropdown === 'function') {
+          this.populateNpcShopDropdown(existingNpc.shopTemplateId || null);
+        }
       } else {
         const maxNpcId = this.npcTemplates.reduce((acc, n) => Math.max(acc, Number(n.id) || 0), 0);
         const nextNpcId = maxNpcId + 1;
@@ -111,6 +120,13 @@ class AdminNpcsTab {
         document.getElementById('npcNameInput').value = '';
         document.getElementById('npcAssetKeyInput').value = '';
         this.renderNpcModalPlacements(null);
+
+        document.querySelectorAll('input[name="npcRoleCheckbox"]').forEach((chk) => {
+          chk.checked = false;
+        });
+        if (typeof this.populateNpcShopDropdown === 'function') {
+          this.populateNpcShopDropdown(null);
+        }
       }
 
       const grid = document.getElementById('mcreworkNpcsGrid');
@@ -181,12 +197,21 @@ class AdminNpcsTab {
         const path = editId ? `/api/admin/npc-templates/${editId}` : '/api/admin/npc-templates';
         const method = editId ? 'PUT' : 'POST';
 
+        const checkedRoles = Array.from(document.querySelectorAll('input[name="npcRoleCheckbox"]:checked')).map((c) => c.value);
+        const shopVal = document.getElementById('npcShopTemplateSelect')?.value || '';
+        const shopTemplateId = shopVal ? Number(shopVal) : null;
+        if (shopTemplateId && !checkedRoles.includes('SHOP')) {
+          checkedRoles.push('SHOP');
+        }
+
         const saved = await this.api(path, {
           method,
           body: JSON.stringify({
             namePtBr,
             mcreworkNpcKey,
             isDecorationOnly: false,
+            rolesJson: checkedRoles,
+            shopTemplateId,
             triggersJson: [],
           }),
         });
@@ -217,13 +242,34 @@ class AdminNpcsTab {
       if (!tbody) return;
 
       if (this.npcTemplates.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="5" style="color:var(--text-muted); padding:14px;">Nenhum NPC cadastrado ainda. Crie um NPC pelo botão <strong>"➕ Novo NPC do mcrework"</strong> acima ou direto dentro do Editor Visual do Mapa na ferramenta <strong>"🧙 +NPC"</strong>!</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="6" style="color:var(--text-muted); padding:14px;">Nenhum NPC cadastrado ainda. Crie um NPC pelo botão <strong>"➕ Novo NPC do mcrework"</strong> acima ou direto dentro do Editor Visual do Mapa na ferramenta <strong>"🧙 +NPC"</strong>!</td></tr>`;
         return;
       }
 
       tbody.innerHTML = this.npcTemplates
         .map((n) => {
           const thumbUrl = n.thumbUrl || `https://seytanir.github.io/mcrework/assets/npcs/${n.mcreworkNpcKey}/thumb.png`;
+
+          const rawRoles = Array.isArray(n.rolesJson) ? n.rolesJson : [];
+          const roleBadgeConfigs = {
+            TELEPORT: { label: '🌀 Teletransporte', bg: '#2563eb', color: '#fff' },
+            SHOP: { label: n.shopNamePtBr ? `🏪 Loja (${n.shopNamePtBr})` : '🏪 Loja', bg: '#059669', color: '#fff' },
+            ARMORER: { label: '🛡️ Armeiro', bg: '#6366f1', color: '#fff' },
+            HUNTER: { label: '🐾 Caçador', bg: '#d97706', color: '#fff' },
+            ALCHEMIST: { label: '⚗️ Alquimista', bg: '#7c3aed', color: '#fff' },
+            CHEF: { label: '🍲 Cozinheiro', bg: '#db2777', color: '#fff' },
+            MINER: { label: '⛏️ Minerador', bg: '#57534e', color: '#fff' },
+          };
+
+          const rolesBadges =
+            rawRoles.length > 0
+              ? rawRoles
+                  .map((r) => {
+                    const cfg = roleBadgeConfigs[r] || { label: r, bg: '#475569', color: '#fff' };
+                    return `<span style="background:${cfg.bg}; color:${cfg.color}; font-size:0.67rem; font-weight:700; padding:2px 6px; border-radius:4px; display:inline-block; white-space:nowrap;">${cfg.label}</span>`;
+                  })
+                  .join(' ')
+              : `<span style="color:var(--text-muted); font-size:0.72rem; font-style:italic;">Sem funções</span>`;
 
           const placements = Array.isArray(n.placements) ? n.placements : [];
           const placementsHtml =
@@ -260,6 +306,11 @@ class AdminNpcsTab {
             </div>
           </td>
           <td><strong>${n.namePtBr}</strong></td>
+          <td>
+            <div style="display:flex; flex-wrap:wrap; gap:4px; max-width:200px;">
+              ${rolesBadges}
+            </div>
+          </td>
           <td>${placementsHtml}</td>
           <td>
             <div style="display:flex; gap:6px;">

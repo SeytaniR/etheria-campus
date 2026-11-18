@@ -26,6 +26,7 @@ import { AdminEquipmentsController } from './controllers/AdminEquipmentsControll
 import { AdminEquipmentSetsController } from './controllers/AdminEquipmentSetsController.js';
 import { AdminItemsController } from './controllers/AdminItemsController.js';
 import { AdminFlyingMountsController } from './controllers/AdminFlyingMountsController.js';
+import { AdminShopsController } from './controllers/AdminShopsController.js';
 import { AdminSkillsController } from './controllers/AdminSkillsController.js';
 import { AdminQuestsController } from './controllers/AdminQuestsController.js';
 import { AdminAttributesController } from './controllers/AdminAttributesController.js';
@@ -76,6 +77,7 @@ export class EtheriaServerApp {
   private readonly equipmentSetsController: AdminEquipmentSetsController;
   private readonly itemsController: AdminItemsController;
   private readonly mountsController: AdminFlyingMountsController;
+  private readonly shopsController: AdminShopsController;
   private readonly skillsController: AdminSkillsController;
   private readonly questsController: AdminQuestsController;
   private readonly attributesController: AdminAttributesController;
@@ -103,6 +105,7 @@ export class EtheriaServerApp {
     this.equipmentSetsController = new AdminEquipmentSetsController(this.prisma);
     this.itemsController = new AdminItemsController(this.prisma, this.assetMirrorService);
     this.mountsController = new AdminFlyingMountsController(this.prisma, this.assetMirrorService);
+    this.shopsController = new AdminShopsController(this.prisma);
     this.skillsController = new AdminSkillsController(this.prisma, this.assetMirrorService);
     this.questsController = new AdminQuestsController(this.prisma, snapshotManager);
     this.attributesController = new AdminAttributesController(this.prisma);
@@ -125,6 +128,7 @@ export class EtheriaServerApp {
       equipmentSetsController: this.equipmentSetsController,
       itemsController: this.itemsController,
       mountsController: this.mountsController,
+      shopsController: this.shopsController,
       skillsController: this.skillsController,
       questsController: this.questsController,
       attributesController: this.attributesController,

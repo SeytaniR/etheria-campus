@@ -74,6 +74,8 @@ export interface SaveNpcTemplateDto {
   namePtBr: string;
   mcreworkNpcKey: string;
   isDecorationOnly: boolean;
+  rolesJson?: string[];
+  shopTemplateId?: number | null;
   triggersJson: Array<{ type: 'QUEST' | 'SHOP' | 'BATTLE' | 'EVENT' | 'DIALOGUE'; label?: string; config?: Record<string, unknown> }>;
 }
 
@@ -264,6 +266,7 @@ export class AdminMapsController {
       await this.prisma.npcTemplate.findMany({
         orderBy: { id: 'asc' },
         include: {
+          shopTemplate: true,
           placements: {
             include: {
               map: true,
@@ -271,17 +274,32 @@ export class AdminMapsController {
           },
         },
       })
-    ).map((nt) => ({
-      ...nt,
-      namePtBr: i18nMap.get(nt.nameI18nKey) ?? nt.code,
-      thumbUrl: `${this.mcreworkPagesBaseUrl}/assets/npcs/${nt.mcreworkNpcKey}/thumb.png`,
-      atlasJsonUrl: `${this.mcreworkPagesBaseUrl}/assets/npcs/${nt.mcreworkNpcKey}/atlas.json`,
-      atlasWebpUrl: `${this.mcreworkPagesBaseUrl}/assets/npcs/${nt.mcreworkNpcKey}/atlas.webp`,
-      placements: (nt.placements ?? []).map((pl) => ({
-        ...pl,
-        mapNamePtBr: pl.map ? (i18nMap.get(pl.map.nameI18nKey) ?? pl.map.code) : `Mapa #${pl.mapId}`,
-      })),
-    }));
+    ).map((nt) => {
+      const rawRoles = Array.isArray((nt as any).rolesJson) ? ((nt as any).rolesJson as string[]) : [];
+      const hasTpPlacement = (nt.placements ?? []).some(
+        (pl) => Array.isArray(pl.teleportDestinationsJson) && (pl.teleportDestinationsJson as any[]).length > 0
+      );
+      const rolesSet = new Set<string>(rawRoles.map((r) => String(r).toUpperCase()));
+      if (hasTpPlacement) rolesSet.add('TELEPORT');
+      if (nt.shopTemplateId) rolesSet.add('SHOP');
+
+      return {
+        ...nt,
+        namePtBr: i18nMap.get(nt.nameI18nKey) ?? nt.code,
+        rolesJson: Array.from(rolesSet),
+        shopTemplateId: nt.shopTemplateId ?? null,
+        shopNamePtBr: nt.shopTemplate?.namePtBr ?? null,
+        thumbUrl: `${this.mcreworkPagesBaseUrl}/assets/npcs/${nt.mcreworkNpcKey}/thumb.png`,
+        atlasJsonUrl: `${this.mcreworkPagesBaseUrl}/assets/npcs/${nt.mcreworkNpcKey}/atlas.json`,
+        atlasWebpUrl: `${this.mcreworkPagesBaseUrl}/assets/npcs/${nt.mcreworkNpcKey}/atlas.webp`,
+        placements: (nt.placements ?? []).map((pl) => ({
+          ...pl,
+          mapNamePtBr: pl.map ? (i18nMap.get(pl.map.nameI18nKey) ?? pl.map.code) : `Mapa #${pl.mapId}`,
+        })),
+      };
+    });
+
+    const shopTemplates = await this.prisma.shopTemplate.findMany({ orderBy: { id: 'asc' } });
 
     const maps = (
       await this.prisma.gameMap.findMany({
@@ -325,6 +343,7 @@ export class AdminMapsController {
       monsterRarities,
       classTemplates,
       npcTemplates,
+      shopTemplates,
       monsterTemplates,
       maps,
     };
@@ -521,6 +540,23 @@ export class AdminMapsController {
     let savedNpc: any;
     let finalNamePtBr = (dto.namePtBr ?? '').trim();
 
+    const validRoles = ['TELEPORT', 'SHOP', 'ARMORER', 'HUNTER', 'ALCHEMIST', 'CHEF', 'MINER'];
+    const rolesSet = new Set<string>(
+      (Array.isArray(dto.rolesJson) ? dto.rolesJson : [])
+        .map((r) => String(r || '').toUpperCase().trim())
+        .filter((r) => validRoles.includes(r))
+    );
+    let shopTemplateId =
+      dto.shopTemplateId !== null && dto.shopTemplateId !== undefined && Number(dto.shopTemplateId) > 0
+        ? Math.round(Number(dto.shopTemplateId))
+        : null;
+    if (shopTemplateId) {
+      rolesSet.add('SHOP');
+    } else if (!rolesSet.has('SHOP')) {
+      shopTemplateId = null;
+    }
+    const sanitizedRoles = Array.from(rolesSet);
+
     await SnapshotManager.syncTableSequence(this.prisma, 'i18n_translations');
     await SnapshotManager.syncTableSequence(this.prisma, 'npc_templates');
 
@@ -543,6 +579,8 @@ export class AdminMapsController {
             mcreworkNpcKey: dto.mcreworkNpcKey,
             nameI18nKey: nameKey,
             isDecorationOnly: Boolean(dto.isDecorationOnly),
+            rolesJson: sanitizedRoles as any,
+            shopTemplateId,
             triggersJson: (dto.triggersJson ?? []) as any,
           },
         });
@@ -554,6 +592,8 @@ export class AdminMapsController {
             mcreworkNpcKey: dto.mcreworkNpcKey,
             nameI18nKey: `npc.${tempCode}.name`,
             isDecorationOnly: Boolean(dto.isDecorationOnly),
+            rolesJson: sanitizedRoles as any,
+            shopTemplateId,
             triggersJson: (dto.triggersJson ?? []) as any,
           },
         });
