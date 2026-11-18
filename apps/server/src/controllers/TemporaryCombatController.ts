@@ -15,6 +15,7 @@ import { MapSpawnResolver } from './MapSpawnResolver.js';
 import { CombatUtilityHelper } from './CombatUtilityHelper.js';
 import { MonsterCombatBuilder, type MonsterScalingContext, type MonsterVariantTier } from './MonsterCombatBuilder.js';
 import { PartyService } from './PartyService.js';
+import { CharacterPetService } from './CharacterPetService.js';
 
 export interface ActiveStatusInstance {
   code: string;
@@ -245,15 +246,14 @@ export class TemporaryCombatController {
 
     const pc = await this.prisma.playerCharacter.findUnique({
       where: { id: Number(characterId) },
-      include: { pets: { take: maxAllowedPets, include: { monsterTemplate: true } } },
+      include: { pets: { include: { monsterTemplate: true } } },
     });
 
-    // Regra Proporcional de Spawn:
-    // - Jogador solo sem pet (allies = 1): 1 a 7 monstros
-    // - Jogador + pet (base 2 combatentes): 3 a 10 monstros
-    // - Cada combatente adicional alem da base de 2 (+1 a 3 monstros / +1 min e +2 max):
-    //   Ex: 3 pets e 2 jogadores (5 combatentes -> 3 adicionais): 6 a 16 monstros
-    const numPets = pc && pc.pets && pc.pets.length > 0 ? pc.pets.length : 0;
+    // Filtra apenas pets em formação (deploySlot 1..3 solo; deploySlot 1 em equipe) que não estejam inativados
+    const activeDeployedPets = (pc?.pets || [])
+      .filter((cp: any) => cp.deploySlot && (inParty ? Number(cp.deploySlot) === 1 : [1, 2, 3].includes(Number(cp.deploySlot))) && !CharacterPetService.isPetTemporarilyDisabled(cp.monsterTemplate))
+      .slice(0, maxAllowedPets);
+    const numPets = activeDeployedPets.length;
     const alliesCount = 1 + numPets;
     let minMobs = 1;
     let maxMobs = 7;
@@ -374,7 +374,7 @@ export class TemporaryCombatController {
         where: { id: Number(characterId) },
         include: {
           classTemplate: true,
-          pets: { take: 3, include: { monsterTemplate: true } },
+          pets: { include: { monsterTemplate: true } },
         },
       });
       if (pc) {
@@ -547,25 +547,22 @@ export class TemporaryCombatController {
 
     const petUnits: CombatUnit[] = [];
     if (pc && pc.pets && pc.pets.length > 0) {
-      pc.pets.slice(0, maxPets).forEach((cp: any, idx: number) => {
-        const tpl = cp.monsterTemplate;
-        if (!tpl) return;
-        const pLv = cp.level || charLevel;
-        const petDisplayName = cp.nickname || (allI18n.get(tpl.nameI18nKey) ?? tpl.code) || `Pet #${idx + 1}`;
-        const built = MonsterCombatBuilder.buildMonsterUnit(
-          tpl,
-          pLv,
+      const deployedPets = [...pc.pets]
+        .filter((cp: any) => cp.deploySlot && (inParty ? Number(cp.deploySlot) === 1 : [1, 2, 3].includes(Number(cp.deploySlot))) && !CharacterPetService.isPetTemporarilyDisabled(cp.monsterTemplate))
+        .sort((a: any, b: any) => Number(a.deploySlot) - Number(b.deploySlot))
+        .slice(0, maxPets);
+
+      deployedPets.forEach((cp: any, idx: number) => {
+        const unit = CharacterPetService.buildPetCombatUnit(
+          cp,
           idx,
-          petDisplayName,
           scalingCtx,
-          this.mcreworkPagesBaseUrl
+          this.mcreworkPagesBaseUrl,
+          allI18n
         );
-        petUnits.push({
-          ...built,
-          id: `pet_${cp.id}`,
-          index: idx,
-          elementCode: tpl.fixedElementCode || cp.elementCode || 'NEUTRAL',
-        });
+        if (unit) {
+          petUnits.push(unit);
+        }
       });
     }
 

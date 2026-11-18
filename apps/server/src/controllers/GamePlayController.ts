@@ -21,6 +21,8 @@ import { CharacterInventoryService } from './CharacterInventoryService.js';
 import { CharacterProgressionService } from './CharacterProgressionService.js';
 import { AssetMirrorService } from './AssetMirrorService.js';
 import { MonsterMetaQuestService } from './MonsterMetaQuestService.js';
+import { CharacterPetService } from './CharacterPetService.js';
+import { MonsterCombatBuilder, type MonsterScalingContext } from './MonsterCombatBuilder.js';
 
 export interface CreateCharacterDto {
   name: string;
@@ -159,7 +161,7 @@ export class GamePlayController {
       mapNameById.set(m.id, m.namePtBr);
     }
 
-    const [rawCharacters, expMap] = await Promise.all([
+    const [rawCharacters, expMap, scalingCtx] = await Promise.all([
       this.prisma.playerCharacter.findMany({
         where: { userAccountId },
         orderBy: { id: 'asc' },
@@ -173,8 +175,9 @@ export class GamePlayController {
         },
       }),
       CharacterProgressionService.getExperienceMap(this.prisma, 1),
+      MonsterCombatBuilder.loadScalingContext(this.prisma),
     ]);
-    const characters = rawCharacters.map((c) => this.serializeCharacter(c, i18nMap, mapNameById, expMap));
+    const characters = rawCharacters.map((c) => this.serializeCharacter(c, i18nMap, mapNameById, expMap, scalingCtx));
 
     // Garante que todas as Quests Meta procedurais estejam sincronizadas e ativas para os personagens do jogador
     try {
@@ -266,7 +269,8 @@ export class GamePlayController {
     c: any,
     i18nMap: Map<string, string>,
     mapNameById?: Map<number, string>,
-    expMap?: Map<number, number>
+    expMap?: Map<number, number>,
+    scalingCtx?: MonsterScalingContext
   ) {
     const classNamePtBr = c.classTemplate
       ? (i18nMap.get(c.classTemplate.nameI18nKey) ?? c.classTemplate.code)
@@ -290,6 +294,18 @@ export class GamePlayController {
 
     const charLvl = c.level || 1;
     const charMaxXp = expMap?.get(charLvl) ?? (charLvl * 42000);
+    const defaultScalingCtx: MonsterScalingContext = scalingCtx || {
+      conversions: [],
+      globalDefaultMoveSpeed: 160,
+      elementMatchups: [],
+    };
+    const petsPayload = CharacterPetService.serializeCharacterPets(
+      c.pets || [],
+      i18nMap,
+      expMap,
+      defaultScalingCtx,
+      this.mcreworkPagesBaseUrl
+    );
 
     return {
       id: c.id,
@@ -346,34 +362,9 @@ export class GamePlayController {
       posX: c.posX,
       posY: c.posY,
       isCriminal: c.isCriminal,
-      equippedPets: (c.pets || []).slice(0, 3).map((cp: any) => {
-        const mt = cp.monsterTemplate;
-        const petKey = mt?.mcreworkMonsterKey || 'creature_000001';
-        const petName = cp.nickname || (mt ? (i18nMap.get(mt.nameI18nKey) ?? mt.code) : `Pet #${cp.id}`);
-        const petLvl = cp.level || 1;
-        const petMaxXp = expMap?.get(petLvl) ?? (petLvl * 42000);
-        return {
-          id: cp.id,
-          monsterTemplateId: cp.monsterTemplateId,
-          nickname: petName,
-          level: petLvl,
-          elementCode: mt?.fixedElementCode || cp.elementCode || 'NEUTRAL',
-          raceCode: mt?.raceCode || 'BEAST',
-          rarityTier: mt?.rarityTier || 'F',
-          combatStyle: mt?.combatStyle || 'MELEE',
-          attackRange: mt?.attackRange || 60,
-          damageType: mt?.damageType || 'PHYSICAL',
-          baseAttributesJson: mt?.baseAttributesJson || {},
-          baseCombatAttributesJson: mt?.baseCombatAttributesJson || {},
-          skillIdsJson: mt?.skillIdsJson || [],
-          hpPct: 100,
-          mpPct: 100,
-          experience: Number(cp.experience ?? 0),
-          maxXp: petMaxXp,
-          xpPct: Math.min(100, Math.max(0, Math.round((Number(cp.experience ?? 0) / Math.max(1, petMaxXp)) * 100))),
-          thumbUrl: `${this.mcreworkPagesBaseUrl}/assets/monsters/${petKey}/thumb.webp`,
-        };
-      }),
+      pets: petsPayload.allPets,
+      equippedPets: petsPayload.equippedPets,
+      primaryFollowerPet: petsPayload.primaryFollowerPet,
     };
   }
 
@@ -381,9 +372,10 @@ export class GamePlayController {
    * Retorna os detalhes autoritativos completos de um Personagem para a ficha de atributos/status.
    */
   public async getCharacterById(userAccountId: number, role: string, characterId: number) {
-    const [i18nMap, expMap] = await Promise.all([
+    const [i18nMap, expMap, scalingCtx] = await Promise.all([
       I18nCache.getTranslations(this.prisma, 'pt-BR'),
       CharacterProgressionService.getExperienceMap(this.prisma, 1),
+      MonsterCombatBuilder.loadScalingContext(this.prisma),
     ]);
     const isElevated = ['ADMIN', 'GM'].includes(role);
     const c = await this.prisma.playerCharacter.findFirst({
@@ -405,7 +397,7 @@ export class GamePlayController {
     if (map) {
       mapNameById.set(map.id, i18nMap.get(map.nameI18nKey) ?? map.code);
     }
-    return this.serializeCharacter(c, i18nMap, mapNameById, expMap);
+    return this.serializeCharacter(c, i18nMap, mapNameById, expMap, scalingCtx);
   }
 
   /**

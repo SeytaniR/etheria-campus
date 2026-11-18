@@ -14,6 +14,7 @@ import { PrismaClient } from '@prisma/client';
 import { SnapshotManager } from '@etheria/database';
 import type { AssetMirrorService } from './AssetMirrorService.js';
 import { MonsterMetaQuestService } from './MonsterMetaQuestService.js';
+import { CharacterPetService } from './CharacterPetService.js';
 
 export interface MonsterDropEntryDto {
   itemTemplateId: number;
@@ -395,17 +396,14 @@ export class AdminMonstersController {
   }
 
   /**
-   * Remove um template de monstro do banco de dados.
+   * Remove um template de monstro do banco de dados, devolvendo equipamentos de pets aos jogadores.
    */
   public async deleteMonsterTemplate(id: number) {
     const existing = await this.prisma.monsterTemplate.findUnique({ where: { id } });
     if (!existing) {
       throw new Error(`Template de monstro #${id} não encontrado.`);
     }
-    await this.prisma.characterPet.updateMany({
-      where: { monsterTemplateId: id },
-      data: { monsterTemplateId: null },
-    });
+    await CharacterPetService.handleMonsterTemplateDeletion(this.prisma, id);
     await this.prisma.monsterBiome.deleteMany({
       where: { monsterTemplateId: id },
     });

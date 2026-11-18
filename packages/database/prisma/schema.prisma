@@ -572,17 +572,21 @@ model CharacterInventoryItem {
 
 /// Pets pertencentes a um Personagem (baseados nos Monstros marcados como disponíveis como Pet, com 6 slots de equipamento).
 model CharacterPet {
-  id                  Int              @id @default(autoincrement())
-  characterId         Int              @map("character_id")
-  monsterTemplateId   Int?             @map("monster_template_id")
-  nickname            String?
-  elementCode         String           @map("element_code") /// Elemento herdado do monstro
-  level               Int              @default(1)
-  experience          BigInt           @default(0)
-  equippedItemsJson   Json             @default("{}") @map("equipped_items_json") /// Mapeia PET_EQUIP_1..6 -> ID do item
+  id                   Int              @id @default(autoincrement())
+  characterId          Int              @map("character_id")
+  monsterTemplateId    Int?             @map("monster_template_id")
+  nickname             String?
+  elementCode          String           @map("element_code") /// Elemento sorteado na geração (10% NEUTRAL, 22.5% cada ativo)
+  level                Int              @default(1)
+  experience           BigInt           @default(0)
+  unspentStatPoints    Int              @default(76) @map("unspent_stat_points") /// 76 pontos livres no Nv.1 + 4 pontos por Level Up
+  distributedStatsJson Json             @default("{\"VIT\":0,\"STR\":0,\"INT\":0,\"WIS\":0,\"AGI\":0,\"DEX\":0}") @map("distributed_stats_json")
+  skillIdsJson         Json             @default("[]") @map("skill_ids_json") /// Até 3 habilidades livres fixadas pelo jogador
+  deploySlot           Int?             @map("deploy_slot") /// 1, 2 ou 3 (Slot 1 acompanha no mapa e entra em Equipe; 1..3 entram Solo; null = Reserva)
+  equippedItemsJson    Json             @default("{}") @map("equipped_items_json") /// Mapeia PET_EQUIP_1..6 -> ID do item
 
-  character           PlayerCharacter  @relation(fields: [characterId], references: [id], onDelete: Cascade)
-  monsterTemplate     MonsterTemplate? @relation(fields: [monsterTemplateId], references: [id], onDelete: SetNull)
+  character            PlayerCharacter  @relation(fields: [characterId], references: [id], onDelete: Cascade)
+  monsterTemplate      MonsterTemplate? @relation(fields: [monsterTemplateId], references: [id], onDelete: Cascade)
 
   @@map("character_pets")
 }

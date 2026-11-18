@@ -18,6 +18,7 @@ import { CharacterEquipmentService } from '../controllers/CharacterEquipmentServ
 import { CharacterInventoryService } from '../controllers/CharacterInventoryService.js';
 import { MonsterCombatBuilder, type QuestBattleConfigDto } from '../controllers/MonsterCombatBuilder.js';
 import { ItemContainerOpeningService } from '../controllers/ItemContainerOpeningService.js';
+import { CharacterPetService } from '../controllers/CharacterPetService.js';
 import { CharacterProgressionService } from '../controllers/CharacterProgressionService.js';
 import { GameChatService } from '../controllers/GameChatService.js';
 import { MapPresenceService } from '../controllers/MapPresenceService.js';
@@ -510,6 +511,11 @@ export class PlayRouter {
       return true;
     }
 
+    // 🐾 Gestão Procedural de Pets (Geração, 76+4/lv Atributos, Slots 1..3 e 3 Habilidades Livres)
+    if (await CharacterPetService.handlePlayPetsRoute(req, res, pathname, method, this.deps.prisma, (cId) => this.verifyCharacterOwnership(userAccountId, session.role, cId), this.deps.readJsonBody, this.deps.sendJson)) {
+      return true;
+    }
+
     // 🎁 Abertura Autoritária de Baú / Cápsula / Roleta da Sorte
     const charOpenContainerMatch = pathname.match(/^\/api\/play\/characters\/(\d+)\/items\/open-container$/);
     if (charOpenContainerMatch && method === 'POST') {
@@ -520,11 +526,7 @@ export class PlayRouter {
       }
       const body = await this.deps.readJsonBody<{ itemTemplateId: number }>(req);
       try {
-        const result = await ItemContainerOpeningService.openContainer(
-          this.deps.prisma,
-          charId,
-          Number(body.itemTemplateId),
-        );
+        const result = await ItemContainerOpeningService.openContainer(this.deps.prisma, charId, Number(body.itemTemplateId));
         this.deps.sendJson(res, 200, result);
       } catch (err: any) {
         this.deps.sendJson(res, 400, { error: err.message || 'Erro ao abrir item.' });
@@ -544,14 +546,7 @@ export class PlayRouter {
         const p = PartyService.getPartyByCharacterId(charId);
         if (p) teamId = p.id;
       }
-
-      const messages = GameChatService.getMessages({
-        sinceId,
-        mapId,
-        guildId,
-        factionId,
-        teamId,
-      });
+      const messages = GameChatService.getMessages({ sinceId, mapId, guildId, factionId, teamId });
       this.deps.sendJson(res, 200, { success: true, messages });
       return true;
     }

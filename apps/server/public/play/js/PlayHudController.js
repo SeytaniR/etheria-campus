@@ -621,58 +621,12 @@ class PlayHudController {
   }
 
   /**
-   * Abre a janela de visualização dos pets do jogador.
+   * Abre a janela de gerenciamento procedural dos pets do jogador.
    */
   openPetsWindow() {
-    const pets = this.state.equippedPets || [];
-    const count = pets.length;
-
-    const modal = document.createElement('div');
-    modal.className = 'modal-backdrop';
-    modal.id = 'hudPetsModal';
-    modal.style.display = 'flex';
-    modal.innerHTML = `
-      <div class="hud-modal-dialog">
-        <div class="hud-modal-header">
-          <h3>🐾 Meus Pets (${count}/3 Equipados)</h3>
-          <button class="hud-modal-close" onclick="document.getElementById('hudPetsModal').remove()">✕</button>
-        </div>
-        <div class="hud-modal-body" style="gap:12px;">
-          ${
-            count === 0
-              ? `<div style="text-align:center; padding:24px 10px; color:#94a3b8;">
-                  Você não possui nenhum Pet equipado no momento.<br/>
-                  <small style="color:#64748b;">Em breve você poderá invocar Pets usando Essências de monstros!</small>
-                 </div>`
-              : pets
-                  .map(
-                    (p) => `
-                <div class="hud-pet-dialog-row">
-                  <div class="hud-pet-avatar-wrapper">
-                    <img class="hud-pet-avatar-img" src="${p.thumbUrl}" alt="${p.nickname}" />
-                    <img class="hud-pet-avatar-frame" src="/play/assets/hud/pet_avatar_frame.png" alt="Frame" />
-                    <div class="hud-pet-level-badge">Nv. ${p.level}</div>
-                  </div>
-                  <div style="flex:1;">
-                    <strong style="color:#fde047; font-size:0.92rem;">${p.nickname}</strong>
-                    <div class="hud-stat-bar hud-stat-hp" style="margin-top:4px;">
-                      <span class="hud-stat-label">HP</span>
-                      <div class="hud-bar-track"><div class="hud-bar-fill hud-fill-hp" style="width:100%;"></div></div>
-                    </div>
-                    <div class="hud-stat-bar hud-stat-mp" style="margin-top:3px;">
-                      <span class="hud-stat-label">MP</span>
-                      <div class="hud-bar-track"><div class="hud-bar-fill hud-fill-mp" style="width:100%;"></div></div>
-                    </div>
-                  </div>
-                </div>
-              `
-                  )
-                  .join('')
-          }
-        </div>
-      </div>
-    `;
-    document.body.appendChild(modal);
+    if (window.PlayPetsController) {
+      window.PlayPetsController.openModal();
+    }
   }
 
   // ==========================================================================

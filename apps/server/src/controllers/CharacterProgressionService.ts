@@ -11,6 +11,7 @@
 
 import { PrismaClient } from '@etheria/database';
 import { GameChatService } from './GameChatService.js';
+import { PartyService } from './PartyService.js';
 
 export interface PlayerProgressionResult {
   leveledUp: boolean;
@@ -34,6 +35,8 @@ export interface PetProgressionResult {
   oldExp: number;
   newExp: number;
   maxXp: number;
+  unspentStatPoints: number;
+  statPointsGained: number;
 }
 
 export interface FullProgressionResult {
@@ -167,16 +170,26 @@ export class CharacterProgressionService {
   ): Promise<PetProgressionResult[]> {
     if (!characterId || expGain <= 0) return [];
 
+    const party = PartyService.getPartyByCharacterId(characterId);
+    const inParty = Boolean(party && party.members.length > 1);
+    const maxPets = inParty ? 1 : 3;
+
     let petsQuery: any = { characterId };
     if (Array.isArray(targetPetIds) && targetPetIds.length > 0) {
       petsQuery.id = { in: targetPetIds };
+    } else {
+      petsQuery.deploySlot = inParty ? 1 : { in: [1, 2, 3] };
     }
 
-    const pets = await prismaOrTx.characterPet.findMany({
+    const rawPets = await prismaOrTx.characterPet.findMany({
       where: petsQuery,
-      take: 3,
+      orderBy: [{ deploySlot: 'asc' }, { id: 'asc' }],
       include: { monsterTemplate: true },
     });
+
+    const pets = (rawPets || [])
+      .filter((p: any) => p.monsterTemplate && p.monsterTemplate.isActive !== false && p.monsterTemplate.isTamableAsPet !== false)
+      .slice(0, maxPets);
 
     if (!pets || pets.length === 0) return [];
 
@@ -193,7 +206,9 @@ export class CharacterProgressionService {
       const oldExp = Number(pet.experience || 0);
       let currentLevel = oldLevel;
       let currentExp = oldExp + expGain;
+      let unspentStatPoints = Number((pet as any).unspentStatPoints ?? 0);
       let levelsGained = 0;
+      let statPointsGained = 0;
 
       while (true) {
         if (currentLevel >= maxConfiguredLevel) break;
@@ -202,6 +217,9 @@ export class CharacterProgressionService {
           currentExp -= requiredExp;
           currentLevel += 1;
           levelsGained += 1;
+          // REGRA PROCEDURAL DE PETS: +4 pontos de atributo distribuíveis por Level Up
+          unspentStatPoints += 4;
+          statPointsGained += 4;
         } else {
           break;
         }
@@ -214,6 +232,7 @@ export class CharacterProgressionService {
         data: {
           level: currentLevel,
           experience: BigInt(currentExp),
+          unspentStatPoints,
         },
       });
 
@@ -229,6 +248,8 @@ export class CharacterProgressionService {
         oldExp,
         newExp: currentExp,
         maxXp: currentMaxXp,
+        unspentStatPoints,
+        statPointsGained,
       });
     }
 

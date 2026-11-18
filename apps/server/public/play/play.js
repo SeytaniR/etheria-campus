@@ -80,12 +80,9 @@ class EtheriaPlayClient {
   }
   async init() {
     this.setupWorldEvents();
-    if (window.PlayMapPresenceController) {
-      window.PlayMapPresenceController.init(this);
-    }
-    if (window.PlayHudController) {
-      window.PlayHudController.init(this);
-    }
+    if (window.PlayMapPresenceController) window.PlayMapPresenceController.init(this);
+    if (window.PlayHudController) window.PlayHudController.init(this);
+    if (window.PlayPetsController) window.PlayPetsController.init(this);
     if (window.ActionCombatArena) {
       this.actionCombatArena = new ActionCombatArena(this);
       this.actionArena = this.actionCombatArena;
@@ -512,6 +509,7 @@ class EtheriaPlayClient {
   updatePhysics(dt, now) {
     if (window.PlayPartyController?.isFollower()) {
       window.PlayPartyController.updateFollowerMovement(dt);
+      if (window.PlayPetsController) window.PlayPetsController.updateFollowerPhysics(this, dt);
       return;
     }
     let vx = this.dpadDx;
@@ -628,35 +626,19 @@ class EtheriaPlayClient {
       this.isMoving = false;
     }
     this.checkPortalsAndNpcs(now);
-    if (window.PlayMapPresenceController) {
-      window.PlayMapPresenceController.syncHeartbeat(now);
-    }
+    if (window.PlayPetsController) window.PlayPetsController.updateFollowerPhysics(this, dt);
+    if (window.PlayMapPresenceController) window.PlayMapPresenceController.syncHeartbeat(now);
   }
   checkRandomEncounter(now) {
-    if (
-      this.actionCombatArena?.isActive ||
-      this.isEncounterLoading ||
-      !this.currentMap ||
-      !this.activeChar ||
-      now < this.encounterCooldownUntil
-    ) {
-    }
-    if (!this.currentMap.mapType?.allowMonsterSpawn || this.currentMap.canSpawnMonsters === false) {
-    }
+    if (this.actionCombatArena?.isActive || this.isEncounterLoading || !this.currentMap || !this.activeChar || now < this.encounterCooldownUntil) return;
+    if (!this.currentMap.mapType?.allowMonsterSpawn || this.currentMap.canSpawnMonsters === false) return;
     const rate = Number(this.currentMap.encounterRatePct) || 0;
     if (rate > 0 && Math.random() * 100 < rate) {
       void this.triggerMapEncounter();
     }
   }
   async triggerMapEncounter() {
-    if (
-      this.isEncounterLoading ||
-      !this.activeChar ||
-      !this.currentMap ||
-      !this.currentMap.mapType?.allowMonsterSpawn ||
-      this.currentMap.canSpawnMonsters === false
-    ) {
-    }
+    if (this.isEncounterLoading || !this.activeChar || !this.currentMap || !this.currentMap.mapType?.allowMonsterSpawn || this.currentMap.canSpawnMonsters === false) return;
     this.isEncounterLoading = true;
     this.moveTargetX = null;
     this.moveTargetY = null;
@@ -838,6 +820,7 @@ class EtheriaPlayClient {
     } else {
       for (const npc of this.currentMap.npcs || []) this.pushRenderItem('NPC', npc.posY, npc);
       if (window.PlayMapPresenceController) window.PlayMapPresenceController.populateRenderQueue(this._renderQueue, now);
+      if (window.PlayPetsController) window.PlayPetsController.populateRenderQueue(this, this._renderQueue);
       if (this.activeChar) this.pushRenderItem('PLAYER', this.playerY, this.activeChar);
     }
     this._renderQueue.sort((a, b) => a.y - b.y);
@@ -849,6 +832,8 @@ class EtheriaPlayClient {
         ctx.fillStyle = '#86efac'; ctx.font = 'bold 12px sans-serif'; ctx.textAlign = 'center';
         ctx.fillText(npc.namePtBr, npc.posX, npc.posY - 62);
         if (typeof this.drawNpcQuestHeadIcon === 'function') this.drawNpcQuestHeadIcon(ctx, npc, now);
+      } else if (item.type === 'PET_FOLLOWER') {
+        if (window.PlayPetsController) window.PlayPetsController.drawFollowerPet(this, ctx, item.data, now);
       } else if (item.type === 'PLAYER') {
         const char = item.data;
         const sprite = this.getOrCreateSprite(`char_${char.mcreworkCharKey}`, char.atlasJsonUrl, char.atlasWebpUrl, char.thumbUrl);
