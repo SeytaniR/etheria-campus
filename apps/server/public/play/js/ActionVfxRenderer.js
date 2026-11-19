@@ -292,21 +292,23 @@ class ActionVfxRenderer {
     }
 
     ctx.save();
-    const pulse = 0.85 + 0.15 * Math.sin(now / 260);
-    ctx.beginPath();
-    ctx.ellipse(cx, cy, rx, ry, 0, 0, Math.PI * 2);
-    ctx.strokeStyle = `rgba(56, 189, 248, ${0.50 * pulse})`;
-    ctx.lineWidth = 2.5 / zoom;
-    ctx.shadowColor = '#38bdf8';
-    ctx.shadowBlur = 8;
-    ctx.stroke();
-
-    for (let i = 0; i < 8; i++) {
-      const ang = (i * Math.PI) / 4;
+    if (!arena.isDungeonMode) {
+      const pulse = 0.85 + 0.15 * Math.sin(now / 260);
       ctx.beginPath();
-      ctx.arc(cx + Math.cos(ang) * rx, cy + Math.sin(ang) * ry, 4.5 / zoom, 0, Math.PI * 2);
-      ctx.fillStyle = '#38bdf8';
-      ctx.fill();
+      ctx.ellipse(cx, cy, rx, ry, 0, 0, Math.PI * 2);
+      ctx.strokeStyle = `rgba(56, 189, 248, ${0.50 * pulse})`;
+      ctx.lineWidth = 2.5 / zoom;
+      ctx.shadowColor = '#38bdf8';
+      ctx.shadowBlur = 8;
+      ctx.stroke();
+
+      for (let i = 0; i < 8; i++) {
+        const ang = (i * Math.PI) / 4;
+        ctx.beginPath();
+        ctx.arc(cx + Math.cos(ang) * rx, cy + Math.sin(ang) * ry, 4.5 / zoom, 0, Math.PI * 2);
+        ctx.fillStyle = '#38bdf8';
+        ctx.fill();
+      }
     }
 
     // Anel de Alcance de Ataque do Jogador
@@ -525,8 +527,13 @@ class ActionVfxRenderer {
     ctx.save();
 
     // 1. Camada Sombria Global do Véu Cobrindo Toda a Tela Visível (Mundo Invertido Fullscreen)
-    ctx.fillStyle = 'rgba(7, 11, 24, 0.58)';
+    ctx.fillStyle = arena.isDungeonMode ? 'rgba(7, 11, 24, 0.38)' : 'rgba(7, 11, 24, 0.58)';
     ctx.fillRect(viewL - 80, viewT - 80, viewW + 160, viewH + 160);
+
+    if (arena.isDungeonMode) {
+      ctx.restore();
+      return;
+    }
 
     // 2. Foco Dimensional Abissal do Piso na Elipse da Arena (Cache inteligente de gradiente)
     ctx.beginPath();

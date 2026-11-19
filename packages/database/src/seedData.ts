@@ -122,6 +122,14 @@ export const INITIAL_MAP_TYPES = [
     pvpRule: 'OPEN_PVP',
     forcesCriminalStatus: false,
   },
+  {
+    code: 'DUNGEON',
+    namePtBr: 'Dungeon',
+    dominationTarget: 'NONE',
+    allowMonsterSpawn: true,
+    pvpRule: 'DUEL_ONLY',
+    forcesCriminalStatus: false,
+  },
 ];
 
 /**

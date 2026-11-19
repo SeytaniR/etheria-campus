@@ -34,6 +34,7 @@ import { AdminExperienceController } from './controllers/AdminExperienceControll
 import { AdminWorldMapsController } from './controllers/AdminWorldMapsController.js';
 import { AdminMapUploadController } from './controllers/AdminMapUploadController.js';
 import { TemporaryCombatController } from './controllers/TemporaryCombatController.js';
+import { DungeonService } from './controllers/DungeonService.js';
 import { AssetMirrorService } from './controllers/AssetMirrorService.js';
 import { AdminRouter } from './routes/AdminRouter.js';
 import { PlayRouter } from './routes/PlayRouter.js';
@@ -443,6 +444,7 @@ export class EtheriaServerApp {
         void this.mountsController.seedInitialFlyingMountsIfEmpty();
         void this.experienceController.seedInitialLevelExperienceIfEmpty();
         void this.worldMapsController.seedInitialWorldMapsIfEmpty();
+        void DungeonService.ensureDungeonMapType(this.prisma);
       })();
     });
     return server;

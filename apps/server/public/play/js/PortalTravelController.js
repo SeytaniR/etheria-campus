@@ -402,6 +402,9 @@ class EtheriaPortalTravelController {
         this.isTeleporting = false;
         playApp.isTraversingPortal = false;
         this.teleportVfx.active = false;
+        if ((mapData.isDungeon || mapData.mapType?.code === 'DUNGEON') && typeof playApp.checkAndStartDungeon === 'function') {
+          void playApp.checkAndStartDungeon(mapData);
+        }
       }, 350);
 
     } catch (err) {

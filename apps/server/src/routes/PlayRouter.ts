@@ -20,6 +20,7 @@ import { MonsterCombatBuilder, type QuestBattleConfigDto } from '../controllers/
 import { ItemContainerOpeningService } from '../controllers/ItemContainerOpeningService.js';
 import { CharacterPetService } from '../controllers/CharacterPetService.js';
 import { HunterPetController } from '../controllers/HunterPetController.js';
+import { DungeonService } from '../controllers/DungeonService.js';
 import { CharacterProgressionService } from '../controllers/CharacterProgressionService.js';
 import { GameChatService } from '../controllers/GameChatService.js';
 import { MapPresenceService } from '../controllers/MapPresenceService.js';
@@ -521,6 +522,10 @@ export class PlayRouter {
     if (await HunterPetController.handlePlayHunterRoute(req, res, pathname, method, this.deps.prisma, (cId) => this.verifyCharacterOwnership(userAccountId, session.role, cId), this.deps.readJsonBody, this.deps.sendJson)) {
       return true;
     }
+    // 🏰 Sistema de Dungeons Instanciadas (1x ao dia)
+    if (await DungeonService.handlePlayDungeonRoute(req, res, pathname, method, session.role, this.deps.prisma, this.deps.combatController, this.deps.assetMirrorService, (cId) => this.verifyCharacterOwnership(userAccountId, session.role, cId), this.deps.readJsonBody, this.deps.sendJson)) {
+      return true;
+    }
 
     // 🎁 Abertura Autoritária de Baú / Cápsula / Roleta da Sorte
     const charOpenContainerMatch = pathname.match(/^\/api\/play\/characters\/(\d+)\/items\/open-container$/);
@@ -718,6 +723,10 @@ export class PlayRouter {
         }
       }
 
+      const exitDestination = (victoryData as any).isDungeon
+        ? await DungeonService.completeDungeonRun(this.deps.prisma, String(body.battleId || ''), victoryData.characterId, (victoryData as any).dungeonRunId)
+        : null;
+
       this.deps.sendJson(res, 200, {
         alreadyRecorded: false,
         expGained: awardedExp,
@@ -728,6 +737,8 @@ export class PlayRouter {
         partyMembersCount: partySize,
         playerProgression: progression?.player ?? null,
         petsProgression: progression?.pets ?? [],
+        dungeonCompleted: Boolean((victoryData as any).isDungeon),
+        exitDestination,
         ...progressResult,
       });
       return true;

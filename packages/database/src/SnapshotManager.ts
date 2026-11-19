@@ -209,6 +209,25 @@ export class SnapshotManager {
         }
       }
 
+      // 1.1 Tipos de Mapa (MapTypes)
+      if (Array.isArray(snapshot.mapTypes)) {
+        for (const mt of snapshot.mapTypes) {
+          await this.prisma.mapType.upsert({
+            where: { code: mt.code },
+            create: {
+              id: mt.id, code: mt.code, nameI18nKey: mt.nameI18nKey,
+              dominationTarget: mt.dominationTarget, allowMonsterSpawn: Boolean(mt.allowMonsterSpawn),
+              pvpRule: mt.pvpRule, forcesCriminalStatus: Boolean(mt.forcesCriminalStatus),
+            },
+            update: {
+              nameI18nKey: mt.nameI18nKey, dominationTarget: mt.dominationTarget,
+              allowMonsterSpawn: Boolean(mt.allowMonsterSpawn), pvpRule: mt.pvpRule,
+              forcesCriminalStatus: Boolean(mt.forcesCriminalStatus),
+            },
+          });
+        }
+      }
+
       // 2. Mapas e Portais
       if (Array.isArray(snapshot.maps)) {
         for (const m of snapshot.maps) {
@@ -220,6 +239,11 @@ export class SnapshotManager {
               mcreworkMapImage: m.mcreworkMapImage, requiredLevel: m.requiredLevel,
               spawnX: m.spawnX, spawnY: m.spawnY,
               encounterRatePct: m.encounterRatePct, levelVarianceMin: m.levelVarianceMin, levelVarianceMax: m.levelVarianceMax,
+              allowedMonsterRacesJson: m.allowedMonsterRacesJson ?? [],
+              allowedMonsterTemplateIdsJson: m.allowedMonsterTemplateIdsJson ?? [],
+              dungeonMonsterCount: m.dungeonMonsterCount ?? 10,
+              dungeonBossTemplateId: m.dungeonBossTemplateId ?? null,
+              dominatedById: m.dominatedById ?? null,
               overlapOpacity: m.overlapOpacity, collisionMeshJson: m.collisionMeshJson, overlapMeshJson: m.overlapMeshJson,
             },
             update: {
@@ -228,6 +252,11 @@ export class SnapshotManager {
               mcreworkMapImage: m.mcreworkMapImage, requiredLevel: m.requiredLevel,
               spawnX: m.spawnX, spawnY: m.spawnY,
               encounterRatePct: m.encounterRatePct, levelVarianceMin: m.levelVarianceMin, levelVarianceMax: m.levelVarianceMax,
+              allowedMonsterRacesJson: m.allowedMonsterRacesJson ?? [],
+              allowedMonsterTemplateIdsJson: m.allowedMonsterTemplateIdsJson ?? [],
+              dungeonMonsterCount: m.dungeonMonsterCount ?? 10,
+              dungeonBossTemplateId: m.dungeonBossTemplateId ?? null,
+              dominatedById: m.dominatedById ?? null,
               overlapOpacity: m.overlapOpacity, collisionMeshJson: m.collisionMeshJson, overlapMeshJson: m.overlapMeshJson,
             },
           });

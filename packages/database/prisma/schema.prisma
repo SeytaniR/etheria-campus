@@ -55,13 +55,13 @@ model Biome {
   @@map("biomes")
 }
 
-/// Os 5 Tipos de Mapa (CITY, VILLAGE, SUBURB, HOSTILE_ZONE, CONFLICT_ZONE).
-/// Fixam quem pode dominar (ALLIANCE vs FACTION), se spawna monstros e a regra de PvP.
+/// Os 6 Tipos de Mapa (CITY, VILLAGE, SUBURB, HOSTILE_ZONE, CONFLICT_ZONE, DUNGEON).
+/// Fixam quem pode dominar (ALLIANCE vs FACTION vs NONE), se spawna monstros e a regra de PvP.
 model MapType {
   id                   Int       @id @default(autoincrement())
-  code                 String    @unique /// CITY, VILLAGE, SUBURB, HOSTILE_ZONE, CONFLICT_ZONE
+  code                 String    @unique /// CITY, VILLAGE, SUBURB, HOSTILE_ZONE, CONFLICT_ZONE, DUNGEON
   nameI18nKey          String    @map("name_i18n_key")
-  dominationTarget     String    @map("domination_target") /// ALLIANCE (Cidades/Vilas) ou FACTION (Subúrbio/Hostil/Conflito)
+  dominationTarget     String    @map("domination_target") /// ALLIANCE (Cidades/Vilas), FACTION (Subúrbio/Hostil/Conflito) ou NONE (Dungeon)
   allowMonsterSpawn    Boolean   @default(false) @map("allow_monster_spawn")
   pvpRule              String    @map("pvp_rule") /// DUEL_ONLY, FORCED_PK, OPEN_PVP
   forcesCriminalStatus Boolean   @default(false) @map("forces_criminal_status") /// true na HOSTILE_ZONE quando força PK
@@ -86,6 +86,8 @@ model GameMap {
   encounterRatePct  Float       @default(8.0) @map("encounter_rate_pct") /// Taxa base de encontro com monstros por passo (%)
   allowedMonsterRacesJson       Json        @default("[]") @map("allowed_monster_races_json") /// Raças/Tipos de monstros que nascem no mapa (ex: ["BEAST", "DRAGON", "HUMAN"])
   allowedMonsterTemplateIdsJson Json        @default("[]") @map("allowed_monster_template_ids_json") /// IDs de monstros individuais fora dos tipos (ex: [1, 5, 23])
+  dungeonMonsterCount           Int         @default(10) @map("dungeon_monster_count") /// Quantidade de monstros spawnados ao entrar na Dungeon
+  dungeonBossTemplateId         Int?        @map("dungeon_boss_template_id") /// ID do MonsterTemplate selecionado como Boss específico da Dungeon
   dominatedById     String?     @map("dominated_by_id") /// ID da Aliança ou Facção dominante (sistema de domínio/guerra)
   spawnX            Float       @default(500) @map("spawn_x") /// Ponto de Spawn padrão (Novatos no Mapa 1, Itens de Teleporte, Respawn em Cidade/Vila e Destravar Personagem)
   spawnY            Float       @default(500) @map("spawn_y") /// Coordenada Y do Ponto de Spawn padrão do mapa
@@ -102,8 +104,30 @@ model GameMap {
   outgoingPortals   MapPortal[] @relation("SourceMapPortals")
   incomingPortals   MapPortal[] @relation("TargetMapPortals")
   npcs              MapNpc[]
+  dungeonRuns       DungeonRun[]
 
   @@map("maps")
+}
+
+/// Registro de entrada diária (1x/dia) e estado de execução das Dungeons por personagem.
+model DungeonRun {
+  id             Int             @id @default(autoincrement())
+  characterId    Int             @map("character_id")
+  dungeonMapId   Int             @map("dungeon_map_id")
+  entryDate      String          @map("entry_date") /// YYYY-MM-DD (America/Sao_Paulo)
+  status         String          @default("IN_PROGRESS") /// IN_PROGRESS, COMPLETED, DEFEATED, FLED
+  battleId       String?         @map("battle_id")
+  returnMapId    Int?            @map("return_map_id")
+  returnX        Float?          @map("return_x")
+  returnY        Float?          @map("return_y")
+  startedAt      DateTime        @default(now()) @map("started_at")
+  finishedAt     DateTime?       @map("finished_at")
+
+  character      PlayerCharacter @relation(fields: [characterId], references: [id], onDelete: Cascade)
+  dungeonMap     GameMap         @relation(fields: [dungeonMapId], references: [id], onDelete: Cascade)
+
+  @@unique([characterId, dungeonMapId, entryDate])
+  @@map("dungeon_runs")
 }
 
 /// Pontos de Teleporte em Duplas Interligadas (Entrada <-> Saída).
@@ -580,6 +604,7 @@ model PlayerCharacter {
   formation           ArenaFormation?
   questProgress       CharacterQuestProgress[]
   inventoryItems      CharacterInventoryItem[]
+  dungeonRuns         DungeonRun[]
 
   @@map("player_characters")
 }

@@ -246,6 +246,15 @@ export class MapPresenceService {
       include: { mapType: true },
     });
 
+    // Se morreu dentro de uma Dungeon, finaliza a entrada diária como DEFEATED (ingresso do dia consumido)
+    if (currentMap && currentMap.mapType?.code === 'DUNGEON') {
+      const today = new Date().toLocaleDateString('en-CA', { timeZone: 'America/Sao_Paulo' });
+      await (prisma as any).dungeonRun.updateMany({
+        where: { characterId: Number(characterId), dungeonMapId: currentMap.id, entryDate: today, status: 'IN_PROGRESS' },
+        data: { status: 'DEFEATED', finishedAt: new Date() },
+      }).catch(() => {});
+    }
+
     // Se o mapa atual já for zona segura de Cidade ou Vila, respawna no spawn do mapa
     if (currentMap && (currentMap.mapType.code === 'CITY' || currentMap.mapType.code === 'VILLAGE')) {
       await prisma.playerCharacter.update({

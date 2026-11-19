@@ -12,6 +12,8 @@ class ActionCombatArena {
     this.client = client;
     this.currentBattle = null;
     this.isActive = false;
+    this.isDungeonMode = false;
+    this.dungeonExitDestination = null;
     this.combatState = 'INACTIVE'; // 'INACTIVE' | 'PREPARATION' | 'FIGHTING' | 'RESULT'
 
     // Contagem Regressiva e Sistema de Pronto
@@ -152,37 +154,46 @@ class ActionCombatArena {
   }
 
   openArena(battleState) {
+    this.isDungeonMode = Boolean(battleState.isDungeon);
+    this.dungeonExitDestination = null;
     const wasAlreadyInArena = this.isActive && Boolean(this.preCombatWorldPos);
     if (this.client && !wasAlreadyInArena) {
       this.preCombatWorldPos = {
         mapId: this.client.currentMap ? this.client.currentMap.id : 1,
-        x: this.client.playerX,
-        y: this.client.playerY,
-        dir: this.client.playerDir || 0,
+        x: this.client.playerX, y: this.client.playerY, dir: this.client.playerDir || 0,
       };
     }
-    if (window.BattleTransitionController) window.BattleTransitionController.start(battleState, this);
+    if (!this.isDungeonMode && window.BattleTransitionController) window.BattleTransitionController.start(battleState, this);
+    else this.isTransitioning = false;
     this.currentBattle = battleState;
     this.isActive = true;
     const vig = document.getElementById('veilVignetteOverlay'); if (vig) vig.classList.add('active');
-    this.combatState = 'PREPARATION';
-    this.prepTimeRemaining = 20.0;
-    this.isLocalPlayerReady = false;
+    this.combatState = this.isDungeonMode ? 'FIGHTING' : 'PREPARATION';
+    this.prepTimeRemaining = this.isDungeonMode ? 0 : 20.0;
+    this.isLocalPlayerReady = this.isDungeonMode;
     this.readyPlayerIds = new Set();
     this.totalRealPlayers = Number(battleState.totalRealPlayers) || 1;
-
     this.elementMatchups = battleState.elementMatchups || this.client?.elementMatchups || [];
-    const baseOriginX = this.preCombatWorldPos ? this.preCombatWorldPos.x : (this.client?.playerX || 400);
-    const baseOriginY = this.preCombatWorldPos ? this.preCombatWorldPos.y : (this.client?.playerY || 300);
-    this.arenaCenterX = Math.round(baseOriginX);
-    this.arenaCenterY = Math.round(baseOriginY);
-    this.arenaRadiusX = 650;
-    this.arenaRadiusY = 470;
 
-    const spawns = this.findFairSpawnPositions(this.arenaCenterX, this.arenaCenterY);
+    if (this.isDungeonMode) {
+      this.arenaCenterX = Math.round((battleState.mapWidth || 2000) / 2);
+      this.arenaCenterY = Math.round((battleState.mapHeight || 1500) / 2);
+      this.arenaRadiusX = 999999;
+      this.arenaRadiusY = 999999;
+    } else {
+      const baseOriginX = this.preCombatWorldPos ? this.preCombatWorldPos.x : (this.client?.playerX || 400);
+      const baseOriginY = this.preCombatWorldPos ? this.preCombatWorldPos.y : (this.client?.playerY || 300);
+      this.arenaCenterX = Math.round(baseOriginX);
+      this.arenaCenterY = Math.round(baseOriginY);
+      this.arenaRadiusX = 650;
+      this.arenaRadiusY = 470;
+    }
+
+    const spawns = this.isDungeonMode
+      ? { px: battleState.playerStartX ?? this.client?.playerX ?? 500, py: battleState.playerStartY ?? this.client?.playerY ?? 500, mx: this.arenaCenterX, my: this.arenaCenterY }
+      : this.findFairSpawnPositions(this.arenaCenterX, this.arenaCenterY);
     const pState = battleState.player || {};
-    const pDir = this.compute8Direction(spawns.mx - spawns.px, spawns.my - spawns.py);
-
+    const pDir = this.isDungeonMode ? (this.client?.playerDir || 0) : this.compute8Direction(spawns.mx - spawns.px, spawns.my - spawns.py);
     const baseCombat = this.client?.activeChar?.baseCombatAttributesJson || {};
     const globalCombatAttr = (this.client?.combatAttributes || []).find((ca) => ca.code === 'BATTLE_MOVE_SPEED');
     const globalDefaultSpeed = globalCombatAttr ? Number(globalCombatAttr.baseDefault) : 180;
@@ -192,10 +203,8 @@ class ActionCombatArena {
     const totalAgi = (Number(this.client?.activeChar?.distributedStatsJson?.AGI) || 0) + (Number(this.client?.activeChar?.baseAttributesJson?.AGI) || 10);
     const battleSpeed = Math.max(60, Number(pState.battleMoveSpeed || (classMoveSpeed ? classMoveSpeed + totalAgi * agiRatio : null) || (globalDefaultSpeed ? globalDefaultSpeed + totalAgi * agiRatio : null) || 180));
 
-    this.projectiles = [];
-    this.groundZones = [];
-    this.vfxRenderer?.reset();
-    this.motionEngine?.reset();
+    this.projectiles = []; this.groundZones = [];
+    this.vfxRenderer?.reset(); this.motionEngine?.reset();
     this.classSkills = Array.isArray(battleState.classSkills) ? battleState.classSkills : [];
     this.skillCatalog = Array.isArray(battleState.skillCatalog) ? battleState.skillCatalog : [];
     this.statusCatalog = Array.isArray(battleState.statusCatalog) ? battleState.statusCatalog : [];
@@ -220,9 +229,7 @@ class ActionCombatArena {
       critDmg: Math.min(3.00, (Number(baseCombat.CRIT_DMG) || 150) / 100),
       attackSpeed: Number(baseCombat.ATTACK_SPEED) || 1.0,
       sprite: this.getSprite(pState.atlasJsonUrl, pState.atlasWebpUrl, pState.thumbUrl) ||
-              (this.client?.activeChar ? this.client.getOrCreateSprite(
-                `char_${this.client.activeChar.mcreworkCharKey}`, this.client.activeChar.atlasJsonUrl, this.client.activeChar.atlasWebpUrl, this.client.activeChar.thumbUrl
-              ) : null),
+              (this.client?.activeChar ? this.client.getOrCreateSprite(`char_${this.client.activeChar.mcreworkCharKey}`, this.client.activeChar.atlasJsonUrl, this.client.activeChar.atlasWebpUrl, this.client.activeChar.thumbUrl) : null),
       groundOffsetY: pState.groundOffsetY || this.client?.activeChar?.groundOffsetY || 0,
       shadowOffsetX: pState.shadowOffsetX || this.client?.activeChar?.shadowOffsetX || 0,
       shadowOffsetY: pState.shadowOffsetY || this.client?.activeChar?.shadowOffsetY || 0,
@@ -231,7 +238,6 @@ class ActionCombatArena {
       damageType: pState.damageType || this.client?.activeChar?.damageType || 'PHYSICAL',
       isAttacking: false, attackTimer: 0, isDashing: false, dashTimer: 0, hitTimer: 0,
     };
-
     if (this.client) {
       this.battleOutcome = null;
       if (window.PlayMapPresenceController) window.PlayMapPresenceController.setLocalCombatStatus(true);
@@ -246,22 +252,20 @@ class ActionCombatArena {
     const mDir = this.compute8Direction(spawns.px - spawns.mx, spawns.py - spawns.my);
     const getSp = (j, w, t) => this.getSprite(j, w, t);
     const rawPetModels = pList.map((p, idx) => window.ArenaPhysicsSolver.createAiUnitModel(p, idx, false, spawns.px, spawns.py, pDir, battleSpeed, getSp));
-    const rawMobModels = mStates.map((m, idx) => window.ArenaPhysicsSolver.createAiUnitModel(m, idx, true, spawns.mx, spawns.my, mDir, battleSpeed, getSp, battleState.monsterTemplateId));
+    const rawMobModels = mStates.map((m, idx) => window.ArenaPhysicsSolver.createAiUnitModel(m, idx, true, this.isDungeonMode && m.spawnX !== undefined ? m.spawnX : spawns.mx, this.isDungeonMode && m.spawnY !== undefined ? m.spawnY : spawns.my, mDir, battleSpeed, getSp, battleState.monsterTemplateId));
 
     if (window.ArenaPhysicsSolver) {
       const petCoords = window.ArenaPhysicsSolver.buildTeamFormationPositions(spawns.px, spawns.py, spawns.mx, spawns.my, rawPetModels, this.arenaCenterX, this.arenaCenterY, this.arenaRadiusX, this.arenaRadiusY, isBlockedFn, [{ x: spawns.px, y: spawns.py }]);
       rawPetModels.forEach((p, idx) => { if (petCoords[idx]) { p.x = petCoords[idx].x; p.y = petCoords[idx].y; } });
-      const mobCoords = window.ArenaPhysicsSolver.buildTeamFormationPositions(spawns.mx, spawns.my, spawns.px, spawns.py, rawMobModels, this.arenaCenterX, this.arenaCenterY, this.arenaRadiusX, this.arenaRadiusY, isBlockedFn, [{ x: spawns.px, y: spawns.py }, ...rawPetModels]);
-      rawMobModels.forEach((m, idx) => { if (mobCoords[idx]) { m.x = mobCoords[idx].x; m.y = mobCoords[idx].y; } });
+      if (!this.isDungeonMode) {
+        const mobCoords = window.ArenaPhysicsSolver.buildTeamFormationPositions(spawns.mx, spawns.my, spawns.px, spawns.py, rawMobModels, this.arenaCenterX, this.arenaCenterY, this.arenaRadiusX, this.arenaRadiusY, isBlockedFn, [{ x: spawns.px, y: spawns.py }, ...rawPetModels]);
+        rawMobModels.forEach((m, idx) => { if (mobCoords[idx]) { m.x = mobCoords[idx].x; m.y = mobCoords[idx].y; } });
+      }
+      window.ArenaPhysicsSolver.resolveAllUnitCollisions([this.player, ...rawPetModels, ...rawMobModels], this.arenaCenterX, this.arenaCenterY, this.arenaRadiusX, this.arenaRadiusY, isBlockedFn);
     }
 
     this.pets = rawPetModels;
     this.monsters = rawMobModels;
-
-    if (window.ArenaPhysicsSolver) {
-      window.ArenaPhysicsSolver.resolveAllUnitCollisions([this.player, ...this.pets, ...this.monsters], this.arenaCenterX, this.arenaCenterY, this.arenaRadiusX, this.arenaRadiusY, isBlockedFn);
-    }
-
     if (this.aiController) {
       this.allyTeamTactics = this.aiController.evaluateTeamTactics([this.player, ...this.pets], this.monsters);
       this.enemyTeamTactics = this.aiController.evaluateTeamTactics(this.monsters, [this.player, ...this.pets]);
@@ -269,17 +273,15 @@ class ActionCombatArena {
     }
 
     this.floatingTexts = [];
-
     const modal = document.getElementById('actionCombatModal');
     if (modal) { modal.style.display = 'flex'; if (this.isTransitioning) modal.classList.add('transitioning'); }
     const resultBanner = document.getElementById('actionResultBanner'); if (resultBanner) resultBanner.style.display = 'none';
-    const prepBanner = document.getElementById('actionPrepBanner'); if (prepBanner) prepBanner.style.display = 'flex';
+    const prepBanner = document.getElementById('actionPrepBanner'); if (prepBanner) prepBanner.style.display = this.isDungeonMode ? 'none' : 'flex';
     const timerEl = document.getElementById('actPrepTimer'); if (timerEl) timerEl.textContent = '20s';
     const btnReady = document.getElementById('btnActReady'); if (btnReady) { btnReady.classList.remove('ready'); btnReady.textContent = '⚡ PRONTO!'; }
     const statusEl = document.getElementById('actPrepStatusText');
     if (statusEl) statusEl.textContent = this.totalRealPlayers > 1 ? `Aguardando: 0/${this.totalRealPlayers} jogadores prontos` : 'Trace sua estratégia ou clique em Pronto';
-
-    this.floatingTexts.push({ x: spawns.px, y: spawns.py - 60, text: 'PREPARE-SE PARA A BATALHA', color: '#38bdf8', life: 2.2 });
+    this.floatingTexts.push({ x: spawns.px, y: spawns.py - 60, text: this.isDungeonMode ? '🏰 DUNGEON NO VÉU' : 'PREPARE-SE PARA A BATALHA', color: this.isDungeonMode ? '#c084fc' : '#38bdf8', life: 2.2 });
 
     this.renderSkillButtonsHud();
     this.updateCombatShortcutsHud();
@@ -381,80 +383,66 @@ class ActionCombatArena {
   }
 
   closeArena() {
-    this.isTransitioning = false;
-    this.isActive = false;
-    this.combatState = 'INACTIVE';
-    this.pets = [];
-    this.monsters = [];
-    this.projectiles = [];
-    this.selectedTargetMob = null;
-
+    this.isTransitioning = false; this.isActive = false; this.combatState = 'INACTIVE';
+    this.pets = []; this.monsters = []; this.projectiles = []; this.selectedTargetMob = null;
     if (window.PlayHudController?.setCombatMode) window.PlayHudController.setCombatMode(false);
     else document.body.classList.remove('is-in-combat');
     const vig = document.getElementById('veilVignetteOverlay'); if (vig) vig.classList.remove('active');
-
-    const modal = document.getElementById('actionCombatModal'); if (modal) modal.style.display = 'none';
-    const prepBanner = document.getElementById('actionPrepBanner'); if (prepBanner) prepBanner.style.display = 'none';
-    const resultBanner = document.getElementById('actionResultBanner'); if (resultBanner) resultBanner.style.display = 'none';
+    ['actionCombatModal', 'actionPrepBanner', 'actionResultBanner'].forEach((id) => { const el = document.getElementById(id); if (el) el.style.display = 'none'; });
     const outcome = document.getElementById('combatOutcomeModal'); if (outcome) outcome.classList.remove('active');
-
     if (this.client) {
       this.client.encounterCooldownUntil = performance.now() + 5000;
       this.client.moveTargetX = null; this.client.moveTargetY = null;
       this.client.targetDestX = null; this.client.targetDestY = null;
       this.client.currentPath = null; this.client.dpadDx = 0; this.client.dpadDy = 0;
-      this.client.isMoving = false;
-      this.client.keysDown?.clear();
-      this.keysDown?.clear();
-
+      this.client.isMoving = false; this.client.keysDown?.clear(); this.keysDown?.clear();
       if (this.battleOutcome === 'DEFEAT' && !window.CombatOutcomeController) {
         const charId = this.client?.activeChar?.id;
-        if (charId) {
-          this.client.api(`/api/play/characters/${charId}/respawn`, { method: 'POST' })
-            .then((res) => { if (res?.mapId) this.client.loadMapIntoWorld(res.mapId, res.spawnX, res.spawnY); })
-            .catch(() => {});
-        }
-      } else if (this.preCombatWorldPos) {
-        this.client.playerX = this.preCombatWorldPos.x;
-        this.client.playerY = this.preCombatWorldPos.y;
-        this.client.playerDir = this.preCombatWorldPos.dir;
-        if (this.client.activeChar) {
-          this.client.activeChar.posX = this.preCombatWorldPos.x;
-          this.client.activeChar.posY = this.preCombatWorldPos.y;
-        }
-        if (window.PlayPetsController) {
-          window.PlayPetsController.followerX = this.preCombatWorldPos.x - 74;
-          window.PlayPetsController.followerY = this.preCombatWorldPos.y + 16;
-          window.PlayPetsController.followerIsMoving = false;
-        }
-        const coordsEl = document.getElementById('hudCoords');
-        if (coordsEl) coordsEl.textContent = `X:${Math.round(this.client.playerX)} Y:${Math.round(this.client.playerY)}`;
+        if (charId) this.client.api(`/api/play/characters/${charId}/respawn`, { method: 'POST' }).then((res) => { if (res?.mapId) this.client.loadMapIntoWorld(res.mapId, res.spawnX, res.spawnY); }).catch(() => {});
+      } else if (this.preCombatWorldPos && !this.dungeonExitDestination) {
+        this.client.playerX = this.preCombatWorldPos.x; this.client.playerY = this.preCombatWorldPos.y; this.client.playerDir = this.preCombatWorldPos.dir;
+        if (this.client.activeChar) { this.client.activeChar.posX = this.preCombatWorldPos.x; this.client.activeChar.posY = this.preCombatWorldPos.y; }
+        if (window.PlayPetsController) { window.PlayPetsController.followerX = this.preCombatWorldPos.x - 74; window.PlayPetsController.followerY = this.preCombatWorldPos.y + 16; window.PlayPetsController.followerIsMoving = false; }
+        const coordsEl = document.getElementById('hudCoords'); if (coordsEl) coordsEl.textContent = `X:${Math.round(this.client.playerX)} Y:${Math.round(this.client.playerY)}`;
       }
       this.preCombatWorldPos = null;
-      if (window.PlayMapPresenceController) {
-        window.PlayMapPresenceController.setLocalCombatStatus(false);
-      }
+      if (window.PlayMapPresenceController) window.PlayMapPresenceController.setLocalCombatStatus(false);
     }
+    this.isDungeonMode = false;
   }
 
   fleeBattle() {
-    if (!this.isActive) return;
+    if (!this.isActive || this.combatState === 'RESULT') return;
+    if (this.isDungeonMode) { void this.handleDungeonFlee(); return; }
     this.showResult(false, 'Você recuou da batalha com segurança e retornou ao mapa.', true);
+  }
+
+  async handleDungeonFlee() {
+    if (!confirm('⚠️ Atenção: Se você fugir da Dungeon agora, gastará sua entrada diária de hoje.\n\nDeseja realmente fugir e sair da Dungeon?')) return;
+    try {
+      const res = await this.client.api('/api/play/dungeon/flee', {
+        method: 'POST',
+        body: JSON.stringify({
+          characterId: this.client?.activeChar?.id,
+          mapId: this.currentBattle?.dungeonMapId || this.client?.currentMap?.id,
+          battleId: this.currentBattle?.battleId,
+        }),
+      });
+      if (res?.exitDestination) this.dungeonExitDestination = res.exitDestination;
+    } catch (err) { console.warn('[DungeonFlee] Erro ao registrar fuga:', err); }
+    this.showResult(false, 'Você fugiu da Dungeon! Seu ingresso diário de hoje foi consumido.', true);
   }
 
   updateHud() {
     if (!this.player) return;
     const hpPct = Math.max(0, Math.min(100, (this.player.hp / this.player.maxHp) * 100));
     const mpPct = Math.max(0, Math.min(100, (this.player.mp / this.player.maxMp) * 100));
-
     const hpBar = document.getElementById('actHudPlayerHpBar'); if (hpBar) hpBar.style.width = `${hpPct}%`;
     const mpBar = document.getElementById('actHudPlayerMpBar'); if (mpBar) mpBar.style.width = `${mpPct}%`;
     const hpText = document.getElementById('actHudPlayerHpText'); if (hpText) hpText.textContent = `${Math.ceil(this.player.hp)} / ${this.player.maxHp}`;
     const pName = document.getElementById('actHudPlayerName'); if (pName) pName.textContent = this.player.name;
-
     const aliveCount = this.monsters.filter((m) => m.isAlive).length;
     const mobCountElem = document.getElementById('actHudMonstersAlive'); if (mobCountElem) mobCountElem.textContent = String(aliveCount);
-
     const now = performance.now();
     this.updateCooldownOverlay('cdOverlaySkill1', this.skillCooldowns.skill1, now);
     this.updateCooldownOverlay('cdOverlaySkill2', this.skillCooldowns.skill2, now);
@@ -470,19 +458,16 @@ class ActionCombatArena {
 
   dealDamageToUnit(unit, dmg, text, color, now) {
     if (!unit || !unit.isAlive) return;
+    if (unit.team === 'ENEMY' && this.isDungeonMode && !unit.isAggroed) {
+      unit.isAggroed = true;
+      this.floatingTexts.push({ x: unit.x, y: unit.y - 68, text: '!', color: '#ef4444', life: 0.9 });
+    }
     unit.hp = Math.max(0, unit.hp - dmg);
-    unit.hitTimer = 0.24;
-    unit.actionStartTime = now;
-    unit.action = 5;
+    unit.hitTimer = 0.24; unit.actionStartTime = now; unit.action = 5;
     this.floatingTexts.push({ x: unit.x, y: unit.y - 48, text, color, life: 1.05 });
-
     if (unit.hp === 0) {
-      unit.isAlive = false;
-      unit.actionStartTime = now;
-      unit.action = 6;
-      if (unit.isPlayer) {
-        this.showResult(false, 'Você foi derrotado na arena.');
-      }
+      unit.isAlive = false; unit.actionStartTime = now; unit.action = 6;
+      if (unit.isPlayer) this.showResult(false, 'Você foi derrotado na arena.');
     }
   }
 
@@ -737,6 +722,7 @@ class ActionCombatArena {
     try {
       if (!this.currentBattle || !this.client) return null;
       const res = await this.client.api('/api/play/combat/victory', { method: 'POST', body: JSON.stringify({ battleId: this.currentBattle.battleId }) });
+      if (res?.exitDestination) { this.dungeonExitDestination = res.exitDestination; }
       if (res?.questState) { this.client.questState = res.questState; this.client.updateQuestHudBadge?.(); }
       if (res?.characterGold !== undefined && this.client.activeChar) { this.client.activeChar.gold = res.characterGold; }
       if (res?.playerProgression && this.client.activeChar) {
@@ -911,60 +897,36 @@ class ActionCombatArena {
       this.nextTacticsEvalTime = now + 350;
     }
 
-    // 2. Atualiza IA Tática dos Monstros (Time Inimigo)
+    // 2. Atualiza IA Tática dos Monstros e Pets (passando modo Dungeon & Aggro Curto)
+    const aggroCb = (u) => this.floatingTexts.push({ x: u.x, y: u.y - 68, text: '!', color: '#ef4444', life: 0.9 });
     const enemyContext = {
-      mesh,
-      cx: this.arenaCenterX,
-      cy: this.arenaCenterY,
-      rx: this.arenaRadiusX,
-      ry: this.arenaRadiusY,
-      isBlockedFn,
-      compute8DirFn,
-      enemyCentroid: this.enemyTeamTactics.enemyCentroid,
-      preferredEnemy: null,
+      mesh, cx: this.arenaCenterX, cy: this.arenaCenterY, rx: this.arenaRadiusX, ry: this.arenaRadiusY,
+      isBlockedFn, compute8DirFn, enemyCentroid: this.enemyTeamTactics.enemyCentroid, preferredEnemy: null,
+      isDungeonMode: this.isDungeonMode, player: this.player, onAggro: aggroCb,
       onPerformAttack: (mob, target, isCloseBrawl) => this.executeAiUnitAttack(mob, target, isCloseBrawl, now),
     };
     for (const mob of this.monsters) {
-      if (this.aiController) {
-        this.aiController.updateUnit(mob, this.monsters, allyTeam, enemyContext, dt, now);
-      }
+      if (this.aiController) this.aiController.updateUnit(mob, this.monsters, allyTeam, enemyContext, dt, now);
     }
 
-    // 3. Atualiza IA Tática dos Pets Aliados
     const allyContext = {
-      mesh,
-      cx: this.arenaCenterX,
-      cy: this.arenaCenterY,
-      rx: this.arenaRadiusX,
-      ry: this.arenaRadiusY,
-      isBlockedFn,
-      compute8DirFn,
-      enemyCentroid: this.allyTeamTactics.enemyCentroid,
+      mesh, cx: this.arenaCenterX, cy: this.arenaCenterY, rx: this.arenaRadiusX, ry: this.arenaRadiusY,
+      isBlockedFn, compute8DirFn, enemyCentroid: this.allyTeamTactics.enemyCentroid,
       preferredEnemy: this.selectedTargetMob && this.selectedTargetMob.isAlive ? this.selectedTargetMob : null,
+      isDungeonMode: this.isDungeonMode, player: this.player,
       onPerformAttack: (pet, target, isCloseBrawl) => this.executeAiUnitAttack(pet, target, isCloseBrawl, now),
     };
     for (const pet of this.pets) {
-      if (this.aiController) {
-        this.aiController.updateUnit(pet, allyTeam, this.monsters, allyContext, dt, now);
-      }
+      if (this.aiController) this.aiController.updateUnit(pet, allyTeam, this.monsters, allyContext, dt, now);
     }
 
-    // 4. Colisão Física Universal entre Todos os Modelos (evita acúmulo em uma única sombra)
+    // 4. Colisão Física Universal entre Todos os Modelos
     if (window.ArenaPhysicsSolver) {
-      window.ArenaPhysicsSolver.resolveAllUnitCollisions(
-        [this.player, ...this.pets, ...this.monsters],
-        this.arenaCenterX,
-        this.arenaCenterY,
-        this.arenaRadiusX,
-        this.arenaRadiusY,
-        isBlockedFn
-      );
+      window.ArenaPhysicsSolver.resolveAllUnitCollisions([this.player, ...this.pets, ...this.monsters], this.arenaCenterX, this.arenaCenterY, this.arenaRadiusX, this.arenaRadiusY, isBlockedFn);
     }
 
     if (this.client) {
-      this.client.playerX = this.player.x;
-      this.client.playerY = this.player.y;
-      this.client.playerDir = this.player.dir;
+      this.client.playerX = this.player.x; this.client.playerY = this.player.y; this.client.playerDir = this.player.dir;
     }
 
     // 5. Floating Texts
@@ -976,11 +938,13 @@ class ActionCombatArena {
 
   getCamFocusX() {
     if (!this.player) return this.client?.playerX || 0;
+    if (this.isDungeonMode) return this.player.x;
     const m = this.monsters.find((mob) => mob.isAlive);
     return m ? Math.round(this.player.x * 0.65 + m.x * 0.35) : this.player.x;
   }
   getCamFocusY() {
     if (!this.player) return this.client?.playerY || 0;
+    if (this.isDungeonMode) return this.player.y;
     const m = this.monsters.find((mob) => mob.isAlive);
     return m ? Math.round(this.player.y * 0.65 + m.y * 0.35) : this.player.y;
   }

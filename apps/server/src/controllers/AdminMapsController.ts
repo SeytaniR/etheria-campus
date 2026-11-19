@@ -29,6 +29,8 @@ export interface SaveMapDto {
   secondaryBiomeId: number;
   allowedMonsterRaces?: string[];
   allowedMonsterTemplateIds?: number[];
+  dungeonMonsterCount?: number | null;
+  dungeonBossTemplateId?: number | null;
   encounterRatePct?: number;
   dominatedById?: string | null;
   spawnX?: number;
@@ -658,10 +660,13 @@ export class AdminMapsController {
       throw new Error(`Tipo de mapa inválido (#${dto.mapTypeId}).`);
     }
 
-    const effectiveEncounterRate = MapSpawnResolver.resolveEffectiveEncounterRate(
-      mapType.allowMonsterSpawn,
-      dto.encounterRatePct !== undefined ? dto.encounterRatePct : 8.0,
-    );
+    const isDungeonType = mapType.code === 'DUNGEON' || mapType.dominationTarget === 'NONE';
+    const effectiveEncounterRate = mapType.code === 'DUNGEON'
+      ? 100
+      : MapSpawnResolver.resolveEffectiveEncounterRate(
+          mapType.allowMonsterSpawn,
+          dto.encounterRatePct !== undefined ? dto.encounterRatePct : 8.0,
+        );
 
     const baseData = {
       mcreworkMapImage: dto.mcreworkMapImage,
@@ -673,8 +678,10 @@ export class AdminMapsController {
       secondaryBiomeId: Number(dto.secondaryBiomeId) || 1,
       allowedMonsterRacesJson: MapSpawnResolver.parseAllowedRaces(dto.allowedMonsterRaces),
       allowedMonsterTemplateIdsJson: MapSpawnResolver.parseAllowedMonsterIds(dto.allowedMonsterTemplateIds),
+      dungeonMonsterCount: Math.max(1, Math.min(50, Math.round(Number(dto.dungeonMonsterCount ?? 10) || 10))),
+      dungeonBossTemplateId: dto.dungeonBossTemplateId ? Number(dto.dungeonBossTemplateId) : null,
       encounterRatePct: effectiveEncounterRate,
-      dominatedById: dto.dominatedById || null,
+      dominatedById: isDungeonType ? null : (dto.dominatedById || null),
       spawnX: Number(dto.spawnX ?? 500),
       spawnY: Number(dto.spawnY ?? 500),
       overlapOpacity: Number(dto.overlapOpacity ?? 0.45),

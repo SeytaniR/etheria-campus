@@ -10,6 +10,7 @@
  */
 
 export interface MapSpawnTypeRule {
+  code?: string;
   allowMonsterSpawn: boolean;
 }
 
@@ -81,6 +82,9 @@ export class MapSpawnResolver {
   public static canMapSpawnMonsters(map: MapSpawnConfigInput | null | undefined): boolean {
     if (!map || !map.mapType || map.mapType.allowMonsterSpawn !== true) {
       return false;
+    }
+    if (String(map.mapType.code || '').toUpperCase() === 'DUNGEON') {
+      return true;
     }
     return this.resolveEffectiveEncounterRate(true, map.encounterRatePct) > 0;
   }

@@ -366,6 +366,7 @@ class ActionSkillEngine {
             arena.floatingTexts.push({ x: mob.x, y: mob.y - 48, text: 'DESVIO', color: '#38bdf8', life: 1.0 });
             continue;
           }
+          dmgRes.finalDamage = ActionSkillEngine.applyDungeonFinalDamageDebuff(arena, caster, dmgRes.finalDamage);
           enemiesHit += 1;
           if (dmgRes.isCrit) anyCrit = true;
 
@@ -623,7 +624,7 @@ class ActionSkillEngine {
           const dot = st.dotHotFormulaJson || {};
           if (dot.mode === 'DAMAGE' && st.sourceUnit) {
             const raw = ActionSkillEngine.evaluateFormula(st.sourceUnit, dot.scaleStat || 'PHYS_ATK', dot.scalePct || 20, null, 0, dot.flatAmount || 0) * Math.max(1, st.stacks || 1);
-            const dmg = Math.max(2, Math.round(raw));
+            const dmg = ActionSkillEngine.applyDungeonFinalDamageDebuff(arena, st.sourceUnit, Math.max(2, Math.round(raw)));
             ActionSkillEngine.applyIncomingDamage(arena, u, st.sourceUnit, dmg, `-${dmg}`, '#fb7185', now, false);
           } else if (dot.mode === 'HEAL') {
             const src = st.sourceUnit || u;
@@ -669,6 +670,7 @@ class ActionSkillEngine {
       arena.floatingTexts.push({ x: defender.x, y: defender.y - 48, text: 'DESVIO', color: '#38bdf8', life: 1.05 });
       return;
     }
+    res.finalDamage = ActionSkillEngine.applyDungeonFinalDamageDebuff(arena, atkUnit, res.finalDamage);
     const text = res.isCrit ? `CRÍTICO -${res.finalDamage}` : `-${res.finalDamage}`;
     const color = res.isCrit
       ? '#fde047'
@@ -676,6 +678,12 @@ class ActionSkillEngine {
         ? '#fb923c'
         : (defender.team === 'ALLY' ? '#f87171' : (p.color || '#ffffff')));
     ActionSkillEngine.applyIncomingDamage(arena, defender, atkUnit, res.finalDamage, text, color, now, atkUnit.combatStyle !== 'RANGED');
+  }
+
+  static applyDungeonFinalDamageDebuff(arena, attacker, finalDmg) {
+    if (!attacker || attacker.team !== 'ENEMY') return finalDmg;
+    const mult = attacker.damageDealtMultiplier ?? (arena?.isDungeonMode ? 0.70 : 1.0);
+    return mult !== 1.0 ? Math.max(1, Math.round(finalDmg * mult)) : finalDmg;
   }
 }
 

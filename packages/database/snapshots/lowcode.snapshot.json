@@ -26795,6 +26795,15 @@
       "allowMonsterSpawn": true,
       "pvpRule": "OPEN_PVP",
       "forcesCriminalStatus": false
+    },
+    {
+      "id": 6,
+      "code": "DUNGEON",
+      "nameI18nKey": "map_type.dungeon.name",
+      "dominationTarget": "NONE",
+      "allowMonsterSpawn": true,
+      "pvpRule": "DUEL_ONLY",
+      "forcesCriminalStatus": false
     }
   ],
   "maps": [

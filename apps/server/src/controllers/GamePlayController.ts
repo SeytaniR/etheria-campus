@@ -23,6 +23,7 @@ import { AssetMirrorService } from './AssetMirrorService.js';
 import { MonsterMetaQuestService } from './MonsterMetaQuestService.js';
 import { CharacterPetService } from './CharacterPetService.js';
 import { MonsterCombatBuilder, type MonsterScalingContext } from './MonsterCombatBuilder.js';
+import { DungeonService } from './DungeonService.js';
 
 export interface CreateCharacterDto {
   name: string;
@@ -541,9 +542,12 @@ export class GamePlayController {
       width: dims?.width ?? null,
       height: dims?.height ?? null,
       requiredLevel: map.requiredLevel,
+      isDungeon: map.mapType.code === 'DUNGEON',
+      dungeonMonsterCount: (map as any).dungeonMonsterCount ?? 10,
+      dungeonBossTemplateId: (map as any).dungeonBossTemplateId ?? null,
       encounterRatePct: effectiveEncounterRate,
       canSpawnMonsters: Boolean(
-        map.mapType.allowMonsterSpawn && effectiveEncounterRate > 0 && eligibleMonsters.length > 0,
+        map.mapType.code !== 'DUNGEON' && map.mapType.allowMonsterSpawn && effectiveEncounterRate > 0 && eligibleMonsters.length > 0,
       ),
       levelVarianceMin: map.levelVarianceMin,
       levelVarianceMax: map.levelVarianceMax,
@@ -748,9 +752,23 @@ export class GamePlayController {
       );
     }
 
-    const destMap = await this.prisma.gameMap.findUnique({ where: { id: destMapId } });
+    const destMap = await this.prisma.gameMap.findUnique({
+      where: { id: destMapId },
+      include: { mapType: true },
+    });
     if (!destMap) {
       throw new Error(`Mapa de destino #${destMapId} não encontrado.`);
+    }
+
+    if (destMap.mapType?.code === 'DUNGEON') {
+      await DungeonService.validateAndEnterDungeonRun(
+        this.prisma,
+        characterId,
+        destMap.id,
+        char.currentMapId,
+        char.posX,
+        char.posY
+      );
     }
 
     // Calcula ponto seguro de aterrissagem fora do núcleo do portal de chegada para impedir loop de volta
@@ -861,9 +879,13 @@ export class GamePlayController {
 
     const targetMap = await this.prisma.gameMap.findUnique({
       where: { id: Number(dto.targetMapId) },
+      include: { mapType: true },
     });
     if (!targetMap) {
       throw new Error('Mapa de destino não encontrado.');
+    }
+    if (targetMap.mapType?.code === 'DUNGEON') {
+      await DungeonService.validateAndEnterDungeonRun(this.prisma, characterId, targetMap.id, char.currentMapId, char.posX, char.posY);
     }
 
     const posX = dto.targetX !== undefined ? Number(dto.targetX) : targetMap.spawnX;

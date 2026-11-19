@@ -225,31 +225,36 @@ class EtheriaAdminStudio {
     const badge = document.getElementById('mapTypeRulesBadge');
     if (!mt || !badge) return;
 
-    const dom = mt.dominationTarget === 'ALLIANCE' ? '🏰 Dominado por Alianças' : '🚩 Dominado por Facções';
-    const spawn = mt.allowMonsterSpawn ? '👹 Spawna Monstros' : '🕊️ Sem Monstros';
+    const isDungeon = mt.code === 'DUNGEON' || mt.dominationTarget === 'NONE';
+    const dom = mt.dominationTarget === 'ALLIANCE' ? '🏰 Dominado por Alianças' : (isDungeon ? '🚫 Não Dominável (Dungeon PvE)' : '🚩 Dominado por Facções');
+    const spawn = isDungeon ? '🌫️ Véu Livre (Spawn Direto)' : (mt.allowMonsterSpawn ? '👹 Spawna Monstros' : '🕊️ Sem Monstros');
     const pvpMap = {
       DUEL_ONLY: '🤝 PvP: Apenas Duelo Aceito',
       FORCED_PK: '⚠️ PvP: Permite Forçar PK (Vira Criminoso)',
       OPEN_PVP: '⚔️ PvP: Totalmente Aberto',
     };
-    badge.innerHTML = `${dom} &bull; ${spawn} &bull; ${pvpMap[mt.pvpRule] || mt.pvpRule}`;
+    badge.innerHTML = `${dom} &bull; ${spawn} &bull; ${isDungeon ? '🏰 Instância Solo/Diária (1x/dia)' : (pvpMap[mt.pvpRule] || mt.pvpRule)}`;
+
+    const dungeonBox = document.getElementById('mapDungeonConfigBox');
+    if (dungeonBox) dungeonBox.style.display = isDungeon ? 'flex' : 'none';
+    const domInput = document.getElementById('mapDominatedBy');
+    if (domInput) {
+      domInput.disabled = isDungeon;
+      if (isDungeon) domInput.value = '';
+    }
 
     const rateInput = document.getElementById('mapEncounterRatePct');
     if (rateInput) {
-      if (!mt.allowMonsterSpawn) {
-        if (Number(rateInput.value) > 0) {
-          rateInput.dataset.lastNonZeroRate = rateInput.value;
-        }
-        rateInput.value = '0';
+      if (!mt.allowMonsterSpawn || isDungeon) {
+        if (Number(rateInput.value) > 0 && !isDungeon) rateInput.dataset.lastNonZeroRate = rateInput.value;
+        rateInput.value = isDungeon ? '100' : '0';
         rateInput.disabled = true;
-        rateInput.title = 'Este tipo de mapa não permite spawn de monstros (taxa fixada em 0%).';
+        rateInput.title = isDungeon ? 'Em Dungeons os monstros já nascem pelo mapa todo ao entrar.' : 'Este tipo de mapa não permite spawn de monstros (taxa fixada em 0%).';
       } else {
         const wasDisabled = rateInput.disabled;
         rateInput.disabled = false;
         rateInput.title = '';
-        if (wasDisabled && Number(rateInput.value) === 0) {
-          rateInput.value = rateInput.dataset.lastNonZeroRate || '8';
-        }
+        if (wasDisabled && Number(rateInput.value) === 0) rateInput.value = rateInput.dataset.lastNonZeroRate || '8';
       }
     }
   }
@@ -376,6 +381,8 @@ class EtheriaAdminStudio {
     if (typeof this.renderMapTeleportNpcsTable === 'function') this.renderMapTeleportNpcsTable();
     this.mapSelectedMonsterRaces = [];
     this.mapSelectedMonsterTemplateIds = [];
+    const dc = document.getElementById('mapDungeonMonsterCount'); if (dc) dc.value = '10';
+    const db = document.getElementById('mapDungeonBossSelect'); if (db) db.value = '';
     this.renderMapMonsterTypesAndPicker();
     this.updateMapTypeRuleBadge();
     this.renderSavedMapsList();
@@ -390,7 +397,11 @@ class EtheriaAdminStudio {
 
     this.mapSelectedMonsterRaces = Array.isArray(m.allowedMonsterRacesJson) ? [...m.allowedMonsterRacesJson] : [];
     this.mapSelectedMonsterTemplateIds = Array.isArray(m.allowedMonsterTemplateIdsJson) ? [...m.allowedMonsterTemplateIdsJson] : [];
+    const dc = document.getElementById('mapDungeonMonsterCount');
+    if (dc) dc.value = String(m.dungeonMonsterCount ?? 10);
     this.renderMapMonsterTypesAndPicker();
+    const db = document.getElementById('mapDungeonBossSelect');
+    if (db) db.value = m.dungeonBossTemplateId ? String(m.dungeonBossTemplateId) : '';
 
     const titleBadge = document.getElementById('mapFormTitleBadge');
     if (titleBadge) {
@@ -492,6 +503,8 @@ class EtheriaAdminStudio {
         secondaryBiomeId: Number(document.getElementById('secondaryBiomeSelect')?.value || 1),
         allowedMonsterRaces: Array.from(document.querySelectorAll('input[name="mapMonsterRace"]:checked')).map((c) => c.value),
         allowedMonsterTemplateIds: this.mapSelectedMonsterTemplateIds,
+        dungeonMonsterCount: Number(document.getElementById('mapDungeonMonsterCount')?.value) || 10,
+        dungeonBossTemplateId: Number(document.getElementById('mapDungeonBossSelect')?.value) || null,
         spawnX: Number(document.getElementById('mapSpawnX').value) || 500,
         spawnY: Number(document.getElementById('mapSpawnY').value) || 500,
         overlapOpacity: Number(document.getElementById('mapOverlapOpacity').value) || 0.45,
@@ -873,6 +886,15 @@ class EtheriaAdminStudio {
         this.allMonsterTemplates
           .map((m) => `<option value="${m.id}">[${m.rarityTier}] #${m.id} ${m.namePtBr} (${m.raceCode})</option>`)
           .join('');
+    }
+    const bossSelect = document.getElementById('mapDungeonBossSelect');
+    if (bossSelect && this.allMonsterTemplates) {
+      const prevVal = bossSelect.value;
+      bossSelect.innerHTML = '<option value="">🎲 Aleatório dos elegíveis (ou selecione um Boss específico)</option>' +
+        this.allMonsterTemplates
+          .map((m) => `<option value="${m.id}">[${m.rarityTier}] #${m.id} ${m.namePtBr} (${m.raceCode})</option>`)
+          .join('');
+      if (prevVal) bossSelect.value = prevVal;
     }
 
     this.renderMapIndividualMonstersChips();

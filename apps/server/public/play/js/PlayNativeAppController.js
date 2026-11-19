@@ -119,7 +119,7 @@ class PlayNativeAppController {
 
     // 1. Clique sobre monstro vivo dentro do raio de seleção
     const mob = (arena.monsters || []).find(
-      (m) => m.isAlive && Math.hypot(m.x - worldPt.x, m.y - 20 - worldPt.y) <= 45
+      (m) => m.isAlive && Math.hypot(m.x - worldPt.x, m.y - 20 - worldPt.y) <= (m.variantTier === 'BOSS' ? 68 : 48)
     );
     if (mob) {
       arena.selectedTargetMob = mob;
@@ -132,18 +132,35 @@ class PlayNativeAppController {
       arena.motionEngine.isApproaching = false;
       arena.motionEngine.approachTarget = null;
     }
-    const acx = arena.arenaCenterX, acy = arena.arenaCenterY;
-    const arx = arena.arenaRadiusX, ary = arena.arenaRadiusY;
-    const adx = worldPt.x - acx, ady = worldPt.y - acy;
-    const normDist = (adx * adx) / (arx * arx) + (ady * ary) / (ary * ary);
-    if (normDist > 1) {
-      const factor = 1 / Math.sqrt(normDist);
-      worldPt.x = acx + adx * factor * 0.96;
-      worldPt.y = acy + ady * factor * 0.96;
+    if (!arena.isDungeonMode) {
+      const acx = arena.arenaCenterX, acy = arena.arenaCenterY;
+      const arx = arena.arenaRadiusX, ary = arena.arenaRadiusY;
+      const adx = worldPt.x - acx, ady = worldPt.y - acy;
+      const normDist = (adx * adx) / (arx * arx) + (ady * ady) / (ary * ary);
+      if (normDist > 1) {
+        const factor = 1 / Math.sqrt(normDist);
+        worldPt.x = acx + adx * factor * 0.96;
+        worldPt.y = acy + ady * factor * 0.96;
+      }
+      client.currentPath = null;
+      client.moveTargetX = worldPt.x;
+      client.moveTargetY = worldPt.y;
+    } else if (client.mesh && arena.player) {
+      const path = client.mesh.findPath(arena.player.x, arena.player.y, worldPt.x, worldPt.y);
+      if (path && path.length > 0) {
+        client.currentPath = path;
+        client.moveTargetX = path[0].x;
+        client.moveTargetY = path[0].y;
+      } else {
+        client.currentPath = null;
+        client.moveTargetX = worldPt.x;
+        client.moveTargetY = worldPt.y;
+      }
+    } else {
+      client.currentPath = null;
+      client.moveTargetX = worldPt.x;
+      client.moveTargetY = worldPt.y;
     }
-    client.currentPath = null;
-    client.moveTargetX = worldPt.x;
-    client.moveTargetY = worldPt.y;
     return true;
   }
 }

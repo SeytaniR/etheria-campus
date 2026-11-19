@@ -259,6 +259,9 @@ class EtheriaPlayClient {
       if (typeof this.loadCharacterQuests === 'function') {
         await this.loadCharacterQuests();
       }
+      if (mapData.isDungeon || mapData.mapType?.code === 'DUNGEON') {
+        void this.checkAndStartDungeon(mapData);
+      }
     } catch (err) {
       alert(`Erro ao carregar mapa #${mapId}: ${err.message}`);
     } finally {
@@ -325,9 +328,9 @@ class EtheriaPlayClient {
     const mt = this.currentMap.mapType || {};
     const rulesEl = document.getElementById('hudMapRules');
     if (rulesEl) {
-      rulesEl.textContent = `${mt.namePtBr || ''} • ${pvpLabels[mt.pvpRule] || ''} • ${
-        mt.allowMonsterSpawn ? '👹 Spawna Monstros' : '🕊️ Zona Segura'
-      }`;
+      rulesEl.textContent = mt.code === 'DUNGEON'
+        ? `🏰 ${mt.namePtBr || 'Dungeon'} • 🌫️ Véu Livre • 👹 Monstros Livres`
+        : `${mt.namePtBr || ''} • ${pvpLabels[mt.pvpRule] || ''} • ${mt.allowMonsterSpawn ? '👹 Spawna Monstros' : '🕊️ Zona Segura'}`;
     }
     // Atualiza a nova HUD Mobile Vertical (PlayHudController)
     if (window.PlayHudController) {
@@ -630,16 +633,40 @@ class EtheriaPlayClient {
     if (window.PlayPetsController) window.PlayPetsController.updateFollowerPhysics(this, dt);
     if (window.PlayMapPresenceController) window.PlayMapPresenceController.syncHeartbeat(now);
   }
+  async checkAndStartDungeon(mapData) {
+    if (!this.activeChar || !mapData || this.actionCombatArena?.isActive) return;
+    try {
+      const res = await this.api('/api/play/dungeon/enter-battle', { method: 'POST', body: JSON.stringify({ characterId: this.activeChar.id, mapId: mapData.id }) });
+      if (res?.ticketSpent && res?.exitDestination) {
+        alert(res.message || '⏳ Você já utilizou sua entrada diária nesta Dungeon hoje.');
+        void this.loadMapIntoWorld(res.exitDestination.mapId, res.exitDestination.x, res.exitDestination.y);
+        return;
+      }
+      if (res?.battleState) {
+        if (!this.actionCombatArena && window.ActionCombatArena) { this.actionCombatArena = new ActionCombatArena(this); this.actionArena = this.actionCombatArena; }
+        this.actionCombatArena?.openArena(res.battleState);
+      }
+    } catch (err) {
+      alert(`🏰 Não foi possível iniciar a Dungeon: ${err.message}`);
+    }
+  }
+  async resetDungeonTickets() {
+    if (!this.activeChar) return;
+    try {
+      const res = await this.api('/api/play/gm/reset-dungeon-tickets', { method: 'POST', body: JSON.stringify({ characterId: this.activeChar.id }) });
+      alert(`✅ ${res?.message || 'Entradas resetadas!'}`);
+    } catch (err) { alert(`Erro: ${err.message}`); }
+  }
   checkRandomEncounter(now) {
     if (this.actionCombatArena?.isActive || this.isEncounterLoading || !this.currentMap || !this.activeChar || now < this.encounterCooldownUntil) return;
-    if (!this.currentMap.mapType?.allowMonsterSpawn || this.currentMap.canSpawnMonsters === false) return;
+    if (this.currentMap.mapType?.code === 'DUNGEON' || !this.currentMap.mapType?.allowMonsterSpawn || this.currentMap.canSpawnMonsters === false) return;
     const rate = Number(this.currentMap.encounterRatePct) || 0;
     if (rate > 0 && Math.random() * 100 < rate) {
       void this.triggerMapEncounter();
     }
   }
   async triggerMapEncounter() {
-    if (this.isEncounterLoading || !this.activeChar || !this.currentMap || !this.currentMap.mapType?.allowMonsterSpawn || this.currentMap.canSpawnMonsters === false) return;
+    if (this.isEncounterLoading || !this.activeChar || !this.currentMap || this.currentMap.mapType?.code === 'DUNGEON' || !this.currentMap.mapType?.allowMonsterSpawn || this.currentMap.canSpawnMonsters === false) return;
     this.isEncounterLoading = true;
     this.moveTargetX = null;
     this.moveTargetY = null;

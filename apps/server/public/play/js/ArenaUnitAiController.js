@@ -412,9 +412,57 @@ class ArenaUnitAiController {
     if (ai.standAndFightTimer > 0) ai.standAndFightTimer = Math.max(0, ai.standAndFightTimer - dt);
     if (ai.kiteCooldown > 0) ai.kiteCooldown = Math.max(0, ai.kiteCooldown - dt);
 
-    const { mesh, cx, cy, rx, ry, isBlockedFn, compute8DirFn, onPerformAttack, enemyCentroid, preferredEnemy } = context;
+    const { mesh, cx, cy, rx, ry, isBlockedFn, compute8DirFn, onPerformAttack, enemyCentroid, preferredEnemy, isDungeonMode, player, onAggro } = context;
 
-    const { target, interceptPos } = this.selectTargetAndDirective(unit, allies, enemies, enemyCentroid, preferredEnemy);
+    let activeEnemies = enemies;
+    if (isDungeonMode) {
+      if (unit.team === 'ENEMY') {
+        const aggroDist = Number(unit.aggroRadius) || (unit.variantTier === 'BOSS' ? 250 : 210);
+        let closestDist = Infinity;
+        for (const en of enemies) {
+          if (!en || !en.isAlive) continue;
+          const d = Math.hypot(en.x - unit.x, en.y - unit.y);
+          if (d < closestDist) closestDist = d;
+        }
+        if (closestDist <= aggroDist || unit.hp < unit.maxHp) {
+          if (!unit.isAggroed) {
+            unit.isAggroed = true;
+            if (typeof onAggro === 'function') onAggro(unit);
+          }
+        } else if (unit.isAggroed && closestDist > 560) {
+          unit.isAggroed = false;
+        }
+        if (!unit.isAggroed) {
+          unit.action = 0;
+          return;
+        }
+      } else {
+        activeEnemies = enemies.filter(
+          (m) => m && m.isAlive && (m.isAggroed || m === preferredEnemy || Math.hypot(m.x - unit.x, m.y - unit.y) <= 195)
+        );
+        if (activeEnemies.length === 0 && player && player.isAlive) {
+          const petIdx = Math.max(0, allies.filter((a) => a && !a.isPlayer).indexOf(unit));
+          const offsets = [
+            { dx: -52, dy: 24 },
+            { dx: 52, dy: 24 },
+            { dx: 0, dy: 48 },
+          ];
+          const off = offsets[petIdx % offsets.length];
+          const fx = player.x + off.dx;
+          const fy = player.y + off.dy;
+          const dFollow = Math.hypot(fx - unit.x, fy - unit.y);
+          if (dFollow > 44) {
+            this.steerUnitTowards(unit, fx, fy, mesh, cx, cy, rx, ry, isBlockedFn, dt, now, compute8DirFn);
+          } else {
+            unit.action = 0;
+            unit.dir = player.dir;
+          }
+          return;
+        }
+      }
+    }
+
+    const { target, interceptPos } = this.selectTargetAndDirective(unit, allies, activeEnemies, enemyCentroid, preferredEnemy);
     unit.targetMob = target;
     if (!target) {
       unit.action = 0;

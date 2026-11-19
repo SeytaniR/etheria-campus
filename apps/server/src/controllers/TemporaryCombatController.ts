@@ -73,6 +73,11 @@ export interface CombatUnit {
   physEvasion?: number;
   magAccuracy?: number;
   magEvasion?: number;
+  spawnX?: number;
+  spawnY?: number;
+  aggroRadius?: number;
+  damageDealtMultiplier?: number;
+  isDungeonBoss?: boolean;
   isAlive: boolean;
   activeStatuses?: ActiveStatusInstance[];
 }
@@ -101,6 +106,13 @@ export interface TemporaryBattleState {
   monsterTemplateId?: number;
   victoryRecorded?: boolean;
   totalRealPlayers?: number;
+  isDungeon?: boolean;
+  dungeonRunId?: number;
+  dungeonMapId?: number;
+  mapWidth?: number;
+  mapHeight?: number;
+  playerStartX?: number;
+  playerStartY?: number;
   round: number;
   player: CombatUnit;
   monsters: CombatUnit[];
@@ -786,15 +798,16 @@ export class TemporaryCombatController {
         continue;
       }
 
-      player.hp = Math.max(0, player.hp - retRes.finalDamage);
+      const finalDmg = mob.damageDealtMultiplier ? Math.max(1, Math.round(retRes.finalDamage * mob.damageDealtMultiplier)) : retRes.finalDamage;
+      player.hp = Math.max(0, player.hp - finalDmg);
       if (player.hp === 0) player.isAlive = false;
       const relTxt = elemTag(retRes.elementRelation);
       events.push({
         actor: 'monster', actorIndex: mob.index, targetType: 'player',
         type: retRes.isCrit ? 'CRIT' : 'DAMAGE', animAction: 3,
-        amount: retRes.finalDamage, isCrit: retRes.isCrit, elementRelation: retRes.elementRelation,
+        amount: finalDmg, isCrit: retRes.isCrit, elementRelation: retRes.elementRelation,
         hpRemaining: player.hp,
-        message: `${mob.name} atacou ${player.name} causando ${retRes.finalDamage} de dano${relTxt}!`,
+        message: `${mob.name} atacou ${player.name} causando ${finalDmg} de dano${relTxt}!`,
       });
       if (!player.isAlive) {
         battle.isFinished = true;
@@ -863,10 +876,45 @@ export class TemporaryCombatController {
     return {
       characterId: Number(battle.characterId) || 1,
       mapId: battle.mapId || 1,
+      isDungeon: Boolean(battle.isDungeon),
+      dungeonRunId: battle.dungeonRunId,
       defeatedMonsters: this.buildDefeatedBatch(battle),
       expReward,
       goldReward,
     };
+  }
+
+  public getBattleState(battleId: string): TemporaryBattleState | null {
+    return this.activeBattles.get(battleId) ?? null;
+  }
+
+  public async createDungeonBattleInstance(opts: {
+    characterId: number;
+    dungeonMapId: number;
+    dungeonRunId: number;
+    monsterUnits: CombatUnit[];
+    scalingCtx: MonsterScalingContext;
+    mapWidth: number;
+    mapHeight: number;
+    playerStartX: number;
+    playerStartY: number;
+  }): Promise<TemporaryBattleState> {
+    const firstMobId = Number(opts.monsterUnits[0]?.monsterTemplateId || 1);
+    const state = await this.buildBattleInstance(
+      opts.characterId,
+      firstMobId,
+      opts.monsterUnits,
+      opts.scalingCtx,
+      opts.dungeonMapId
+    );
+    state.isDungeon = true;
+    state.dungeonRunId = opts.dungeonRunId;
+    state.dungeonMapId = opts.dungeonMapId;
+    state.mapWidth = opts.mapWidth;
+    state.mapHeight = opts.mapHeight;
+    state.playerStartX = opts.playerStartX;
+    state.playerStartY = opts.playerStartY;
+    return state;
   }
 
   public endBattle(battleId: string): boolean {

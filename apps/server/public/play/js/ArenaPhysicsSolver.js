@@ -156,6 +156,10 @@ class ArenaPhysicsSolver {
       targetMob: null,
       aiState: null,
       tacticalRole: 'STANDARD',
+      damageDealtMultiplier: raw.damageDealtMultiplier ?? 1.0,
+      aggroRadius: raw.aggroRadius ?? 210,
+      isDungeonBoss: Boolean(raw.isDungeonBoss),
+      isAggroed: false,
     };
   }
 
@@ -163,6 +167,7 @@ class ArenaPhysicsSolver {
    * Garante que a coordenada (x, y) permaneça estritamente dentro dos limites elípticos da arena.
    */
   static clampToArenaEllipse(x, y, cx, cy, rx, ry, margin = 0.96) {
+    if (rx >= 50000 || ry >= 50000) return { x, y, clamped: false };
     const effRx = Math.max(40, rx * margin);
     const effRy = Math.max(40, ry * margin);
     const normX = (x - cx) / effRx;
@@ -183,9 +188,11 @@ class ArenaPhysicsSolver {
    * Verifica se o ponto está livre de paredes poligonais do mapa e dentro da elipse da arena.
    */
   static isPointValidInArena(x, y, cx, cy, rx, ry, isBlockedFn, margin = 0.95) {
-    const normX = (x - cx) / Math.max(40, rx * margin);
-    const normY = (y - cy) / Math.max(40, ry * margin);
-    if (normX * normX + normY * normY > 1) return false;
+    if (rx < 50000 && ry < 50000) {
+      const normX = (x - cx) / Math.max(40, rx * margin);
+      const normY = (y - cy) / Math.max(40, ry * margin);
+      if (normX * normX + normY * normY > 1) return false;
+    }
     if (typeof isBlockedFn === 'function' && isBlockedFn(x, y)) return false;
     return true;
   }

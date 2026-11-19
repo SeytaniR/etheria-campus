@@ -806,6 +806,7 @@
             <label style="font-size:0.68rem; color:var(--text-muted);">🌫️ Efeitos do Véu (Invertido):</label>
             <button id="btnGmToggleVeil" onclick="PlayApp.toggleVeilEffects()" style="padding:2px 8px; font-size:0.68rem;">🌫️ Ligado</button>
           </div>
+          <button onclick="PlayApp.resetDungeonTickets?.()" style="padding:4px 8px; font-size:0.70rem; margin-top:4px; background:#3b0764; border:1px solid #a855f7; color:#f3e8ff; border-radius:4px; font-weight:700;">🏰 Resetar Entradas de Dungeon Hoje</button>
         </div>
       </div>
 
@@ -845,10 +846,11 @@
         <div id="actHudPlayerMpBar"></div>
       </div>
 
-      <div class="action-top-actions">
+      <div class="action-top-actions" style="display:flex; gap:8px; align-items:center;">
         <div style="background:rgba(15,23,42,0.85); border:1px solid rgba(56,189,248,0.4); padding:6px 14px; border-radius:999px; font-size:0.75rem; color:#86efac; font-weight:700; box-shadow:0 4px 14px rgba(0,0,0,0.6);">
           👾 <span id="actHudMonstersAlive">0</span> Restante(s)
         </div>
+        <button type="button" id="btnActFlee" onclick="PlayApp.actionArena?.fleeBattle()" style="background:rgba(220,38,38,0.85); border:1px solid #f87171; color:#fff; padding:6px 12px; border-radius:999px; font-size:0.74rem; font-weight:800; cursor:pointer; box-shadow:0 4px 14px rgba(0,0,0,0.6); pointer-events:auto;">🏃 Fugir</button>
       </div>
     </div>
 

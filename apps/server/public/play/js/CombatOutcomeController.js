@@ -82,10 +82,12 @@ class CombatOutcomeController {
       this.crestImg.alt = 'Vitória Gloriosa';
     }
     if (this.titleEl) {
-      this.titleEl.textContent = 'VITÓRIA GLORIOSA';
+      this.titleEl.textContent = arena?.isDungeonMode ? 'DUNGEON CONQUISTADA!' : 'VITÓRIA GLORIOSA';
     }
     if (this.subtitleEl) {
-      this.subtitleEl.textContent = 'A fenda dimensional foi expurgada e o equilíbrio do mundo foi restaurado.';
+      this.subtitleEl.textContent = arena?.isDungeonMode
+        ? 'Todos os monstros e o Boss da Dungeon foram derrotados! Você será teleportado para fora.'
+        : 'A fenda dimensional foi expurgada e o equilíbrio do mundo foi restaurado.';
     }
 
     // Monta o grid de recompensas sem emojis e com ícones dedicados
@@ -202,10 +204,12 @@ class CombatOutcomeController {
       this.crestImg.src = '/play/assets/hud/victory_crest.png';
     }
     if (this.titleEl) {
-      this.titleEl.textContent = 'RECUO TÁTICO';
+      this.titleEl.textContent = arena?.isDungeonMode ? 'FUGA DA DUNGEON' : 'RECUO TÁTICO';
     }
     if (this.subtitleEl) {
-      this.subtitleEl.textContent = 'Você rompeu o cerco e recuou com segurança de volta ao mapa de exploração.';
+      this.subtitleEl.textContent = arena?.isDungeonMode
+        ? 'Você fugiu da Dungeon com segurança. Seu ingresso diário de hoje foi consumido.'
+        : 'Você rompeu o cerco e recuou com segurança de volta ao mapa de exploração.';
     }
     if (this.rewardsGrid) {
       this.rewardsGrid.innerHTML = '';
@@ -278,10 +282,16 @@ class CombatOutcomeController {
   executeVictoryTransition() {
     const arena = this.currentArena;
     const client = this.client || window.PlayApp;
+    const exitDest = arena?.dungeonExitDestination || null;
 
     // Dissolve suavemente a arena
     if (arena) {
       arena.closeArena();
+      arena.dungeonExitDestination = null;
+    }
+
+    if (exitDest && exitDest.mapId && client && typeof client.loadMapIntoWorld === 'function') {
+      void client.loadMapIntoWorld(exitDest.mapId, exitDest.x, exitDest.y);
     }
 
     // Se houve Level Up, dispara o efeito exuberante no mapa ao redor do herói!
@@ -294,7 +304,7 @@ class CombatOutcomeController {
         if (window.LevelUpVfxController) {
           window.LevelUpVfxController.trigger(client.playerX, client.playerY, pLevel, pStats);
         }
-      }, 300);
+      }, 450);
     }
   }
 
