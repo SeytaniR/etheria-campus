@@ -111,6 +111,10 @@ class AdminNpcsTab {
         if (typeof this.populateNpcShopDropdown === 'function') {
           this.populateNpcShopDropdown(existingNpc.shopTemplateId || null);
         }
+        const hunterBox = document.getElementById('npcHunterConfigBox');
+        if (hunterBox) {
+          hunterBox.style.display = roleSet.has('HUNTER') ? 'flex' : 'none';
+        }
       } else {
         const maxNpcId = this.npcTemplates.reduce((acc, n) => Math.max(acc, Number(n.id) || 0), 0);
         const nextNpcId = maxNpcId + 1;
@@ -126,6 +130,10 @@ class AdminNpcsTab {
         });
         if (typeof this.populateNpcShopDropdown === 'function') {
           this.populateNpcShopDropdown(null);
+        }
+        const hunterBox = document.getElementById('npcHunterConfigBox');
+        if (hunterBox) {
+          hunterBox.style.display = 'none';
         }
       }
 
@@ -434,6 +442,108 @@ class AdminNpcsTab {
       } catch (err) {
         alert(`Erro ao salvar regras de custo: ${err.message}`);
       }
+    };
+
+    app.renderHunterCostsTabTable = async function () {
+      const tbody = document.getElementById('hunterCostsTableBody');
+      if (!tbody) return;
+      tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding:16px; color:var(--text-muted);">Carregando tabela de balanceamento...</td></tr>';
+
+      const rarityMeta = {
+        F: { bg: 'rgba(148, 163, 184, 0.2)', border: '#94a3b8', text: '#cbd5e1', label: 'Pets Iniciais / Básicos (Comum)', example: '30x Essências para gerar Pet Rank F' },
+        D: { bg: 'rgba(96, 165, 250, 0.2)', border: '#60a5fa', text: '#93c5fd', label: 'Pets de Suporte Leve (Incomum)', example: '70x Essências para gerar Pet Rank D' },
+        C: { bg: 'rgba(74, 222, 128, 0.2)', border: '#4ade80', text: '#86efac', label: 'Pets Táticos / Combatentes (Raro)', example: '120x Essências para gerar Pet Rank C' },
+        B: { bg: 'rgba(168, 85, 247, 0.2)', border: '#a855f7', text: '#d8b4fe', label: 'Pets Especialistas (Muito Raro)', example: '300x Essências para gerar Pet Rank B' },
+        A: { bg: 'rgba(245, 158, 11, 0.2)', border: '#f59e0b', text: '#fde68a', label: 'Pets Veteranos / Avançados (Épico)', example: '700x Essências para gerar Pet Rank A' },
+        S: { bg: 'rgba(239, 68, 68, 0.2)', border: '#ef4444', text: '#fca5a5', label: 'Pets Titãs de Combate (Lendário)', example: '1.600x Essências para gerar Pet Rank S' },
+        SS: { bg: 'rgba(236, 72, 153, 0.2)', border: '#ec4899', text: '#fbcfe8', label: 'Pets Supremos / Míticos (Soberano)', example: '3.500x Essências (Ex: Botânica &rarr; Pet Planta SS)' },
+      };
+
+      try {
+        const rules = await this.api('/api/admin/hunter/costs');
+        const tiers = ['F', 'D', 'C', 'B', 'A', 'S', 'SS'];
+        const defaultEssences = { F: 30, D: 70, C: 120, B: 300, A: 700, S: 1600, SS: 3500 };
+
+        tbody.innerHTML = tiers.map((tier) => {
+          const rule = (Array.isArray(rules) ? rules : []).find((r) => r.rarityTier === tier) || {
+            rarityTier: tier,
+            essenceCost: defaultEssences[tier] || 30,
+            goldCost: 0,
+          };
+          const meta = rarityMeta[tier];
+          return `
+            <tr>
+              <td>
+                <span style="font-weight:900; font-size:0.85rem; padding:4px 12px; border-radius:6px; background:${meta.bg}; border:1px solid ${meta.border}; color:${meta.text}; display:inline-block;">
+                  Rank ${tier}
+                </span>
+              </td>
+              <td>
+                <div style="display:flex; align-items:center; gap:6px;">
+                  <input type="number" id="hunterTabCost_${tier}" value="${rule.essenceCost}" min="1" max="99999" step="1"
+                         style="width:110px; padding:6px 10px; font-weight:700; color:#38bdf8; background:#020617; border:1px solid var(--border); border-radius:6px; font-size:0.85rem;" />
+                  <span style="font-size:0.75rem; color:var(--text-muted);">essências</span>
+                </div>
+              </td>
+              <td>
+                <div style="display:flex; align-items:center; gap:6px;">
+                  <input type="number" id="hunterTabGold_${tier}" value="${rule.goldCost || 0}" min="0" max="9999999" step="100"
+                         style="width:90px; padding:6px 10px; font-weight:700; color:#fbbf24; background:#020617; border:1px solid var(--border); border-radius:6px; font-size:0.85rem;" />
+                  <span style="font-size:0.75rem; color:var(--text-muted);">ouro</span>
+                </div>
+              </td>
+              <td>
+                <div style="font-size:0.8rem; font-weight:600; color:#e2e8f0;">${meta.label}</div>
+              </td>
+              <td>
+                <div style="font-size:0.75rem; color:#94a3b8;">${meta.example}</div>
+              </td>
+            </tr>
+          `;
+        }).join('');
+      } catch (err) {
+        tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; padding:16px; color:#f87171;">Erro ao carregar tabela: ${err.message}</td></tr>`;
+      }
+    };
+
+    app.saveHunterCostRulesFromTab = async function () {
+      const tiers = ['F', 'D', 'C', 'B', 'A', 'S', 'SS'];
+      const payload = [];
+
+      for (const tier of tiers) {
+        const costInp = document.getElementById(`hunterTabCost_${tier}`);
+        const goldInp = document.getElementById(`hunterTabGold_${tier}`);
+        const essenceCost = costInp ? Number(costInp.value) : 0;
+        const goldCost = goldInp ? Number(goldInp.value) : 0;
+        if (!essenceCost || essenceCost <= 0) {
+          alert(`O custo de essências para o Rank ${tier} deve ser no mínimo 1.`);
+          return;
+        }
+        payload.push({ rarityTier: tier, essenceCost, goldCost: Math.max(0, goldCost) });
+      }
+
+      try {
+        await this.api('/api/admin/hunter/costs', {
+          method: 'PUT',
+          body: JSON.stringify({ rules: payload }),
+        });
+        alert('✅ Tabela de Balanceamento do Caçador salva e sincronizada com sucesso!');
+        this.renderHunterCostsTabTable();
+      } catch (err) {
+        alert(`Erro ao salvar tabela de balanceamento: ${err.message}`);
+      }
+    };
+
+    app.resetHunterCostRulesToDefault = function () {
+      const defaultEssences = { F: 30, D: 70, C: 120, B: 300, A: 700, S: 1600, SS: 3500 };
+      const tiers = ['F', 'D', 'C', 'B', 'A', 'S', 'SS'];
+      for (const tier of tiers) {
+        const costInp = document.getElementById(`hunterTabCost_${tier}`);
+        const goldInp = document.getElementById(`hunterTabGold_${tier}`);
+        if (costInp) costInp.value = String(defaultEssences[tier]);
+        if (goldInp) goldInp.value = '0';
+      }
+      alert('Valores padrão preenchidos na tabela (F: 30, D: 70, C: 120, B: 300, A: 700, S: 1600, SS: 3500). Clique em "Salvar Tabela de Custos" para gravar no banco e snapshot.');
     };
   }
 }

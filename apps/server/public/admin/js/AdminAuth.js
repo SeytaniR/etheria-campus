@@ -192,6 +192,7 @@ class AdminAuth {
         { id: 'tabMaps', btn: 'tabBtnMaps', key: 'maps', code: 'MAPS' },
         { id: 'tabWorldMaps', btn: 'tabBtnWorldMaps', key: 'world-maps', code: 'MAPS' },
         { id: 'tabNpcs', btn: 'tabBtnNpcs', key: 'npcs', code: 'NPCS' },
+        { id: 'tabHunterCosts', btn: 'tabBtnHunterCosts', key: 'hunter-costs', code: 'NPCS' },
         { id: 'tabQuests', btn: 'tabBtnQuests', key: 'quests', code: 'QUESTS' },
         { id: 'tabClasses', btn: 'tabBtnClasses', key: 'classes', code: 'CLASSES' },
         { id: 'tabMonsters', btn: 'tabBtnMonsters', key: 'monsters', code: 'MONSTERS' },
@@ -225,6 +226,9 @@ class AdminAuth {
 
       if (tab === 'npcs') {
         this.renderNpcsCrudTable();
+      }
+      if (tab === 'hunter-costs' && typeof this.renderHunterCostsTabTable === 'function') {
+        this.renderHunterCostsTabTable();
       }
       if (tab === 'quests' && typeof this.renderQuestsCrudTable === 'function') {
         this.renderQuestsCrudTable();

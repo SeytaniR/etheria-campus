@@ -35,6 +35,7 @@
       <div class="nav-tabs">
         <button id="tabBtnMaps" class="btn-primary" onclick="AdminApp.switchTab('maps')">🗺️ Mapas</button>
         <button id="tabBtnNpcs" onclick="AdminApp.switchTab('npcs')">🧙 Tabela de NPCs</button>
+        <button id="tabBtnHunterCosts" onclick="AdminApp.switchTab('hunter-costs')" style="border-color:#d97706; color:#fde68a;">🐾 Caçador (Pets)</button>
         <button id="tabBtnShops" onclick="AdminApp.switchTab('shops')">🏪 Lojas</button>
         <button id="tabBtnClasses" onclick="AdminApp.switchTab('classes')">🦸 Personagens</button>
         <button id="tabBtnMonsters" onclick="AdminApp.switchTab('monsters')">🐉 Monstros</button>
@@ -166,6 +167,13 @@
     <!-- ABA 2: TABELA DE NPCS (VINCULADA DIRETAMENTE AOS NPCS POSICIONADOS NOS MAPAS) -->
     <div id="tabNpcs" style="display:none; padding:16px; max-width:1250px; margin:0 auto; width:100%; gap:16px; flex-direction:column;">
       <div class="panel">
+        <!-- Sub-Navegação Rápida de Funções de NPCs -->
+        <div style="display:flex; gap:8px; margin-bottom:14px; flex-wrap:wrap; border-bottom:1px solid var(--border); padding-bottom:10px;">
+          <button type="button" class="btn-primary" style="font-size:0.78rem;">🧙 1. Lista de NPCs nos Mapas</button>
+          <button type="button" class="btn-secondary" onclick="AdminApp.switchTab('hunter-costs')" style="font-size:0.78rem; border-color:#d97706; color:#fde68a; font-weight:700;">🐾 2. Tabela de Balanceamento do Caçador (Essências por Pet)</button>
+          <button type="button" class="btn-secondary" onclick="AdminApp.switchTab('shops')" style="font-size:0.78rem; border-color:#059669; color:#a7f3d0;">🏪 3. Lojas e Mercadorias</button>
+        </div>
+
         <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
           <div>
             <h3>🧙 Tabela Oficial de NPCs (`npc_templates` &harr; `map_npcs`)</h3>
@@ -174,11 +182,22 @@
             </p>
           </div>
           <div style="display:flex; gap:8px; flex-wrap:wrap;">
-            <button type="button" class="btn-secondary" onclick="AdminApp.openHunterCostRulesModal()" style="background:#78350f; border:1px solid #d97706; color:#fef3c7; font-weight:700;">🐾 Custos do Caçador (Pets)</button>
+            <button type="button" class="btn-secondary" onclick="AdminApp.switchTab('hunter-costs')" style="background:#78350f; border:1px solid #d97706; color:#fef3c7; font-weight:700;">🐾 Tabela de Custos do Caçador</button>
             <button type="button" class="btn-primary" onclick="AdminApp.openNpcTemplateModal(null)">➕ Novo NPC do mcrework</button>
           </div>
         </div>
-        <div style="overflow-x:auto;">
+
+        <!-- Banner com atalho de Balanceamento da Função Caçador -->
+        <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; background:rgba(217,119,6,0.12); border:1px solid rgba(217,119,6,0.3); border-radius:8px; padding:10px 14px; margin-top:10px; font-size:0.78rem; color:#fde68a;">
+          <div>
+            <strong>🐾 Balanceamento da Função Caçador:</strong> Os NPCs com papel <code>HUNTER</code> usam a tabela <code>hunter_pet_cost_rules</code> para cobrar Essências dos jogadores ao gerar Pets (F: 30, D: 70, C: 120, B: 300, A: 700, S: 1600, SS: 3500).
+          </div>
+          <button type="button" class="btn-secondary" onclick="AdminApp.switchTab('hunter-costs')" style="background:#b45309; border:none; color:#fff; font-weight:700; font-size:0.74rem; white-space:nowrap; padding:5px 10px;">
+            📊 Editar Balanceamento de Essências &rarr;
+          </button>
+        </div>
+
+        <div style="overflow-x:auto; margin-top:12px;">
           <table class="crud-table">
             <thead>
               <tr>
@@ -191,6 +210,64 @@
               </tr>
             </thead>
             <tbody id="npcsTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ABA: TABELA DE BALANCEAMENTO DO CAÇADOR (hunter_pet_cost_rules) -->
+    <div id="tabHunterCosts" style="display:none; padding:16px; max-width:1250px; margin:0 auto; width:100%; gap:16px; flex-direction:column;">
+      <div class="panel">
+        <!-- Sub-Navegação Rápida -->
+        <div style="display:flex; gap:8px; margin-bottom:14px; flex-wrap:wrap; border-bottom:1px solid var(--border); padding-bottom:10px;">
+          <button type="button" class="btn-secondary" onclick="AdminApp.switchTab('npcs')" style="font-size:0.78rem;">🧙 1. Lista de NPCs nos Mapas</button>
+          <button type="button" class="btn-primary" style="font-size:0.78rem; border-color:#d97706; background:#d97706; color:#fff; font-weight:700;">🐾 2. Tabela de Balanceamento do Caçador (Essências por Pet)</button>
+          <button type="button" class="btn-secondary" onclick="AdminApp.switchTab('shops')" style="font-size:0.78rem; border-color:#059669; color:#a7f3d0;">🏪 3. Lojas e Mercadorias</button>
+        </div>
+
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+          <div>
+            <h3 style="display:flex; align-items:center; gap:8px; margin:0;">
+              <span>🐾</span> <span>Tabela de Balanceamento do Caçador (`hunter_pet_cost_rules`)</span>
+            </h3>
+            <p style="font-size:0.8rem; color:var(--text-muted); margin-top:4px;">
+              Edite a quantidade de <strong>Essências de Monstros</strong> exigida pelo NPC Caçador para forjar um Pet de cada Rank.
+            </p>
+          </div>
+          <div style="display:flex; gap:8px; flex-wrap:wrap;">
+            <button type="button" class="btn-secondary" onclick="AdminApp.resetHunterCostRulesToDefault()" style="font-size:0.75rem;">🔄 Restaurar Padrões</button>
+            <button type="button" class="btn-primary" onclick="AdminApp.saveHunterCostRulesFromTab()" style="background:#10b981; border-color:#059669; font-weight:700;">💾 Salvar Tabela de Custos</button>
+          </div>
+        </div>
+
+        <!-- Banner com instruções da mecânica -->
+        <div style="background:rgba(217,119,6,0.1); border:1px solid rgba(217,119,6,0.3); border-radius:8px; padding:12px; margin-top:12px; font-size:0.78rem; line-height:1.5; color:#fde68a;">
+          <strong>💡 Regras Oficiais do Caçador:</strong>
+          <ul style="margin:4px 0 0 18px; padding:0;">
+            <li>A quantidade de essências abaixo define o custo de invocação para cada Raridade (Rank F até Rank SS).</li>
+            <li>O tipo de essência entregue pelo jogador determina a raça do pet (Ex: 3.500 Essências Botânicas &rarr; Qualquer Pet Planta Rank SS).</li>
+            <li>O pet nasce no <strong>Nível 1</strong>, com <strong>elemento aleatório</strong> e <strong>76 pontos base de atributos</strong>.</li>
+          </ul>
+        </div>
+
+        <div style="overflow-x:auto; margin-top:14px;">
+          <table class="crud-table" style="width:100%;">
+            <thead>
+              <tr>
+                <th style="width:130px;">Rank / Raridade</th>
+                <th style="width:180px;">Custo de Essências</th>
+                <th style="width:150px;">Custo em Ouro</th>
+                <th>Classificação do Tier</th>
+                <th>Exemplo Prático de Invocação</th>
+              </tr>
+            </thead>
+            <tbody id="hunterCostsTableBody">
+              <tr>
+                <td colspan="5" style="text-align:center; padding:16px; color:var(--text-muted);">
+                  Carregando tabela de balanceamento...
+                </td>
+              </tr>
+            </tbody>
           </table>
         </div>
       </div>
@@ -565,7 +642,7 @@
             <span style="color:#a5b4fc; font-weight:600;">🛡️ Armeiro</span>
           </label>
           <label style="cursor:pointer; display:flex; align-items:center; gap:4px; background:rgba(217,119,6,0.2); border:1px solid #f59e0b; padding:4px 8px; border-radius:6px;">
-            <input type="checkbox" name="npcRoleCheckbox" value="HUNTER" />
+            <input type="checkbox" name="npcRoleCheckbox" value="HUNTER" onchange="const hBox = document.getElementById('npcHunterConfigBox'); if (hBox) hBox.style.display = this.checked ? 'flex' : 'none';" />
             <span style="color:#fcd34d; font-weight:600;">🐾 Caçador (Pets)</span>
           </label>
           <label style="cursor:pointer; display:flex; align-items:center; gap:4px; background:rgba(124,58,237,0.2); border:1px solid #8b5cf6; padding:4px 8px; border-radius:6px;">
@@ -586,6 +663,14 @@
           <select id="npcShopTemplateSelect" style="flex:1; padding:5px 8px; font-size:0.78rem; background:#020617; border:1px solid var(--border); border-radius:6px; color:#f8fafc;" onchange="if (this.value) { const chk = document.querySelector('input[name=\'npcRoleCheckbox\'][value=\'SHOP\']'); if (chk) chk.checked = true; }">
             <option value="">-- Nenhuma Loja Vinculada --</option>
           </select>
+        </div>
+        <div id="npcHunterConfigBox" style="display:none; align-items:center; justify-content:space-between; gap:10px; margin-top:6px; background:rgba(217,119,6,0.15); border:1px solid #d97706; padding:8px 12px; border-radius:8px;">
+          <div style="font-size:0.75rem; color:#fde68a;">
+            <strong>🐾 Função de Caçador Ativa:</strong> Este NPC permite forjar pets entregando Essências de Monstros.
+          </div>
+          <button type="button" class="btn-secondary" onclick="AdminApp.switchTab('hunter-costs'); AdminApp.closeModal('npcModal');" style="font-size:0.74rem; background:#78350f; border-color:#d97706; color:#fef3c7; font-weight:700; white-space:nowrap; padding:4px 10px;">
+            📊 Abrir Tabela de Balanceamento &rarr;
+          </button>
         </div>
       </div>
       <div id="npcModalPlacementsContainer" style="display:none; flex-direction:column; gap:6px; background:rgba(15,23,42,0.85); border:1px solid #4ade80; padding:8px 10px; border-radius:8px;"></div>
