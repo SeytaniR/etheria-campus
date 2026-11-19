@@ -32,6 +32,7 @@ import { AdminQuestsController } from './controllers/AdminQuestsController.js';
 import { AdminAttributesController } from './controllers/AdminAttributesController.js';
 import { AdminExperienceController } from './controllers/AdminExperienceController.js';
 import { AdminWorldMapsController } from './controllers/AdminWorldMapsController.js';
+import { AdminMapUploadController } from './controllers/AdminMapUploadController.js';
 import { TemporaryCombatController } from './controllers/TemporaryCombatController.js';
 import { AssetMirrorService } from './controllers/AssetMirrorService.js';
 import { AdminRouter } from './routes/AdminRouter.js';
@@ -83,6 +84,7 @@ export class EtheriaServerApp {
   private readonly attributesController: AdminAttributesController;
   private readonly experienceController: AdminExperienceController;
   private readonly worldMapsController: AdminWorldMapsController;
+  private readonly mapUploadController: AdminMapUploadController;
   private readonly combatController: TemporaryCombatController;
   private readonly assetMirrorService: AssetMirrorService;
   private readonly adminRouter: AdminRouter;
@@ -113,6 +115,7 @@ export class EtheriaServerApp {
     this.worldMapsController = new AdminWorldMapsController(this.prisma, snapshotManager);
     this.combatController = new TemporaryCombatController(this.prisma);
     this.publicDir = path.resolve(__dirname, '../public');
+    this.mapUploadController = new AdminMapUploadController(this.publicDir);
 
     const sendJson = this.sendJson.bind(this);
     const readJsonBody = this.readJsonBody.bind(this);
@@ -122,6 +125,7 @@ export class EtheriaServerApp {
       authService: this.authService,
       usersController: this.usersController,
       mapsController: this.mapsController,
+      mapUploadController: this.mapUploadController,
       monstersController: this.monstersController,
       uiLayoutsController: this.uiLayoutsController,
       equipmentsController: this.equipmentsController,
@@ -159,8 +163,8 @@ export class EtheriaServerApp {
       let totalSize = 0;
       req.on('data', (chunk: Buffer) => {
         totalSize += chunk.length;
-        if (totalSize > 10 * 1024 * 1024) {
-          reject(new Error('Payload excede o limite de 10 MB.'));
+        if (totalSize > 25 * 1024 * 1024) {
+          reject(new Error('Payload excede o limite de 25 MB.'));
           req.destroy();
           return;
         }
@@ -295,6 +299,28 @@ export class EtheriaServerApp {
       if (!map || !map.mcreworkMapImage) {
         this.sendJson(res, 404, { error: `Imagem do mapa #${mapId} não encontrada.` });
         return;
+      }
+
+      if (map.mcreworkMapImage.startsWith('/assets/')) {
+        const localRel = map.mcreworkMapImage.replace(/^\/+/, '');
+        const localPath = path.join(this.publicDir, localRel);
+        try {
+          const buffer = await fs.readFile(localPath);
+          const ext = path.extname(localPath).toLowerCase();
+          const contentType = EtheriaServerApp.MIME_TYPES[ext] || 'image/png';
+          this.mapImageCache.set(mapId, { buffer, contentType });
+          res.writeHead(200, {
+            'Content-Type': contentType,
+            'Content-Length': buffer.length,
+            'Cache-Control': 'public, max-age=31536000, immutable',
+            'Access-Control-Allow-Origin': '*',
+          });
+          if (method === 'HEAD') res.end();
+          else res.end(buffer);
+          return;
+        } catch {
+          // prossegue para mirror
+        }
       }
 
       const asset = await this.assetMirrorService.getOrFetchAsset(map.mcreworkMapImage);

@@ -24,6 +24,7 @@ import type { AdminQuestsController } from '../controllers/AdminQuestsController
 import type { AdminAttributesController } from '../controllers/AdminAttributesController.js';
 import type { AdminExperienceController } from '../controllers/AdminExperienceController.js';
 import type { AdminWorldMapsController } from '../controllers/AdminWorldMapsController.js';
+import type { AdminMapUploadController } from '../controllers/AdminMapUploadController.js';
 import { HunterPetController } from '../controllers/HunterPetController.js';
 
 export interface AdminRouterDeps {
@@ -31,6 +32,7 @@ export interface AdminRouterDeps {
   authService: AdminAuthService;
   usersController: AdminUsersController;
   mapsController: AdminMapsController;
+  mapUploadController: AdminMapUploadController;
   monstersController: AdminMonstersController;
   uiLayoutsController: AdminUiLayoutsController;
   equipmentsController: AdminEquipmentsController;
@@ -160,6 +162,18 @@ export class AdminRouter {
     if (pathname === '/api/admin/mcrework/maps' && method === 'GET') {
       if (this.enforceTablePermission(res, session, 'MAPS', 'READ')) {
         this.deps.sendJson(res, 200, await this.deps.mapsController.getMcreworkCleanMapGallery());
+      }
+      return true;
+    }
+    if (pathname === '/api/admin/maps/upload' && method === 'POST') {
+      if (this.enforceTablePermission(res, session, 'MAPS', 'READ_WRITE')) {
+        this.deps.sendJson(res, 201, await this.deps.mapUploadController.uploadMapImage(await this.deps.readJsonBody(req)));
+      }
+      return true;
+    }
+    if (pathname === '/api/admin/maps/uploads' && method === 'GET') {
+      if (this.enforceTablePermission(res, session, 'MAPS', 'READ')) {
+        this.deps.sendJson(res, 200, await this.deps.mapUploadController.listUploadedMaps());
       }
       return true;
     }

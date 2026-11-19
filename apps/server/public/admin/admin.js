@@ -550,6 +550,7 @@ class EtheriaAdminStudio {
   async openMcreworkMapPicker(mode = 'NEW_MAP') {
     this.mapPickerMode = mode;
     document.getElementById('mapPickerModal').style.display = 'flex';
+    this.switchMapPickerSubTab('mcrework');
     const grid = document.getElementById('mcreworkMapsGrid');
     if (this.mcreworkMaps.length === 0) {
       grid.innerHTML = '<div>Carregando as 76 imagens de mapas do mcrework...</div>';
@@ -571,6 +572,264 @@ class EtheriaAdminStudio {
       </div>`
       )
       .join('');
+  }
+
+  switchMapPickerSubTab(tabName) {
+    const btnMcrework = document.getElementById('mapPickerTabBtnMcrework');
+    const btnUploads = document.getElementById('mapPickerTabBtnUploads');
+    const gridMcrework = document.getElementById('mcreworkMapsGrid');
+    const gridUploads = document.getElementById('customUploadedMapsGrid');
+
+    if (tabName === 'uploads') {
+      if (btnMcrework) btnMcrework.className = 'btn-secondary';
+      if (btnUploads) {
+        btnUploads.className = 'btn-primary';
+        btnUploads.style.background = '#0284c7';
+      }
+      if (gridMcrework) gridMcrework.style.display = 'none';
+      if (gridUploads) gridUploads.style.display = 'grid';
+      this.loadUploadedCustomMaps();
+    } else {
+      if (btnMcrework) btnMcrework.className = 'btn-primary';
+      if (btnUploads) {
+        btnUploads.className = 'btn-secondary';
+        btnUploads.style.background = 'transparent';
+      }
+      if (gridMcrework) gridMcrework.style.display = 'grid';
+      if (gridUploads) gridUploads.style.display = 'none';
+    }
+  }
+
+  async loadUploadedCustomMaps() {
+    const grid = document.getElementById('customUploadedMapsGrid');
+    if (!grid) return;
+    grid.innerHTML = '<div style="color:var(--text-muted); padding:20px; text-align:center; grid-column:1/-1;">Carregando mapas customizados...</div>';
+    try {
+      const uploads = await this.api('/api/admin/maps/uploads');
+      if (!Array.isArray(uploads) || uploads.length === 0) {
+        grid.innerHTML = `
+          <div style="color:var(--text-muted); padding:30px 20px; text-align:center; grid-column:1/-1; line-height:1.6;">
+            📁 <strong>Nenhum mapa customizado enviado ainda.</strong><br />
+            Clique em <strong>"📤 Fazer Upload de Nova Imagem"</strong> acima para enviar qualquer PNG, JPG ou WEBP do seu computador!
+          </div>`;
+        return;
+      }
+
+      grid.innerHTML = uploads
+        .map(
+          (u) => `
+        <div class="gallery-card" onclick="AdminApp.pickUploadedCustomMap('${u.url}', ${u.width}, ${u.height}, '${u.filename}')">
+          <img src="${u.url}" alt="${u.filename}" loading="lazy" style="object-fit:cover; width:100%; height:110px; border-radius:6px;" />
+          <strong style="font-size:0.75rem; word-break:break-all; margin-top:4px;">${u.filename}</strong>
+          <span style="font-size:0.72rem; color:#86efac; font-weight:700;">${u.width}x${u.height} px</span>
+          <span style="font-size:0.68rem; color:var(--text-muted);">${(u.sizeBytes / 1024 / 1024).toFixed(2)} MB</span>
+        </div>`
+        )
+        .join('');
+    } catch (err) {
+      grid.innerHTML = `<div style="color:#fca5a5; padding:20px; text-align:center; grid-column:1/-1;">Erro ao carregar uploads: ${err.message}</div>`;
+    }
+  }
+
+  pickUploadedCustomMap(url, width, height, filename) {
+    this.closeModal('mapPickerModal');
+    if (this.mapPickerMode === 'NEW_MAP' || !this.currentMapId) {
+      this.newBlankMapState({
+        bgImageUrl: url,
+        width: width || 2000,
+        height: height || 1500,
+        folderCode: filename || 'custom_map',
+      });
+      const nameInput = document.getElementById('mapNamePtBr');
+      if (nameInput && !nameInput.value) {
+        const cleanName = (filename || 'Mapa Customizado')
+          .replace(/^map_\d+_/, '')
+          .replace(/\.[^.]+$/, '')
+          .replace(/_/g, ' ')
+          .trim();
+        nameInput.value = cleanName ? cleanName.charAt(0).toUpperCase() + cleanName.slice(1) : 'Mapa Customizado';
+      }
+    } else {
+      document.getElementById('mapImagePath').value = url;
+      this.cameraInitializedForUrl = '';
+      this.loadMapBackgroundImage(url);
+    }
+  }
+
+  openMapUploadModal(mode = 'NEW_MAP') {
+    this.mapPickerMode = mode;
+    this.pendingMapUpload = null;
+
+    const modal = document.getElementById('mapUploadModal');
+    if (!modal) return;
+
+    const title = document.getElementById('mapUploadModalTitle');
+    if (title) {
+      title.innerHTML = mode === 'NEW_MAP'
+        ? '<span>📤</span> <span>Fazer Upload de Imagem para Novo Mapa</span>'
+        : '<span>📤</span> <span>Fazer Upload para Trocar Imagem do Mapa</span>';
+    }
+
+    const fileInput = document.getElementById('mapFileInput');
+    if (fileInput) fileInput.value = '';
+
+    const previewContainer = document.getElementById('mapUploadPreviewContainer');
+    if (previewContainer) previewContainer.style.display = 'none';
+
+    const statusEl = document.getElementById('mapUploadStatus');
+    if (statusEl) {
+      statusEl.style.display = 'none';
+      statusEl.textContent = '';
+    }
+
+    const submitBtn = document.getElementById('mapUploadSubmitBtn');
+    if (submitBtn) {
+      submitBtn.disabled = true;
+      submitBtn.textContent = '🚀 Confirmar Upload e Usar no Mapa';
+    }
+
+    modal.style.display = 'flex';
+
+    // Configura Drag and Drop
+    const dropZone = document.getElementById('mapDropZone');
+    if (dropZone && !dropZone.dataset.dragConfigured) {
+      dropZone.dataset.dragConfigured = 'true';
+      dropZone.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        dropZone.style.background = 'rgba(56,189,248,0.18)';
+        dropZone.style.borderColor = '#38bdf8';
+      });
+      dropZone.addEventListener('dragleave', () => {
+        dropZone.style.background = 'rgba(56,189,248,0.06)';
+        dropZone.style.borderColor = '#38bdf8';
+      });
+      dropZone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        dropZone.style.background = 'rgba(56,189,248,0.06)';
+        if (e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0]) {
+          this.processSelectedMapFile(e.dataTransfer.files[0]);
+        }
+      });
+    }
+  }
+
+  onMapFileInputChange(evt) {
+    const file = evt.target?.files?.[0];
+    if (file) {
+      this.processSelectedMapFile(file);
+    }
+  }
+
+  processSelectedMapFile(file) {
+    const statusEl = document.getElementById('mapUploadStatus');
+    const submitBtn = document.getElementById('mapUploadSubmitBtn');
+    const previewContainer = document.getElementById('mapUploadPreviewContainer');
+    const previewImg = document.getElementById('mapUploadPreviewImg');
+    const fileNameEl = document.getElementById('mapUploadFileName');
+    const metaEl = document.getElementById('mapUploadMeta');
+    const dimsEl = document.getElementById('mapUploadDimensions');
+
+    if (!file) return;
+
+    const validTypes = ['image/png', 'image/jpeg', 'image/jpg', 'image/webp'];
+    if (!validTypes.includes(file.type.toLowerCase()) && !/\.(png|jpe?g|webp)$/i.test(file.name)) {
+      if (statusEl) {
+        statusEl.style.display = 'block';
+        statusEl.style.background = 'rgba(239,68,68,0.15)';
+        statusEl.style.color = '#fca5a5';
+        statusEl.textContent = '❌ Formato inválido! Por favor selecione uma imagem PNG, JPG ou WEBP.';
+      }
+      return;
+    }
+
+    if (file.size > 25 * 1024 * 1024) {
+      if (statusEl) {
+        statusEl.style.display = 'block';
+        statusEl.style.background = 'rgba(239,68,68,0.15)';
+        statusEl.style.color = '#fca5a5';
+        statusEl.textContent = '❌ Arquivo muito grande! O limite máximo para imagens de mapas é 25 MB.';
+      }
+      return;
+    }
+
+    if (statusEl) statusEl.style.display = 'none';
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const dataUrl = e.target.result;
+      const img = new Image();
+      img.onload = () => {
+        const width = img.naturalWidth || 2000;
+        const height = img.naturalHeight || 1500;
+
+        this.pendingMapUpload = {
+          file,
+          dataUrl,
+          width,
+          height,
+        };
+
+        if (previewImg) previewImg.src = dataUrl;
+        if (fileNameEl) fileNameEl.textContent = file.name;
+        if (metaEl) metaEl.textContent = `Tamanho: ${(file.size / 1024 / 1024).toFixed(2)} MB • Tipo: ${file.type || 'Imagem'}`;
+        if (dimsEl) dimsEl.textContent = `📐 Resolução detectada: ${width} × ${height} pixels`;
+        if (previewContainer) previewContainer.style.display = 'flex';
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.style.background = '#0284c7';
+        }
+      };
+      img.src = dataUrl;
+    };
+    reader.readAsDataURL(file);
+  }
+
+  async submitMapImageUpload() {
+    if (!this.pendingMapUpload) return;
+    const { file, dataUrl, width, height } = this.pendingMapUpload;
+
+    const submitBtn = document.getElementById('mapUploadSubmitBtn');
+    const statusEl = document.getElementById('mapUploadStatus');
+
+    if (submitBtn) {
+      submitBtn.disabled = true;
+      submitBtn.textContent = '⏳ Enviando imagem...';
+    }
+    if (statusEl) {
+      statusEl.style.display = 'block';
+      statusEl.style.background = 'rgba(56,189,248,0.15)';
+      statusEl.style.color = '#7dd3fc';
+      statusEl.textContent = 'Salvando imagem no servidor e otimizando resoluções...';
+    }
+
+    try {
+      const res = await this.api('/api/admin/maps/upload', {
+        method: 'POST',
+        body: JSON.stringify({
+          filename: file.name,
+          dataBase64: dataUrl,
+          namePtBr: file.name.replace(/\.[^.]+$/, ''),
+        }),
+      });
+
+      this.closeModal('mapUploadModal');
+      this.closeModal('mapPickerModal');
+
+      this.pickUploadedCustomMap(res.url, res.width || width, res.height || height, res.filename);
+
+      alert(`✅ Imagem de mapa "${res.filename}" enviada e aplicada com sucesso!\nResolução: ${res.width || width}x${res.height || height}px.`);
+    } catch (err) {
+      if (statusEl) {
+        statusEl.style.display = 'block';
+        statusEl.style.background = 'rgba(239,68,68,0.15)';
+        statusEl.style.color = '#fca5a5';
+        statusEl.textContent = `❌ Falha no envio: ${err.message}`;
+      }
+      if (submitBtn) {
+        submitBtn.disabled = false;
+        submitBtn.textContent = '🚀 Confirmar Upload e Usar no Mapa';
+      }
+    }
   }
 
   pickMcreworkMap(idx) {

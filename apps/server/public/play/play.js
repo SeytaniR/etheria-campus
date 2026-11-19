@@ -231,7 +231,7 @@ class EtheriaPlayClient {
       // Carrega a imagem base limpa do mapa via proxy local ou remoto com fallback automático
       let rawBg = (mapData.bgImageUrl || mapData.mcreworkMapImage || '').trim();
       let finalBgUrl = rawBg;
-      if (!finalBgUrl.startsWith('http://') && !finalBgUrl.startsWith('https://')) {
+      if (!finalBgUrl.startsWith('http://') && !finalBgUrl.startsWith('https://') && !finalBgUrl.startsWith('/')) {
         finalBgUrl = `https://seytanir.github.io/mcrework/${finalBgUrl.replace(/^\/+/, '')}`;
       }
       this.loadMapBackground(mapData.id, finalBgUrl);

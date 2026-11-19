@@ -68,7 +68,7 @@ export class AssetMirrorService {
     const trimmed = String(relOrRemote).trim();
     if (!trimmed) return '';
     if (trimmed.startsWith('/api/assets/mcrework/')) return trimmed;
-    if (trimmed.startsWith('/assets/worldmap/') || trimmed.startsWith('/play/')) return trimmed;
+    if (trimmed.startsWith('/assets/worldmap/') || trimmed.startsWith('/assets/maps/') || trimmed.startsWith('/play/')) return trimmed;
     if (trimmed.startsWith('http://') || trimmed.startsWith('https://')) {
       const m = trimmed.match(/\/mcrework\/(assets\/.+)$/i);
       if (m) return `/api/assets/mcrework/${m[1]}`;

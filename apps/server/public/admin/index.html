@@ -50,9 +50,12 @@
     <div id="tabMaps" class="maps-dashboard">
       <!-- COLUNA ESQUERDA: LISTA DE MAPAS SALVOS (COMPLETOS OU EM CONSTRUÇÃO) -->
       <aside class="panel">
-        <div style="display:flex; justify-content:space-between; align-items:center;">
-          <h3>📂 Mapas no Banco</h3>
-          <button class="btn-primary" onclick="AdminApp.openMcreworkMapPicker('NEW_MAP')">➕ Novo do mcrework</button>
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:6px;">
+          <h3 style="margin:0;">📂 Mapas no Banco</h3>
+          <div style="display:flex; gap:6px;">
+            <button type="button" class="btn-primary" onclick="AdminApp.openMcreworkMapPicker('NEW_MAP')">➕ mcrework</button>
+            <button type="button" class="btn-secondary" onclick="AdminApp.openMapUploadModal('NEW_MAP')" style="background:#0369a1; border-color:#38bdf8; color:#fff; font-weight:700;">📤 Upload</button>
+          </div>
         </div>
         <p style="font-size:0.75rem; color:var(--text-muted);">
           Você pode salvar mapas incompletos a qualquer momento e clicar neles abaixo para continuar exatamente de onde parou.
@@ -96,10 +99,11 @@
           </div>
         </div>
         <div class="field">
-          <label>Imagem Limpa do Mapa (mcrework)</label>
-          <div style="display:flex; gap:6px;">
-            <input type="text" id="mapImagePath" readonly style="flex:1; opacity:0.85;" />
-            <button onclick="AdminApp.openMcreworkMapPicker('CHANGE_IMAGE')">🖼️ Trocar Imagem</button>
+          <label>Imagem Base do Mapa (mcrework ou Upload Customizado)</label>
+          <div style="display:flex; gap:6px; flex-wrap:wrap;">
+            <input type="text" id="mapImagePath" readonly style="flex:1; min-width:200px; opacity:0.85;" />
+            <button type="button" class="btn-primary" onclick="AdminApp.openMcreworkMapPicker('CHANGE_IMAGE')">🖼️ Galeria mcrework</button>
+            <button type="button" class="btn-secondary" onclick="AdminApp.openMapUploadModal('CHANGE_IMAGE')" style="border-color:#38bdf8; color:#38bdf8; font-weight:700;">📤 Upload Imagem</button>
           </div>
         </div>
         <div class="field">
@@ -587,17 +591,82 @@
       </div>
     </div>
   </section>
-  <!-- MODAL: SELETOR DE IMAGEM LIMPA DE MAPA DO MCREWORK -->
+  <!-- MODAL: SELETOR DE IMAGEM LIMPA DE MAPA (MCREWORK + UPLOADS CUSTOMIZADOS) -->
   <div id="mapPickerModal" class="modal-backdrop">
-    <div class="modal-box">
-      <div style="display:flex; justify-content:space-between; align-items:center;">
-        <h3>🖼️ Galeria de Imagens Limpas de Mapas (mcrework — 76 Mapas)</h3>
-        <button class="btn-danger" onclick="AdminApp.closeModal('mapPickerModal')">Fechar</button>
+    <div class="modal-box" style="max-height:92dvh; display:flex; flex-direction:column; overflow:hidden;">
+      <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border); padding-bottom:8px;">
+        <h3 style="margin:0; display:flex; align-items:center; gap:8px;">
+          <span>🖼️</span> <span>Seletor de Imagem Base para o Mapa</span>
+        </h3>
+        <button class="btn-danger" type="button" onclick="AdminApp.closeModal('mapPickerModal')">✕ Fechar</button>
       </div>
-      <p style="font-size:0.8rem; color:var(--text-muted);">
-        Importa exclusivamente a imagem de fundo limpa do mapa. Colisões, sobreposições, portais e NPCs são definidos por você no editor visual.
+      <!-- Barra de Abas do Picker -->
+      <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; margin:10px 0 6px 0;">
+        <div style="display:flex; gap:6px;">
+          <button type="button" id="mapPickerTabBtnMcrework" class="btn-primary" onclick="AdminApp.switchMapPickerSubTab('mcrework')" style="font-size:0.78rem;">
+            🖼️ 76 Mapas do mcrework
+          </button>
+          <button type="button" id="mapPickerTabBtnUploads" class="btn-secondary" onclick="AdminApp.switchMapPickerSubTab('uploads')" style="font-size:0.78rem; border-color:#38bdf8; color:#38bdf8;">
+            📁 Meus Uploads Customizados
+          </button>
+        </div>
+        <button type="button" class="btn-secondary" onclick="AdminApp.openMapUploadModal(AdminApp.mapPickerMode)" style="background:#0369a1; border-color:#38bdf8; color:#fff; font-weight:700; font-size:0.78rem;">
+          📤 Fazer Upload de Nova Imagem
+        </button>
+      </div>
+
+      <!-- Grade 1: Mapas do mcrework -->
+      <div id="mcreworkMapsGrid" class="gallery-grid" style="flex:1; overflow-y:auto; -webkit-overflow-scrolling:touch;"></div>
+
+      <!-- Grade 2: Mapas Customizados Enviados por Upload -->
+      <div id="customUploadedMapsGrid" class="gallery-grid" style="display:none; flex:1; overflow-y:auto; -webkit-overflow-scrolling:touch;">
+        <div style="color:var(--text-muted); padding:20px; text-align:center;">Carregando mapas customizados...</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: UPLOAD DE IMAGEM CUSTOMIZADA DE MAPA -->
+  <div id="mapUploadModal" class="modal-backdrop">
+    <div class="modal-box" style="max-width:580px; width:95%; display:flex; flex-direction:column; gap:12px;">
+      <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border); padding-bottom:8px;">
+        <h3 id="mapUploadModalTitle" style="margin:0; display:flex; align-items:center; gap:8px;">
+          <span>📤</span> <span>Fazer Upload de Imagem de Mapa</span>
+        </h3>
+        <button type="button" class="btn-danger" onclick="AdminApp.closeModal('mapUploadModal')">✕ Fechar</button>
+      </div>
+      <p style="font-size:0.8rem; color:var(--text-muted); margin:0;">
+        Envie uma imagem do seu computador (PNG, JPG ou WEBP de até 25 MB) para usar como mapa. O sistema salvará a imagem no servidor e abrirá o editor visual com a proporção e resolução corretas.
       </p>
-      <div id="mcreworkMapsGrid" class="gallery-grid"></div>
+
+      <!-- Zona de Drop / Clique -->
+      <div id="mapDropZone" onclick="document.getElementById('mapFileInput').click()"
+           style="border:2px dashed #38bdf8; border-radius:10px; padding:24px 16px; text-align:center; background:rgba(56,189,248,0.06); cursor:pointer; transition:all 0.2s ease;">
+        <input type="file" id="mapFileInput" accept="image/png, image/jpeg, image/webp" style="display:none;" onchange="AdminApp.onMapFileInputChange(event)" />
+        <div style="font-size:2.2rem; margin-bottom:6px;">🗺️ 📤</div>
+        <div style="font-weight:700; color:#38bdf8; font-size:0.92rem;">Clique aqui ou arraste a imagem do seu mapa</div>
+        <div style="font-size:0.75rem; color:var(--text-muted); margin-top:4px;">Suporta PNG, JPG e WEBP (resoluções Full HD, 2K, 4K)</div>
+      </div>
+
+      <!-- Preview do Arquivo Selecionado -->
+      <div id="mapUploadPreviewContainer" style="display:none; flex-direction:column; gap:8px; background:#020617; border:1px solid var(--border); border-radius:8px; padding:10px;">
+        <div style="display:flex; gap:12px; align-items:center;">
+          <img id="mapUploadPreviewImg" src="" alt="Preview" style="width:130px; height:85px; object-fit:contain; background:#0b1120; border-radius:6px; border:1px solid #334155;" />
+          <div style="flex:1; font-size:0.78rem;">
+            <div id="mapUploadFileName" style="font-weight:700; color:#f8fafc; word-break:break-all;"></div>
+            <div id="mapUploadMeta" style="color:var(--text-muted); margin-top:3px;"></div>
+            <div id="mapUploadDimensions" style="color:#86efac; font-weight:700; margin-top:4px; font-size:0.82rem;"></div>
+          </div>
+        </div>
+      </div>
+
+      <div id="mapUploadStatus" style="display:none; font-size:0.8rem; padding:8px 12px; border-radius:6px;"></div>
+
+      <div style="display:flex; justify-content:flex-end; gap:8px; border-top:1px solid var(--border); padding-top:10px;">
+        <button type="button" class="btn-secondary" onclick="AdminApp.closeModal('mapUploadModal')">Cancelar</button>
+        <button type="button" id="mapUploadSubmitBtn" class="btn-primary" onclick="AdminApp.submitMapImageUpload()" disabled style="background:#0369a1; border-color:#38bdf8; font-weight:700;">
+          🚀 Confirmar Upload e Usar no Mapa
+        </button>
+      </div>
     </div>
   </div>
   <!-- MODAL: CRIAR / EDITAR TEMPLATE DE NPC ESCOLHENDO DO MCREWORK (AUTO-INCREMENTO npc_N) -->

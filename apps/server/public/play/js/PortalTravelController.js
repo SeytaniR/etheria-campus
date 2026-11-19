@@ -319,7 +319,7 @@ class EtheriaPortalTravelController {
       // 3. Pré-carregamento 100% garantido da imagem do mapa (Zero pop-in / Zero tela preta)
       let rawBg = (mapData.bgImageUrl || mapData.mcreworkMapImage || '').trim();
       let finalBgUrl = rawBg;
-      if (!finalBgUrl.startsWith('http://') && !finalBgUrl.startsWith('https://')) {
+      if (!finalBgUrl.startsWith('http://') && !finalBgUrl.startsWith('https://') && !finalBgUrl.startsWith('/')) {
         finalBgUrl = `https://seytanir.github.io/mcrework/${finalBgUrl.replace(/^\/+/, '')}`;
       }
       const localProxyUrl = `/api/assets/map-image/${mapData.id}`;
