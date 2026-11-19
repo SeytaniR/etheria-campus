@@ -318,14 +318,16 @@ model MonsterRarity {
   @@map("monster_rarities")
 }
 
-/// Regras de Custo de Essências para Criação de Pets no Caçador por Raridade (F, D, C, B, A, S, SS).
+/// Regras de Custo de Essências para Criação e Recompensa de Venda de Pets no Caçador por Raridade (F, D, C, B, A, S, SS).
 model HunterPetCostRule {
-  id          Int      @id @default(autoincrement())
-  rarityTier  String   @unique @map("rarity_tier") /// F, D, C, B, A, S, SS
-  essenceCost Int      @default(30) @map("essence_cost")
-  goldCost    Int      @default(0) @map("gold_cost")
-  createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @default(now()) @updatedAt @map("updated_at")
+  id            Int      @id @default(autoincrement())
+  rarityTier    String   @unique @map("rarity_tier") /// F, D, C, B, A, S, SS
+  essenceCost   Int      @default(30) @map("essence_cost")
+  goldCost      Int      @default(0) @map("gold_cost")
+  essenceReward Int      @default(15) @map("essence_reward")
+  goldReward    Int      @default(0) @map("gold_reward")
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @default(now()) @updatedAt @map("updated_at")
 
   @@map("hunter_pet_cost_rules")
 }

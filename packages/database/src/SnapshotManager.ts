@@ -547,7 +547,30 @@ export class SnapshotManager {
         }
       }
 
-      // 11. Sincroniza todas as sequências SERIAL/autoincrement do PostgreSQL
+      // 11. Regras de Custos e Recompensas do Caçador (HunterPetCostRules)
+      if (Array.isArray(snapshot.hunterPetCostRules)) {
+        for (const r of snapshot.hunterPetCostRules) {
+          await (this.prisma as any).hunterPetCostRule.upsert({
+            where: { rarityTier: r.rarityTier },
+            create: {
+              id: r.id,
+              rarityTier: r.rarityTier,
+              essenceCost: r.essenceCost ?? 30,
+              goldCost: r.goldCost ?? 0,
+              essenceReward: r.essenceReward ?? 15,
+              goldReward: r.goldReward ?? 0,
+            },
+            update: {
+              essenceCost: r.essenceCost ?? 30,
+              goldCost: r.goldCost ?? 0,
+              essenceReward: r.essenceReward ?? 15,
+              goldReward: r.goldReward ?? 0,
+            },
+          });
+        }
+      }
+
+      // 12. Sincroniza todas as sequências SERIAL/autoincrement do PostgreSQL
       await SnapshotManager.syncAllSequences(this.prisma);
 
       return { restored: true, message: `Snapshot importado com sucesso a partir de ${this.snapshotFilePath}` };

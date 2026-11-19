@@ -10,6 +10,7 @@ import type * as http from 'node:http';
 import { PrismaClient } from '@prisma/client';
 import { I18nCache, SnapshotManager } from '@etheria/database';
 import { CharacterPetService } from './CharacterPetService.js';
+import { CharacterInventoryService } from './CharacterInventoryService.js';
 
 export interface RaceEssenceInfo {
   raceCode: string;
@@ -109,11 +110,21 @@ export const DEFAULT_HUNTER_COST_RULES: Record<string, number> = {
   SS: 3500,
 };
 
+export const DEFAULT_HUNTER_REWARD_RULES: Record<string, number> = {
+  F: 15,
+  D: 35,
+  C: 60,
+  B: 150,
+  A: 350,
+  S: 800,
+  SS: 1750,
+};
+
 export class HunterPetController {
   private static readonly mcreworkPagesBaseUrl = 'https://mcrework.com';
 
   /**
-   * Retorna os custos por raridade salvos na tabela `hunter_pet_cost_rules` (com fallback padrão).
+   * Retorna os custos de essências por raridade salvos na tabela `hunter_pet_cost_rules` (com fallback padrão).
    */
   public static async getCostRules(prisma: PrismaClient): Promise<Record<string, number>> {
     try {
@@ -132,15 +143,36 @@ export class HunterPetController {
   }
 
   /**
+   * Retorna a recompensa de essências por raridade para a venda/reciclagem de pets.
+   */
+  public static async getRewardRules(prisma: PrismaClient): Promise<Record<string, number>> {
+    try {
+      const rows = await (prisma as any).hunterPetCostRule.findMany({ orderBy: { id: 'asc' } });
+      if (Array.isArray(rows) && rows.length > 0) {
+        const out: Record<string, number> = { ...DEFAULT_HUNTER_REWARD_RULES };
+        for (const r of rows) {
+          out[r.rarityTier] = Number(r.essenceReward) || DEFAULT_HUNTER_REWARD_RULES[r.rarityTier] || 15;
+        }
+        return out;
+      }
+    } catch (err) {
+      console.warn('[HunterPetController] Falha ao ler regras de recompensa, usando padrões:', err);
+    }
+    return { ...DEFAULT_HUNTER_REWARD_RULES };
+  }
+
+  /**
    * Retorna o estado completo da tela do Caçador para o Personagem:
-   * - Custos por raridade
+   * - Custos por raridade (invocação)
+   * - Recompensas por raridade (venda de pets)
    * - Raças disponíveis e quantia atual de cada essência no inventário do jogador
    * - Todos os pets domáveis ativos (com visual, raça, raridade e atributos)
    */
   public static async getHunterBootstrap(prisma: PrismaClient, characterId: number) {
-    const [i18nMap, costRules, invItems, monsters] = await Promise.all([
+    const [i18nMap, costRules, rewardRules, invItems, monsters] = await Promise.all([
       I18nCache.getTranslations(prisma, 'pt-BR'),
       this.getCostRules(prisma),
+      this.getRewardRules(prisma),
       prisma.characterInventoryItem.findMany({
         where: { characterId: Number(characterId) },
         include: { itemTemplate: true },
@@ -187,6 +219,7 @@ export class HunterPetController {
 
     return {
       costRules,
+      rewardRules,
       races,
       tamablePets,
       playerEssences: essenceCounts,
@@ -289,6 +322,131 @@ export class HunterPetController {
   }
 
   /**
+   * Realiza a venda / reciclagem de um Pet no Caçador:
+   * - Devolve todos os equipamentos equipados no pet para a mochila do jogador.
+   * - Exclui o Pet.
+   * - Adiciona a quantia configurada de essência da raça do pet na mochila do jogador.
+   * - Adiciona a quantia configurada de ouro (se houver).
+   */
+  public static async sellPet(
+    prisma: PrismaClient,
+    characterId: number,
+    characterPetId: number
+  ) {
+    const targetPetId = Math.round(Number(characterPetId) || 0);
+    if (!targetPetId) {
+      throw new Error('Selecione o pet que deseja vender.');
+    }
+
+    const pet = await prisma.characterPet.findFirst({
+      where: { id: targetPetId, characterId: Number(characterId) },
+      include: { monsterTemplate: true },
+    });
+    if (!pet) {
+      throw new Error('Pet não encontrado ou não pertence a este personagem.');
+    }
+
+    const raceCode = pet.monsterTemplate?.raceCode;
+    const essenceMeta = raceCode ? RACE_ESSENCE_MAP[raceCode] : null;
+    if (!essenceMeta) {
+      throw new Error(`Não há essência configurada para a raça "${raceCode || 'desconhecida'}" deste pet.`);
+    }
+
+    const essenceItem = await prisma.itemTemplate.findUnique({
+      where: { code: essenceMeta.itemCode },
+    });
+    if (!essenceItem) {
+      throw new Error(`Item de essência "${essenceMeta.itemCode}" não encontrado no catálogo.`);
+    }
+
+    const rarityTier = pet.monsterTemplate?.rarityTier || 'F';
+    const rewardRules = await this.getRewardRules(prisma);
+    const essenceReward = rewardRules[rarityTier] || DEFAULT_HUNTER_REWARD_RULES[rarityTier] || 15;
+
+    // Busca regra no banco para ouro se configurado
+    let goldReward = 0;
+    try {
+      const ruleRow = await (prisma as any).hunterPetCostRule.findUnique({
+        where: { rarityTier },
+      });
+      if (ruleRow?.goldReward) {
+        goldReward = Math.max(0, Number(ruleRow.goldReward));
+      }
+    } catch {
+      goldReward = 0;
+    }
+
+    // Identifica equipamentos equipados para devolução à mochila
+    const eqMap = (pet.equippedItemsJson && typeof pet.equippedItemsJson === 'object'
+      ? (pet.equippedItemsJson as Record<string, number>)
+      : {}) as Record<string, number>;
+    const returnedEquipIds: number[] = [];
+    for (const rawItemId of Object.values(eqMap)) {
+      const itemId = Number(rawItemId);
+      if (Number.isInteger(itemId) && itemId > 0) {
+        returnedEquipIds.push(itemId);
+      }
+    }
+
+    // Valida slots livres na mochila para receber equipamentos de volta
+    const freeSlots = await CharacterInventoryService.countFreeSlots(prisma, characterId);
+    if (returnedEquipIds.length > 0 && freeSlots < returnedEquipIds.length) {
+      throw new Error(
+        `Mochila cheia! Você precisa de pelo menos ${returnedEquipIds.length} slot(s) livre(s) na mochila para recolher os equipamentos deste pet antes de vendê-lo.`
+      );
+    }
+
+    // Executa em transação segura
+    let returnedEquipmentsCount = 0;
+    await prisma.$transaction(async (tx) => {
+      // 1. Devolve equipamentos para a mochila do jogador
+      for (const itemId of returnedEquipIds) {
+        try {
+          await CharacterInventoryService.addItem(tx, characterId, itemId, 1);
+          returnedEquipmentsCount += 1;
+        } catch (err: any) {
+          console.warn(`[HunterPetController] Erro ao devolver equipamento #${itemId} do pet #${pet.id}:`, err?.message || err);
+        }
+      }
+
+      // 2. Exclui o pet
+      await tx.characterPet.delete({
+        where: { id: pet.id },
+      });
+
+      // 3. Credita a essência da raça
+      await CharacterInventoryService.addItem(tx, characterId, essenceItem.id, essenceReward);
+
+      // 4. Credita ouro se houver
+      if (goldReward > 0) {
+        await CharacterInventoryService.addGold(tx, characterId, goldReward);
+      }
+    });
+
+    const petsPayload = await CharacterPetService.getCharacterPetsPayload(prisma, characterId);
+    const updatedBootstrap = await this.getHunterBootstrap(prisma, characterId);
+
+    return {
+      success: true,
+      soldPet: {
+        id: pet.id,
+        nickname: pet.nickname,
+        rarityTier,
+        raceCode,
+      },
+      reward: {
+        itemCode: essenceMeta.itemCode,
+        namePtBr: essenceMeta.namePtBr,
+        essenceAmount: essenceReward,
+        goldAmount: goldReward,
+      },
+      returnedEquipmentsCount,
+      petsPayload,
+      updatedPlayerEssences: updatedBootstrap.playerEssences,
+    };
+  }
+
+  /**
    * Roteador de endpoints HTTP de Caçador para a rota `/play`.
    */
   public static async handlePlayHunterRoute(
@@ -334,11 +492,28 @@ export class HunterPetController {
       return true;
     }
 
+    const sellMatch = pathname.match(/^\/api\/play\/characters\/(\d+)\/hunter-sell-pet$/);
+    if (sellMatch && method === 'POST') {
+      const charId = Number(sellMatch[1]);
+      if (!(await verifyOwnership(charId))) {
+        sendJson(res, 403, { error: 'Acesso não autorizado a este personagem.' });
+        return true;
+      }
+      try {
+        const body = await readJsonBody<{ characterPetId: number }>(req);
+        const result = await this.sellPet(prisma, charId, body.characterPetId);
+        sendJson(res, 200, result);
+      } catch (err: any) {
+        sendJson(res, 400, { error: err.message || 'Erro ao vender pet.' });
+      }
+      return true;
+    }
+
     return false;
   }
 
   /**
-   * Retorna todas as regras de custos configuradas para o Admin.
+   * Retorna todas as regras de custos e recompensas configuradas para o Admin.
    */
   public static async getAdminCostRules(prisma: PrismaClient) {
     try {
@@ -354,15 +529,17 @@ export class HunterPetController {
       rarityTier,
       essenceCost,
       goldCost: 0,
+      essenceReward: DEFAULT_HUNTER_REWARD_RULES[rarityTier] || 15,
+      goldReward: 0,
     }));
   }
 
   /**
-   * Salva alterações de custos no banco e exporta para o snapshot canônico.
+   * Salva alterações de custos e recompensas no banco e exporta para o snapshot canônico.
    */
   public static async updateAdminCostRules(
     prisma: PrismaClient,
-    rules: Array<{ rarityTier: string; essenceCost: number; goldCost?: number }>
+    rules: Array<{ rarityTier: string; essenceCost: number; goldCost?: number; essenceReward?: number; goldReward?: number }>
   ) {
     if (!Array.isArray(rules) || rules.length === 0) {
       throw new Error('Lista de regras de custos inválida.');
@@ -373,12 +550,14 @@ export class HunterPetController {
       const tier = String(r.rarityTier || '').trim().toUpperCase();
       const essenceCost = Math.max(1, Math.round(Number(r.essenceCost) || 30));
       const goldCost = Math.max(0, Math.round(Number(r.goldCost) || 0));
+      const essenceReward = Math.max(1, Math.round(Number(r.essenceReward) || Math.floor(essenceCost / 2)));
+      const goldReward = Math.max(0, Math.round(Number(r.goldReward) || 0));
       if (!tier) continue;
 
       const saved = await (prisma as any).hunterPetCostRule.upsert({
         where: { rarityTier: tier },
-        update: { essenceCost, goldCost },
-        create: { rarityTier: tier, essenceCost, goldCost },
+        update: { essenceCost, goldCost, essenceReward, goldReward },
+        create: { rarityTier: tier, essenceCost, goldCost, essenceReward, goldReward },
       });
       updatedRows.push(saved);
     }
@@ -417,7 +596,7 @@ export class HunterPetController {
       }
       if (method === 'PUT') {
         try {
-          const body = await readJsonBody<{ rules: Array<{ rarityTier: string; essenceCost: number; goldCost?: number }> }>(req);
+          const body = await readJsonBody<{ rules: Array<{ rarityTier: string; essenceCost: number; goldCost?: number; essenceReward?: number; goldReward?: number }> }>(req);
           const updated = await this.updateAdminCostRules(prisma, body.rules);
           sendJson(res, 200, { success: true, rules: updated });
         } catch (err: any) {

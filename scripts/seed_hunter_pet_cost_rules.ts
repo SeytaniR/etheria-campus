@@ -3,21 +3,21 @@ import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 
 const defaultRules = [
-  { id: 1, rarityTier: 'F', essenceCost: 30, goldCost: 0 },
-  { id: 2, rarityTier: 'D', essenceCost: 70, goldCost: 0 },
-  { id: 3, rarityTier: 'C', essenceCost: 120, goldCost: 0 },
-  { id: 4, rarityTier: 'B', essenceCost: 300, goldCost: 0 },
-  { id: 5, rarityTier: 'A', essenceCost: 700, goldCost: 0 },
-  { id: 6, rarityTier: 'S', essenceCost: 1600, goldCost: 0 },
-  { id: 7, rarityTier: 'SS', essenceCost: 3500, goldCost: 0 },
+  { id: 1, rarityTier: 'F', essenceCost: 30, goldCost: 0, essenceReward: 15, goldReward: 0 },
+  { id: 2, rarityTier: 'D', essenceCost: 70, goldCost: 0, essenceReward: 35, goldReward: 0 },
+  { id: 3, rarityTier: 'C', essenceCost: 120, goldCost: 0, essenceReward: 60, goldReward: 0 },
+  { id: 4, rarityTier: 'B', essenceCost: 300, goldCost: 0, essenceReward: 150, goldReward: 0 },
+  { id: 5, rarityTier: 'A', essenceCost: 700, goldCost: 0, essenceReward: 350, goldReward: 0 },
+  { id: 6, rarityTier: 'S', essenceCost: 1600, goldCost: 0, essenceReward: 800, goldReward: 0 },
+  { id: 7, rarityTier: 'SS', essenceCost: 3500, goldCost: 0, essenceReward: 1750, goldReward: 0 },
 ];
 
 async function main() {
   for (const r of defaultRules) {
     await (prisma as any).hunterPetCostRule.upsert({
       where: { rarityTier: r.rarityTier },
-      update: { essenceCost: r.essenceCost, goldCost: r.goldCost },
-      create: { id: r.id, rarityTier: r.rarityTier, essenceCost: r.essenceCost, goldCost: r.goldCost },
+      update: { essenceCost: r.essenceCost, goldCost: r.goldCost, essenceReward: r.essenceReward, goldReward: r.goldReward },
+      create: { id: r.id, rarityTier: r.rarityTier, essenceCost: r.essenceCost, goldCost: r.goldCost, essenceReward: r.essenceReward, goldReward: r.goldReward },
     });
   }
 

@@ -246,10 +246,10 @@
 
         <!-- Banner com instruções da mecânica -->
         <div style="background:rgba(217,119,6,0.1); border:1px solid rgba(217,119,6,0.3); border-radius:8px; padding:12px; margin-top:12px; font-size:0.78rem; line-height:1.5; color:#fde68a;">
-          <strong>💡 Regras Oficiais do Caçador:</strong>
+          <strong>💡 Regras Oficiais do Caçador (Invocação & Venda de Pets):</strong>
           <ul style="margin:4px 0 0 18px; padding:0;">
-            <li>A quantidade de essências abaixo define o custo de invocação para cada Raridade (Rank F até Rank SS).</li>
-            <li>O tipo de essência entregue pelo jogador determina a raça do pet (Ex: 3.500 Essências Botânicas &rarr; Qualquer Pet Planta Rank SS).</li>
+            <li><strong>Invocação:</strong> A quantia de essências exigida para invocar um Pet daquela raça no Rank correspondente.</li>
+            <li><strong>Venda / Reciclagem:</strong> Ao entregar um pet ao Caçador, o jogador recebe a quantia configurada de essências da raça do pet (e ouro se configurado), e os itens equipados no pet retornam para a mochila do jogador.</li>
             <li>O pet nasce no <strong>Nível 1</strong>, com <strong>elemento aleatório</strong> e <strong>76 pontos base de atributos</strong>.</li>
           </ul>
         </div>
@@ -258,16 +258,18 @@
           <table class="crud-table" style="width:100%;">
             <thead>
               <tr>
-                <th style="width:130px;">Rank / Raridade</th>
-                <th style="width:180px;">Custo de Essências</th>
-                <th style="width:150px;">Custo em Ouro</th>
+                <th style="width:110px;">Rank / Raridade</th>
+                <th style="width:150px;">Invocação (Essências)</th>
+                <th style="width:120px;">Invocação (Ouro)</th>
+                <th style="width:160px; color:#4ade80;">Venda (Essências) ♻️</th>
+                <th style="width:130px; color:#fbbf24;">Venda (Ouro) 💰</th>
                 <th>Classificação do Tier</th>
-                <th>Exemplo Prático de Invocação</th>
+                <th>Exemplo Prático</th>
               </tr>
             </thead>
             <tbody id="hunterCostsTableBody">
               <tr>
-                <td colspan="5" style="text-align:center; padding:16px; color:var(--text-muted);">
+                <td colspan="7" style="text-align:center; padding:16px; color:var(--text-muted);">
                   Carregando tabela de balanceamento...
                 </td>
               </tr>
