@@ -32,6 +32,13 @@ export interface MapPlayerPresence {
   shadowOffsetY?: number;
   equippedWings?: EquippedWingsVisualDto | null;
   equippedMount?: EquippedMountVisualDto | null;
+  primaryFollowerPet?: {
+    mcreworkMonsterKey: string;
+    atlasJsonUrl: string;
+    atlasWebpUrl: string;
+    thumbUrl: string;
+    groundOffsetY: number;
+  } | null;
   elementCode: string;
   posX: number;
   posY: number;
@@ -84,7 +91,14 @@ export class MapPresenceService {
     if (!meta) {
       const pc = await prisma.playerCharacter.findUnique({
         where: { id: characterId },
-        include: { classTemplate: true },
+        include: {
+          classTemplate: true,
+          pets: {
+            where: { deploySlot: 1 },
+            include: { monsterTemplate: true },
+            take: 1,
+          },
+        },
       });
       if (pc) {
         const eqMap = (pc.equippedItemsJson && typeof pc.equippedItemsJson === 'object'
@@ -102,6 +116,16 @@ export class MapPresenceService {
           if (mt) mountsById.set(mt.id, mt);
         }
         const visual = CharacterEquipmentService.resolveVisualAppearance(eqMap, visById, mountsById);
+        const slot1Pet = pc.pets?.[0]?.monsterTemplate;
+        const primaryFollowerPet = slot1Pet?.mcreworkMonsterKey
+          ? {
+              mcreworkMonsterKey: slot1Pet.mcreworkMonsterKey,
+              atlasJsonUrl: `/api/assets/mcrework/assets/monsters/${slot1Pet.mcreworkMonsterKey}/atlas.json`,
+              atlasWebpUrl: `/api/assets/mcrework/assets/monsters/${slot1Pet.mcreworkMonsterKey}/atlas.webp`,
+              thumbUrl: `/api/assets/mcrework/assets/monsters/${slot1Pet.mcreworkMonsterKey}/thumb.webp`,
+              groundOffsetY: slot1Pet.groundOffsetY || 0,
+            }
+          : null;
 
         meta = {
           name: pc.name,
@@ -115,6 +139,7 @@ export class MapPresenceService {
           groundOffsetY: pc.classTemplate?.groundOffsetY || 0,
           equippedWings: visual.equippedWings,
           equippedMount: visual.equippedMount,
+          primaryFollowerPet,
           elementCode: pc.elementCode || 'NEUTRAL',
         };
         this.metadataCache.set(characterId, meta);
@@ -158,6 +183,7 @@ export class MapPresenceService {
       shadowOffsetY: meta?.shadowOffsetY || 0,
       equippedWings: meta?.equippedWings || null,
       equippedMount: meta?.equippedMount || null,
+      primaryFollowerPet: meta?.primaryFollowerPet || null,
       elementCode: meta?.elementCode || 'NEUTRAL',
       posX: Number(dto.posX) || 500,
       posY: Number(dto.posY) || 500,

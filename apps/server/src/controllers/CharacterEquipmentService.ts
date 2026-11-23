@@ -52,6 +52,9 @@ export interface EquippedWingsVisualDto {
   visualFormat: 'CHAR_MANIFEST';
   manifestUrl: string;
   thumbUrl: string;
+  visualScale: number;
+  visualOffsetX: number;
+  visualOffsetY: number;
 }
 
 export interface EquippedMountVisualDto {
@@ -63,8 +66,12 @@ export interface EquippedMountVisualDto {
   atlasWebpUrl?: string | null;
   thumbUrl: string;
   flightAltitude: number;
+  riderOffsetX: number;
   riderOffsetY: number;
   groundOffsetY: number;
+  visualScale: number;
+  visualOffsetX: number;
+  visualOffsetY: number;
   speedBonusPct: number;
 }
 
@@ -121,6 +128,9 @@ export class CharacterEquipmentService {
           visualFormat: 'CHAR_MANIFEST',
           manifestUrl: fx.manifestUrl || `/api/assets/mcrework/assets/wings/${modelId}/char_manifest.json`,
           thumbUrl: `/api/assets/mcrework/assets/wings/${modelId}/thumb.png`,
+          visualScale: Number(fx.visualScale) > 0 ? Number(fx.visualScale) : 0.65,
+          visualOffsetX: Number(fx.visualOffsetX) || 0,
+          visualOffsetY: fx.visualOffsetY !== undefined ? Number(fx.visualOffsetY) : -30,
         };
       }
     }
@@ -146,8 +156,12 @@ export class CharacterEquipmentService {
               atlasWebpUrl: `/api/assets/mcrework/assets/mounts/${modelId}/atlas.webp`,
               thumbUrl: `/api/assets/mcrework/assets/mounts/${modelId}/thumb.webp`,
               flightAltitude: Number(fx.flightAltitude ?? linkedTpl?.flightAltitude ?? 65),
+              riderOffsetX: Number(fx.riderOffsetX ?? 0),
               riderOffsetY: Number(fx.riderOffsetY ?? linkedTpl?.riderOffsetY ?? -42),
               groundOffsetY: Number(fx.groundOffsetY ?? linkedTpl?.groundOffsetY ?? 0),
+              visualScale: Number(fx.visualScale) > 0 ? Number(fx.visualScale) : 0.70,
+              visualOffsetX: Number(fx.visualOffsetX) || 0,
+              visualOffsetY: Number(fx.visualOffsetY) || 0,
               speedBonusPct: Number(fx.speedBonusPct ?? linkedTpl?.speedBonusPct ?? 25),
             }
           : {
@@ -157,8 +171,12 @@ export class CharacterEquipmentService {
               manifestUrl: fx.manifestUrl || `/api/assets/mcrework/assets/wings/${modelId}/char_manifest.json`,
               thumbUrl: `/api/assets/mcrework/assets/wings/${modelId}/thumb.png`,
               flightAltitude: Number(fx.flightAltitude ?? 72),
+              riderOffsetX: Number(fx.riderOffsetX ?? 0),
               riderOffsetY: Number(fx.riderOffsetY ?? -22),
               groundOffsetY: Number(fx.groundOffsetY ?? 0),
+              visualScale: Number(fx.visualScale) > 0 ? Number(fx.visualScale) : 0.70,
+              visualOffsetX: Number(fx.visualOffsetX) || 0,
+              visualOffsetY: Number(fx.visualOffsetY) || 0,
               speedBonusPct: Number(fx.speedBonusPct ?? 25),
             };
       }

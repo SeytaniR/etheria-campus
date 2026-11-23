@@ -852,7 +852,7 @@ class EtheriaPlayClient {
       for (const npc of this.currentMap.npcs || []) this.pushRenderItem('NPC', npc.posY, npc);
       if (window.PlayMapPresenceController) window.PlayMapPresenceController.populateRenderQueue(this._renderQueue, now);
       if (window.PlayPetsController) window.PlayPetsController.populateRenderQueue(this, this._renderQueue);
-      if (this.activeChar) this.pushRenderItem('PLAYER', this.playerY, this.activeChar);
+      if (this.activeChar) this.pushRenderItem('PLAYER', (this.isFlying || (this.flightAltitudeCurrent || 0) > 2) ? (this.playerY + 100000) : this.playerY, this.activeChar);
     }
     this._renderQueue.sort((a, b) => a.y - b.y);
     for (const item of this._renderQueue) {
@@ -876,25 +876,19 @@ class EtheriaPlayClient {
             action: this.isMoving ? 1 : 0, dir: this.playerDir, now, mesh: this.mesh,
             groundOffsetY, shadowOffsetX: char.shadowOffsetX || 0, shadowOffsetY: char.shadowOffsetY || 0,
             wingsObj: char.visualAppearance?.equippedWings || null, mountObj: char.visualAppearance?.equippedMount || null,
+            followerPet: window.PlayPetsController?.getPrimaryFollowerPet?.() || null,
             isFlying: Boolean(this.isFlying), flightAltitude: Number(this.flightAltitudeCurrent) || 0, customScale: 0.70,
           });
         } else {
           sprite.draw(ctx, this.playerX, this.playerY, this.isMoving ? 1 : 0, this.playerDir, now, this.mesh, groundOffsetY, 0.70, false, char.shadowOffsetX || 0, char.shadowOffsetY || 0);
         }
         ctx.textAlign = 'center';
-        if (window.PlayPartyController?.isLeader()) {
-          ctx.font = '14px sans-serif'; ctx.fillText('👑', this.playerX, nameY - 14);
-        }
-        if (window.PlayPartyController?.hasParty()) {
-          ctx.font = 'bold 9px sans-serif'; ctx.fillStyle = '#38bdf8';
-          ctx.fillText('[Equipe]', this.playerX, nameY - 3);
-        }
+        if (window.PlayPartyController?.isLeader()) { ctx.font = '14px sans-serif'; ctx.fillText('👑', this.playerX, nameY - 14); }
+        if (window.PlayPartyController?.hasParty()) { ctx.font = 'bold 9px sans-serif'; ctx.fillStyle = '#38bdf8'; ctx.fillText('[Equipe]', this.playerX, nameY - 3); }
         ctx.fillStyle = '#fde047'; ctx.font = 'bold 13px sans-serif';
         ctx.fillText(`${char.name}${char.isReborn ? ' ✨' : ''}${this.gmNoClip ? ' [NO-CLIP]' : ''}`, this.playerX, nameY);
       } else if (item.type === 'OTHER_PLAYER') {
-        if (window.PlayMapPresenceController) {
-          window.PlayMapPresenceController.drawOtherPlayer(ctx, item.data, now, this.mesh, this.zoom);
-        }
+        window.PlayMapPresenceController?.drawOtherPlayer(ctx, item.data, now, this.mesh, this.zoom);
       } else if (item.type === 'COMBAT_PLAYER') {
         const p = item.data;
         const isTransient = (p.action === 3 || p.action === 5 || p.action === 6 || p.action === 7);

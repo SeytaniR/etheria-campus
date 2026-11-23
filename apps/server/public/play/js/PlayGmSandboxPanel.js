@@ -21,41 +21,13 @@ class PlayGmSandboxPanel {
   static init(client) {
     this.client = client || window.PlayApp;
     this.injectDrawerQuickTools();
-    this.injectFloatingGmButton();
     this.injectModalDom();
-  }
-
-  static injectFloatingGmButton() {
-    if (document.getElementById('hudFloatingGmArsenalBtn')) return;
-    const worldScreen = document.getElementById('worldScreen');
-    if (!worldScreen) return;
-
-    const btn = document.createElement('button');
-    btn.id = 'hudFloatingGmArsenalBtn';
-    btn.type = 'button';
-    btn.title = 'Abrir Arsenal & Sandbox GM Completo';
-    btn.style.cssText = [
-      'position:fixed', 'top:12px', 'left:50%', 'transform:translateX(-50%)',
-      'z-index:34', 'display:none', 'align-items:center', 'gap:6px',
-      'padding:6px 14px', 'border-radius:999px', 'font-size:0.76rem', 'font-weight:900',
-      'color:#f3e8ff', 'cursor:pointer',
-      'background:linear-gradient(135deg, rgba(126,34,206,0.94), rgba(190,24,93,0.94))',
-      'border:1.5px solid #e879f9', 'box-shadow:0 4px 16px rgba(168,85,247,0.5)',
-    ].join(';');
-    btn.innerHTML = '🧰 Arsenal GM (Tudo Liberado)';
-    btn.onclick = (e) => {
-      e.stopPropagation();
-      this.openModal();
-    };
-    worldScreen.appendChild(btn);
   }
 
   static refreshVisibility(client) {
     const c = client || this.client || window.PlayApp;
     this.init(c);
     const isGm = this.isGmUser(c);
-    const floatBtn = document.getElementById('hudFloatingGmArsenalBtn');
-    if (floatBtn) floatBtn.style.display = isGm ? 'inline-flex' : 'none';
     const topBtn = document.getElementById('btnToggleGm');
     if (topBtn) topBtn.style.display = isGm ? 'inline-block' : 'none';
   }

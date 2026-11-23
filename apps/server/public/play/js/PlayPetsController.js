@@ -104,6 +104,17 @@ class PlayPetsController {
     const px = Number(client.playerX) || 500;
     const py = Number(client.playerY) || 500;
 
+    // Enquanto o jogador estiver voando na montaria, o Pet embarca colado ao jogador em idle
+    if (client.isFlying || (Number(client.flightAltitudeCurrent) || 0) > 0.5) {
+      this.followerX = px;
+      this.followerY = py;
+      this.followerDir = client.playerDir || 0;
+      this.followerIsMoving = false;
+      this.lastMapId = client.currentMap.id;
+      this.lastPetId = pet.id;
+      return;
+    }
+
     // Inicializa ou reposiciona se trocou de mapa/pet ou ficou muito longe (> 380px)
     if (
       this.followerX === null ||
@@ -155,6 +166,7 @@ class PlayPetsController {
   }
 
   populateRenderQueue(client, renderQueue) {
+    if (client?.isFlying || (Number(client?.flightAltitudeCurrent) || 0) > 0.5) return;
     const pet = this.getPrimaryFollowerPet();
     if (!pet || this.followerX === null || this.followerY === null) return;
     renderQueue.pushItem('PET_FOLLOWER', this.followerY, pet);

@@ -106,7 +106,8 @@ class PlayMapPresenceController {
     if (!renderQueue || !this.otherPlayers || this.otherPlayers.length === 0) return;
     const push = renderQueue.pushItem ? (t, y, d) => renderQueue.pushItem(t, y, d) : (t, y, d) => renderQueue.push({ type: t, y, data: d });
     for (const player of this.otherPlayers) {
-      push('OTHER_PLAYER', player.posY, player);
+      const sortY = (player.isFlying || (Number(player.flightAltitude) || 0) > 0.5) ? (player.posY + 100000) : player.posY;
+      push('OTHER_PLAYER', sortY, player);
     }
   }
 
@@ -147,6 +148,7 @@ class PlayMapPresenceController {
         shadowOffsetY: other.shadowOffsetY || 0,
         wingsObj: other.equippedWings || null,
         mountObj: other.equippedMount || null,
+        followerPet: other.primaryFollowerPet || null,
         isFlying: Boolean(other.isFlying),
         flightAltitude: Number(other.flightAltitude) || 0,
         customScale: 0.70,

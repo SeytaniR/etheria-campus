@@ -72,18 +72,17 @@ class AdminEquipmentsTab {
     app.populateVisualModelsDropdown = function (slotCode, currentFx) {
       const box = document.getElementById('equipVisual25dBox');
       const sel = document.getElementById('equipVisualModelSelect');
-      const altF = document.getElementById('equipMountAltitudeField');
-      const offF = document.getElementById('equipMountRiderOffsetField');
-      const spdF = document.getElementById('equipMountSpeedBonusField');
+      const mountRow = document.getElementById('equipMountCalibrationRow');
       if (!box || !sel) return;
 
       const isWing = slotCode === 'WINGS';
       const isMount = slotCode === 'FLYING_MOUNT';
       box.style.display = (isWing || isMount) ? 'block' : 'none';
-      if (altF) altF.style.display = isMount ? 'flex' : 'none';
-      if (offF) offF.style.display = isMount ? 'flex' : 'none';
-      if (spdF) spdF.style.display = isMount ? 'flex' : 'none';
-      if (!isWing && !isMount) return;
+      if (mountRow) mountRow.style.display = isMount ? 'grid' : 'none';
+      if (!isWing && !isMount) {
+        window.AdminEquipmentVisualPreview?.stop();
+        return;
+      }
 
       const cat = this.mcreworkVisualModels || { wings: [], gliders: [], mounts: [] };
       const opts = ['<option value="">Sem modelo 2.5D vinculado</option>'];
@@ -107,11 +106,16 @@ class AdminEquipmentsTab {
         const match = Array.from(sel.options).find((o) => o.value.includes(`|${mid}|`));
         if (match) sel.value = match.value;
       }
+      document.getElementById('equipVisualScaleInput').value = fx.visualScale ?? (isWing ? 0.65 : 0.70);
+      document.getElementById('equipVisualOffsetXInput').value = fx.visualOffsetX ?? 0;
+      document.getElementById('equipVisualOffsetYInput').value = fx.visualOffsetY ?? (isWing ? -30 : 0);
       if (isMount) {
         document.getElementById('equipMountAltitudeInput').value = fx.flightAltitude ?? 72;
+        document.getElementById('equipMountRiderOffsetXInput').value = fx.riderOffsetX ?? 0;
         document.getElementById('equipMountRiderOffsetInput').value = fx.riderOffsetY ?? -22;
         document.getElementById('equipMountSpeedBonusInput').value = fx.speedBonusPct ?? 25;
       }
+      window.AdminEquipmentVisualPreview?.start(this);
     };
 
     app.onEquipmentSlotChange = function () {
@@ -124,28 +128,44 @@ class AdminEquipmentsTab {
       if (!val) return;
       const [kind, modelId, , mountTplId] = val.split('|');
       const cat = this.mcreworkVisualModels || { wings: [], gliders: [], mounts: [] };
+      const setNum = (id, v) => {
+        const el = document.getElementById(id);
+        if (el) el.value = v;
+      };
       if (kind === 'WING') {
         const w = (cat.wings || []).find((x) => x.modelId === modelId);
         if (w?.iconKey) {
           document.getElementById('equipIconKeyInput').value = w.iconKey;
           this.updateEquipmentIconPreview(w.iconKey);
         }
+        setNum('equipVisualScaleInput', 0.65);
+        setNum('equipVisualOffsetXInput', 0);
+        setNum('equipVisualOffsetYInput', -30);
       } else if (kind === 'GLIDER') {
         const g = (cat.gliders || []).find((x) => x.modelId === modelId);
         if (g?.iconKey) {
           document.getElementById('equipIconKeyInput').value = g.iconKey;
           this.updateEquipmentIconPreview(g.iconKey);
         }
-        document.getElementById('equipMountRiderOffsetInput').value = -22;
-        document.getElementById('equipMountAltitudeInput').value = 72;
+        setNum('equipVisualScaleInput', 0.70);
+        setNum('equipVisualOffsetXInput', 0);
+        setNum('equipVisualOffsetYInput', 0);
+        setNum('equipMountRiderOffsetXInput', 0);
+        setNum('equipMountRiderOffsetInput', -22);
+        setNum('equipMountAltitudeInput', 72);
       } else if (kind === 'MOUNT') {
         const m = (cat.mounts || []).find((x) => String(x.flyingMountTemplateId) === String(mountTplId));
         if (m) {
-          document.getElementById('equipMountAltitudeInput').value = m.flightAltitude ?? 65;
-          document.getElementById('equipMountRiderOffsetInput').value = m.riderOffsetY ?? -45;
-          document.getElementById('equipMountSpeedBonusInput').value = m.speedBonusPct ?? 35;
+          setNum('equipVisualScaleInput', 0.70);
+          setNum('equipVisualOffsetXInput', 0);
+          setNum('equipVisualOffsetYInput', 0);
+          setNum('equipMountRiderOffsetXInput', 0);
+          setNum('equipMountAltitudeInput', m.flightAltitude ?? 65);
+          setNum('equipMountRiderOffsetInput', m.riderOffsetY ?? -45);
+          setNum('equipMountSpeedBonusInput', m.speedBonusPct ?? 35);
         }
       }
+      window.AdminEquipmentVisualPreview?.renderNow?.(this);
     };
 
     app.populateEquipmentSlotDropdowns = function () {
@@ -437,11 +457,17 @@ class AdminEquipmentsTab {
         const visVal = document.getElementById('equipVisualModelSelect')?.value || '';
         if (visVal) {
           const [kind, modelId, visualFormat, mountTplId] = visVal.split('|');
+          const visualScale = parseFloat(document.getElementById('equipVisualScaleInput')?.value) || (equipmentSlotCode === 'WINGS' ? 0.65 : 0.70);
+          const visualOffsetX = parseInt(document.getElementById('equipVisualOffsetXInput')?.value, 10) || 0;
+          const visualOffsetY = parseInt(document.getElementById('equipVisualOffsetYInput')?.value, 10) ?? (equipmentSlotCode === 'WINGS' ? -30 : 0);
           if (equipmentSlotCode === 'WINGS') {
             specialEffectJson = {
               wingModelId: modelId,
               visualFormat: visualFormat || 'CHAR_MANIFEST',
               manifestUrl: `/api/assets/mcrework/assets/wings/${modelId}/char_manifest.json`,
+              visualScale,
+              visualOffsetX,
+              visualOffsetY,
             };
           } else {
             specialEffectJson = {
@@ -449,7 +475,11 @@ class AdminEquipmentsTab {
               visualFormat: visualFormat || 'CHAR_MANIFEST',
               flyingMountTemplateId: mountTplId ? Number(mountTplId) : undefined,
               manifestUrl: kind === 'GLIDER' ? `/api/assets/mcrework/assets/wings/${modelId}/char_manifest.json` : undefined,
+              visualScale,
+              visualOffsetX,
+              visualOffsetY,
               flightAltitude: parseInt(document.getElementById('equipMountAltitudeInput')?.value, 10) || 72,
+              riderOffsetX: parseInt(document.getElementById('equipMountRiderOffsetXInput')?.value, 10) || 0,
               riderOffsetY: parseInt(document.getElementById('equipMountRiderOffsetInput')?.value, 10) ?? -22,
               speedBonusPct: parseFloat(document.getElementById('equipMountSpeedBonusInput')?.value) || 25,
             };
@@ -486,6 +516,7 @@ class AdminEquipmentsTab {
             body: JSON.stringify(payload),
           });
         }
+        window.AdminEquipmentVisualPreview?.stop();
         document.getElementById('equipmentModal').style.display = 'none';
         await this.loadEquipmentTemplates();
       } catch (err) {

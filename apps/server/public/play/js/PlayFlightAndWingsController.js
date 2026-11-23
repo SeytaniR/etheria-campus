@@ -466,26 +466,76 @@ class PlayFlightAndWingsController {
     if (!wingsObj || !wingsObj.modelId) return false;
     const sp = this.getOrCreateManifestSprite(wingsObj.modelId, wingsObj.manifestUrl, wingsObj.thumbUrl);
     if (!sp) return false;
-    const scale = Number(customScale) > 0 ? Number(customScale) : 0.70;
-    const gOffY = Math.round((Number(groundOffsetY) || 0) * scale);
-    const wingY = Math.round(y + gOffY - 28 * (scale / 0.70));
-    return sp.drawFrame(ctx, x, wingY, dir, action, now, mesh, scale, 0.5, 0.5);
+    const baseScale = Number(customScale) > 0 ? Number(customScale) : 0.70;
+    const wingScale = Number(wingsObj.visualScale) > 0 ? Number(wingsObj.visualScale) * (baseScale / 0.70) : baseScale;
+    const gOffY = Math.round((Number(groundOffsetY) || 0) * baseScale);
+    const offX = Number(wingsObj.visualOffsetX) || 0;
+    const offY = wingsObj.visualOffsetY !== undefined ? Number(wingsObj.visualOffsetY) : -30;
+    const wingX = Math.round(x + offX);
+    const wingY = Math.round(y + gOffY + offY * (baseScale / 0.70));
+    return sp.drawFrame(ctx, wingX, wingY, dir, action, now, mesh, wingScale, 0.5, 0.5);
+  }
+
+  static getDirVector8(rawDir) {
+    const table = [
+      [0, 1],        // 0: S
+      [0.707, 0.707],// 1: SE
+      [1, 0],        // 2: E
+      [0.707, -0.707],// 3: NE
+      [0, -1],       // 4: N
+      [-0.707, -0.707],// 5: NW
+      [-1, 0],       // 6: W
+      [-0.707, 0.707],// 7: SW
+    ];
+    return table[(((Number(rawDir) || 0) % 8) + 8) % 8] || [0, 1];
+  }
+
+  static drawMountedFollowerPet(ctx, client, followerPet, riderX, riderY, rawDir, now, baseScale) {
+    if (!followerPet?.mcreworkMonsterKey || !client?.getOrCreateSprite) return;
+    const petSprite = client.getOrCreateSprite(
+      `pet_${followerPet.mcreworkMonsterKey}`,
+      followerPet.atlasJsonUrl,
+      followerPet.atlasWebpUrl,
+      followerPet.thumbUrl
+    );
+    if (!petSprite) return;
+    const [dx, dy] = this.getDirVector8(rawDir);
+    const petX = Math.round(riderX - dx * 20);
+    const petY = Math.round(riderY - dy * 10 - 2);
+    const petScale = Math.max(0.32, baseScale * 0.68);
+    petSprite.draw(
+      ctx,
+      petX,
+      petY,
+      0, // sempre animação Idle acompanhando a direção da montaria
+      rawDir,
+      now,
+      null, // malha de sobreposição desabilitada em voo
+      Number(followerPet.groundOffsetY) || 0,
+      petScale,
+      false,
+      0,
+      0,
+      true // skipShadow
+    );
   }
 
   static drawPlayerWithCosmetics(ctx, opts) {
     const {
       client, charSprite, worldX, worldY, action, dir, now, mesh,
       groundOffsetY = 0, shadowOffsetX = 0, shadowOffsetY = 0,
-      wingsObj = null, mountObj = null, isFlying = false, flightAltitude = 0,
-      customScale = 0.70,
+      wingsObj = null, mountObj = null, followerPet = null,
+      isFlying = false, flightAltitude = 0, customScale = 0.70,
     } = opts;
 
     const rawDir = (((Number(dir) || 0) % 8) + 8) % 8;
     const drawWingsBehind = !(rawDir === 3 || rawDir === 4 || rawDir === 5);
     const alt = isFlying || flightAltitude > 0.5 ? Math.max(0, Number(flightAltitude) || 0) : 0;
+    const scale = Number(customScale) > 0 ? Number(customScale) : 0.70;
+    // Em voo, desabilita malhas de sobreposição (mesh = null) para voar por cima das estruturas
+    const effectiveMesh = alt > 0.5 || isFlying ? null : mesh;
 
     if (mountObj && alt > 0.5) {
-      const scale = Number(customScale) > 0 ? Number(customScale) : 0.70;
       const altRatio = Math.min(1, alt / 90);
       // 1. Sombra projetada lá embaixo no solo
       ctx.save();
@@ -503,40 +553,52 @@ class PlayFlightAndWingsController {
       // 2. Névoa/nuvens sutis abaixo da montaria
       this.drawMistHaloUnderMount(ctx, worldX, elevY, now, 1.0);
 
-      // 3. Desenho da Montaria Voadora acompanhando as 8 direções
+      // 3. Desenho da Montaria Voadora acompanhando as 8 direções com escala/offset calibráveis
+      const mScale = Number(mountObj.visualScale) > 0 ? Number(mountObj.visualScale) * (scale / 0.70) : scale;
+      const mX = Math.round(worldX + (Number(mountObj.visualOffsetX) || 0));
+      const mY = Math.round(elevY + (Number(mountObj.visualOffsetY) || 0));
       if (mountObj.visualFormat === 'ATLAS') {
         const mSprite = this.getOrCreateAtlasSprite(
           mountObj.modelId, mountObj.atlasJsonUrl, mountObj.atlasWebpUrl, mountObj.thumbUrl, client
         );
-        mSprite?.draw(ctx, worldX, elevY, action, rawDir, now, mesh, mountObj.groundOffsetY || 0, scale, false, 0, 0, true);
+        mSprite?.draw(ctx, mX, mY, action, rawDir, now, null, mountObj.groundOffsetY || 0, mScale, false, 0, 0, true);
       } else {
         const mManifest = this.getOrCreateManifestSprite(mountObj.modelId, mountObj.manifestUrl, mountObj.thumbUrl);
-        mManifest?.drawFrame(ctx, worldX, elevY - 8, rawDir, action, now, mesh, scale, 0.5, 0.55);
+        mManifest?.drawFrame(ctx, mX, mY - 8, rawDir, action, now, null, mScale, 0.5, 0.55);
       }
 
-      // 4. Cavaleiro em animação Idle (action = 0) virando nas direções da montaria + Asas (se equipadas)
+      // 4. Cavaleiro em Idle + Pet seguidor colado logo atrás do personagem + Asas
+      const riderX = Math.round(worldX + (Number(mountObj.riderOffsetX) || 0));
       const riderY = Math.round(elevY + (Number(mountObj.riderOffsetY) ?? -22));
-      if (wingsObj && drawWingsBehind) {
-        this.drawWingForUnit(ctx, wingsObj, worldX, riderY, rawDir, 0, now, mesh, groundOffsetY, scale);
+      const petInFrontOfRider = rawDir === 3 || rawDir === 4 || rawDir === 5;
+
+      if (followerPet && !petInFrontOfRider) {
+        this.drawMountedFollowerPet(ctx, client, followerPet, riderX, riderY, rawDir, now, scale);
       }
-      charSprite?.draw(ctx, worldX, riderY, 0, rawDir, now, mesh, groundOffsetY, scale, false, shadowOffsetX, shadowOffsetY, true);
+      if (wingsObj && drawWingsBehind) {
+        this.drawWingForUnit(ctx, wingsObj, riderX, riderY, rawDir, 0, now, null, groundOffsetY, scale);
+      }
+      charSprite?.draw(ctx, riderX, riderY, 0, rawDir, now, null, groundOffsetY, scale, false, shadowOffsetX, shadowOffsetY, true);
       if (wingsObj && !drawWingsBehind) {
-        this.drawWingForUnit(ctx, wingsObj, worldX, riderY, rawDir, 0, now, mesh, groundOffsetY, scale);
+        this.drawWingForUnit(ctx, wingsObj, riderX, riderY, rawDir, 0, now, null, groundOffsetY, scale);
+      }
+      if (followerPet && petInFrontOfRider) {
+        this.drawMountedFollowerPet(ctx, client, followerPet, riderX, riderY, rawDir, now, scale);
       }
 
       this.drawMistHaloUnderMount(ctx, worldX + 8, elevY + 4, now + 900, 0.65);
       return elevY - 66 + Math.round((groundOffsetY + (Number(mountObj.riderOffsetY) ?? -22)) * scale);
     }
 
-    // No solo (sem voo ativo): personagem + asas equipadas
+    // No solo (sem voo ativo): personagem + asas equipadas (com clip de sobreposição ativo no chão)
     if (wingsObj && drawWingsBehind) {
-      this.drawWingForUnit(ctx, wingsObj, worldX, worldY, rawDir, action, now, mesh, groundOffsetY, customScale);
+      this.drawWingForUnit(ctx, wingsObj, worldX, worldY, rawDir, action, now, effectiveMesh, groundOffsetY, scale);
     }
-    charSprite?.draw(ctx, worldX, worldY, action, rawDir, now, mesh, groundOffsetY, customScale, false, shadowOffsetX, shadowOffsetY, false);
+    charSprite?.draw(ctx, worldX, worldY, action, rawDir, now, effectiveMesh, groundOffsetY, scale, false, shadowOffsetX, shadowOffsetY, false);
     if (wingsObj && !drawWingsBehind) {
-      this.drawWingForUnit(ctx, wingsObj, worldX, worldY, rawDir, action, now, mesh, groundOffsetY, customScale);
+      this.drawWingForUnit(ctx, wingsObj, worldX, worldY, rawDir, action, now, effectiveMesh, groundOffsetY, scale);
     }
-    return worldY - 66 + Math.round(groundOffsetY * customScale);
+    return worldY - 66 + Math.round(groundOffsetY * scale);
   }
 }
 
