@@ -458,6 +458,9 @@ export class CharacterEquipmentService {
     if (!VALID_CHARACTER_EQUIPMENT_SLOTS.includes(finalSlot as any)) {
       throw new Error(`Slot de equipamento "${finalSlot}" inválido.`);
     }
+    if (finalSlot === 'FLYING_MOUNT' && (pc as any).isFlying) {
+      throw new Error('Você precisa pousar no chão antes de trocar sua Montaria Voadora.');
+    }
 
     let updatedPc: any = null;
 
@@ -539,6 +542,12 @@ export class CharacterEquipmentService {
     if (!VALID_CHARACTER_EQUIPMENT_SLOTS.includes(finalSlot as any)) {
       throw new Error(`Slot de equipamento "${finalSlot}" inválido.`);
     }
+    if (finalSlot === 'FLYING_MOUNT' && (pc as any).isFlying) {
+      throw new Error('Você precisa pousar no chão antes de desequipar sua Montaria Voadora.');
+    }
+    if (finalSlot === 'FLYING_MOUNT' && (pc as any).isFlying) {
+      throw new Error('Você precisa pousar no chão antes de trocar sua Montaria Voadora.');
+    }
 
     const equippedMap = (pc.equippedItemsJson && typeof pc.equippedItemsJson === 'object'
       ? { ...(pc.equippedItemsJson as Record<string, number>) }
@@ -586,5 +595,16 @@ export class CharacterEquipmentService {
       visualAppearance: equippedDetails.visualAppearance,
       bag,
     };
+  }
+
+  public static async assertGroundedForBattle(prisma: PrismaClient, characterId: number): Promise<void> {
+    if (!characterId || Number(characterId) <= 0) return;
+    const pc = await prisma.playerCharacter.findUnique({
+      where: { id: Number(characterId) },
+      select: { isFlying: true },
+    });
+    if ((pc as any)?.isFlying) {
+      throw new Error('Você precisa estar no chão para iniciar uma luta! Pouse sua montaria primeiro.');
+    }
   }
 }

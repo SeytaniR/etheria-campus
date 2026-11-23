@@ -68,6 +68,11 @@ const PlayBagController = {
     // 2. Ações de Equipar e Desequipar
     client.equipInventoryItem = async function (itemTemplateId, slotCode) {
       if (!this.activeChar) return;
+      const resolvedSlot = String(slotCode || '').trim().toUpperCase();
+      if (resolvedSlot === 'FLYING_MOUNT' && (this.isFlying || (this.flightAltitudeCurrent || 0) > 0.5)) {
+        this.showNotification?.('🦅 Você precisa pousar no chão antes de trocar sua Montaria Voadora!', 'warning');
+        return;
+      }
       try {
         const res = await this.api(`/api/play/characters/${this.activeChar.id}/equipment/equip`, {
           method: 'POST',
@@ -86,17 +91,25 @@ const PlayBagController = {
           this.openStatsModal();
         }
       } catch (err) {
-        alert(`Erro ao equipar: ${err.message}`);
+        if (String(err?.message || '').includes('no chão')) this.showNotification?.(`🦅 ${err.message}`, 'warning');
+        else alert(`Erro ao equipar: ${err.message}`);
       }
     };
 
     client.unequipCharacterSlot = async function (slotCode) {
       if (!this.activeChar) return;
+      if (String(slotCode || '').trim().toUpperCase() === 'FLYING_MOUNT' && (this.isFlying || (this.flightAltitudeCurrent || 0) > 0.5)) {
+        this.showNotification?.('🦅 Você precisa pousar no chão antes de desequipar sua Montaria Voadora!', 'warning');
+        return;
+      }
       try {
-        await this.api(`/api/play/characters/${this.activeChar.id}/equipment/unequip`, {
+        const res = await this.api(`/api/play/characters/${this.activeChar.id}/equipment/unequip`, {
           method: 'POST',
           body: JSON.stringify({ slotCode }),
         });
+        if (res?.visualAppearance) {
+          window.PlayFlightAndWingsController?.syncVisualAppearance(this, res.visualAppearance);
+        }
         this.showNotification?.(`Desequipou item do slot ${slotCode}.`, 'info');
         if (document.getElementById('statsModal')?.style.display === 'flex') {
           this.openStatsModal();
@@ -105,7 +118,8 @@ const PlayBagController = {
           await PlayBagController.loadBag();
         }
       } catch (err) {
-        alert(`Erro ao desequipar: ${err.message}`);
+        if (String(err?.message || '').includes('no chão')) this.showNotification?.(`🦅 ${err.message}`, 'warning');
+        else alert(`Erro ao desequipar: ${err.message}`);
       }
     };
   },

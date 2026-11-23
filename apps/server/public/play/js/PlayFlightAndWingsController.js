@@ -244,17 +244,77 @@ class PlayFlightAndWingsController {
 
   static startTakeoff(client) {
     const mount = client?.activeChar?.visualAppearance?.equippedMount;
-    if (!mount || client.actionCombatArena?.isActive) return;
+    if (!mount || client.actionArena?.isActive || client.actionCombatArena?.isActive) return;
     client.isFlying = true;
     client.isLandingFlight = false;
     client.flightLandingTarget = null;
     client._onFlightLanded = null;
+    if (client.activeChar) client.activeChar.isFlying = true;
     client.flightAltitudeCurrent = Number(client.flightAltitudeCurrent) || 0;
     client.flightTargetAltitude = Math.max(36, Number(mount.flightAltitude) || 72);
     client.currentPath = null;
     this.spawnMistBurst(client.playerX, client.playerY, client.flightAltitudeCurrent + 16, 6);
     this.updateFlightHudButton(client);
     window.PlayMapPresenceController?.triggerImmediateSync?.();
+  }
+
+  static computeEffectiveZoom(client, baseZoom = 1.0) {
+    const bz = Number(baseZoom) || 1.0;
+    if (!client || client.actionArena?.isActive || client.actionCombatArena?.isActive) return bz;
+    const alt = Number(client.flightAltitudeCurrent) || 0;
+    if (alt <= 0.5) return bz;
+    const targetAlt = Math.max(36, Number(client?.activeChar?.visualAppearance?.equippedMount?.flightAltitude) || 72);
+    const altFrac = Math.min(1, Math.max(0, alt / targetAlt));
+    return Number((bz * (1 - 0.18 * altFrac)).toFixed(4));
+  }
+
+  static getFlyingPlayerScale(client, baseScale = 0.70) {
+    const bs = Number(baseScale) || 0.70;
+    if (!client || client.actionArena?.isActive || client.actionCombatArena?.isActive) return bs;
+    const alt = Number(client.flightAltitudeCurrent) || 0;
+    if (alt <= 0.5) return bs;
+    const targetAlt = Math.max(36, Number(client?.activeChar?.visualAppearance?.equippedMount?.flightAltitude) || 72);
+    const altFrac = Math.min(1, Math.max(0, alt / targetAlt));
+    return Number((bs * (1 + 0.16 * altFrac)).toFixed(4));
+  }
+
+  static restoreFlightOnMapLoad(client, mapData, opts = {}) {
+    if (!client) return;
+    const isDungeon = Boolean(mapData?.isDungeon || mapData?.mapType?.code === 'DUNGEON');
+    const mount = client.activeChar?.visualAppearance?.equippedMount;
+    const shouldFly =
+      !isDungeon &&
+      Boolean(mount) &&
+      ((opts.restoreFromChar && Boolean(client.activeChar?.isFlying)) || (opts.keepFlight && Boolean(client.isFlying)));
+    if (shouldFly) {
+      const tgt = Math.max(36, Number(mount.flightAltitude) || 72);
+      client.isFlying = true;
+      client.isLandingFlight = false;
+      client.flightLandingTarget = null;
+      client.flightAltitudeCurrent = tgt;
+      client.flightTargetAltitude = tgt;
+      if (client.activeChar) client.activeChar.isFlying = true;
+    } else {
+      client.isFlying = false;
+      client.isLandingFlight = false;
+      client.flightLandingTarget = null;
+      client.flightAltitudeCurrent = 0;
+      client.flightTargetAltitude = 0;
+      if (client.activeChar) client.activeChar.isFlying = false;
+    }
+    this.syncVisualAppearance(client, client.activeChar?.visualAppearance);
+  }
+
+  static assertGroundedForCombat(client, actionLabel = 'iniciar uma luta') {
+    if (!client) return true;
+    if (client.isFlying || (Number(client.flightAltitudeCurrent) || 0) > 0.5) {
+      client.showNotification?.(
+        `🦅 Você precisa estar no chão para ${actionLabel}! Pouse sua montaria primeiro (V ou botão de voo).`,
+        'warning'
+      );
+      return false;
+    }
+    return true;
   }
 
   static findNearestWalkablePoint(x, y, mesh, bounds) {
@@ -382,6 +442,7 @@ class PlayFlightAndWingsController {
       client.flightAltitudeCurrent = 0;
       client.isFlying = false;
       client.isLandingFlight = false;
+      if (client.activeChar) client.activeChar.isFlying = false;
       this.spawnMistBurst(client.playerX, client.playerY, 6, 7);
       const cb = client._onFlightLanded;
       client._onFlightLanded = null;

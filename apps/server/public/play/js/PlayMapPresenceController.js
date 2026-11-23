@@ -16,6 +16,7 @@ class PlayMapPresenceController {
     this.lastSyncTime = 0;
     this.syncIntervalMs = 1400; // 1.4s entre sincronizações
     this.isSyncing = false;
+    this.pendingForceSync = false;
     this.isLocalInCombat = false;
   }
 
@@ -35,10 +36,14 @@ class PlayMapPresenceController {
   }
 
   /**
-   * Força uma sincronização imediata com o servidor (ex: ao entrar/sair de combate).
+   * Força uma sincronização imediata com o servidor (ex: ao entrar/sair de combate ou alternar voo).
    */
   triggerImmediateSync() {
     this.lastSyncTime = 0;
+    if (this.isSyncing) {
+      this.pendingForceSync = true;
+      return;
+    }
     this.syncHeartbeat(performance.now());
   }
 
@@ -87,6 +92,11 @@ class PlayMapPresenceController {
       // Falha silenciosa para conexões intermitentes
     } finally {
       this.isSyncing = false;
+      if (this.pendingForceSync) {
+        this.pendingForceSync = false;
+        this.lastSyncTime = 0;
+        void this.syncHeartbeat(performance.now());
+      }
     }
   }
 

@@ -653,6 +653,9 @@ const PlayQuestsController = {
      */
     client.startQuestBattle = async function (questId) {
       if (!this.activeChar) return;
+      if (window.PlayFlightAndWingsController && !window.PlayFlightAndWingsController.assertGroundedForCombat(this, 'iniciar uma luta')) {
+        return;
+      }
       try {
         const npcModal = document.getElementById('npcQuestModal');
         if (npcModal) npcModal.style.display = 'none';
@@ -674,7 +677,8 @@ const PlayQuestsController = {
           alert('Erro: ActionCombatArena não pôde ser instanciada.');
         }
       } catch (err) {
-        alert(`Erro ao iniciar batalha no Véu: ${err.message}`);
+        if (String(err?.message || '').includes('no chão')) this.showNotification?.(`🦅 ${err.message}`, 'warning');
+        else alert(`Erro ao iniciar batalha no Véu: ${err.message}`);
       }
     };
   },

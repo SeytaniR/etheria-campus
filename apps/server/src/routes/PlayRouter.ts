@@ -775,6 +775,10 @@ export class PlayRouter {
         this.deps.sendJson(res, 404, { error: 'Personagem ou Missão não encontrados.' });
         return true;
       }
+      if ((character as any).isFlying) {
+        this.deps.sendJson(res, 400, { error: 'Você precisa estar no chão para iniciar uma luta! Pouse sua montaria primeiro.' });
+        return true;
+      }
 
       const trigCfg = (quest.triggerConfigJson || {}) as { questBattleConfig?: QuestBattleConfigDto | null };
       const questBattleCfg = trigCfg.questBattleConfig;

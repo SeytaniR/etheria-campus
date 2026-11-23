@@ -45,7 +45,7 @@ class EtheriaPlayClient {
     this.dpadDy = 0;
     this.baseMoveSpeed = 168; // pixels por segundo (reduzido em 20% do valor anterior de 210)
     // Câmera do Mundo
-    this.zoom = 1.0;
+    this.zoom = 1.0; this.baseZoom = 1.0;
     this.lastPinchDist = 0;
     // Cooldown de Portal e Sincronização com o Servidor
     this.portalCooldownUntil = 0;
@@ -199,7 +199,7 @@ class EtheriaPlayClient {
     const h = this.mapBgImage?.naturalHeight || this.currentMap?.height || 1500;
     return { width: Math.max(200, Number(w)), height: Math.max(200, Number(h)) };
   }
-  async loadMapIntoWorld(mapId, startX, startY, arrivedAtPortalId = null) {
+  async loadMapIntoWorld(mapId, startX, startY, arrivedAtPortalId = null, opts = {}) {
     try {
       const mapData = await this.api(`/api/play/map/${mapId}`);
       this.currentMap = mapData;
@@ -213,8 +213,7 @@ class EtheriaPlayClient {
       this.isTraversingPortal = true;
       this.currentPath = null; this.moveTargetX = null; this.moveTargetY = null; this.targetDestX = null; this.targetDestY = null;
       this.arrivedAtPortalId = arrivedAtPortalId ?? null;
-      this.isFlying = false; this.isLandingFlight = false; this.flightAltitudeCurrent = 0; this.flightTargetAltitude = 0; this.flightLandingTarget = null;
-      window.PlayFlightAndWingsController?.syncVisualAppearance(this, this.activeChar?.visualAppearance);
+      window.PlayFlightAndWingsController?.restoreFlightOnMapLoad(this, mapData, opts);
       if (mapData.width && mapData.height) {
         this.mesh?.initNavGrid(mapData.width, mapData.height);
       }
@@ -361,7 +360,8 @@ class EtheriaPlayClient {
     }
   }
   changeZoom(factor) {
-    this.zoom = Math.min(2.6, Math.max(0.3, this.zoom * factor));
+    this.baseZoom = Math.min(2.6, Math.max(0.3, (this.baseZoom || 1.0) * factor));
+    this.zoom = window.PlayFlightAndWingsController?.computeEffectiveZoom(this, this.baseZoom) ?? this.baseZoom;
   }
   centerCameraOnPlayer() {
     this.zoom = 1.0;
@@ -460,7 +460,8 @@ class EtheriaPlayClient {
             e.touches[0].clientY - e.touches[1].clientY
           );
           const ratio = dist / this.lastPinchDist;
-          this.zoom = Math.min(2.6, Math.max(0.3, this.zoom * ratio));
+          this.baseZoom = Math.min(2.6, Math.max(0.3, (this.baseZoom || 1.0) * ratio));
+          this.zoom = window.PlayFlightAndWingsController?.computeEffectiveZoom(this, this.baseZoom) ?? this.baseZoom;
           this.lastPinchDist = dist;
         }
       },
@@ -636,6 +637,7 @@ class EtheriaPlayClient {
   }
   async checkAndStartDungeon(mapData) {
     if (!this.activeChar || !mapData || this.actionCombatArena?.isActive) return;
+    if (window.PlayFlightAndWingsController && !window.PlayFlightAndWingsController.assertGroundedForCombat(this, 'entrar em combate na Masmorra')) return;
     try {
       const res = await this.api('/api/play/dungeon/enter-battle', { method: 'POST', body: JSON.stringify({ characterId: this.activeChar.id, mapId: mapData.id }) });
       if (res?.ticketSpent && res?.exitDestination) {
@@ -659,7 +661,7 @@ class EtheriaPlayClient {
     } catch (err) { alert(`Erro: ${err.message}`); }
   }
   checkRandomEncounter(now) {
-    if (this.actionCombatArena?.isActive || this.isEncounterLoading || !this.currentMap || !this.activeChar || now < this.encounterCooldownUntil) return;
+    if (this.isFlying || (this.flightAltitudeCurrent || 0) > 0.5 || this.actionCombatArena?.isActive || this.isEncounterLoading || !this.currentMap || !this.activeChar || now < this.encounterCooldownUntil) return;
     if (this.currentMap.mapType?.code === 'DUNGEON' || !this.currentMap.mapType?.allowMonsterSpawn || this.currentMap.canSpawnMonsters === false) return;
     const rate = Number(this.currentMap.encounterRatePct) || 0;
     if (rate > 0 && Math.random() * 100 < rate) {
@@ -667,7 +669,7 @@ class EtheriaPlayClient {
     }
   }
   async triggerMapEncounter() {
-    if (this.isEncounterLoading || !this.activeChar || !this.currentMap || this.currentMap.mapType?.code === 'DUNGEON' || !this.currentMap.mapType?.allowMonsterSpawn || this.currentMap.canSpawnMonsters === false) return;
+    if (this.isFlying || (this.flightAltitudeCurrent || 0) > 0.5 || this.isEncounterLoading || !this.activeChar || !this.currentMap || this.currentMap.mapType?.code === 'DUNGEON' || !this.currentMap.mapType?.allowMonsterSpawn || this.currentMap.canSpawnMonsters === false) return;
     this.isEncounterLoading = true;
     this.moveTargetX = null;
     this.moveTargetY = null;
@@ -749,6 +751,7 @@ class EtheriaPlayClient {
     }
   }
   renderWorld(now) {
+    this.zoom = window.PlayFlightAndWingsController?.computeEffectiveZoom(this, this.baseZoom || 1.0) ?? (this.baseZoom || 1.0);
     const canvas = document.getElementById('gameCanvas');
     const ctx = canvas.getContext('2d');
     ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -877,7 +880,7 @@ class EtheriaPlayClient {
             groundOffsetY, shadowOffsetX: char.shadowOffsetX || 0, shadowOffsetY: char.shadowOffsetY || 0,
             wingsObj: char.visualAppearance?.equippedWings || null, mountObj: char.visualAppearance?.equippedMount || null,
             followerPet: window.PlayPetsController?.getPrimaryFollowerPet?.() || null,
-            isFlying: Boolean(this.isFlying), flightAltitude: Number(this.flightAltitudeCurrent) || 0, customScale: 0.70,
+            isFlying: Boolean(this.isFlying), flightAltitude: Number(this.flightAltitudeCurrent) || 0, customScale: window.PlayFlightAndWingsController?.getFlyingPlayerScale?.(this, 0.70) || 0.70,
           });
         } else {
           sprite.draw(ctx, this.playerX, this.playerY, this.isMoving ? 1 : 0, this.playerDir, now, this.mesh, groundOffsetY, 0.70, false, char.shadowOffsetX || 0, char.shadowOffsetY || 0);

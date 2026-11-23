@@ -107,9 +107,10 @@ class PlayGmController {
         this.activeChar.currentMapId = res.currentMapId;
         this.activeChar.posX = res.posX;
         this.activeChar.posY = res.posY;
-        await this.loadMapIntoWorld(res.currentMapId, res.posX, res.posY);
+        await this.loadMapIntoWorld(res.currentMapId, res.posX, res.posY, null, { keepFlight: true });
       } catch (err) {
-        alert(`Erro no Teleporte GM: ${err.message}`);
+        if (String(err?.message || '').includes('no chão')) this.showNotification?.(`🦅 ${err.message}`, 'warning');
+        else alert(`Erro no Teleporte GM: ${err.message}`);
       }
     };
 
@@ -226,11 +227,8 @@ class PlayGmController {
 
     client.unequipCharacterSlot = async function (slotCode) {
       if (!this.activeChar) return;
-      if (slotCode === 'FLYING_MOUNT' && (this.isFlying || (this.flightAltitudeCurrent || 0) > 0.5) && window.PlayFlightAndWingsController) {
-        this.closeStatsModal?.();
-        window.PlayFlightAndWingsController.requestSafeLanding(this, () => {
-          void this._executeUnequipSlot(slotCode);
-        });
+      if (slotCode === 'FLYING_MOUNT' && (this.isFlying || (this.flightAltitudeCurrent || 0) > 0.5)) {
+        this.showNotification?.('🦅 Você precisa pousar no chão antes de desequipar sua Montaria Voadora!', 'warning');
         return;
       }
       await this._executeUnequipSlot(slotCode);
@@ -903,6 +901,9 @@ class PlayGmController {
     client.startGmBattle = async function () {
       if (!this.activeChar) {
         alert('Selecione primeiro um personagem.');
+        return;
+      }
+      if (window.PlayFlightAndWingsController && !window.PlayFlightAndWingsController.assertGroundedForCombat(this, 'iniciar uma luta')) {
         return;
       }
       const select = document.getElementById('gmBattleMonsterSelect');

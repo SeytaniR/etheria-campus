@@ -377,7 +377,7 @@ class PlayLobbyController {
       if (window.PlayPartyController) {
         window.PlayPartyController.init(this);
       }
-      await this.loadMapIntoWorld(found.currentMapId || 1, this.playerX, this.playerY);
+      await this.loadMapIntoWorld(found.currentMapId || 1, this.playerX, this.playerY, null, { restoreFromChar: true });
     };
 
     client.backToLobby = function () {

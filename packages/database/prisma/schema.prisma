@@ -597,6 +597,7 @@ model PlayerCharacter {
   posY                Float            @default(300) @map("pos_y")
   isCriminal          Boolean          @default(false) @map("is_criminal") /// Ativado se forçar PK em HOSTILE_ZONE
   isReborn            Boolean          @default(false) @map("is_reborn")
+  isFlying            Boolean          @default(false) @map("is_flying") /// Persiste o modo de voo ativo em montaria voadora entre sessões
 
   userAccount         UserAccount      @relation(fields: [userAccountId], references: [id], onDelete: Cascade)
   classTemplate       ClassTemplate    @relation(fields: [classTemplateId], references: [id])

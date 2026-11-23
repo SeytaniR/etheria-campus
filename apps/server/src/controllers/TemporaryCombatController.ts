@@ -190,6 +190,12 @@ export class TemporaryCombatController {
     preloadedCtx?: MonsterScalingContext,
     variantTier: MonsterVariantTier = 'NORMAL'
   ): Promise<TemporaryBattleState> {
+    if (characterId > 0) {
+      const charFlight = await this.prisma.playerCharacter.findUnique({ where: { id: Number(characterId) }, select: { isFlying: true } });
+      if ((charFlight as any)?.isFlying) {
+        throw new Error('Você precisa estar no chão para iniciar uma luta! Pouse sua montaria primeiro.');
+      }
+    }
     const scalingCtx = preloadedCtx || (await MonsterCombatBuilder.loadScalingContext(this.prisma));
 
     if (customMonsterUnits && customMonsterUnits.length > 0) {
@@ -262,6 +268,9 @@ export class TemporaryCombatController {
       where: { id: Number(characterId) },
       include: { pets: { include: { monsterTemplate: true } } },
     });
+    if ((pc as any)?.isFlying) {
+      throw new Error('Você precisa estar no chão antes de entrar em combate.');
+    }
 
     // Filtra apenas pets em formação (deploySlot 1..3 solo; deploySlot 1 em equipe) que não estejam inativados
     const activeDeployedPets = (pc?.pets || [])

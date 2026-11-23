@@ -276,14 +276,8 @@ class PlayHudController {
     const settingsBtn = document.getElementById('hudSettingsBtn');
     if (settingsBtn) settingsBtn.addEventListener('click', (ev) => { ev.stopPropagation(); this.openSettingsMenu(); });
 
-    // 4.1. Botão de Voo / Descida (Montaria Voadora)
-    const flightBtn = document.getElementById('hudFlightToggleBtn');
-    if (flightBtn) {
-      flightBtn.addEventListener('click', (ev) => {
-        ev.stopPropagation();
-        window.PlayFlightAndWingsController?.toggleFlight(this.playApp || window.PlayApp);
-      });
-    }
+    // 4.1. Vincula botão de Voo exclusivamente via PlayFlightAndWingsController (evita duplo clique)
+    window.PlayFlightAndWingsController?.updateFlightHudButton(this.playApp || window.PlayApp);
 
     // 5. Clique / Tap no Avatar do Jogador (abre atributos)
     const avatar = document.getElementById('hudPlayerAvatarImg');

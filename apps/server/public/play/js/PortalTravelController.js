@@ -409,7 +409,11 @@ class EtheriaPortalTravelController {
 
     } catch (err) {
       console.error('[PortalTravel] Erro na travessia:', err);
-      alert(`🌀 Falha ao cruzar portal: ${err.message}`);
+      if (String(err?.message || '').includes('no chão')) {
+        playApp.showNotification?.(`🦅 ${err.message}`, 'warning');
+      } else {
+        alert(`🌀 Falha ao cruzar portal: ${err.message}`);
+      }
       if (this.domLoading) {
         this.domLoading.classList.remove('is-visible');
       }

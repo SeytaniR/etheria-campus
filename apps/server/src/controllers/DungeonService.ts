@@ -123,6 +123,10 @@ export class DungeonService {
     returnX?: number | null,
     returnY?: number | null
   ) {
+    const charFlight = await prisma.playerCharacter.findUnique({ where: { id: Number(characterId) }, select: { isFlying: true } });
+    if ((charFlight as any)?.isFlying) {
+      throw new Error('Você precisa estar no chão para iniciar uma luta na Masmorra! Pouse sua montaria primeiro.');
+    }
     const today = this.getTodayDateStr();
     const existing = await (prisma as any).dungeonRun.findUnique({
       where: {
@@ -266,7 +270,10 @@ export class DungeonService {
     if (!map || map.mapType?.code !== 'DUNGEON') {
       throw new Error('Este mapa não é uma Dungeon.');
     }
-
+    const charFlight = await prisma.playerCharacter.findUnique({ where: { id: Number(characterId) }, select: { isFlying: true } });
+    if ((charFlight as any)?.isFlying) {
+      throw new Error('Você precisa estar no chão para iniciar uma luta na Masmorra! Pouse sua montaria primeiro.');
+    }
     const today = this.getTodayDateStr();
     let run = await (prisma as any).dungeonRun.findUnique({
       where: {

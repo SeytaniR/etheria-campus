@@ -368,6 +368,7 @@ export class GamePlayController {
       posX: c.posX,
       posY: c.posY,
       isCriminal: c.isCriminal,
+      isFlying: Boolean((c as any).isFlying && visualAppearance?.equippedMount),
       pets: petsPayload.allPets,
       equippedPets: petsPayload.equippedPets,
       primaryFollowerPet: petsPayload.primaryFollowerPet,
@@ -697,17 +698,14 @@ export class GamePlayController {
 
     await this.prisma.playerCharacter.update({
       where: { id: characterId },
-      data: {
-        currentMapId: map.id,
-        posX: finalPosX,
-        posY: finalPosY,
-      },
+      data: { currentMapId: map.id, posX: finalPosX, posY: finalPosY, isFlying: flightPerm.isFlyingAllowed } as any,
     });
 
     return {
       ok: true,
       blocked: false,
       speedClamped,
+      isFlying: flightPerm.isFlyingAllowed,
       currentMapId: map.id,
       posX: finalPosX,
       posY: finalPosY,
