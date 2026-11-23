@@ -146,7 +146,13 @@ export class MapPresenceService {
       }
     }
 
-    // 2. Remove o personagem de mapas anteriores se tiver trocado de mapa
+    // 2. Mapas privados por jogador (ex: Ilha Pessoal) isolam completamente a presença multiplayer
+    if (await this.isPrivateMap(prisma, mapId)) {
+      this.removePlayerFromOtherMaps(characterId, -1);
+      return [];
+    }
+
+    // 2.1. Remove o personagem de mapas anteriores se tiver trocado de mapa
     this.removePlayerFromOtherMaps(characterId, mapId);
 
     // 3. Atualiza ou insere o registro no mapa atual
@@ -215,10 +221,28 @@ export class MapPresenceService {
     return others;
   }
 
+  private static privateMapCache = new Map<number, { isPrivate: boolean; cachedAt: number }>();
+
+  private static async isPrivateMap(prisma: PrismaClient, mapId: number): Promise<boolean> {
+    const now = Date.now();
+    const cached = this.privateMapCache.get(mapId);
+    if (cached && now - cached.cachedAt < 60000) {
+      return cached.isPrivate;
+    }
+    const map = await prisma.gameMap.findUnique({
+      where: { id: Number(mapId) },
+      include: { mapType: { select: { code: true } } },
+    });
+    const isPrivate = map?.mapType?.code === 'PERSONAL_ISLAND';
+    this.privateMapCache.set(mapId, { isPrivate, cachedAt: now });
+    return isPrivate;
+  }
+
   /**
    * Retorna jogadores no mesmo mapa próximos ao personagem para formação de equipe.
    */
   public static getNearbyPlayers(characterId: number, mapId: number, maxDistance: number = 400): MapPlayerPresence[] {
+    if (this.privateMapCache.get(mapId)?.isPrivate) return [];
     const mapPlayers = this.playersByMap.get(mapId);
     if (!mapPlayers) return [];
 

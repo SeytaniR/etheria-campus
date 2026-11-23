@@ -60,8 +60,33 @@ export class DungeonService {
           forcesCriminalStatus: false,
         },
       });
+
+      const islandKey = 'map_type.personal_island.name';
+      await prisma.i18nTranslation.upsert({
+        where: { key_locale: { key: islandKey, locale: 'pt-BR' } },
+        update: { text: 'Ilha Pessoal' },
+        create: { key: islandKey, locale: 'pt-BR', text: 'Ilha Pessoal' },
+      });
+      await prisma.mapType.upsert({
+        where: { code: 'PERSONAL_ISLAND' },
+        update: {
+          nameI18nKey: islandKey,
+          dominationTarget: 'NONE',
+          allowMonsterSpawn: false,
+          pvpRule: 'DUEL_ONLY',
+          forcesCriminalStatus: false,
+        },
+        create: {
+          code: 'PERSONAL_ISLAND',
+          nameI18nKey: islandKey,
+          dominationTarget: 'NONE',
+          allowMonsterSpawn: false,
+          pvpRule: 'DUEL_ONLY',
+          forcesCriminalStatus: false,
+        },
+      });
     } catch (err) {
-      console.warn('[DungeonService] Aviso ao sincronizar MapType DUNGEON:', err);
+      console.warn('[DungeonService] Aviso ao sincronizar MapTypes especiais:', err);
     }
   }
 

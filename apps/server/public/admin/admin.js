@@ -226,22 +226,35 @@ class EtheriaAdminStudio {
     const badge = document.getElementById('mapTypeRulesBadge');
     if (!mt || !badge) return;
 
-    const isDungeon = mt.code === 'DUNGEON' || mt.dominationTarget === 'NONE';
-    const dom = mt.dominationTarget === 'ALLIANCE' ? '🏰 Dominado por Alianças' : (isDungeon ? '🚫 Não Dominável (Dungeon PvE)' : '🚩 Dominado por Facções');
+    const isDungeon = mt.code === 'DUNGEON';
+    const isPersonalIsland = mt.code === 'PERSONAL_ISLAND';
+    const isNonDominable = isDungeon || isPersonalIsland || mt.dominationTarget === 'NONE';
+    const dom = isPersonalIsland
+      ? '🏝️ Privado (Cada jogador tem a sua) • 🚫 Não Dominável'
+      : mt.dominationTarget === 'ALLIANCE'
+      ? '🏰 Dominado por Alianças'
+      : isDungeon
+      ? '🚫 Não Dominável (Dungeon PvE)'
+      : '🚩 Dominado por Facções';
     const spawn = isDungeon ? '🌫️ Véu Livre (Spawn Direto)' : (mt.allowMonsterSpawn ? '👹 Spawna Monstros' : '🕊️ Sem Monstros');
     const pvpMap = {
       DUEL_ONLY: '🤝 PvP: Apenas Duelo Aceito',
       FORCED_PK: '⚠️ PvP: Permite Forçar PK (Vira Criminoso)',
       OPEN_PVP: '⚔️ PvP: Totalmente Aberto',
     };
-    badge.innerHTML = `${dom} &bull; ${spawn} &bull; ${isDungeon ? '🏰 Instância Solo/Diária (1x/dia)' : (pvpMap[mt.pvpRule] || mt.pvpRule)}`;
+    const extraInfo = isDungeon
+      ? '🏰 Instância Solo/Diária (1x/dia)'
+      : isPersonalIsland
+      ? '🔒 Instância Privada do Jogador'
+      : (pvpMap[mt.pvpRule] || mt.pvpRule);
+    badge.innerHTML = `${dom} &bull; ${spawn} &bull; ${extraInfo}`;
 
     const dungeonBox = document.getElementById('mapDungeonConfigBox');
     if (dungeonBox) dungeonBox.style.display = isDungeon ? 'flex' : 'none';
     const domInput = document.getElementById('mapDominatedBy');
     if (domInput) {
-      domInput.disabled = isDungeon;
-      if (isDungeon) domInput.value = '';
+      domInput.disabled = isNonDominable;
+      if (isNonDominable) domInput.value = '';
     }
 
     const rateInput = document.getElementById('mapEncounterRatePct');

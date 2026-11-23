@@ -205,7 +205,15 @@ export class AdminMapsController {
    * - Os Templates de NPCs cadastrados no nosso banco
    * - Os Mapas cadastrados no nosso banco (com seus polígonos de colisão/sobreposição, portais e NPCs)
    */
+  private static ensuredSpecialTypes = false;
+
   public async getEditorBootstrap() {
+    if (!AdminMapsController.ensuredSpecialTypes) {
+      const { DungeonService } = await import('./DungeonService.js');
+      await DungeonService.ensureDungeonMapType(this.prisma);
+      I18nCache.invalidate?.();
+      AdminMapsController.ensuredSpecialTypes = true;
+    }
     const i18nMap = await I18nCache.getTranslations(this.prisma, 'pt-BR');
 
     const biomes = (await this.prisma.biome.findMany({ orderBy: { id: 'asc' } })).map((b) => ({
@@ -660,7 +668,8 @@ export class AdminMapsController {
       throw new Error(`Tipo de mapa inválido (#${dto.mapTypeId}).`);
     }
 
-    const isDungeonType = mapType.code === 'DUNGEON' || mapType.dominationTarget === 'NONE';
+    const isNonDominable =
+      mapType.code === 'DUNGEON' || mapType.code === 'PERSONAL_ISLAND' || mapType.dominationTarget === 'NONE';
     const effectiveEncounterRate = mapType.code === 'DUNGEON'
       ? 100
       : MapSpawnResolver.resolveEffectiveEncounterRate(
@@ -681,7 +690,7 @@ export class AdminMapsController {
       dungeonMonsterCount: Math.max(1, Math.min(50, Math.round(Number(dto.dungeonMonsterCount ?? 10) || 10))),
       dungeonBossTemplateId: dto.dungeonBossTemplateId ? Number(dto.dungeonBossTemplateId) : null,
       encounterRatePct: effectiveEncounterRate,
-      dominatedById: isDungeonType ? null : (dto.dominatedById || null),
+      dominatedById: isNonDominable ? null : (dto.dominatedById || null),
       spawnX: Number(dto.spawnX ?? 500),
       spawnY: Number(dto.spawnY ?? 500),
       overlapOpacity: Number(dto.overlapOpacity ?? 0.45),
