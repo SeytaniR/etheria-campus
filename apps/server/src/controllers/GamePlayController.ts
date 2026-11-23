@@ -383,7 +383,7 @@ export class GamePlayController {
       CharacterProgressionService.getExperienceMap(this.prisma, 1),
       MonsterCombatBuilder.loadScalingContext(this.prisma),
     ]);
-    const isElevated = ['ADMIN', 'GM'].includes(role);
+    const isElevated = ['ADMIN', 'GM', 'DEV'].includes(role);
     const c = await this.prisma.playerCharacter.findFirst({
       where: isElevated ? { id: characterId } : { id: characterId, userAccountId },
       include: {
@@ -653,7 +653,7 @@ export class GamePlayController {
 
     const posX = clampBoundX(Math.round(Number(dto.posX) || map.spawnX));
     const posY = clampBoundY(Math.round(Number(dto.posY) || map.spawnY));
-    const isGmNoClip = Boolean(dto.noClip) && (userRole === 'ADMIN' || userRole === 'GM');
+    const isGmNoClip = Boolean(dto.noClip) && ['ADMIN', 'GM', 'DEV'].includes(userRole);
     const flightPerm = await CharacterEquipmentService.resolveAuthoritativeFlightPermission(this.prisma, char, dto.isFlying);
     const ignoreCollision = isGmNoClip || flightPerm.isFlyingAllowed;
 
@@ -876,12 +876,12 @@ export class GamePlayController {
     characterId: number,
     dto: GmTeleportDto
   ) {
-    if (userRole !== 'ADMIN' && userRole !== 'GM') {
-      throw new Error('Apenas contas GM ou ADMIN podem utilizar o Teleporte GM.');
+    if (!['ADMIN', 'GM', 'DEV'].includes(userRole)) {
+      throw new Error('Apenas contas GM, ADMIN ou DEV podem utilizar o Teleporte GM.');
     }
 
     const char = await this.prisma.playerCharacter.findUnique({ where: { id: characterId } });
-    if (!char || char.userAccountId !== userAccountId) {
+    if (!char) {
       throw new Error('Personagem inválido.');
     }
 
@@ -929,7 +929,7 @@ export class GamePlayController {
       throw new Error('Personagem não encontrado.');
     }
 
-    if (char.userAccountId !== userAccountId && !['ADMIN', 'GM'].includes(role)) {
+    if (char.userAccountId !== userAccountId && !['ADMIN', 'GM', 'DEV'].includes(role)) {
       throw new Error('Não autorizado a alterar este personagem.');
     }
 
@@ -958,7 +958,7 @@ export class GamePlayController {
       throw new Error('Personagem ou classe não encontrado.');
     }
 
-    if (!['ADMIN', 'GM'].includes(role)) {
+    if (!['ADMIN', 'GM', 'DEV'].includes(role)) {
       throw new Error('Apenas Administradores ou GMs podem alterar o offset visual de classes.');
     }
 

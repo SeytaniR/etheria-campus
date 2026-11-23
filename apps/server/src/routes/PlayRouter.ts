@@ -21,6 +21,7 @@ import { ItemContainerOpeningService } from '../controllers/ItemContainerOpening
 import { CharacterPetService } from '../controllers/CharacterPetService.js';
 import { HunterPetController } from '../controllers/HunterPetController.js';
 import { DungeonService } from '../controllers/DungeonService.js';
+import { GmSandboxService } from '../controllers/GmSandboxService.js';
 import { CharacterProgressionService } from '../controllers/CharacterProgressionService.js';
 import { GameChatService } from '../controllers/GameChatService.js';
 import { MapPresenceService } from '../controllers/MapPresenceService.js';
@@ -54,14 +55,8 @@ export class PlayRouter {
    * Valida se um personagem pertence à conta autenticada (ou se o usuário é ADMIN/GM).
    * Previne vulnerabilidades BOLA/IDOR onde um jogador manipula IDs alheios.
    */
-  public async verifyCharacterOwnership(
-    userAccountId: number,
-    role: string,
-    charId: number
-  ): Promise<boolean> {
-    if (['ADMIN', 'GM'].includes(role)) {
-      return true;
-    }
+  public async verifyCharacterOwnership(userAccountId: number, role: string, charId: number): Promise<boolean> {
+    if (['ADMIN', 'GM', 'DEV'].includes(role)) return true;
     const char = await this.deps.prisma.playerCharacter.findUnique({
       where: { id: charId },
       select: { userAccountId: true },
@@ -524,10 +519,9 @@ export class PlayRouter {
     if (await HunterPetController.handlePlayHunterRoute(req, res, pathname, method, this.deps.prisma, (cId) => this.verifyCharacterOwnership(userAccountId, session.role, cId), this.deps.readJsonBody, this.deps.sendJson)) {
       return true;
     }
-    // 🏰 Sistema de Dungeons Instanciadas (1x ao dia)
-    if (await DungeonService.handlePlayDungeonRoute(req, res, pathname, method, session.role, this.deps.prisma, this.deps.combatController, this.deps.assetMirrorService, (cId) => this.verifyCharacterOwnership(userAccountId, session.role, cId), this.deps.readJsonBody, this.deps.sendJson)) {
-      return true;
-    }
+    // 🏰 Sistema de Dungeons Instanciadas (1x ao dia) & Arsenal GM Sandbox
+    if (await DungeonService.handlePlayDungeonRoute(req, res, pathname, method, session.role, this.deps.prisma, this.deps.combatController, this.deps.assetMirrorService, (cId) => this.verifyCharacterOwnership(userAccountId, session.role, cId), this.deps.readJsonBody, this.deps.sendJson)) return true;
+    if (await GmSandboxService.handleRoute(req, res, pathname, method, userAccountId, session.role, this.deps.prisma, this.deps.playController, this.deps.readJsonBody, this.deps.sendJson)) return true;
 
     // 🎁 Abertura Autoritária de Baú / Cápsula / Roleta da Sorte
     const charOpenContainerMatch = pathname.match(/^\/api\/play\/characters\/(\d+)\/items\/open-container$/);

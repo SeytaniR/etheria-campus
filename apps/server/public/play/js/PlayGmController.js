@@ -28,6 +28,7 @@ class PlayGmController {
     };
 
     client.toggleGmDrawer = function () {
+      window.PlayGmSandboxPanel?.init(this);
       const drawer = document.getElementById('gmDrawer');
       if (drawer) {
         drawer.classList.toggle('open');

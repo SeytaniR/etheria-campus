@@ -554,7 +554,7 @@ class PlayHudController {
    * Abre o menu de configurações e opções do jogo.
    */
   openSettingsMenu() {
-    const isGm = Boolean(this.playApp && this.playApp.session && (this.playApp.session.role === 'ADMIN' || this.playApp.session.role === 'GM'));
+    const isGm = Boolean(this.playApp && this.playApp.session && ['ADMIN', 'GM', 'DEV'].includes(String(this.playApp.session.role || '').toUpperCase()));
     const isCombatActive = Boolean(this.playApp?.actionArena?.isActive);
 
     const modal = document.createElement('div');
@@ -603,9 +603,12 @@ class PlayHudController {
           ${
             isGm
               ? `
-            <div class="hud-settings-row" style="border-top:1px dashed #475569; padding-top:10px;">
-              <span style="color:#c084fc; font-weight:700;">⚡ Painel Game Master (GM)</span>
-              <button class="btn-gm" onclick="if(window.PlayApp) window.PlayApp.toggleGmDrawer(); document.getElementById('hudSettingsModal').remove();">Abrir Painel GM</button>
+            <div class="hud-settings-row" style="border-top:1px dashed #475569; padding-top:10px; gap:6px; flex-wrap:wrap;">
+              <span style="color:#c084fc; font-weight:700;">⚡ Painel & Arsenal GM</span>
+              <div style="display:flex; gap:6px;">
+                <button class="btn-primary" style="background:#7e22ce;" onclick="window.PlayGmSandboxPanel?.openModal(); document.getElementById('hudSettingsModal')?.remove();">🧰 Arsenal GM</button>
+                <button class="btn-gm" onclick="if(window.PlayApp) window.PlayApp.toggleGmDrawer(); document.getElementById('hudSettingsModal')?.remove();">⚡ Painel GM</button>
+              </div>
             </div>
             `
               : ''

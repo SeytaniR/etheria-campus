@@ -398,7 +398,8 @@ export class CharacterEquipmentService {
       include: { classTemplate: true },
     });
     if (!pc) throw new Error('Personagem não encontrado.');
-    if (pc.userAccountId !== userAccountId && !['ADMIN', 'GM'].includes(role)) {
+    const isGmElevated = ['ADMIN', 'GM', 'DEV'].includes(role);
+    if (pc.userAccountId !== userAccountId && !isGmElevated) {
       throw new Error('Acesso negado: este personagem não pertence à sua conta.');
     }
 
@@ -411,13 +412,13 @@ export class CharacterEquipmentService {
       throw new Error(`O item "${item.code}" não é um equipamento de personagem equipável.`);
     }
 
-    if (item.requiredLevel && pc.level < item.requiredLevel) {
+    if (!isGmElevated && item.requiredLevel && pc.level < item.requiredLevel) {
       throw new Error(`Nível insuficiente para equipar este item (Requer Nv.${item.requiredLevel}).`);
     }
 
-    // Validação de Classe (se houver restrição)
+    // Validação de Classe (GM/ADMIN/DEV têm passe livre para testes)
     const reqClasses = Array.isArray(item.reqClassCodesJson) ? item.reqClassCodesJson : [];
-    if (reqClasses.length > 0 && pc.classTemplate?.code && !reqClasses.includes(pc.classTemplate.code)) {
+    if (!isGmElevated && reqClasses.length > 0 && pc.classTemplate?.code && !reqClasses.includes(pc.classTemplate.code)) {
       throw new Error(`Este equipamento não pode ser usado pela classe ${pc.classTemplate.code}.`);
     }
 
@@ -512,7 +513,7 @@ export class CharacterEquipmentService {
       where: { id: Number(characterId) },
     });
     if (!pc) throw new Error('Personagem não encontrado.');
-    if (pc.userAccountId !== userAccountId && !['ADMIN', 'GM'].includes(role)) {
+    if (pc.userAccountId !== userAccountId && !['ADMIN', 'GM', 'DEV'].includes(role)) {
       throw new Error('Acesso negado: este personagem não pertence à sua conta.');
     }
 

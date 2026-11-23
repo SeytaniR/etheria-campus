@@ -363,9 +363,10 @@ class PlayLobbyController {
       const worldScreen = document.getElementById('worldScreen');
       if (worldScreen) worldScreen.style.display = 'block';
 
-      const isGmOrAdmin = this.session && (this.session.role === 'ADMIN' || this.session.role === 'GM');
+      const isGmOrAdmin = this.session && ['ADMIN', 'GM', 'DEV'].includes(String(this.session.role || '').toUpperCase());
       const btnGm = document.getElementById('btnToggleGm');
       if (btnGm) btnGm.style.display = isGmOrAdmin ? 'inline-block' : 'none';
+      window.PlayGmSandboxPanel?.refreshVisibility(this);
 
       if (isGmOrAdmin && window.location.pathname.startsWith('/gm')) {
         const gmDrawer = document.getElementById('gmDrawer');
