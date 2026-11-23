@@ -191,6 +191,7 @@ class AdminAuth {
       const tabs = [
         { id: 'tabMaps', btn: 'tabBtnMaps', key: 'maps', code: 'MAPS' },
         { id: 'tabWorldMaps', btn: 'tabBtnWorldMaps', key: 'world-maps', code: 'MAPS' },
+        { id: 'tabDungeonChests', btn: 'tabBtnDungeonChests', key: 'dungeon-chests', code: 'MAPS' },
         { id: 'tabNpcs', btn: 'tabBtnNpcs', key: 'npcs', code: 'NPCS' },
         { id: 'tabHunterCosts', btn: 'tabBtnHunterCosts', key: 'hunter-costs', code: 'NPCS' },
         { id: 'tabQuests', btn: 'tabBtnQuests', key: 'quests', code: 'QUESTS' },
@@ -272,6 +273,9 @@ class AdminAuth {
       }
       if (tab === 'world-maps' && typeof this.loadWorldMapsData === 'function') {
         this.loadWorldMapsData();
+      }
+      if (tab === 'dungeon-chests' && typeof this.loadDungeonChestsTab === 'function') {
+        this.loadDungeonChestsTab();
       }
     };
 

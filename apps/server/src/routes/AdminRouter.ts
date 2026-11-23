@@ -26,6 +26,7 @@ import type { AdminExperienceController } from '../controllers/AdminExperienceCo
 import type { AdminWorldMapsController } from '../controllers/AdminWorldMapsController.js';
 import type { AdminMapUploadController } from '../controllers/AdminMapUploadController.js';
 import { HunterPetController } from '../controllers/HunterPetController.js';
+import { DungeonChestService } from '../controllers/DungeonChestService.js';
 
 export interface AdminRouterDeps {
   prisma: PrismaClient;
@@ -711,6 +712,19 @@ export class AdminRouter {
       pathname,
       method,
       this.deps.prisma,
+      this.deps.sendJson,
+      this.deps.readJsonBody
+    )) {
+      return true;
+    }
+
+    if (await DungeonChestService.handleAdminRoutes(
+      req,
+      res,
+      pathname,
+      method,
+      this.deps.prisma,
+      (this.deps.mapsController as any)?.snapshotManager,
       this.deps.sendJson,
       this.deps.readJsonBody
     )) {

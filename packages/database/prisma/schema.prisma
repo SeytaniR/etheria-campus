@@ -782,3 +782,23 @@ model ClientUiLayoutTemplate {
 
   @@map("client_ui_layout_templates")
 }
+
+/// Configurações de Baús de Recompensa ao Concluir Dungeons (Comum 75%, Épico 20%, Lendário 5%).
+model DungeonChestConfig {
+  id              Int      @id @default(autoincrement())
+  rarityCode      String   @unique @map("rarity_code") /// COMMON, EPIC, LEGENDARY
+  namePtBr        String   @map("name_pt_br")
+  imageUrl        String   @map("image_url")
+  spawnChancePct  Float    @default(75) @map("spawn_chance_pct")
+  visualScale     Float    @default(0.36) @map("visual_scale")
+  visualOffsetX   Int      @default(0) @map("visual_offset_x")
+  visualOffsetY   Int      @default(-10) @map("visual_offset_y")
+  glowColorHex    String   @default("#38bdf8") @map("glow_color_hex")
+  goldRewardsJson Json     @default("[]") @map("gold_rewards_json") /// [{min, max, chancePct}]
+  xpRewardsJson   Json     @default("[]") @map("xp_rewards_json") /// [{min, max, chancePct}]
+  itemDropsJson   Json     @default("[]") @map("item_drops_json") /// [{itemTemplateId, minQty, maxQty, chancePct}]
+  isActive        Boolean  @default(true) @map("is_active")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  @@map("dungeon_chest_configs")
+}

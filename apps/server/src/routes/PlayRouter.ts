@@ -21,6 +21,7 @@ import { ItemContainerOpeningService } from '../controllers/ItemContainerOpening
 import { CharacterPetService } from '../controllers/CharacterPetService.js';
 import { HunterPetController } from '../controllers/HunterPetController.js';
 import { DungeonService } from '../controllers/DungeonService.js';
+import { DungeonChestService } from '../controllers/DungeonChestService.js';
 import { GmSandboxService } from '../controllers/GmSandboxService.js';
 import { CharacterProgressionService } from '../controllers/CharacterProgressionService.js';
 import { GameChatService } from '../controllers/GameChatService.js';
@@ -679,8 +680,11 @@ export class PlayRouter {
         mapLvl
       );
 
-      const awardedExp = primaryScaling.exp;
-      const awardedGold = primaryScaling.gold;
+      const chestRewards = (victoryData as any).isDungeon
+        ? await DungeonChestService.rollAndGrantChestItems(this.deps.prisma, victoryData.characterId, (victoryData as any).dungeonChest)
+        : null;
+      const awardedExp = primaryScaling.exp + (chestRewards?.exp || 0);
+      const awardedGold = primaryScaling.gold + (chestRewards?.gold || 0);
 
       const progressResult = await this.deps.questsController.recordBattleVictoryBatch(
         victoryData.characterId,
@@ -734,6 +738,7 @@ export class PlayRouter {
         playerProgression: progression?.player ?? null,
         petsProgression: progression?.pets ?? [],
         dungeonCompleted: Boolean((victoryData as any).isDungeon),
+        chestRewards,
         exitDestination,
         ...progressResult,
       });

@@ -156,6 +156,8 @@ class ActionCombatArena {
   openArena(battleState) {
     this.isDungeonMode = Boolean(battleState.isDungeon);
     this.dungeonExitDestination = null;
+    this.dungeonChest = null; this.lastKilledMonsterPos = null;
+    window.PlayDungeonChestController?.clearPromptButton?.();
     const wasAlreadyInArena = this.isActive && Boolean(this.preCombatWorldPos);
     if (this.client && !wasAlreadyInArena) {
       this.preCombatWorldPos = {
@@ -387,6 +389,8 @@ class ActionCombatArena {
 
   closeArena() {
     this.isTransitioning = false; this.isActive = false; this.combatState = 'INACTIVE';
+    this.dungeonChest = null; this.lastKilledMonsterPos = null;
+    window.PlayDungeonChestController?.clearPromptButton?.();
     this.pets = []; this.monsters = []; this.projectiles = []; this.selectedTargetMob = null;
     if (window.PlayHudController?.setCombatMode) window.PlayHudController.setCombatMode(false);
     else document.body.classList.remove('is-in-combat');
@@ -471,6 +475,7 @@ class ActionCombatArena {
     this.floatingTexts.push({ x: unit.x, y: unit.y - 48, text, color, life: 1.05 });
     if (unit.hp === 0) {
       unit.isAlive = false; unit.actionStartTime = now; unit.action = 6;
+      if (!unit.isPlayer && unit.team === 'ENEMY') this.lastKilledMonsterPos = { x: unit.x, y: unit.y };
       if (unit.isPlayer) this.showResult(false, 'Você foi derrotado na arena.');
     }
   }
@@ -709,6 +714,11 @@ class ActionCombatArena {
     if (this.combatState !== 'FIGHTING') return;
     const aliveMobs = this.monsters.filter((m) => m.isAlive);
     if (aliveMobs.length === 0) {
+      if (this.isDungeonMode && window.PlayDungeonChestController) {
+        const pos = this.lastKilledMonsterPos || this.player || { x: 500, y: 500 };
+        await window.PlayDungeonChestController.spawnChestAtLastMonster(this, pos.x, pos.y);
+        return;
+      }
       this.combatState = 'RESULT';
       const expGained = this.monsters.reduce((acc, m) => acc + (Number(m.expReward) || (Number(m.level) || 1) * 28), 0);
       const goldGained = this.monsters.reduce((acc, m) => acc + (Number(m.goldReward) || Math.ceil((Number(m.level) || 1) * 10 * ({ SS: 2.5, S: 1.8, A: 1.6, B: 1.35, C: 1.2, F: 0.8 }[m.rarityTier] || 1.0) * (m.variantTier === 'BOSS' ? 1.5 : m.variantTier === 'LEADER' ? 1.3 : 1.0))), 0);
@@ -870,6 +880,7 @@ class ActionCombatArena {
     }
 
     if (this.combatState !== 'FIGHTING') {
+      if (this.combatState === 'CHEST_WAIT') this.updatePlayerMovement(dt);
       for (const pet of this.pets) {
         if (!pet.isAlive && pet.fadeAlpha > 0) pet.fadeAlpha = Math.max(0, pet.fadeAlpha - dt * 1.1);
       }
@@ -953,7 +964,11 @@ class ActionCombatArena {
     return m ? Math.round(this.player.y * 0.65 + m.y * 0.35) : this.player.y;
   }
   drawArenaRingOnFloor(ctx, now, zoom) { if (this.isActive) this.vfxRenderer?.drawArenaFloorAndProjectiles(ctx, this, now, zoom); }
-  renderActiveVfx(ctx, now) { if (this.isActive) this.vfxRenderer?.drawActiveBursts(ctx, now, this); }
+  renderActiveVfx(ctx, now) {
+    if (!this.isActive) return;
+    this.vfxRenderer?.drawActiveBursts(ctx, now, this);
+    window.PlayDungeonChestController?.renderChestOnCanvas(ctx, this, now);
+  }
   populateRenderQueue(renderQueue, now) {
     if (!this.isActive) return;
     const push = renderQueue.pushItem ? (t, y, d) => renderQueue.pushItem(t, y, d) : (t, y, d) => renderQueue.push({ type: t, y, data: d });

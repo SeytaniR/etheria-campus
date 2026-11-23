@@ -100,7 +100,7 @@ class CombatOutcomeController {
       if (drops.length > 0) {
         dropsHtml = `
           <div class="outcome-reward-row" style="flex-direction:column; align-items:flex-start; gap:6px;">
-            <div class="reward-label">Tesouros Obtidos</div>
+            <div class="reward-label">Drops dos Monstros</div>
             <div class="outcome-drops-container">
               ${drops.map((d) => `<span class="outcome-drop-pill">✦ ${d.quantity}x ${d.namePtBr}</span>`).join('')}
             </div>
@@ -108,7 +108,34 @@ class CombatOutcomeController {
         `;
       }
 
+      const chest = victoryData?.chestRewards || null;
+      let chestHtml = '';
+      if (chest) {
+        const glow = chest.glowColorHex || '#fbbf24';
+        const chestItemsHtml = Array.isArray(chest.items) && chest.items.length > 0
+          ? `<div class="outcome-drops-container" style="margin-top:4px;">${chest.items.map((it) => `<span class="outcome-drop-pill" style="border-color:${glow};">🎁 ${it.quantity}x ${it.namePtBr}</span>`).join('')}</div>`
+          : '';
+        chestHtml = `
+          <div class="outcome-reward-row" style="flex-direction:column; align-items:stretch; gap:6px; border:1.5px solid ${glow}; background:rgba(15,23,42,0.85); box-shadow:0 0 18px ${glow}33;">
+            <div style="display:flex; align-items:center; gap:10px;">
+              <img src="${chest.imageUrl}" style="width:44px; height:44px; object-fit:contain; filter:drop-shadow(0 0 8px ${glow}99);" alt="${chest.namePtBr}" />
+              <div style="flex:1;">
+                <div style="font-size:0.84rem; font-weight:900; color:${glow};">✨ ${chest.namePtBr} Aberto!</div>
+                <div style="font-size:0.72rem; color:#cbd5e1;">
+                  ${chest.gold > 0 ? `<strong style="color:#fde047;">+${chest.gold} Ouro</strong>` : ''}
+                  ${chest.gold > 0 && chest.exp > 0 ? ' • ' : ''}
+                  ${chest.exp > 0 ? `<strong style="color:#7dd3fc;">+${chest.exp} EXP</strong>` : ''}
+                  ${chest.gold <= 0 && chest.exp <= 0 && (!chest.items || chest.items.length === 0) ? 'Baú coletado!' : ''}
+                </div>
+              </div>
+            </div>
+            ${chestItemsHtml}
+          </div>
+        `;
+      }
+
       this.rewardsGrid.innerHTML = `
+        ${chestHtml}
         <div class="outcome-reward-row">
           <div class="reward-left-group">
             <img src="/play/assets/hud/crystal_gem_icon.png" class="reward-icon-img" alt="EXP" />

@@ -111,6 +111,7 @@ export interface TemporaryBattleState {
   isDungeon?: boolean;
   dungeonRunId?: number;
   dungeonMapId?: number;
+  dungeonChest?: any;
   mapWidth?: number;
   mapHeight?: number;
   playerStartX?: number;
@@ -893,6 +894,7 @@ export class TemporaryCombatController {
       mapId: battle.mapId || 1,
       isDungeon: Boolean(battle.isDungeon),
       dungeonRunId: battle.dungeonRunId,
+      dungeonChest: battle.dungeonChest ?? null,
       defeatedMonsters: this.buildDefeatedBatch(battle),
       expReward,
       goldReward,

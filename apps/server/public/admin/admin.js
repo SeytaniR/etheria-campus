@@ -88,6 +88,7 @@ class EtheriaAdminStudio {
     if (window.AdminShopsTab) window.AdminShopsTab.attach(this);
     if (window.AdminExperienceTab) window.AdminExperienceTab.attach(this);
     if (window.AdminWorldMapsTab) window.AdminWorldMapsTab.attach(this);
+    if (window.AdminDungeonChestsTab) window.AdminDungeonChestsTab.attach(this);
 
     this.init();
   }

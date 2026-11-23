@@ -18,6 +18,7 @@ import { MonsterCombatBuilder } from './MonsterCombatBuilder.js';
 import type { TemporaryCombatController, CombatUnit } from './TemporaryCombatController.js';
 import { AssetMirrorService } from './AssetMirrorService.js';
 import { MapPresenceService } from './MapPresenceService.js';
+import { DungeonChestService } from './DungeonChestService.js';
 
 export class DungeonService {
   private static readonly mcreworkPagesBaseUrl = '/api/assets/mcrework';
@@ -182,8 +183,8 @@ export class DungeonService {
   }
 
   /**
-   * Sorteia coordenadas válidas e livres de colisão por todo o mapa da Dungeon.
-   * Mantém distância mínima segura do spawn do jogador e coloca o Boss mais afastado.
+   * Sorteia coordenadas válidas, livres de colisão e 100% alcançáveis por caminhada (BFS) a partir do jogador.
+   * O Boss SEMPRE nasce no ponto acessível mais distante do jogador, respeitando malhas de colisão e acesso.
    */
   private static generateDungeonSpawnCoords(
     width: number,
@@ -194,63 +195,135 @@ export class DungeonService {
     totalCount: number
   ): { mobPoints: Array<{ x: number; y: number }>; bossPoint: { x: number; y: number } } {
     const mesh = new MapPolygonMesh(collisionPolys);
-    const padX = Math.min(80, Math.round(width * 0.06));
-    const padY = Math.min(80, Math.round(height * 0.06));
-    const isSpotValid = (x: number, y: number, safeRadius: number, existing: Array<{ x: number; y: number }>, minSep: number) => {
+    const padX = Math.min(72, Math.round(width * 0.05));
+    const padY = Math.min(72, Math.round(height * 0.05));
+    const cellSize = 32;
+    const cols = Math.max(4, Math.floor(width / cellSize));
+    const rows = Math.max(4, Math.floor(height / cellSize));
+    const m = 16;
+
+    const isWalkable = (x: number, y: number): boolean => {
       if (x < padX || y < padY || x > width - padX || y > height - padY) return false;
-      if (Math.hypot(x - playerX, y - playerY) < safeRadius) return false;
       if (mesh.containsPoint(x, y)) return false;
-      const m = 16;
       if (mesh.containsPoint(x + m, y) || mesh.containsPoint(x - m, y) || mesh.containsPoint(x, y + m) || mesh.containsPoint(x, y - m)) {
         return false;
-      }
-      for (const pt of existing) {
-        if (Math.hypot(x - pt.x, y - pt.y) < minSep) return false;
       }
       return true;
     };
 
-    const points: Array<{ x: number; y: number }> = [];
-    const targetTotal = totalCount + 1; // +1 para o Boss
-    const configs = [
-      { safeR: 250, minSep: 110, tries: 350 },
-      { safeR: 190, minSep: 70, tries: 350 },
-      { safeR: 130, minSep: 40, tries: 350 },
-    ];
+    const grid: Uint8Array = new Uint8Array(rows * cols);
+    for (let r = 0; r < rows; r++) {
+      const cy = Math.round(r * cellSize + cellSize * 0.5);
+      for (let c = 0; c < cols; c++) {
+        const cx = Math.round(c * cellSize + cellSize * 0.5);
+        if (isWalkable(cx, cy)) grid[r * cols + c] = 1;
+      }
+    }
 
-    for (const cfg of configs) {
-      let attempt = 0;
-      while (points.length < targetTotal && attempt < cfg.tries) {
-        attempt++;
-        const rx = Math.round(padX + Math.random() * Math.max(100, width - padX * 2));
-        const ry = Math.round(padY + Math.random() * Math.max(100, height - padY * 2));
-        if (isSpotValid(rx, ry, cfg.safeR, points, cfg.minSep)) {
-          points.push({ x: rx, y: ry });
+    // Localiza a célula caminhável mais próxima do ponto de entrada do jogador
+    let startR = Math.max(0, Math.min(rows - 1, Math.floor(playerY / cellSize)));
+    let startC = Math.max(0, Math.min(cols - 1, Math.floor(playerX / cellSize)));
+    if (!grid[startR * cols + startC]) {
+      let bestD = Infinity;
+      for (let r = 0; r < rows; r++) {
+        for (let c = 0; c < cols; c++) {
+          if (!grid[r * cols + c]) continue;
+          const d = Math.hypot((c + 0.5) * cellSize - playerX, (r + 0.5) * cellSize - playerY);
+          if (d < bestD) { bestD = d; startR = r; startC = c; }
         }
       }
-      if (points.length >= targetTotal) break;
     }
 
-    // Fallback garantido caso o mapa seja muito pequeno ou restrito
-    while (points.length < targetTotal) {
-      const ang = (points.length / Math.max(1, targetTotal)) * Math.PI * 2;
-      const cx = Math.max(padX, Math.min(width - padX, Math.round(playerX + Math.cos(ang) * 260)));
-      const cy = Math.max(padY, Math.min(height - padY, Math.round(playerY + Math.sin(ang) * 200)));
-      points.push({ x: cx, y: cy });
+    // BFS 8-direções a partir do jogador para mapear 100% da área acessível e a distância real de caminhada
+    const distArr = new Int32Array(rows * cols).fill(-1);
+    const queue = new Int32Array(rows * cols);
+    let qHead = 0;
+    let qTail = 0;
+    const startIdx = startR * cols + startC;
+    if (grid[startIdx]) {
+      distArr[startIdx] = 0;
+      queue[qTail++] = startIdx;
     }
+    const dirs = [
+      [1, 0], [-1, 0], [0, 1], [0, -1],
+      [1, 1], [1, -1], [-1, 1], [-1, -1],
+    ];
+    const reachable: Array<{ x: number; y: number; bfsDist: number; euclid: number }> = [];
+    while (qHead < qTail) {
+      const idx = queue[qHead++];
+      const r = Math.floor(idx / cols);
+      const c = idx % cols;
+      const d = distArr[idx];
+      const cx = Math.round(c * cellSize + cellSize * 0.5);
+      const cy = Math.round(r * cellSize + cellSize * 0.5);
+      reachable.push({ x: cx, y: cy, bfsDist: d, euclid: Math.hypot(cx - playerX, cy - playerY) });
 
-    // O Boss ocupa o ponto mais distante da entrada do jogador
-    let bossIdx = 0;
-    let maxDist = -1;
-    for (let i = 0; i < points.length; i++) {
-      const d = Math.hypot(points[i].x - playerX, points[i].y - playerY);
-      if (d > maxDist) {
-        maxDist = d;
-        bossIdx = i;
+      for (const [dr, dc] of dirs) {
+        const nr = r + dr;
+        const nc = c + dc;
+        if (nr < 0 || nr >= rows || nc < 0 || nc >= cols) continue;
+        // Impede corte diagonal através de quina bloqueada
+        if (dr !== 0 && dc !== 0 && (!grid[r * cols + nc] || !grid[nr * cols + c])) continue;
+        const nIdx = nr * cols + nc;
+        if (grid[nIdx] && distArr[nIdx] === -1) {
+          distArr[nIdx] = d + 1;
+          queue[qTail++] = nIdx;
+        }
       }
     }
-    const bossPoint = points.splice(bossIdx, 1)[0];
-    return { mobPoints: points, bossPoint };
+
+    // 1. Boss nasce SEMPRE no ponto acessível mais distante (maior distância BFS real, desempate por euclidiana)
+    let bossPoint = { x: Math.max(padX, Math.min(width - padX, Math.round(playerX + 260))), y: Math.max(padY, Math.min(height - padY, Math.round(playerY))) };
+    if (reachable.length > 0) {
+      reachable.sort((a, b) => (b.bfsDist !== a.bfsDist ? b.bfsDist - a.bfsDist : b.euclid - a.euclid));
+      bossPoint = { x: reachable[0].x, y: reachable[0].y };
+    }
+
+    // 2. Monstros comuns distribuídos apenas em células acessíveis (longe do spawn do jogador e espaçados)
+    const mobPoints: Array<{ x: number; y: number }> = [];
+    const shuffled = reachable.slice(1);
+    for (let i = shuffled.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      const tmp = shuffled[i]; shuffled[i] = shuffled[j]; shuffled[j] = tmp;
+    }
+
+    const passes = [
+      { safeR: 250, minSep: 115, bossSep: 95 },
+      { safeR: 185, minSep: 72, bossSep: 65 },
+      { safeR: 120, minSep: 40, bossSep: 35 },
+      { safeR: 60, minSep: 18, bossSep: 18 },
+    ];
+    for (const p of passes) {
+      for (const cand of shuffled) {
+        if (mobPoints.length >= totalCount) break;
+        if (cand.euclid < p.safeR) continue;
+        if (Math.hypot(cand.x - bossPoint.x, cand.y - bossPoint.y) < p.bossSep) continue;
+        let tooClose = false;
+        for (const existing of mobPoints) {
+          if (Math.hypot(cand.x - existing.x, cand.y - existing.y) < p.minSep) { tooClose = true; break; }
+        }
+        if (!tooClose) mobPoints.push({ x: cand.x, y: cand.y });
+      }
+      if (mobPoints.length >= totalCount) break;
+    }
+
+    // Fallback garantido reutilizando pontos acessíveis caso o mapa seja muito pequeno
+    let fbIdx = 0;
+    while (mobPoints.length < totalCount) {
+      if (reachable.length > 0) {
+        const pick = reachable[fbIdx % reachable.length];
+        mobPoints.push({ x: pick.x, y: pick.y });
+        fbIdx++;
+      } else {
+        const ang = (mobPoints.length / Math.max(1, totalCount)) * Math.PI * 2;
+        mobPoints.push({
+          x: Math.max(padX, Math.min(width - padX, Math.round(playerX + Math.cos(ang) * 220))),
+          y: Math.max(padY, Math.min(height - padY, Math.round(playerY + Math.sin(ang) * 180))),
+        });
+      }
+    }
+
+    return { mobPoints, bossPoint };
   }
 
   /**
@@ -619,6 +692,32 @@ export class DungeonService {
         sendJson(res, 200, result);
       } catch (err: any) {
         sendJson(res, 400, { error: err?.message || 'Erro ao fugir da Dungeon.' });
+      }
+      return true;
+    }
+
+    if (pathname === '/api/play/dungeon/spawn-chest' && method === 'POST') {
+      const body = await readJsonBody<{ battleId: string; x?: number; y?: number }>(req);
+      const battle = combatController.getBattleState(String(body.battleId || ''));
+      if (!battle || !battle.isDungeon) {
+        sendJson(res, 404, { error: 'Instância de Dungeon não encontrada.' });
+        return true;
+      }
+      if (!(await verifyOwnership(Number(battle.characterId) || 0))) {
+        sendJson(res, 403, { error: 'Acesso não autorizado.' });
+        return true;
+      }
+      try {
+        const chest = await DungeonChestService.rollChestForBattle(
+          prisma,
+          combatController,
+          String(body.battleId),
+          Number(body.x),
+          Number(body.y)
+        );
+        sendJson(res, 200, { ok: true, chest });
+      } catch (err: any) {
+        sendJson(res, 400, { error: err?.message || 'Erro ao gerar baú da Dungeon.' });
       }
       return true;
     }

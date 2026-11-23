@@ -396,8 +396,9 @@ class EtheriaPlayClient {
       const bounds = this.getMapBounds();
       worldPt.x = Math.max(18, Math.min(bounds.width - 18, worldPt.x));
       worldPt.y = Math.max(20, Math.min(bounds.height - 18, worldPt.y));
-      // Em batalha na arena: clique esquerdo seleciona alvo e realiza ataque básico, ou se move pelo chão
+      // Em batalha na arena: clique esquerdo abre baú da dungeon, seleciona alvo/ataca ou move pelo chão
       if (this.actionCombatArena?.isActive) {
+        if (window.PlayDungeonChestController?.handleCanvasClick(this.actionCombatArena, worldPt)) return;
         if (window.PlayNativeAppController?.handleArenaPointer(this, worldPt)) return;
       }
       // Se o clique foi em um portal, PortalTravelController conduz o herói e abre confirmação
