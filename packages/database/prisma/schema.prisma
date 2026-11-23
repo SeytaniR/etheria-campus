@@ -694,6 +694,8 @@ model QuestTemplate {
 
   objectivesJson          Json                     @default("[]") @map("objectives_json") /// Blocos visuais de objetivos
   rewardsJson             Json                     @default("{}") @map("rewards_json") /// Blocos visuais de recompensas
+  expCoefficient          Float                    @default(1.0) @map("exp_coefficient") /// Coeficiente multiplicador de EXP (padrão 1.0; ex: 2.0 dobra, 0.5 metade)
+  goldCoefficient         Float                    @default(1.0) @map("gold_coefficient") /// Coeficiente multiplicador de Ouro (padrão 1.0; ex: 2.0 dobra, 0.5 metade)
   metaConfigJson          Json?                    @map("meta_config_json") /// Configuração procedural da Quest Meta (Alvo, x10, estágios, grade editável)
   isActive                Boolean                  @default(true) @map("is_active")
 

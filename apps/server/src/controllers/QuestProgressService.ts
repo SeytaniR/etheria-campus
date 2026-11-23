@@ -19,6 +19,7 @@ import {
   type DefeatedMonsterDropUnit,
 } from './CharacterInventoryService.js';
 import { CharacterProgressionService } from './CharacterProgressionService.js';
+import { QuestStepActionService } from './QuestStepActionService.js';
 
 export interface QuestObjectiveRuntimeDto {
   type: 'KILL_MONSTER' | 'KILL_LEADER' | 'KILL_BOSS' | 'KILL_RACE' | 'COLLECT_ITEM' | 'TALK_NPC' | 'VISIT_MAP' | 'WIN_BATTLES';
@@ -34,6 +35,17 @@ export interface QuestObjectiveRuntimeDto {
   mapId?: number | null;
   requiredCount: number;
   labelPtBr?: string;
+  stepActionType?: string;
+  stepDialoguePtBr?: string;
+  stepButtonLabelPtBr?: string;
+  stepGrantItemIds?: number[];
+  requireEquipItemIds?: number[];
+  stepPetRank?: string;
+  stepPetPickCount?: number;
+  stepPetRequireDistinct?: boolean;
+  stepExpSharePct?: number;
+  stepExpFixed?: number;
+  stepBattleConfig?: any;
 }
 
 export class QuestProgressService {
@@ -53,7 +65,7 @@ export class QuestProgressService {
     if (characterId) {
       await MonsterMetaQuestService.ensurePlayerMetaQuests(this.prisma, characterId);
     }
-    const [character, allQuests, progressRows, bagMap, items, monsters, races, i18nMap] = await Promise.all([
+    const [character, allQuests, progressRows, bagMap, items, monsters, races, i18nMap, levelExpMap] = await Promise.all([
       this.prisma.playerCharacter.findUnique({ where: { id: Number(characterId) } }),
       this.getAllQuestsFn(),
       this.prisma.characterQuestProgress.findMany({ where: { characterId: Number(characterId) } }),
@@ -62,6 +74,7 @@ export class QuestProgressService {
       this.prisma.monsterTemplate.findMany({ select: { id: true, code: true, nameI18nKey: true } }),
       this.prisma.race.findMany({ select: { code: true, nameI18nKey: true } }),
       I18nCache.getTranslations(this.prisma, 'pt-BR'),
+      QuestStepActionService.loadLevelExpMap(this.prisma),
     ]);
 
     if (!character) {
@@ -163,8 +176,51 @@ export class QuestProgressService {
           ? (prog.progressJson as number[])
           : objectives.map(() => 0);
 
+        const isSequential = Boolean((q.triggerConfigJson as any)?.sequentialObjectives);
         const formattedObjectives = objectives.map((obj, idx) => {
           const req = Math.max(1, Number(obj.requiredCount) || 1);
+          const actionType = String(obj.stepActionType || '').toUpperCase();
+          const stepExpReward = QuestStepActionService.computeStepExpReward(q, obj, levelExpMap);
+
+          if (actionType === 'GRANT_AND_EQUIP') {
+            const rawFlag = Math.max(0, Number(rawCounts[idx] || 0));
+            const grantIds = Array.isArray(obj.stepGrantItemIds) ? obj.stepGrantItemIds : [];
+            const reqEquipIds = Array.isArray(obj.requireEquipItemIds) && obj.requireEquipItemIds.length > 0
+              ? obj.requireEquipItemIds
+              : grantIds;
+            const eqCheck = QuestStepActionService.inspectEquippedItems(character.equippedItemsJson, reqEquipIds);
+            const itemsGranted = rawFlag >= 1;
+            const isDone = rawFlag >= 2 || (itemsGranted && eqCheck.totalRequired > 0 && eqCheck.missingIds.length === 0);
+            return {
+              ...obj,
+              stepIndex: idx,
+              itemsGranted,
+              equippedCount: eqCheck.equippedCount,
+              totalRequiredEquip: eqCheck.totalRequired,
+              missingEquipItemIds: eqCheck.missingIds,
+              stepExpReward,
+              currentCount: itemsGranted ? eqCheck.equippedCount : 0,
+              requiredCount: eqCheck.totalRequired || 1,
+              completed: isDone,
+              descriptionPtBr: obj.labelPtBr || 'Receber e equipar os itens iniciais',
+            };
+          }
+
+          if (actionType === 'CHOOSE_PETS') {
+            const rawFlag = Math.max(0, Number(rawCounts[idx] || 0));
+            const pickCount = Math.max(1, Number(obj.stepPetPickCount) || 2);
+            const isDone = rawFlag >= 1;
+            return {
+              ...obj,
+              stepIndex: idx,
+              stepExpReward,
+              currentCount: isDone ? pickCount : 0,
+              requiredCount: pickCount,
+              completed: isDone,
+              descriptionPtBr: obj.labelPtBr || `Escolher ${pickCount} Companheiros de Vínculo`,
+            };
+          }
+
           if (obj.type === 'COLLECT_ITEM' && obj.itemTemplateId) {
             const delivered = prog && prog.status !== 'TURNED_IN' ? Math.max(0, Number(rawCounts[idx] || 0)) : 0;
             const inBag = bagMap.get(Number(obj.itemTemplateId)) || 0;
@@ -173,6 +229,8 @@ export class QuestProgressService {
             const itemName = itemNameMap.get(Number(obj.itemTemplateId)) ?? `Item #${obj.itemTemplateId}`;
             return {
               ...obj,
+              stepIndex: idx,
+              stepExpReward,
               currentCount: effectiveCur,
               deliveredCount: delivered,
               bagCount: inBag,
@@ -214,11 +272,19 @@ export class QuestProgressService {
           const cur = Math.min(req, Math.max(0, Number(rawCounts[idx] || 0)));
           return {
             ...obj,
+            stepIndex: idx,
+            stepExpReward,
             currentCount: cur,
             requiredCount: req,
             completed: cur >= req,
             descriptionPtBr: fallbackLabel,
           };
+        });
+
+        const firstIncompleteIdx = formattedObjectives.findIndex((o: any) => !o.completed);
+        formattedObjectives.forEach((o: any, idx: number) => {
+          o.isActiveStep = isSequential ? idx === firstIncompleteIdx : !o.completed;
+          o.isLockedStep = isSequential && firstIncompleteIdx >= 0 && idx > firstIncompleteIdx;
         });
 
         const reqCfg = (q.requirementsJson || {}) as any;
@@ -252,8 +318,23 @@ export class QuestProgressService {
         const rewardItemId = rew.rewardItemTemplateId ? Number(rew.rewardItemTemplateId) : null;
         const rewardItemQty = rewardItemId ? Math.max(1, Number(rew.rewardItemQuantity) || 1) : 0;
 
+        const effRewards = isMeta
+          ? {
+              exp: Number(rew.exp) || 0,
+              gold: Number(rew.gold) || 0,
+              expCoefficient: 1,
+              goldCoefficient: 1,
+              baseExp: Number(rew.exp) || 0,
+              baseGold: Number(rew.gold) || 0,
+            }
+          : QuestStepActionService.resolveEffectiveRewards(q, rew, levelExpMap);
+
         return {
           ...q,
+          sequentialObjectives: isSequential,
+          activeStepIndex: firstIncompleteIdx,
+          acceptButtonLabelPtBr: (q.triggerConfigJson as any)?.acceptButtonLabelPtBr || null,
+          turnInButtonLabelPtBr: (q.triggerConfigJson as any)?.turnInButtonLabelPtBr || null,
           questBattleConfig: (q.triggerConfigJson as any)?.questBattleConfig || q.questBattleConfig || null,
           dialogueCompletePtBr: effectiveDialogueComplete || q.dialogueCompletePtBr,
           objectivesJson: objectives,
@@ -264,8 +345,12 @@ export class QuestProgressService {
           objectives: formattedObjectives,
           metaStageInfo: activeStageInfo,
           rewards: {
-            exp: Number(rew.exp) || 0,
-            gold: Number(rew.gold) || 0,
+            exp: effRewards.exp,
+            gold: effRewards.gold,
+            baseExp: effRewards.baseExp,
+            baseGold: effRewards.baseGold,
+            expCoefficient: effRewards.expCoefficient,
+            goldCoefficient: effRewards.goldCoefficient,
             freePointsBonus: 0,
             rewardItemTemplateId: rewardItemId,
             rewardItemQuantity: rewardItemQty,
@@ -285,7 +370,7 @@ export class QuestProgressService {
 
     const npcHeadIndicators: Record<
       number,
-      { symbol: '!' | '?'; color: 'RED' | 'GRAY'; state: 'TURN_IN_READY' | 'AVAILABLE' | 'IN_PROGRESS' }
+      { symbol: '!' | '?'; color: 'RED' | 'GRAY'; state: 'TURN_IN_READY' | 'AVAILABLE' | 'IN_PROGRESS' | 'STEP_ACTIVE' }
     > = {};
 
     for (const q of enrichedQuests) {
@@ -298,8 +383,22 @@ export class QuestProgressService {
         if (npcHeadIndicators[giverId]?.state !== 'TURN_IN_READY') {
           npcHeadIndicators[giverId] = { symbol: '!', color: 'RED', state: 'AVAILABLE' };
         }
-      } else if (q.playerState === 'IN_PROGRESS' && turnInId && q.turnInMapAllowed) {
-        if (!npcHeadIndicators[turnInId]) {
+      } else if (q.playerState === 'IN_PROGRESS') {
+        // Se for checklist sequencial ou tiver etapa ativa em NPC específico, destaca o NPC da etapa ativa!
+        const activeStep = (q.objectives || []).find((o: any) => o.isActiveStep && !o.completed && Number(o.npcTemplateId) > 0);
+        if (activeStep) {
+          const stepNpcId = Number(activeStep.npcTemplateId);
+          const stepMapOk = !activeStep.mapId || !activeMapId || Number(activeStep.mapId) === Number(activeMapId);
+          if (stepMapOk && npcHeadIndicators[stepNpcId]?.state !== 'TURN_IN_READY') {
+            const isEquipWaiting = activeStep.stepActionType === 'GRANT_AND_EQUIP' && activeStep.itemsGranted;
+            npcHeadIndicators[stepNpcId] = {
+              symbol: isEquipWaiting ? '?' : '!',
+              color: isEquipWaiting ? 'GRAY' : 'RED',
+              state: 'STEP_ACTIVE',
+            };
+          }
+        }
+        if (turnInId && q.turnInMapAllowed && !npcHeadIndicators[turnInId]) {
           npcHeadIndicators[turnInId] = { symbol: '?', color: 'GRAY', state: 'IN_PROGRESS' };
         }
       }
@@ -383,6 +482,9 @@ export class QuestProgressService {
       let changed = false;
 
       objectives.forEach((obj: any, idx: number) => {
+        // Etapas interativas com modal próprio (Checklist Sequencial / stepActionType / stepDialoguePtBr)
+        // exigem clique explícito no botão do modal (confirmQuestStep) e não avançam ao abrir.
+        if (q.sequentialObjectives || obj.stepActionType || obj.stepDialoguePtBr) return;
         if (obj.type === 'TALK_NPC' && Number(obj.npcTemplateId) === Number(npcTemplateId)) {
           const mapOk = !obj.mapId || !state.currentMapId || Number(obj.mapId) === Number(state.currentMapId);
           if (mapOk && (counts[idx] || 0) < (obj.requiredCount || 1)) {
@@ -491,15 +593,20 @@ export class QuestProgressService {
     }
     const droppedItems = Array.from(mergedDropMap.values());
 
+    const levelExpMap = await QuestStepActionService.loadLevelExpMap(this.prisma);
+
     for (const q of inProgressQuests) {
       const objectives = Array.isArray(q.objectives) ? q.objectives : [];
       const counts = [...q.progressCounts];
       let changed = false;
+      let battleStepExpAwarded = 0;
 
       objectives.forEach((obj: any, idx: number) => {
+        if (q.sequentialObjectives && !obj.isActiveStep) return;
         const req = Math.max(1, Number(obj.requiredCount) || 1);
         if (obj.type === 'COLLECT_ITEM') return;
         if ((counts[idx] || 0) >= req) return;
+        const wasDone = (counts[idx] || 0) >= req;
 
         if (obj.type === 'WIN_BATTLES') {
           counts[idx] = Math.min(req, (counts[idx] || 0) + 1);
@@ -533,12 +640,19 @@ export class QuestProgressService {
             changed = true;
           }
         }
+
+        if (!wasDone && (counts[idx] || 0) >= req) {
+          battleStepExpAwarded += QuestStepActionService.computeStepExpReward(q, obj, levelExpMap);
+        }
       });
 
       if (changed) {
-        const allDone = objectives.every((obj: any, idx: number) =>
-          obj.type === 'COLLECT_ITEM' ? Boolean(obj.completed) : (counts[idx] || 0) >= (obj.requiredCount || 1),
-        );
+        const allDone = objectives.every((obj: any, idx: number) => {
+          if (obj.type === 'COLLECT_ITEM' || obj.stepActionType === 'GRANT_AND_EQUIP' || obj.stepActionType === 'CHOOSE_PETS') {
+            return Boolean(obj.completed);
+          }
+          return (counts[idx] || 0) >= (obj.requiredCount || 1);
+        });
         await this.prisma.characterQuestProgress.update({
           where: {
             characterId_questTemplateId: {
@@ -551,6 +665,9 @@ export class QuestProgressService {
             status: allDone ? 'COMPLETED_PENDING_TURNIN' : 'IN_PROGRESS',
           },
         });
+        if (battleStepExpAwarded > 0) {
+          await CharacterProgressionService.awardProgression(this.prisma, Number(characterId), battleStepExpAwarded);
+        }
       }
     }
 

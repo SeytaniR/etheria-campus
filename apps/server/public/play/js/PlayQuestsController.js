@@ -20,6 +20,7 @@ const PlayQuestsController = {
     client.questLogFilter = 'ACTIVE';
 
     this.injectQuestModalsDom();
+    if (window.PlayQuestStepModal) window.PlayQuestStepModal.attach(client);
 
     client.loadCharacterQuests = async function () {
       if (!this.activeChar) return;
@@ -30,12 +31,14 @@ const PlayQuestsController = {
         );
         this.questState = res || { quests: [], npcHeadIndicators: {} };
         this.updateQuestHudBadge();
+        window.PlayQuestStepModal?.updateQuestChecklistHud(this);
       } catch (err) {
         console.warn('[PlayQuests] Falha ao carregar estado de quests:', err);
       }
     };
 
     client.updateQuestHudBadge = function () {
+      window.PlayQuestStepModal?.updateQuestChecklistHud(this);
       const btn = document.getElementById('btnHudQuests');
       if (!btn) return;
       const quests = this.questState?.quests || [];
@@ -252,8 +255,18 @@ const PlayQuestsController = {
 
       const cards = [];
 
+      // 0. Etapas Ativas de Checklist Sequencial neste NPC (Fala e Botão Customizados)
+      if (window.PlayQuestStepModal) {
+        cards.push(...window.PlayQuestStepModal.renderActiveNpcStepCards(this, npc));
+      }
+
+      const fmtTxt = (s) => (window.PlayQuestStepModal ? window.PlayQuestStepModal.formatDialogueHtml(s) : String(s || ''));
+
       // 1. Missões Prontas para Entregar (? Vermelho)
       for (const q of turnInQuests) {
+        const turnBtnText = q.metaStageInfo && q.metaStageInfo.currentStage < q.metaStageInfo.totalStages
+          ? `🏆 Concluir Estágio ${q.metaStageInfo.currentStage}/${q.metaStageInfo.totalStages} & Avançar`
+          : (q.turnInButtonLabelPtBr || '🏆 Concluir Missão & Receber Recompensa');
         cards.push(`
           <div style="background:rgba(239, 68, 68, 0.10); border:1.5px solid #ef4444; border-radius:10px; padding:12px; display:flex; flex-direction:column; gap:8px;">
             <div style="display:flex; justify-content:space-between; align-items:center; gap:8px; flex-wrap:wrap;">
@@ -263,8 +276,8 @@ const PlayQuestsController = {
               </div>
               ${this.getQuestCategoryBadge(q.category, q.chapterOrder, q.episodeOrder, q.metaStageInfo)}
             </div>
-            <p style="font-size:0.82rem; color:#f8fafc; font-style:italic; background:#020617; padding:8px 10px; border-radius:6px; border-left:3px solid #ef4444;">
-              "${q.dialogueCompletePtBr || q.descriptionPtBr}"
+            <p style="font-size:0.82rem; color:#f8fafc; font-style:italic; background:#020617; padding:8px 10px; border-radius:6px; border-left:3px solid #ef4444; line-height:1.45;">
+              "${fmtTxt(q.dialogueCompletePtBr || q.descriptionPtBr)}"
             </p>
             <div style="display:flex; flex-direction:column; gap:4px;">
               ${this.renderObjectivesListHtml(q.objectives)}
@@ -274,8 +287,8 @@ const PlayQuestsController = {
               ${this.renderRewardsSummaryHtml(q.rewards)}
             </div>
             ${q.metaStageInfo?.nextStageRequiredCount ? `<div style="font-size:0.72rem; color:#fdba74; background:rgba(249,115,22,0.12); padding:5px 8px; border-radius:6px;">⏩ Ao entregar, avança para o <strong>Estágio ${q.metaStageInfo.currentStage + 1}/${q.metaStageInfo.totalStages}</strong> (Meta: ${Number(q.metaStageInfo.nextStageRequiredCount).toLocaleString('pt-BR')})</div>` : ''}
-            <button class="btn-primary" style="background:linear-gradient(135deg, #ef4444, #dc2626); border-color:#f87171; color:#fff; padding:10px; font-size:0.86rem;" onclick="PlayApp.turnInCharacterQuest(${q.id})">
-              ${q.metaStageInfo && q.metaStageInfo.currentStage < q.metaStageInfo.totalStages ? `🏆 Concluir Estágio ${q.metaStageInfo.currentStage}/${q.metaStageInfo.totalStages} & Avançar` : '🏆 Concluir Missão & Receber Recompensa'}
+            <button class="btn-primary" style="background:linear-gradient(135deg, #ef4444, #dc2626); border-color:#f87171; color:#fff; padding:10px; font-size:0.86rem; font-weight:800; cursor:pointer;" onclick="PlayApp.turnInCharacterQuest(${q.id})">
+              ${turnBtnText}
             </button>
           </div>
         `);
@@ -283,6 +296,7 @@ const PlayQuestsController = {
 
       // 2. Missões Disponíveis para Aceitar (! Vermelho)
       for (const q of availableQuests) {
+        const acceptBtnText = q.acceptButtonLabelPtBr || '✅ Aceitar Missão';
         cards.push(`
           <div style="background:rgba(239, 68, 68, 0.07); border:1.5px solid #f43f5e; border-radius:10px; padding:12px; display:flex; flex-direction:column; gap:8px;">
             <div style="display:flex; justify-content:space-between; align-items:center; gap:8px; flex-wrap:wrap;">
@@ -292,20 +306,20 @@ const PlayQuestsController = {
               </div>
               ${this.getQuestCategoryBadge(q.category, q.chapterOrder, q.episodeOrder, q.metaStageInfo)}
             </div>
-            <p style="font-size:0.82rem; color:#e2e8f0; font-style:italic; background:#020617; padding:8px 10px; border-radius:6px; border-left:3px solid #ff2e4c;">
-              "${q.dialogueOfferPtBr || q.descriptionPtBr}"
+            <p style="font-size:0.82rem; color:#e2e8f0; font-style:italic; background:#020617; padding:8px 10px; border-radius:6px; border-left:3px solid #ff2e4c; line-height:1.45;">
+              "${fmtTxt(q.dialogueOfferPtBr || q.descriptionPtBr)}"
             </p>
             <div style="font-size:0.76rem; color:#94a3b8;">${q.descriptionPtBr}</div>
             <div style="display:flex; flex-direction:column; gap:4px;">
-              <span style="font-size:0.72rem; color:#94a3b8; font-weight:700;">🎯 Objetivos:</span>
+              <span style="font-size:0.72rem; color:#94a3b8; font-weight:700;">🎯 Checklist / Objetivos:</span>
               ${this.renderObjectivesListHtml(q.objectives)}
             </div>
             <div>
               <div style="font-size:0.72rem; color:#94a3b8; margin-bottom:4px;">🎁 Recompensas ao concluir:</div>
               ${this.renderRewardsSummaryHtml(q.rewards)}
             </div>
-            <button class="btn-success" style="padding:10px; font-size:0.86rem;" onclick="PlayApp.acceptCharacterQuest(${q.id})">
-              ✅ Aceitar Missão
+            <button class="btn-success" style="padding:10px; font-size:0.86rem; font-weight:800; cursor:pointer;" onclick="PlayApp.acceptCharacterQuest(${q.id})">
+              ${acceptBtnText}
             </button>
           </div>
         `);
@@ -314,10 +328,11 @@ const PlayQuestsController = {
       // 3. Missões em Andamento (? Cinza)
       for (const q of inProgressQuests) {
         const hasBattleObjective =
-          Boolean(q.questBattleConfig?.enabled) ||
-          (q.objectives || []).some(
-            (o) => ['WIN_BATTLES', 'KILL_MONSTER', 'KILL_LEADER', 'KILL_BOSS'].includes(o.type) && !o.completed
-          );
+          !q.sequentialObjectives &&
+          (Boolean(q.questBattleConfig?.enabled) ||
+            (q.objectives || []).some(
+              (o) => ['WIN_BATTLES', 'KILL_MONSTER', 'KILL_LEADER', 'KILL_BOSS'].includes(o.type) && !o.completed
+            ));
         const battleBtnLabel = q.questBattleConfig?.buttonLabelPtBr || '⚔️ Entrar no Véu (Iniciar Treino / Combate)';
         const battleBtnHtml = hasBattleObjective
           ? `
@@ -393,8 +408,16 @@ const PlayQuestsController = {
         if (res?.questState) {
           this.questState = res.questState;
           this.updateQuestHudBadge();
+          window.PlayQuestStepModal?.updateQuestChecklistHud(this);
         }
-        this.renderNpcQuestModalContent();
+        const acceptedQ = (this.questState?.quests || []).find((q) => Number(q.id) === Number(questId));
+        if (acceptedQ?.sequentialObjectives) {
+          const modal = document.getElementById('npcQuestModal');
+          if (modal) modal.style.display = 'none';
+          this.showNotification?.(`📜 Missão iniciada: ${acceptedQ.titlePtBr}! Siga o checklist na tela.`, 'success');
+        } else {
+          this.renderNpcQuestModalContent();
+        }
       } catch (err) {
         alert(`Erro ao aceitar missão: ${err.message}`);
       }
@@ -410,6 +433,7 @@ const PlayQuestsController = {
         if (res?.questState) {
           this.questState = res.questState;
           this.updateQuestHudBadge();
+          window.PlayQuestStepModal?.updateQuestChecklistHud(this);
         }
         if (res?.character) {
           this.activeChar.level = res.character.level;
@@ -423,6 +447,9 @@ const PlayQuestsController = {
           if (res.character.playerProgression?.leveledUp) {
             const p = res.character.playerProgression;
             this.showNotification?.(`🎉 LEVEL UP! Nível ${p.newLevel}! (+${p.statPointsGained} Pontos de Atributos)`, 'success');
+            if (window.LevelUpVfxController?.trigger) {
+              window.LevelUpVfxController.trigger(this, p.newLevel, p.statPointsGained);
+            }
           }
 
           if (Array.isArray(res.character.petsProgression)) {
@@ -605,10 +632,12 @@ const PlayQuestsController = {
                   ${this.renderRewardsSummaryHtml(q.rewards)}
                   ${
                     q.status === 'IN_PROGRESS' &&
-                    (Boolean(q.questBattleConfig?.enabled) ||
-                      (q.objectives || []).some(
-                        (o) => ['WIN_BATTLES', 'KILL_MONSTER', 'KILL_LEADER', 'KILL_BOSS'].includes(o.type) && !o.completed
-                      ))
+                    (!q.sequentialObjectives
+                      ? Boolean(q.questBattleConfig?.enabled) ||
+                        (q.objectives || []).some(
+                          (o) => ['WIN_BATTLES', 'KILL_MONSTER', 'KILL_LEADER', 'KILL_BOSS'].includes(o.type) && !o.completed
+                        )
+                      : (q.objectives || []).some((o) => o.isActiveStep && !o.completed && o.stepActionType === 'QUEST_BATTLE'))
                       ? `<button class="btn-primary" style="background:linear-gradient(135deg, #7c3aed, #4f46e5); border:1.5px solid #a78bfa; color:#fff; font-weight:800; padding:8px 12px; font-size:0.82rem; border-radius:8px; display:flex; align-items:center; justify-content:center; gap:8px; cursor:pointer; margin-top:4px;" onclick="window.PlayApp.startQuestBattle(${q.id})">
                           ${q.questBattleConfig?.buttonLabelPtBr || '⚔️ Entrar no Véu (Iniciar Treino / Combate)'}
                         </button>`

@@ -84,6 +84,11 @@ const PlayBagController = {
             window.PlayFlightAndWingsController?.startTakeoff(this);
           }
         }
+        if (res?.questSync && typeof this.handleQuestEquipSyncResult === 'function') {
+          this.handleQuestEquipSyncResult(res.questSync);
+        } else if (typeof this.loadCharacterQuests === 'function') {
+          this.loadCharacterQuests();
+        }
         this.showNotification?.('⚔️ Equipamento vestido com sucesso!', 'success');
         PlayBagController.closeItemDetailModal();
         await PlayBagController.loadBag();

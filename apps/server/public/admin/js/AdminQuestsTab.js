@@ -20,6 +20,7 @@ class AdminQuestsTab {
     if (window.AdminMetaQuestsPanel) AdminMetaQuestsPanel.attach(app);
     if (window.AdminQuestBattlePanel) AdminQuestBattlePanel.attach(app);
     AdminQuestsModalDom.injectTabAndModalDom();
+    if (window.AdminQuestStepsEditor) AdminQuestStepsEditor.attach(app);
 
     app.loadQuestTemplates = async function () {
       try {
@@ -228,8 +229,10 @@ class AdminQuestsTab {
         const st = catStyles[q.questCategory] || catStyles.MAIN;
         const rew = q.rewardsJson || {};
         const rewPills = [];
-        if (rew.exp) rewPills.push(`✨ +${rew.exp} EXP`);
-        if (rew.gold) rewPills.push(`🪙 +${rew.gold} Ouro`);
+        const effExp = q.effectiveExp ?? rew.exp ?? 0;
+        const effGold = q.effectiveGold ?? rew.gold ?? 0;
+        if (effExp) rewPills.push(`✨ +${Number(effExp).toLocaleString('pt-BR')} EXP (x${q.expCoefficient ?? 1})`);
+        if (effGold) rewPills.push(`🪙 +${Number(effGold).toLocaleString('pt-BR')} Ouro (x${q.goldCoefficient ?? 1})`);
         if (rew.statPoints) rewPills.push(`📊 +${rew.statPoints} Pts`);
         if (rew.rewardItemTemplateId) rewPills.push(`🎒 +${rew.rewardItemQuantity || 1}x ${q.rewardItemNamePtBr || `#${rew.rewardItemTemplateId}`}`);
         if (rew.triggerReborn) rewPills.push(`👑 Reborn`);
@@ -446,8 +449,10 @@ class AdminQuestsTab {
           const cb = catBadges[q.questCategory] || catBadges.MAIN;
           const rew = q.rewardsJson || {};
           const rewParts = [];
-          if (rew.exp) rewParts.push(`✨ +${rew.exp} EXP`);
-          if (rew.gold) rewParts.push(`🪙 +${rew.gold} Ouro`);
+          const effExp = q.effectiveExp ?? rew.exp ?? 0;
+          const effGold = q.effectiveGold ?? rew.gold ?? 0;
+          if (effExp) rewParts.push(`✨ +${Number(effExp).toLocaleString('pt-BR')} EXP (x${q.expCoefficient ?? 1})`);
+          if (effGold) rewParts.push(`🪙 +${Number(effGold).toLocaleString('pt-BR')} Ouro (x${q.goldCoefficient ?? 1})`);
           if (rew.statPoints) rewParts.push(`📊 +${rew.statPoints} Pts`);
           if (rew.rewardItemTemplateId) rewParts.push(`🎒 +${rew.rewardItemQuantity || 1}x ${q.rewardItemNamePtBr || `#${rew.rewardItemTemplateId}`}`);
           if (rew.triggerReborn) rewParts.push(`👑 Ativa Reborn`);
@@ -684,12 +689,9 @@ class AdminQuestsTab {
         ];
       }
 
-      if (typeof this.loadMetaConfigIntoForm === 'function') {
-        this.loadMetaConfigIntoForm(existing);
-      }
-      if (typeof this.loadQuestBattleConfigIntoForm === 'function') {
-        this.loadQuestBattleConfigIntoForm(existing);
-      }
+      if (typeof this.loadMetaConfigIntoForm === 'function') this.loadMetaConfigIntoForm(existing);
+      if (typeof this.loadQuestBattleConfigIntoForm === 'function') this.loadQuestBattleConfigIntoForm(existing);
+      if (typeof this.loadQuestCoefficientsAndStepsIntoForm === 'function') this.loadQuestCoefficientsAndStepsIntoForm(existing);
       this.onQuestEpisodeOrCategoryChanged();
       this.onQuestTriggerTypeChanged();
       this.renderVisualQuestObjectives();
@@ -809,6 +811,7 @@ class AdminQuestsTab {
                 <select onchange="AdminApp.updateVisualQuestObjectiveField(${i}, 'mapId', this.value, true)">${mapOpts}</select>
               </div>
               <button type="button" class="btn-danger" onclick="AdminApp.removeVisualQuestObjective(${i})" style="padding:6px 10px;">🗑️</button>
+              ${typeof this.renderObjectiveStepExtraHtml === 'function' ? this.renderObjectiveStepExtraHtml(obj, i) : ''}
             </div>`;
           }
 
@@ -841,6 +844,7 @@ class AdminQuestsTab {
               <input type="number" min="1" value="${obj.requiredCount || 1}" onchange="AdminApp.updateVisualQuestObjectiveField(${i}, 'requiredCount', this.value, true)" />
             </div>
             <button type="button" class="btn-danger" onclick="AdminApp.removeVisualQuestObjective(${i})" style="padding:6px 10px;">🗑️</button>
+            ${typeof this.renderObjectiveStepExtraHtml === 'function' ? this.renderObjectiveStepExtraHtml(obj, i) : ''}
           </div>`;
         })
         .join('');
@@ -935,6 +939,10 @@ class AdminQuestsTab {
             triggerReborn: document.getElementById('questRewardRebornSelect').value === 'true',
           },
         };
+
+        if (typeof this.applyCoefficientsAndStepsToDto === 'function') {
+          this.applyCoefficientsAndStepsToDto(dto);
+        }
 
         const path = editId ? `/api/admin/quest-templates/${editId}` : '/api/admin/quest-templates';
         const method = editId ? 'PUT' : 'POST';

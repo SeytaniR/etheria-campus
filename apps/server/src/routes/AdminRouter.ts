@@ -636,6 +636,12 @@ export class AdminRouter {
       }
       return true;
     }
+    if (pathname === '/api/admin/quest-templates/coefficients' && method === 'POST') {
+      if (this.enforceTablePermission(res, session, 'QUESTS', 'READ_WRITE')) {
+        this.deps.sendJson(res, 200, await this.deps.questsController.bulkUpdateQuestCoefficients(await this.deps.readJsonBody(req)));
+      }
+      return true;
+    }
     const questMatch = pathname.match(/^\/api\/admin\/quest-templates\/(\d+)$/);
     if (questMatch && method === 'PUT') {
       if (this.enforceTablePermission(res, session, 'QUESTS', 'READ_WRITE')) {

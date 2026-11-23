@@ -20,6 +20,7 @@ import { MonsterCombatBuilder, type QuestBattleConfigDto } from '../controllers/
 import { ItemContainerOpeningService } from '../controllers/ItemContainerOpeningService.js';
 import { CharacterPetService } from '../controllers/CharacterPetService.js';
 import { HunterPetController } from '../controllers/HunterPetController.js';
+import { QuestStepActionService } from '../controllers/QuestStepActionService.js';
 import { DungeonService } from '../controllers/DungeonService.js';
 import { DungeonChestService } from '../controllers/DungeonChestService.js';
 import { GmSandboxService } from '../controllers/GmSandboxService.js';
@@ -188,15 +189,9 @@ export class PlayRouter {
     if (charEquipItemMatch && method === 'POST') {
       const charId = Number(charEquipItemMatch[1]);
       const body = await this.deps.readJsonBody<{ itemTemplateId: number; slotCode?: string }>(req);
-      const result = await CharacterEquipmentService.equipItem(
-        this.deps.prisma,
-        userAccountId,
-        session.role,
-        charId,
-        Number(body.itemTemplateId),
-        body.slotCode
-      );
-      this.deps.sendJson(res, 200, result);
+      const result = await CharacterEquipmentService.equipItem(this.deps.prisma, userAccountId, session.role, charId, Number(body.itemTemplateId), body.slotCode);
+      const questSync = await this.deps.questsController.syncEquipObjectivesForCharacter(charId).catch(() => null);
+      this.deps.sendJson(res, 200, { ...result, questSync });
       return true;
     }
 
@@ -523,6 +518,7 @@ export class PlayRouter {
     // 🏰 Sistema de Dungeons Instanciadas (1x ao dia) & Arsenal GM Sandbox
     if (await DungeonService.handlePlayDungeonRoute(req, res, pathname, method, session.role, this.deps.prisma, this.deps.combatController, this.deps.assetMirrorService, (cId) => this.verifyCharacterOwnership(userAccountId, session.role, cId), this.deps.readJsonBody, this.deps.sendJson)) return true;
     if (await GmSandboxService.handleRoute(req, res, pathname, method, userAccountId, session.role, this.deps.prisma, this.deps.playController, this.deps.readJsonBody, this.deps.sendJson)) return true;
+    if (await QuestStepActionService.handlePlayQuestStepRoute(req, res, pathname, method, urlObj, this.deps.questsController, (cId) => this.verifyCharacterOwnership(userAccountId, session.role, cId), this.deps.readJsonBody, this.deps.sendJson)) return true;
 
     // 🎁 Abertura Autoritária de Baú / Cápsula / Roleta da Sorte
     const charOpenContainerMatch = pathname.match(/^\/api\/play\/characters\/(\d+)\/items\/open-container$/);
@@ -786,7 +782,8 @@ export class PlayRouter {
       }
 
       const trigCfg = (quest.triggerConfigJson || {}) as { questBattleConfig?: QuestBattleConfigDto | null };
-      const questBattleCfg = trigCfg.questBattleConfig;
+      const stepObjBattle = Array.isArray(quest.objectivesJson) ? (quest.objectivesJson as any[]).find((o) => o?.stepBattleConfig?.enabled)?.stepBattleConfig : null;
+      const questBattleCfg: QuestBattleConfigDto | null = (stepObjBattle || trigCfg.questBattleConfig || null) as QuestBattleConfigDto | null;
 
       if (
         questBattleCfg &&

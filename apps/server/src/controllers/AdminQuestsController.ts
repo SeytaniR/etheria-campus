@@ -16,6 +16,7 @@ import {
   type MetaQuestConfigDto,
 } from './MetaQuestProceduralEngine.js';
 import { QuestProgressService } from './QuestProgressService.js';
+import { QuestStepActionService } from './QuestStepActionService.js';
 import type { QuestBattleConfigDto } from './MonsterCombatBuilder.js';
 
 export interface QuestObjectiveBlockDto {
@@ -32,12 +33,26 @@ export interface QuestObjectiveBlockDto {
   mapId?: number | null;
   requiredCount: number;
   labelPtBr?: string;
+  stepActionType?: 'DIALOGUE' | 'GRANT_AND_EQUIP' | 'CHOOSE_PETS' | 'QUEST_BATTLE';
+  stepDialoguePtBr?: string;
+  stepButtonLabelPtBr?: string;
+  stepGrantItemIds?: number[];
+  requireEquipItemIds?: number[];
+  stepPetRank?: string;
+  stepPetPickCount?: number;
+  stepPetRequireDistinct?: boolean;
+  stepExpSharePct?: number;
+  stepExpFixed?: number;
+  stepBattleConfig?: QuestBattleConfigDto | null;
 }
 
 export interface QuestTriggerConfigDto {
   triggerMapId?: number | null;
   triggerMonsterId?: number | null;
   autoAcceptOnTrigger?: boolean;
+  sequentialObjectives?: boolean;
+  acceptButtonLabelPtBr?: string | null;
+  turnInButtonLabelPtBr?: string | null;
   questBattleConfig?: QuestBattleConfigDto | null;
 }
 
@@ -53,6 +68,10 @@ export interface QuestRequirementsDto {
 export interface QuestRewardDto {
   exp?: number;
   gold?: number;
+  expMode?: 'FIXED' | 'LEVEL_RANGE_PCT';
+  expTargetLevelFrom?: number | null;
+  expTargetLevelTo?: number | null;
+  expRangePct?: number;
   statPoints?: number;
   unlockSkillId?: number | null;
   grantPetMonsterId?: number | null;
@@ -84,6 +103,8 @@ export interface SaveQuestTemplateDto {
   turnInMapId?: number | null;
   objectivesJson?: QuestObjectiveBlockDto[];
   rewardsJson?: QuestRewardDto;
+  expCoefficient?: number;
+  goldCoefficient?: number;
   metaConfigJson?: MetaQuestConfigDto | null;
   questBattleConfig?: QuestBattleConfigDto | null;
   isActive?: boolean;
@@ -104,7 +125,7 @@ export class AdminQuestsController {
    * Lista todas as Quests enriquecidas com traduções PT-BR, Episódios, Metas Procedurais, Gatilhos e Requisitos.
    */
   public async getQuestTemplates() {
-    const [i18nMap, quests, npcs, maps, monsters, classes, races, items] = await Promise.all([
+    const [i18nMap, quests, npcs, maps, monsters, classes, races, items, levelExpMap] = await Promise.all([
       I18nCache.getTranslations(this.prisma, 'pt-BR'),
       this.prisma.questTemplate.findMany({
         orderBy: [{ chapterOrder: 'asc' }, { episodeOrder: 'asc' }, { id: 'asc' }],
@@ -115,6 +136,7 @@ export class AdminQuestsController {
       this.prisma.classTemplate.findMany(),
       this.prisma.race.findMany(),
       this.prisma.itemTemplate.findMany({ select: { id: true, code: true, nameI18nKey: true } }),
+      QuestStepActionService.loadLevelExpMap(this.prisma),
     ]);
 
     const npcNameMap = new Map<number, string>(
@@ -282,8 +304,15 @@ export class AdminQuestsController {
         questBattleSummaryPtBr = `⚔️ Luta Exclusiva: ${slotSummaries.join(' + ')}`;
       }
 
+      const effectiveRew = QuestStepActionService.resolveEffectiveRewards(q, rewJson, levelExpMap);
+
       return {
         ...q,
+        expCoefficient: effectiveRew.expCoefficient,
+        goldCoefficient: effectiveRew.goldCoefficient,
+        effectiveExp: effectiveRew.exp,
+        effectiveGold: effectiveRew.gold,
+        effectiveRewards: effectiveRew,
         questBattleConfig,
         questBattleSummaryPtBr,
         metaConfigJson: normalizedMeta,
@@ -348,8 +377,24 @@ export class AdminQuestsController {
       triggerMapId: dto.triggerConfigJson?.triggerMapId ? Number(dto.triggerConfigJson.triggerMapId) : null,
       triggerMonsterId: dto.triggerConfigJson?.triggerMonsterId ? Number(dto.triggerConfigJson.triggerMonsterId) : null,
       autoAcceptOnTrigger: Boolean(dto.triggerConfigJson?.autoAcceptOnTrigger),
+      sequentialObjectives: Boolean(dto.triggerConfigJson?.sequentialObjectives),
+      acceptButtonLabelPtBr: dto.triggerConfigJson?.acceptButtonLabelPtBr
+        ? String(dto.triggerConfigJson.acceptButtonLabelPtBr).trim()
+        : null,
+      turnInButtonLabelPtBr: dto.triggerConfigJson?.turnInButtonLabelPtBr
+        ? String(dto.triggerConfigJson.turnInButtonLabelPtBr).trim()
+        : null,
       questBattleConfig,
     };
+
+    const expCoefficient =
+      dto.expCoefficient !== undefined && Number.isFinite(Number(dto.expCoefficient))
+        ? Math.max(0, Number(dto.expCoefficient))
+        : 1.0;
+    const goldCoefficient =
+      dto.goldCoefficient !== undefined && Number.isFinite(Number(dto.goldCoefficient))
+        ? Math.max(0, Number(dto.goldCoefficient))
+        : 1.0;
 
     const requirementsJson: QuestRequirementsDto = {
       minLevel,
@@ -457,6 +502,8 @@ export class AdminQuestsController {
             turnInMapId,
             objectivesJson: objectivesJson as any,
             rewardsJson: rewardsJson as any,
+            expCoefficient,
+            goldCoefficient,
             metaConfigJson: metaConfigJson as any,
             isActive,
           },
@@ -525,6 +572,8 @@ export class AdminQuestsController {
           turnInMapId,
           objectivesJson: objectivesJson as any,
           rewardsJson: rewardsJson as any,
+          expCoefficient,
+          goldCoefficient,
           metaConfigJson: metaConfigJson as any,
           isActive,
         },
@@ -533,6 +582,39 @@ export class AdminQuestsController {
 
     await this.snapshotManager.exportToDisk();
     return saved;
+  }
+
+  /**
+   * Atualiza os coeficientes globais de XP e Ouro em lote para todas as quests (ou por categoria),
+   * preservando intactas as Quests META se `includeMeta !== true`.
+   */
+  public async bulkUpdateQuestCoefficients(dto: {
+    expCoefficient?: number;
+    goldCoefficient?: number;
+    category?: string;
+    includeMeta?: boolean;
+  }) {
+    const data: Record<string, number> = {};
+    if (dto.expCoefficient !== undefined && Number.isFinite(Number(dto.expCoefficient))) {
+      data.expCoefficient = Math.max(0, Number(dto.expCoefficient));
+    }
+    if (dto.goldCoefficient !== undefined && Number.isFinite(Number(dto.goldCoefficient))) {
+      data.goldCoefficient = Math.max(0, Number(dto.goldCoefficient));
+    }
+    if (Object.keys(data).length === 0) {
+      throw new Error('Informe ao menos um coeficiente válido (expCoefficient ou goldCoefficient).');
+    }
+
+    const where: any = {};
+    if (dto.category && dto.category !== 'ALL') {
+      where.questCategory = String(dto.category).toUpperCase();
+    } else if (!dto.includeMeta) {
+      where.questCategory = { not: 'META' };
+    }
+
+    const result = await this.prisma.questTemplate.updateMany({ where, data });
+    await this.snapshotManager.exportToDisk();
+    return { updatedCount: result.count, ...data };
   }
 
   public async deleteQuestTemplate(id: number) {
@@ -551,6 +633,34 @@ export class AdminQuestsController {
 
   public async interactNpcForQuest(characterId: number, npcTemplateId: number, currentMapId: number | null = null) {
     return this.progressService.interactNpcForQuest(characterId, npcTemplateId, currentMapId);
+  }
+
+  public async confirmQuestStep(
+    characterId: number,
+    questTemplateId: number,
+    stepIndex: number,
+    payload: { mapId?: number | null; selectedMonsterIds?: number[] } = {},
+  ) {
+    return QuestStepActionService.confirmQuestStep(
+      this.prisma,
+      (cId, mId) => this.progressService.getCharacterQuestState(cId, mId),
+      characterId,
+      questTemplateId,
+      stepIndex,
+      payload,
+    );
+  }
+
+  public async syncEquipObjectivesForCharacter(characterId: number) {
+    return QuestStepActionService.syncEquipObjectivesForCharacter(
+      this.prisma,
+      (cId, mId) => this.progressService.getCharacterQuestState(cId, mId),
+      characterId,
+    );
+  }
+
+  public async getStarterPetCandidates(rankCode: string = 'F') {
+    return QuestStepActionService.getStarterPetCandidates(this.prisma, rankCode);
   }
 
   public async recordBattleVictoryBatch(
