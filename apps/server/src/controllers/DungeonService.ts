@@ -347,11 +347,18 @@ export class DungeonService {
     const dims = asset ? AssetMirrorService.getImageDimensions(asset.buffer) : null;
     const mapWidth = dims?.width ?? 2000;
     const mapHeight = dims?.height ?? 1500;
-    const collisionPolys = Array.isArray(map.collisionMeshJson) ? (map.collisionMeshJson as unknown as MapPolygon[]) : [];
+    const collisionPolys = (Array.isArray(map.collisionMeshJson) ? (map.collisionMeshJson as unknown as MapPolygon[]) : []).filter(
+      (p) => Array.isArray(p?.points) && p.points.length >= 3
+    );
+    const colMesh = new MapPolygonMesh(collisionPolys);
 
     const pc = await prisma.playerCharacter.findUnique({ where: { id: Number(characterId) } });
-    const playerStartX = Math.max(40, Math.min(mapWidth - 40, Number(pc?.posX ?? map.spawnX) || 500));
-    const playerStartY = Math.max(40, Math.min(mapHeight - 40, Number(pc?.posY ?? map.spawnY) || 500));
+    const rawStartX = Math.max(40, Math.min(mapWidth - 40, Number(pc?.posX ?? map.spawnX) || 500));
+    const rawStartY = Math.max(40, Math.min(mapHeight - 40, Number(pc?.posY ?? map.spawnY) || 500));
+    const safeSpawnX = Math.max(40, Math.min(mapWidth - 40, Number(map.spawnX) || 500));
+    const safeSpawnY = Math.max(40, Math.min(mapHeight - 40, Number(map.spawnY) || 500));
+    const playerStartX = colMesh.containsPoint(rawStartX, rawStartY) && !colMesh.containsPoint(safeSpawnX, safeSpawnY) ? safeSpawnX : rawStartX;
+    const playerStartY = colMesh.containsPoint(rawStartX, rawStartY) && !colMesh.containsPoint(safeSpawnX, safeSpawnY) ? safeSpawnY : rawStartY;
 
     const { mobPoints, bossPoint } = this.generateDungeonSpawnCoords(
       mapWidth,

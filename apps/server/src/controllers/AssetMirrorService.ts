@@ -18,6 +18,7 @@ const __dirname = path.dirname(__filename);
 
 export class AssetMirrorService {
   private readonly cacheRootDir: string;
+  private readonly publicRootDir: string;
   private readonly remoteBaseUrl: string;
   private readonly inFlight = new Map<string, Promise<Buffer | null>>();
 
@@ -33,6 +34,7 @@ export class AssetMirrorService {
 
   constructor(cacheRootDir?: string, remoteBaseUrl?: string) {
     this.cacheRootDir = cacheRootDir ?? path.resolve(__dirname, '../../cache/mcrework');
+    this.publicRootDir = path.resolve(__dirname, '../../public');
     this.remoteBaseUrl = (
       remoteBaseUrl ??
       process.env.MCREWORK_PAGES_URL ??
@@ -101,6 +103,10 @@ export class AssetMirrorService {
           offset++;
           continue;
         }
+        if (marker === 0x01 || (marker >= 0xd0 && marker <= 0xd9)) {
+          offset += 2;
+          continue;
+        }
         if (
           (marker >= 0xc0 && marker <= 0xc3) ||
           (marker >= 0xc5 && marker <= 0xc7) ||
@@ -117,6 +123,22 @@ export class AssetMirrorService {
         offset += 2 + segLen;
       }
     }
+    // WEBP (VP8X / VP8 / VP8L)
+    if (buf.length >= 30 && buf.toString('ascii', 0, 4) === 'RIFF' && buf.toString('ascii', 8, 12) === 'WEBP') {
+      const chunk = buf.toString('ascii', 12, 16);
+      if (chunk === 'VP8X') {
+        const w = 1 + (buf[24] | (buf[25] << 8) | (buf[26] << 16));
+        const h = 1 + (buf[27] | (buf[28] << 8) | (buf[29] << 16));
+        return { width: w, height: h };
+      }
+      if (chunk === 'VP8 ' && buf[23] === 0x9d && buf[24] === 0x01 && buf[25] === 0x2a) {
+        return { width: buf.readUInt16LE(26) & 0x3fff, height: buf.readUInt16LE(28) & 0x3fff };
+      }
+      if (chunk === 'VP8L' && buf[20] === 0x2f) {
+        const bits = buf.readUInt32LE(21);
+        return { width: (bits & 0x3fff) + 1, height: ((bits >> 14) & 0x3fff) + 1 };
+      }
+    }
     return null;
   }
 
@@ -126,13 +148,33 @@ export class AssetMirrorService {
     return full;
   }
 
+  private getPublicDiskPath(relPath: string): string | null {
+    const full = path.resolve(this.publicRootDir, relPath);
+    if (!full.startsWith(this.publicRootDir + path.sep)) return null;
+    return full;
+  }
+
   /**
-   * Obtém o buffer do arquivo diretamente do disco da VPS ou baixa do GitHub Pages
-   * gravando de forma persistente em `apps/server/cache/mcrework/` para os próximos acessos.
+   * Obtém o buffer do arquivo diretamente do disco local (`public/` para mapas enviados por upload ou
+   * `cache/mcrework/` para assets curados) ou baixa do GitHub Pages gravando em cache persistente.
    */
   public async getOrFetchAsset(rawRelOrUrl: string): Promise<{ buffer: Buffer; contentType: string; relPath: string } | null> {
     const relPath = this.normalizeRelPath(rawRelOrUrl);
     if (!relPath) return null;
+
+    // 1. Verifica primeiro arquivos locais em `apps/server/public/` (ex: `/assets/maps/uploaded/*`, `/assets/worldmap/*`)
+    const publicPath = this.getPublicDiskPath(relPath);
+    if (publicPath && fsSync.existsSync(publicPath)) {
+      try {
+        const buffer = await fs.readFile(publicPath);
+        if (buffer.length > 0) {
+          return { buffer, contentType: this.getContentType(relPath), relPath };
+        }
+      } catch {
+        // Continua para cache/remoto se leitura falhar
+      }
+    }
+
     const diskPath = this.getDiskPath(relPath);
     if (!diskPath) return null;
 
