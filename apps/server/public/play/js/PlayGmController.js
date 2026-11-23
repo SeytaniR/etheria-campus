@@ -154,6 +154,8 @@ class PlayGmController {
       { code: 'RING', label: 'Anel', icon: '💍', col: 'right' },
       { code: 'ORNAMENT_1', label: 'Amuleto', icon: '🔮', col: 'right' },
       { code: 'ORNAMENT_2', label: 'Talismã', icon: '🧿', col: 'right' },
+      { code: 'WINGS', label: 'Asas', icon: '🪽', col: 'center' },
+      { code: 'FLYING_MOUNT', label: 'Montaria', icon: '🦅', col: 'center' },
     ];
 
     client.openStatsModal = async function (initialTab) {
@@ -199,13 +201,16 @@ class PlayGmController {
       this.renderStatsModalView();
     };
 
-    client.unequipCharacterSlot = async function (slotCode) {
+    client._executeUnequipSlot = async function (slotCode) {
       if (!this.activeChar) return;
       try {
-        await this.api(`/api/play/characters/${this.activeChar.id}/equipment/unequip`, {
+        const res = await this.api(`/api/play/characters/${this.activeChar.id}/equipment/unequip`, {
           method: 'POST',
           body: JSON.stringify({ slotCode }),
         });
+        if (res?.visualAppearance) {
+          window.PlayFlightAndWingsController?.syncVisualAppearance(this, res.visualAppearance);
+        }
         this.showNotification?.(`Item do slot ${slotCode} desequipado!`, 'info');
         this._equippedDetails = await this.api(`/api/play/characters/${this.activeChar.id}/equipment`);
         this._selectedEquipSlot = null;
@@ -216,6 +221,18 @@ class PlayGmController {
       } catch (err) {
         alert(`Erro ao desequipar: ${err.message}`);
       }
+    };
+
+    client.unequipCharacterSlot = async function (slotCode) {
+      if (!this.activeChar) return;
+      if (slotCode === 'FLYING_MOUNT' && (this.isFlying || (this.flightAltitudeCurrent || 0) > 0.5) && window.PlayFlightAndWingsController) {
+        this.closeStatsModal?.();
+        window.PlayFlightAndWingsController.requestSafeLanding(this, () => {
+          void this._executeUnequipSlot(slotCode);
+        });
+        return;
+      }
+      await this._executeUnequipSlot(slotCode);
     };
 
     client.renderStatsModalView = function () {
@@ -259,10 +276,11 @@ class PlayGmController {
         this._selectedSkillId = charSkills[0].id;
       }
 
-      // 1. Renderizador da Aba de Equipamentos (Paperdoll de 12 Slots)
+      // 1. Renderizador da Aba de Equipamentos (Paperdoll de 14 Slots)
       const renderEquipTabContent = () => {
         const leftDefs = CHARACTER_EQUIP_SLOTS.filter((s) => s.col === 'left');
         const rightDefs = CHARACTER_EQUIP_SLOTS.filter((s) => s.col === 'right');
+        const centerDefs = CHARACTER_EQUIP_SLOTS.filter((s) => s.col === 'center');
         const rarityMap = window.PlayBagController?.RARITY_MAP || {};
 
         const renderSlotBox = (s) => {
@@ -271,28 +289,31 @@ class PlayGmController {
           const isSelected = this._selectedEquipSlot === s.code;
           const rar = it ? (rarityMap[String(it.rarityTier || '').toUpperCase()] || rarityMap.F || {}) : null;
           const borderStyle = rar ? (rar.isCosmic ? 'border:1.5px solid #000; box-shadow:0 0 8px #000;' : `border:1.5px solid ${rar.border}; box-shadow:0 0 6px ${rar.glow};`) : 'border:1px dashed #334155;';
+          const badgeTxt = s.code === 'FLYING_MOUNT' ? 'VOO' : (s.code === 'WINGS' ? 'ASA' : s.code.slice(0, 3));
 
           return `
             <div class="stats-slot-box ${isSelected ? 'selected' : ''}" onclick="PlayApp.selectEquipSlot('${s.code}')" style="${borderStyle}" title="${s.label} (${s.code}): ${hasItem ? it.namePtBr : 'Vazio'}">
               ${hasItem ? `<img src="${it.iconUrl || ''}" style="width:82%; height:82%; object-fit:contain;" />` : `<span style="font-size:1.1rem; opacity:0.35;">${s.icon}</span>`}
-              <span class="stats-slot-code">${s.code.slice(0, 3)}</span>
+              <span class="stats-slot-code">${badgeTxt}</span>
             </div>
           `;
         };
 
         const selectedSlot = this._selectedEquipSlot ? CHARACTER_EQUIP_SLOTS.find((s) => s.code === this._selectedEquipSlot) : null;
         const selectedItem = selectedSlot ? equipMap[selectedSlot.code] : null;
+        const selectedCombatStats = selectedItem ? (selectedItem.combatStatBonuses || selectedItem.baseCombatAttributesJson || {}) : {};
+        const selectedBaseStats = selectedItem ? (selectedItem.baseAttributesJson || {}) : {};
 
         const activeSets = this._equippedDetails?.activeSetBonuses || [];
 
         return `
           <!-- Grid em 2 Colunas para Equipamentos -->
           <div class="stats-main-grid">
-            <!-- Coluna 1: Paperdoll dos 12 Slots -->
+            <!-- Coluna 1: Paperdoll dos 14 Slots -->
             <div class="stats-section-box">
               <div class="stats-section-header">
-                <h4 class="stats-section-title">🛡️ Paperdoll 12 Slots</h4>
-                <span style="font-size:0.68rem; color:#86efac; font-weight:700;">${equippedCount}/12 Vestidos</span>
+                <h4 class="stats-section-title">🛡️ Paperdoll 14 Slots</h4>
+                <span style="font-size:0.68rem; color:#86efac; font-weight:700;">${equippedCount}/14 Vestidos</span>
               </div>
               <div class="stats-paperdoll-container">
                 <div class="stats-paperdoll-col">
@@ -302,6 +323,9 @@ class PlayGmController {
                   <img class="stats-paperdoll-avatar" src="${c.thumbUrl || '/play/assets/hud/menu_character.png'}" alt="${c.name}" />
                   <span style="font-size:0.68rem; color:#fde047; font-weight:800; margin-top:4px;">${c.name}</span>
                   <span style="font-size:0.60rem; color:#94a3b8;">${c.classNamePtBr || 'Herói'}</span>
+                  <div class="stats-paperdoll-special-row">
+                    ${centerDefs.map(renderSlotBox).join('')}
+                  </div>
                 </div>
                 <div class="stats-paperdoll-col">
                   ${rightDefs.map(renderSlotBox).join('')}
@@ -329,16 +353,23 @@ class PlayGmController {
                       </div>
                     </div>
 
-                    ${(selectedItem.baseAttributesJson || selectedItem.baseCombatAttributesJson) ? `
+                    ${(Object.keys(selectedBaseStats).length > 0 || Object.keys(selectedCombatStats).length > 0) ? `
                       <div class="stats-slot-detail-stats">
-                        ${Object.entries(selectedItem.baseAttributesJson || {}).map(([k, v]) => `<span class="stats-stat-badge">+${v} ${k}</span>`).join('')}
-                        ${Object.entries(selectedItem.baseCombatAttributesJson || {}).map(([k, v]) => `<span class="stats-stat-badge" style="color:#38bdf8;">+${v} ${k}</span>`).join('')}
+                        ${Object.entries(selectedBaseStats).map(([k, v]) => `<span class="stats-stat-badge">+${v} ${k}</span>`).join('')}
+                        ${Object.entries(selectedCombatStats).map(([k, v]) => `<span class="stats-stat-badge" style="color:#38bdf8;">+${v} ${k}</span>`).join('')}
                       </div>
                     ` : ''}
 
-                    <button type="button" class="stats-btn-unequip" onclick="PlayApp.unequipCharacterSlot('${selectedSlot.code}')">
-                      Desequipar Item
-                    </button>
+                    <div style="display:flex; gap:6px; flex-wrap:wrap;">
+                      ${selectedSlot.code === 'FLYING_MOUNT' ? `
+                        <button type="button" class="btn-primary" style="flex:1; padding:6px 10px; font-size:0.74rem; font-weight:800; border-radius:6px; background:#0284c7;" onclick="PlayApp.closeStatsModal(); window.PlayFlightAndWingsController?.toggleFlight(PlayApp)">
+                          ${this.isFlying ? '🪂 Pousar Montaria' : '🦅 Voar na Montaria'}
+                        </button>
+                      ` : ''}
+                      <button type="button" class="stats-btn-unequip" style="flex:1;" onclick="PlayApp.unequipCharacterSlot('${selectedSlot.code}')">
+                        Desequipar Item
+                      </button>
+                    </div>
                   ` : `
                     <div style="text-align:center; padding:12px; color:#94a3b8; font-size:0.75rem;">
                       O slot <strong>${selectedSlot.label} (${selectedSlot.code})</strong> está vazio.<br/>
@@ -348,7 +379,7 @@ class PlayGmController {
                 </div>
               ` : `
                 <div style="text-align:center; padding:16px 10px; color:#64748b; font-size:0.74rem;">
-                  💡 Toque em qualquer um dos 12 slots ao lado para inspecionar atributos, conjunto ou desequipar o item.
+                  💡 Toque em qualquer um dos 14 slots ao lado (incluindo Asas e Montaria Voadora) para inspecionar atributos ou desequipar.
                 </div>
               `}
 

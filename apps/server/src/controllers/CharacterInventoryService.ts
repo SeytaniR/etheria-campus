@@ -18,11 +18,13 @@ export const INVENTORY_CONFIG = {
   MAX_STACK_EQUIPMENT: 1,
   NON_STACKABLE_CATEGORIES: [
     'CHARACTER_EQUIPMENT',
+    'PET_EQUIPMENT',
     'EQUIPMENT',
     'WEAPON',
     'ARMOR',
     'JEWELRY',
     'WINGS',
+    'FLYING_MOUNT',
   ],
 };
 

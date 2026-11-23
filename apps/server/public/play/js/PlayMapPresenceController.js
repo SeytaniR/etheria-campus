@@ -70,6 +70,8 @@ class PlayMapPresenceController {
           isMoving: Boolean(client.isMoving && !inArena),
           isInCombat: Boolean(this.isLocalInCombat || inArena),
           noClip: Boolean(client.gmNoClip),
+          isFlying: Boolean(client.isFlying && !inArena),
+          flightAltitude: inArena ? 0 : Math.round(client.flightAltitudeCurrent || 0),
         }),
       });
 
@@ -128,26 +130,33 @@ class PlayMapPresenceController {
     const action = other.isInCombat ? 0 : (other.isMoving ? 1 : 0);
     const dir = other.dir !== undefined ? other.dir : 0;
 
-    // 1. Desenha o modelo 2.5D do jogador
-    if (sprite) {
-      sprite.draw(
-        ctx,
-        other.posX,
-        other.posY,
+    // 1. Desenha o modelo 2.5D do jogador (com Asas e Montaria Voadora se equipadas)
+    let nameY = other.posY - 64 + Math.round(groundOffsetY * 0.70);
+    if (window.PlayFlightAndWingsController) {
+      nameY = window.PlayFlightAndWingsController.drawPlayerWithCosmetics(ctx, {
+        client,
+        charSprite: sprite,
+        worldX: other.posX,
+        worldY: other.posY,
         action,
         dir,
         now,
         mesh,
         groundOffsetY,
-        0.70, // Escala padrão oficial 70%
-        false,
-        other.shadowOffsetX || 0,
-        other.shadowOffsetY || 0
+        shadowOffsetX: other.shadowOffsetX || 0,
+        shadowOffsetY: other.shadowOffsetY || 0,
+        wingsObj: other.equippedWings || null,
+        mountObj: other.equippedMount || null,
+        isFlying: Boolean(other.isFlying),
+        flightAltitude: Number(other.flightAltitude) || 0,
+        customScale: 0.70,
+      });
+    } else if (sprite) {
+      sprite.draw(
+        ctx, other.posX, other.posY, action, dir, now, mesh, groundOffsetY, 0.70, false,
+        other.shadowOffsetX || 0, other.shadowOffsetY || 0
       );
     }
-
-    // 2. Nameplate Superior (Nome e Nível com pill sutil)
-    const nameY = other.posY - 64 + Math.round(groundOffsetY * 0.70);
     ctx.font = 'bold 12px sans-serif';
     ctx.textAlign = 'center';
 

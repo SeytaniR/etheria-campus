@@ -236,10 +236,13 @@ class ActionCombatArena {
       combatStyle: pState.combatStyle || this.client?.activeChar?.combatStyle || 'MELEE',
       attackRange: pState.attackRange || this.client?.activeChar?.attackRange || (pState.combatStyle === 'RANGED' ? 220 : 60),
       damageType: pState.damageType || this.client?.activeChar?.damageType || 'PHYSICAL',
+      equippedWings: pState.equippedWings || this.client?.activeChar?.visualAppearance?.equippedWings || null,
       isAttacking: false, attackTimer: 0, isDashing: false, dashTimer: 0, hitTimer: 0,
     };
     if (this.client) {
       this.battleOutcome = null;
+      this.client.isFlying = false; this.client.isLandingFlight = false; this.client.flightAltitudeCurrent = 0; this.client.flightTargetAltitude = 0;
+      window.PlayFlightAndWingsController?.updateFlightHudButton(this.client);
       if (window.PlayMapPresenceController) window.PlayMapPresenceController.setLocalCombatStatus(true);
       this.client.playerX = spawns.px; this.client.playerY = spawns.py; this.client.playerDir = pDir;
       this.client.currentPath = null; this.client.moveTargetX = null; this.client.moveTargetY = null;
@@ -406,6 +409,7 @@ class ActionCombatArena {
         const coordsEl = document.getElementById('hudCoords'); if (coordsEl) coordsEl.textContent = `X:${Math.round(this.client.playerX)} Y:${Math.round(this.client.playerY)}`;
       }
       this.preCombatWorldPos = null;
+      window.PlayFlightAndWingsController?.updateFlightHudButton(this.client);
       if (window.PlayMapPresenceController) window.PlayMapPresenceController.setLocalCombatStatus(false);
     }
     this.isDungeonMode = false;

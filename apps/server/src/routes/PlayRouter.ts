@@ -323,6 +323,8 @@ export class PlayRouter {
         dir: dto.dir,
         isMoving: dto.isMoving,
         isInCombat: dto.isInCombat,
+        isFlying: dto.isFlying,
+        flightAltitude: dto.flightAltitude,
       });
 
       const party = PartyService.getPartyByCharacterId(charId);

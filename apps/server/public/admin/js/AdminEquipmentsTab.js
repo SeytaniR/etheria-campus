@@ -53,11 +53,98 @@ class AdminEquipmentsTab {
     };
 
     app.loadMcreworkEquipment = async function () {
-      if (this.mcreworkEquipment && this.mcreworkEquipment.length > 0) return;
-      try {
-        this.mcreworkEquipment = await this.api('/api/admin/mcrework/equipment');
-      } catch (err) {
-        console.error('Falha ao carregar catálogo mcrework de equipamentos:', err);
+      if (!this.mcreworkEquipment || this.mcreworkEquipment.length === 0) {
+        try {
+          this.mcreworkEquipment = await this.api('/api/admin/mcrework/equipment');
+        } catch (err) {
+          console.error('Falha ao carregar catálogo mcrework de equipamentos:', err);
+        }
+      }
+      if (!this.mcreworkVisualModels) {
+        try {
+          this.mcreworkVisualModels = await this.api('/api/admin/equipments/visual-models');
+        } catch (err) {
+          console.warn('Falha ao carregar catálogo visual 2.5D de asas/montarias:', err);
+        }
+      }
+    };
+
+    app.populateVisualModelsDropdown = function (slotCode, currentFx) {
+      const box = document.getElementById('equipVisual25dBox');
+      const sel = document.getElementById('equipVisualModelSelect');
+      const altF = document.getElementById('equipMountAltitudeField');
+      const offF = document.getElementById('equipMountRiderOffsetField');
+      const spdF = document.getElementById('equipMountSpeedBonusField');
+      if (!box || !sel) return;
+
+      const isWing = slotCode === 'WINGS';
+      const isMount = slotCode === 'FLYING_MOUNT';
+      box.style.display = (isWing || isMount) ? 'block' : 'none';
+      if (altF) altF.style.display = isMount ? 'flex' : 'none';
+      if (offF) offF.style.display = isMount ? 'flex' : 'none';
+      if (spdF) spdF.style.display = isMount ? 'flex' : 'none';
+      if (!isWing && !isMount) return;
+
+      const cat = this.mcreworkVisualModels || { wings: [], gliders: [], mounts: [] };
+      const opts = ['<option value="">Sem modelo 2.5D vinculado</option>'];
+      if (isWing) {
+        for (const w of cat.wings || []) {
+          opts.push(`<option value="WING|${w.modelId}|CHAR_MANIFEST">🪽 ${w.name} (${w.modelId})</option>`);
+        }
+      } else if (isMount) {
+        for (const g of cat.gliders || []) {
+          opts.push(`<option value="GLIDER|${g.modelId}|CHAR_MANIFEST">☁️ ${g.name} (${g.modelId})</option>`);
+        }
+        for (const m of cat.mounts || []) {
+          opts.push(`<option value="MOUNT|${m.modelId}|ATLAS|${m.flyingMountTemplateId}">🦅 [DB #${m.flyingMountTemplateId}] ${m.name} (${m.modelId})</option>`);
+        }
+      }
+      sel.innerHTML = opts.join('');
+
+      const fx = currentFx && typeof currentFx === 'object' ? currentFx : {};
+      const mid = isWing ? (fx.wingModelId || '') : (fx.mountModelId || '');
+      if (mid) {
+        const match = Array.from(sel.options).find((o) => o.value.includes(`|${mid}|`));
+        if (match) sel.value = match.value;
+      }
+      if (isMount) {
+        document.getElementById('equipMountAltitudeInput').value = fx.flightAltitude ?? 72;
+        document.getElementById('equipMountRiderOffsetInput').value = fx.riderOffsetY ?? -22;
+        document.getElementById('equipMountSpeedBonusInput').value = fx.speedBonusPct ?? 25;
+      }
+    };
+
+    app.onEquipmentSlotChange = function () {
+      const slotCode = document.getElementById('equipSlotSelect')?.value || '';
+      this.populateVisualModelsDropdown(slotCode, {});
+    };
+
+    app.onVisualModelSelectChange = function () {
+      const val = document.getElementById('equipVisualModelSelect')?.value || '';
+      if (!val) return;
+      const [kind, modelId, , mountTplId] = val.split('|');
+      const cat = this.mcreworkVisualModels || { wings: [], gliders: [], mounts: [] };
+      if (kind === 'WING') {
+        const w = (cat.wings || []).find((x) => x.modelId === modelId);
+        if (w?.iconKey) {
+          document.getElementById('equipIconKeyInput').value = w.iconKey;
+          this.updateEquipmentIconPreview(w.iconKey);
+        }
+      } else if (kind === 'GLIDER') {
+        const g = (cat.gliders || []).find((x) => x.modelId === modelId);
+        if (g?.iconKey) {
+          document.getElementById('equipIconKeyInput').value = g.iconKey;
+          this.updateEquipmentIconPreview(g.iconKey);
+        }
+        document.getElementById('equipMountRiderOffsetInput').value = -22;
+        document.getElementById('equipMountAltitudeInput').value = 72;
+      } else if (kind === 'MOUNT') {
+        const m = (cat.mounts || []).find((x) => String(x.flyingMountTemplateId) === String(mountTplId));
+        if (m) {
+          document.getElementById('equipMountAltitudeInput').value = m.flightAltitude ?? 65;
+          document.getElementById('equipMountRiderOffsetInput').value = m.riderOffsetY ?? -45;
+          document.getElementById('equipMountSpeedBonusInput').value = m.speedBonusPct ?? 35;
+        }
       }
     };
 
@@ -155,6 +242,7 @@ class AdminEquipmentsTab {
         if (inp) inp.value = '0';
       });
 
+      this.populateVisualModelsDropdown('WEAPON_1', {});
       this.renderEquipmentGallery();
       document.getElementById('equipmentModal').style.display = 'flex';
     };
@@ -200,6 +288,7 @@ class AdminEquipmentsTab {
       const critDmgEl = document.getElementById('equipCombatCRIT_DMGInput');
       if (critDmgEl) critDmgEl.value = cb.CRIT_DMG ?? cb.CRIT_DAMAGE_PCT ?? 0;
 
+      this.populateVisualModelsDropdown(item.equipmentSlotCode || 'WEAPON_1', item.specialEffectJson || {});
       this.renderEquipmentGallery();
       document.getElementById('equipmentModal').style.display = 'flex';
     };
@@ -229,6 +318,10 @@ class AdminEquipmentsTab {
 
       if (item.suggestedSlot) {
         document.getElementById('equipSlotSelect').value = item.suggestedSlot;
+        this.populateVisualModelsDropdown(item.suggestedSlot, item.suggestedModelId ? {
+          wingModelId: item.suggestedSlot === 'WINGS' ? item.suggestedModelId : undefined,
+          mountModelId: item.suggestedSlot === 'FLYING_MOUNT' ? item.suggestedModelId : undefined,
+        } : {});
       }
       if (item.suggestedCategory) {
         document.getElementById('equipCategorySelect').value = item.suggestedCategory;
@@ -339,6 +432,31 @@ class AdminEquipmentsTab {
         ? Number(document.getElementById('equipSetSelect').value)
         : null;
 
+      let specialEffectJson = {};
+      if (equipmentSlotCode === 'WINGS' || equipmentSlotCode === 'FLYING_MOUNT') {
+        const visVal = document.getElementById('equipVisualModelSelect')?.value || '';
+        if (visVal) {
+          const [kind, modelId, visualFormat, mountTplId] = visVal.split('|');
+          if (equipmentSlotCode === 'WINGS') {
+            specialEffectJson = {
+              wingModelId: modelId,
+              visualFormat: visualFormat || 'CHAR_MANIFEST',
+              manifestUrl: `/api/assets/mcrework/assets/wings/${modelId}/char_manifest.json`,
+            };
+          } else {
+            specialEffectJson = {
+              mountModelId: modelId,
+              visualFormat: visualFormat || 'CHAR_MANIFEST',
+              flyingMountTemplateId: mountTplId ? Number(mountTplId) : undefined,
+              manifestUrl: kind === 'GLIDER' ? `/api/assets/mcrework/assets/wings/${modelId}/char_manifest.json` : undefined,
+              flightAltitude: parseInt(document.getElementById('equipMountAltitudeInput')?.value, 10) || 72,
+              riderOffsetY: parseInt(document.getElementById('equipMountRiderOffsetInput')?.value, 10) ?? -22,
+              speedBonusPct: parseFloat(document.getElementById('equipMountSpeedBonusInput')?.value) || 25,
+            };
+          }
+        }
+      }
+
       const payload = {
         code: code || undefined,
         namePtBr,
@@ -353,6 +471,7 @@ class AdminEquipmentsTab {
         mcreworkIconKey,
         baseStatBonusesJson,
         combatStatBonusesJson,
+        specialEffectJson,
       };
 
       try {

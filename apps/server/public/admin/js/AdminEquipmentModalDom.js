@@ -54,7 +54,7 @@ class AdminEquipmentModalDom {
             </div>
             <div class="field">
               <label>Slot de Equipamento *</label>
-              <select id="equipSlotSelect"></select>
+              <select id="equipSlotSelect" onchange="AdminApp.onEquipmentSlotChange()"></select>
             </div>
             <div class="field">
               <label>Conjunto de Equipamentos</label>
@@ -88,6 +88,33 @@ class AdminEquipmentModalDom {
             <div class="field" style="grid-column: 1 / -1;">
               <label>Descrição / Lore em Português</label>
               <input type="text" id="equipDescriptionInput" placeholder="Ex: Forjada com ligas de ferro temperado em chamas de dragão..." />
+            </div>
+          </div>
+        </div>
+
+        <!-- BLOCO 1.5: VÍNCULO 2.5D ANIMADO (ASAS E MONTARIAS VOADORAS) -->
+        <div id="equipVisual25dBox" style="display:none; background:rgba(14,116,144,0.16); border:1.5px solid #22d3ee; border-radius:10px; padding:12px; margin-bottom:12px;">
+          <div style="font-size:0.82rem; font-weight:700; color:#22d3ee; margin-bottom:8px;">
+            🪽 / 🦅 Vínculo de Modelo 2.5D Animado (Asas & Montarias Voadoras)
+          </div>
+          <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(min(100%, 170px), 1fr)); gap:10px;">
+            <div class="field" style="grid-column:span 2;">
+              <label>Modelo 2.5D Animado (mcrework)</label>
+              <select id="equipVisualModelSelect" onchange="AdminApp.onVisualModelSelectChange()">
+                <option value="">Sem modelo 2.5D vinculado</option>
+              </select>
+            </div>
+            <div class="field" id="equipMountAltitudeField">
+              <label>Altitude de Voo (px)</label>
+              <input type="number" id="equipMountAltitudeInput" value="72" min="20" max="140" />
+            </div>
+            <div class="field" id="equipMountRiderOffsetField">
+              <label>Offset do Cavaleiro Y (px)</label>
+              <input type="number" id="equipMountRiderOffsetInput" value="-22" min="-110" max="30" />
+            </div>
+            <div class="field" id="equipMountSpeedBonusField">
+              <label>Bônus Velocidade Voo (%)</label>
+              <input type="number" id="equipMountSpeedBonusInput" value="25" min="0" max="200" />
             </div>
           </div>
         </div>

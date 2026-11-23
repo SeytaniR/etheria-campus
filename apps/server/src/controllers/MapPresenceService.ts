@@ -11,6 +11,11 @@
 
 import type { PrismaClient } from '@prisma/client';
 import { PartyService } from './PartyService.js';
+import {
+  CharacterEquipmentService,
+  type EquippedMountVisualDto,
+  type EquippedWingsVisualDto,
+} from './CharacterEquipmentService.js';
 
 export interface MapPlayerPresence {
   characterId: number;
@@ -25,12 +30,16 @@ export interface MapPlayerPresence {
   groundOffsetY?: number;
   shadowOffsetX?: number;
   shadowOffsetY?: number;
+  equippedWings?: EquippedWingsVisualDto | null;
+  equippedMount?: EquippedMountVisualDto | null;
   elementCode: string;
   posX: number;
   posY: number;
   dir: number;
   isMoving: boolean;
   isInCombat: boolean;
+  isFlying?: boolean;
+  flightAltitude?: number;
   partyId?: string | null;
   isPartyLeader?: boolean;
   partyLeaderId?: number | null;
@@ -45,6 +54,8 @@ export interface SyncPresenceDto {
   dir?: number;
   isMoving?: boolean;
   isInCombat?: boolean;
+  isFlying?: boolean;
+  flightAltitude?: number;
 }
 
 export class MapPresenceService {
@@ -76,6 +87,22 @@ export class MapPresenceService {
         include: { classTemplate: true },
       });
       if (pc) {
+        const eqMap = (pc.equippedItemsJson && typeof pc.equippedItemsJson === 'object'
+          ? (pc.equippedItemsJson as Record<string, number>)
+          : {}) as Record<string, number>;
+        const visIds = [Number(eqMap.WINGS) || 0, Number(eqMap.FLYING_MOUNT) || 0].filter((id) => id > 0);
+        const visItems = visIds.length > 0
+          ? await prisma.itemTemplate.findMany({ where: { id: { in: visIds } } })
+          : [];
+        const visById = new Map<number, any>(visItems.map((it) => [it.id, it]));
+        const mountTplId = Number((visById.get(Number(eqMap.FLYING_MOUNT) || 0)?.specialEffectJson as any)?.flyingMountTemplateId) || 0;
+        const mountsById = new Map<number, any>();
+        if (mountTplId > 0) {
+          const mt = await prisma.flyingMountTemplate.findUnique({ where: { id: mountTplId } });
+          if (mt) mountsById.set(mt.id, mt);
+        }
+        const visual = CharacterEquipmentService.resolveVisualAppearance(eqMap, visById, mountsById);
+
         meta = {
           name: pc.name,
           level: pc.level || 1,
@@ -86,6 +113,8 @@ export class MapPresenceService {
           atlasWebpUrl: `/api/assets/mcrework/assets/characters/${pc.classTemplate?.mcreworkCharKey || '100101'}/atlas.webp`,
           thumbUrl: `/api/assets/mcrework/assets/characters/${pc.classTemplate?.mcreworkCharKey || '100101'}/thumb.webp`,
           groundOffsetY: pc.classTemplate?.groundOffsetY || 0,
+          equippedWings: visual.equippedWings,
+          equippedMount: visual.equippedMount,
           elementCode: pc.elementCode || 'NEUTRAL',
         };
         this.metadataCache.set(characterId, meta);
@@ -127,12 +156,16 @@ export class MapPresenceService {
       groundOffsetY: meta?.groundOffsetY || 0,
       shadowOffsetX: meta?.shadowOffsetX || 0,
       shadowOffsetY: meta?.shadowOffsetY || 0,
+      equippedWings: meta?.equippedWings || null,
+      equippedMount: meta?.equippedMount || null,
       elementCode: meta?.elementCode || 'NEUTRAL',
       posX: Number(dto.posX) || 500,
       posY: Number(dto.posY) || 500,
       dir: dto.dir !== undefined ? Number(dto.dir) : 0,
       isMoving: Boolean(dto.isMoving),
       isInCombat: Boolean(dto.isInCombat),
+      isFlying: Boolean(dto.isFlying && meta?.equippedMount && !dto.isInCombat),
+      flightAltitude: Number(dto.flightAltitude) || 0,
       partyId: party?.id ?? null,
       isPartyLeader: party ? party.leaderCharacterId === characterId : false,
       partyLeaderId: party?.leaderCharacterId ?? null,
@@ -176,6 +209,13 @@ export class MapPresenceService {
       }
     }
     return nearby;
+  }
+
+  /**
+   * Invalida o cache visual do personagem quando ele equipa/desequipa itens visuais (asas, montaria).
+   */
+  public static invalidateCharacterCache(characterId: number): void {
+    this.metadataCache.delete(Number(characterId));
   }
 
   /**

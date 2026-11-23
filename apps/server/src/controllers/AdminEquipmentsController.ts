@@ -133,6 +133,7 @@ export class AdminEquipmentsController {
         const suggestedSlot = positionToSlot[item.position_name] || (item.category_group === 'pet' ? 'PET_EQUIP_1' : 'CHEST');
         const isPet = item.category_group === 'pet';
 
+        const isWingThumb = cleanIcon.match(/assets\/wings\/([^/]+)\//i);
         return {
           id: item.id,
           name: item.name,
@@ -147,6 +148,7 @@ export class AdminEquipmentsController {
           iconUrl: `${this.mcreworkPagesBaseUrl}/${cleanIcon}`,
           suggestedSlot,
           suggestedCategory: isPet ? 'PET_EQUIPMENT' : 'CHARACTER_EQUIPMENT',
+          suggestedModelId: isWingThumb ? isWingThumb[1] : null,
         };
       });
 
@@ -156,6 +158,54 @@ export class AdminEquipmentsController {
       console.error('Erro ao buscar catálogo de equipamentos do mcrework:', err);
       return [];
     }
+  }
+
+  /**
+   * Lista os modelos 2.5D animados de Asas e Montarias Voadoras disponíveis (wings/catalog.json + flying_mount_templates).
+   */
+  public async getMcreworkVisualModelsCatalog() {
+    const [wingsRes, mountsDb, i18n] = await Promise.all([
+      fetch(`${this.mcreworkRawBaseUrl}/assets/wings/catalog.json`).then((r) => (r.ok ? r.json() : [])).catch(() => []),
+      this.prisma.flyingMountTemplate.findMany({ where: { isActive: true }, orderBy: [{ tier: 'asc' }, { id: 'asc' }] }),
+      this.prisma.i18nTranslation.findMany({ where: { locale: 'pt-BR' } }),
+    ]);
+    const tmap = new Map(i18n.map((t) => [t.key, t.text]));
+    const wingsCatalog = Array.isArray(wingsRes) ? wingsRes : [];
+
+    const wings = wingsCatalog
+      .filter((w: any) => !w.is_fly_mount)
+      .map((w: any) => ({
+        modelId: w.model_id,
+        name: w.name,
+        iconUrl: `${this.mcreworkPagesBaseUrl}/${String(w.icon || '').replace(/^\/+/, '')}`,
+        iconKey: String(w.icon || '').replace(/^\/+/, ''),
+        manifestUrl: `/api/assets/mcrework/${String(w.manifest_url || `assets/wings/${w.model_id}/char_manifest.json`).replace(/^\/+/, '')}`,
+        visualFormat: 'CHAR_MANIFEST',
+      }));
+
+    const gliders = wingsCatalog
+      .filter((w: any) => Boolean(w.is_fly_mount))
+      .map((w: any) => ({
+        modelId: w.model_id,
+        name: w.name,
+        iconUrl: `${this.mcreworkPagesBaseUrl}/${String(w.icon || '').replace(/^\/+/, '')}`,
+        iconKey: String(w.icon || '').replace(/^\/+/, ''),
+        manifestUrl: `/api/assets/mcrework/${String(w.manifest_url || `assets/wings/${w.model_id}/char_manifest.json`).replace(/^\/+/, '')}`,
+        visualFormat: 'CHAR_MANIFEST',
+      }));
+
+    const mounts = mountsDb.map((m) => ({
+      flyingMountTemplateId: m.id,
+      modelId: m.mcreworkMountKey,
+      name: tmap.get(m.nameI18nKey) || m.code,
+      flightAltitude: m.flightAltitude,
+      riderOffsetY: m.riderOffsetY,
+      speedBonusPct: m.speedBonusPct,
+      visualFormat: 'ATLAS',
+      iconUrl: `${this.mcreworkPagesBaseUrl}/assets/mounts/${m.mcreworkMountKey}/thumb.webp`,
+    }));
+
+    return { wings, gliders, mounts };
   }
 
   /**

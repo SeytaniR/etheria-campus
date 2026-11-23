@@ -183,6 +183,14 @@
   box-shadow: 0 0 14px rgba(56, 189, 248, 0.2);
 }
 
+.stats-paperdoll-special-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 8px;
+}
+
 .stats-slot-box {
   width: 44px; height: 44px;
   border-radius: 6px; background: #020617;

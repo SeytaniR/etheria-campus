@@ -143,7 +143,8 @@ class McreworkSpriteSheet {
     customScale = 0.70,
     clampLastFrame = false,
     shadowOffsetX = 0,
-    shadowOffsetY = 0
+    shadowOffsetY = 0,
+    skipShadow = false
   ) {
     this.load();
 
@@ -155,11 +156,13 @@ class McreworkSpriteSheet {
     const sOffX = Math.round((Number(shadowOffsetX) || 0) * scale);
     const sOffY = Math.round((Number(shadowOffsetY) || 0) * scale);
 
-    // Sombra elíptica proporcional nos pés da entidade (com ajuste fino shadowOffsetX / shadowOffsetY)
-    ctx.beginPath();
-    ctx.ellipse(worldX + sOffX, worldY + sOffY, Math.round(18 * scale), Math.round(9 * scale), 0, 0, Math.PI * 2);
-    ctx.fillStyle = 'rgba(0, 0, 0, 0.45)';
-    ctx.fill();
+    if (!skipShadow) {
+      // Sombra elíptica proporcional nos pés da entidade (com ajuste fino shadowOffsetX / shadowOffsetY)
+      ctx.beginPath();
+      ctx.ellipse(worldX + sOffX, worldY + sOffY, Math.round(18 * scale), Math.round(9 * scale), 0, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.45)';
+      ctx.fill();
+    }
 
     const rawDir = (((Number(direction) || 0) % 8) + 8) % 8;
     const isMonster = Boolean(this.atlasJsonUrl && this.atlasJsonUrl.includes('/monsters/'));

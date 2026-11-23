@@ -56,10 +56,9 @@ class EtheriaPlayClient {
     this.lastSyncedX = 0;
     this.lastSyncedY = 0;
     this.lastSyncTime = 0;
-    // Estado do Painel GM Integrado (`/gm`)
-    this.gmXray = false;
-    this.gmNoClip = false;
-    this.gmSpeedMultiplier = 1;
+    // Estado do Painel GM Integrado (`/gm`) & Voo / Asas
+    this.gmXray = false; this.gmNoClip = false; this.gmSpeedMultiplier = 1;
+    this.isFlying = false; this.isLandingFlight = false; this.flightAltitudeCurrent = 0; this.flightTargetAltitude = 0; this.flightLandingTarget = null;
     // Arena Instanciada com Combate Livre em Tempo Real e Encontros no Mapa
     this.stepDistanceAccumulator = 0;
     this.encounterCooldownUntil = 0;
@@ -211,15 +210,11 @@ class EtheriaPlayClient {
       );
       this.playerX = startX !== undefined ? Number(startX) : Number(mapData.spawnX);
       this.playerY = startY !== undefined ? Number(startY) : Number(mapData.spawnY);
-      this.moveTargetX = null;
-      this.moveTargetY = null;
       this.isTraversingPortal = true;
-      this.currentPath = null;
-      this.moveTargetX = null;
-      this.moveTargetY = null;
-      this.targetDestX = null;
-      this.targetDestY = null;
+      this.currentPath = null; this.moveTargetX = null; this.moveTargetY = null; this.targetDestX = null; this.targetDestY = null;
       this.arrivedAtPortalId = arrivedAtPortalId ?? null;
+      this.isFlying = false; this.isLandingFlight = false; this.flightAltitudeCurrent = 0; this.flightTargetAltitude = 0; this.flightLandingTarget = null;
+      window.PlayFlightAndWingsController?.syncVisualAppearance(this, this.activeChar?.visualAppearance);
       if (mapData.width && mapData.height) {
         this.mesh?.initNavGrid(mapData.width, mapData.height);
       }
@@ -377,9 +372,11 @@ class EtheriaPlayClient {
       if (['INPUT', 'SELECT', 'TEXTAREA'].includes(document.activeElement?.tagName)) return;
       const k = e.key.toLowerCase();
       if (['w', 'a', 's', 'd', 'arrowup', 'arrowdown', 'arrowleft', 'arrowright'].includes(k)) {
-        if (window.PlayPartyController?.isFollower()) return;
+        if (window.PlayPartyController?.isFollower() || (this.isLandingFlight && this.flightLandingTarget)) return;
         this.keysDown.add(k);
         this.currentPath = null; this.moveTargetX = null; this.moveTargetY = null; this.targetDestX = null; this.targetDestY = null;
+      } else if (k === 'v') {
+        window.PlayFlightAndWingsController?.toggleFlight(this);
       }
     });
     window.addEventListener('keyup', (e) => { this.keysDown.delete(e.key.toLowerCase()); });
@@ -415,10 +412,9 @@ class EtheriaPlayClient {
           void this.openNpcQuestModal(npc);
         }
       }
-      this.targetDestX = worldPt.x;
-      this.targetDestY = worldPt.y;
-      this.lastRepathTime = 0;
-      if (this.mesh && !this.gmNoClip) {
+      if (this.isLandingFlight) return;
+      this.targetDestX = worldPt.x; this.targetDestY = worldPt.y; this.lastRepathTime = 0;
+      if (this.mesh && !this.gmNoClip && !this.isFlying) {
         const path = this.mesh.findPath(this.playerX, this.playerY, worldPt.x, worldPt.y);
         if (path && path.length > 0) {
           this.currentPath = path;
@@ -516,12 +512,15 @@ class EtheriaPlayClient {
       if (window.PlayPetsController) window.PlayPetsController.updateFollowerPhysics(this, dt);
       return;
     }
-    let vx = this.dpadDx;
-    let vy = this.dpadDy;
-    if (this.keysDown.has('w') || this.keysDown.has('arrowup')) vy -= 1;
-    if (this.keysDown.has('s') || this.keysDown.has('arrowdown')) vy += 1;
-    if (this.keysDown.has('a') || this.keysDown.has('arrowleft')) vx -= 1;
-    if (this.keysDown.has('d') || this.keysDown.has('arrowright')) vx += 1;
+    const lockManualMove = Boolean(this.isLandingFlight && this.flightLandingTarget);
+    let vx = lockManualMove ? 0 : this.dpadDx;
+    let vy = lockManualMove ? 0 : this.dpadDy;
+    if (!lockManualMove) {
+      if (this.keysDown.has('w') || this.keysDown.has('arrowup')) vy -= 1;
+      if (this.keysDown.has('s') || this.keysDown.has('arrowdown')) vy += 1;
+      if (this.keysDown.has('a') || this.keysDown.has('arrowleft')) vx -= 1;
+      if (this.keysDown.has('d') || this.keysDown.has('arrowright')) vx += 1;
+    }
     if (vx === 0 && vy === 0 && this.currentPath && this.currentPath.length > 0) {
       const wp = this.currentPath[0];
       const dx = wp.x - this.playerX;
@@ -570,12 +569,13 @@ class EtheriaPlayClient {
       const clampY = (y) => Math.max(pad, Math.min(bounds.height - pad, y));
       this.playerX = clampX(this.playerX);
       this.playerY = clampY(this.playerY);
-      const speed = this.baseMoveSpeed * this.gmSpeedMultiplier;
+      const flyMult = window.PlayFlightAndWingsController?.getMoveSpeedMultiplier(this) || 1;
+      const speed = this.baseMoveSpeed * this.gmSpeedMultiplier * flyMult;
       const nextX = clampX(this.playerX + vx * speed * dt);
       const nextY = clampY(this.playerY + vy * speed * dt);
       const prevX = this.playerX;
       const prevY = this.playerY;
-      if (this.gmNoClip || !this.mesh) {
+      if (this.gmNoClip || this.isFlying || (this.flightAltitudeCurrent || 0) > 2 || !this.mesh) {
         this.playerX = nextX;
         this.playerY = nextY;
       } else {
@@ -618,7 +618,7 @@ class EtheriaPlayClient {
       }
       // Acumula passos (~50px cada) para sortear encontro com monstros
       const stepDist = Math.hypot(this.playerX - prevX, this.playerY - prevY);
-      if (stepDist > 0 && !this.gmNoClip) {
+      if (stepDist > 0 && !this.gmNoClip && !this.isFlying) {
         this.stepDistanceAccumulator += stepDist;
         if (this.stepDistanceAccumulator >= 50) {
           this.stepDistanceAccumulator -= 50;
@@ -630,6 +630,7 @@ class EtheriaPlayClient {
       this.isMoving = false;
     }
     this.checkPortalsAndNpcs(now);
+    window.PlayFlightAndWingsController?.updateFlightPhysics(this, dt, now);
     if (window.PlayPetsController) window.PlayPetsController.updateFollowerPhysics(this, dt);
     if (window.PlayMapPresenceController) window.PlayMapPresenceController.syncHeartbeat(now);
   }
@@ -868,8 +869,18 @@ class EtheriaPlayClient {
         const char = item.data;
         const sprite = this.getOrCreateSprite(`char_${char.mcreworkCharKey}`, char.atlasJsonUrl, char.atlasWebpUrl, char.thumbUrl);
         const groundOffsetY = char.groundOffsetY || 0;
-        sprite.draw(ctx, this.playerX, this.playerY, this.isMoving ? 1 : 0, this.playerDir, now, this.mesh, groundOffsetY, 0.70, false, char.shadowOffsetX || 0, char.shadowOffsetY || 0);
-        const nameY = this.playerY - 66 + Math.round(groundOffsetY * 0.70);
+        let nameY = this.playerY - 66 + Math.round(groundOffsetY * 0.70);
+        if (window.PlayFlightAndWingsController) {
+          nameY = window.PlayFlightAndWingsController.drawPlayerWithCosmetics(ctx, {
+            client: this, charSprite: sprite, worldX: this.playerX, worldY: this.playerY,
+            action: this.isMoving ? 1 : 0, dir: this.playerDir, now, mesh: this.mesh,
+            groundOffsetY, shadowOffsetX: char.shadowOffsetX || 0, shadowOffsetY: char.shadowOffsetY || 0,
+            wingsObj: char.visualAppearance?.equippedWings || null, mountObj: char.visualAppearance?.equippedMount || null,
+            isFlying: Boolean(this.isFlying), flightAltitude: Number(this.flightAltitudeCurrent) || 0, customScale: 0.70,
+          });
+        } else {
+          sprite.draw(ctx, this.playerX, this.playerY, this.isMoving ? 1 : 0, this.playerDir, now, this.mesh, groundOffsetY, 0.70, false, char.shadowOffsetX || 0, char.shadowOffsetY || 0);
+        }
         ctx.textAlign = 'center';
         if (window.PlayPartyController?.isLeader()) {
           ctx.font = '14px sans-serif'; ctx.fillText('👑', this.playerX, nameY - 14);
@@ -886,9 +897,16 @@ class EtheriaPlayClient {
         }
       } else if (item.type === 'COMBAT_PLAYER') {
         const p = item.data;
-        if (p.sprite) {
-          const isTransient = (p.action === 3 || p.action === 5 || p.action === 6 || p.action === 7);
-          const elapsed = (isTransient && p.actionStartTime) ? (now - p.actionStartTime) : now;
+        const isTransient = (p.action === 3 || p.action === 5 || p.action === 6 || p.action === 7);
+        const elapsed = (isTransient && p.actionStartTime) ? (now - p.actionStartTime) : now;
+        if (window.PlayFlightAndWingsController && p.sprite) {
+          window.PlayFlightAndWingsController.drawPlayerWithCosmetics(ctx, {
+            client: this, charSprite: p.sprite, worldX: p.x, worldY: p.y,
+            action: p.action, dir: p.dir, now: elapsed, mesh: this.mesh,
+            groundOffsetY: p.groundOffsetY || 0, shadowOffsetX: p.shadowOffsetX || 0, shadowOffsetY: p.shadowOffsetY || 0,
+            wingsObj: p.equippedWings || null, mountObj: null, isFlying: false, flightAltitude: 0, customScale: 0.70,
+          });
+        } else if (p.sprite) {
           p.sprite.draw(ctx, p.x, p.y, p.action, p.dir, elapsed, this.mesh, p.groundOffsetY || 0, 0.70, false, p.shadowOffsetX || 0, p.shadowOffsetY || 0);
         }
         if (p.isAlive) {
@@ -966,27 +984,14 @@ class EtheriaPlayClient {
       this.actionCombatArena.renderActiveVfx(ctx, now);
       this.actionCombatArena.renderFloatingTexts(ctx);
     }
-    if (this.levelUpVfx) {
-      this.levelUpVfx.renderWorldAir(ctx, now, this.zoom);
-    }
-    if (window.PortalTravelController?.hasActiveVfx) {
-      window.PortalTravelController.renderWorldVfx(ctx, now, this.zoom);
-    }
+    window.PlayFlightAndWingsController?.drawWorldMistParticles(ctx);
+    if (this.levelUpVfx) this.levelUpVfx.renderWorldAir(ctx, now, this.zoom);
+    if (window.PortalTravelController?.hasActiveVfx) window.PortalTravelController.renderWorldVfx(ctx, now, this.zoom);
     ctx.restore();
-    // 6.1 Transição Cinemática de Entrada em Batalha
-    if (window.BattleTransitionController?.isActive) {
-      window.BattleTransitionController.render(ctx, now, canvas);
-    }
-    // 7. Atualização fluida do Minimapa na HUD a cada ~90ms
+    if (window.BattleTransitionController?.isActive) window.BattleTransitionController.render(ctx, now, canvas);
     if (window.PlayHudController && (!this._lastMinimapUpdate || now - this._lastMinimapUpdate > 90)) {
       this._lastMinimapUpdate = now;
-      window.PlayHudController.updateMinimap(
-        this.currentMap,
-        this.mapBgImage,
-        this.playerX,
-        this.playerY,
-        this.playerDir
-      );
+      window.PlayHudController.updateMinimap(this.currentMap, this.mapBgImage, this.playerX, this.playerY, this.playerDir);
     }
   }
 }

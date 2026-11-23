@@ -16,6 +16,7 @@ import { CombatUtilityHelper } from './CombatUtilityHelper.js';
 import { MonsterCombatBuilder, type MonsterScalingContext, type MonsterVariantTier } from './MonsterCombatBuilder.js';
 import { PartyService } from './PartyService.js';
 import { CharacterPetService } from './CharacterPetService.js';
+import { CharacterEquipmentService, type EquippedWingsVisualDto } from './CharacterEquipmentService.js';
 
 export interface ActiveStatusInstance {
   code: string;
@@ -78,6 +79,7 @@ export interface CombatUnit {
   aggroRadius?: number;
   damageDealtMultiplier?: number;
   isDungeonBoss?: boolean;
+  equippedWings?: EquippedWingsVisualDto | null;
   isAlive: boolean;
   activeStatuses?: ActiveStatusInstance[];
 }
@@ -499,6 +501,9 @@ export class TemporaryCombatController {
     const pWisEva = Math.max(0, charBaseStats.WIS - 10) * (getRatio('WIS', 'MAG_EVASION', 0.0015) * 100) + (eqBonuses.MAG_EVASION || 0);
     const pMagAcc = (eqBonuses.MAG_ACCURACY || 0);
 
+    const eqItemsById = new Map<number, any>(eqItems.map((eq) => [eq.id, eq]));
+    const playerVisual = CharacterEquipmentService.resolveVisualAppearance(equippedMap, eqItemsById);
+
     const playerUnit: CombatUnit = {
       id: `player_${characterId || 1}`,
       index: 0,
@@ -536,6 +541,7 @@ export class TemporaryCombatController {
       physEvasion: Math.min(75, Math.max(0, Math.round((Number(classCb.PHYS_EVASION) || 5) + pAgiEva))),
       magAccuracy: Math.min(125, Math.max(20, Math.round((Number(classCb.MAG_ACCURACY) || 95) + pMagAcc))),
       magEvasion: Math.min(75, Math.max(0, Math.round((Number(classCb.MAG_EVASION) || 5) + pWisEva))),
+      equippedWings: playerVisual.equippedWings,
       isAlive: true,
       activeStatuses: [],
     };

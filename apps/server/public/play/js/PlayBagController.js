@@ -25,6 +25,8 @@ const PlayBagController = {
     { code: 'RING', label: 'Anel', icon: '💍', col: 'right' },
     { code: 'ORNAMENT_1', label: 'Amuleto', icon: '🔮', col: 'right' },
     { code: 'ORNAMENT_2', label: 'Talismã', icon: '🧿', col: 'right' },
+    { code: 'WINGS', label: 'Asas', icon: '🪽', col: 'center' },
+    { code: 'FLYING_MOUNT', label: 'Montaria', icon: '🦅', col: 'center' },
   ],
 
   RARITY_MAP: {
@@ -67,10 +69,16 @@ const PlayBagController = {
     client.equipInventoryItem = async function (itemTemplateId, slotCode) {
       if (!this.activeChar) return;
       try {
-        await this.api(`/api/play/characters/${this.activeChar.id}/equipment/equip`, {
+        const res = await this.api(`/api/play/characters/${this.activeChar.id}/equipment/equip`, {
           method: 'POST',
           body: JSON.stringify({ itemTemplateId: Number(itemTemplateId), slotCode: slotCode || undefined }),
         });
+        if (res?.visualAppearance) {
+          window.PlayFlightAndWingsController?.syncVisualAppearance(this, res.visualAppearance);
+          if (res.equippedSlot === 'FLYING_MOUNT' && !this.actionCombatArena?.isActive) {
+            window.PlayFlightAndWingsController?.startTakeoff(this);
+          }
+        }
         this.showNotification?.('⚔️ Equipamento vestido com sucesso!', 'success');
         PlayBagController.closeItemDetailModal();
         await PlayBagController.loadBag();

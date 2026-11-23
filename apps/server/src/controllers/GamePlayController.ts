@@ -24,6 +24,7 @@ import { MonsterMetaQuestService } from './MonsterMetaQuestService.js';
 import { CharacterPetService } from './CharacterPetService.js';
 import { MonsterCombatBuilder, type MonsterScalingContext } from './MonsterCombatBuilder.js';
 import { DungeonService } from './DungeonService.js';
+import { CharacterEquipmentService, type CharacterVisualAppearanceDto } from './CharacterEquipmentService.js';
 
 export interface CreateCharacterDto {
   name: string;
@@ -35,6 +36,7 @@ export interface SyncPositionDto {
   posX: number;
   posY: number;
   noClip?: boolean;
+  isFlying?: boolean;
 }
 
 export interface GmTeleportDto {
@@ -178,7 +180,8 @@ export class GamePlayController {
       CharacterProgressionService.getExperienceMap(this.prisma, 1),
       MonsterCombatBuilder.loadScalingContext(this.prisma),
     ]);
-    const characters = rawCharacters.map((c) => this.serializeCharacter(c, i18nMap, mapNameById, expMap, scalingCtx));
+    const visualMap = await CharacterEquipmentService.loadVisualAppearanceByCharId(this.prisma, rawCharacters);
+    const characters = rawCharacters.map((c) => this.serializeCharacter(c, i18nMap, mapNameById, expMap, scalingCtx, visualMap.get(c.id)));
 
     // Garante que todas as Quests Meta procedurais estejam sincronizadas e ativas para os personagens do jogador
     try {
@@ -271,7 +274,8 @@ export class GamePlayController {
     i18nMap: Map<string, string>,
     mapNameById?: Map<number, string>,
     expMap?: Map<number, number>,
-    scalingCtx?: MonsterScalingContext
+    scalingCtx?: MonsterScalingContext,
+    visualAppearance?: CharacterVisualAppearanceDto
   ) {
     const classNamePtBr = c.classTemplate
       ? (i18nMap.get(c.classTemplate.nameI18nKey) ?? c.classTemplate.code)
@@ -340,6 +344,7 @@ export class GamePlayController {
       unspentStatPoints: c.unspentStatPoints,
       distributedStatsJson: c.distributedStatsJson,
       equippedItemsJson: c.equippedItemsJson || {},
+      visualAppearance: visualAppearance || { equippedWings: null, equippedMount: null },
       skillIdsJson: Array.isArray(c.classTemplate?.skillIdsJson) ? c.classTemplate.skillIdsJson : [],
       baseAttributesJson: c.classTemplate?.baseAttributesJson ?? {
         VIT: 10,
@@ -398,7 +403,8 @@ export class GamePlayController {
     if (map) {
       mapNameById.set(map.id, i18nMap.get(map.nameI18nKey) ?? map.code);
     }
-    return this.serializeCharacter(c, i18nMap, mapNameById, expMap, scalingCtx);
+    const visMap = await CharacterEquipmentService.loadVisualAppearanceByCharId(this.prisma, [c]);
+    return this.serializeCharacter(c, i18nMap, mapNameById, expMap, scalingCtx, visMap.get(c.id));
   }
 
   /**
@@ -648,6 +654,8 @@ export class GamePlayController {
     const posX = clampBoundX(Math.round(Number(dto.posX) || map.spawnX));
     const posY = clampBoundY(Math.round(Number(dto.posY) || map.spawnY));
     const isGmNoClip = Boolean(dto.noClip) && (userRole === 'ADMIN' || userRole === 'GM');
+    const flightPerm = await CharacterEquipmentService.resolveAuthoritativeFlightPermission(this.prisma, char, dto.isFlying);
+    const ignoreCollision = isGmNoClip || flightPerm.isFlyingAllowed;
 
     // Validação autoritária de velocidade: impede speedhack em contas normais
     let finalPosX = posX;
@@ -660,8 +668,8 @@ export class GamePlayController {
     if (!isGmNoClip && char.currentMapId === map.id && lastSync) {
       const elapsedSec = Math.max(0.1, (now - lastSync) / 1000);
       const dist = Math.hypot(posX - char.posX, posY - char.posY);
-      // Margem tolerante (1.5x + 40px) para acomodar pequenas oscilações de latência/ping
-      const maxAllowedDist = GamePlayController.AUTHORITATIVE_BASE_MOVE_SPEED * elapsedSec * 1.5 + 40;
+      // Margem tolerante (1.5x + 40px) considerando velocidade da montaria voadora
+      const maxAllowedDist = GamePlayController.AUTHORITATIVE_BASE_MOVE_SPEED * flightPerm.speedMultiplier * elapsedSec * 1.5 + 40;
       if (dist > maxAllowedDist) {
         const ratio = maxAllowedDist / dist;
         finalPosX = clampBoundX(Math.round(char.posX + (posX - char.posX) * ratio));
@@ -670,7 +678,7 @@ export class GamePlayController {
       }
     }
 
-    if (!isGmNoClip) {
+    if (!ignoreCollision) {
       const collisionPolys = Array.isArray(map.collisionMeshJson)
         ? (map.collisionMeshJson as unknown as MapPolygon[])
         : [];

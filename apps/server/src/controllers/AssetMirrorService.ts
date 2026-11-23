@@ -192,7 +192,7 @@ export class AssetMirrorService {
       prisma.flyingMountTemplate.findMany({ select: { mcreworkMountKey: true } }),
       prisma.skillTemplate.findMany({ select: { mcreworkIconKey: true, mcreworkVfxKey: true } }),
       prisma.statusEffectTemplate.findMany({ select: { iconKey: true, mcreworkVfxKey: true } }),
-      prisma.itemTemplate.findMany({ select: { mcreworkIconKey: true } }),
+      prisma.itemTemplate.findMany({ select: { mcreworkIconKey: true, specialEffectJson: true } }),
     ]);
 
     const set = new Set<string>();
@@ -260,6 +260,16 @@ export class AssetMirrorService {
 
     for (const it of items) {
       addRel(it.mcreworkIconKey);
+      const fx = (it.specialEffectJson && typeof it.specialEffectJson === 'object' ? it.specialEffectJson : {}) as any;
+      const modelId = String(fx.wingModelId || fx.mountModelId || '').trim();
+      if (modelId && (modelId.startsWith('equip_wing_') || modelId.startsWith('equip_fly_'))) {
+        addRel(`assets/wings/${modelId}/char_manifest.json`);
+        addRel(`assets/wings/${modelId}/thumb.png`);
+      } else if (modelId && modelId.startsWith('mount_')) {
+        addRel(`assets/mounts/${modelId}/atlas.json`);
+        addRel(`assets/mounts/${modelId}/atlas.webp`);
+        addRel(`assets/mounts/${modelId}/thumb.webp`);
+      }
     }
 
     return { mapEntries, relPaths: Array.from(set) };

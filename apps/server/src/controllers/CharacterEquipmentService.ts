@@ -12,6 +12,7 @@
 import { PrismaClient } from '@prisma/client';
 import { I18nCache } from '@etheria/database';
 import { CharacterInventoryService } from './CharacterInventoryService.js';
+import { MapPresenceService } from './MapPresenceService.js';
 
 export const VALID_CHARACTER_EQUIPMENT_SLOTS = [
   'HEAD',
@@ -45,6 +46,33 @@ export interface ActiveSetBonusDto {
   appliedStats: Record<string, number>;
 }
 
+export interface EquippedWingsVisualDto {
+  itemId: number;
+  modelId: string;
+  visualFormat: 'CHAR_MANIFEST';
+  manifestUrl: string;
+  thumbUrl: string;
+}
+
+export interface EquippedMountVisualDto {
+  itemId: number;
+  modelId: string;
+  visualFormat: 'CHAR_MANIFEST' | 'ATLAS';
+  manifestUrl?: string | null;
+  atlasJsonUrl?: string | null;
+  atlasWebpUrl?: string | null;
+  thumbUrl: string;
+  flightAltitude: number;
+  riderOffsetY: number;
+  groundOffsetY: number;
+  speedBonusPct: number;
+}
+
+export interface CharacterVisualAppearanceDto {
+  equippedWings: EquippedWingsVisualDto | null;
+  equippedMount: EquippedMountVisualDto | null;
+}
+
 export interface EquippedSlotDetailDto {
   slotCode: string;
   item: {
@@ -59,6 +87,7 @@ export interface EquippedSlotDetailDto {
     rarityTier: string;
     requiredLevel: number;
     combatStatBonuses: Record<string, number>;
+    specialEffectJson?: any;
   } | null;
 }
 
@@ -66,6 +95,129 @@ export class CharacterEquipmentService {
   private static resolveIconUrl(mcreworkIconKey: string | null | undefined): string {
     const key = mcreworkIconKey || 'assets/equipment/icons/equip_normal_200001.png';
     return `/api/assets/mcrework/${key.replace(/^\/+/, '')}`;
+  }
+
+  public static resolveVisualAppearance(
+    equippedMap: Record<string, number>,
+    itemsById: Map<number, any>,
+    mountsById?: Map<number, any>
+  ): CharacterVisualAppearanceDto {
+    let equippedWings: EquippedWingsVisualDto | null = null;
+    let equippedMount: EquippedMountVisualDto | null = null;
+
+    const wingItemId = Number(equippedMap?.WINGS) || 0;
+    const wingItem = wingItemId > 0 ? itemsById.get(wingItemId) : null;
+    if (wingItem) {
+      const fx = (wingItem.specialEffectJson && typeof wingItem.specialEffectJson === 'object' ? wingItem.specialEffectJson : {}) as any;
+      let modelId = String(fx.wingModelId || '').trim();
+      if (!modelId && typeof wingItem.mcreworkIconKey === 'string') {
+        const m = wingItem.mcreworkIconKey.match(/assets\/wings\/([^/]+)\//i);
+        if (m) modelId = m[1];
+      }
+      if (modelId) {
+        equippedWings = {
+          itemId: wingItem.id,
+          modelId,
+          visualFormat: 'CHAR_MANIFEST',
+          manifestUrl: fx.manifestUrl || `/api/assets/mcrework/assets/wings/${modelId}/char_manifest.json`,
+          thumbUrl: `/api/assets/mcrework/assets/wings/${modelId}/thumb.png`,
+        };
+      }
+    }
+
+    const mountItemId = Number(equippedMap?.FLYING_MOUNT) || 0;
+    const mountItem = mountItemId > 0 ? itemsById.get(mountItemId) : null;
+    if (mountItem) {
+      const fx = (mountItem.specialEffectJson && typeof mountItem.specialEffectJson === 'object' ? mountItem.specialEffectJson : {}) as any;
+      const linkedTpl = fx.flyingMountTemplateId && mountsById ? mountsById.get(Number(fx.flyingMountTemplateId)) : null;
+      let modelId = String(fx.mountModelId || linkedTpl?.mcreworkMountKey || '').trim();
+      if (!modelId && typeof mountItem.mcreworkIconKey === 'string') {
+        const m = mountItem.mcreworkIconKey.match(/assets\/wings\/([^/]+)\//i);
+        if (m) modelId = m[1];
+      }
+      if (modelId) {
+        const isAtlas = fx.visualFormat === 'ATLAS' || modelId.startsWith('mount_') || Boolean(linkedTpl && !modelId.startsWith('equip_'));
+        equippedMount = isAtlas
+          ? {
+              itemId: mountItem.id,
+              modelId,
+              visualFormat: 'ATLAS',
+              atlasJsonUrl: `/api/assets/mcrework/assets/mounts/${modelId}/atlas.json`,
+              atlasWebpUrl: `/api/assets/mcrework/assets/mounts/${modelId}/atlas.webp`,
+              thumbUrl: `/api/assets/mcrework/assets/mounts/${modelId}/thumb.webp`,
+              flightAltitude: Number(fx.flightAltitude ?? linkedTpl?.flightAltitude ?? 65),
+              riderOffsetY: Number(fx.riderOffsetY ?? linkedTpl?.riderOffsetY ?? -42),
+              groundOffsetY: Number(fx.groundOffsetY ?? linkedTpl?.groundOffsetY ?? 0),
+              speedBonusPct: Number(fx.speedBonusPct ?? linkedTpl?.speedBonusPct ?? 25),
+            }
+          : {
+              itemId: mountItem.id,
+              modelId,
+              visualFormat: 'CHAR_MANIFEST',
+              manifestUrl: fx.manifestUrl || `/api/assets/mcrework/assets/wings/${modelId}/char_manifest.json`,
+              thumbUrl: `/api/assets/mcrework/assets/wings/${modelId}/thumb.png`,
+              flightAltitude: Number(fx.flightAltitude ?? 72),
+              riderOffsetY: Number(fx.riderOffsetY ?? -22),
+              groundOffsetY: Number(fx.groundOffsetY ?? 0),
+              speedBonusPct: Number(fx.speedBonusPct ?? 25),
+            };
+      }
+    }
+
+    return { equippedWings, equippedMount };
+  }
+
+  /**
+   * Carrega em lote a aparência visual equipada (Asas e Montaria Voadora) para uma lista de personagens.
+   */
+  public static async loadVisualAppearanceByCharId(
+    prisma: PrismaClient,
+    characters: Array<{ id: number; equippedItemsJson: any }>
+  ): Promise<Map<number, CharacterVisualAppearanceDto>> {
+    const result = new Map<number, CharacterVisualAppearanceDto>();
+    const itemIds = new Set<number>();
+    for (const c of characters) {
+      const eq = (c.equippedItemsJson && typeof c.equippedItemsJson === 'object' ? c.equippedItemsJson : {}) as Record<string, number>;
+      if (Number(eq.WINGS) > 0) itemIds.add(Number(eq.WINGS));
+      if (Number(eq.FLYING_MOUNT) > 0) itemIds.add(Number(eq.FLYING_MOUNT));
+    }
+    if (itemIds.size === 0) {
+      for (const c of characters) result.set(c.id, { equippedWings: null, equippedMount: null });
+      return result;
+    }
+    const items = await prisma.itemTemplate.findMany({ where: { id: { in: Array.from(itemIds) } } });
+    const itemsById = new Map<number, any>(items.map((it) => [it.id, it]));
+    const mountTplIds = items
+      .map((it) => Number((it.specialEffectJson as any)?.flyingMountTemplateId) || 0)
+      .filter((id) => id > 0);
+    const mounts = mountTplIds.length > 0
+      ? await prisma.flyingMountTemplate.findMany({ where: { id: { in: mountTplIds } } })
+      : [];
+    const mountsById = new Map<number, any>(mounts.map((mt) => [mt.id, mt]));
+
+    for (const c of characters) {
+      const eq = (c.equippedItemsJson && typeof c.equippedItemsJson === 'object' ? c.equippedItemsJson : {}) as Record<string, number>;
+      result.set(c.id, this.resolveVisualAppearance(eq, itemsById, mountsById));
+    }
+    return result;
+  }
+
+  /**
+   * Valida no servidor se o personagem realmente possui montaria voadora equipada para voar sobre colisões.
+   */
+  public static async resolveAuthoritativeFlightPermission(
+    prisma: PrismaClient,
+    character: { id: number; equippedItemsJson: any },
+    wantsToFly?: boolean
+  ): Promise<{ isFlyingAllowed: boolean; speedMultiplier: number }> {
+    if (!wantsToFly) return { isFlyingAllowed: false, speedMultiplier: 1 };
+    const visMap = await this.loadVisualAppearanceByCharId(prisma, [character]);
+    const mount = visMap.get(character.id)?.equippedMount;
+    if (!mount) return { isFlyingAllowed: false, speedMultiplier: 1 };
+    return {
+      isFlyingAllowed: true,
+      speedMultiplier: 1 + Math.max(0, Number(mount.speedBonusPct) || 0) / 100,
+    };
   }
 
   /**
@@ -78,6 +230,7 @@ export class CharacterEquipmentService {
     slots: EquippedSlotDetailDto[];
     consolidatedBonuses: Record<string, number>;
     activeSetBonuses: ActiveSetBonusDto[];
+    visualAppearance: CharacterVisualAppearanceDto;
   }> {
     const pc = await prisma.playerCharacter.findUnique({
       where: { id: Number(characterId) },
@@ -142,6 +295,7 @@ export class CharacterEquipmentService {
             rarityTier: it.rarityTier ?? 'COMMON',
             requiredLevel: it.requiredLevel ?? 1,
             combatStatBonuses: bonuses,
+            specialEffectJson: it.specialEffectJson || {},
           },
         };
       }
@@ -151,6 +305,14 @@ export class CharacterEquipmentService {
         item: null,
       };
     });
+
+    const mountFxId = Number((itemsById.get(Number(equippedMap?.FLYING_MOUNT) || 0)?.specialEffectJson as any)?.flyingMountTemplateId) || 0;
+    const mountsById = new Map<number, any>();
+    if (mountFxId > 0) {
+      const mTpl = await prisma.flyingMountTemplate.findUnique({ where: { id: mountFxId } });
+      if (mTpl) mountsById.set(mTpl.id, mTpl);
+    }
+    const visualAppearance = this.resolveVisualAppearance(equippedMap, itemsById, mountsById);
 
     // --- Cálculo de Bônus de Conjuntos de Equipamentos (100% full = 100% bônus, 50% half = 40% bônus) ---
     const setPiecesCount = new Map<number, { set: any; count: number }>();
@@ -213,6 +375,7 @@ export class CharacterEquipmentService {
       slots,
       consolidatedBonuses,
       activeSetBonuses,
+      visualAppearance,
     };
   }
 
@@ -317,6 +480,8 @@ export class CharacterEquipmentService {
       });
     });
 
+    MapPresenceService.invalidateCharacterCache(pc.id);
+
     const [equippedDetails, bag] = await Promise.all([
       this.getCharacterEquippedDetails(prisma, pc.id),
       CharacterInventoryService.getWalletAndBag(prisma, pc.id),
@@ -328,6 +493,7 @@ export class CharacterEquipmentService {
       equippedItems: equippedDetails.slots,
       consolidatedBonuses: equippedDetails.consolidatedBonuses,
       activeSetBonuses: equippedDetails.activeSetBonuses,
+      visualAppearance: equippedDetails.visualAppearance,
       bag,
     };
   }
@@ -385,6 +551,8 @@ export class CharacterEquipmentService {
       });
     });
 
+    MapPresenceService.invalidateCharacterCache(pc.id);
+
     const [equippedDetails, bag] = await Promise.all([
       this.getCharacterEquippedDetails(prisma, pc.id),
       CharacterInventoryService.getWalletAndBag(prisma, pc.id),
@@ -396,6 +564,7 @@ export class CharacterEquipmentService {
       equippedItems: equippedDetails.slots,
       consolidatedBonuses: equippedDetails.consolidatedBonuses,
       activeSetBonuses: equippedDetails.activeSetBonuses,
+      visualAppearance: equippedDetails.visualAppearance,
       bag,
     };
   }

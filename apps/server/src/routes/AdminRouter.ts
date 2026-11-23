@@ -395,6 +395,12 @@ export class AdminRouter {
       }
       return true;
     }
+    if (pathname === '/api/admin/equipments/visual-models' && method === 'GET') {
+      if (this.enforceTablePermission(res, session, 'MONSTERS', 'READ')) {
+        this.deps.sendJson(res, 200, await this.deps.equipmentsController.getMcreworkVisualModelsCatalog());
+      }
+      return true;
+    }
     if (pathname === '/api/admin/equipments' && method === 'GET') {
       const cat = urlObj.searchParams.get('category') || undefined;
       if (this.enforceTablePermission(res, session, 'MONSTERS', 'READ')) {
