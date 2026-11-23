@@ -8,9 +8,9 @@
 ---
 
 ## 📌 Status Atual do Projeto
-* **Versão Atual:** `v0.56.0`
-* **Última Atualização:** `2026-11-16`
-* **Fase Atual:** **Cinemática de Vitória, Derrota e Level Up com Transição Suave e Zero Emojis (`v0.56.0`)** — Implementados os módulos `LevelUpVfxController.js` e `CombatOutcomeController.js` acompanhados do estilo responsivo `play_combat_outcome.css`. O Level Up manifesta-se diretamente no mapa 2.5D de exploração com anéis rúnicos dourados, aura ascendente, arpejo sonoro celestial (Web Audio API) e banner rúnico translúcido, sem modais intrusivos e disparado de forma encadeada apenas após o fechamento da arena. A tela de vitória/derrota foi remodelada com brasões artísticos oficiais (`victory_crest.png` e `defeat_crest.png`), barras fluidas de EXP e ouro (zero emojis), e transição suave de teleporte para o santuário ao morrer com fade escuro e materialização luminosa. 100% responsivo para Mobile Vertical, Mobile Horizontal (Landscape) e Desktop (60+ FPS). Todos os arquivos estritamente < 1.000 linhas (Regra #7).
+* **Versão Atual:** `v0.57.0`
+* **Última Atualização:** `2026-11-23`
+* **Fase Atual:** **Coeficientes de XP/Ouro em Quests, Checklist Sequencial Comandado e Capítulo 1: O Chamado da Curadoria (`v0.57.0`)** — Adicionados `expCoefficient` e `goldCoefficient` (padrão `1.0`, edição individual e em lote no `/admin`) + modo dinâmico `LEVEL_RANGE_PCT` baseado na tabela real `level_experience_templates`. Implementados os módulos `QuestStepActionService.ts`, `AdminQuestStepsEditor.js` e `PlayQuestStepModal.js` com checklist sequencial comandado na HUD, modais interativos por NPC, validação obrigatória de equipamento de todas as peças (`GRANT_AND_EQUIP`), seletor de 2 companheiros distintos Rank F (`CHOOSE_PETS`) e batalhas instanciadas por etapa (`QUEST_BATTLE`). Quests narrativas reconstruídas do zero no banco (mantendo intactas todas as 104 Meta Quests): **Capítulo 1 (`#2273 q_cap1_izumo`)** completo na Vila Izumo (Lv 1 → Lv 10 = `1.890.000` XP + `#4136 Iniciado da Bruma`) e gancho do **Capítulo 2 (`#2274 q_cap2_kael_intro`)** no Vigia Kael (`#36`) no Pantanal das Nuvens. Todos os arquivos estritamente < 1.000 linhas (Regra #7).
 * **Repositório Oficial:** `https://github.com/SeytaniR/etheria-campus`
 * **Fonte Bruta de Assets:** `https://github.com/SeytaniR/mcrework` (`https://seytanir.github.io/mcrework/`)
 

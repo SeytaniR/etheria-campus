@@ -5,6 +5,28 @@ Qualquer IA trabalhando neste repositório **DEVE** incrementar a versão e regi
 
 ---
 
+## [v0.57.0] - 2026-11-23
+### Coeficientes Dinâmicos de XP/Ouro em Quests, Checklist Sequencial Comandado e Capítulo 1: O Chamado da Curadoria (Vila Izumo)
+* **Coeficientes de XP e Ouro (`expCoefficient` / `goldCoefficient`) & Escalada Dinâmica por Faixa de Nível:**
+  * Adicionadas as colunas `exp_coefficient` (padrão `1.0`) e `gold_coefficient` (padrão `1.0`) em `QuestTemplate` (`packages/database/prisma/schema.prisma`), aplicadas dinamicamente pelo servidor autoritário (`QuestStepActionService.resolveEffectiveRewards`) sobre todas as recompensas de XP e Ouro das quests e de suas etapas intermediárias.
+  * Adicionado suporte ao modo de XP `LEVEL_RANGE_PCT` lendo diretamente `level_experience_templates` em tempo real (Nível 1 → Nível 10 = `1.890.000` XP), garantindo que qualquer ajuste futuro na tabela de XP escale automaticamente todas as missões sem edição manual quest a quest.
+  * Criada barra de atualização em lote de Coeficientes (`POST /api/admin/quest-templates/coefficients`) e editor completo por quest e por etapa no estúdio `/admin` (`AdminQuestStepsEditor.js`, `AdminQuestsTab.js`, `AdminRouter.ts`).
+* **Motor de Checklist Sequencial Comandado e Modais Interativos por Etapa (`QuestStepActionService.ts`, `QuestProgressService.ts`, `PlayQuestStepModal.js`):**
+  * Quests principais agora suportam `sequentialObjectives: true`, botões personalizados de Aceite/Entrega (`acceptButtonLabelPtBr`, `turnInButtonLabelPtBr`), modais dedicados com texto de lore e botão próprio em cada NPC da cadeia (`stepActionType`: `DIALOGUE`, `GRANT_AND_EQUIP`, `CHOOSE_PETS`, `QUEST_BATTLE`) e distribuição progressiva de XP por etapa (`stepExpSharePct`).
+  * **Validação Obrigatória de Equipamento (`GRANT_AND_EQUIP`):** Entrega os itens na mochila (validando slots livres) e sincroniza automaticamente ao equipar cada peça via `POST /api/play/characters/:charId/equipment/equip` (`syncEquipObjectivesForCharacter`), só marcando `[X]` quando 100% das peças obrigatórias estiverem equipadas.
+  * **Seletor de Companheiros Iniciais (`CHOOSE_PETS`):** Modal dedicado (`GET /api/play/characters/:charId/quests/starter-pets` e `POST /api/play/characters/:charId/quests/:questId/confirm-step`) permitindo ao jogador escolher 2 Companheiros de Vínculo distintos de Rank F entre os 9 monstros domáveis disponíveis.
+  * **Widget HUD de Checklist na Tela (`#questChecklistHudWidget`):** Exibe o progresso em tempo real `[X]` / `[ ]` da quest comandada na interface `/play`, além de direcionar o marcador sobre a cabeça do NPC exato da etapa ativa.
+* **Reconstrução No-Code das Quests Narrativas e NPCs da Vila Izumo + Pantanal das Nuvens:**
+  * Removidas as 5 quests narrativas antigas (`#30`–`#34`), preservando intactas todas as **104 Meta Quests (`META`)** no banco de dados.
+  * Atualizados os 6 NPCs da Vila Izumo (`#1 Receptora Lin`, `#2 Sábio de Izumo`, `#3 Armeiro [ARMORER]`, `#4 Caçadora [HUNTER]`, `#5 Joalheira`, `#6 Treinador`) e posicionado **`#36 Vigia Kael`** (`npc_kael`) no Mapa 2 (`Pantanal das Nuvens`) em ponto livre de colisão próximo ao Portal #1.
+  * Criado **Capítulo 1: O Chamado da Curadoria** (`#2273`, `q_cap1_izumo`) na íntegra: Receptora Lin → Sábio de Izumo (`8%`) → Armeiro com 8 peças do Conjunto do Aprendiz (`#45–#50, #55–#56`, `14%`) → Joalheira com 4 joias do Aprendiz (`#51–#54`, `17%`) → Caçadora com 2 Companheiros Rank F distintos (`18%`) → Treinador com luta no Véu contra 5x Duende Ladrão Lv 1 (`22%`) → Retorno à Receptora Lin (`21%`, `1.000` Ouro e Item `#4136 • Iniciado da Bruma`), somando exatamente `100%` do Nível 1 ao Nível 10 (`1.890.000` XP em `1.0x`).
+  * Criada ponte para o **Capítulo 2: Apresentação ao Vigia Kael** (`#2274`, `q_cap2_kael_intro`) vinculada ao Vigia Kael no Mapa 2 com pré-requisito `#2273`.
+* **Governança e Cumprimento Estrito de Regras:**
+  * Todos os arquivos de código rigorosamente abaixo de 1.000 linhas (`PlayRouter.ts`: 995, `play/index.html`: 983, `AdminQuestsTab.js`: 976, `QuestProgressService.ts`: 873, `admin/index.html`: 873, `PlayQuestsController.js`: 747, `AdminRouter.ts`: 743, `AdminQuestsController.ts`: 691, `PlayBagController.js`: 688, `QuestStepActionService.ts`: 534, `PlayQuestStepModal.js`: 478, `AdminQuestStepsEditor.js`: 261 — Regra #7).
+  * Build TypeScript validado com 0 erros nos 3 pacotes (`shared`, `database`, `server`), banco e snapshot sincronizados na VPS Azure (`40-65-63-193.sslip.io`, HTTP 200 em `/admin` e `/play`).
+
+---
+
 ## [v0.56.0] - 2026-11-16
 ### Cinemática de Vitória, Derrota e Level Up com Transição Suave e Zero Emojis
 * **Novo Controlador de Efeitos Especiais de Level Up (`LevelUpVfxController.js`):**
