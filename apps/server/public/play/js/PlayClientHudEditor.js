@@ -24,12 +24,15 @@ class PlayClientHudEditor {
   getEditableTemplates() {
     const all = window.PlayUiLayoutApplier?.templates || window.PlayApp?.uiLayoutTemplates || [];
     const isCombat = Boolean(window.PlayApp?.actionArena?.isActive);
-    const filtered = all.filter((t) =>
-      isCombat
+    const hasMount = Boolean(window.PlayApp?.activeChar?.visualAppearance?.equippedMount);
+    const isAllowed = (t) => {
+      if (t.code === 'HUD_FLIGHT_BTN' && !hasMount) return false;
+      return isCombat
         ? t.category === 'COMBAT_HUD' || t.code === 'HUD_SETTINGS_BTN'
-        : t.category === 'EXPLORE_HUD'
-    );
-    return filtered.length > 0 ? filtered : all.filter((t) => t.category === 'EXPLORE_HUD');
+        : t.category === 'EXPLORE_HUD';
+    };
+    const filtered = all.filter(isAllowed);
+    return filtered.length > 0 ? filtered : all.filter((t) => t.category === 'EXPLORE_HUD' && (t.code !== 'HUD_FLIGHT_BTN' || hasMount));
   }
 
   getActiveMode() {
@@ -81,12 +84,32 @@ class PlayClientHudEditor {
   }
 
   setOverrideField(code, field, value) {
+    if (field === 'visible') return; // Bloqueado: jogador não pode ocultar botões/HUDs da tela
     const mode = this.getActiveMode();
     if (!this.workingOverrides[code]) this.workingOverrides[code] = {};
     if (!this.workingOverrides[code][mode]) {
       this.workingOverrides[code][mode] = { ...this.getEffectiveConfig(code) };
     }
-    this.workingOverrides[code][mode][field] = value;
+    const cfg = this.workingOverrides[code][mode];
+    cfg.visible = true;
+    if (field === 'opacity') {
+      cfg.opacity = Math.min(1, Math.max(0.35, Number(value) || 1));
+    } else if (field === 'scale') {
+      cfg.scale = Math.min(2.0, Math.max(0.5, Number(value) || 1));
+    } else if (field === 'widthPx') {
+      const maxW = Math.max(80, (window.innerWidth || 1280) - 8);
+      cfg.widthPx = value !== null && value !== '' ? Math.min(maxW, Math.max(40, Number(value))) : null;
+    } else if (field === 'heightPx') {
+      const maxH = Math.max(80, (window.innerHeight || 720) - 8);
+      cfg.heightPx = value !== null && value !== '' ? Math.min(maxH, Math.max(28, Number(value))) : null;
+    } else {
+      cfg[field] = value;
+    }
+
+    const targetDom = this.findDomElementForCode(code);
+    if (targetDom && window.PlayUiLayoutApplier?.clampConfigOffsetsToContainer) {
+      window.PlayUiLayoutApplier.clampConfigOffsetsToContainer(targetDom, cfg, null, 4);
+    }
 
     if (window.PlayUiLayoutApplier) {
       window.PlayUiLayoutApplier.clientOverrides = this.workingOverrides;
@@ -277,9 +300,6 @@ class PlayClientHudEditor {
             ? `<button type="button" onclick="window.PlayClientHudEditor.toggleBarOrientation('${this.selectedCode}')" style="padding:5px 8px; font-size:0.72rem; background:rgba(234,179,8,0.2); border:1px solid #eab308; color:#fde047;" title="Alternar entre Horizontal e Vertical">🔄 Girar H/V</button>`
             : ''
         }
-        <button type="button" onclick="window.PlayClientHudEditor.setOverrideField('${this.selectedCode}', 'visible', ${cfg.visible === false ? 'true' : 'false'}); window.PlayClientHudEditor.renderInspectorContent();" style="padding:5px 8px; font-size:0.72rem; background:${cfg.visible !== false ? 'rgba(34,197,94,0.2)' : 'rgba(244,63,94,0.2)'}; border:1px solid ${cfg.visible !== false ? '#22c55e' : '#f43f5e'};">
-          ${cfg.visible !== false ? '👁️ Visível' : '🚫 Oculto'}
-        </button>
         <button type="button" onclick="window.PlayClientHudEditor.resetSelectedHud()" style="padding:5px 8px; font-size:0.72rem;" title="Resetar apenas esta HUD">
           ⟲ Resetar
         </button>
@@ -291,14 +311,14 @@ class PlayClientHudEditor {
             <span>🔍 Tamanho / Escala</span>
             <strong id="lblClientHudScale">${Number(cfg.scale || 1).toFixed(2)}x</strong>
           </div>
-          <input type="range" min="0.4" max="2.2" step="0.02" value="${cfg.scale || 1}" oninput="document.getElementById('lblClientHudScale').textContent = Number(this.value).toFixed(2) + 'x'; window.PlayClientHudEditor.setOverrideField('${this.selectedCode}', 'scale', Number(this.value));" style="width:100%; accent-color:#eab308;" />
+          <input type="range" min="0.5" max="2.0" step="0.02" value="${Math.min(2.0, Math.max(0.5, cfg.scale || 1))}" oninput="document.getElementById('lblClientHudScale').textContent = Number(this.value).toFixed(2) + 'x'; window.PlayClientHudEditor.setOverrideField('${this.selectedCode}', 'scale', Number(this.value));" style="width:100%; accent-color:#eab308;" />
         </div>
         <div>
           <div style="display:flex; justify-content:space-between; font-size:0.68rem; color:#7dd3fc;">
             <span>✨ Transparência</span>
-            <strong id="lblClientHudOpacity">${Math.round((cfg.opacity ?? 1) * 100)}%</strong>
+            <strong id="lblClientHudOpacity">${Math.round(Math.max(0.35, cfg.opacity ?? 1) * 100)}%</strong>
           </div>
-          <input type="range" min="0.15" max="1" step="0.05" value="${cfg.opacity ?? 1}" oninput="document.getElementById('lblClientHudOpacity').textContent = Math.round(Number(this.value)*100) + '%'; window.PlayClientHudEditor.setOverrideField('${this.selectedCode}', 'opacity', Number(this.value));" style="width:100%; accent-color:#38bdf8;" />
+          <input type="range" min="0.35" max="1" step="0.05" value="${Math.max(0.35, cfg.opacity ?? 1)}" oninput="document.getElementById('lblClientHudOpacity').textContent = Math.round(Number(this.value)*100) + '%'; window.PlayClientHudEditor.setOverrideField('${this.selectedCode}', 'opacity', Number(this.value));" style="width:100%; accent-color:#38bdf8;" />
         </div>
       </div>
 
@@ -446,8 +466,8 @@ class PlayClientHudEditor {
           this.dragState.mode.includes('e') || this.dragState.mode.includes('s') ? 1 : -1;
         const delta = (dx * sign + dy * sign) / 220;
         const newScale = Math.min(
-          2.2,
-          Math.max(0.4, Number((this.dragState.startScale + delta).toFixed(2)))
+          2.0,
+          Math.max(0.5, Number((this.dragState.startScale + delta).toFixed(2)))
         );
         this.setOverrideField(this.selectedCode, 'scale', newScale);
         const lbl = document.getElementById('lblClientHudScale');

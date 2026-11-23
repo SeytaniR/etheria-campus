@@ -377,6 +377,51 @@
   transform: scale(0.9) rotate(20deg);
 }
 
+.hud-flight-btn {
+  position: absolute;
+  right: 64px;
+  top: 142px;
+  width: 46px;
+  height: 46px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  filter: drop-shadow(0 3px 8px rgba(0, 0, 0, 0.78));
+  transition: transform 0.15s ease, filter 0.2s ease;
+  z-index: 95;
+  pointer-events: auto;
+}
+
+.hud-flight-btn.is-unequipped {
+  display: none !important;
+}
+
+.hud-flight-btn.is-flying {
+  filter: drop-shadow(0 0 12px rgba(56, 189, 248, 0.95)) drop-shadow(0 2px 6px rgba(0, 0, 0, 0.8));
+  transform: translateY(-2px);
+}
+
+.hud-flight-btn.is-landing {
+  filter: drop-shadow(0 0 12px rgba(250, 204, 21, 0.95));
+  opacity: 0.85;
+}
+
+.hud-flight-btn:active {
+  transform: scale(0.9);
+}
+
+.hud-flight-btn img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  pointer-events: none;
+}
+
 .hud-coords-badge {
   margin-top: 3px;
   font-size: 0.76rem;

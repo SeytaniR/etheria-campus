@@ -17,6 +17,7 @@ class AdminUiStageRenderer {
       { label: 'Missões (Menu)', url: '/play/assets/hud/menu_quests.png' },
       { label: 'Eventos (Menu)', url: '/play/assets/hud/menu_events.png' },
       { label: 'Equipe (Party)', url: '/play/assets/hud/menu_party.svg' },
+      { label: 'Voo / Montaria', url: '/play/assets/hud/flight_toggle_icon.png' },
       { label: 'Engrenagem Config', url: '/play/assets/hud/settings_gear_icon.png' },
       { label: 'Poção de Vida', url: '/play/assets/hud/shortcut_potion_hp.png' },
       { label: 'Poção de Mana', url: '/play/assets/hud/shortcut_potion_mp.png' },
@@ -51,6 +52,9 @@ class AdminUiStageRenderer {
       ],
       HUD_PARTY_BTN: [
         { key: 'img', label: '👥 Ícone do Botão de Equipe', def: '/play/assets/hud/menu_party.svg' },
+      ],
+      HUD_FLIGHT_BTN: [
+        { key: 'img', label: '🦅 Ícone do Botão de Voo / Descida', def: '/play/assets/hud/flight_toggle_icon.png' },
       ],
       HUD_JOYSTICK_EXPLORE: [
         { key: '.hud-joystick-ring', label: '⭕ Anel do Joystick', def: '/play/assets/hud/joystick_outer_ring.png' },
@@ -142,6 +146,11 @@ class AdminUiStageRenderer {
         <span id="hudPartyCrown" class="hud-party-leader-crown" style="display:none;">👑</span>
         <img id="hudPartyIconImg" class="hud-party-icon-img" src="/play/assets/hud/menu_party.svg" alt="Equipe" />
         <span id="hudPartyBadge" class="hud-party-badge">1/3</span>
+      </button>
+
+      <!-- 3.2. Botão de Voo / Descida (Somente Ícone, ativo quando Montaria Voadora equipada) -->
+      <button type="button" id="hudFlightToggleBtn" class="hud-flight-btn" data-ui-code="HUD_FLIGHT_BTN" title="Voar / Pousar na Montaria Voadora">
+        <img src="/play/assets/hud/flight_toggle_icon.png" alt="Voar / Pousar" />
       </button>
 
       <!-- 4. Barra de Atalhos Rápidos -->
@@ -450,10 +459,18 @@ class AdminUiStageRenderer {
         cfg.scale = newScale;
       } else if (dragState.mode === 'e' || dragState.mode === 'w') {
         const sign = dragState.mode === 'e' ? 1 : -1;
-        cfg.widthPx = Math.max(40, Math.round(dragState.startWidth + dx * sign));
+        const maxStageW = Math.max(80, (stage.offsetWidth || 390) - 8);
+        cfg.widthPx = Math.min(maxStageW, Math.max(40, Math.round(dragState.startWidth + dx * sign)));
       } else if (dragState.mode === 's' || dragState.mode === 'n') {
         const sign = dragState.mode === 's' ? 1 : -1;
-        cfg.heightPx = Math.max(28, Math.round(dragState.startHeight + dy * sign));
+        const maxStageH = Math.max(80, (stage.offsetHeight || 844) - 8);
+        cfg.heightPx = Math.min(maxStageH, Math.max(28, Math.round(dragState.startHeight + dy * sign)));
+      }
+
+      // Garante que nenhuma HUD/Botão ultrapasse o perímetro da tela no Palco Admin
+      const targetDom = stage.querySelector(`[data-ui-code="${activeTpl.code}"]`);
+      if (targetDom && activeTpl.category !== 'MODAL' && window.PlayUiLayoutApplier?.clampConfigOffsetsToContainer) {
+        window.PlayUiLayoutApplier.clampConfigOffsetsToContainer(targetDom, cfg, stage, 4);
       }
 
       app.markStudioDirty(activeTpl.id);

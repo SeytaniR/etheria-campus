@@ -163,6 +163,11 @@ class PlayHudController {
         <img src="/play/assets/hud/settings_gear_icon.png" alt="Configurações" />
       </button>
 
+      <!-- Botão de Voo / Descida (Somente ícone, exibido apenas com Montaria Voadora equipada) -->
+      <button type="button" id="hudFlightToggleBtn" class="hud-flight-btn is-unequipped" data-mount-equipped="false" style="display: none;" title="Voar / Descer da Montaria Voadora (Tecla V)">
+        <img src="/play/assets/hud/flight_toggle_icon.png" alt="Voar / Pousar" />
+      </button>
+
       <!-- 3. Lateral Esquerda: Barra de 6 Atalhos Rápidos com Caixas Elegantes Sem Falsos Ícones -->
       <div id="hudShortcutsSection" class="hud-shortcuts-section">
         <div id="hudShortcutsDock" class="hud-shortcuts-dock">
@@ -270,6 +275,15 @@ class PlayHudController {
     // 4. Botão de Configurações (Engrenagem)
     const settingsBtn = document.getElementById('hudSettingsBtn');
     if (settingsBtn) settingsBtn.addEventListener('click', (ev) => { ev.stopPropagation(); this.openSettingsMenu(); });
+
+    // 4.1. Botão de Voo / Descida (Montaria Voadora)
+    const flightBtn = document.getElementById('hudFlightToggleBtn');
+    if (flightBtn) {
+      flightBtn.addEventListener('click', (ev) => {
+        ev.stopPropagation();
+        window.PlayFlightAndWingsController?.toggleFlight(this.playApp || window.PlayApp);
+      });
+    }
 
     // 5. Clique / Tap no Avatar do Jogador (abre atributos)
     const avatar = document.getElementById('hudPlayerAvatarImg');

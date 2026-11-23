@@ -126,6 +126,12 @@ class AdminUiLayoutsTab {
       if (!tpl) return;
       const cfg = this.getActiveViewportConfig(tpl);
       cfg.visible = cfg.visible === false ? true : false;
+      const stageScreen = document.getElementById('uiStudioStageScreen');
+      const targetEl = stageScreen?.querySelector(`[data-ui-code="${tpl.code}"]`);
+      if (targetEl && tpl.category !== 'MODAL' && window.PlayUiLayoutApplier?.clampConfigOffsetsToContainer) {
+        window.PlayUiLayoutApplier.clampConfigOffsetsToContainer(targetEl, cfg, stageScreen, 4);
+      }
+
       this.markStudioDirty(tpl.id);
       this.renderUiStudioWorkspace();
     };
@@ -365,6 +371,12 @@ class AdminUiLayoutsTab {
         });
       }
 
+      const stageScreen = document.getElementById('uiStudioStageScreen');
+      const targetEl = stageScreen?.querySelector(`[data-ui-code="${tpl.code}"]`);
+      if (targetEl && tpl.category !== 'MODAL' && window.PlayUiLayoutApplier?.clampConfigOffsetsToContainer) {
+        window.PlayUiLayoutApplier.clampConfigOffsetsToContainer(targetEl, activeCfg, stageScreen, 4);
+      }
+
       this.markStudioDirty(tpl.id);
       this.syncInspectorInputsFromConfig(activeCfg);
       this.applyStageLayoutsAndGizmo();
@@ -412,6 +424,12 @@ class AdminUiLayoutsTab {
       } else if (action === 'BOTTOM') {
         cfg.anchorY = 'BOTTOM';
         cfg.offsetY = 0;
+      }
+
+      const stageScreen = document.getElementById('uiStudioStageScreen');
+      const targetEl = stageScreen?.querySelector(`[data-ui-code="${tpl.code}"]`);
+      if (targetEl && tpl.category !== 'MODAL' && window.PlayUiLayoutApplier?.clampConfigOffsetsToContainer) {
+        window.PlayUiLayoutApplier.clampConfigOffsetsToContainer(targetEl, cfg, stageScreen, 4);
       }
 
       this.markStudioDirty(tpl.id);
@@ -741,6 +759,7 @@ class AdminUiLayoutsTab {
       tpl.mobilePortrait = JSON.parse(JSON.stringify(srcCfg));
       tpl.mobileLandscape = JSON.parse(JSON.stringify(srcCfg));
       tpl.desktop = JSON.parse(JSON.stringify(srcCfg));
+
       this.markStudioDirty(tpl.id);
       this.renderUiStudioWorkspace();
     };

@@ -181,28 +181,25 @@ class PlayFlightAndWingsController {
   static ensureFlightHudButton(client) {
     if (typeof document === 'undefined') return null;
     let btn = document.getElementById('hudFlightToggleBtn');
-    if (btn) return btn;
-
-    const worldScreen = document.getElementById('worldScreen');
-    if (!worldScreen) return null;
-    btn = document.createElement('button');
-    btn.id = 'hudFlightToggleBtn';
-    btn.type = 'button';
-    btn.title = 'Subir / Descer da Montaria Voadora (Tecla V)';
-    btn.style.cssText = [
-      'position:fixed', 'left:50%', 'bottom:72px', 'transform:translateX(-50%)',
-      'z-index:28', 'display:none', 'align-items:center', 'gap:6px',
-      'padding:7px 14px', 'border-radius:999px', 'font-size:0.78rem', 'font-weight:800',
-      'color:#f8fafc', 'cursor:pointer',
-      'background:linear-gradient(135deg, rgba(14,116,144,0.92), rgba(30,58,138,0.92))',
-      'border:1.5px solid #38bdf8', 'box-shadow:0 4px 16px rgba(14,165,233,0.45)',
-      'backdrop-filter:blur(6px)',
-    ].join(';');
-    btn.onclick = (e) => {
-      e.stopPropagation();
-      this.toggleFlight(client || window.PlayApp);
-    };
-    worldScreen.appendChild(btn);
+    if (!btn) {
+      const container = document.getElementById('playMobileHud') || document.getElementById('worldScreen');
+      if (!container) return null;
+      btn = document.createElement('button');
+      btn.id = 'hudFlightToggleBtn';
+      btn.type = 'button';
+      btn.className = 'hud-flight-btn is-unequipped';
+      btn.dataset.mountEquipped = 'false';
+      btn.style.display = 'none';
+      btn.innerHTML = '<img src="/play/assets/hud/flight_toggle_icon.png" alt="Voar / Pousar" />';
+      container.appendChild(btn);
+    }
+    if (!btn.dataset.flightBound) {
+      btn.dataset.flightBound = 'true';
+      btn.onclick = (e) => {
+        e.stopPropagation();
+        this.toggleFlight(client || window.PlayApp);
+      };
+    }
     return btn;
   }
 
@@ -210,18 +207,21 @@ class PlayFlightAndWingsController {
     const btn = this.ensureFlightHudButton(client);
     if (!btn) return;
     const mount = client?.activeChar?.visualAppearance?.equippedMount;
-    if (!mount || client?.actionCombatArena?.isActive) {
-      btn.style.display = 'none';
-      return;
+    const inCombat = Boolean(client?.actionArena?.isActive || client?.actionCombatArena?.isActive);
+    const canShow = Boolean(mount) && !inCombat;
+    btn.dataset.mountEquipped = canShow ? 'true' : 'false';
+    btn.classList.toggle('is-unequipped', !canShow);
+    btn.classList.toggle('is-flying', canShow && Boolean(client?.isFlying));
+    btn.classList.toggle('is-landing', canShow && Boolean(client?.isLandingFlight));
+    btn.style.display = canShow ? 'inline-flex' : 'none';
+    if (!btn.querySelector('img')) {
+      btn.innerHTML = '<img src="/play/assets/hud/flight_toggle_icon.png" alt="Voar / Pousar" />';
     }
-    btn.style.display = 'inline-flex';
-    if (client.isLandingFlight) {
-      btn.textContent = '🪂 Pousando...';
-    } else if (client.isFlying) {
-      btn.textContent = '🪂 Descer da Montaria (V)';
-    } else {
-      btn.textContent = '🦅 Voar na Montaria (V)';
-    }
+    btn.title = client?.isLandingFlight
+      ? 'Pousando em área livre...'
+      : client?.isFlying
+      ? 'Descer da Montaria Voadora (Tecla V)'
+      : 'Subir na Montaria Voadora (Tecla V)';
   }
 
   static toggleFlight(client) {

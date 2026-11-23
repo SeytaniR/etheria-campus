@@ -72,8 +72,12 @@ function normalizeViewportConfig(raw: unknown): UiViewportLayoutConfig {
     ? (String(parsed.anchorY).toUpperCase() as UiViewportLayoutConfig['anchorY'])
     : 'DEFAULT';
 
-  const offsetX = Number.isFinite(Number(parsed.offsetX)) ? Math.round(Number(parsed.offsetX)) : 0;
-  const offsetY = Number.isFinite(Number(parsed.offsetY)) ? Math.round(Number(parsed.offsetY)) : 0;
+  const offsetX = Number.isFinite(Number(parsed.offsetX))
+    ? Math.max(-1280, Math.min(1280, Math.round(Number(parsed.offsetX))))
+    : 0;
+  const offsetY = Number.isFinite(Number(parsed.offsetY))
+    ? Math.max(-1280, Math.min(1280, Math.round(Number(parsed.offsetY))))
+    : 0;
   const scaleRaw = Number(parsed.scale);
   const scale = Number.isFinite(scaleRaw) && scaleRaw > 0 ? Math.min(2.5, Math.max(0.3, Number(scaleRaw.toFixed(2)))) : 1.0;
 
@@ -96,8 +100,10 @@ function normalizeViewportConfig(raw: unknown): UiViewportLayoutConfig {
 
   const opacityRaw = Number(parsed.opacity);
   const opacity =
-    Number.isFinite(opacityRaw) && opacityRaw >= 0.05 && opacityRaw <= 1
+    Number.isFinite(opacityRaw) && opacityRaw >= 0.2 && opacityRaw <= 1
       ? Number(opacityRaw.toFixed(2))
+      : opacityRaw > 0 && opacityRaw < 0.2
+      ? 0.2
       : 1.0;
 
   const visible = parsed.visible !== false;
@@ -223,6 +229,16 @@ export class AdminUiLayoutsController {
         'EXPLORE_HUD',
         '#hudPartyBtn',
         'Botão flutuante para criar, gerenciar e visualizar membros da Equipe (até 3 jogadores).',
+        { offsetX: 0, offsetY: 0, scale: 1.0 },
+        { offsetX: 0, offsetY: 0, scale: 0.95 },
+        { offsetX: 0, offsetY: 0, scale: 1.0 }
+      ),
+      mk(
+        'HUD_FLIGHT_BTN',
+        'Botão de Voo / Descida (Montaria Voadora)',
+        'EXPLORE_HUD',
+        '#hudFlightToggleBtn',
+        'Botão de ícone exibido apenas quando uma Montaria Voadora está equipada para decolar e pousar.',
         { offsetX: 0, offsetY: 0, scale: 1.0 },
         { offsetX: 0, offsetY: 0, scale: 0.95 },
         { offsetX: 0, offsetY: 0, scale: 1.0 }

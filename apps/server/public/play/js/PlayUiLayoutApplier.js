@@ -132,20 +132,29 @@ class PlayUiLayoutApplier {
       return base;
     }
 
-    // Mescla apenas posição, escala, tamanho, visibilidade e cores (NUNCA permite trocar imagens/ícones no client)
+    // Mescla posição, escala, tamanho e cores (NUNCA permite ocultar HUD ou trocar ícones no client)
+    const clampedOpacity =
+      userEntry.opacity !== undefined
+        ? Math.min(1, Math.max(0.35, Number(userEntry.opacity) || 1))
+        : base.opacity;
+    const clampedScale =
+      userEntry.scale !== undefined
+        ? Math.min(2.0, Math.max(0.5, Number(userEntry.scale) || 1))
+        : base.scale;
+
     return {
       ...base,
       anchorX: userEntry.anchorX !== undefined ? userEntry.anchorX : base.anchorX,
       anchorY: userEntry.anchorY !== undefined ? userEntry.anchorY : base.anchorY,
       offsetX: userEntry.offsetX !== undefined ? userEntry.offsetX : base.offsetX,
       offsetY: userEntry.offsetY !== undefined ? userEntry.offsetY : base.offsetY,
-      scale: userEntry.scale !== undefined ? userEntry.scale : base.scale,
+      scale: clampedScale,
       widthPx: userEntry.widthPx !== undefined ? userEntry.widthPx : base.widthPx,
       heightPx: userEntry.heightPx !== undefined ? userEntry.heightPx : base.heightPx,
       maxWidthVw: userEntry.maxWidthVw !== undefined ? userEntry.maxWidthVw : base.maxWidthVw,
       maxHeightVh: userEntry.maxHeightVh !== undefined ? userEntry.maxHeightVh : base.maxHeightVh,
-      opacity: userEntry.opacity !== undefined ? userEntry.opacity : base.opacity,
-      visible: userEntry.visible !== undefined ? userEntry.visible : base.visible,
+      opacity: clampedOpacity,
+      visible: base.visible !== false,
       bgColor: userEntry.bgColor !== undefined ? userEntry.bgColor : base.bgColor,
       borderColor: userEntry.borderColor !== undefined ? userEntry.borderColor : base.borderColor,
       textColor: userEntry.textColor !== undefined ? userEntry.textColor : base.textColor,
@@ -176,7 +185,9 @@ class PlayUiLayoutApplier {
       if (!elements || elements.length === 0) continue;
 
       const cfg = this.getActiveConfigForTemplate(tpl, mode, useClient);
-      elements.forEach((el) => this.applyConfigToElement(el, cfg, Boolean(forcedMode)));
+      const isHudContainer = tpl.category === 'EXPLORE_HUD' || tpl.category === 'COMBAT_HUD' || tpl.category === 'INTERFACE';
+      const stageRoot = rootContainer === document ? null : rootContainer;
+      elements.forEach((el) => this.applyConfigToElement(el, cfg, Boolean(forcedMode), isHudContainer ? stageRoot : false, isHudContainer));
     }
   }
 
@@ -188,8 +199,80 @@ class PlayUiLayoutApplier {
     );
   }
 
-  applyConfigToElement(el, cfg, isStagePreview = false) {
+  computePerimeterDelta(el, containerEl = null, margin = 4) {
+    if (!el || !el.getBoundingClientRect) return { corrX: 0, corrY: 0, width: 0, height: 0, maxW: 0, maxH: 0 };
+    const rect = el.getBoundingClientRect();
+    if (rect.width <= 0 || rect.height <= 0) return { corrX: 0, corrY: 0, width: 0, height: 0, maxW: 0, maxH: 0 };
+
+    let left = rect.left;
+    let right = rect.right;
+    let top = rect.top;
+    let bottom = rect.bottom;
+    let maxW = window.innerWidth || 1280;
+    let maxH = window.innerHeight || 720;
+
+    if (containerEl && containerEl.getBoundingClientRect) {
+      const cRect = containerEl.getBoundingClientRect();
+      maxW = containerEl.offsetWidth || cRect.width || 390;
+      maxH = containerEl.offsetHeight || cRect.height || 844;
+      const zoom = cRect.width > 0 && maxW > 0 ? cRect.width / maxW : 1;
+      left = (rect.left - cRect.left) / zoom;
+      right = (rect.right - cRect.left) / zoom;
+      top = (rect.top - cRect.top) / zoom;
+      bottom = (rect.bottom - cRect.top) / zoom;
+    }
+
+    const elW = right - left;
+    const elH = bottom - top;
+    let corrX = 0;
+    let corrY = 0;
+
+    if (elW <= maxW - margin * 2) {
+      if (left < margin) corrX = margin - left;
+      else if (right > maxW - margin) corrX = maxW - margin - right;
+    } else {
+      if (left > maxW - 40) corrX = maxW - 40 - left;
+      else if (right < 40) corrX = 40 - right;
+    }
+
+    if (elH <= maxH - margin * 2) {
+      if (top < margin) corrY = margin - top;
+      else if (bottom > maxH - margin) corrY = maxH - margin - bottom;
+    } else {
+      if (top < margin) corrY = margin - top;
+      else if (top > maxH - 40) corrY = maxH - 40 - top;
+    }
+
+    return {
+      corrX: Math.round(corrX),
+      corrY: Math.round(corrY),
+      width: elW,
+      height: elH,
+      maxW,
+      maxH,
+    };
+  }
+
+  clampConfigOffsetsToContainer(el, cfg, containerEl = null, margin = 4) {
+    if (!el || !cfg) return false;
+    this.applyConfigToElement(el, cfg, Boolean(containerEl), false, false);
+    const { corrX, corrY } = this.computePerimeterDelta(el, containerEl, margin);
+    if (corrX !== 0 || corrY !== 0) {
+      cfg.offsetX = Math.round((Number(cfg.offsetX) || 0) + corrX);
+      cfg.offsetY = Math.round((Number(cfg.offsetY) || 0) + corrY);
+      return true;
+    }
+    return false;
+  }
+
+  applyConfigToElement(el, cfg, isStagePreview = false, clampContainer = false, shouldClampRuntime = false) {
     if (!el || !el.style) return;
+
+    // 0. Botão de Voo só pode aparecer quando houver Montaria Voadora equipada no cliente real
+    if (el.id === 'hudFlightToggleBtn' && !isStagePreview && el.dataset.mountEquipped !== 'true') {
+      el.style.setProperty('display', 'none', 'important');
+      return;
+    }
 
     // 1. Visibilidade explícita
     if (cfg.visible === false) {
@@ -417,43 +500,45 @@ class PlayUiLayoutApplier {
 
     const hasCustomAnchor = anchorX !== 'DEFAULT' || anchorY !== 'DEFAULT';
     const hasCustomTransform = offsetX !== 0 || offsetY !== 0 || (Number.isFinite(scale) && Math.abs(scale - 1) > 0.01);
+    let baseTx = `${offsetX}px`;
+    let baseTy = `${offsetY}px`;
 
     if (hasCustomAnchor) {
       el.style.setProperty('position', isStagePreview ? 'absolute' : 'fixed', 'important');
       el.dataset.uiLayoutCustomPos = 'true';
 
-      let tx = `${offsetX}px`;
-      let ty = `${offsetY}px`;
+      baseTx = `${offsetX}px`;
+      baseTy = `${offsetY}px`;
 
       if (anchorX === 'LEFT') {
         el.style.setProperty('left', `${12 + offsetX}px`, 'important');
         el.style.setProperty('right', 'auto', 'important');
-        tx = '0px';
+        baseTx = '0px';
       } else if (anchorX === 'RIGHT') {
         el.style.setProperty('right', `${12 - offsetX}px`, 'important');
         el.style.setProperty('left', 'auto', 'important');
-        tx = '0px';
+        baseTx = '0px';
       } else if (anchorX === 'CENTER') {
         el.style.setProperty('left', '50%', 'important');
         el.style.setProperty('right', 'auto', 'important');
-        tx = `calc(-50% + ${offsetX}px)`;
+        baseTx = `calc(-50% + ${offsetX}px)`;
       }
 
       if (anchorY === 'TOP') {
         el.style.setProperty('top', `${12 + offsetY}px`, 'important');
         el.style.setProperty('bottom', 'auto', 'important');
-        ty = '0px';
+        baseTy = '0px';
       } else if (anchorY === 'BOTTOM') {
         el.style.setProperty('bottom', `${12 - offsetY}px`, 'important');
         el.style.setProperty('top', 'auto', 'important');
-        ty = '0px';
+        baseTy = '0px';
       } else if (anchorY === 'CENTER') {
         el.style.setProperty('top', '50%', 'important');
         el.style.setProperty('bottom', 'auto', 'important');
-        ty = `calc(-50% + ${offsetY}px)`;
+        baseTy = `calc(-50% + ${offsetY}px)`;
       }
 
-      el.style.setProperty('transform', `translate(${tx}, ${ty}) scale(${scale})`, 'important');
+      el.style.setProperty('transform', `translate(${baseTx}, ${baseTy}) scale(${scale})`, 'important');
       el.dataset.uiLayoutCustomTransform = 'true';
     } else {
       if (el.dataset.uiLayoutCustomPos === 'true') {
@@ -466,11 +551,29 @@ class PlayUiLayoutApplier {
       }
 
       if (hasCustomTransform) {
-        el.style.setProperty('transform', `translate(${offsetX}px, ${offsetY}px) scale(${scale})`, 'important');
+        el.style.setProperty('transform', `translate(${baseTx}, ${baseTy}) scale(${scale})`, 'important');
         el.dataset.uiLayoutCustomTransform = 'true';
-      } else if (el.dataset.uiLayoutCustomTransform === 'true') {
-        el.style.removeProperty('transform');
-        delete el.dataset.uiLayoutCustomTransform;
+      } else {
+        baseTx = '0px';
+        baseTy = '0px';
+        if (el.dataset.uiLayoutCustomTransform === 'true') {
+          el.style.removeProperty('transform');
+          delete el.dataset.uiLayoutCustomTransform;
+        }
+      }
+    }
+
+    // 7. Trava de Perímetro em Tempo de Execução: impede qualquer botão/HUD visível de sair da tela
+    if (shouldClampRuntime && el.id !== 'interactionPrompt' && !el.querySelector('.is-collapsed')) {
+      const containerForClamp = clampContainer || null;
+      const { corrX, corrY } = this.computePerimeterDelta(el, containerForClamp, 4);
+      if (corrX !== 0 || corrY !== 0) {
+        el.style.setProperty(
+          'transform',
+          `translate(calc(${baseTx} + ${corrX}px), calc(${baseTy} + ${corrY}px)) scale(${scale})`,
+          'important'
+        );
+        el.dataset.uiLayoutCustomTransform = 'true';
       }
     }
   }
