@@ -8,9 +8,9 @@
 ---
 
 ## 📌 Status Atual do Projeto
-* **Versão Atual:** `v0.59.0`
+* **Versão Atual:** `v0.59.1`
 * **Última Atualização:** `2026-11-24`
-* **Fase Atual:** **Malhas de Construção (`BUILDING`) e Plantação (`PLANTATION`) na Edição de Mapas (`v0.59.0`)** — Adicionadas as duas novas malhas poligonais (`building_mesh_json` e `plantation_mesh_json`) ao schema Prisma, `SnapshotManager`, backend (`/admin` e `/play`), editor visual `/admin` (ferramentas `🏗️ +Construção` e `🌾 +Plantação`, gaveta de camadas, Undo/Redo) e `ClientPolygonMesh` (construção = colisão apenas se ocupada, senão livre passeio; plantação = sobreposição apenas se ocupada, senão livre passeio sem sobreposição), prontas para a próxima etapa de edifícios e plantações. Todos os arquivos estritamente < 1.000 linhas (Regra #7).
+* **Fase Atual:** **Regra #12 — Guarda de Contexto do Chat (`v0.59.1`) & Malhas de Construção/Plantação (`v0.59.0`)** — Adicionada a Regra #12 em `AGENTS.md`, `.gemini/rules/AGENTS.md`, `.gemini/rules/chat_scope_guard.md` e `C:\Users\Dell\.gemini\config\rules\chat_scope_guard.md` determinando parada imediata e alerta ao usuário caso solicite algo sem relação com este chat/projeto. Todos os arquivos estritamente < 1.000 linhas (Regra #7).
 * **Repositório Oficial:** `https://github.com/SeytaniR/etheria-campus`
 * **Fonte Bruta de Assets:** `https://github.com/SeytaniR/mcrework` (`https://seytanir.github.io/mcrework/`)
 
@@ -73,6 +73,9 @@
     * Trava de 60 FPS no `gameLoop` (`if (elapsed < 15.5) return;`) para evitar consumo desnecessário de bateria e throttling térmico em telas 90Hz/120Hz (como no Xiaomi Redmi Note 14 Pro).
     * Alocação zero (Zero-Alloc) na ordenação de profundidade 2.5D com reciclagem estática de objetos (`_renderPool`), evitando micro-travamentos de Garbage Collection.
     * Cache geométrico de gradientes radiais na arena de combate.
+
+16. **Guarda de Contexto do Chat (Regra #12):**
+    * Sempre que o usuário pedir algo que não tenha relação com este chat/projeto, a IA deve parar imediatamente o processamento e avisar: *"vc tem certeza que etá no chat correto?"*.
 
 ---
 

@@ -5,6 +5,13 @@ Qualquer IA trabalhando neste repositório **DEVE** incrementar a versão e regi
 
 ---
 
+## [v0.59.1] - 2026-11-24
+### Regra #12 — Guarda de Contexto do Chat (Parada Imediata em Pedidos Fora de Escopo)
+* **Adicionada Regra #12 (`AGENTS.md`, `.gemini/rules/AGENTS.md`, `.gemini/rules/chat_scope_guard.md`, `C:\Users\Dell\.gemini\config\rules\chat_scope_guard.md` & `docs/HANDOFF.md`):**
+  * Sempre que o usuário solicitar algo que não tenha relação com este chat/projeto, a IA deve interromper imediatamente o processamento e avisar: *"vc tem certeza que etá no chat correto?"*.
+
+---
+
 ## [v0.59.0] - 2026-11-24
 ### Novas Malhas de Edição de Mapas: Construção (`BUILDING`) & Plantação (`PLANTATION`)
 * **Banco de Dados & Snapshot (`schema.prisma`, `SnapshotManager.ts`):**

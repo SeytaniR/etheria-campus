@@ -146,3 +146,10 @@ Quando mais de uma IA estiver atuando no projeto (em revezamento de turnos, inst
   * É **terminantemente proibido** abrir janelas visíveis ou abas que saltem na tela do usuário "do nada" sem solicitação explícita.
   * Todas as validações, inspeções de rota (`/admin`, `/play`), execução de scripts ou testes visuais devem ser executados silenciosamente em background sem roubar o foco ou interromper a área de trabalho do usuário.
 
+---
+
+### 12. Guarda de Contexto do Chat (Verificação de Chat Correto)
+* **12.1 Parada Imediata em Pedidos Fora do Contexto deste Chat/Projeto:**
+  * Sempre que o usuário enviar uma solicitação que não tenha relação com o contexto deste chat ou do projeto **Etheria Campus**, a IA **DEVE** interromper imediatamente o processamento (sem executar ferramentas, alterar arquivos ou responder à tarefa fora de escopo) e avisar o usuário exatamente com a mensagem:
+    > **"vc tem certeza que etá no chat correto?"**
+
