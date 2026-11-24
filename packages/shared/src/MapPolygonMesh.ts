@@ -5,6 +5,7 @@
  *   de Polígonos Estilo Google Earth (Colisão e Sobreposição de Opacidade dos Mapas).
  * @rules Utilizada tanto pelo Servidor Autoritário (validação anti-cheat de movimento)
  *   quanto pelo Cliente WebGL (colisão preditiva e máscara de opacidade).
+ * @dependencies Sem dependências externas (algoritmo geométrico puro Point-in-Polygon + AABB).
  */
 
 export interface Point2D {

@@ -6,6 +6,8 @@
  *   - Fornece bootstrap com lista de `GameMap` cadastrados no banco para vínculo nos pontos.
  *   - Persiste alterações de posição/tamanho do logo, visibilidade de camadas, vínculos de mapas
  *     e ajustes nos pontos/rotas, atualizando o PostgreSQL e o snapshot JSON em disco.
+ * @rules Segue estritamente AGENTS.md (Zero Hardcode, Regra #7 < 1.000 linhas, Snapshot JSON automático).
+ * @dependencies @etheria/database (PrismaClient, SnapshotManager, I18nCache), ./AdminWorldMapsSeeds.js
  */
 
 import { PrismaClient, SnapshotManager, I18nCache } from '@etheria/database';

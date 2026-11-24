@@ -5,6 +5,7 @@
  *   Salva imagens em `apps/server/public/assets/maps/uploaded/`, calcula dimensões reais
  *   e entrega URLs relativas no mesmo domínio (`/assets/maps/uploaded/*`).
  * @rules Segue estritamente AGENTS.md (Regra #7 de modularidade e arquivos < 1.000 linhas).
+ * @dependencies node:fs/promises, node:fs, node:path, ./AssetMirrorService.js
  */
 
 import * as fs from 'node:fs/promises';

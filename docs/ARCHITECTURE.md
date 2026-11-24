@@ -1,169 +1,82 @@
-# 🏛️ Arquitetura de Sistema, Motor Procedural & Combate Tático (Etheria Campus)
+# 🏛️ Arquitetura de Sistema, Motor Procedural & Combate Action 2.5D (`v0.64.0`)
 
-Este documento detalha os módulos Orientados a Objetos, o Motor de Regras Procedurais, os Sistemas de Elementos e Raças, o Cálculo Universal de Dano e o Combate em Arena de **10x10 Slots (Modo 5B)**.
-
----
-
-## 1. Visão Geral dos 6 Módulos Principais (Monorepo OO)
-
-1. **`@etheria/asset-bridge` & `AssetMirrorService` (Conector e Espelho de Assets):**
-   * Lê os catálogos, atlases WebP de personagens/monstros/NPCs, imagens limpas de fundo dos mapas (sem usar malhas ou colisões antigas do `mcrework`), ícones e efeitos especiais (VFX) do repositório `SeytaniR/mcrework`.
-   * **Papel Estrito do Repositório GitHub (`mcrework`):** O repositório remoto no GitHub serve exclusivamente para alimentar as galerias e miniaturas visuais do Estúdio `/admin` durante os processos de criação e edição.
-   * **Espelhamento Imediato no Servidor ao Salvar:** No momento em que o administrador clica em salvar qualquer entidade no banco de dados (Mapas, Personagens/Classes, NPCs, Monstros, Pets, Montarias, Equipamentos, Itens, Skills, Status Effects), o servidor faz o download e a instalação imediata do asset no disco local da VPS (`apps/server/cache/mcrework/`).
-   * **Isolamento Total do Client (`/play`):** O cliente do jogo comunica-se estrita e exclusivamente com o servidor do jogo (`/api/assets/*`, `/api/play/*`), nunca fazendo chamadas diretas ao GitHub. O download completo local é orquestrado via `PlayAssetDownloader.js` (Cache Storage).
-2. **`@etheria/shared` (Núcleo OO Compartilhado, Motor Procedural & i18n):**
-   * Classes de domínio (`Entity`, `Actor`, `Character`, `Pet`, `Monster`, `ArenaFormation`, `CombatCalculator`, `MapMeshGrid`), contratos de pacotes de rede e sistema de tradução `i18n` (`pt-BR`, `en-US`, `es-ES`).
-3. **`@etheria/database` (Banco de Dados Low-Code):**
-   * Tabelas relacionais gerenciadas via **Prisma ORM + PostgreSQL**, populadas pelo usuário através da Rota `/admin` e espelhadas automaticamente em snapshots JSON versionados.
-4. **`@etheria/server` (Servidor Autoritário):**
-   * Gerencia instâncias de mapas (`MapInstance`), validação de movimento contra a malha de colisão salva no banco (`collision_mesh_json`), dominação de Facções/Alianças, encontros procedurais, instâncias de arena (`BattleArenaInstance`) e anti-cheat.
-5. **`@etheria/client` (Cliente WebGL Pixi.js + UI Camaleão + APK Capacitor):**
-   * Renderiza mapas 2.5D e Arenas 10x10 a 60 FPS com interface 100% responsiva (PC, Tablet, Celular Horizontal e Celular Vertical).
-6. **Rotas `/admin` (Studio Low-Code), `/play` (Rota dos Jogadores) & `/gm` (Game Master In-Game):**
-   * **`/admin`:** Interface visual para criar e editar todas as tabelas do jogo (`maps`, `npc_templates`, `class_templates`, `user_accounts`, etc.) com auto-incremento padronizado (`map_1`, `npc_1`, `class_1`...) e exportação automática de Snapshot JSON.
-   * **`/play`:** Rota dos jogadores para autenticação, criação/seleção de personagens (`player_characters` com sorteio elemental inicial `10%` `NEUTRAL` vs `20%` peso relativo para cada elemento ativo), exploração 2.5D em tempo real com sprites animados de 8 direções do `mcrework`, colisão poligonal (`collision_mesh_json`), opacidade de sobreposição (`overlap_mesh_json`), travessia de portais pareados (`Entrada <-> Saída`) e função **`🆘 Destravar Personagem`** (retorno ao `spawn_x, spawn_y` do mapa).
-   * **`/gm` (Integrado em `/play`):** Painel flutuante (`⚡ Painel GM`) exclusivo para contas `ADMIN` e `GM` permitindo teleporte instantâneo em 1 clique para qualquer mapa salvo, Raio-X visual das malhas de colisão/sobreposição/portais/spawn em tempo real, modo No-Clip (atravessar paredes), multiplicador de velocidade GM e *Hot-Reload* do mapa atual direto do PostgreSQL.
+Este documento descreve a arquitetura oficial do **Etheria Campus**: monorepo Orientado a Objetos, servidor autoritativo em tempo real, motor de regras procedurais zero-hardcode, sistema de internacionalização multi-locale e modularidade estrita (`< 1.000` linhas/arquivo).
 
 ---
 
-## 2. Mundo Procedural: Tipos de Mapa, Dominação e os 40 Biomas
+## 1. Visão Geral dos Módulos do Monorepo
 
-### 2.1. Os 5 Tipos de Mapa (Regras de Spawn, Dominação e PvP Fixadas no Tipo)
-O comportamento de **Spawn de Monstros**, **Dominação Territorial** e **Regra de PvP** é determinado diretamente pelo **Tipo de Mapa (`map_types`)**:
+1. **`@etheria/shared` (`packages/shared/src/`):**
+   * **`CombatDamageCalculator.ts`:** Cálculo isomórfico compartilhado entre Servidor e Arena `/play` (acerto/desvio com teto `[10%..95%]`, mitigação assintótica por nível e multiplicadores elementais/raciais).
+   * **`MapPolygonMesh.ts`:** Engine geométrica *Point-in-Polygon* + *AABB Pre-Culling* + grid de navegação A* compartilhada entre validação anti-cheat no servidor e colisão preditiva/opacidade no cliente.
+   * **`GameRulesConstants.ts`:** Constantes canônicas únicas (`MAX_BATTLE_MOVE_SPEED = 185`, `MIN_BATTLE_MOVE_SPEED = 60`, `AUTHORITATIVE_BASE_MOVE_SPEED = 168`, `ELEVATED_ROLES`, `ACTIVE_ELEMENTS`, `VALID_CHARACTER_EQUIPMENT_SLOTS` com 16 slots e helpers). Exposto ao browser como ES Module em `/shared/GameRulesConstants.js`.
+2. **`@etheria/database` (`packages/database/`):**
+   * Schema Prisma PostgreSQL com **34 modelos** e **11 índices (`@@index`)**.
+   * **`SnapshotManager.ts`:** Exportação e restauração atômicas (`exportInFlight` / `exportQueued` coalesce, 3 lotes `Promise.all`, escrita via `.tmp` + `rename`) em `packages/database/snapshots/lowcode.snapshot.json`.
+   * **`I18nCache.ts`:** Cache TTL de 5 minutos com isolamento por requisição via `node:async_hooks` (`AsyncLocalStorage`) e fallback em camadas para `pt-BR`, `en-US` (sobrepondo chaves legadas `'en'` + `'en-US'`) e `es-ES`.
+3. **`AssetMirrorService` & Regra #10 Reforçada (Independência Pós-Salvamento):**
+   * `SeytaniR/mcrework` é consultado **exclusivamente** no `/admin` como galeria opcional para descoberta de **assets novos**.
+   * Ao salvar qualquer entidade (Mapas, Mapas Mundiais, Classes, NPCs, Monstros, Pets, Montarias/Asas, Equipamentos, Itens, Lojas, Baús, Skills, Status Effects/VFX), `AssetMirrorService` baixa imediatamente todos os arquivos necessários (`.webp`, `.png`, `atlas.json`, `char_manifest.json`, frames `bmp_*.png`) para `apps/server/cache/mcrework/` e valida caminhos contra path traversal antes da normalização.
+   * **Zero URLs Externas Pós-Salvamento:** Todas as APIs, DTOs e arquivos de `/admin`, `/gm` e `/play` servem ativos exclusivamente via mesmo domínio (`/api/assets/mcrework/*`, `/api/assets/map-image/:id`, `/assets/*` e `/play/assets/*`), alimentando o `PlayAssetDownloader.js` mesmo offline de GitHub.
+4. **`@etheria/server` (`apps/server/src/`):**
+   * **`index.ts` (`EtheriaServerApp`):** Servidor HTTP nativo com Security Headers, CORS restrito por allowlist, parser JSON com teto de `1 MB` (`15 MB` em uploads de mapas), compressão `gzip` + `ETag`/`304 Not Modified`, pré-aquecimento de assets no boot, escopo `I18nCache.runWithLocale(...)` e shutdown gracioso (`SIGTERM`/`SIGINT`) com descarga do cache de posições.
+   * **Roteamento Modular (`routes/`):** `AdminRouter.ts`, `PlayRouter.ts`, `PlayCombatRouter.ts` e `PartyRouter.ts`.
+   * **Camada de Segurança (`security/`):** `AdminAuthService` (JWT HS256 dual-mode localhost/remoto + RBAC fail-closed `NONE`/`READ`/`READ_WRITE` por tabela), `CombatAntiCheatService` (`battleNonce` único anti-replay e validação de vitória/recompensas), `RateLimiter`, `InputSanitizer` e `ChatModerationFilter` (classificação 16+ anti-Scunthorpe).
+   * **Performance em RAM (`controllers/`):** `MapRuntimeCacheService` (cache de `MapPolygonMesh`/dimensões TTL 5 min + buffer de posições com dirty-flush de 3s e flush em portais/voo/respawn) e `MapPresenceService` (estado multi-jogador no mapa + TTL 5 min / cap 2.000 entradas).
+5. **Rotas `/admin`, `/play` & `/gm` (`apps/server/public/`):**
+   * **`/shared/EtheriaI18n.js`:** Motor frontend trilíngue (`pt-BR`, `en-US`, `es-ES`) compartilhado entre `/play` e `/admin`, com seletor de idioma no login, lobby e configurações (`POST /api/play/locale` para persistir preferência autenticada + header `X-Etheria-Locale`).
+   * **`/play` (Cliente Action 2.5D):** Dividido em submódulos SRP (`play.js`, `PlayWorldRenderer.js`, `PlayWorldInputController.js`, `PlayHudController.js`, `PlayGmController.js`, `PlayStatsModalController.js`, `ActionCombatArena.js`, `ArenaProjectileResolver.js`, `ArenaHudControls.js`, `ArenaPhysicsSolver.js`, `ArenaUnitAiController.js`, `ActionSkillEngine.js`, `ActionMotionEngine.js`, `ActionVfxRenderer.js`, `PlayPetsController.js`, `PlayHunterController.js`, `PlayPartyController.js`, `PlayBagController.js`, `PlayQuestsController.js`, `PlayDungeonChestController.js`, `PortalTravelController.js`, `PlayFlightAndWingsController.js`).
+   * **`/admin` (Studio Low-Code):** Dividido em `admin.js`, `AdminAuth.js`, `AdminMapPickerModal.js`, `AdminCanvasEditor.js`, `AdminLayersDrawer.js`, `AdminQuestsTab.js`, `AdminQuestsBoardView.js`, `AdminMonsterConfigTab.js`, `AdminDungeonChestsTab.js`, `AdminUiLayoutsTab.js`, além das abas especializadas por tabela curada.
 
-| Código | Nome | Quem Pode Dominar? | Spawna Monstros? | Regra de PvP |
+---
+
+## 2. Mundo Procedural: 6 Tipos de Mapa, 4 Malhas Poligonais & Spawn
+
+### 2.1. Os 6 Tipos de Mapa (`map_types`)
+| Código | Nome | Quem Domina? | Spawna Monstros? | Regra de PvP |
 | :--- | :--- | :---: | :---: | :--- |
-| **`CITY`** | **Cidade** | **Alianças** (União de Facções) | ❌ Não | 🤝 **Apenas Duelo Aceito** (Ambos jogadores/equipes devem aceitar) |
-| **`VILLAGE`** | **Vila** | **Alianças** (União de Facções) | ❌ Não | 🤝 **Apenas Duelo Aceito** (Ambos jogadores/equipes devem aceitar) |
-| **`SUBURB`** | **Subúrbio** | **Facções** | ✅ Sim | 🤝 **Apenas Duelo Aceito** (Sem PvP forçado) |
-| **`HOSTILE_ZONE`** | **Zona Hostil** | **Facções** | ✅ Sim | ⚠️ **PvP Forçado (PK) Permitido** (Atacar quem está com PvP desativado transforma o atacante em **Criminoso**) |
-| **`CONFLICT_ZONE`** | **Zona de Conflito** | **Facções** | ✅ Sim | ⚔️ **PvP Totalmente Aberto** (Combate livre a todos sem penalidade de crime) |
+| **`CITY`** | Cidade | **Alianças** | ❌ Não | 🤝 Duelo Aceito |
+| **`VILLAGE`** | Vila | **Alianças** | ❌ Não | 🤝 Duelo Aceito |
+| **`SUBURB`** | Subúrbio | **Facções** | ✅ Sim | 🤝 Duelo Aceito |
+| **`HOSTILE_ZONE`** | Zona Hostil | **Facções** | ✅ Sim | ⚠️ PvP Forçado / PK (Criminoso) |
+| **`CONFLICT_ZONE`** | Zona de Conflito | **Facções** | ✅ Sim | ⚔️ PvP Aberto |
+| **`DUNGEON`** | Dungeon | `NONE` (Instância 1x/dia) | ✅ Sim | 🤝 Duelo Aceito |
 
-### 2.2. Estrutura Enxuta de Cada Mapa (`maps`) & Malhas Visuais Editáveis no Banco
-> **Importante:** As malhas antigas (`collision.bin` e máscaras originais) do `mcrework` foram **descartadas** por incompatibilidade. Do `mcrework` importa-se **somente a imagem limpa do mapa**.
+### 2.2. As 4 Malhas Editáveis de Mapa (`maps`)
+1. **`collision_mesh_json`:** Polígonos bloqueantes (colisão física validada pelo servidor e cliente).
+2. **`overlap_mesh_json`:** Polígonos de sobreposição visual (reduzem a opacidade conforme `overlap_opacity`, ex: copas e telhados).
+3. **`building_mesh_json`:** Malha de áreas de construção (lógica preparada: se contiver construção gera colisão; vazia permite livre passeio).
+4. **`plantation_mesh_json`:** Malha de áreas de plantação (lógica preparada: se contiver plantação aplica sobreposição; vazia permite passeio livre sem sobreposição).
 
-Na tabela de mapas e no Editor Visual da Rota `/admin`, você define e salva diretamente no banco:
-1. **Nome do Mapa** (`i18n`) e **Imagem Base do Mapa** (`mcrework`).
-2. **Nível de Acesso** (progressão de 10 em 10: Mapa 1 = Nv. 1, Mapa 2 = Nv. 10, Mapa 3 = Nv. 20...).
-3. **Tipo de Mapa** (um dos 5 acima, herdando automaticamente as regras de spawn, PvP e dominação).
-4. **Dois Biomas** (`primary_biome_id` e `secondary_biome_id` escolhidos dentre os 40 biomas).
-5. **Malha de Colisão (`collision_mesh_json` — Polígonos Estilo Google Earth):** Áreas desenhadas visualmente por você no `/admin` pontilhando vértices onde o polígono se fecha automaticamente a partir do 3º ponto. Define onde o personagem colide e não pode atravessar (validada via algoritmo *Point-in-Polygon + Bounding Box* pelo Servidor Autoritário e pelo Cliente).
-6. **Malha de Sobreposição (`overlap_mesh_json` — Polígonos Estilo Google Earth):** Áreas poligonais desenhadas visualmente no `/admin` que ficam "acima" do personagem (ex: copas de árvores, telhados, arcos). Quando o personagem entra nessa área, o renderizador usa o polígono como máscara de recorte para diminuir a opacidade apenas da região do corpo do personagem que está coberta pela sobreposição.
-7. **Pontos de Teleporte (`map_portals`):** Coordenadas $(X, Y)$ no mapa e para qual mapa/coordenada levam.
-8. **NPCs (`map_npcs`):** Quais NPCs estão no mapa e suas coordenadas $(X, Y)$.
-
-### 2.3. Função Exclusiva dos 40 Biomas: Vínculo Procedural de Spawn (`Mapa ↔ Bioma ↔ Monstro`)
-* **Biomas NÃO interferem em cálculo de dano nem possuem vínculo com elementos.**
-* A única função dos **40 Biomas** é gerar a *pool* procedural de monstros de cada mapa:
-  * Monstros não são amarrados manualmente a mapas individuais.
-  * Cada monstro é vinculado aos **Biomas** onde habita.
-  * Se um mapa é Nv. 80 e possui os biomas **Bosque Temperado** e **Floresta Densa**, qualquer monstro do banco que habite *Bosque Temperado* **OU** *Floresta Densa* poderá nascer nos encontros daquele mapa, com seu nível e atributos escalados proceduralmente para $\text{Nv. } 80 \pm \text{Variação}$!
+### 2.3. Configuração Global de Monstros (`MonsterGlobalConfigService`) & Sorteio Rank-First
+* Todos os multiplicadores globais (Ranks `F..SS`, Hierarquia `NORMAL`/`LEADER`/`BOSS`, variação/bônus de nível, penalidades de desnível e regras de Dungeon) são editáveis no `/admin` (`monster_global_configs`).
+* **Sorteio Justo Rank-First (`MonsterCombatBuilder.pickWeightedMonsterTemplate`):** O encontro sorteia primeiro o **Rank** (`F`..`SS`) usando os pesos configurados entre os ranks presentes no mapa, e depois escolhe uniformemente um monstro dentro daquele Rank — impedindo inflação artificial de raros quando há muitos templates `A`/`S`/`SS` cadastrados no mapa.
 
 ---
 
-## 3. Sistema de Elementos e Raças (Vinculados à Entidade)
+## 3. Elementos (5), Raças (11), Atributos & Cálculo de Dano
 
-Toda entidade do jogo (Personagem, Pet ou Monstro) possui **1 Elemento** e **1 Raça**.
-
-### 3.1. Os 5 Elementos (4 Ativos + Neutro Penalizado)
-> **Nota:** Não existem elementos de Luz ou Escuridão no jogo.
-
-* **Ciclo dos 4 Elementos Ativos (`+25%` Vantagem / `-25%` Desvantagem):**
-  $$\text{🔥 Fogo (\texttt{FIRE})} > \text{🌿 Terra (\texttt{EARTH})} > \text{💨 Ar (\texttt{AIR})} > \text{🌊 Água (\texttt{WATER})} > \text{🔥 Fogo (\texttt{FIRE})}$$
-* **Penalidade do Elemento Neutro (`NEUTRAL`):**
-  * Entidades com elemento **Neutro** sofrem penalidade completa: **causam `-25%` de dano** contra qualquer alvo e **recebem `+25%` de dano** de qualquer elemento.
-* **Regra de Atribuição de Elemento:**
-  * **Entidades Inimigas (Monstros):** Elemento fixo definido na tabela pelo Admin.
-  * **Entidades Controláveis (Personagens e Pets):** Ao serem criados/capturados, sorteiam um elemento inicial aleatório com a distribuição:
-    * **`NEUTRAL` (Neutro):** Peso `10` (`10%` de chance — ou `11.1%` se normalizado em pesos `10:20:20:20:20`; para cravar exatos `10%` em base $100\%$, usa-se `10%` Neutro e `22.5%` para cada um dos 4 elementos ativos, configurável na tabela `global_formulas`).
-    * **`FIRE`, `EARTH`, `AIR`, `WATER`:** `20%` (peso 20) para cada um.
-    * *Futuro:* O jogador poderá alterar o elemento do seu Personagem ou Pet utilizando um item específico.
-
-### 3.2. As 11 Raças (`+10%` de Vantagem Racial)
-1. **Humanos (`HUMAN`):** Possuem **`+10%` de vantagem** sobre **todas** as outras raças.
-2. **Ciclo das 10 Raças (`+10%` de vantagem na sequência abaixo):**
-   $$\text{🌿 Plantas (\texttt{PLANT})} > \text{🐉 Dragões (\texttt{DRAGON})} > \text{🦎 Reptilianos (\texttt{REPTILIAN})} > \text{🌊 Aquáticos (\texttt{AQUATIC})} > \text{🤖 Robóticos (\texttt{ROBOTIC})} > \text{🪽 Celestiais (\texttt{CELESTIAL})} > \text{👿 Demônios (\texttt{DEMON})} > \text{🧚 Fadas (\texttt{FAIRY})} > \text{👻 Espíritos (\texttt{SPIRIT})} > \text{🐾 Selvagens (\texttt{BEAST})} > \text{🌿 Plantas (\texttt{PLANT})}$$
+* **5 Elementos:** `FIRE > EARTH > AIR > WATER > FIRE` (`+25%` / `-25%`); `NEUTRAL` causa `-25%` (`0.75x`) contra tudo e recebe `+25%` (`1.25x`) de tudo. Personagens e pets novos sorteiam `10%` `NEUTRAL` e `20%` peso relativo para cada elemento ativo.
+* **11 Raças (`+10%`):** `HUMAN` tem `+10%` sobre todas; ciclo fechado `PLANT > DRAGON > REPTILIAN > AQUATIC > ROBOTIC > CELESTIAL > DEMON > FAIRY > SPIRIT > BEAST > PLANT`.
+* **Atributos & Mitigação Defensiva:** 6 Atributos Base (`VIT`, `STR`, `INT`, `WIS`, `AGI`, `DEX`) derivados dinamicamente via `attribute_conversions` para 16+ Atributos de Combate. Redução de defesa assintótica por nível:
+  $$\text{Redução (\%)} = \frac{\text{Defesa Efetiva}}{\text{Defesa Efetiva} + (100 + 10 \times \text{Nível do Atacante})}$$
 
 ---
 
-## 4. Atributos Procedurais, Habilidades e Cálculo Universal de Combate
+## 4. Combate Action 2.5D em Tempo Real & Habilidades por Blocos
 
-### 4.1. Os 6 Atributos Base $\rightarrow$ Derivação para Atributos de Combate
-* **Atributos Base:**
-  1. `VIT` (Vitalidade) $\rightarrow$ `HP Máximo`, `Defesa Física`, `Resistência a DoT`
-  2. `STR` (Força) $\rightarrow$ `Ataque Físico`, `Penetração Física`, `Dano Crítico`
-  3. `INT` (Inteligência) $\rightarrow$ `Ataque Mágico`, `MP Máximo`, `Penetração Mágica`
-  4. `WIS` (Sabedoria) $\rightarrow$ `Poder de Cura/Escudo`, `Defesa Mágica`, `Regen de MP`
-  5. `AGI` (Agilidade) $\rightarrow$ `Velocidade (Iniciativa)`, `Esquiva`, `Ataque Físico Leve`
-  6. `DEX` (Destreza) $\rightarrow$ `Chance Crítica`, `Precisão (Acerto)`, `Taxa de Aplicação de Debuff`
-* **Pontos de Ação (AP):** Valores base fixos e controlados por turno (ex: 4 AP inicial, +3 AP/turno, teto de 10 AP), sem escalonamento infinito por atributo base.
-
-### 4.2. Cálculo de Dano em 4 Passos
-Toda habilidade ofensiva passa pelo mesmo pipeline no servidor:
-1. **Dano Bruto:** $\text{Ataque (Físico ou Mágico)} \times \text{Multiplicador da Skill (\%)}$.
-2. **Mitigação Proporcional pela Defesa (Assintótica por Nível):**
-   $$\text{Redução (\%)} = \frac{\text{Defesa Efetiva}}{\text{Defesa Efetiva} + (100 + 10 \times \text{Nível do Atacante})}$$
-3. **Multiplicadores de Entidade (Elemento + Raça + Buffs/Debuffs):**
-   * Multiplicador de **Elemento** (`+25%` vantagem, `-25%` desvantagem ou penalidade de Neutro).
-   * Multiplicador de **Raça** (`+10%` vantagem, `-10%` desvantagem).
-   * Multiplicador de **Buffs/Debuffs ativos**.
-4. **Crítico e Variação ($\pm 5\%$):** Se critar, multiplica pelo `Dano Crítico` da entidade.
-
-### 4.3. Arquitetura de Efeitos Atomizados (Skills Ativas, Passivas, Buffs e Debuffs)
-Todas as habilidades são compostas no banco de dados usando **7 Primitivas Universais**:
-1. `DAMAGE` (Dano Físico, Mágico ou Verdadeiro)
-2. `HEAL` (Cura de HP/MP)
-3. `SHIELD` (Barreira absorvedora de dano)
-4. `STATUS` (Buffs/Debuffs de atributo em `%`, Dano por Turno [DoT] e Controle [Stun, Silêncio, Congelamento])
-5. `MOVE_SLOT` (Empurrar/Puxar alvos entre Vanguarda e Retaguarda nos 10 slots)
-6. `CLEANSE_DISPEL` (Remover debuffs aliados ou buffs inimigos)
-7. `RESOURCE` (Ganhar/Drenar AP ou alterar Cooldown)
-* **Passivas:** Utilizam os mesmos blocos acima acionados por **Gatilhos (`Triggers`)**: `PASSIVE_ALWAYS`, `ON_TURN_START`, `ON_HIT`, `ON_CRIT`, `ON_DAMAGE_TAKEN`, `ON_KILL`.
+* **Arena em Tempo Real (`ActionCombatArena`):** Substituiu integralmente o antigo protótipo de turnos 5B por combate Action 2.5D fluido em espaço contínuo com colisão, projéteis direcionais (`ArenaProjectileResolver`), IA tática (`ArenaUnitAiController`), física (`ArenaPhysicsSolver`), movimentação de conjuração (`MELEE_ADVANCE`, `STAND_IN_PLACE`, `DASH_LINEAR`, `LEAP_AOE`, `TELEPORT_BACKSTAB`) e HUD configurável por dispositivo (`client_ui_layout_templates`).
+* **Grupo & Pets:**
+  * Solo ou dupla no mapa/party: `1 Personagem + até 3 Pets` (slots `1..3` ativos).
+  * Grupo completo de 3 jogadores (`PartyService`): `1 Personagem + 1 Pet` principal (`deploySlot = 1`) por jogador, com `+30%` de bônus cooperativo dividido igualmente.
+* **7 Primitivas de Efeito em Skills/Passivas:** `DAMAGE`, `HEAL`, `SHIELD`, `STATUS`, `MOVE_SLOT`, `CLEANSE_DISPEL`, `RESOURCE` (`MANUAL`, `PASSIVE_ALWAYS`, `ON_HIT`, `ON_CRIT`, `ON_DAMAGE_TAKEN`, `ON_KILL`, `INTERVAL_TICK`).
+* **Anti-Cheat Autoritativo (`CombatAntiCheatService`):** Toda batalha exige `battleId` + `battleNonce` emitidos pelo servidor; finalizações (`victory`/`defeat`/`flee`) validam posse, prevenção contra replay e coerência antes de creditar XP/Ouro/Drops/Pets/Quests.
 
 ---
 
-## 5. Combate em Arena Isolada 10x10 Slots (Modo 5B)
+## 5. Modularidade, Regra de 1.000 Linhas & Qualidade Automatizada
 
-* **10 Slots de cada lado:** 5 na Vanguarda (`Slots 1..5`) + 5 na Retaguarda (`Slots 6..10`), permitindo caçadas em massa (até 10 monstros) e **PvP 5v5**.
-* **Regra Escalonada de Pets por Tamanho da Equipe (Sem vantagem de classe):**
-  * **Solo (1 Jogador) ou Dupla (2 Jogadores):** `1 Personagem + até 3 Pets` por jogador (Solo = até 4 unidades; Dupla = até 8 unidades).
-  * **Grupo de 3 a 5 Jogadores:** `1 Personagem + 1 Pet` por jogador (3 jogadores = 6 unidades; 4 = 8 unidades; 5 = 10 unidades).
-  * O **Capitão/Solo** escolhe a formação de batalha da equipe nos 10 slots.
-* **Execução 5B:** Pontos de Turno (AP) + Bloqueio de curto alcance pela Vanguarda + Planejamento Simultâneo ("We-Go") resolvido pela ordem de Velocidade.
-
----
-
-## 6. Arquitetura Modular Frontend, Sem God Objects & Limite de 1.000 Linhas
-
-Para manter manutenibilidade de longo prazo, legibilidade por múltiplas IAs e escalabilidade:
-
-### 6.1. Princípio da Responsabilidade Única (SRP) e Proibição de God Objects
-Nenhum arquivo ou classe deve acumular responsabilidades de múltiplos domínios. A divisão é estrita:
-* **Rota `/play` (Cliente de Jogo & GM):**
-  * `ClientPolygonMesh.js`: Algoritmos de colisão poligonal (Point-in-Polygon + AABB Pre-Culling) e cálculo de opacidade de sobreposição.
-  * `McreworkSpriteSheet.js`: Carregamento assíncrono de Sprite Atlases, animação 8-direções e renderização calibrada com **redução de 30% (`scale = 0.70`)** nos modelos e sombras.
-  * `PlayGmController.js`: Painel flutuante GM (teleporte, raio-x, no-clip, velocidade, hot-reload) e Ficha Procedural de Atributos de Combate.
-  * `play.js`: Orquestrador de exploração 2.5D, sincronização com servidor e loop de renderização 60 FPS com ordenação Y-Sorting.
-* **Rota `/admin` (Studio Low-Code):**
-  * `AdminAuth.js`: Autenticação Dual-Mode (.env vs CRUD) e navegação.
-  * `AdminUsersTab.js`: CRUD completo de contas de usuários (`ADMIN`, `GM`, `PLAYER`).
-  * `AdminNpcsTab.js`: CRUD e catálogo de NPCs curados.
-  * `AdminClassesTab.js`: CRUD e galeria de classes/personagens com Hero Preview, filtro por gênero e atributos procedurais.
-  * `AdminCanvasEditor.js`: Estúdio visual em tela cheia, câmera, histórico real Undo/Redo e gaveta de camadas.
-  * `admin.js`: Ficha técnica de mapas e orquestrador principal da aplicação.
-
-### 6.2. Limite Mandatório de 1.000 Linhas por Arquivo
-* Nenhum arquivo de código no repositório pode exceder **1.000 linhas**. Todo módulo que atingir proporções elevadas deve ser decomposto imediatamente.
-
----
-
-## 7. Engine de Quests Meta Procedurais & Base Inicial de Inventário (`v0.9.0`)
-
-* **Módulos Backend OOP Adicionados:**
-  * `MetaQuestProceduralEngine.ts`: gera estágios procedurais (`initial * multiplier^(stage-1)`) e escaladas independentes de recompensas (`MULTIPLIER`, `LINEAR_PCT`, `ADDITIVE`), preservando ajustes manuais por linha feitos no Studio `/admin`.
-  * `QuestProgressService.ts`: executa o ciclo em tempo real `/play` (`KILL_MONSTER`, `KILL_RACE`, `COLLECT_ITEM` cumulativo por estágio com entrega e avanço de estágio no NPC).
-  * `CharacterInventoryService.ts` (**Base Inicial Incompleta**): gerencia carteira (`gold`), pilha de itens (`CharacterInventoryItem`) e hook provisório de drop para quests `COLLECT_ITEM` até a construção do módulo dedicado de Economia & Drops.
-  * `CombatUtilityHelper.ts`: agrupa monstros e raças derrotadas em encontros mistos para registro autoritativo via `POST /api/play/combat/victory`.
-* **Módulos Frontend Adicionados:**
-  * `/admin`: `AdminMetaQuestsPanel.js` (construtor visual + grade editável de estágios).
-  * `/play`: `PlayBagController.js` (inspetor leve de Carteira & Mochila Básica marcado como incompleto).
+* **Regra #7 Estrita:** Nenhum arquivo de código (`.ts`, `.js`, `.html`, `.css`) em `apps/` ou `packages/` ultrapassa **1.000 linhas**. Módulos extensos são fatiados por responsabilidade única.
+* **Regra #1 Estrita:** Todo módulo TypeScript no núcleo ativo possui cabeçalho JSDoc completo (`@file`, `@module`, `@description`, `@rules`, `@dependencies`).
+* **Regra #4 Multi-Locale (`i18n`):** Contexto isolado por requisição no servidor via `I18nCache.runWithLocale(...)` (suportando `?locale=`, `X-Etheria-Locale` e `Accept-Language`) integrado ao `EtheriaI18n.js` no frontend em `pt-BR`, `en-US` e `es-ES`.
+* **Suíte de Testes (`npm test`):** Executa `test_p0_security.mjs`, `test_p1_assets_and_cache.mjs`, `test_p2_shared_and_monsters.mjs`, `test_p3_i18n.mjs` e `test_action_motion_engine.mjs` sem mutar dados persistidos (Cláusula 0.2).

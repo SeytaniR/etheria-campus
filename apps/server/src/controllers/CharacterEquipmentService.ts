@@ -7,6 +7,7 @@
  *   - Consolida e calcula bônus de atributos de combate derivados dos equipamentos ativos.
  *   - Previne qualquer tipo de duplicação, BOLA/IDOR ou trapaça de status vinda do cliente.
  * @rules Segue estritamente AGENTS.md (Limite < 1.000 linhas, SRP, Servidor Autoritário).
+ * @dependencies @prisma/client, @etheria/database (I18nCache), @etheria/shared (GameRulesConstants), ./CharacterInventoryService.js, ./MapPresenceService.js, ./MapRuntimeCacheService.js
  */
 
 import { PrismaClient } from '@prisma/client';
@@ -253,7 +254,7 @@ export class CharacterEquipmentService {
             include: { equipmentSet: true },
           })
         : [],
-      I18nCache.getTranslations(prisma, 'pt-BR'),
+      I18nCache.getTranslations(prisma),
     ]);
 
     const itemsById = new Map<number, any>(itemsList.map((it) => [it.id, it]));

@@ -7,6 +7,7 @@
  *   - Permite ajuste fino individual de cada nível com recálculo automático da curva acumulada total.
  *   - Sincronização automática com Snapshot JSON e persistência autoritária no PostgreSQL.
  * @rules Segue estritamente AGENTS.md (Limite < 900 linhas, Arquitetura OO).
+ * @dependencies @etheria/database (PrismaClient, SnapshotManager)
  */
 
 import { PrismaClient, SnapshotManager } from '@etheria/database';

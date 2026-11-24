@@ -10,6 +10,7 @@
  *   - Variação de nível em mapas de -10 a +10 em relação ao nível do mapa (ex: mapa nível 100 -> 90 a 110).
  *   - Multiplicadores de Rank F..SS aplicados em HP/MP, Ataque (Físico/Mágico), Defesa (Física/Mágica), Crítico e Precisão.
  *   - Hierarquia de encontro: NORMAL (1x), LEADER (2x atributos base e 2x recompensas) e BOSS (4x atributos e 4x recompensas).
+ * @dependencies @etheria/shared (ElementMatchupEntry), ./MonsterGlobalConfigService.js
  */
 
 import type { ElementMatchupEntry } from '@etheria/shared';

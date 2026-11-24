@@ -17,6 +17,9 @@ class AdminAuth {
   static attach(app) {
     app.api = async function (path, options = {}) {
       const headers = Object.assign({ 'Content-Type': 'application/json' }, options.headers || {});
+      if (window.EtheriaI18n) {
+        headers['X-Etheria-Locale'] = window.EtheriaI18n.getLocale();
+      }
       if (this.token) {
         headers['Authorization'] = `Bearer ${this.token}`;
       }

@@ -6,6 +6,8 @@
  *   - Catálogo completo de Itens, Equipamentos (Personagem, Pet, Asas, Montarias Voadoras) e Conjuntos.
  *   - Adição/equipamento instantâneo de itens avulsos, conjuntos inteiros, kit de essências e limpeza de mochila.
  *   - Manipulação de Ouro, XP, Nível (1 a 100), Pontos de Atributo, Classe, Elemento e geração de Pets.
+ * @rules Acesso estritamente restrito a roles ADMIN, GM e DEV (Cláusula 0 de Segurança, Regra #7 < 1.000 linhas).
+ * @dependencies node:http, @prisma/client, @etheria/database (I18nCache), ./CharacterInventoryService.js, ./CharacterEquipmentService.js, ./CharacterProgressionService.js, ./MapPresenceService.js
  */
 
 import type * as http from 'node:http';
@@ -38,7 +40,7 @@ export class GmSandboxService {
         where: { isActive: true },
         orderBy: [{ rarityTier: 'asc' }, { id: 'asc' }],
       }),
-      I18nCache.getTranslations(prisma, 'pt-BR'),
+      I18nCache.getTranslations(prisma),
     ]);
 
     return {

@@ -3,6 +3,8 @@
  * @module @etheria/server
  * @description Seeds iniciais dos dois Mapas Gerais (Continente 1 e Continente 2)
  *   com base limpa e logo transparente, prontos para criação de pontos e rotas customizadas.
+ * @rules Sem alteração em registros já persistidos no banco (Cláusula 0.2) e imagens locais (Regra #10).
+ * @dependencies Sem dependências externas de runtime (constantes tipadas puras).
  */
 
 export interface WorldMapPointSeed {

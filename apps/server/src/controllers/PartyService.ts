@@ -12,6 +12,8 @@
  * - Suporte a convites com expiração automática.
  * 
  * Segue estritamente AGENTS.md (Regra #7: < 1.000 linhas).
+ * @rules Limite máximo de 3 jogadores por equipe, bônus cooperativo +30% dividido igualmente no servidor.
+ * @dependencies Sem dependências externas (gerenciamento em memória autoritativo).
  */
 
 export interface PartyMember {

@@ -2,6 +2,8 @@
  * @file apps/server/src/controllers/CombatUtilityHelper.ts
  * @module @etheria/server
  * @description Utilitários puros de suporte ao combate temporário (Limpeza de Debuffs e Agrupamento de Monstros Derrotados para Quests).
+ * @rules Segue estritamente AGENTS.md (Lógica autoritativa server-side, zero hardcode via MonsterGlobalConfigService, Regra #7 < 1.000 linhas).
+ * @dependencies ./MonsterGlobalConfigService.js
  */
 
 import { MonsterGlobalConfigService } from './MonsterGlobalConfigService.js';

@@ -1,6 +1,9 @@
 /**
  * @file apps/server/src/security/ChatModerationFilter.ts
+ * @module @etheria/server/security
  * @description Filtro Autoritário de Moderação de Conteúdo e Conduta Comunitária (Classificação 16+).
+ * @rules Bloqueio crítico zero-tolerância, censura moderada por asteriscos e prevenção ao Efeito Scunthorpe (AGENTS.md Cláusula 0).
+ * @dependencies Nenhuma dependência externa (expressões regulares determinísticas em memória).
  * 
  * DIRETRIZES DA CLASSIFICAÇÃO 16+:
  * 1. Nível Crítico (Zero Tolerância / Bloqueio Total):

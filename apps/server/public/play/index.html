@@ -20,23 +20,23 @@
   <section id="playLoginScreen">
     <div class="login-glass-card">
       <div class="login-header-group">
-        <span class="login-emblem-badge">✦ ACESSO AO REINO ✦</span>
+        <span class="login-emblem-badge" data-i18n="play.login.emblem">✦ ACESSO AO REINO ✦</span>
         <h2 class="login-title">ETHERIA CAMPUS</h2>
-        <p class="login-subtitle">O Despertar do Véu &bull; MMORPG 2.5D</p>
+        <p class="login-subtitle" data-i18n="play.login.subtitle">O Despertar do Véu &bull; MMORPG 2.5D</p>
       </div>
 
       <div class="login-field-wrap">
-        <label class="login-field-label" for="playUsername">👤 Nome de Usuário</label>
+        <label class="login-field-label" for="playUsername" data-i18n="play.login.usernameLabel">👤 Nome de Usuário</label>
         <div class="login-input-shell">
-          <input type="text" id="playUsername" placeholder="Digite seu usuário (ex: dev)" autocomplete="username" />
+          <input type="text" id="playUsername" data-i18n-placeholder="play.login.usernamePlaceholder" placeholder="Digite seu usuário (ex: dev)" autocomplete="username" />
           <span class="login-input-icon">🛡️</span>
         </div>
       </div>
 
       <div class="login-field-wrap">
-        <label class="login-field-label" for="playPassword">🔒 Chave de Acesso (Senha)</label>
+        <label class="login-field-label" for="playPassword" data-i18n="play.login.passwordLabel">🔒 Chave de Acesso (Senha)</label>
         <div class="login-input-shell">
-          <input type="password" id="playPassword" placeholder="Digite sua senha de acesso" autocomplete="current-password" />
+          <input type="password" id="playPassword" data-i18n-placeholder="play.login.passwordPlaceholder" placeholder="Digite sua senha de acesso" autocomplete="current-password" />
           <span class="login-input-icon">🔑</span>
         </div>
       </div>
@@ -44,15 +44,16 @@
       <div id="playLoginError" style="color:#fca5a5; font-size:0.8rem; background:rgba(239,68,68,0.15); border:1px solid rgba(239,68,68,0.3); border-radius:8px; padding:8px 12px; display:none;"></div>
 
       <button class="login-btn-enter" onclick="PlayApp.login()">
-        <span>⚔️ Entrar no Mundo</span>
+        <span data-i18n="play.login.btnEnter">⚔️ Entrar no Mundo</span>
       </button>
 
       <button class="login-btn-register" onclick="PlayApp.showRegisterModal()">
-        <span>✨ Criar Nova Conta (Cadastro)</span>
+        <span data-i18n="play.login.btnRegister">✨ Criar Nova Conta (Cadastro)</span>
       </button>
 
-      <div class="login-footer-actions">
-        <span style="color:#64748b;">Fase Beta &bull; v0.56.0</span>
+      <div class="login-footer-actions" style="display:flex; justify-content:space-between; align-items:center; gap:8px;">
+        <span style="color:#64748b;" data-i18n="play.login.footerPhase">Fase Beta &bull; v0.64.0</span>
+        <select class="locale-switcher-select" data-i18n-locale-select aria-label="Idioma" onchange="PlayApp.changeLocale(this.value)" style="background:rgba(15,23,42,0.85); color:#e2e8f0; border:1px solid rgba(148,163,184,0.35); border-radius:6px; padding:4px 8px; font-size:0.76rem; cursor:pointer;"><option value="pt-BR">🇧🇷 PT-BR</option><option value="en-US">🇺🇸 EN-US</option><option value="es-ES">🇪🇸 ES-ES</option></select>
       </div>
     </div>
 
@@ -61,17 +62,17 @@
       <div class="etheria-modal-box" onclick="event.stopPropagation()">
         <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:10px;">
           <strong style="color:#fde047; font-size:1.05rem; display:flex; align-items:center; gap:8px;">
-            <span>🛡️</span> Criação de Contas em Etheria
+            <span>🛡️</span> <span data-i18n="play.register.title">Criação de Contas em Etheria</span>
           </strong>
           <button class="btn-danger" style="padding:4px 10px; border-radius:6px;" onclick="PlayApp.closeRegisterModal()">✕</button>
         </div>
-        <p style="font-size:0.88rem; color:#cbd5e1; line-height:1.5; margin:0;">
+        <p style="font-size:0.88rem; color:#cbd5e1; line-height:1.5; margin:0;" data-i18n="play.register.body">
           O sistema de auto-cadastro público estará disponível na próxima atualização de lançamento oficial!
         </p>
-        <div style="background:rgba(56,189,248,0.1); border:1px solid rgba(56,189,248,0.25); border-radius:10px; padding:12px; font-size:0.82rem; color:#bae6fd; line-height:1.45;">
-          💡 <strong>Acesso Liberado para Testes:</strong> Você pode ingressar imediatamente utilizando as contas de teste ou de desenvolvedor pré-autorizadas (como a conta <code>dev</code>).
+        <div style="background:rgba(56,189,248,0.1); border:1px solid rgba(56,189,248,0.25); border-radius:10px; padding:12px; font-size:0.82rem; color:#bae6fd; line-height:1.45;" data-i18n="play.register.tip">
+          💡 Acesso Liberado para Testes: Você pode ingressar imediatamente utilizando as contas de teste ou de desenvolvedor pré-autorizadas (como a conta dev).
         </div>
-        <button class="login-btn-enter" style="padding:10px;" onclick="PlayApp.closeRegisterModal()">
+        <button class="login-btn-enter" style="padding:10px;" onclick="PlayApp.closeRegisterModal()" data-i18n="play.register.btnClose">
           Entendido, Voltar ao Login
         </button>
       </div>
@@ -88,15 +89,16 @@
 
       <div class="lobby-tab-buttons">
         <button id="tabBtnHeroes" class="lobby-tab-btn active" onclick="PlayApp.switchLobbyTab('characters')">
-          <span>🧙</span> Meus Heróis
+          <span>🧙</span> <span data-i18n="play.lobby.tabHeroes">Meus Heróis</span>
         </button>
         <button id="tabBtnCreate" class="lobby-tab-btn" onclick="PlayApp.switchLobbyTab('create')">
-          <span>➕</span> Criar Herói
+          <span>➕</span> <span data-i18n="play.lobby.tabCreate">Criar Herói</span>
         </button>
       </div>
 
       <div style="display:flex; gap:8px; align-items:center;">
-        <button class="btn-danger" style="padding:6px 14px; font-size:0.82rem; font-weight:700;" onclick="PlayApp.logout()">Sair</button>
+        <select class="locale-switcher-select" data-i18n-locale-select aria-label="Idioma" onchange="PlayApp.changeLocale(this.value)" style="background:rgba(15,23,42,0.85); color:#e2e8f0; border:1px solid rgba(148,163,184,0.35); border-radius:6px; padding:5px 8px; font-size:0.78rem; cursor:pointer;"><option value="pt-BR">🇧🇷 PT-BR</option><option value="en-US">🇺🇸 EN-US</option><option value="es-ES">🇪🇸 ES-ES</option></select>
+        <button class="btn-danger" style="padding:6px 14px; font-size:0.82rem; font-weight:700;" onclick="PlayApp.logout()" data-i18n="play.lobby.btnLogout">Sair</button>
       </div>
     </div>
 
@@ -112,16 +114,16 @@
           <!-- Coluna 1: Nome, Seletor de Classes e Ação -->
           <div class="creation-card-panel">
             <h3 style="margin:0; font-size:1.1rem; color:#fde047; display:flex; align-items:center; gap:8px;">
-              <span>➕</span> Criar Novo Personagem
+              <span>➕</span> <span data-i18n="play.lobby.createTitle">Criar Novo Personagem</span>
             </h3>
 
             <div>
-              <label class="login-field-label" for="newCharName">🏷️ Nome do Personagem (2 a 24 caracteres)</label>
-              <input type="text" id="newCharName" placeholder="Ex: Dani, Arthur, Elena..." maxlength="24" style="width:100%; padding:10px 14px; background:rgba(2,6,23,0.8); border:1.5px solid rgba(148,163,184,0.3); border-radius:8px; color:#f8fafc; font-size:0.92rem; outline:none;" />
+              <label class="login-field-label" for="newCharName" data-i18n="play.lobby.charNameLabel">🏷️ Nome do Personagem (2 a 24 caracteres)</label>
+              <input type="text" id="newCharName" data-i18n-placeholder="play.lobby.charNamePlaceholder" placeholder="Ex: Dani, Arthur, Elena..." maxlength="24" style="width:100%; padding:10px 14px; background:rgba(2,6,23,0.8); border:1.5px solid rgba(148,163,184,0.3); border-radius:8px; color:#f8fafc; font-size:0.92rem; outline:none;" />
             </div>
 
             <div>
-              <label class="login-field-label">🦸 Selecione a Classe / Arquétipo</label>
+              <label class="login-field-label" data-i18n="play.lobby.classLabel">🦸 Selecione a Classe / Arquétipo</label>
               <div id="creationClassesGrid" class="creation-classes-grid"></div>
             </div>
 
@@ -143,14 +145,14 @@
             </div>
 
             <button class="login-btn-enter" style="padding:14px;" onclick="PlayApp.createCharacter()">
-              <span>✨ Criar Herói & Despertar no Véu</span>
+              <span data-i18n="play.lobby.btnCreate">✨ Criar Herói & Despertar no Véu</span>
             </button>
           </div>
 
           <!-- Coluna 2: Ficha Técnica e Atributos Base da Classe Selecionada -->
           <div class="creation-card-panel">
             <h3 style="margin:0; font-size:1.1rem; color:#38bdf8; display:flex; align-items:center; gap:8px;">
-              <span>📜</span> Ficha do Arquétipo & Atributos Base
+              <span>📜</span> <span data-i18n="play.lobby.archetypeTitle">Ficha do Arquétipo & Atributos Base</span>
             </h3>
             <div id="selectedClassPreviewPanel"></div>
           </div>
@@ -184,16 +186,16 @@
       </div>
 
       <div class="hud-actions">
-        <button id="btnHudQuests" onclick="PlayApp.openQuestLogModal()" title="Ver Diário de Missões">📜 Missões</button>
-        <button id="btnHudBag" onclick="PlayApp.openBagModal()" title="Ver Carteira e Mochila Básica">🎒 Mochila</button>
-        <button onclick="PlayApp.openStatsModal()" title="Ver Ficha de Atributos Procedurais">📊 Atributos</button>
-        <button class="btn-amber" onclick="PlayApp.unstuckCharacter()" title="Voltar ao Ponto de Spawn do Mapa atual">
+        <button id="btnHudQuests" onclick="PlayApp.openQuestLogModal()" data-i18n="play.hud.quests" title="Ver Diário de Missões">📜 Missões</button>
+        <button id="btnHudBag" onclick="PlayApp.openBagModal()" data-i18n="play.hud.bag" title="Ver Carteira e Mochila Básica">🎒 Mochila</button>
+        <button onclick="PlayApp.openStatsModal()" data-i18n="play.hud.stats" title="Ver Ficha de Atributos Procedurais">📊 Atributos</button>
+        <button class="btn-amber" onclick="PlayApp.unstuckCharacter()" data-i18n="play.hud.unstuck" title="Voltar ao Ponto de Spawn do Mapa atual">
           🆘 Destravar (Spawn)
         </button>
-        <button id="btnToggleGm" class="btn-gm" style="display:none;" onclick="PlayApp.toggleGmDrawer()">
+        <button id="btnToggleGm" class="btn-gm" style="display:none;" onclick="PlayApp.toggleGmDrawer()" data-i18n="play.hud.gmPanel">
           ⚡ Painel GM
         </button>
-        <button onclick="PlayApp.backToLobby()" title="Trocar de Personagem">🔄 Personagens</button>
+        <button onclick="PlayApp.backToLobby()" data-i18n="play.hud.characters" title="Trocar de Personagem">🔄 Personagens</button>
       </div>
     </header>
 
@@ -445,12 +447,12 @@
         <div class="outcome-crest-wrap">
           <img id="outcomeCrestImg" class="outcome-crest-img" src="/play/assets/hud/victory_crest.png" alt="Resultado" />
         </div>
-        <h2 id="outcomeTitle" class="outcome-title">VITÓRIA GLORIOSA</h2>
-        <p id="outcomeSubtitle" class="outcome-subtitle">A fenda dimensional foi expurgada e o equilíbrio restaurado.</p>
+        <h2 id="outcomeTitle" class="outcome-title" data-i18n="play.outcome.victoryTitle">VITÓRIA GLORIOSA</h2>
+        <p id="outcomeSubtitle" class="outcome-subtitle" data-i18n="play.outcome.victorySubtitle">A fenda dimensional foi expurgada e o equilíbrio restaurado.</p>
       </div>
       <div class="outcome-right-column">
         <div id="outcomeRewardsGrid" class="outcome-rewards-grid"></div>
-        <button type="button" id="btnOutcomeAction" class="outcome-action-btn">Continuar Jornada</button>
+        <button type="button" id="btnOutcomeAction" class="outcome-action-btn" data-i18n="play.outcome.btnContinue">Continuar Jornada</button>
         <div class="outcome-timer-track"><div id="outcomeTimerBar" class="outcome-timer-bar"></div></div>
       </div>
     </div>
@@ -465,6 +467,7 @@
     window.CombatDamageCalculator = CombatDamageCalculator;
     window.GameRulesConstants = GameRulesConstants;
   </script>
+  <script src="/shared/EtheriaI18n.js?v=20261124_p3"></script>
   <script src="/play/js/PlaySecurityUtils.js?v=20261124_p0"></script>
   <script src="/play/js/ClientPolygonMesh.js?v=20261124_mesh1"></script>
   <script src="/play/js/McreworkSpriteSheet.js?v=20261108_p4"></script>
@@ -491,7 +494,7 @@
   <script src="/play/js/PlayChatController.js?v=20261114_chat"></script>
   <script src="/play/js/PlayMapPresenceController.js?v=20261123_fly3"></script>
   <script src="/play/js/PlayPetsController.js?v=20261123_fly2"></script>
-  <script src="/play/js/PlayHudController.js?v=20261124_p1"></script>
+  <script src="/play/js/PlayHudController.js?v=20261124_p3"></script>
   <script src="/play/js/PlayUiLayoutApplier.js?v=20261123_hud1"></script>
   <script src="/play/js/PlayClientHudEditor.js?v=20261123_hud1"></script>
   <script src="/play/js/PlayNativeAppController.js?v=20261116_native"></script>
@@ -504,6 +507,6 @@
   <script src="/play/js/PlayGmSandboxPanel.js?v=20261123_fly2"></script>
   <script src="/play/js/PlayWorldRenderer.js?v=20261124_p2"></script>
   <script src="/play/js/PlayWorldInputController.js?v=20261124_p2"></script>
-  <script src="/play/play.js?v=20261124_p2"></script>
+  <script src="/play/play.js?v=20261124_p3"></script>
 </body>
 </html>

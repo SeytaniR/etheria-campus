@@ -5,6 +5,27 @@ Qualquer IA trabalhando neste repositório **DEVE** incrementar a versão e regi
 
 ---
 
+## [v0.64.0] - 2026-11-24
+### Onda P3 — Motor `i18n` Multi-Locale (`pt-BR`, `en-US`, `es-ES`), Cabeçalhos JSDoc (Regra #1) & Documentação Atualizada
+* **Backups Preventivos Pré-P3:**
+  * Local: `.backups/pre-p3-20261124-154338/` (`lowcode.snapshot.json` 4,980,671 bytes + `git-head.txt`).
+  * VPS Azure: `/home/azureuser/backups/pre-p3-20261124-154338/` (`lowcode.snapshot.json` 4.8M + `etheria_db.sql.gz` 345K).
+* **Motor Backend Multi-Locale `i18n` (Zero Mutação no Banco — Cláusula 0.2):**
+  * `packages/database/src/I18nCache.ts`: evoluído com `AsyncLocalStorage<SupportedLocale>`, `SUPPORTED_LOCALES` (`['pt-BR', 'en-US', 'es-ES']`), `normalizeLocale()`, `isSupportedLocaleInput()`, `parseAcceptLanguage()`, `runWithLocale()`, `getCurrentLocale()` e carregamento com fallback em camadas em 1 única query por locale (`pt-BR` base → `'en'` legado + `'en-US'` para inglês; `'pt-BR'` → `'es-ES'` para espanhol), preservando intactas as linhas existentes em `i18n_translations` (`3.191` `pt-BR`, `1.440` `en`, `147` `en-US`).
+  * `apps/server/src/index.ts`: propagação automática do idioma da requisição (`?locale=` → `X-Etheria-Locale` → `Accept-Language` → `'pt-BR'`) envolvendo todo o roteamento com `I18nCache.runWithLocale(...)`, e novo endpoint público `GET /api/i18n/meta`.
+  * `apps/server/src/routes/PlayRouter.ts`: retornado `locale` e `activeLocale` em `GET /api/play/bootstrap` e adicionado endpoint autenticado `POST /api/play/locale` atualizando apenas a conta autenticada.
+  * Removido `'pt-BR'` fixo de todas as leituras player-facing nos controladores e rotas (`GamePlayController`, `PlayerMapTravelService`, `CharacterEquipmentService`, `CharacterInventoryService`, `CharacterPetService`, `DungeonChestService`, `DungeonService`, `GmSandboxService`, `HunterPetController`, `ItemContainerOpeningService`, `QuestProgressService`, `QuestStepActionService`, `TemporaryCombatController`, `PlayCombatRouter`), mantendo `'pt-BR'` explícito apenas nos formulários de gravação do `/admin`.
+* **Motor Frontend `EtheriaI18n.js` & Seletor de Idioma (`/play` e `/admin`):**
+  * Criado `apps/server/public/shared/EtheriaI18n.js` (`385` linhas) com dicionários `pt-BR`, `en-US` e `es-ES` de paridade integral, `applyDomTranslations()`, interpolação `{var}`, persistência em `localStorage` e evento `etheria:locale-changed`.
+  * Integrado em `/play` (`play/index.html`, `play/play.js`, `PlayHudController.js`) e `/admin` (`admin/index.html`, `AdminAuth.js`) com seletor rápido de idioma (`🇧🇷 PT-BR` / `🇺🇸 EN-US` / `🇪🇸 ES-ES`) e cabeçalho `X-Etheria-Locale` em todas as chamadas de API.
+* **Conformidade Regra #1 & Documentação:**
+  * Adicionadas tags JSDoc completas (`@file`, `@module`, `@description`, `@rules`, `@dependencies`) em todos os **40** arquivos `.ts` do núcleo ativo que estavam incompletos (`0` pendentes).
+  * Atualizados `README.md`, `docs/ARCHITECTURE.md`, `docs/DATABASE_SCHEMA.md`, `AGENTS.md`, `CHANGELOG.md` e `docs/HANDOFF.md` refletindo fielmente a arquitetura atual (`v0.64.0`, 34 modelos Prisma, 4 malhas, Action 2.5D, Regra #10 reforçada e Plano P0–P3 concluído).
+* **Testes & Verificações:**
+  * Criado `tests/test_p3_i18n.mjs` e integrado ao `tests/run_all_tests.mjs` (`npm test` agora valida 5 suítes).
+
+---
+
 ## [v0.63.0] - 2026-11-24
 ### Onda P2 — Modularização Real (Regra #7), Regras Compartilhadas (`@etheria/shared`), Limpeza de Legado & Suíte `npm test`
 * **Backups Preventivos Pré-P2:**

@@ -4,6 +4,7 @@
  * @description Motor Autoritário de Etapas Sequenciais de Quests (Checklist), Ações de Modal por NPC,
  *   Validação de Equipamento de Peças, Escolha de Companheiros Iniciais Rank F e Coeficientes Dinâmicos de XP/Ouro.
  * @rules Segue estritamente AGENTS.md (Servidor Autoritário, Zero Hardcode, OOP Modular, Regra #7 < 1.000 linhas).
+ * @dependencies @etheria/database (I18nCache), ./CharacterInventoryService.js, ./CharacterProgressionService.js, ./CharacterPetService.js
  */
 
 import { I18nCache } from '@etheria/database';
@@ -192,7 +193,7 @@ export class QuestStepActionService {
         },
         orderBy: { id: 'asc' },
       }),
-      I18nCache.getTranslations(prisma, 'pt-BR'),
+      I18nCache.getTranslations(prisma),
     ]);
 
     return mobs.map((m: any) => ({

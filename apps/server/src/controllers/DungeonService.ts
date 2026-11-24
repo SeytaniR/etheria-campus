@@ -7,6 +7,8 @@
  *   - Gera monstros normais (HP x2) + 1 Boss específico (status normais de Boss + HP x3),
  *     ambos com debuff de -30% no dano final aplicado e lógica de aggro curto.
  *   - Gerencia conclusão (vitória total), derrota (morte -> santuário) e fuga (gasta ingresso do dia).
+ * @rules Segue estritamente AGENTS.md (Instância diária autoritativa, Regra #7 < 1.000 linhas, Zero Hardcode).
+ * @dependencies node:http, @prisma/client, @etheria/database (I18nCache), @etheria/shared (MapPolygonMesh), ./MapSpawnResolver.js, ./MonsterCombatBuilder.js, ./MonsterGlobalConfigService.js, ./AssetMirrorService.js, ./MapPresenceService.js, ./DungeonChestService.js
  */
 
 import type * as http from 'node:http';
@@ -434,15 +436,12 @@ export class DungeonService {
       ? [...candidates, bossTemplate]
       : candidates;
 
-    const [translations, scalingCtx, asset] = await Promise.all([
-      prisma.i18nTranslation.findMany({
-        where: { key: { in: allTemplates.map((t) => t.nameI18nKey) }, locale: 'pt-BR' },
-      }),
+    const [i18nMap, scalingCtx, asset] = await Promise.all([
+      I18nCache.getTranslations(prisma),
       MonsterCombatBuilder.loadScalingContext(prisma),
       assetMirrorService.getOrFetchAsset(map.mcreworkMapImage),
     ]);
 
-    const i18nMap = new Map(translations.map((t) => [t.key, t.text]));
     const dims = asset ? AssetMirrorService.getImageDimensions(asset.buffer) : null;
     const mapWidth = dims?.width ?? 2000;
     const mapHeight = dims?.height ?? 1500;

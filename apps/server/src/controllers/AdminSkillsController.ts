@@ -7,6 +7,8 @@
  *   - CRUD completo de Habilidades (Ativas e Passivas) no Modo Visual com blocos de efeito.
  *   - CRUD completo de Buffs e Debuffs com ícone de cabeça em batalha, VFX de acionamento e gatilhos próprios.
  *   - Semeamento inicial automático e exportação para `lowcode.snapshot.json`.
+ * @rules Segue estritamente AGENTS.md (Primitivas de efeito declarativas, Regra #7 < 1.000 linhas, Regra #10 assets locais).
+ * @dependencies @prisma/client, @etheria/database (SnapshotManager), ./AssetMirrorService.js
  */
 
 import { PrismaClient } from '@prisma/client';

@@ -37,7 +37,7 @@ export class PlayerMapTravelService {
    * Carrega o estado completo de um Mapa para renderização e exploração no cliente `/play`.
    */
   public async getMapStateForPlay(requestedMapId: number) {
-    const i18nMap = await I18nCache.getTranslations(this.prisma, 'pt-BR');
+    const i18nMap = await I18nCache.getTranslations(this.prisma);
 
     let map = await this.prisma.gameMap.findUnique({
       where: { id: requestedMapId },

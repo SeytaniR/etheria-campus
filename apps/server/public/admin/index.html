@@ -12,18 +12,21 @@
 <body>
   <!-- TELA DE LOGIN PROTEGIDA -->
   <section id="loginScreen">
-    <h2>🛡️ Etheria Campus — Rota /admin</h2>
+    <div style="display:flex; justify-content:space-between; align-items:center; gap:8px; flex-wrap:wrap;">
+      <h2 style="margin:0;" data-i18n="admin.login.title">🛡️ Etheria Campus — Rota /admin</h2>
+      <select data-i18n-locale-select aria-label="Idioma" onchange="window.EtheriaI18n?.setLocale(this.value)" style="background:#0f172a; color:#f8fafc; border:1px solid #334155; border-radius:6px; padding:4px 8px; font-size:0.76rem; cursor:pointer;"><option value="pt-BR">🇧🇷 PT-BR</option><option value="en-US">🇺🇸 EN-US</option><option value="es-ES">🇪🇸 ES-ES</option></select>
+    </div>
     <div id="authContextBanner" class="status-pill status-local">Verificando origem da conexão...</div>
     <div class="field">
-      <label>Usuário</label>
-      <input type="text" id="loginUsername" placeholder="Digite o usuário" autocomplete="username" />
+      <label data-i18n="admin.login.usernameLabel">Usuário</label>
+      <input type="text" id="loginUsername" data-i18n-placeholder="admin.login.usernamePlaceholder" placeholder="Digite o usuário" autocomplete="username" />
     </div>
     <div class="field">
-      <label>Senha</label>
-      <input type="password" id="loginPassword" placeholder="Digite a senha" autocomplete="current-password" />
+      <label data-i18n="admin.login.passwordLabel">Senha</label>
+      <input type="password" id="loginPassword" data-i18n-placeholder="admin.login.passwordPlaceholder" placeholder="Digite a senha" autocomplete="current-password" />
     </div>
     <div id="loginError" style="color:#fca5a5; font-size:0.8rem; display:none;"></div>
-    <button class="btn-primary" onclick="AdminApp.login()">Entrar no Studio Low-Code</button>
+    <button class="btn-primary" onclick="AdminApp.login()" data-i18n="admin.login.btnEnter">Entrar no Studio Low-Code</button>
   </section>
   <!-- APLICAÇÃO PRINCIPAL /ADMIN -->
   <div id="adminApp">
@@ -33,19 +36,20 @@
         <span id="sessionBadge" style="font-size:0.75rem; color:var(--accent);"></span>
       </div>
       <div class="nav-tabs">
-        <button id="tabBtnMaps" class="btn-primary" onclick="AdminApp.switchTab('maps')">🗺️ Mapas</button>
-        <button id="tabBtnDungeonChests" onclick="AdminApp.switchTab('dungeon-chests')" style="border-color:#a855f7; color:#e9d5ff;">🎁 Baús de Dungeon</button>
-        <button id="tabBtnNpcs" onclick="AdminApp.switchTab('npcs')">🧙 Tabela de NPCs</button>
-        <button id="tabBtnHunterCosts" onclick="AdminApp.switchTab('hunter-costs')" style="border-color:#d97706; color:#fde68a;">🐾 Caçador (Pets)</button>
-        <button id="tabBtnShops" onclick="AdminApp.switchTab('shops')">🏪 Lojas</button>
-        <button id="tabBtnClasses" onclick="AdminApp.switchTab('classes')">🦸 Personagens</button>
-        <button id="tabBtnMonsters" onclick="AdminApp.switchTab('monsters')">🐉 Monstros</button>
-        <button id="tabBtnMonsterConfig" onclick="AdminApp.switchTab('monster-config')" style="border-color:#f97316; color:#fed7aa;">⚙️ Config. Monstros</button>
-        <button id="tabBtnUiLayouts" onclick="AdminApp.switchTab('ui-layouts')">📐 HUDs & Interfaces</button>
-        <button id="tabBtnAttributes" onclick="AdminApp.switchTab('attributes')">📊 Atributos & Conversões</button>
-        <button id="tabBtnUsers" onclick="AdminApp.switchTab('users')">🔐 Contas</button>
-        <button class="btn-success" onclick="window.open('/play', '_blank')">🎮 Testar no Jogo (/play)</button>
-        <button class="btn-danger" onclick="AdminApp.logout()">Sair</button>
+        <button id="tabBtnMaps" class="btn-primary" onclick="AdminApp.switchTab('maps')" data-i18n="admin.tabs.maps">🗺️ Mapas</button>
+        <button id="tabBtnDungeonChests" onclick="AdminApp.switchTab('dungeon-chests')" data-i18n="admin.tabs.dungeonChests" style="border-color:#a855f7; color:#e9d5ff;">🎁 Baús de Dungeon</button>
+        <button id="tabBtnNpcs" onclick="AdminApp.switchTab('npcs')" data-i18n="admin.tabs.npcs">🧙 Tabela de NPCs</button>
+        <button id="tabBtnHunterCosts" onclick="AdminApp.switchTab('hunter-costs')" data-i18n="admin.tabs.hunterCosts" style="border-color:#d97706; color:#fde68a;">🐾 Caçador (Pets)</button>
+        <button id="tabBtnShops" onclick="AdminApp.switchTab('shops')" data-i18n="admin.tabs.shops">🏪 Lojas</button>
+        <button id="tabBtnClasses" onclick="AdminApp.switchTab('classes')" data-i18n="admin.tabs.classes">🦸 Personagens</button>
+        <button id="tabBtnMonsters" onclick="AdminApp.switchTab('monsters')" data-i18n="admin.tabs.monsters">🐉 Monstros</button>
+        <button id="tabBtnMonsterConfig" onclick="AdminApp.switchTab('monster-config')" data-i18n="admin.tabs.monsterConfig" style="border-color:#f97316; color:#fed7aa;">⚙️ Config. Monstros</button>
+        <button id="tabBtnUiLayouts" onclick="AdminApp.switchTab('ui-layouts')" data-i18n="admin.tabs.uiLayouts">📐 HUDs & Interfaces</button>
+        <button id="tabBtnAttributes" onclick="AdminApp.switchTab('attributes')" data-i18n="admin.tabs.attributes">📊 Atributos & Conversões</button>
+        <button id="tabBtnUsers" onclick="AdminApp.switchTab('users')" data-i18n="admin.tabs.users">🔐 Contas</button>
+        <select data-i18n-locale-select aria-label="Idioma" onchange="window.EtheriaI18n?.setLocale(this.value)" style="background:#0f172a; color:#f8fafc; border:1px solid #334155; border-radius:6px; padding:4px 8px; font-size:0.75rem; cursor:pointer;"><option value="pt-BR">🇧🇷 PT-BR</option><option value="en-US">🇺🇸 EN-US</option><option value="es-ES">🇪🇸 ES-ES</option></select>
+        <button class="btn-success" onclick="window.open('/play', '_blank')" data-i18n="admin.tabs.testPlay">🎮 Testar no Jogo (/play)</button>
+        <button class="btn-danger" onclick="AdminApp.logout()" data-i18n="admin.tabs.logout">Sair</button>
       </div>
     </header>
     <!-- ABA 1: PAINEL DE FICHAS DE MAPAS (SEM MINIATURA ESPREMIDA) -->
@@ -53,7 +57,7 @@
       <!-- COLUNA ESQUERDA: LISTA DE MAPAS SALVOS (COMPLETOS OU EM CONSTRUÇÃO) -->
       <aside class="panel">
         <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:6px;">
-          <h3 style="margin:0;">📂 Mapas no Banco</h3>
+          <h3 style="margin:0;" data-i18n="admin.maps.title">📂 Mapas no Banco</h3>
           <div style="display:flex; gap:6px;">
             <button type="button" class="btn-primary" onclick="AdminApp.openMcreworkMapPicker('NEW_MAP')">➕ mcrework</button>
             <button type="button" class="btn-secondary" onclick="AdminApp.openMapUploadModal('NEW_MAP')" style="background:#0369a1; border-color:#38bdf8; color:#fff; font-weight:700;">📤 Upload</button>
@@ -71,7 +75,7 @@
           <span id="lastSavedBadge" style="font-size:0.76rem; color:#86efac;"></span>
         </div>
         <!-- BOTÃO GIGANTE DE ENTRAR NO EDITOR VISUAL (FOCO 100% NO MAPA) -->
-        <button class="btn-enter-editor" onclick="AdminApp.enterVisualMapEditor()">
+        <button class="btn-enter-editor" onclick="AdminApp.enterVisualMapEditor()" data-i18n="admin.maps.enterVisualEditor">
           🎯 ENTRAR NA EDIÇÃO VISUAL DO MAPA (TELA INTEIRA)
         </button>
         <div id="mapSummaryCounters" style="display:flex; flex-wrap:wrap; gap:8px; font-size:0.78rem; background:rgba(56,189,248,0.1); border:1px solid var(--border); padding:8px 12px; border-radius:8px;"></div>
@@ -846,10 +850,11 @@
   </div>
   <!-- Modal de Personagens (#classModal) injetado dinamicamente por AdminClassesTab.js -->
 
+  <script src="/shared/EtheriaI18n.js?v=20261124_p3"></script>
   <script src="/play/js/McreworkSpriteSheet.js"></script>
   <script src="/play/js/PlayFlightAndWingsController.js?v=20261124_q4"></script>
   <script src="/play/js/VfxColorProcessor.js"></script>
-  <script src="/admin/js/AdminAuth.js?v=20261124_p0"></script>
+  <script src="/admin/js/AdminAuth.js?v=20261124_p3"></script>
   <script src="/admin/js/AdminUsersTab.js?v=20261124_p0"></script>
   <script src="/admin/js/AdminNpcsTab.js?v=20261124_p1"></script>
   <script src="/admin/js/AdminAttributesTab.js"></script>

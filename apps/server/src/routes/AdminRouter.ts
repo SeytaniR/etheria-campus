@@ -5,6 +5,7 @@
  *   Gerencia autenticação dual-mode, controle granular de permissões (RBAC) por tabela
  *   e direcionamento para controladores especializados do Studio Low-Code.
  * @rules Segue estritamente AGENTS.md (Cláusula 0 de Segurança e Regra #7 de modularidade).
+ * @dependencies node:http, @etheria/database, ../security/AdminAuthService.js, ../security/RateLimiter.js, controllers Admin/*
  */
 
 import type * as http from 'node:http';

@@ -17,7 +17,7 @@ import * as zlib from 'node:zlib';
 import { promisify } from 'node:util';
 import { spawn } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
-import { PrismaClient, SnapshotManager } from '@etheria/database';
+import { DEFAULT_LOCALE, I18nCache, PrismaClient, SnapshotManager, SUPPORTED_LOCALES } from '@etheria/database';
 import { AdminAuthService } from './security/AdminAuthService.js';
 import { AdminUsersController } from './controllers/AdminUsersController.js';
 import { AdminMapsController } from './controllers/AdminMapsController.js';
@@ -452,49 +452,70 @@ export class EtheriaServerApp {
       const pathname = urlObj.pathname;
       const method = req.method ?? 'GET';
 
-      // 0a. Asset Proxy Público para mapas (/api/assets/map-image/:id)
-      const mapAssetMatch = pathname.match(/^\/api\/assets\/map-image\/(\d+)$/);
-      if (mapAssetMatch && (method === 'GET' || method === 'HEAD')) {
-        const mapId = Number(mapAssetMatch[1]);
-        await this.handleMapImageAsset(mapId, res, method, req);
-        return;
-      }
+      const queryLocale = urlObj.searchParams.get('locale');
+      const headerLocale = typeof req.headers['x-etheria-locale'] === 'string' ? req.headers['x-etheria-locale'] : '';
+      const acceptLang = typeof req.headers['accept-language'] === 'string' ? req.headers['accept-language'] : '';
+      const activeLocale = queryLocale
+        ? I18nCache.normalizeLocale(queryLocale)
+        : headerLocale
+        ? I18nCache.normalizeLocale(headerLocale)
+        : I18nCache.parseAcceptLanguage(acceptLang);
 
-      // 0b. Asset Mirror Persistente em Disco para qualquer asset curado (/api/assets/mcrework/assets/...)
-      const mcreworkAssetMatch = pathname.match(/^\/api\/assets\/mcrework\/(assets\/.+)$/);
-      if (mcreworkAssetMatch && (method === 'GET' || method === 'HEAD')) {
-        const asset = await this.assetMirrorService.getOrFetchAsset(mcreworkAssetMatch[1]);
-        if (!asset) {
-          this.sendJson(res, 404, { error: `Asset não encontrado: ${mcreworkAssetMatch[1]}` });
+      await I18nCache.runWithLocale(activeLocale, async () => {
+        // 0a. Asset Proxy Público para mapas (/api/assets/map-image/:id)
+        const mapAssetMatch = pathname.match(/^\/api\/assets\/map-image\/(\d+)$/);
+        if (mapAssetMatch && (method === 'GET' || method === 'HEAD')) {
+          const mapId = Number(mapAssetMatch[1]);
+          await this.handleMapImageAsset(mapId, res, method, req);
           return;
         }
-        res.writeHead(200, {
-          'Content-Type': asset.contentType,
-          'Content-Length': asset.buffer.length,
-          'Cache-Control': 'public, max-age=31536000, immutable',
-          ...EtheriaServerApp.SECURITY_HEADERS,
-          ...this.buildCorsHeaders(req),
-        });
-        if (method === 'HEAD') res.end();
-        else res.end(asset.buffer);
-        return;
-      }
 
-      // 1. Delegar para o AdminRouter (/api/admin/*)
-      if (await this.adminRouter.handle(req, res, pathname, method, urlObj)) {
-        return;
-      }
+        // 0b. Asset Mirror Persistente em Disco para qualquer asset curado (/api/assets/mcrework/assets/...)
+        const mcreworkAssetMatch = pathname.match(/^\/api\/assets\/mcrework\/(assets\/.+)$/);
+        if (mcreworkAssetMatch && (method === 'GET' || method === 'HEAD')) {
+          const asset = await this.assetMirrorService.getOrFetchAsset(mcreworkAssetMatch[1]);
+          if (!asset) {
+            this.sendJson(res, 404, { error: `Asset não encontrado: ${mcreworkAssetMatch[1]}` });
+            return;
+          }
+          res.writeHead(200, {
+            'Content-Type': asset.contentType,
+            'Content-Length': asset.buffer.length,
+            'Cache-Control': 'public, max-age=31536000, immutable',
+            ...EtheriaServerApp.SECURITY_HEADERS,
+            ...this.buildCorsHeaders(req),
+          });
+          if (method === 'HEAD') res.end();
+          else res.end(asset.buffer);
+          return;
+        }
 
-      // 2. Delegar para o PlayRouter (/api/play/*)
-      if (await this.playRouter.handle(req, res, pathname, method, urlObj)) {
-        return;
-      }
+        // 0c. Metadados públicos do motor multi-locale i18n
+        if (pathname === '/api/i18n/meta' && method === 'GET') {
+          this.sendJson(res, 200, {
+            locale: I18nCache.getCurrentLocale(),
+            defaultLocale: DEFAULT_LOCALE,
+            supportedLocales: [...SUPPORTED_LOCALES],
+          });
+          return;
+        }
 
-      // 3. Servir Arquivos Estáticos de `apps/server/public` (/admin, /play, /gm, subpastas /js, etc.)
-      const served = await this.tryServeStatic(req, res, pathname);
-      if (served) return;
+        // 1. Delegar para o AdminRouter (/api/admin/*)
+        if (await this.adminRouter.handle(req, res, pathname, method, urlObj)) {
+          return;
+        }
 
-      this.sendJson(res, 404, { error: 'Página não encontrada.' });
+        // 2. Delegar para o PlayRouter (/api/play/*)
+        if (await this.playRouter.handle(req, res, pathname, method, urlObj)) {
+          return;
+        }
+
+        // 3. Servir Arquivos Estáticos de `apps/server/public` (/admin, /play, /gm, subpastas /js, etc.)
+        const served = await this.tryServeStatic(req, res, pathname);
+        if (served) return;
+
+        this.sendJson(res, 404, { error: 'Página não encontrada.' });
+      });
     } catch (err: any) {
       console.error('❌ [EtheriaServerApp Error]:', err);
       const safeErr = InputSanitizer.sanitizeHttpError(err);

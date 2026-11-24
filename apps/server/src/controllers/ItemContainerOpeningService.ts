@@ -8,6 +8,8 @@
  *   - Executa rolagem de probabilidade cumulativa (fatias até 100%) para roletas com N giros.
  *   - Credita os itens ganhos e ouro bônus na mochila do personagem.
  *   - Retorna os metadados enriquecidos para o modal com animação de roleta e revelação de itens.
+ * @rules Segue estritamente AGENTS.md (Sorteio e transação autoritativa server-side, Regra #7 < 1.000 linhas).
+ * @dependencies @etheria/database (PrismaClient, I18nCache), ./CharacterInventoryService.js
  */
 
 import type { PrismaClient } from '@etheria/database';
@@ -147,7 +149,7 @@ export class ItemContainerOpeningService {
       prisma.itemTemplate.findMany({
         where: { id: { in: rewardItemIds } },
       }),
-      I18nCache.getTranslations(prisma, 'pt-BR'),
+      I18nCache.getTranslations(prisma),
     ]);
 
     const rewardTemplateMap = new Map<number, any>(rewardTemplates.map((t) => [t.id, t]));

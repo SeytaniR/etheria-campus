@@ -87,7 +87,7 @@ export class GamePlayController {
    * - Lista de Personagens criados pelo usuário logado (`player_characters`)
    */
   public async getPlayBootstrap(userAccountId: number) {
-    const i18nMap = await I18nCache.getTranslations(this.prisma, 'pt-BR');
+    const i18nMap = await I18nCache.getTranslations(this.prisma);
 
     const classTemplates = (
       await this.prisma.classTemplate.findMany({
@@ -376,7 +376,7 @@ export class GamePlayController {
    */
   public async getCharacterById(userAccountId: number, role: string, characterId: number) {
     const [i18nMap, expMap, scalingCtx] = await Promise.all([
-      I18nCache.getTranslations(this.prisma, 'pt-BR'),
+      I18nCache.getTranslations(this.prisma),
       CharacterProgressionService.getExperienceMap(this.prisma, 1),
       MonsterCombatBuilder.loadScalingContext(this.prisma),
     ]);
@@ -457,7 +457,7 @@ export class GamePlayController {
       include: { classTemplate: true },
     });
 
-    const i18nMap = await I18nCache.getTranslations(this.prisma, 'pt-BR');
+    const i18nMap = await I18nCache.getTranslations(this.prisma);
     await MonsterMetaQuestService.ensurePlayerMetaQuests(this.prisma, created.id);
 
     return this.serializeCharacter(created, i18nMap);
@@ -554,7 +554,7 @@ export class GamePlayController {
       include: { classTemplate: true },
     });
 
-    const i18nMap = await I18nCache.getTranslations(this.prisma, 'pt-BR');
+    const i18nMap = await I18nCache.getTranslations(this.prisma);
     return this.serializeCharacter(updated, i18nMap);
   }
 
@@ -596,7 +596,7 @@ export class GamePlayController {
       include: { classTemplate: true },
     });
 
-    const i18nMap = await I18nCache.getTranslations(this.prisma, 'pt-BR');
+    const i18nMap = await I18nCache.getTranslations(this.prisma);
     return this.serializeCharacter(updatedChar, i18nMap);
   }
 

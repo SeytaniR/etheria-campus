@@ -6,6 +6,8 @@
  *   - Missões Meta (`META`) escalam proceduralmente por N estágios (ex: `10 -> 100 -> 1.000 -> 10.000`) com suporte a
  *     Matar Monstro, Matar Raça (`KILL_RACE`) ou Coletar & Entregar Item (`COLLECT_ITEM`) e escalada própria de recompensas.
  *   - Todas as categorias (`MAIN`, `SIDE`, `EPIC`, `PROFICIENCY`, `META`) suportam Gatilho de Acionamento e Requisitos.
+ * @rules Segue estritamente AGENTS.md (Zero Hardcode, Regra #7 < 1.000 linhas, progressão linear MAIN e estágios META).
+ * @dependencies @prisma/client, @etheria/database (SnapshotManager, I18nCache), ./AdminQuestsInitialSeeds.js, ./MetaQuestProceduralEngine.js, ./QuestProgressService.js, ./QuestStepActionService.js, ./MonsterCombatBuilder.js
  */
 
 import { PrismaClient } from '@prisma/client';

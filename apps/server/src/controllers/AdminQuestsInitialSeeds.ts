@@ -6,6 +6,7 @@
  *   - REGRA SAGRADA MANDATÓRIA: 0 pontos de atributos livres distribuíveis em quests!
  *   - Apenas Level Up (+5 pontos base por nível) concede atributos distribuíveis.
  *   - Missão 1-1 concede o Conjunto Inicial do Aprendiz completo (12 peças de combate).
+ * @dependencies @prisma/client, ./AdminQuestsController.js
  */
 
 import { PrismaClient } from '@prisma/client';

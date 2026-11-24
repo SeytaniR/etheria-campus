@@ -1,3 +1,12 @@
+/**
+ * @file apps/server/src/controllers/AdminUiLayoutsController.ts
+ * @module @etheria/server
+ * @description Controlador da Tabela de Layouts Responsivos de Interface (`client_ui_layout_templates`) na Rota `/admin`.
+ *   Gerencia âncoras, offsets, escalas, cores e visibilidade multiplataforma (Desktop, Tablet e Mobile Portrait/Landscape).
+ * @rules Segue estritamente AGENTS.md (Regra #5 Layout Camaleão 100% Fluido, Regra #7 < 1.000 linhas).
+ * @dependencies @etheria/database (PrismaClient, SnapshotManager)
+ */
+
 import { PrismaClient } from '@etheria/database';
 import { SnapshotManager } from '@etheria/database';
 

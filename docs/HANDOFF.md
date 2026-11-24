@@ -8,9 +8,9 @@
 ---
 
 ## 📌 Status Atual do Projeto
-* **Versão Atual:** `v0.63.0`
+* **Versão Atual:** `v0.64.0`
 * **Última Atualização:** `2026-11-24`
-* **Fase Atual:** **Onda P2 Concluída — Modularização Real (`< 780` linhas nos arquivos refatorados), Shared Rules (`@etheria/shared`), Limpeza de Legado Morto & Suíte Unificada `npm test` (`v0.63.0`)** — Fatiados os 8 maiores arquivos quentes do frontend/backend sem quebra de globals/rotas (`AdminClassesAndNpcsService`, `PlayerMapTravelService`, `play_core.css`, `PlayStatsModalController`, `PlayWorldRenderer`, `PlayWorldInputController`, `ArenaProjectileResolver`, `ArenaHudControls`, `AdminMapPickerModal`, `AdminQuestsBoardView`), criado `GameRulesConstants` em `@etheria/shared` com rota `/shared/GameRulesConstants.js`, removidos `web/` e `scratch/` além de constantes mortas em `MonsterCombatBuilder.ts`, e configurada suíte `npm test` (4 módulos aprovados 100%). Todos os arquivos < 1.000 linhas (Regra #7).
+* **Fase Atual:** **Plano Mestre de Remediação das 4 Ondas (P0 → P3) 100% CONCLUÍDO (`v0.64.0`)** — Onda P3 entregue com motor multi-locale `i18n` (`pt-BR`, `en-US`, `es-ES`) em camadas no `I18nCache` + `AsyncLocalStorage`, `EtheriaI18n.js` nas rotas `/play` e `/admin`, endpoints `GET /api/i18n/meta` e `POST /api/play/locale`, 100% dos arquivos `.ts` ativos com cabeçalho JSDoc completo (Regra #1), documentação técnica (`README.md`, `ARCHITECTURE.md`, `DATABASE_SCHEMA.md`, `AGENTS.md`) totalmente atualizada e suíte `npm test` com 5 módulos aprovados. Todos os arquivos < 1.000 linhas (Regra #7).
 * **Repositório Oficial:** `https://github.com/SeytaniR/etheria-campus`
 * **Fonte Bruta de Assets:** `https://github.com/SeytaniR/mcrework` (`https://seytanir.github.io/mcrework/`)
 
@@ -105,11 +105,19 @@
   * **Regras Compartilhadas & Legado:** `GameRulesConstants.ts` em `@etheria/shared` + `/shared/GameRulesConstants.js`, remoção de `web/` e `scratch/`, limpeza das constantes mortas em `MonsterCombatBuilder.ts` e preservação dos modelos/colunas Prisma legados (`ArenaFormation`, `MonsterRarity`, `apCost`, `cooldownTurns`) por Cláusula 0.2.
   * **Testes:** `npm test` (`tests/run_all_tests.mjs`) executando `test_p0_security.mjs` (5/5), `test_p1_assets_and_cache.mjs` (5/5), `test_p2_shared_and_monsters.mjs` (5/5) e `test_action_motion_engine.mjs` (4/4) com 100% de aprovação.
 
-### 🔵 Onda P3 — Conformidade 100% `i18n` (Regra #4) & Documentação Atualizada (PRÓXIMA DA FILA — Iniciar com Backup Preventivo)
-* Implementar motor `i18n` unificado (`pt-BR`, `en-US`, `es-ES`) no `/play`, `/admin` e API (eliminando os 137 `'pt-BR'` hardcoded no backend), além de normalização `'en'` → `'en-US'` e preenchimento `'es-ES'` no banco mediante autorização explícita (Cláusula 0.2).
-* Atualizar `README.md`, `docs/ARCHITECTURE.md`, `docs/DATABASE_SCHEMA.md`, `AGENTS.md` e cabeçalhos JSDoc faltantes da Regra #1.
+### 🔵 Onda P3 — Conformidade 100% `i18n` (Regra #4), Regra #1 & Documentação Atualizada (✅ CONCLUÍDA em `v0.64.0`)
+* **Backups Preventivos Pré-P3:**
+  * Local: `.backups/pre-p3-20261124-154338/` (`lowcode.snapshot.json` 4.98M + `git-head.txt`)
+  * VPS Azure: `/home/azureuser/backups/pre-p3-20261124-154338/` (`lowcode.snapshot.json` 4.8M + `etheria_db.sql.gz` 345K)
+* **Entregas Verificadas:**
+  * **Backend Multi-Locale (`I18nCache`):** `AsyncLocalStorage` por requisição, `GET /api/i18n/meta`, `POST /api/play/locale`, fallback em camadas (`pt-BR` base → `'en'` legado + `'en-US'` em 1 query; `'pt-BR'` → `'es-ES'`), leitura player-facing 100% guiada por contexto da requisição sem mutar os registros existentes (`3.191` `pt-BR`, `1.440` `en`, `147` `en-US`) em respeito estrito à Cláusula 0.2.
+  * **Frontend (`EtheriaI18n.js`):** Engine compartilhada em `/shared/EtheriaI18n.js` com paridade de chaves em `pt-BR`/`en-US`/`es-ES`, seletores de idioma em `/play` (login, lobby, configurações) e `/admin`, além do cabeçalho `X-Etheria-Locale` em todas as requisições.
+  * **Regra #1 & Documentação:** `0` arquivos `.ts` ativos sem as 5 tags JSDoc; `README.md`, `docs/ARCHITECTURE.md`, `docs/DATABASE_SCHEMA.md` e `AGENTS.md` atualizados para `v0.64.0`. Suíte `tests/test_p3_i18n.mjs` integrada ao `npm test` (5/5 suítes aprovadas).
 
 ---
 
 ## 🎯 Próxima Tarefa Exata da Fila
-* Realizar **backup preventivo pré-P3** (local + VPS) e executar a **Onda P3** (conformidade completa de `i18n` multi-idioma em backend/frontend e atualização final de toda a documentação técnica/regras), solicitando confirmação explícita antes de qualquer mutação de traduções no PostgreSQL (Cláusula 0.2).
+* Plano Mestre das 4 Ondas (**P0 → P1 → P2 → P3**) **100% concluído e em produção**.
+* **Próximas demandas aguardando definição do usuário:**
+  1. **Sistema de Edifícios & Plantações:** Implementar mecânicas/tabelas sobre as malhas `buildingMeshJson` e `plantationMeshJson` já criadas nos mapas (`v0.60.x`).
+  2. *(Opcional — requer autorização expressa pela Cláusula 0.2)* Normalizar os `1.440` registros legados `'en'` → `'en-US'` e/ou popular traduções `'es-ES'` em `i18n_translations` caso o usuário deseje migração no banco de dados.

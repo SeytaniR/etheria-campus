@@ -6,6 +6,8 @@
  *   - Permite visualizar e calibrar a relação de conversão entre Atributos Base e Atributos de Combate.
  *   - Atualiza atributos derivados de combate (incluindo Precisão/Esquiva, Controle e Anomalias).
  *   - Dispara exportação de snapshot para manter paridade no Git.
+ * @rules Segue estritamente AGENTS.md (Zero Hardcode, Regra #7 < 1.000 linhas, Snapshot automático).
+ * @dependencies @prisma/client, @etheria/database (SnapshotManager)
  */
 
 import { PrismaClient } from '@prisma/client';

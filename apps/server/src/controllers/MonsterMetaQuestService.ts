@@ -10,6 +10,8 @@
  *   - Se o monstro for inativado ou deletado, a Quest Meta correspondente é inativada/deletada automaticamente.
  *   - Cria Quests Meta para tipos/raças de monstros na mesma proporção de metas e recompensas.
  *   - Auto-aceitação automática para personagens desde a criação, sem necessidade de NPC.
+ * @rules Segue estritamente AGENTS.md (Estágios procedurais META x10, exatamente 1 ponto livre fixo/estágio, Regra #7 < 1.000 linhas).
+ * @dependencies @etheria/database (PrismaClient, SnapshotManager), ./MetaQuestProceduralEngine.js
  */
 
 import { PrismaClient, SnapshotManager } from '@etheria/database';

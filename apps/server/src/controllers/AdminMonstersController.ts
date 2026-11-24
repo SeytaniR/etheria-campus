@@ -8,6 +8,8 @@
  *   - Associação procedural com Biomas, Atributos Base, Raridade e Elemento Fixo.
  *   - Calibração de distância dos pés ao solo (`groundOffsetY`).
  *   - Auto-atualização de Snapshots JSON para sincronização no Git.
+ * @rules Segue estritamente AGENTS.md (Regra #6 auto-incremento, Regra #7 < 1.000 linhas, Regra #10 espelhamento local).
+ * @dependencies @prisma/client, @etheria/database (SnapshotManager), ./AssetMirrorService.js, ./MonsterMetaQuestService.js, ./CharacterPetService.js
  */
 
 import { PrismaClient } from '@prisma/client';

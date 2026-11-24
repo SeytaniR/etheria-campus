@@ -83,14 +83,14 @@ Como este projeto é desenvolvido em **revezamento de turnos entre múltiplas co
 
 ### 3. Passagem de Bastão Obrigatória (`docs/HANDOFF.md`)
 * Ao concluir uma tarefa e antes de encerrar o turno com o usuário, a IA deve:
-  1. Garantir que o código compila sem erros de tipagem (`tsc --noEmit`).
+  1. Garantir que o código compila sem erros de tipagem (`npm run typecheck`) e passa na suíte unificada (`npm test`).
   2. Atualizar o `CHANGELOG.md` com a nova versão incremental.
   3. Atualizar o `docs/HANDOFF.md` informando o estado atual e o próximo passo exato para a outra IA.
   4. Realizar `git commit` + `git push origin main` para o repositório oficial (`SeytaniR/etheria-campus`) e atualizar imediatamente a VPS de produção (Regra #9).
 
 ### 4. Internacionalização Nativa (`i18n` em 100% do Projeto)
-* **Zero Texto Fixo na UI:** É proibido escrever strings em português ou inglês diretamente no HTML/Canvas.
-* Toda string de interface deve usar chaves do dicionário `i18n` (`pt-BR`, `en-US`, `es-ES`), e todo conteúdo dinâmico do banco (nomes de mapas, monstros, classes, skills, itens) deve referenciar sua chave/tabela de tradução.
+* **Zero Texto Fixo na UI:** É proibido escrever strings fixas sem chave de tradução no HTML/UI principal; toda nova interface deve registrar chaves em `apps/server/public/shared/EtheriaI18n.js` (`pt-BR`, `en-US`, `es-ES`).
+* **Banco Multi-Locale & Contexto de Requisição:** No backend, todas as leituras voltadas ao jogador devem usar `I18nCache.getTranslations(prisma)` (alimentado por `I18nCache.runWithLocale` a partir de `?locale=`, `X-Etheria-Locale` e `Accept-Language`), com fallback em camadas para `pt-BR`, `en-US` (inclusive chaves legadas `'en'`) e `es-ES`. Todo conteúdo dinâmico do banco deve referenciar sua chave na tabela `i18n_translations`.
 
 ### 5. Layout Camaleão 100% Fluido e Responsivo
 * O jogo deve se adaptar automaticamente, esticando e encolhendo sem cortes ou barras pretas, nos 4 formatos:

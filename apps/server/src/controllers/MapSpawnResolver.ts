@@ -7,6 +7,8 @@
  *     2. Normalização estrita de `encounterRatePct`, `allowedMonsterRacesJson` e `allowedMonsterTemplateIdsJson`;
  *     3. Resolução estrita do pool elegível (união de raças selecionadas + monstros individuais permitidos,
  *        mesmo que pertençam a outra raça), sem fallback global para todos os monstros do banco.
+ * @rules Segue estritamente AGENTS.md (Spawn bloqueado em áreas seguras, whitelist curada sem fallback global, Regra #7 < 1.000 linhas).
+ * @dependencies Nenhuma dependência externa de runtime (usa porta Prisma injetada via `MonsterSpawnPrismaPort`).
  */
 
 export interface MapSpawnTypeRule {

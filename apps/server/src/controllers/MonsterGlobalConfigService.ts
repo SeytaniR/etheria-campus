@@ -7,6 +7,7 @@
  *   - Hierarquia (`NORMAL`, `LEADER`, `BOSS`): escala base de atributos, tamanho, rolagens de drop, XP, Ouro e chances de spawn.
  *   - Escalonamento e Variação de Nível, Limites de Encontro, Penalidades de Nível do Mapa e Regras de Dungeon.
  * @rules Segue estritamente AGENTS.md (Pilar 4 Zero Hardcode, Cláusula 0, Regra #7 < 1.000 linhas).
+ * @dependencies node:http, @etheria/database (PrismaClient, SnapshotManager)
  */
 
 import type * as http from 'node:http';

@@ -8,6 +8,7 @@
  *   - Mitigação de Defesa assintótica por nível (`docs/ARCHITECTURE.md` §4.2):
  *     `(100 + 10 * lvlAtacante) / (defEfetiva + 100 + 10 * lvlAtacante)`.
  *   - Vantagem/Desvantagem Elemental lida diretamente de `element_matchups` (`FIRE > EARTH > AIR > WATER > FIRE` ±25%, `NEUTRAL` -25% causado / +25% recebido).
+ * @dependencies Sem dependências externas (módulo isomórfico Server + Browser).
  */
 
 export interface ElementMatchupEntry {

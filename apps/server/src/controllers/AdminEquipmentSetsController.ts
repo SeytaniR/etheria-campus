@@ -10,6 +10,7 @@
  *   - CRUD completo de conjuntos no PostgreSQL com suporte a i18n (`pt-BR`).
  *   - Sincronização automática com snapshots JSON (`lowcode.snapshot.json`).
  * @rules Segue estritamente AGENTS.md (Limite < 1.000 linhas, SRP, Cláusula 0).
+ * @dependencies @prisma/client, @etheria/database (SnapshotManager)
  */
 
 import { PrismaClient } from '@prisma/client';

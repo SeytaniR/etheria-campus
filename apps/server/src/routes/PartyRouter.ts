@@ -4,6 +4,8 @@
  * @description Roteador Especializado de Equipes (Parties de até 3 Jogadores).
  * 
  * Segue estritamente AGENTS.md (Regra #7: < 1.000 linhas).
+ * @rules Verificação estrita de posse do personagem (`verifyCharacterOwnership`) e bloqueio contra BOLA/IDOR.
+ * @dependencies node:http, @prisma/client, ../controllers/PartyService.js, ../controllers/MapPresenceService.js
  */
 
 import type { IncomingMessage, ServerResponse } from 'node:http';

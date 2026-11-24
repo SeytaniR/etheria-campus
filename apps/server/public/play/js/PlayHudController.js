@@ -586,6 +586,8 @@ class PlayHudController {
   openSettingsMenu() {
     const isGm = Boolean(this.playApp && this.playApp.session && ['ADMIN', 'GM', 'DEV'].includes(String(this.playApp.session.role || '').toUpperCase()));
     const isCombatActive = Boolean(this.playApp?.actionArena?.isActive);
+    const tr = (k, fb) => (window.EtheriaI18n ? window.EtheriaI18n.t(k) : fb);
+    const localeOpts = window.EtheriaI18n ? window.EtheriaI18n.renderLocaleOptionsHtml() : '<option value="pt-BR">🇧🇷 PT-BR</option><option value="en-US">🇺🇸 EN-US</option><option value="es-ES">🇪🇸 ES-ES</option>';
 
     const modal = document.createElement('div');
     modal.className = 'modal-backdrop';
@@ -594,58 +596,58 @@ class PlayHudController {
     modal.innerHTML = `
       <div class="hud-modal-dialog">
         <div class="hud-modal-header">
-          <h3>⚙️ Opções & Configurações</h3>
+          <h3>${tr('play.settings.title', '⚙️ Opções & Configurações')}</h3>
           <button class="hud-modal-close" onclick="document.getElementById('hudSettingsModal').remove()">✕</button>
         </div>
         <div class="hud-modal-body">
           ${
             isCombatActive
-              ? `
-            <div class="hud-settings-row" style="background:rgba(239, 68, 68, 0.15); border:1.5px solid #ef4444; border-radius:8px; padding:10px 12px; margin-bottom:4px;">
-              <div style="display:flex; flex-direction:column; gap:2px;">
-                <span style="color:#fca5a5; font-weight:800; font-size:0.86rem;">⚔️ Combate em Andamento</span>
-                <small style="color:#f87171; font-size:0.72rem;">Recuar com segurança e voltar ao mapa</small>
-              </div>
-              <button class="btn-danger" style="background:#ef4444; color:#fff; font-weight:800; padding:8px 16px; border-radius:8px; cursor:pointer;" onclick="if(window.PlayApp?.actionArena) { window.PlayApp.actionArena.fleeBattle(); } document.getElementById('hudSettingsModal').remove();">🏃 Fugir da Batalha</button>
-            </div>
-            `
+              ? `<div class="hud-settings-row" style="background:rgba(239, 68, 68, 0.15); border:1.5px solid #ef4444; border-radius:8px; padding:10px 12px; margin-bottom:4px;">
+              <div style="display:flex; flex-direction:column; gap:2px;"><span style="color:#fca5a5; font-weight:800; font-size:0.86rem;">${tr('play.settings.combatActive', '⚔️ Combate em Andamento')}</span><small style="color:#f87171; font-size:0.72rem;">${tr('play.settings.combatRetreatHint', 'Recuar com segurança e voltar ao mapa')}</small></div>
+              <button class="btn-danger" style="background:#ef4444; color:#fff; font-weight:800; padding:8px 16px; border-radius:8px; cursor:pointer;" onclick="if(window.PlayApp?.actionArena) { window.PlayApp.actionArena.fleeBattle(); } document.getElementById('hudSettingsModal').remove();">${tr('play.settings.btnFlee', '🏃 Fugir da Batalha')}</button>
+            </div>`
               : ''
           }
           <div class="hud-settings-row" style="background:rgba(56, 189, 248, 0.12); border:1.5px solid #38bdf8; border-radius:8px; padding:9px 11px;">
             <div style="display:flex; flex-direction:column; gap:2px;">
-              <span style="color:#7dd3fc; font-weight:800; font-size:0.85rem;">📐 Personalizar Interface (HUDs)</span>
-              <small style="color:#94a3b8; font-size:0.7rem;">Mover, redimensionar e mudar cores no seu dispositivo</small>
+              <span style="color:#7dd3fc; font-weight:800; font-size:0.85rem;">${tr('play.settings.customHudTitle', '📐 Personalizar Interface (HUDs)')}</span>
+              <small style="color:#94a3b8; font-size:0.7rem;">${tr('play.settings.customHudHint', 'Mover, redimensionar e mudar cores no seu dispositivo')}</small>
             </div>
-            <button class="btn-primary" onclick="if(window.PlayClientHudEditor) window.PlayClientHudEditor.openEditor(); document.getElementById('hudSettingsModal')?.remove();">🎨 Editar HUDs</button>
+            <button class="btn-primary" onclick="if(window.PlayClientHudEditor) window.PlayClientHudEditor.openEditor(); document.getElementById('hudSettingsModal')?.remove();">${tr('play.settings.btnEditHud', '🎨 Editar HUDs')}</button>
           </div>
           <div class="hud-settings-row">
-            <span>🔊 Efeitos Sonoros & Música</span>
+            <div style="display:flex; flex-direction:column; gap:2px;">
+              <span>${tr('play.settings.languageTitle', '🌐 Idioma do Jogo')}</span>
+              <small style="color:#94a3b8; font-size:0.7rem;">${tr('play.settings.languageHint', 'Altera interface e entidades traduzidas')}</small>
+            </div>
+            <select data-i18n-locale-select onchange="window.PlayApp?.changeLocale(this.value)" style="background:#0f172a; color:#f8fafc; border:1px solid #475569; border-radius:6px; padding:5px 8px; font-size:0.8rem; cursor:pointer;">${localeOpts}</select>
+          </div>
+          <div class="hud-settings-row">
+            <span>${tr('play.settings.soundTitle', '🔊 Efeitos Sonoros & Música')}</span>
             <input type="checkbox" checked style="width:24px; height:24px; accent-color:#f59e0b;" />
           </div>
           <div class="hud-settings-row">
-            <span>📍 Centralizar Câmera no Jogador</span>
-            <button class="btn-primary" onclick="if(window.PlayApp) window.PlayApp.centerCameraOnPlayer(); document.getElementById('hudSettingsModal').remove();">Centralizar</button>
+            <span>${tr('play.settings.centerCamera', '📍 Centralizar Câmera no Jogador')}</span>
+            <button class="btn-primary" onclick="if(window.PlayApp) window.PlayApp.centerCameraOnPlayer(); document.getElementById('hudSettingsModal').remove();">${tr('play.settings.btnCenter', 'Centralizar')}</button>
           </div>
           <div class="hud-settings-row">
-            <span>🆘 Destravar Personagem (Spawn)</span>
-            <button class="btn-amber" onclick="if(window.PlayApp) window.PlayApp.unstuckCharacter(); document.getElementById('hudSettingsModal').remove();">Destravar</button>
+            <span>${tr('play.settings.unstuckTitle', '🆘 Destravar Personagem (Spawn)')}</span>
+            <button class="btn-amber" onclick="if(window.PlayApp) window.PlayApp.unstuckCharacter(); document.getElementById('hudSettingsModal').remove();">${tr('play.settings.btnUnstuck', 'Destravar')}</button>
           </div>
           ${
             isGm
-              ? `
-            <div class="hud-settings-row" style="border-top:1px dashed #475569; padding-top:10px; gap:6px; flex-wrap:wrap;">
-              <span style="color:#c084fc; font-weight:700;">⚡ Painel & Arsenal GM</span>
+              ? `<div class="hud-settings-row" style="border-top:1px dashed #475569; padding-top:10px; gap:6px; flex-wrap:wrap;">
+              <span style="color:#c084fc; font-weight:700;">${tr('play.settings.gmTitle', '⚡ Painel & Arsenal GM')}</span>
               <div style="display:flex; gap:6px;">
-                <button class="btn-primary" style="background:#7e22ce;" onclick="window.PlayGmSandboxPanel?.openModal(); document.getElementById('hudSettingsModal')?.remove();">🧰 Arsenal GM</button>
-                <button class="btn-gm" onclick="if(window.PlayApp) window.PlayApp.toggleGmDrawer(); document.getElementById('hudSettingsModal')?.remove();">⚡ Painel GM</button>
+                <button class="btn-primary" style="background:#7e22ce;" onclick="window.PlayGmSandboxPanel?.openModal(); document.getElementById('hudSettingsModal')?.remove();">${tr('play.settings.btnGmArsenal', '🧰 Arsenal GM')}</button>
+                <button class="btn-gm" onclick="if(window.PlayApp) window.PlayApp.toggleGmDrawer(); document.getElementById('hudSettingsModal')?.remove();">${tr('play.settings.btnGmPanel', '⚡ Painel GM')}</button>
               </div>
-            </div>
-            `
+            </div>`
               : ''
           }
           <div class="hud-settings-row" style="border-top:1px dashed #475569; padding-top:10px;">
-            <span>🔄 Trocar de Personagem</span>
-            <button onclick="if(window.PlayApp) window.PlayApp.backToLobby(); document.getElementById('hudSettingsModal').remove();">Trocar</button>
+            <span>${tr('play.settings.switchChar', '🔄 Trocar de Personagem')}</span>
+            <button onclick="if(window.PlayApp) window.PlayApp.backToLobby(); document.getElementById('hudSettingsModal').remove();">${tr('play.settings.btnSwitch', 'Trocar')}</button>
           </div>
         </div>
       </div>

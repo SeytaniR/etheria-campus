@@ -4,6 +4,8 @@
  * @description Controlador da Função de Caçador (`HUNTER`):
  *   Gerencia a geração/invocação de Pets a partir do consumo de Essências dos Monstros derrotados,
  *   com custos escalonados por Raridade (F, D, C, B, A, S, SS) configuráveis na tabela `hunter_pet_cost_rules`.
+ * @rules Segue estritamente AGENTS.md (Zero Hardcode via hunter_pet_cost_rules, transações atômicas, Regra #7 < 1.000 linhas).
+ * @dependencies node:http, @prisma/client, @etheria/database (I18nCache, SnapshotManager), ./CharacterPetService.js, ./CharacterInventoryService.js
  */
 
 import type * as http from 'node:http';
@@ -170,7 +172,7 @@ export class HunterPetController {
    */
   public static async getHunterBootstrap(prisma: PrismaClient, characterId: number) {
     const [i18nMap, costRules, rewardRules, invItems, monsters] = await Promise.all([
-      I18nCache.getTranslations(prisma, 'pt-BR'),
+      I18nCache.getTranslations(prisma),
       this.getCostRules(prisma),
       this.getRewardRules(prisma),
       prisma.characterInventoryItem.findMany({

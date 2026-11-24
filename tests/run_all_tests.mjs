@@ -20,6 +20,7 @@ const suites = [
   'tests/test_p0_security.mjs',
   'tests/test_p1_assets_and_cache.mjs',
   'tests/test_p2_shared_and_monsters.mjs',
+  'tests/test_p3_i18n.mjs',
   'tests/test_action_motion_engine.mjs',
 ];
 

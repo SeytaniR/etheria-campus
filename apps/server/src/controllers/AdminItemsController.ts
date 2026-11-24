@@ -7,6 +7,8 @@
  *   - Materiais de Coleta & Crafting (Minérios, Ervas, Madeiras, Essências).
  *   - Itens de Missão, Chaves e Itens Especiais (Essências, Orbes de EXP).
  *   - Integração com catálogo oficial de 6.468 itens (`assets/items/items_catalog.json`) do repositório `mcrework`.
+ * @rules Segue estritamente AGENTS.md (Regra #6 auto-incremento, Regra #7 < 1.000 linhas, Regra #10 espelhamento local).
+ * @dependencies @prisma/client, @etheria/database (SnapshotManager), ./AssetMirrorService.js
  */
 
 import { PrismaClient } from '@prisma/client';

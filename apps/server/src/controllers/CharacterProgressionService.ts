@@ -7,6 +7,7 @@
  *   - Aplica progressão e level up sincronizado para Pets ativos em combate e missões.
  *   - Persiste dados de forma atômica no banco de dados sem alterar dados ou tabelas existentes.
  * @rules Segue estritamente AGENTS.md (Limite < 900 linhas, Arquitetura OO).
+ * @dependencies @etheria/database (PrismaClient), ./GameChatService.js, ./PartyService.js, ./MapPresenceService.js
  */
 
 import { PrismaClient } from '@etheria/database';

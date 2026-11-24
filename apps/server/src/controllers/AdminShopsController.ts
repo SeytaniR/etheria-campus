@@ -5,6 +5,8 @@
  *   Permite criar, editar e excluir lojas contendo Equipamentos e Itens (`item_templates`),
  *   que podem ser vinculadas genericamente a qualquer NPC (Armeiro, Alquimista, Caçador,
  *   Cozinheiro, Minerador, Loja pura, etc.).
+ * @rules Segue estritamente AGENTS.md (Regra #7 < 1.000 linhas, compra autoritativa via transação, Regra #10 assets locais).
+ * @dependencies @prisma/client, @etheria/database (I18nCache, SnapshotManager), ./AssetMirrorService.js
  */
 
 import { PrismaClient } from '@prisma/client';

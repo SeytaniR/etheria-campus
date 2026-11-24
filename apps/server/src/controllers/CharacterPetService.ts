@@ -2,6 +2,7 @@
  * @file apps/server/src/controllers/CharacterPetService.ts
  * @module @etheria/server
  * @description Motor Procedural e Autoritário de Pets (`character_pets`) vinculados a `monster_templates`.
+ * @dependencies node:http, @etheria/database (PrismaClient, SnapshotManager, I18nCache), ./MonsterCombatBuilder.js, ./MapPresenceService.js, ./CharacterInventoryService.js, ./CharacterProgressionService.js
  * @rules
  *   1. Todo Pet é gerado a partir de um Monstro com `isTamableAsPet = true` e `isActive = true`.
  *   2. Ao ser gerado no Nível 1:
@@ -495,7 +496,7 @@ export class CharacterPetService {
       }
     }
 
-    const i18nMap = await I18nCache.getTranslations(prisma, 'pt-BR');
+    const i18nMap = await I18nCache.getTranslations(prisma);
     const speciesName = i18nMap.get(mt.nameI18nKey) ?? mt.code;
     const nickname = customNickname && customNickname.trim()
       ? customNickname.trim().slice(0, 24)
@@ -761,7 +762,7 @@ export class CharacterPetService {
         include: { monsterTemplate: true },
         orderBy: { id: 'asc' },
       }),
-      I18nCache.getTranslations(prisma, 'pt-BR'),
+      I18nCache.getTranslations(prisma),
       CharacterProgressionService.getExperienceMap(prisma, 1),
       MonsterCombatBuilder.loadScalingContext(prisma),
     ]);

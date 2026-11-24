@@ -7,6 +7,7 @@
  *   - Drag & Drop (mover/trocar/juntar), divisão de stack (split), destruição com confirmação e auto-sort.
  *   - Validação prévia de capacidade máxima para abertura segura de baús e cápsulas.
  * @rules Segue estritamente AGENTS.md (Limite < 900 linhas, Arquitetura OO).
+ * @dependencies @etheria/database (I18nCache)
  */
 
 import { I18nCache } from '@etheria/database';
@@ -112,7 +113,7 @@ export class CharacterInventoryService {
         include: { itemTemplate: true },
         orderBy: { slotIndex: 'asc' },
       }),
-      I18nCache.getTranslations(prisma, 'pt-BR'),
+      I18nCache.getTranslations(prisma),
     ]);
 
     const itemMap = new Map<number, InventoryItemDetailDto>();
@@ -560,7 +561,7 @@ export class CharacterInventoryService {
         where: { characterId: safeCharId, quantity: { gt: 0 } },
         include: { itemTemplate: true },
       }),
-      I18nCache.getTranslations(prisma, 'pt-BR'),
+      I18nCache.getTranslations(prisma),
     ]);
 
     if (rows.length === 0) {

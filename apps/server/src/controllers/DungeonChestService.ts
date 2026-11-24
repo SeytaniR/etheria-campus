@@ -7,6 +7,8 @@
  *     de Ouro e XP, e lista de drops de itens/equipamentos com min/max e chance %).
  *   - Sorteia a raridade do baú no servidor ao eliminar o último monstro da Dungeon e concede as recompensas
  *     ao clicar para abrir o baú (além das recompensas naturais de XP, Ouro e drops dos monstros).
+ * @rules Segue estritamente AGENTS.md (Sorteio autoritativo no servidor, Regra #7 < 1.000 linhas, Regra #10 assets locais).
+ * @dependencies node:http, @etheria/database (PrismaClient, SnapshotManager, I18nCache), ./CharacterInventoryService.js, ./AssetMirrorService.js, ./TemporaryCombatController.js
  */
 
 import type * as http from 'node:http';
@@ -182,7 +184,7 @@ export class DungeonChestService {
         select: { id: true, code: true, nameI18nKey: true, itemCategory: true, rarityTier: true, mcreworkIconKey: true, equipmentSlotCode: true },
         orderBy: [{ itemCategory: 'asc' }, { id: 'asc' }],
       }),
-      I18nCache.getTranslations(prisma, 'pt-BR'),
+      I18nCache.getTranslations(prisma),
     ]);
 
     const chests = (chestsRaw as any[]).sort(
@@ -336,7 +338,7 @@ export class DungeonChestService {
     if (wonDrops.length > 0) {
       const [templates, i18nMap] = await Promise.all([
         prisma.itemTemplate.findMany({ where: { id: { in: wonDrops.map((w) => w.itemTemplateId) } } }),
-        I18nCache.getTranslations(prisma, 'pt-BR'),
+        I18nCache.getTranslations(prisma),
       ]);
       const tplById = new Map(templates.map((t) => [t.id, t]));
 

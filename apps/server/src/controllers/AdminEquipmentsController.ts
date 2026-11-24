@@ -7,6 +7,8 @@
  *   - CRUD completo de templates de equipamentos no PostgreSQL com i18n em PT-BR.
  *   - Suporte a Bônus de Atributos Base (VIT, STR, INT, WIS, AGI, DEX) e Atributos de Combate da Arena Action
  *     (ATK, MATK, DEF, MDEF, Vel. Batalha, Aspd, Precisão, Desvio, Crítico e Alcance).
+ * @rules Segue estritamente AGENTS.md (Regra #6 auto-incremento, Regra #7 < 1.000 linhas, Regra #10 espelhamento local).
+ * @dependencies @prisma/client, @etheria/database (SnapshotManager), ./AssetMirrorService.js
  */
 
 import { PrismaClient } from '@prisma/client';

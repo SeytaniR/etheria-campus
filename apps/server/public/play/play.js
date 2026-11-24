@@ -105,6 +105,9 @@ class EtheriaPlayClient {
   }
   async api(path, options = {}) {
     const headers = Object.assign({ 'Content-Type': 'application/json' }, options.headers || {});
+    if (window.EtheriaI18n) {
+      headers['X-Etheria-Locale'] = window.EtheriaI18n.getLocale();
+    }
     if (this.token) {
       headers['Authorization'] = `Bearer ${this.token}`;
     }
@@ -114,6 +117,16 @@ class EtheriaPlayClient {
       throw new Error(data.error || `Erro HTTP ${res.status}`);
     }
     return data;
+  }
+  async changeLocale(nextLocale) {
+    const loc = window.EtheriaI18n ? window.EtheriaI18n.setLocale(nextLocale) : 'pt-BR';
+    if (!this.token) return;
+    await this.api('/api/play/locale', { method: 'POST', body: JSON.stringify({ locale: loc }) }).catch(() => {});
+    await this.loadPlayBootstrap().catch(() => {});
+    const worldScreen = document.getElementById('worldScreen');
+    if (worldScreen && worldScreen.style.display !== 'none' && this.activeChar && this.currentMap?.id) {
+      await this.loadMapIntoWorld(this.currentMap.id, this.playerX, this.playerY, this.arrivedAtPortalId);
+    }
   }
   async login() {
     const username = document.getElementById('playUsername').value.trim();
@@ -145,6 +158,9 @@ class EtheriaPlayClient {
   async loadPlayBootstrap() {
     const data = await this.api('/api/play/bootstrap');
     this.session = data.session;
+    if (window.EtheriaI18n && data.session?.locale && !localStorage.getItem('etheria_locale')) {
+      window.EtheriaI18n.setLocale(data.session.locale, { persist: false });
+    }
     if (data.baseMoveSpeed) {
       this.baseMoveSpeed = Number(data.baseMoveSpeed);
     }

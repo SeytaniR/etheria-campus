@@ -5,10 +5,11 @@
  *   Gerencia autenticação de sessão dos jogadores, mitigação contra BOLA/IDOR (validação estrita
  *   de posse de personagem), teleporte, sincronização de posição, missões e instâncias de combate.
  * @rules Segue estritamente AGENTS.md (Cláusula 0 de Segurança, Regra #7 de modularidade e Cláusula 0.2).
+ * @dependencies node:http, @etheria/database, ../security/AdminAuthService.js, ../security/RateLimiter.js, ./PartyRouter.js, ./PlayCombatRouter.js, controllers Play/*
  */
 
 import type * as http from 'node:http';
-import { I18nCache, type PrismaClient } from '@etheria/database';
+import { I18nCache, SUPPORTED_LOCALES, type PrismaClient } from '@etheria/database';
 import type { AdminAuthService } from '../security/AdminAuthService.js';
 import type { GamePlayController } from '../controllers/GamePlayController.js';
 import type { TemporaryCombatController, CombatUnit } from '../controllers/TemporaryCombatController.js';
@@ -158,15 +159,42 @@ export class PlayRouter {
 
     // --- Bootstrap do Jogo (Personagens do Usuário, Mapas, Classes e Offset) ---
     if (pathname === '/api/play/bootstrap' && method === 'GET') {
-      const data = await this.deps.playController.getPlayBootstrap(userAccountId);
+      const [data, account] = await Promise.all([
+        this.deps.playController.getPlayBootstrap(userAccountId),
+        this.deps.prisma.userAccount.findUnique({
+          where: { id: userAccountId },
+          select: { locale: true },
+        }),
+      ]);
       this.deps.sendJson(res, 200, {
         session: {
           userAccountId,
           username: session.username,
           role: session.role,
+          locale: I18nCache.normalizeLocale(account?.locale),
+          activeLocale: I18nCache.getCurrentLocale(),
         },
         ...data,
       });
+      return true;
+    }
+
+    // --- Preferência Persistente de Idioma do Jogador Autenticado ---
+    if (pathname === '/api/play/locale' && method === 'POST') {
+      const body = await this.deps.readJsonBody<{ locale?: string }>(req);
+      if (!body.locale || !I18nCache.isSupportedLocaleInput(body.locale)) {
+        this.deps.sendJson(res, 400, {
+          error: 'Idioma não suportado. Use pt-BR, en-US ou es-ES.',
+          supportedLocales: [...SUPPORTED_LOCALES],
+        });
+        return true;
+      }
+      const normalized = I18nCache.normalizeLocale(body.locale);
+      await this.deps.prisma.userAccount.update({
+        where: { id: userAccountId },
+        data: { locale: normalized },
+      });
+      this.deps.sendJson(res, 200, { ok: true, locale: normalized });
       return true;
     }
 

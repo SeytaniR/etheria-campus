@@ -3,6 +3,7 @@
  * @module @etheria/database
  * @description Utilitário de linha de comando para exportar o Snapshot JSON do banco PostgreSQL.
  * @rules Mantém o arquivo `packages/database/snapshots/lowcode.snapshot.json` sincronizado no Git.
+ * @dependencies @prisma/client, ./SnapshotManager.js
  */
 
 import { PrismaClient } from '@prisma/client';

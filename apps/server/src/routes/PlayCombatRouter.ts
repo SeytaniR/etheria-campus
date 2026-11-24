@@ -236,7 +236,7 @@ export class PlayCombatRouter {
       ) {
         const [scalingCtx, i18nMap] = await Promise.all([
           MonsterCombatBuilder.loadScalingContext(this.deps.prisma),
-          I18nCache.getTranslations(this.deps.prisma, 'pt-BR'),
+          I18nCache.getTranslations(this.deps.prisma),
         ]);
 
         const requestedIds = Array.from(

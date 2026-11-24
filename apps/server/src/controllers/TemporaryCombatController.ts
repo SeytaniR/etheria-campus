@@ -5,6 +5,8 @@
  *   Tanto a batalha real nos mapas (`startEncounterByMap`) quanto a batalha invocada pelo GM (`startBattle`)
  *   utilizam exatamente os mesmos processadores (`MonsterCombatBuilder` e `CombatDamageCalculator`),
  *   sem redutores artificiais, com escalonamento balanceado de nível, buff A/S/SS e vantagens elementais.
+ * @rules Segue estritamente AGENTS.md (Combate 100% autoritativo server-side, Zero Hardcode, Regra #7 < 1.000 linhas).
+ * @dependencies @prisma/client, @etheria/database (I18nCache), @etheria/shared (CombatDamageCalculator), node:crypto, ./MapSpawnResolver.js, ./CombatUtilityHelper.js, ./MonsterCombatBuilder.js, ./MonsterGlobalConfigService.js, ./PartyService.js, ./CharacterPetService.js, ./CharacterEquipmentService.js, ./AssetMirrorService.js
  */
 
 import { PrismaClient, type MonsterTemplate } from '@prisma/client';
@@ -159,7 +161,7 @@ export class TemporaryCombatController {
    * Retorna os monstros disponíveis no banco para preencher o seletor do Painel GM.
    */
   public async getAvailableMonsters() {
-    const i18nMap = await I18nCache.getTranslations(this.prisma, 'pt-BR');
+    const i18nMap = await I18nCache.getTranslations(this.prisma);
 
     const monsters = await this.prisma.monsterTemplate.findMany({
       where: { isActive: true },
@@ -216,10 +218,8 @@ export class TemporaryCombatController {
       throw new Error(`Monstro #${monsterTemplateId} não encontrado.`);
     }
 
-    const nameTrans = await this.prisma.i18nTranslation.findUnique({
-      where: { key_locale: { key: mobTemplate.nameI18nKey, locale: 'pt-BR' } },
-    });
-    const mobBaseName = nameTrans?.text || mobTemplate.code;
+    const i18nMap = await I18nCache.getTranslations(this.prisma);
+    const mobBaseName = i18nMap.get(mobTemplate.nameI18nKey) || mobTemplate.code;
     const rTier = String(mobTemplate.rarityTier || 'F').toUpperCase();
     const raritySuffix = rTier === 'SS' ? ' ⭐[SS]' : rTier === 'S' ? ' ⭐[S]' : '';
     const tagPrefix =
@@ -300,13 +300,10 @@ export class TemporaryCombatController {
       throw new Error(`Nenhum monstro permitido/ativo configurado para spawn no mapa #${map.id}.`);
     }
 
-    const [translations, scalingCtx] = await Promise.all([
-      this.prisma.i18nTranslation.findMany({
-        where: { key: { in: candidateTemplates.map((t) => t.nameI18nKey) }, locale: 'pt-BR' },
-      }),
+    const [i18nMap, scalingCtx] = await Promise.all([
+      I18nCache.getTranslations(this.prisma),
       MonsterCombatBuilder.loadScalingContext(this.prisma),
     ]);
-    const i18nMap = new Map(translations.map((t) => [t.key, t.text]));
 
     // Regra de Hierarquia de Monstros no Encontro (BÁSICO / LÍDER / BOSS) e Sorteio Rank-First:
     const bossCfg = monsterCfg.variantConfigsJson.BOSS;
@@ -556,7 +553,7 @@ export class TemporaryCombatController {
     const [allSkills, allStatuses, allI18n] = await Promise.all([
       this.prisma.skillTemplate ? this.prisma.skillTemplate.findMany({ where: { isActive: true }, orderBy: { id: 'asc' } }) : Promise.resolve([]),
       this.prisma.statusEffectTemplate ? this.prisma.statusEffectTemplate.findMany({ where: { isActive: true }, orderBy: { id: 'asc' } }) : Promise.resolve([]),
-      I18nCache.getTranslations(this.prisma, 'pt-BR'),
+      I18nCache.getTranslations(this.prisma),
     ]);
 
     const party = PartyService.getPartyByCharacterId(characterId);

@@ -75,7 +75,7 @@ export class QuestProgressService {
       }),
       this.prisma.monsterTemplate.findMany({ select: { id: true, code: true, nameI18nKey: true } }),
       this.prisma.race.findMany({ select: { code: true, nameI18nKey: true } }),
-      I18nCache.getTranslations(this.prisma, 'pt-BR'),
+      I18nCache.getTranslations(this.prisma),
       QuestStepActionService.loadLevelExpMap(this.prisma),
     ]);
 
@@ -621,7 +621,7 @@ export class QuestProgressService {
 
     const [itemsList, i18nMap] = await Promise.all([
       this.prisma.itemTemplate.findMany({ select: { id: true, code: true, nameI18nKey: true } }),
-      I18nCache.getTranslations(this.prisma, 'pt-BR'),
+      I18nCache.getTranslations(this.prisma),
     ]);
     const itemNameMap = new Map<number, string>(
       itemsList.map((i: any) => [Number(i.id), i18nMap.get(i.nameI18nKey) ?? i.code]),
