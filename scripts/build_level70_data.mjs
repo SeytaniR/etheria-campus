@@ -25,7 +25,7 @@ export const NEW_12_LV70_SETS = [
     minPiecesHalf: 6,
     halfBonusRatioPct: 40.0,
     fullBonusRatioPct: 100.0,
-    bonusCombatStatsJson: { MAX_HP: 3400, PHYS_ATK: 640, CRIT_RATE: 18.0, CRIT_DMG: 42.0, ATTACK_SPEED: 0.90, BATTLE_MOVE_SPEED: 85 }
+    bonusCombatStatsJson: { MAX_HP: 3400, PHYS_ATK: 640 }
   },
   {
     code: 'set_lv70_valkyriestorm',
@@ -38,7 +38,7 @@ export const NEW_12_LV70_SETS = [
     minPiecesHalf: 6,
     halfBonusRatioPct: 40.0,
     fullBonusRatioPct: 100.0,
-    bonusCombatStatsJson: { MAX_HP: 3100, PHYS_ATK: 580, PHYS_EVASION: 95, CRIT_RATE: 19.0, ATTACK_SPEED: 0.95, BATTLE_MOVE_SPEED: 105 }
+    bonusCombatStatsJson: { MAX_HP: 3100, PHYS_ATK: 580 }
   },
   {
     code: 'set_lv70_draconicwarlord',
@@ -51,7 +51,7 @@ export const NEW_12_LV70_SETS = [
     minPiecesHalf: 6,
     halfBonusRatioPct: 40.0,
     fullBonusRatioPct: 100.0,
-    bonusCombatStatsJson: { MAX_HP: 5200, PHYS_ATK: 520, PHYS_DEF: 450, MAG_DEF: 240, BATTLE_MOVE_SPEED: 50, HP_REGEN: 120 }
+    bonusCombatStatsJson: { MAX_HP: 5200, PHYS_ATK: 520, PHYS_DEF: 450, MAG_DEF: 240 }
   },
   {
     code: 'set_lv70_lunarpriestess',
@@ -64,7 +64,7 @@ export const NEW_12_LV70_SETS = [
     minPiecesHalf: 6,
     halfBonusRatioPct: 40.0,
     fullBonusRatioPct: 100.0,
-    bonusCombatStatsJson: { MAX_HP: 4000, MAX_MP: 1350, HEAL_POWER: 490, MAG_DEF: 350, PHYS_DEF: 270, BATTLE_MOVE_SPEED: 55, HP_REGEN: 90 }
+    bonusCombatStatsJson: { MAX_HP: 4000, MAX_MP: 1350, MAG_DEF: 350, PHYS_DEF: 270 }
   },
   {
     code: 'set_lv70_astralranger',
@@ -77,7 +77,7 @@ export const NEW_12_LV70_SETS = [
     minPiecesHalf: 6,
     halfBonusRatioPct: 40.0,
     fullBonusRatioPct: 100.0,
-    bonusCombatStatsJson: { MAX_HP: 3300, PHYS_ATK: 610, CRIT_RATE: 18.0, CRIT_DMG: 38.0, BATTLE_MOVE_SPEED: 100, ATTACK_RANGE: 55 }
+    bonusCombatStatsJson: { MAX_HP: 3300, PHYS_ATK: 610 }
   },
   {
     code: 'set_lv70_bloodphantom',
@@ -90,7 +90,7 @@ export const NEW_12_LV70_SETS = [
     minPiecesHalf: 6,
     halfBonusRatioPct: 40.0,
     fullBonusRatioPct: 100.0,
-    bonusCombatStatsJson: { MAX_HP: 3150, PHYS_ATK: 660, CRIT_RATE: 22.0, CRIT_DMG: 50.0, PHYS_EVASION: 90, BATTLE_MOVE_SPEED: 100 }
+    bonusCombatStatsJson: { MAX_HP: 3150, PHYS_ATK: 660 }
   },
   {
     code: 'set_lv70_celestialmuse',
@@ -103,7 +103,7 @@ export const NEW_12_LV70_SETS = [
     minPiecesHalf: 6,
     halfBonusRatioPct: 40.0,
     fullBonusRatioPct: 100.0,
-    bonusCombatStatsJson: { MAX_HP: 3250, MAG_ATK: 460, HEAL_POWER: 390, ATTACK_SPEED: 0.85, BATTLE_MOVE_SPEED: 95, CRIT_RATE: 13.0, MP_REGEN: 70 }
+    bonusCombatStatsJson: { MAX_HP: 3250, MAG_ATK: 460 }
   },
   {
     code: 'set_lv70_dragoonemperor',
@@ -116,7 +116,7 @@ export const NEW_12_LV70_SETS = [
     minPiecesHalf: 6,
     halfBonusRatioPct: 40.0,
     fullBonusRatioPct: 100.0,
-    bonusCombatStatsJson: { MAX_HP: 3800, PHYS_ATK: 600, PHYS_PEN: 260, PHYS_DEF: 320, CRIT_RATE: 16.0, CRIT_DMG: 32.0, BATTLE_MOVE_SPEED: 80 }
+    bonusCombatStatsJson: { MAX_HP: 3800, PHYS_ATK: 600, PHYS_DEF: 320 }
   },
   {
     code: 'set_lv70_arcanesovereign',
@@ -129,7 +129,7 @@ export const NEW_12_LV70_SETS = [
     minPiecesHalf: 6,
     halfBonusRatioPct: 40.0,
     fullBonusRatioPct: 100.0,
-    bonusCombatStatsJson: { MAX_HP: 2950, MAG_ATK: 740, MAG_PEN: 255, MAG_DEF: 240, CRIT_RATE: 17.5, CRIT_DMG: 42.0, BATTLE_MOVE_SPEED: 60 }
+    bonusCombatStatsJson: { MAX_HP: 2950, MAG_ATK: 740, MAG_DEF: 240 }
   },
   {
     code: 'set_lv70_seraphiccrusader',
@@ -142,7 +142,7 @@ export const NEW_12_LV70_SETS = [
     minPiecesHalf: 6,
     halfBonusRatioPct: 40.0,
     fullBonusRatioPct: 100.0,
-    bonusCombatStatsJson: { MAX_HP: 5000, PHYS_DEF: 470, MAG_DEF: 360, MAG_ATK: 390, PHYS_ATK: 390, HEAL_POWER: 220, BATTLE_MOVE_SPEED: 50 }
+    bonusCombatStatsJson: { MAX_HP: 5000, PHYS_DEF: 470, MAG_DEF: 360, MAG_ATK: 390, PHYS_ATK: 390 }
   },
   {
     code: 'set_lv70_hellfireartillery',
@@ -155,7 +155,7 @@ export const NEW_12_LV70_SETS = [
     minPiecesHalf: 6,
     halfBonusRatioPct: 40.0,
     fullBonusRatioPct: 100.0,
-    bonusCombatStatsJson: { MAX_HP: 3050, PHYS_ATK: 720, PHYS_PEN: 275, CRIT_RATE: 18.0, CRIT_DMG: 44.0, BATTLE_MOVE_SPEED: 70, ATTACK_RANGE: 65 }
+    bonusCombatStatsJson: { MAX_HP: 3050, PHYS_ATK: 720 }
   },
   {
     code: 'set_lv70_abyssaloverlord',
@@ -168,7 +168,7 @@ export const NEW_12_LV70_SETS = [
     minPiecesHalf: 6,
     halfBonusRatioPct: 40.0,
     fullBonusRatioPct: 100.0,
-    bonusCombatStatsJson: { MAX_HP: 3600, MAG_ATK: 640, MAG_PEN: 235, MAG_DEF: 260, CRIT_RATE: 16.0, CRIT_DMG: 36.0, HP_REGEN: 85, BATTLE_MOVE_SPEED: 60 }
+    bonusCombatStatsJson: { MAX_HP: 3600, MAG_ATK: 640, MAG_DEF: 260 }
   }
 ];
 

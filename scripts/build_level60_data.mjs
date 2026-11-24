@@ -27,7 +27,7 @@ const NEW_12_SETS = [
     minPiecesHalf: 6,
     halfBonusRatioPct: 40.0,
     fullBonusRatioPct: 100.0,
-    bonusCombatStatsJson: { MAX_HP: 2400, MAG_ATK: 450, MAG_PEN: 165, MAG_DEF: 180, CRIT_RATE: 11.5, CRIT_DMG: 25.0, BATTLE_MOVE_SPEED: 45 }
+    bonusCombatStatsJson: { MAX_HP: 2400, MAG_ATK: 450, MAG_DEF: 180 }
   },
   {
     code: 'set_lv60_starharmony',
@@ -40,7 +40,7 @@ const NEW_12_SETS = [
     minPiecesHalf: 6,
     halfBonusRatioPct: 40.0,
     fullBonusRatioPct: 100.0,
-    bonusCombatStatsJson: { MAX_HP: 2200, MAG_ATK: 320, HEAL_POWER: 270, ATTACK_SPEED: 0.65, BATTLE_MOVE_SPEED: 75, CRIT_RATE: 9.0, MP_REGEN: 45 }
+    bonusCombatStatsJson: { MAX_HP: 2200, MAG_ATK: 320 }
   },
   {
     code: 'set_lv60_singularity',
@@ -53,7 +53,7 @@ const NEW_12_SETS = [
     minPiecesHalf: 6,
     halfBonusRatioPct: 40.0,
     fullBonusRatioPct: 100.0,
-    bonusCombatStatsJson: { MAX_HP: 2000, MAG_ATK: 520, MAG_PEN: 180, MAG_DEF: 165, CRIT_RATE: 13.0, CRIT_DMG: 30.0, BATTLE_MOVE_SPEED: 45 }
+    bonusCombatStatsJson: { MAX_HP: 2000, MAG_ATK: 520, MAG_DEF: 165 }
   },
   {
     code: 'set_lv60_redemption',
@@ -66,7 +66,7 @@ const NEW_12_SETS = [
     minPiecesHalf: 6,
     halfBonusRatioPct: 40.0,
     fullBonusRatioPct: 100.0,
-    bonusCombatStatsJson: { MAX_HP: 2800, MAX_MP: 900, HEAL_POWER: 340, MAG_DEF: 240, PHYS_DEF: 190, BATTLE_MOVE_SPEED: 40, HP_REGEN: 60 }
+    bonusCombatStatsJson: { MAX_HP: 2800, MAX_MP: 900, MAG_DEF: 240, PHYS_DEF: 190 }
   },
   {
     code: 'set_lv60_berserker',
@@ -79,7 +79,7 @@ const NEW_12_SETS = [
     minPiecesHalf: 6,
     halfBonusRatioPct: 40.0,
     fullBonusRatioPct: 100.0,
-    bonusCombatStatsJson: { MAX_HP: 3600, PHYS_ATK: 360, PHYS_DEF: 310, MAG_DEF: 160, BATTLE_MOVE_SPEED: 35, HP_REGEN: 80 }
+    bonusCombatStatsJson: { MAX_HP: 3600, PHYS_ATK: 360, PHYS_DEF: 310, MAG_DEF: 160 }
   },
   {
     code: 'set_lv60_galaxybreaker',
@@ -92,7 +92,7 @@ const NEW_12_SETS = [
     minPiecesHalf: 6,
     halfBonusRatioPct: 40.0,
     fullBonusRatioPct: 100.0,
-    bonusCombatStatsJson: { MAX_HP: 2600, PHYS_ATK: 420, PHYS_PEN: 185, PHYS_DEF: 220, CRIT_RATE: 12.0, CRIT_DMG: 22.0, BATTLE_MOVE_SPEED: 65 }
+    bonusCombatStatsJson: { MAX_HP: 2600, PHYS_ATK: 420, PHYS_DEF: 220 }
   },
   {
     code: 'set_lv60_thunderblade',
@@ -105,7 +105,7 @@ const NEW_12_SETS = [
     minPiecesHalf: 6,
     halfBonusRatioPct: 40.0,
     fullBonusRatioPct: 100.0,
-    bonusCombatStatsJson: { MAX_HP: 2400, PHYS_ATK: 450, CRIT_RATE: 15.0, CRIT_DMG: 32.0, ATTACK_SPEED: 0.75, BATTLE_MOVE_SPEED: 70 }
+    bonusCombatStatsJson: { MAX_HP: 2400, PHYS_ATK: 450 }
   },
   {
     code: 'set_lv60_elementalfury',
@@ -118,7 +118,7 @@ const NEW_12_SETS = [
     minPiecesHalf: 6,
     halfBonusRatioPct: 40.0,
     fullBonusRatioPct: 100.0,
-    bonusCombatStatsJson: { MAX_HP: 3100, PHYS_ATK: 400, PHYS_DEF: 255, PHYS_PEN: 140, ATTACK_SPEED: 0.60, BATTLE_MOVE_SPEED: 50 }
+    bonusCombatStatsJson: { MAX_HP: 3100, PHYS_ATK: 400, PHYS_DEF: 255 }
   },
   {
     code: 'set_lv60_celestialfortress',
@@ -131,7 +131,7 @@ const NEW_12_SETS = [
     minPiecesHalf: 6,
     halfBonusRatioPct: 40.0,
     fullBonusRatioPct: 100.0,
-    bonusCombatStatsJson: { MAX_HP: 3500, PHYS_DEF: 330, MAG_DEF: 250, PHYS_ATK: 270, HEAL_POWER: 150, BATTLE_MOVE_SPEED: 35 }
+    bonusCombatStatsJson: { MAX_HP: 3500, PHYS_DEF: 330, MAG_DEF: 250, PHYS_ATK: 270 }
   },
   {
     code: 'set_lv60_voidstalker',
@@ -144,7 +144,7 @@ const NEW_12_SETS = [
     minPiecesHalf: 6,
     halfBonusRatioPct: 40.0,
     fullBonusRatioPct: 100.0,
-    bonusCombatStatsJson: { MAX_HP: 2300, PHYS_ATK: 430, CRIT_RATE: 14.0, CRIT_DMG: 28.0, BATTLE_MOVE_SPEED: 85, ATTACK_RANGE: 40 }
+    bonusCombatStatsJson: { MAX_HP: 2300, PHYS_ATK: 430 }
   },
   {
     code: 'set_lv60_orbitaldestroyer',
@@ -157,7 +157,7 @@ const NEW_12_SETS = [
     minPiecesHalf: 6,
     halfBonusRatioPct: 40.0,
     fullBonusRatioPct: 100.0,
-    bonusCombatStatsJson: { MAX_HP: 2100, PHYS_ATK: 510, PHYS_PEN: 195, CRIT_RATE: 13.5, CRIT_DMG: 32.0, BATTLE_MOVE_SPEED: 55, ATTACK_RANGE: 50 }
+    bonusCombatStatsJson: { MAX_HP: 2100, PHYS_ATK: 510 }
   },
   {
     code: 'set_lv60_ghostreaper',
@@ -170,7 +170,7 @@ const NEW_12_SETS = [
     minPiecesHalf: 6,
     halfBonusRatioPct: 40.0,
     fullBonusRatioPct: 100.0,
-    bonusCombatStatsJson: { MAX_HP: 2200, PHYS_ATK: 465, CRIT_RATE: 18.0, CRIT_DMG: 38.0, PHYS_EVASION: 75, BATTLE_MOVE_SPEED: 85 }
+    bonusCombatStatsJson: { MAX_HP: 2200, PHYS_ATK: 465 }
   }
 ];
 

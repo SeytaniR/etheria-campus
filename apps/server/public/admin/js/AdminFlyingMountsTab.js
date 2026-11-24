@@ -84,19 +84,10 @@ class AdminFlyingMountsTab {
       document.getElementById('mountPriceInput').value = '500';
       document.getElementById('mountActiveSelect').value = 'true';
 
-      ['VIT', 'STR', 'INT', 'WIS', 'AGI', 'DEX'].forEach((attr) => {
-        const inp = document.getElementById(`mountBase${attr}Input`);
-        if (inp) inp.value = '5';
+      ['MAX_HP', 'MAX_MP', 'PHYS_ATK', 'MAG_ATK', 'PHYS_DEF', 'MAG_DEF'].forEach((k) => {
+        const inp = document.getElementById(`mountCombat_${k}`);
+        if (inp) inp.value = '0';
       });
-
-      document.getElementById('mountCombatMoveSpeedInput').value = '20';
-      document.getElementById('mountCombatAttackSpeedInput').value = '0.05';
-      document.getElementById('mountCombatPhysAccInput').value = '5';
-      document.getElementById('mountCombatPhysEvaInput').value = '5';
-      document.getElementById('mountCombatMagAccInput').value = '5';
-      document.getElementById('mountCombatMagEvaInput').value = '5';
-      document.getElementById('mountCombatPdefInput').value = '25';
-      document.getElementById('mountCombatMdefInput').value = '25';
 
       this.updateMountOffsetsPreview();
 
@@ -131,21 +122,14 @@ class AdminFlyingMountsTab {
       document.getElementById('mountPriceInput').value = String(mount.priceGold || 0);
       document.getElementById('mountActiveSelect').value = mount.isActive ? 'true' : 'false';
 
-      const b = mount.baseAttributesJson || {};
-      ['VIT', 'STR', 'INT', 'WIS', 'AGI', 'DEX'].forEach((attr) => {
-        const inp = document.getElementById(`mountBase${attr}Input`);
-        if (inp) inp.value = String(b[attr] ?? 0);
-      });
-
       const cb = mount.combatAttributesJson || {};
-      document.getElementById('mountCombatMoveSpeedInput').value = String(cb.BATTLE_MOVE_SPEED ?? 20);
-      document.getElementById('mountCombatAttackSpeedInput').value = String(cb.ATTACK_SPEED ?? 0.05);
-      document.getElementById('mountCombatPhysAccInput').value = String(cb.PHYS_ACCURACY ?? 5);
-      document.getElementById('mountCombatPhysEvaInput').value = String(cb.PHYS_EVASION ?? 5);
-      document.getElementById('mountCombatMagAccInput').value = String(cb.MAG_ACCURACY ?? 5);
-      document.getElementById('mountCombatMagEvaInput').value = String(cb.MAG_EVASION ?? 5);
-      document.getElementById('mountCombatPdefInput').value = String(cb.PDEF ?? 25);
-      document.getElementById('mountCombatMdefInput').value = String(cb.MDEF ?? 25);
+      ['MAX_HP', 'MAX_MP', 'PHYS_ATK', 'MAG_ATK', 'PHYS_DEF', 'MAG_DEF'].forEach((k) => {
+        const inp = document.getElementById(`mountCombat_${k}`);
+        if (inp) {
+          const legacyVal = k === 'PHYS_DEF' ? cb.PDEF : (k === 'MAG_DEF' ? cb.MDEF : undefined);
+          inp.value = String(cb[k] ?? legacyVal ?? 0);
+        }
+      });
 
       this.updateMountOffsetsPreview();
       await this.ensureMountPreviewRefs?.();
@@ -450,20 +434,11 @@ class AdminFlyingMountsTab {
       }
 
       const baseAttributesJson = {};
-      ['VIT', 'STR', 'INT', 'WIS', 'AGI', 'DEX'].forEach((attr) => {
-        baseAttributesJson[attr] = parseInt(document.getElementById(`mountBase${attr}Input`).value, 10) || 0;
+      const combatAttributesJson = {};
+      ['MAX_HP', 'MAX_MP', 'PHYS_ATK', 'MAG_ATK', 'PHYS_DEF', 'MAG_DEF'].forEach((k) => {
+        const val = parseFloat(document.getElementById(`mountCombat_${k}`)?.value);
+        if (!isNaN(val) && val !== 0) combatAttributesJson[k] = val;
       });
-
-      const combatAttributesJson = {
-        BATTLE_MOVE_SPEED: parseFloat(document.getElementById('mountCombatMoveSpeedInput').value) || 20,
-        ATTACK_SPEED: parseFloat(document.getElementById('mountCombatAttackSpeedInput').value) || 0.05,
-        PHYS_ACCURACY: parseFloat(document.getElementById('mountCombatPhysAccInput').value) || 5,
-        PHYS_EVASION: parseFloat(document.getElementById('mountCombatPhysEvaInput').value) || 5,
-        MAG_ACCURACY: parseFloat(document.getElementById('mountCombatMagAccInput').value) || 5,
-        MAG_EVASION: parseFloat(document.getElementById('mountCombatMagEvaInput').value) || 5,
-        PDEF: parseFloat(document.getElementById('mountCombatPdefInput').value) || 25,
-        MDEF: parseFloat(document.getElementById('mountCombatMdefInput').value) || 25,
-      };
 
       const payload = {
         code: code || undefined,
@@ -608,9 +583,14 @@ class AdminFlyingMountsTab {
                     <div>Nível <strong>${mount.requiredLevel}</strong></div>
                     <div style="color:#fbbf24;">🪙 ${mount.priceGold.toLocaleString('pt-BR')} Ouro</div>
                   </td>
-                  <td style="padding:8px 10px; font-size:0.74rem; color:#cbd5e1; max-width:180px;">
-                    <div>VIT+${b.VIT || 0} STR+${b.STR || 0} AGI+${b.AGI || 0}</div>
-                    <div style="color:#38bdf8;">MovBatalha +${cb.BATTLE_MOVE_SPEED || 0}px/s | Aspd +${cb.ATTACK_SPEED || 0}</div>
+                  <td style="padding:8px 10px; font-size:0.74rem; color:#cbd5e1; max-width:200px;">
+                    ${(() => {
+                      const labels = { MAX_HP: 'HP', MAX_MP: 'MP', PHYS_ATK: 'ATQ Fís', MAG_ATK: 'ATQ Mág', PHYS_DEF: 'DEF Fís', MAG_DEF: 'DEF Mág' };
+                      const badges = Object.entries(labels)
+                        .filter(([k]) => Number(cb[k]) > 0)
+                        .map(([k, lbl]) => `<span style="display:inline-block; margin:1px 2px; padding:1px 5px; background:#1e293b; border:1px solid #334155; border-radius:4px; color:#38bdf8;">${lbl} +${cb[k]}</span>`);
+                      return badges.length > 0 ? badges.join('') : '<span style="color:#64748b;">Sem bônus</span>';
+                    })()}
                   </td>
                   <td style="padding:8px 10px;">
                     <span style="background:${mount.isActive ? '#16a34a' : '#dc2626'}; color:#fff; padding:2px 8px; border-radius:4px; font-size:0.75rem;">
@@ -884,26 +864,16 @@ class AdminFlyingMountsTab {
               </div>
             </div>
 
-            <!-- BLOCO 3: ATRIBUTOS BASE & COMBATE -->
+            <!-- BLOCO 3: ATRIBUTOS PERMITIDOS DE COMBATE (HP, MP, ATQ/DEF FÍS/MÁG) -->
             <div style="background:rgba(15,23,42,0.75); border:1px solid #334155; border-radius:10px; padding:12px; margin-bottom:12px;">
-              <div style="font-size:0.80rem; font-weight:700; color:#38bdf8; margin-bottom:8px;">3️⃣ Bônus de Atributos Base & Combate da Arena</div>
-              <div style="display:grid; grid-template-columns:repeat(6, 1fr); gap:6px; margin-bottom:10px;">
-                ${['VIT', 'STR', 'INT', 'WIS', 'AGI', 'DEX'].map((attr) => `
-                  <div class="field" style="margin:0;">
-                    <label style="font-size:0.72rem; text-align:center;">${attr}</label>
-                    <input type="number" id="mountBase${attr}Input" value="5" style="text-align:center; padding:4px;" />
-                  </div>
-                `).join('')}
-              </div>
+              <div style="font-size:0.80rem; font-weight:700; color:#38bdf8; margin-bottom:8px;">3️⃣ Bônus de Atributos de Combate Permitidos</div>
               <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(130px, 1fr)); gap:8px;">
-                <div class="field"><label>Vel. Mov. Batalha (px/s)</label><input type="number" id="mountCombatMoveSpeedInput" value="20" /></div>
-                <div class="field"><label>Vel. Ataque (Aspd)</label><input type="number" step="0.01" id="mountCombatAttackSpeedInput" value="0.05" /></div>
-                <div class="field"><label>Precisão Física (%)</label><input type="number" id="mountCombatPhysAccInput" value="5" /></div>
-                <div class="field"><label>Desvio Físico (%)</label><input type="number" id="mountCombatPhysEvaInput" value="5" /></div>
-                <div class="field"><label>Precisão Mágica (%)</label><input type="number" id="mountCombatMagAccInput" value="5" /></div>
-                <div class="field"><label>Desvio Mágico (%)</label><input type="number" id="mountCombatMagEvaInput" value="5" /></div>
-                <div class="field"><label>Defesa Física (PDEF)</label><input type="number" id="mountCombatPdefInput" value="25" /></div>
-                <div class="field"><label>Defesa Mágica (MDEF)</label><input type="number" id="mountCombatMdefInput" value="25" /></div>
+                <div class="field"><label>MAX_HP (Vida Máxima)</label><input type="number" id="mountCombat_MAX_HP" value="0" /></div>
+                <div class="field"><label>MAX_MP (Mana Máxima)</label><input type="number" id="mountCombat_MAX_MP" value="0" /></div>
+                <div class="field"><label>PHYS_ATK (Ataque Físico)</label><input type="number" id="mountCombat_PHYS_ATK" value="0" /></div>
+                <div class="field"><label>MAG_ATK (Ataque Mágico)</label><input type="number" id="mountCombat_MAG_ATK" value="0" /></div>
+                <div class="field"><label>PHYS_DEF (Defesa Física)</label><input type="number" id="mountCombat_PHYS_DEF" value="0" /></div>
+                <div class="field"><label>MAG_DEF (Defesa Mágica)</label><input type="number" id="mountCombat_MAG_DEF" value="0" /></div>
               </div>
             </div>
           </div>

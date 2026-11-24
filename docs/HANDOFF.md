@@ -8,9 +8,9 @@
 ---
 
 ## 📌 Status Atual do Projeto
-* **Versão Atual:** `v0.58.1`
+* **Versão Atual:** `v0.58.2`
 * **Última Atualização:** `2026-11-24`
-* **Fase Atual:** **Teto Máximo de Velocidade em Batalha (`185 px/s`) & Auditoria de Fontes de Velocidade (`v0.58.1`)** — Aplicado teto rígido e saudável de `185` de velocidade de movimento em batalha (`BATTLE_MOVE_SPEED`) no backend (`TemporaryCombatController.ts`, `CharacterPetService.ts`, `MonsterCombatBuilder.ts`), na física/IA da Arena 2.5D incluindo buffs percentuais (`ActionCombatArena.js`, `ArenaPhysicsSolver.js`, `ArenaUnitAiController.js`), e na ficha de atributos do personagem (`PlayGmController.js` com indicador `(Máx. 185)` e cálculo fiel de classe + AGI + equipamentos/conjuntos). Todos os arquivos estritamente < 1.000 linhas (Regra #7).
+* **Fase Atual:** **Restrição de Atributos de Montarias e Conjuntos de Equipamentos (`v0.58.2`) & Teto de Velocidade em Batalha (`185 px/s`)** — Todas as Montarias Voadoras (`flying_mount_templates` e itens `FLYING_MOUNT`) e todos os Conjuntos de Equipamentos (`equipment_sets`) foram sanitizados (banco PostgreSQL, `lowcode.snapshot.json`, seeds de nível 60/70, controladores `/admin`, formulários `/admin` e runtime de combate) para interferirem **exclusivamente** nos 6 atributos permitidos: `MAX_HP`, `MAX_MP`, `PHYS_ATK`, `MAG_ATK`, `PHYS_DEF` e `MAG_DEF`. Todos os arquivos estritamente < 1.000 linhas (Regra #7).
 * **Repositório Oficial:** `https://github.com/SeytaniR/etheria-campus`
 * **Fonte Bruta de Assets:** `https://github.com/SeytaniR/mcrework` (`https://seytanir.github.io/mcrework/`)
 

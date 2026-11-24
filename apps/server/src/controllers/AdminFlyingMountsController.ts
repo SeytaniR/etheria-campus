@@ -13,6 +13,21 @@ import { PrismaClient } from '@prisma/client';
 import { SnapshotManager } from '@etheria/database';
 import type { AssetMirrorService } from './AssetMirrorService.js';
 
+const ALLOWED_MOUNT_COMBAT_STATS = new Set(['MAX_HP', 'MAX_MP', 'PHYS_ATK', 'MAG_ATK', 'PHYS_DEF', 'MAG_DEF']);
+
+function sanitizeMountCombatStats(raw: any): Record<string, number> {
+  const out: Record<string, number> = {};
+  if (!raw || typeof raw !== 'object') return out;
+  for (const [rawKey, rawVal] of Object.entries(raw)) {
+    const key = rawKey === 'PDEF' ? 'PHYS_DEF' : rawKey === 'MDEF' ? 'MAG_DEF' : rawKey;
+    const num = Number(rawVal);
+    if (ALLOWED_MOUNT_COMBAT_STATS.has(key) && Number.isFinite(num) && num !== 0) {
+      out[key] = num;
+    }
+  }
+  return out;
+}
+
 export interface FlyingMountTemplateDto {
   code?: string;
   namePtBr: string;
@@ -197,8 +212,8 @@ export class AdminFlyingMountsController {
         riderOffsetY: dto.riderOffsetY ?? -40,
         requiredLevel: dto.requiredLevel ?? 1,
         priceGold: dto.priceGold ?? 1000,
-        baseAttributesJson: dto.baseAttributesJson || {},
-        combatAttributesJson: dto.combatAttributesJson || {},
+        baseAttributesJson: {},
+        combatAttributesJson: sanitizeMountCombatStats(dto.combatAttributesJson),
         specialSkillsJson: dto.specialSkillsJson || [],
         isActive: dto.isActive !== undefined ? dto.isActive : true,
       },
@@ -250,8 +265,10 @@ export class AdminFlyingMountsController {
         riderOffsetY: dto.riderOffsetY !== undefined ? dto.riderOffsetY : existing.riderOffsetY,
         requiredLevel: dto.requiredLevel !== undefined ? dto.requiredLevel : existing.requiredLevel,
         priceGold: dto.priceGold !== undefined ? dto.priceGold : existing.priceGold,
-        baseAttributesJson: dto.baseAttributesJson !== undefined ? (dto.baseAttributesJson as any) : existing.baseAttributesJson,
-        combatAttributesJson: dto.combatAttributesJson !== undefined ? (dto.combatAttributesJson as any) : existing.combatAttributesJson,
+        baseAttributesJson: {},
+        combatAttributesJson: dto.combatAttributesJson !== undefined
+          ? (sanitizeMountCombatStats(dto.combatAttributesJson) as any)
+          : (sanitizeMountCombatStats(existing.combatAttributesJson) as any),
         specialSkillsJson: dto.specialSkillsJson !== undefined ? (dto.specialSkillsJson as any) : existing.specialSkillsJson,
         isActive: dto.isActive !== undefined ? dto.isActive : existing.isActive,
       },
@@ -306,8 +323,8 @@ export class AdminFlyingMountsController {
           riderOffsetY: -45,
           requiredLevel: 10,
           priceGold: 1200,
-          baseAttributesJson: { AGI: 8, DEX: 5 },
-          combatAttributesJson: { BATTLE_MOVE_SPEED: 15, PHYS_EVASION: 8 },
+          baseAttributesJson: {},
+          combatAttributesJson: {},
         },
         {
           code: 'mount_leao_dragao_celeste',
@@ -324,8 +341,8 @@ export class AdminFlyingMountsController {
           riderOffsetY: -50,
           requiredLevel: 20,
           priceGold: 3500,
-          baseAttributesJson: { STR: 12, VIT: 10 },
-          combatAttributesJson: { BATTLE_MOVE_SPEED: 25, PHYS_DEF: 20, MAG_DEF: 15 },
+          baseAttributesJson: {},
+          combatAttributesJson: { PHYS_DEF: 20, MAG_DEF: 15 },
         },
         {
           code: 'mount_raposa_espectral_alada',
@@ -342,8 +359,8 @@ export class AdminFlyingMountsController {
           riderOffsetY: -55,
           requiredLevel: 30,
           priceGold: 8000,
-          baseAttributesJson: { INT: 16, WIS: 14, AGI: 12 },
-          combatAttributesJson: { BATTLE_MOVE_SPEED: 35, MAG_ACCURACY: 15, MAG_EVASION: 18 },
+          baseAttributesJson: {},
+          combatAttributesJson: {},
         },
         {
           code: 'mount_dragao_sagrado_soberano',
@@ -360,8 +377,8 @@ export class AdminFlyingMountsController {
           riderOffsetY: -65,
           requiredLevel: 40,
           priceGold: 25000,
-          baseAttributesJson: { STR: 20, INT: 20, VIT: 20, AGI: 20 },
-          combatAttributesJson: { BATTLE_MOVE_SPEED: 45, ATTACK_SPEED: 0.15, PHYS_ATK: 35, MAG_ATK: 35 },
+          baseAttributesJson: {},
+          combatAttributesJson: { PHYS_ATK: 35, MAG_ATK: 35 },
         },
         {
           code: 'mount_suprema_eternidade',
@@ -378,8 +395,8 @@ export class AdminFlyingMountsController {
           riderOffsetY: -75,
           requiredLevel: 50,
           priceGold: 50000,
-          baseAttributesJson: { VIT: 30, STR: 25, INT: 25, WIS: 25, AGI: 25, DEX: 25 },
-          combatAttributesJson: { BATTLE_MOVE_SPEED: 55, ATTACK_SPEED: 0.25, PHYS_DEF: 50, MAG_DEF: 50 },
+          baseAttributesJson: {},
+          combatAttributesJson: { PHYS_DEF: 50, MAG_DEF: 50 },
         },
       ];
 

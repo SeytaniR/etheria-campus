@@ -15,6 +15,21 @@
 import { PrismaClient } from '@prisma/client';
 import { SnapshotManager } from '@etheria/database';
 
+const ALLOWED_SET_COMBAT_STATS = new Set(['MAX_HP', 'MAX_MP', 'PHYS_ATK', 'MAG_ATK', 'PHYS_DEF', 'MAG_DEF']);
+
+function sanitizeSetCombatStats(raw: any): Record<string, number> {
+  const out: Record<string, number> = {};
+  if (!raw || typeof raw !== 'object') return out;
+  for (const [rawKey, rawVal] of Object.entries(raw)) {
+    const key = rawKey === 'PDEF' ? 'PHYS_DEF' : rawKey === 'MDEF' ? 'MAG_DEF' : rawKey;
+    const num = Number(rawVal);
+    if (ALLOWED_SET_COMBAT_STATS.has(key) && Number.isFinite(num) && num !== 0) {
+      out[key] = num;
+    }
+  }
+  return out;
+}
+
 export interface EquipmentSetDto {
   code?: string;
   namePtBr: string;
@@ -189,7 +204,7 @@ export class AdminEquipmentSetsController {
         minPiecesHalf: dto.minPiecesHalf ?? 6,
         halfBonusRatioPct: dto.halfBonusRatioPct ?? 40.0,
         fullBonusRatioPct: dto.fullBonusRatioPct ?? 100.0,
-        bonusCombatStatsJson: dto.bonusCombatStatsJson || {},
+        bonusCombatStatsJson: sanitizeSetCombatStats(dto.bonusCombatStatsJson),
         bonusSpecialEffectsJson: dto.bonusSpecialEffectsJson || {},
         isActive: dto.isActive !== undefined ? dto.isActive : true,
       },
@@ -235,7 +250,9 @@ export class AdminEquipmentSetsController {
         minPiecesHalf: dto.minPiecesHalf !== undefined ? dto.minPiecesHalf : existing.minPiecesHalf,
         halfBonusRatioPct: dto.halfBonusRatioPct !== undefined ? dto.halfBonusRatioPct : existing.halfBonusRatioPct,
         fullBonusRatioPct: dto.fullBonusRatioPct !== undefined ? dto.fullBonusRatioPct : existing.fullBonusRatioPct,
-        bonusCombatStatsJson: dto.bonusCombatStatsJson !== undefined ? dto.bonusCombatStatsJson : existing.bonusCombatStatsJson,
+        bonusCombatStatsJson: dto.bonusCombatStatsJson !== undefined
+          ? sanitizeSetCombatStats(dto.bonusCombatStatsJson)
+          : sanitizeSetCombatStats(existing.bonusCombatStatsJson),
         bonusSpecialEffectsJson: dto.bonusSpecialEffectsJson !== undefined ? dto.bonusSpecialEffectsJson : existing.bonusSpecialEffectsJson,
         isActive: dto.isActive !== undefined ? dto.isActive : existing.isActive,
       },

@@ -342,6 +342,16 @@ export class AdminEquipmentsController {
     const isPetSlot = slot?.ownerType === 'PET' || dto.equipmentSlotCode.startsWith('PET_');
     const category = dto.itemCategory || (isPetSlot ? 'PET_EQUIPMENT' : 'CHARACTER_EQUIPMENT');
 
+    const isMountSlot = dto.equipmentSlotCode === 'FLYING_MOUNT';
+    const allowedMountStats = new Set(['MAX_HP', 'MAX_MP', 'PHYS_ATK', 'MAG_ATK', 'PHYS_DEF', 'MAG_DEF']);
+    const cleanCombat = isMountSlot
+      ? Object.fromEntries(
+          Object.entries(dto.combatStatBonusesJson || {}).filter(
+            ([k, v]) => allowedMountStats.has(k) && Number.isFinite(Number(v)) && Number(v) !== 0
+          )
+        )
+      : (dto.combatStatBonusesJson || {});
+
     const created = await this.prisma.itemTemplate.create({
       data: {
         code,
@@ -355,8 +365,8 @@ export class AdminEquipmentsController {
         requiredLevel: dto.requiredLevel ?? 1,
         priceGold: dto.priceGold !== undefined ? Math.max(0, Number(dto.priceGold) || 0) : 0,
         reqClassCodesJson: dto.reqClassCodesJson || [],
-        baseStatBonusesJson: dto.baseStatBonusesJson || {},
-        combatStatBonusesJson: dto.combatStatBonusesJson || {},
+        baseStatBonusesJson: isMountSlot ? {} : (dto.baseStatBonusesJson || {}),
+        combatStatBonusesJson: cleanCombat,
         specialEffectJson: dto.specialEffectJson || {},
         isActive: dto.isActive !== undefined ? dto.isActive : true,
       },
@@ -394,19 +404,30 @@ export class AdminEquipmentsController {
       });
     }
 
+    const nextSlot = dto.equipmentSlotCode !== undefined ? dto.equipmentSlotCode : existing.equipmentSlotCode;
+    const rawNextCombat = dto.combatStatBonusesJson !== undefined ? dto.combatStatBonusesJson : (existing.combatStatBonusesJson as any);
+    const allowedMountStats = new Set(['MAX_HP', 'MAX_MP', 'PHYS_ATK', 'MAG_ATK', 'PHYS_DEF', 'MAG_DEF']);
+    const nextCombat = nextSlot === 'FLYING_MOUNT'
+      ? Object.fromEntries(
+          Object.entries(rawNextCombat || {}).filter(
+            ([k, v]) => allowedMountStats.has(k) && Number.isFinite(Number(v)) && Number(v) !== 0
+          )
+        )
+      : rawNextCombat;
+
     const updated = await this.prisma.itemTemplate.update({
       where: { id },
       data: {
         mcreworkIconKey: dto.mcreworkIconKey !== undefined ? dto.mcreworkIconKey : existing.mcreworkIconKey,
         itemCategory: dto.itemCategory !== undefined ? dto.itemCategory : existing.itemCategory,
-        equipmentSlotCode: dto.equipmentSlotCode !== undefined ? dto.equipmentSlotCode : existing.equipmentSlotCode,
+        equipmentSlotCode: nextSlot,
         equipmentSetId: dto.equipmentSetId !== undefined ? (dto.equipmentSetId ? Number(dto.equipmentSetId) : null) : existing.equipmentSetId,
         rarityTier: dto.rarityTier !== undefined ? dto.rarityTier : existing.rarityTier,
         requiredLevel: dto.requiredLevel !== undefined ? dto.requiredLevel : existing.requiredLevel,
         priceGold: 0,
         reqClassCodesJson: dto.reqClassCodesJson !== undefined ? (dto.reqClassCodesJson as any) : existing.reqClassCodesJson,
         baseStatBonusesJson: {},
-        combatStatBonusesJson: dto.combatStatBonusesJson !== undefined ? (dto.combatStatBonusesJson as any) : existing.combatStatBonusesJson,
+        combatStatBonusesJson: nextCombat as any,
         specialEffectJson: dto.specialEffectJson !== undefined ? (dto.specialEffectJson as any) : existing.specialEffectJson,
         isActive: dto.isActive !== undefined ? dto.isActive : existing.isActive,
       },

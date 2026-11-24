@@ -5,6 +5,21 @@ Qualquer IA trabalhando neste repositório **DEVE** incrementar a versão e regi
 
 ---
 
+## [v0.58.2] - 2026-11-24
+### Restrição Estrita de Atributos em Montarias Voadoras e Conjuntos de Equipamentos (Apenas HP, MP, ATQ/DEF Fís/Mág)
+* **Sanitização Completa de Banco, Seeds e Snapshot (`sanitize_mounts_and_sets_stats.ts`, `equipment_sets_definitions.json`, `build_level60_data.mjs`, `build_level70_data.mjs`, `build_level70_batch2_data.mjs`, `lowcode.snapshot.json`, `deploy_vps.py`):**
+  * Removidos todos os bônus de atributos fora do conjunto permitido (**`MAX_HP`**, **`MAX_MP`**, **`PHYS_ATK`**, **`MAG_ATK`**, **`PHYS_DEF`**, **`MAG_DEF`**) de **todas as Montarias Voadoras** (`flying_mount_templates` — limpando `baseAttributesJson` e atributos extras como `BATTLE_MOVE_SPEED`, `ATTACK_SPEED`, `PHYS_EVASION`, `MAG_EVASION`, `MAG_ACCURACY`) e de **todos os 81 Conjuntos de Equipamentos** (`equipment_sets` — removendo `BATTLE_MOVE_SPEED`, `CRIT_RATE`, `CRIT_DMG`, `ATTACK_SPEED`, `HEAL_POWER`, `PHYS_PEN`, `MAG_PEN`, `HP_REGEN`, `MP_REGEN`, `ATTACK_RANGE`, `PHYS_EVASION`).
+* **Blindagem no Backend & Combate (`AdminFlyingMountsController.ts`, `AdminEquipmentSetsController.ts`, `AdminEquipmentsController.ts`, `CharacterEquipmentService.ts`, `TemporaryCombatController.ts`):**
+  * Criação/atualização de Montarias Voadoras, itens de slot `FLYING_MOUNT` e Conjuntos de Equipamentos agora sanitizam automaticamente os JSONs para aceitar somente os 6 atributos permitidos (e normalizar eventuais chaves legadas `PDEF/MDEF` para `PHYS_DEF/MAG_DEF`).
+  * Runtime de combate (`TemporaryCombatController` e `CharacterEquipmentService`) também filtra bônus de conjuntos para os 6 atributos centrais.
+* **Limpeza dos Formulários no `/admin` (`AdminFlyingMountsTab.js`, `AdminEquipmentSetsTab.js`, `apps/server/public/admin/index.html`):**
+  * Removidos os campos de atributos base e atributos secundários das telas de cadastro/edição de Montarias Voadoras e Conjuntos de Equipamentos, exibindo apenas os 6 atributos permitidos.
+  * Atualizados os cache-busters `?v=20261124_ms1` no `/admin`.
+* **Governança e Cumprimento Estrito de Regras:**
+  * Todos os arquivos rigorosamente abaixo de 1.000 linhas (Regra #7), `node --check` e builds TypeScript com 0 erros, deploy na VPS Azure + validação pós-migração com 0 registros irregulares.
+
+---
+
 ## [v0.58.1] - 2026-11-24
 ### Teto Máximo de Velocidade em Batalha (`185 px/s`) & Sincronização da Ficha de Atributos (`/play`)
 * **Teto Saudável Global de Velocidade em Batalha (`MAX_BATTLE_MOVE_SPEED = 185`):**

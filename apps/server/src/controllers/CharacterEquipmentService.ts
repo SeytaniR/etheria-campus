@@ -368,10 +368,11 @@ export class CharacterEquipmentService {
           ? (set.bonusCombatStatsJson as Record<string, number>)
           : {}) as Record<string, number>;
 
+        const ALLOWED_SET_STATS = new Set(['MAX_HP', 'MAX_MP', 'PHYS_ATK', 'MAG_ATK', 'PHYS_DEF', 'MAG_DEF']);
         const appliedStats: Record<string, number> = {};
         for (const [stat, val] of Object.entries(stats)) {
           const numVal = Number(val) || 0;
-          if (numVal !== 0) {
+          if (ALLOWED_SET_STATS.has(stat) && numVal !== 0) {
             const scaled = Math.round(numVal * ratio);
             appliedStats[stat] = scaled;
             consolidatedBonuses[stat] = (consolidatedBonuses[stat] || 0) + scaled;

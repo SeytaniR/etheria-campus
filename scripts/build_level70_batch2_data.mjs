@@ -25,7 +25,7 @@ export const NEW_12_LV70_BATCH2_SETS = [
     minPiecesHalf: 6,
     halfBonusRatioPct: 40.0,
     fullBonusRatioPct: 100.0,
-    bonusCombatStatsJson: { MAX_HP: 3500, PHYS_ATK: 650, CRIT_RATE: 18.5, CRIT_DMG: 44.0, ATTACK_SPEED: 0.95, BATTLE_MOVE_SPEED: 90 }
+    bonusCombatStatsJson: { MAX_HP: 3500, PHYS_ATK: 650 }
   },
   {
     code: 'set_lv70_nightstalker',
@@ -38,7 +38,7 @@ export const NEW_12_LV70_BATCH2_SETS = [
     minPiecesHalf: 6,
     halfBonusRatioPct: 40.0,
     fullBonusRatioPct: 100.0,
-    bonusCombatStatsJson: { MAX_HP: 3100, PHYS_ATK: 590, PHYS_EVASION: 100, CRIT_RATE: 20.0, ATTACK_SPEED: 1.00, BATTLE_MOVE_SPEED: 110 }
+    bonusCombatStatsJson: { MAX_HP: 3100, PHYS_ATK: 590 }
   },
   {
     code: 'set_lv70_crimsontitan',
@@ -51,7 +51,7 @@ export const NEW_12_LV70_BATCH2_SETS = [
     minPiecesHalf: 6,
     halfBonusRatioPct: 40.0,
     fullBonusRatioPct: 100.0,
-    bonusCombatStatsJson: { MAX_HP: 5500, PHYS_ATK: 530, PHYS_DEF: 460, MAG_DEF: 250, HP_REGEN: 130, BATTLE_MOVE_SPEED: 55 }
+    bonusCombatStatsJson: { MAX_HP: 5500, PHYS_ATK: 530, PHYS_DEF: 460, MAG_DEF: 250 }
   },
   {
     code: 'set_lv70_emeraldgenesis',
@@ -64,7 +64,7 @@ export const NEW_12_LV70_BATCH2_SETS = [
     minPiecesHalf: 6,
     halfBonusRatioPct: 40.0,
     fullBonusRatioPct: 100.0,
-    bonusCombatStatsJson: { MAX_HP: 4100, MAX_MP: 1400, HEAL_POWER: 510, MAG_DEF: 360, PHYS_DEF: 280, HP_REGEN: 100, BATTLE_MOVE_SPEED: 60 }
+    bonusCombatStatsJson: { MAX_HP: 4100, MAX_MP: 1400, MAG_DEF: 360, PHYS_DEF: 280 }
   },
   {
     code: 'set_lv70_windrunner',
@@ -77,7 +77,7 @@ export const NEW_12_LV70_BATCH2_SETS = [
     minPiecesHalf: 6,
     halfBonusRatioPct: 40.0,
     fullBonusRatioPct: 100.0,
-    bonusCombatStatsJson: { MAX_HP: 3350, PHYS_ATK: 620, CRIT_RATE: 19.0, CRIT_DMG: 40.0, BATTLE_MOVE_SPEED: 105, ATTACK_RANGE: 60 }
+    bonusCombatStatsJson: { MAX_HP: 3350, PHYS_ATK: 620 }
   },
   {
     code: 'set_lv70_voideclipse',
@@ -90,7 +90,7 @@ export const NEW_12_LV70_BATCH2_SETS = [
     minPiecesHalf: 6,
     halfBonusRatioPct: 40.0,
     fullBonusRatioPct: 100.0,
-    bonusCombatStatsJson: { MAX_HP: 3200, PHYS_ATK: 670, CRIT_RATE: 23.0, CRIT_DMG: 52.0, PHYS_PEN: 260, BATTLE_MOVE_SPEED: 105 }
+    bonusCombatStatsJson: { MAX_HP: 3200, PHYS_ATK: 670 }
   },
   {
     code: 'set_lv70_royalsymphony',
@@ -103,7 +103,7 @@ export const NEW_12_LV70_BATCH2_SETS = [
     minPiecesHalf: 6,
     halfBonusRatioPct: 40.0,
     fullBonusRatioPct: 100.0,
-    bonusCombatStatsJson: { MAX_HP: 3300, MAG_ATK: 480, HEAL_POWER: 400, ATTACK_SPEED: 0.90, BATTLE_MOVE_SPEED: 100, CRIT_RATE: 14.0, MP_REGEN: 75 }
+    bonusCombatStatsJson: { MAX_HP: 3300, MAG_ATK: 480 }
   },
   {
     code: 'set_lv70_glacialdragoon',
@@ -116,7 +116,7 @@ export const NEW_12_LV70_BATCH2_SETS = [
     minPiecesHalf: 6,
     halfBonusRatioPct: 40.0,
     fullBonusRatioPct: 100.0,
-    bonusCombatStatsJson: { MAX_HP: 3900, PHYS_ATK: 610, PHYS_PEN: 270, PHYS_DEF: 340, CRIT_RATE: 16.5, CRIT_DMG: 34.0, BATTLE_MOVE_SPEED: 85 }
+    bonusCombatStatsJson: { MAX_HP: 3900, PHYS_ATK: 610, PHYS_DEF: 340 }
   },
   {
     code: 'set_lv70_crystalarchon',
@@ -129,7 +129,7 @@ export const NEW_12_LV70_BATCH2_SETS = [
     minPiecesHalf: 6,
     halfBonusRatioPct: 40.0,
     fullBonusRatioPct: 100.0,
-    bonusCombatStatsJson: { MAX_HP: 3000, MAG_ATK: 760, MAG_PEN: 265, MAG_DEF: 250, CRIT_RATE: 18.0, CRIT_DMG: 44.0, BATTLE_MOVE_SPEED: 65 }
+    bonusCombatStatsJson: { MAX_HP: 3000, MAG_ATK: 760, MAG_DEF: 250 }
   },
   {
     code: 'set_lv70_divinearchon',
@@ -142,7 +142,7 @@ export const NEW_12_LV70_BATCH2_SETS = [
     minPiecesHalf: 6,
     halfBonusRatioPct: 40.0,
     fullBonusRatioPct: 100.0,
-    bonusCombatStatsJson: { MAX_HP: 5200, PHYS_DEF: 480, MAG_DEF: 370, PHYS_ATK: 400, MAG_ATK: 400, HEAL_POWER: 230, BATTLE_MOVE_SPEED: 55 }
+    bonusCombatStatsJson: { MAX_HP: 5200, PHYS_DEF: 480, MAG_DEF: 370, PHYS_ATK: 400, MAG_ATK: 400 }
   },
   {
     code: 'set_lv70_siegemarksman',
@@ -155,7 +155,7 @@ export const NEW_12_LV70_BATCH2_SETS = [
     minPiecesHalf: 6,
     halfBonusRatioPct: 40.0,
     fullBonusRatioPct: 100.0,
-    bonusCombatStatsJson: { MAX_HP: 3100, PHYS_ATK: 735, PHYS_PEN: 285, CRIT_RATE: 18.5, CRIT_DMG: 46.0, BATTLE_MOVE_SPEED: 70, ATTACK_RANGE: 70 }
+    bonusCombatStatsJson: { MAX_HP: 3100, PHYS_ATK: 735 }
   },
   {
     code: 'set_lv70_bloodlich',
@@ -168,7 +168,7 @@ export const NEW_12_LV70_BATCH2_SETS = [
     minPiecesHalf: 6,
     halfBonusRatioPct: 40.0,
     fullBonusRatioPct: 100.0,
-    bonusCombatStatsJson: { MAX_HP: 3700, MAG_ATK: 660, MAG_PEN: 245, MAG_DEF: 270, CRIT_RATE: 16.5, CRIT_DMG: 38.0, HP_REGEN: 90, BATTLE_MOVE_SPEED: 65 }
+    bonusCombatStatsJson: { MAX_HP: 3700, MAG_ATK: 660, MAG_DEF: 270 }
   }
 ];
 

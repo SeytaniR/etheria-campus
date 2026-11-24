@@ -483,9 +483,10 @@ export class TemporaryCombatController {
         const stats = (set.bonusCombatStatsJson && typeof set.bonusCombatStatsJson === 'object'
           ? (set.bonusCombatStatsJson as Record<string, number>)
           : {}) as Record<string, number>;
+        const ALLOWED_SET_STATS = new Set(['MAX_HP', 'MAX_MP', 'PHYS_ATK', 'MAG_ATK', 'PHYS_DEF', 'MAG_DEF']);
         for (const [k, v] of Object.entries(stats)) {
           const numVal = Number(v) || 0;
-          if (numVal !== 0) {
+          if (ALLOWED_SET_STATS.has(k) && numVal !== 0) {
             eqBonuses[k] = (eqBonuses[k] || 0) + Math.round(numVal * ratio);
           }
         }

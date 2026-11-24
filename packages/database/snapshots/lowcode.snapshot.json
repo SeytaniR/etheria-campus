@@ -128597,8 +128597,7 @@
         "MAG_ATK": 8,
         "MAG_DEF": 6,
         "PHYS_ATK": 8,
-        "PHYS_DEF": 6,
-        "BATTLE_MOVE_SPEED": 10
+        "PHYS_DEF": 6
       },
       "bonusSpecialEffectsJson": {},
       "isActive": true,
@@ -128620,10 +128619,7 @@
         "MAX_HP": 900,
         "MAX_MP": 300,
         "MAG_ATK": 140,
-        "MAG_DEF": 75,
-        "CRIT_RATE": 4,
-        "HEAL_POWER": 70,
-        "BATTLE_MOVE_SPEED": 25
+        "MAG_DEF": 75
       },
       "bonusSpecialEffectsJson": {},
       "isActive": true,
@@ -128645,10 +128641,7 @@
         "MAX_HP": 850,
         "MAX_MP": 350,
         "MAG_ATK": 160,
-        "MAG_DEF": 80,
-        "MAG_PEN": 45,
-        "HEAL_POWER": 90,
-        "BATTLE_MOVE_SPEED": 20
+        "MAG_DEF": 80
       },
       "bonusSpecialEffectsJson": {},
       "isActive": true,
@@ -128670,9 +128663,7 @@
         "MAX_HP": 1200,
         "MAG_DEF": 60,
         "PHYS_ATK": 130,
-        "PHYS_DEF": 110,
-        "PHYS_PEN": 50,
-        "BATTLE_MOVE_SPEED": 20
+        "PHYS_DEF": 110
       },
       "bonusSpecialEffectsJson": {},
       "isActive": true,
@@ -128693,10 +128684,7 @@
       "bonusCombatStatsJson": {
         "MAX_HP": 1000,
         "PHYS_ATK": 150,
-        "PHYS_DEF": 80,
-        "CRIT_RATE": 5,
-        "ATTACK_SPEED": 0.25,
-        "BATTLE_MOVE_SPEED": 35
+        "PHYS_DEF": 80
       },
       "bonusSpecialEffectsJson": {},
       "isActive": true,
@@ -128718,9 +128706,7 @@
         "MAX_HP": 1150,
         "MAG_DEF": 70,
         "PHYS_ATK": 110,
-        "PHYS_DEF": 100,
-        "CRIT_RATE": 4.5,
-        "BATTLE_MOVE_SPEED": 30
+        "PHYS_DEF": 100
       },
       "bonusSpecialEffectsJson": {},
       "isActive": true,
@@ -128740,12 +128726,8 @@
       "fullBonusRatioPct": 100,
       "bonusCombatStatsJson": {
         "MAX_HP": 800,
-        "CRIT_DMG": 12,
         "PHYS_ATK": 170,
-        "PHYS_DEF": 65,
-        "PHYS_PEN": 55,
-        "CRIT_RATE": 6.5,
-        "BATTLE_MOVE_SPEED": 40
+        "PHYS_DEF": 65
       },
       "bonusSpecialEffectsJson": {},
       "isActive": true,
@@ -128766,10 +128748,7 @@
       "bonusCombatStatsJson": {
         "MAX_HP": 950,
         "MAG_ATK": 180,
-        "MAG_DEF": 70,
-        "MAG_PEN": 60,
-        "CRIT_RATE": 5,
-        "BATTLE_MOVE_SPEED": 20
+        "MAG_DEF": 70
       },
       "bonusSpecialEffectsJson": {},
       "isActive": true,
@@ -128789,11 +128768,7 @@
       "fullBonusRatioPct": 100,
       "bonusCombatStatsJson": {
         "MAX_HP": 900,
-        "MAG_ATK": 120,
-        "CRIT_RATE": 4,
-        "HEAL_POWER": 110,
-        "ATTACK_SPEED": 0.3,
-        "BATTLE_MOVE_SPEED": 40
+        "MAG_ATK": 120
       },
       "bonusSpecialEffectsJson": {},
       "isActive": true,
@@ -128814,10 +128789,7 @@
       "bonusCombatStatsJson": {
         "MAX_HP": 800,
         "MAG_ATK": 210,
-        "MAG_DEF": 65,
-        "MAG_PEN": 70,
-        "CRIT_RATE": 6,
-        "BATTLE_MOVE_SPEED": 25
+        "MAG_DEF": 65
       },
       "bonusSpecialEffectsJson": {},
       "isActive": true,
@@ -128839,9 +128811,7 @@
         "MAX_HP": 1100,
         "MAX_MP": 400,
         "MAG_DEF": 95,
-        "PHYS_DEF": 75,
-        "HEAL_POWER": 140,
-        "BATTLE_MOVE_SPEED": 20
+        "PHYS_DEF": 75
       },
       "bonusSpecialEffectsJson": {},
       "isActive": true,
@@ -128863,8 +128833,7 @@
         "MAX_HP": 1400,
         "MAG_DEF": 60,
         "PHYS_ATK": 140,
-        "PHYS_DEF": 130,
-        "BATTLE_MOVE_SPEED": 15
+        "PHYS_DEF": 130
       },
       "bonusSpecialEffectsJson": {},
       "isActive": true,
@@ -128885,10 +128854,7 @@
       "bonusCombatStatsJson": {
         "MAX_HP": 1050,
         "PHYS_ATK": 160,
-        "PHYS_DEF": 90,
-        "PHYS_PEN": 75,
-        "CRIT_RATE": 5.5,
-        "BATTLE_MOVE_SPEED": 35
+        "PHYS_DEF": 90
       },
       "bonusSpecialEffectsJson": {},
       "isActive": true,
@@ -128908,11 +128874,7 @@
       "fullBonusRatioPct": 100,
       "bonusCombatStatsJson": {
         "MAX_HP": 950,
-        "CRIT_DMG": 14,
-        "PHYS_ATK": 180,
-        "CRIT_RATE": 7,
-        "ATTACK_SPEED": 0.35,
-        "BATTLE_MOVE_SPEED": 35
+        "PHYS_ATK": 180
       },
       "bonusSpecialEffectsJson": {},
       "isActive": true,
@@ -128933,9 +128895,7 @@
       "bonusCombatStatsJson": {
         "MAX_HP": 1250,
         "PHYS_ATK": 160,
-        "PHYS_DEF": 105,
-        "PHYS_PEN": 55,
-        "BATTLE_MOVE_SPEED": 25
+        "PHYS_DEF": 105
       },
       "bonusSpecialEffectsJson": {},
       "isActive": true,
@@ -128957,9 +128917,7 @@
         "MAX_HP": 1400,
         "MAG_DEF": 100,
         "PHYS_ATK": 100,
-        "PHYS_DEF": 135,
-        "HEAL_POWER": 60,
-        "BATTLE_MOVE_SPEED": 15
+        "PHYS_DEF": 135
       },
       "bonusSpecialEffectsJson": {},
       "isActive": true,
@@ -128979,10 +128937,7 @@
       "fullBonusRatioPct": 100,
       "bonusCombatStatsJson": {
         "MAX_HP": 900,
-        "CRIT_DMG": 12,
-        "PHYS_ATK": 175,
-        "CRIT_RATE": 6.5,
-        "BATTLE_MOVE_SPEED": 45
+        "PHYS_ATK": 175
       },
       "bonusSpecialEffectsJson": {},
       "isActive": true,
@@ -129002,11 +128957,7 @@
       "fullBonusRatioPct": 100,
       "bonusCombatStatsJson": {
         "MAX_HP": 800,
-        "CRIT_DMG": 15,
-        "PHYS_ATK": 210,
-        "PHYS_PEN": 80,
-        "CRIT_RATE": 6,
-        "BATTLE_MOVE_SPEED": 30
+        "PHYS_ATK": 210
       },
       "bonusSpecialEffectsJson": {},
       "isActive": true,
@@ -129026,10 +128977,7 @@
       "fullBonusRatioPct": 100,
       "bonusCombatStatsJson": {
         "MAX_HP": 850,
-        "CRIT_DMG": 18,
-        "PHYS_ATK": 190,
-        "CRIT_RATE": 8.5,
-        "BATTLE_MOVE_SPEED": 45
+        "PHYS_ATK": 190
       },
       "bonusSpecialEffectsJson": {},
       "isActive": true,
@@ -129050,10 +128998,7 @@
       "bonusCombatStatsJson": {
         "MAX_HP": 1600,
         "MAG_ATK": 300,
-        "MAG_DEF": 120,
-        "MAG_PEN": 110,
-        "CRIT_RATE": 7.5,
-        "BATTLE_MOVE_SPEED": 35
+        "MAG_DEF": 120
       },
       "bonusSpecialEffectsJson": {},
       "isActive": true,
@@ -129073,11 +129018,7 @@
       "fullBonusRatioPct": 100,
       "bonusCombatStatsJson": {
         "MAX_HP": 1500,
-        "MAG_ATK": 210,
-        "CRIT_RATE": 6,
-        "HEAL_POWER": 180,
-        "ATTACK_SPEED": 0.45,
-        "BATTLE_MOVE_SPEED": 55
+        "MAG_ATK": 210
       },
       "bonusSpecialEffectsJson": {},
       "isActive": true,
@@ -129098,10 +129039,7 @@
       "bonusCombatStatsJson": {
         "MAX_HP": 1350,
         "MAG_ATK": 350,
-        "MAG_DEF": 110,
-        "MAG_PEN": 120,
-        "CRIT_RATE": 8.5,
-        "BATTLE_MOVE_SPEED": 35
+        "MAG_DEF": 110
       },
       "bonusSpecialEffectsJson": {},
       "isActive": true,
@@ -129123,9 +129061,7 @@
         "MAX_HP": 1900,
         "MAX_MP": 600,
         "MAG_DEF": 160,
-        "PHYS_DEF": 125,
-        "HEAL_POWER": 230,
-        "BATTLE_MOVE_SPEED": 30
+        "PHYS_DEF": 125
       },
       "bonusSpecialEffectsJson": {},
       "isActive": true,
@@ -129147,8 +129083,7 @@
         "MAX_HP": 2400,
         "MAG_DEF": 105,
         "PHYS_ATK": 240,
-        "PHYS_DEF": 210,
-        "BATTLE_MOVE_SPEED": 25
+        "PHYS_DEF": 210
       },
       "bonusSpecialEffectsJson": {},
       "isActive": true,
@@ -129169,10 +129104,7 @@
       "bonusCombatStatsJson": {
         "MAX_HP": 1750,
         "PHYS_ATK": 280,
-        "PHYS_DEF": 145,
-        "PHYS_PEN": 125,
-        "CRIT_RATE": 8,
-        "BATTLE_MOVE_SPEED": 45
+        "PHYS_DEF": 145
       },
       "bonusSpecialEffectsJson": {},
       "isActive": true,
@@ -129192,11 +129124,7 @@
       "fullBonusRatioPct": 100,
       "bonusCombatStatsJson": {
         "MAX_HP": 1600,
-        "CRIT_DMG": 22,
-        "PHYS_ATK": 300,
-        "CRIT_RATE": 10,
-        "ATTACK_SPEED": 0.5,
-        "BATTLE_MOVE_SPEED": 50
+        "PHYS_ATK": 300
       },
       "bonusSpecialEffectsJson": {},
       "isActive": true,
@@ -129217,9 +129145,7 @@
       "bonusCombatStatsJson": {
         "MAX_HP": 2100,
         "PHYS_ATK": 270,
-        "PHYS_DEF": 170,
-        "PHYS_PEN": 90,
-        "BATTLE_MOVE_SPEED": 35
+        "PHYS_DEF": 170
       },
       "bonusSpecialEffectsJson": {},
       "isActive": true,
@@ -129241,9 +129167,7 @@
         "MAX_HP": 2350,
         "MAG_DEF": 165,
         "PHYS_ATK": 180,
-        "PHYS_DEF": 220,
-        "HEAL_POWER": 100,
-        "BATTLE_MOVE_SPEED": 25
+        "PHYS_DEF": 220
       },
       "bonusSpecialEffectsJson": {},
       "isActive": true,
@@ -129263,10 +129187,7 @@
       "fullBonusRatioPct": 100,
       "bonusCombatStatsJson": {
         "MAX_HP": 1550,
-        "CRIT_DMG": 18,
-        "PHYS_ATK": 290,
-        "CRIT_RATE": 9.5,
-        "BATTLE_MOVE_SPEED": 60
+        "PHYS_ATK": 290
       },
       "bonusSpecialEffectsJson": {},
       "isActive": true,
@@ -129286,11 +129207,7 @@
       "fullBonusRatioPct": 100,
       "bonusCombatStatsJson": {
         "MAX_HP": 1400,
-        "CRIT_DMG": 22,
-        "PHYS_ATK": 340,
-        "PHYS_PEN": 130,
-        "CRIT_RATE": 9,
-        "BATTLE_MOVE_SPEED": 40
+        "PHYS_ATK": 340
       },
       "bonusSpecialEffectsJson": {},
       "isActive": true,
@@ -129310,10 +129227,7 @@
       "fullBonusRatioPct": 100,
       "bonusCombatStatsJson": {
         "MAX_HP": 1450,
-        "CRIT_DMG": 26,
-        "PHYS_ATK": 310,
-        "CRIT_RATE": 12,
-        "BATTLE_MOVE_SPEED": 60
+        "PHYS_ATK": 310
       },
       "bonusSpecialEffectsJson": {},
       "isActive": true,
@@ -129334,11 +129248,7 @@
       "bonusCombatStatsJson": {
         "MAX_HP": 2400,
         "MAG_ATK": 450,
-        "MAG_DEF": 180,
-        "MAG_PEN": 165,
-        "CRIT_DMG": 25,
-        "CRIT_RATE": 11.5,
-        "BATTLE_MOVE_SPEED": 45
+        "MAG_DEF": 180
       },
       "bonusSpecialEffectsJson": {},
       "isActive": true,
@@ -129358,12 +129268,7 @@
       "fullBonusRatioPct": 100,
       "bonusCombatStatsJson": {
         "MAX_HP": 2200,
-        "MAG_ATK": 320,
-        "MP_REGEN": 45,
-        "CRIT_RATE": 9,
-        "HEAL_POWER": 270,
-        "ATTACK_SPEED": 0.65,
-        "BATTLE_MOVE_SPEED": 75
+        "MAG_ATK": 320
       },
       "bonusSpecialEffectsJson": {},
       "isActive": true,
@@ -129384,11 +129289,7 @@
       "bonusCombatStatsJson": {
         "MAX_HP": 2000,
         "MAG_ATK": 520,
-        "MAG_DEF": 165,
-        "MAG_PEN": 180,
-        "CRIT_DMG": 30,
-        "CRIT_RATE": 13,
-        "BATTLE_MOVE_SPEED": 45
+        "MAG_DEF": 165
       },
       "bonusSpecialEffectsJson": {},
       "isActive": true,
@@ -129410,10 +129311,7 @@
         "MAX_HP": 2800,
         "MAX_MP": 900,
         "MAG_DEF": 240,
-        "HP_REGEN": 60,
-        "PHYS_DEF": 190,
-        "HEAL_POWER": 340,
-        "BATTLE_MOVE_SPEED": 40
+        "PHYS_DEF": 190
       },
       "bonusSpecialEffectsJson": {},
       "isActive": true,
@@ -129434,10 +129332,8 @@
       "bonusCombatStatsJson": {
         "MAX_HP": 3600,
         "MAG_DEF": 160,
-        "HP_REGEN": 80,
         "PHYS_ATK": 360,
-        "PHYS_DEF": 310,
-        "BATTLE_MOVE_SPEED": 35
+        "PHYS_DEF": 310
       },
       "bonusSpecialEffectsJson": {},
       "isActive": true,
@@ -129457,12 +129353,8 @@
       "fullBonusRatioPct": 100,
       "bonusCombatStatsJson": {
         "MAX_HP": 2600,
-        "CRIT_DMG": 22,
         "PHYS_ATK": 420,
-        "PHYS_DEF": 220,
-        "PHYS_PEN": 185,
-        "CRIT_RATE": 12,
-        "BATTLE_MOVE_SPEED": 65
+        "PHYS_DEF": 220
       },
       "bonusSpecialEffectsJson": {},
       "isActive": true,
@@ -129482,11 +129374,7 @@
       "fullBonusRatioPct": 100,
       "bonusCombatStatsJson": {
         "MAX_HP": 2400,
-        "CRIT_DMG": 32,
-        "PHYS_ATK": 450,
-        "CRIT_RATE": 15,
-        "ATTACK_SPEED": 0.75,
-        "BATTLE_MOVE_SPEED": 70
+        "PHYS_ATK": 450
       },
       "bonusSpecialEffectsJson": {},
       "isActive": true,
@@ -129507,10 +129395,7 @@
       "bonusCombatStatsJson": {
         "MAX_HP": 3100,
         "PHYS_ATK": 400,
-        "PHYS_DEF": 255,
-        "PHYS_PEN": 140,
-        "ATTACK_SPEED": 0.6,
-        "BATTLE_MOVE_SPEED": 50
+        "PHYS_DEF": 255
       },
       "bonusSpecialEffectsJson": {},
       "isActive": true,
@@ -129532,9 +129417,7 @@
         "MAX_HP": 3500,
         "MAG_DEF": 250,
         "PHYS_ATK": 270,
-        "PHYS_DEF": 330,
-        "HEAL_POWER": 150,
-        "BATTLE_MOVE_SPEED": 35
+        "PHYS_DEF": 330
       },
       "bonusSpecialEffectsJson": {},
       "isActive": true,
@@ -129554,11 +129437,7 @@
       "fullBonusRatioPct": 100,
       "bonusCombatStatsJson": {
         "MAX_HP": 2300,
-        "CRIT_DMG": 28,
-        "PHYS_ATK": 430,
-        "CRIT_RATE": 14,
-        "ATTACK_RANGE": 40,
-        "BATTLE_MOVE_SPEED": 85
+        "PHYS_ATK": 430
       },
       "bonusSpecialEffectsJson": {},
       "isActive": true,
@@ -129578,12 +129457,7 @@
       "fullBonusRatioPct": 100,
       "bonusCombatStatsJson": {
         "MAX_HP": 2100,
-        "CRIT_DMG": 32,
-        "PHYS_ATK": 510,
-        "PHYS_PEN": 195,
-        "CRIT_RATE": 13.5,
-        "ATTACK_RANGE": 50,
-        "BATTLE_MOVE_SPEED": 55
+        "PHYS_ATK": 510
       },
       "bonusSpecialEffectsJson": {},
       "isActive": true,
@@ -129603,11 +129477,7 @@
       "fullBonusRatioPct": 100,
       "bonusCombatStatsJson": {
         "MAX_HP": 2200,
-        "CRIT_DMG": 38,
-        "PHYS_ATK": 465,
-        "CRIT_RATE": 18,
-        "PHYS_EVASION": 75,
-        "BATTLE_MOVE_SPEED": 85
+        "PHYS_ATK": 465
       },
       "bonusSpecialEffectsJson": {},
       "isActive": true,
@@ -129627,11 +129497,7 @@
       "fullBonusRatioPct": 100,
       "bonusCombatStatsJson": {
         "MAX_HP": 3400,
-        "CRIT_DMG": 42,
-        "PHYS_ATK": 640,
-        "CRIT_RATE": 18,
-        "ATTACK_SPEED": 0.9,
-        "BATTLE_MOVE_SPEED": 85
+        "PHYS_ATK": 640
       },
       "bonusSpecialEffectsJson": {},
       "isActive": true,
@@ -129651,11 +129517,7 @@
       "fullBonusRatioPct": 100,
       "bonusCombatStatsJson": {
         "MAX_HP": 3100,
-        "PHYS_ATK": 580,
-        "CRIT_RATE": 19,
-        "ATTACK_SPEED": 0.95,
-        "PHYS_EVASION": 95,
-        "BATTLE_MOVE_SPEED": 105
+        "PHYS_ATK": 580
       },
       "bonusSpecialEffectsJson": {},
       "isActive": true,
@@ -129676,10 +129538,8 @@
       "bonusCombatStatsJson": {
         "MAX_HP": 5200,
         "MAG_DEF": 240,
-        "HP_REGEN": 120,
         "PHYS_ATK": 520,
-        "PHYS_DEF": 450,
-        "BATTLE_MOVE_SPEED": 50
+        "PHYS_DEF": 450
       },
       "bonusSpecialEffectsJson": {},
       "isActive": true,
@@ -129701,10 +129561,7 @@
         "MAX_HP": 4000,
         "MAX_MP": 1350,
         "MAG_DEF": 350,
-        "HP_REGEN": 90,
-        "PHYS_DEF": 270,
-        "HEAL_POWER": 490,
-        "BATTLE_MOVE_SPEED": 55
+        "PHYS_DEF": 270
       },
       "bonusSpecialEffectsJson": {},
       "isActive": true,
@@ -129724,11 +129581,7 @@
       "fullBonusRatioPct": 100,
       "bonusCombatStatsJson": {
         "MAX_HP": 3300,
-        "CRIT_DMG": 38,
-        "PHYS_ATK": 610,
-        "CRIT_RATE": 18,
-        "ATTACK_RANGE": 55,
-        "BATTLE_MOVE_SPEED": 100
+        "PHYS_ATK": 610
       },
       "bonusSpecialEffectsJson": {},
       "isActive": true,
@@ -129748,11 +129601,7 @@
       "fullBonusRatioPct": 100,
       "bonusCombatStatsJson": {
         "MAX_HP": 3150,
-        "CRIT_DMG": 50,
-        "PHYS_ATK": 660,
-        "CRIT_RATE": 22,
-        "PHYS_EVASION": 90,
-        "BATTLE_MOVE_SPEED": 100
+        "PHYS_ATK": 660
       },
       "bonusSpecialEffectsJson": {},
       "isActive": true,
@@ -129772,12 +129621,7 @@
       "fullBonusRatioPct": 100,
       "bonusCombatStatsJson": {
         "MAX_HP": 3250,
-        "MAG_ATK": 460,
-        "MP_REGEN": 70,
-        "CRIT_RATE": 13,
-        "HEAL_POWER": 390,
-        "ATTACK_SPEED": 0.85,
-        "BATTLE_MOVE_SPEED": 95
+        "MAG_ATK": 460
       },
       "bonusSpecialEffectsJson": {},
       "isActive": true,
@@ -129797,12 +129641,8 @@
       "fullBonusRatioPct": 100,
       "bonusCombatStatsJson": {
         "MAX_HP": 3800,
-        "CRIT_DMG": 32,
         "PHYS_ATK": 600,
-        "PHYS_DEF": 320,
-        "PHYS_PEN": 260,
-        "CRIT_RATE": 16,
-        "BATTLE_MOVE_SPEED": 80
+        "PHYS_DEF": 320
       },
       "bonusSpecialEffectsJson": {},
       "isActive": true,
@@ -129823,11 +129663,7 @@
       "bonusCombatStatsJson": {
         "MAX_HP": 2950,
         "MAG_ATK": 740,
-        "MAG_DEF": 240,
-        "MAG_PEN": 255,
-        "CRIT_DMG": 42,
-        "CRIT_RATE": 17.5,
-        "BATTLE_MOVE_SPEED": 60
+        "MAG_DEF": 240
       },
       "bonusSpecialEffectsJson": {},
       "isActive": true,
@@ -129850,9 +129686,7 @@
         "MAG_ATK": 390,
         "MAG_DEF": 360,
         "PHYS_ATK": 390,
-        "PHYS_DEF": 470,
-        "HEAL_POWER": 220,
-        "BATTLE_MOVE_SPEED": 50
+        "PHYS_DEF": 470
       },
       "bonusSpecialEffectsJson": {},
       "isActive": true,
@@ -129872,12 +129706,7 @@
       "fullBonusRatioPct": 100,
       "bonusCombatStatsJson": {
         "MAX_HP": 3050,
-        "CRIT_DMG": 44,
-        "PHYS_ATK": 720,
-        "PHYS_PEN": 275,
-        "CRIT_RATE": 18,
-        "ATTACK_RANGE": 65,
-        "BATTLE_MOVE_SPEED": 70
+        "PHYS_ATK": 720
       },
       "bonusSpecialEffectsJson": {},
       "isActive": true,
@@ -129898,12 +129727,7 @@
       "bonusCombatStatsJson": {
         "MAX_HP": 3600,
         "MAG_ATK": 640,
-        "MAG_DEF": 260,
-        "MAG_PEN": 235,
-        "CRIT_DMG": 36,
-        "HP_REGEN": 85,
-        "CRIT_RATE": 16,
-        "BATTLE_MOVE_SPEED": 60
+        "MAG_DEF": 260
       },
       "bonusSpecialEffectsJson": {},
       "isActive": true,
@@ -129923,11 +129747,7 @@
       "fullBonusRatioPct": 100,
       "bonusCombatStatsJson": {
         "MAX_HP": 3500,
-        "CRIT_DMG": 44,
-        "PHYS_ATK": 650,
-        "CRIT_RATE": 18.5,
-        "ATTACK_SPEED": 0.95,
-        "BATTLE_MOVE_SPEED": 90
+        "PHYS_ATK": 650
       },
       "bonusSpecialEffectsJson": {},
       "isActive": true,
@@ -129947,11 +129767,7 @@
       "fullBonusRatioPct": 100,
       "bonusCombatStatsJson": {
         "MAX_HP": 3100,
-        "PHYS_ATK": 590,
-        "CRIT_RATE": 20,
-        "ATTACK_SPEED": 1,
-        "PHYS_EVASION": 100,
-        "BATTLE_MOVE_SPEED": 110
+        "PHYS_ATK": 590
       },
       "bonusSpecialEffectsJson": {},
       "isActive": true,
@@ -129972,10 +129788,8 @@
       "bonusCombatStatsJson": {
         "MAX_HP": 5500,
         "MAG_DEF": 250,
-        "HP_REGEN": 130,
         "PHYS_ATK": 530,
-        "PHYS_DEF": 460,
-        "BATTLE_MOVE_SPEED": 55
+        "PHYS_DEF": 460
       },
       "bonusSpecialEffectsJson": {},
       "isActive": true,
@@ -129997,10 +129811,7 @@
         "MAX_HP": 4100,
         "MAX_MP": 1400,
         "MAG_DEF": 360,
-        "HP_REGEN": 100,
-        "PHYS_DEF": 280,
-        "HEAL_POWER": 510,
-        "BATTLE_MOVE_SPEED": 60
+        "PHYS_DEF": 280
       },
       "bonusSpecialEffectsJson": {},
       "isActive": true,
@@ -130020,11 +129831,7 @@
       "fullBonusRatioPct": 100,
       "bonusCombatStatsJson": {
         "MAX_HP": 3350,
-        "CRIT_DMG": 40,
-        "PHYS_ATK": 620,
-        "CRIT_RATE": 19,
-        "ATTACK_RANGE": 60,
-        "BATTLE_MOVE_SPEED": 105
+        "PHYS_ATK": 620
       },
       "bonusSpecialEffectsJson": {},
       "isActive": true,
@@ -130044,11 +129851,7 @@
       "fullBonusRatioPct": 100,
       "bonusCombatStatsJson": {
         "MAX_HP": 3200,
-        "CRIT_DMG": 52,
-        "PHYS_ATK": 670,
-        "PHYS_PEN": 260,
-        "CRIT_RATE": 23,
-        "BATTLE_MOVE_SPEED": 105
+        "PHYS_ATK": 670
       },
       "bonusSpecialEffectsJson": {},
       "isActive": true,
@@ -130068,12 +129871,7 @@
       "fullBonusRatioPct": 100,
       "bonusCombatStatsJson": {
         "MAX_HP": 3300,
-        "MAG_ATK": 480,
-        "MP_REGEN": 75,
-        "CRIT_RATE": 14,
-        "HEAL_POWER": 400,
-        "ATTACK_SPEED": 0.9,
-        "BATTLE_MOVE_SPEED": 100
+        "MAG_ATK": 480
       },
       "bonusSpecialEffectsJson": {},
       "isActive": true,
@@ -130093,12 +129891,8 @@
       "fullBonusRatioPct": 100,
       "bonusCombatStatsJson": {
         "MAX_HP": 3900,
-        "CRIT_DMG": 34,
         "PHYS_ATK": 610,
-        "PHYS_DEF": 340,
-        "PHYS_PEN": 270,
-        "CRIT_RATE": 16.5,
-        "BATTLE_MOVE_SPEED": 85
+        "PHYS_DEF": 340
       },
       "bonusSpecialEffectsJson": {},
       "isActive": true,
@@ -130119,11 +129913,7 @@
       "bonusCombatStatsJson": {
         "MAX_HP": 3000,
         "MAG_ATK": 760,
-        "MAG_DEF": 250,
-        "MAG_PEN": 265,
-        "CRIT_DMG": 44,
-        "CRIT_RATE": 18,
-        "BATTLE_MOVE_SPEED": 65
+        "MAG_DEF": 250
       },
       "bonusSpecialEffectsJson": {},
       "isActive": true,
@@ -130146,9 +129936,7 @@
         "MAG_ATK": 400,
         "MAG_DEF": 370,
         "PHYS_ATK": 400,
-        "PHYS_DEF": 480,
-        "HEAL_POWER": 230,
-        "BATTLE_MOVE_SPEED": 55
+        "PHYS_DEF": 480
       },
       "bonusSpecialEffectsJson": {},
       "isActive": true,
@@ -130168,12 +129956,7 @@
       "fullBonusRatioPct": 100,
       "bonusCombatStatsJson": {
         "MAX_HP": 3100,
-        "CRIT_DMG": 46,
-        "PHYS_ATK": 735,
-        "PHYS_PEN": 285,
-        "CRIT_RATE": 18.5,
-        "ATTACK_RANGE": 70,
-        "BATTLE_MOVE_SPEED": 70
+        "PHYS_ATK": 735
       },
       "bonusSpecialEffectsJson": {},
       "isActive": true,
@@ -130194,12 +129977,7 @@
       "bonusCombatStatsJson": {
         "MAX_HP": 3700,
         "MAG_ATK": 660,
-        "MAG_DEF": 270,
-        "MAG_PEN": 245,
-        "CRIT_DMG": 38,
-        "HP_REGEN": 90,
-        "CRIT_RATE": 16.5,
-        "BATTLE_MOVE_SPEED": 65
+        "MAG_DEF": 270
       },
       "bonusSpecialEffectsJson": {},
       "isActive": true,
@@ -130507,12 +130285,8 @@
       "fullBonusRatioPct": 100,
       "bonusCombatStatsJson": {
         "MAX_HP": 5600,
-        "CRIT_DMG": 65,
         "PHYS_ATK": 1100,
-        "PHYS_DEF": 420,
-        "CRIT_RATE": 24,
-        "ATTACK_SPEED": 1.1,
-        "BATTLE_MOVE_SPEED": 110
+        "PHYS_DEF": 420
       },
       "bonusSpecialEffectsJson": {},
       "isActive": true,
@@ -130534,12 +130308,7 @@
         "MAX_HP": 4800,
         "MAX_MP": 2200,
         "MAG_ATK": 1220,
-        "MAG_DEF": 420,
-        "MAG_PEN": 380,
-        "CRIT_DMG": 65,
-        "CRIT_RATE": 23,
-        "HEAL_POWER": 450,
-        "BATTLE_MOVE_SPEED": 90
+        "MAG_DEF": 420
       },
       "bonusSpecialEffectsJson": {},
       "isActive": true,
@@ -182553,14 +182322,8 @@
       "riderOffsetY": -45,
       "requiredLevel": 10,
       "priceGold": 1200,
-      "baseAttributesJson": {
-        "AGI": 8,
-        "DEX": 5
-      },
-      "combatAttributesJson": {
-        "PHYS_EVASION": 8,
-        "BATTLE_MOVE_SPEED": 15
-      },
+      "baseAttributesJson": {},
+      "combatAttributesJson": {},
       "specialSkillsJson": [],
       "isActive": true,
       "createdAt": "2026-11-18T11:11:08.261Z",
@@ -182582,14 +182345,10 @@
       "riderOffsetY": -50,
       "requiredLevel": 20,
       "priceGold": 3500,
-      "baseAttributesJson": {
-        "STR": 12,
-        "VIT": 10
-      },
+      "baseAttributesJson": {},
       "combatAttributesJson": {
         "MAG_DEF": 15,
-        "PHYS_DEF": 20,
-        "BATTLE_MOVE_SPEED": 25
+        "PHYS_DEF": 20
       },
       "specialSkillsJson": [],
       "isActive": true,
@@ -182612,16 +182371,8 @@
       "riderOffsetY": -55,
       "requiredLevel": 30,
       "priceGold": 8000,
-      "baseAttributesJson": {
-        "AGI": 12,
-        "INT": 16,
-        "WIS": 14
-      },
-      "combatAttributesJson": {
-        "MAG_EVASION": 18,
-        "MAG_ACCURACY": 15,
-        "BATTLE_MOVE_SPEED": 35
-      },
+      "baseAttributesJson": {},
+      "combatAttributesJson": {},
       "specialSkillsJson": [],
       "isActive": true,
       "createdAt": "2026-11-18T11:11:09.271Z",
@@ -182643,17 +182394,10 @@
       "riderOffsetY": -65,
       "requiredLevel": 40,
       "priceGold": 25000,
-      "baseAttributesJson": {
-        "AGI": 20,
-        "INT": 20,
-        "STR": 20,
-        "VIT": 20
-      },
+      "baseAttributesJson": {},
       "combatAttributesJson": {
         "MAG_ATK": 35,
-        "PHYS_ATK": 35,
-        "ATTACK_SPEED": 0.15,
-        "BATTLE_MOVE_SPEED": 45
+        "PHYS_ATK": 35
       },
       "specialSkillsJson": [],
       "isActive": true,
@@ -182676,19 +182420,10 @@
       "riderOffsetY": -75,
       "requiredLevel": 50,
       "priceGold": 50000,
-      "baseAttributesJson": {
-        "AGI": 25,
-        "DEX": 25,
-        "INT": 25,
-        "STR": 25,
-        "VIT": 30,
-        "WIS": 25
-      },
+      "baseAttributesJson": {},
       "combatAttributesJson": {
         "MAG_DEF": 50,
-        "PHYS_DEF": 50,
-        "ATTACK_SPEED": 0.25,
-        "BATTLE_MOVE_SPEED": 55
+        "PHYS_DEF": 50
       },
       "specialSkillsJson": [],
       "isActive": true,

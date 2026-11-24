@@ -50,10 +50,7 @@ class AdminEquipmentSetsTab {
       document.getElementById('equipSetFullBonusRatioInput').value = '100';
       document.getElementById('equipSetActiveSelect').value = 'true';
 
-      const statKeys = [
-        'MAX_HP', 'MAX_MP', 'PHYS_ATK', 'MAG_ATK', 'PHYS_DEF', 'MAG_DEF',
-        'BATTLE_MOVE_SPEED', 'ATTACK_SPEED', 'CRIT_RATE', 'CRIT_DMG', 'HEAL_POWER', 'PHYS_PEN', 'MAG_PEN'
-      ];
+      const statKeys = ['MAX_HP', 'MAX_MP', 'PHYS_ATK', 'MAG_ATK', 'PHYS_DEF', 'MAG_DEF'];
       statKeys.forEach((k) => {
         const el = document.getElementById(`setStat_${k}`);
         if (el) el.value = '';
@@ -81,10 +78,7 @@ class AdminEquipmentSetsTab {
         document.getElementById('equipSetActiveSelect').value = s.isActive !== false ? 'true' : 'false';
 
         const stats = s.bonusCombatStatsJson || {};
-        const statKeys = [
-          'MAX_HP', 'MAX_MP', 'PHYS_ATK', 'MAG_ATK', 'PHYS_DEF', 'MAG_DEF',
-          'BATTLE_MOVE_SPEED', 'ATTACK_SPEED', 'CRIT_RATE', 'CRIT_DMG', 'HEAL_POWER', 'PHYS_PEN', 'MAG_PEN'
-        ];
+        const statKeys = ['MAX_HP', 'MAX_MP', 'PHYS_ATK', 'MAG_ATK', 'PHYS_DEF', 'MAG_DEF'];
         statKeys.forEach((k) => {
           const el = document.getElementById(`setStat_${k}`);
           if (el) el.value = stats[k] !== undefined && stats[k] !== null ? stats[k] : '';
@@ -140,10 +134,7 @@ class AdminEquipmentSetsTab {
         return;
       }
 
-      const statKeys = [
-        'MAX_HP', 'MAX_MP', 'PHYS_ATK', 'MAG_ATK', 'PHYS_DEF', 'MAG_DEF',
-        'BATTLE_MOVE_SPEED', 'ATTACK_SPEED', 'CRIT_RATE', 'CRIT_DMG', 'HEAL_POWER', 'PHYS_PEN', 'MAG_PEN'
-      ];
+      const statKeys = ['MAX_HP', 'MAX_MP', 'PHYS_ATK', 'MAG_ATK', 'PHYS_DEF', 'MAG_DEF'];
       const bonusCombatStatsJson = {};
       statKeys.forEach((k) => {
         const val = parseFloat(document.getElementById(`setStat_${k}`)?.value);
@@ -492,13 +483,6 @@ class AdminEquipmentSetsTab {
               <div class="field"><label>MAG_ATK (Ataque Mágico)</label><input type="number" id="setStat_MAG_ATK" placeholder="0" /></div>
               <div class="field"><label>PHYS_DEF (Defesa Física)</label><input type="number" id="setStat_PHYS_DEF" placeholder="0" /></div>
               <div class="field"><label>MAG_DEF (Defesa Mágica)</label><input type="number" id="setStat_MAG_DEF" placeholder="0" /></div>
-              <div class="field"><label>BATTLE_MOVE_SPEED (Velocidade)</label><input type="number" id="setStat_BATTLE_MOVE_SPEED" placeholder="0" /></div>
-              <div class="field"><label>ATTACK_SPEED (Vel. Ataque)</label><input type="number" id="setStat_ATTACK_SPEED" placeholder="0" /></div>
-              <div class="field"><label>CRIT_RATE (Taxa Crítica %)</label><input type="number" id="setStat_CRIT_RATE" placeholder="0" step="0.1" /></div>
-              <div class="field"><label>CRIT_DMG (Dano Crítico %)</label><input type="number" id="setStat_CRIT_DMG" placeholder="0" step="0.1" /></div>
-              <div class="field"><label>HEAL_POWER (Amp. Cura)</label><input type="number" id="setStat_HEAL_POWER" placeholder="0" /></div>
-              <div class="field"><label>PHYS_PEN (Pen. Física)</label><input type="number" id="setStat_PHYS_PEN" placeholder="0" /></div>
-              <div class="field"><label>MAG_PEN (Pen. Mágica)</label><input type="number" id="setStat_MAG_PEN" placeholder="0" /></div>
             </div>
           </div>
         </div>
