@@ -203,18 +203,39 @@ class PlayHudController {
         </div>
       </div>
 
-      <!-- 6. Barra Inferior: 6 Botões de Menu Uniformes Integrados em Dock Sem Espaçamento Transparente -->
+      <!-- 6. Barra Inferior: Menu Mobile Amigável com Ícones + Rótulos Sutis e Badge de Missões -->
       <nav id="hudBottomMenuSection" class="hud-bottom-menu-section">
         <button type="button" id="hudCollapseBottomMenuBtn" class="hud-dock-collapse-btn hud-collapse-bottom-btn" title="Recolher Menu" aria-label="Recolher Menu">
-          <span id="hudBottomCollapseIcon" class="hud-collapse-icon">▼</span>
+          <span id="hudBottomCollapseIcon" class="hud-collapse-icon">▾</span>
         </button>
         <div id="hudBottomDock" class="hud-bottom-dock">
-          <button type="button" class="hud-menu-btn" data-action="shop" title="Loja"><img src="/play/assets/hud/menu_shop.png" alt="Loja" /></button>
-          <button type="button" class="hud-menu-btn" data-action="pets" title="Pets"><img src="/play/assets/hud/menu_pets.png" alt="Pets" /></button>
-          <button type="button" class="hud-menu-btn" data-action="character" title="Personagem"><img src="/play/assets/hud/menu_character.png" alt="Personagem" /></button>
-          <button type="button" class="hud-menu-btn" data-action="inventory" title="Mochila / Inventário"><img src="/play/assets/hud/menu_inventory.png" alt="Inventário" /></button>
-          <button type="button" class="hud-menu-btn" data-action="quests" title="Missões"><img src="/play/assets/hud/menu_quests.png" alt="Quests" /></button>
-          <button type="button" class="hud-menu-btn" data-action="events" title="Eventos"><img src="/play/assets/hud/menu_events.png" alt="Eventos" /></button>
+          <button type="button" class="hud-menu-btn" data-action="shop" title="Loja">
+            <span class="hud-menu-icon-wrap"><img src="/play/assets/hud/menu_shop.png" alt="Loja" /></span>
+            <span class="hud-menu-label">Loja</span>
+          </button>
+          <button type="button" class="hud-menu-btn" data-action="pets" title="Pets">
+            <span class="hud-menu-icon-wrap"><img src="/play/assets/hud/menu_pets.png" alt="Pets" /></span>
+            <span class="hud-menu-label">Pets</span>
+          </button>
+          <button type="button" class="hud-menu-btn" data-action="character" title="Personagem">
+            <span class="hud-menu-icon-wrap"><img src="/play/assets/hud/menu_character.png" alt="Personagem" /></span>
+            <span class="hud-menu-label">Herói</span>
+          </button>
+          <button type="button" class="hud-menu-btn" data-action="inventory" title="Mochila / Inventário">
+            <span class="hud-menu-icon-wrap"><img src="/play/assets/hud/menu_inventory.png" alt="Mochila" /></span>
+            <span class="hud-menu-label">Mochila</span>
+          </button>
+          <button type="button" class="hud-menu-btn" data-action="quests" title="Missões">
+            <span class="hud-menu-icon-wrap">
+              <img src="/play/assets/hud/menu_quests.png" alt="Quests" />
+              <span id="hudBottomQuestsBadge" class="hud-menu-badge" style="display:none;">0</span>
+            </span>
+            <span class="hud-menu-label">Quests</span>
+          </button>
+          <button type="button" class="hud-menu-btn" data-action="events" title="Eventos">
+            <span class="hud-menu-icon-wrap"><img src="/play/assets/hud/menu_events.png" alt="Eventos" /></span>
+            <span class="hud-menu-label">Eventos</span>
+          </button>
         </div>
       </nav>
 
@@ -316,10 +337,11 @@ class PlayHudController {
         ev.stopPropagation();
         const isCollapsed = bottomDock.classList.toggle('is-collapsed');
         collapseBottomBtn.classList.toggle('is-collapsed', isCollapsed);
-        if (bottomIcon) bottomIcon.textContent = isCollapsed ? '▲' : '▼';
+        if (bottomIcon) bottomIcon.textContent = isCollapsed ? '▴' : '▾';
         collapseBottomBtn.title = isCollapsed ? 'Expandir Menu' : 'Recolher Menu';
       });
     }
+    this.playApp?.updateQuestHudBadge?.();
 
     // 9. HUD de Chat Multi-Canal Autoritário
     if (window.PlayChatController) {

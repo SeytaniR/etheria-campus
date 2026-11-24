@@ -5,6 +5,22 @@ Qualquer IA trabalhando neste repositório **DEVE** incrementar a versão e regi
 
 ---
 
+## [v0.57.1] - 2026-11-24
+### Menu Inferior Mobile-First, Remoção do Checklist Flutuante e Recolher Tudo nas Metas de Caça
+* **Remoção do Widget Flutuante de Missão (`PlayQuestStepModal.js` & `PlayQuestsController.js`):**
+  * Removido completamente o painel flutuante `#questChecklistHudWidget` da tela de exploração, mantendo o mapa 2.5D limpo e desobstruído.
+  * Todo o status da missão atual, barra de progresso e checklist sequencial (`[X]` / `[▶]` / `[ ]`, contagem de equipamentos equipados e atalhos rápidos para Mochila / Treino no Véu) foi centralizado exclusivamente dentro do Modal de Quests (`#questLogModal`) no menu inferior.
+* **Redesign Mobile-First do Menu Inferior (`PlayHudController.js`, `play_quests_and_menu.css` & `play_hud.css`):**
+  * Visual remodelado para máximo conforto visual e ergonomia no celular: vidro fosco escuro translúcido (`backdrop-filter: blur(12px)`), borda dourada suave de baixa fadiga visual, suporte a `env(safe-area-inset-bottom)` (barras de gestos Android/iOS), grade responsiva em 6 colunas com ícones nítidos + rótulos legíveis (`Loja`, `Pets`, `Herói`, `Mochila`, `Quests`, `Eventos`) e badge numérico de missões prontas (`#hudBottomQuestsBadge`) diretamente sobre o botão `Quests`.
+* **Metas de Caça com Concluídas no Topo e "Recolher Tudo" (`QuestStepActionService.ts` & `PlayQuestsController.js`):**
+  * Nova ordenação automática na aba `Metas de Caça`: missões concluídas prontas para recolher (`READY_TO_TURN_IN`) aparecem sempre no topo, seguidas pelas em andamento ordenadas por porcentagem de progresso decrescente.
+  * Criado endpoint autoritário `POST /api/play/characters/:charId/quests/claim-all-meta` e botão **`🎁 Recolher Tudo`** na barra superior das Metas de Caça, recolhendo em lote todas as metas concluídas (incluindo estágios encadeados já atingidos), consolidando EXP, Ouro, Pontos de Atributo, Level Up VFX e validação de espaço na mochila.
+* **Governança e Cumprimento Estrito de Regras:**
+  * Todos os arquivos rigorosamente abaixo de 1.000 linhas (`PlayRouter.ts`: 995, `play/index.html`: 984, `PlayHudController.js`: 946, `PlayQuestsController.js`: 874, `play_hud.css`: 824, `QuestStepActionService.ts`: 634, `PlayQuestStepModal.js`: 472, `play_quests_and_menu.css`: 380 — Regra #7).
+  * Build TypeScript e `node --check` validados com 0 erros; deploy na VPS Azure (`40-65-63-193.sslip.io`) verificado com HTTP 200.
+
+---
+
 ## [v0.57.0] - 2026-11-23
 ### Coeficientes Dinâmicos de XP/Ouro em Quests, Checklist Sequencial Comandado e Capítulo 1: O Chamado da Curadoria (Vila Izumo)
 * **Coeficientes de XP e Ouro (`expCoefficient` / `goldCoefficient`) & Escalada Dinâmica por Faixa de Nível:**

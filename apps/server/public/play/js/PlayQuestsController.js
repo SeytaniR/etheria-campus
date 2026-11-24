@@ -38,13 +38,22 @@ const PlayQuestsController = {
     };
 
     client.updateQuestHudBadge = function () {
-      window.PlayQuestStepModal?.updateQuestChecklistHud(this);
-      const btn = document.getElementById('btnHudQuests');
-      if (!btn) return;
       const quests = this.questState?.quests || [];
       const readyCount = quests.filter((q) => q.status === 'READY_TO_TURN_IN').length;
       const activeCount = quests.filter((q) => q.status === 'IN_PROGRESS').length;
 
+      const bottomBadge = document.getElementById('hudBottomQuestsBadge');
+      if (bottomBadge) {
+        if (readyCount > 0) {
+          bottomBadge.textContent = readyCount > 99 ? '99+' : String(readyCount);
+          bottomBadge.style.display = 'inline-flex';
+        } else {
+          bottomBadge.style.display = 'none';
+        }
+      }
+
+      const btn = document.getElementById('btnHudQuests');
+      if (!btn) return;
       if (readyCount > 0) {
         btn.innerHTML = `📜 Missões <span style="background:#ef4444; color:#fff; padding:1px 6px; border-radius:99px; font-size:0.7rem; margin-left:4px;">? ${readyCount}</span>`;
       } else if (activeCount > 0) {
@@ -414,7 +423,7 @@ const PlayQuestsController = {
         if (acceptedQ?.sequentialObjectives) {
           const modal = document.getElementById('npcQuestModal');
           if (modal) modal.style.display = 'none';
-          this.showNotification?.(`📜 Missão iniciada: ${acceptedQ.titlePtBr}! Siga o checklist na tela.`, 'success');
+          this.showNotification?.(`📜 Missão iniciada: ${acceptedQ.titlePtBr}! Abra Quests no menu inferior para acompanhar o checklist.`, 'success');
         } else {
           this.renderNpcQuestModalContent();
         }
@@ -481,7 +490,7 @@ const PlayQuestsController = {
      */
     client.openQuestLogModal = async function (filter) {
       if (filter) this.questLogFilter = filter;
-      else if (!this.questLogFilter) this.questLogFilter = 'META';
+      else if (!this.questLogFilter) this.questLogFilter = 'ACTIVE';
       await this.loadCharacterQuests();
 
       const bodyEl = document.getElementById('questLogModalBody');
@@ -507,28 +516,69 @@ const PlayQuestsController = {
         return true;
       });
 
+      if (this.questLogFilter === 'META') {
+        const metaPriority = (q) => {
+          if (q.status === 'READY_TO_TURN_IN') return 0;
+          if (q.status === 'IN_PROGRESS') return 1;
+          if (q.status === 'AVAILABLE' || q.status === 'LOCKED') return 2;
+          return 3; // COMPLETED (maestria total)
+        };
+        const metaPct = (q) => {
+          const o = (q.objectives || [])[0] || {};
+          return Math.min(1, Number(o.currentCount || 0) / Math.max(1, Number(o.requiredCount || 1)));
+        };
+        filtered.sort((a, b) => {
+          const pa = metaPriority(a);
+          const pb = metaPriority(b);
+          if (pa !== pb) return pa - pb;
+          const pctDiff = metaPct(b) - metaPct(a);
+          if (Math.abs(pctDiff) > 0.0001) return pctDiff;
+          return Number(a.id || 0) - Number(b.id || 0);
+        });
+      }
+
       const metaQuestsCount = allQuests.filter((q) => q.category === 'META').length;
       const metaReadyCount = allQuests.filter((q) => q.category === 'META' && q.status === 'READY_TO_TURN_IN').length;
+      const activeNonMetaCount = allQuests.filter((q) => q.category !== 'META' && (q.status === 'IN_PROGRESS' || q.status === 'READY_TO_TURN_IN')).length;
 
       const tabsHtml = `
-        <div style="display:flex; gap:6px; flex-wrap:wrap; border-bottom:1px solid #334155; padding-bottom:8px;">
-          <button class="${this.questLogFilter === 'META' ? 'btn-primary' : ''}" onclick="PlayApp.openQuestLogModal('META')" style="font-size:0.76rem; padding:5px 10px; background:${this.questLogFilter === 'META' ? 'linear-gradient(135deg, #0284c7, #0369a1)' : '#0f172a'}; color:#38bdf8; font-weight:800; border:1.5px solid ${this.questLogFilter === 'META' ? '#38bdf8' : '#334155'};">
-            🎯 Metas de Caça (${metaQuestsCount}) ${metaReadyCount > 0 ? `<span style="background:#22c55e; color:#020617; border-radius:99px; padding:1px 6px; font-size:0.68rem; margin-left:3px;">★ ${metaReadyCount}</span>` : ''}
+        <div class="quest-log-tabs">
+          <button class="quest-log-tab-btn ${this.questLogFilter === 'ACTIVE' ? 'is-active' : ''}" onclick="PlayApp.openQuestLogModal('ACTIVE')">
+            ⏳ Em Andamento (${activeNonMetaCount})
           </button>
-          <button class="${this.questLogFilter === 'ACTIVE' ? 'btn-primary' : ''}" onclick="PlayApp.openQuestLogModal('ACTIVE')" style="font-size:0.76rem; padding:5px 10px;">
-            ⏳ Em Andamento (${allQuests.filter((q) => q.category !== 'META' && (q.status === 'IN_PROGRESS' || q.status === 'READY_TO_TURN_IN')).length})
+          <button class="quest-log-tab-btn is-meta ${this.questLogFilter === 'META' ? 'is-active' : ''}" onclick="PlayApp.openQuestLogModal('META')">
+            🎯 Metas de Caça (${metaQuestsCount}) ${metaReadyCount > 0 ? `<span class="quest-tab-ready-pill">★ ${metaReadyCount}</span>` : ''}
           </button>
-          <button class="${this.questLogFilter === 'AVAILABLE' ? 'btn-primary' : ''}" onclick="PlayApp.openQuestLogModal('AVAILABLE')" style="font-size:0.76rem; padding:5px 10px;">
+          <button class="quest-log-tab-btn ${this.questLogFilter === 'AVAILABLE' ? 'is-active' : ''}" onclick="PlayApp.openQuestLogModal('AVAILABLE')">
             ❗ Disponíveis (${allQuests.filter((q) => q.category !== 'META' && q.status === 'AVAILABLE').length})
           </button>
-          <button class="${this.questLogFilter === 'LOCKED' ? 'btn-primary' : ''}" onclick="PlayApp.openQuestLogModal('LOCKED')" style="font-size:0.76rem; padding:5px 10px;">
-            🔒 Próximos Episódios (${allQuests.filter((q) => q.category !== 'META' && q.status === 'LOCKED').length})
+          <button class="quest-log-tab-btn ${this.questLogFilter === 'LOCKED' ? 'is-active' : ''}" onclick="PlayApp.openQuestLogModal('LOCKED')">
+            🔒 Próximos (${allQuests.filter((q) => q.category !== 'META' && q.status === 'LOCKED').length})
           </button>
-          <button class="${this.questLogFilter === 'COMPLETED' ? 'btn-primary' : ''}" onclick="PlayApp.openQuestLogModal('COMPLETED')" style="font-size:0.76rem; padding:5px 10px;">
+          <button class="quest-log-tab-btn ${this.questLogFilter === 'COMPLETED' ? 'is-active' : ''}" onclick="PlayApp.openQuestLogModal('COMPLETED')">
             ✅ Concluídas (${allQuests.filter((q) => q.category !== 'META' && q.status === 'COMPLETED').length})
           </button>
         </div>
       `;
+
+      const metaToolbarHtml =
+        this.questLogFilter === 'META'
+          ? `
+            <div class="quest-meta-toolbar ${metaReadyCount > 0 ? 'has-ready' : ''}">
+              <div style="display:flex; flex-direction:column; gap:2px;">
+                <strong style="font-size:0.80rem; color:${metaReadyCount > 0 ? '#86efac' : '#cbd5e1'};">
+                  ${metaReadyCount > 0 ? `🎁 ${metaReadyCount} Meta(s) concluída(s) no topo!` : '🎯 Metas de Caça'}
+                </strong>
+                <span style="font-size:0.70rem; color:#94a3b8;">
+                  ${metaReadyCount > 0 ? 'Recolha todas as recompensas de uma só vez.' : 'Conclua metas para resgatar recompensas aqui.'}
+                </span>
+              </div>
+              <button type="button" id="btnClaimAllMetaQuests" class="quest-claim-all-btn" ${metaReadyCount === 0 ? 'disabled' : ''} onclick="PlayApp.claimAllMetaQuests()">
+                🎁 Recolher Tudo${metaReadyCount > 0 ? ` (${metaReadyCount})` : ''}
+              </button>
+            </div>
+          `
+          : '';
 
       const listHtml = filtered.length
         ? filtered
@@ -536,7 +586,7 @@ const PlayQuestsController = {
               const isMeta = q.category === 'META';
               const statusBadge =
                 q.status === 'READY_TO_TURN_IN'
-                  ? `<span style="background:#22c55e; color:#020617; padding:2px 8px; border-radius:99px; font-size:0.7rem; font-weight:800; box-shadow:0 0 8px rgba(34,197,94,0.5);">🎁 Recompensa Disponível</span>`
+                  ? `<span style="background:#22c55e; color:#020617; padding:2px 8px; border-radius:99px; font-size:0.7rem; font-weight:800; box-shadow:0 0 8px rgba(34,197,94,0.5);">🎁 Concluída (Recolher)</span>`
                   : q.status === 'IN_PROGRESS'
                   ? `<span style="background:#475569; color:#f8fafc; padding:2px 8px; border-radius:99px; font-size:0.7rem; font-weight:700;">⏳ Em Andamento</span>`
                   : q.status === 'AVAILABLE'
@@ -610,6 +660,32 @@ const PlayQuestsController = {
                 `;
               }
 
+              const useSequentialChecklist =
+                Boolean(q.sequentialObjectives) && window.PlayQuestStepModal?.renderQuestLogChecklistHtml;
+
+              if (useSequentialChecklist) {
+                return `
+                  <div class="quest-checklist-card">
+                    <div style="display:flex; justify-content:space-between; align-items:center; gap:6px; flex-wrap:wrap;">
+                      <strong style="color:#fde047; font-size:0.92rem;">📜 ${q.titlePtBr}</strong>
+                      <div style="display:flex; gap:6px; align-items:center; flex-wrap:wrap;">
+                        ${this.getQuestCategoryBadge(q.category, q.chapterOrder, q.episodeOrder, q.metaStageInfo)}
+                        ${statusBadge}
+                      </div>
+                    </div>
+                    <div style="font-size:0.75rem; color:#94a3b8; line-height:1.4;">${q.descriptionPtBr}</div>
+                    <div style="font-size:0.72rem; color:#38bdf8;">
+                      🧙 Comandante: <strong>${q.giverNpcNamePtBr}</strong> • ${mapHint}
+                    </div>
+                    ${window.PlayQuestStepModal.renderQuestLogChecklistHtml(q)}
+                    <div>
+                      <div style="font-size:0.70rem; color:#94a3b8; margin-bottom:4px;">🎁 Recompensas finais ao concluir:</div>
+                      ${this.renderRewardsSummaryHtml(q.rewards)}
+                    </div>
+                  </div>
+                `;
+              }
+
               return `
                 <div style="background:#0f172a; border:1px solid #334155; border-radius:10px; padding:10px 12px; display:flex; flex-direction:column; gap:6px;">
                   <div style="display:flex; justify-content:space-between; align-items:center; gap:6px; flex-wrap:wrap;">
@@ -632,12 +708,10 @@ const PlayQuestsController = {
                   ${this.renderRewardsSummaryHtml(q.rewards)}
                   ${
                     q.status === 'IN_PROGRESS' &&
-                    (!q.sequentialObjectives
-                      ? Boolean(q.questBattleConfig?.enabled) ||
-                        (q.objectives || []).some(
-                          (o) => ['WIN_BATTLES', 'KILL_MONSTER', 'KILL_LEADER', 'KILL_BOSS'].includes(o.type) && !o.completed
-                        )
-                      : (q.objectives || []).some((o) => o.isActiveStep && !o.completed && o.stepActionType === 'QUEST_BATTLE'))
+                    (Boolean(q.questBattleConfig?.enabled) ||
+                      (q.objectives || []).some(
+                        (o) => ['WIN_BATTLES', 'KILL_MONSTER', 'KILL_LEADER', 'KILL_BOSS'].includes(o.type) && !o.completed
+                      ))
                       ? `<button class="btn-primary" style="background:linear-gradient(135deg, #7c3aed, #4f46e5); border:1.5px solid #a78bfa; color:#fff; font-weight:800; padding:8px 12px; font-size:0.82rem; border-radius:8px; display:flex; align-items:center; justify-content:center; gap:8px; cursor:pointer; margin-top:4px;" onclick="window.PlayApp.startQuestBattle(${q.id})">
                           ${q.questBattleConfig?.buttonLabelPtBr || '⚔️ Entrar no Véu (Iniciar Treino / Combate)'}
                         </button>`
@@ -649,7 +723,7 @@ const PlayQuestsController = {
             .join('')
         : `<div style="padding:18px; text-align:center; color:#64748b; font-size:0.82rem;">Nenhuma missão nesta aba.</div>`;
 
-      bodyEl.innerHTML = `${tabsHtml}<div style="display:flex; flex-direction:column; gap:8px; margin-top:4px;">${listHtml}</div>`;
+      bodyEl.innerHTML = `${tabsHtml}${metaToolbarHtml}<div style="display:flex; flex-direction:column; gap:8px; margin-top:4px;">${listHtml}</div>`;
       document.getElementById('questLogModal').style.display = 'flex';
     };
 
@@ -663,17 +737,70 @@ const PlayQuestsController = {
           method: 'POST',
           body: JSON.stringify({ mapId: null }),
         });
+        if (result?.questState) {
+          this.questState = result.questState;
+          this.updateQuestHudBadge();
+        }
         if (result && result.character) {
-          Object.assign(this.activeChar, result.character);
+          window.PlayQuestStepModal?.applyCharacterProgressionUpdate(this, result.character);
           if (typeof this.renderStatsModalView === 'function') this.renderStatsModalView();
           if (window.PlayHudController && typeof window.PlayHudController.updatePlayerVitals === 'function') {
             window.PlayHudController.updatePlayerVitals();
           }
         }
-        this.showNotification?.('🎉 Meta de Caça Resgatada! +1 Ponto de Atributo, Medalha de Caçador, Ouro e XP!', 'success');
+        this.showNotification?.('🎉 Meta de Caça Resgatada! Recompensas entregues!', 'success');
         await this.openQuestLogModal('META');
       } catch (err) {
         alert(`Erro ao resgatar meta de caça: ${err.message}`);
+      }
+    };
+
+    /**
+     * Recolhe em lote TODAS as Quests Meta concluídas de uma só vez.
+     */
+    client.claimAllMetaQuests = async function () {
+      if (!this.activeChar) return;
+      const btn = document.getElementById('btnClaimAllMetaQuests');
+      if (btn) {
+        btn.disabled = true;
+        btn.textContent = '⏳ Recolhendo...';
+      }
+      try {
+        const result = await this.api(`/api/play/characters/${this.activeChar.id}/quests/claim-all-meta`, {
+          method: 'POST',
+          body: JSON.stringify({ mapId: this.currentMap?.id || null }),
+        });
+        if (result?.questState) {
+          this.questState = result.questState;
+          this.updateQuestHudBadge();
+        }
+        if (result?.character) {
+          window.PlayQuestStepModal?.applyCharacterProgressionUpdate(this, result.character);
+          if (typeof this.renderStatsModalView === 'function') this.renderStatsModalView();
+          if (window.PlayHudController && typeof window.PlayHudController.updatePlayerVitals === 'function') {
+            window.PlayHudController.updatePlayerVitals();
+          }
+        }
+        if (result?.claimedCount > 0) {
+          const xpStr = result.totalExp > 0 ? ` +${Number(result.totalExp).toLocaleString('pt-BR')} XP` : '';
+          const goldStr = result.totalGold > 0 ? ` • +${Number(result.totalGold).toLocaleString('pt-BR')} Ouro` : '';
+          this.showNotification?.(
+            `🎉 ${result.claimedCount} Meta(s) recolhida(s)!${xpStr}${goldStr}`,
+            'success'
+          );
+          if (typeof this.loadCharacterInventory === 'function') {
+            await this.loadCharacterInventory().catch(() => {});
+          }
+        } else {
+          this.showNotification?.('Nenhuma Meta de Caça concluída para recolher no momento.', 'info');
+        }
+        if (result?.stoppedReason) {
+          this.showNotification?.(`⚠️ ${result.stoppedReason}`, 'warning');
+        }
+        await this.openQuestLogModal('META');
+      } catch (err) {
+        alert(`Erro ao recolher metas concluídas: ${err.message}`);
+        await this.openQuestLogModal('META');
       }
     };
 

@@ -483,7 +483,90 @@ export class QuestStepActionService {
   }
 
   /**
-   * Sub-roteador modular para rotas de etapas de checklist e seleção de companheiros iniciais (`/play`).
+   * Recolhe em lote TODAS as Quests Meta concluídas (`READY_TO_TURN_IN` / `TURN_IN_READY`),
+   * incluindo estágios subsequentes que já estejam completos pelo acúmulo de abates/itens.
+   */
+  public static async claimAllMetaQuests(
+    questsController: any,
+    characterId: number,
+    currentMapId: number | null = null
+  ) {
+    let claimedCount = 0;
+    let totalExp = 0;
+    let totalGold = 0;
+    let totalStatPoints = 0;
+    let totalLeveledUp = false;
+    let totalStatPointsFromLevel = 0;
+    let latestCharacter: any = null;
+    let stoppedReason: string | null = null;
+    const maxClaims = 250;
+
+    for (let round = 0; round < maxClaims; round++) {
+      const state = await questsController.getCharacterQuestState(characterId, currentMapId);
+      const readyMeta = (state.quests || []).filter(
+        (q: any) =>
+          (q.category === 'META' || q.questCategory === 'META') &&
+          (q.status === 'READY_TO_TURN_IN' || q.playerState === 'TURN_IN_READY')
+      );
+      if (readyMeta.length === 0) break;
+
+      let claimedAnyInRound = false;
+      for (const mq of readyMeta) {
+        if (claimedCount >= maxClaims) break;
+        const rew = mq.rewards || {};
+        const expEst = Math.max(0, Number(rew.exp) || 0);
+        const goldEst = Math.max(0, Number(rew.gold) || 0);
+        const statEst = Math.max(0, Number(rew.rewardStatPoints ?? rew.statPoints) || 0);
+        try {
+          const res = await questsController.turnInQuest(characterId, mq.id, currentMapId);
+          claimedCount++;
+          claimedAnyInRound = true;
+          totalExp += expEst;
+          totalGold += goldEst;
+          totalStatPoints += statEst;
+          if (res?.character) {
+            latestCharacter = res.character;
+            if (res.character.playerProgression?.leveledUp) {
+              totalLeveledUp = true;
+              totalStatPointsFromLevel += Number(res.character.playerProgression.statPointsGained || 0);
+            }
+          }
+        } catch (err: any) {
+          stoppedReason = err?.message || 'Não foi possível recolher algumas metas de caça.';
+          break;
+        }
+      }
+      if (!claimedAnyInRound || stoppedReason) break;
+    }
+
+    const finalState = await questsController.getCharacterQuestState(characterId, currentMapId);
+    if (latestCharacter && totalLeveledUp) {
+      latestCharacter = {
+        ...latestCharacter,
+        playerProgression: {
+          ...(latestCharacter.playerProgression || {}),
+          leveledUp: true,
+          newLevel: latestCharacter.level,
+          statPointsGained:
+            totalStatPointsFromLevel || Number(latestCharacter.playerProgression?.statPointsGained || 0),
+        },
+      };
+    }
+
+    return {
+      claimedCount,
+      totalExp,
+      totalGold,
+      totalStatPoints,
+      stoppedReason,
+      questState: finalState,
+      character: latestCharacter,
+    };
+  }
+
+  /**
+   * Sub-roteador modular para rotas de etapas de checklist, seleção de companheiros iniciais
+   * e resgate em lote de Quests Meta (`/play`).
    */
   public static async handlePlayQuestStepRoute(
     req: any,
@@ -496,6 +579,23 @@ export class QuestStepActionService {
     readJsonBody: <T = any>(req: any) => Promise<T>,
     sendJson: (res: any, status: number, payload: unknown) => void
   ): Promise<boolean> {
+    const claimAllMetaMatch = pathname.match(/^\/api\/play\/characters\/(\d+)\/quests\/claim-all-meta$/);
+    if (claimAllMetaMatch && method === 'POST') {
+      const charId = Number(claimAllMetaMatch[1]);
+      if (!(await verifyOwnershipFn(charId))) {
+        sendJson(res, 403, { error: 'Acesso negado: este personagem não pertence à sua conta.' });
+        return true;
+      }
+      try {
+        const body = await readJsonBody<{ mapId?: number | null }>(req);
+        const result = await this.claimAllMetaQuests(questsController, charId, body?.mapId ?? null);
+        sendJson(res, 200, result);
+      } catch (err: any) {
+        sendJson(res, 400, { error: err?.message || 'Erro ao recolher metas concluídas.' });
+      }
+      return true;
+    }
+
     const starterPetsMatch = pathname.match(/^\/api\/play\/characters\/(\d+)\/quests\/starter-pets$/);
     if (starterPetsMatch && method === 'GET') {
       const charId = Number(starterPetsMatch[1]);

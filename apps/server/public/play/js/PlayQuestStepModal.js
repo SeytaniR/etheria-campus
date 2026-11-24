@@ -138,6 +138,8 @@ const PlayQuestStepModal = {
     client.openBagFromQuestStep = async function () {
       const npcModal = document.getElementById('npcQuestModal');
       if (npcModal) npcModal.style.display = 'none';
+      const logModal = document.getElementById('questLogModal');
+      if (logModal) logModal.style.display = 'none';
       if (typeof this.openBagModal === 'function') {
         await this.openBagModal();
       } else if (window.PlayHudController?.openBag) {
@@ -348,107 +350,99 @@ const PlayQuestStepModal = {
   },
 
   /**
-   * Atualiza o painel compacto de Checklist da Quest Principal ativa na tela de exploração.
+   * Widget flutuante desativado por decisão do projeto: todo o status da missão e checklist
+   * fica concentrado exclusivamente dentro do Modal de Quests no menu inferior.
    */
-  updateQuestChecklistHud(client) {
-    const widget = document.getElementById('questChecklistHudWidget');
-    if (!widget) return;
+  updateQuestChecklistHud() {
+    const legacyWidget = document.getElementById('questChecklistHudWidget');
+    if (legacyWidget) legacyWidget.remove();
+    const legacyStyles = document.getElementById('questStepChecklistStyles');
+    if (legacyStyles) legacyStyles.remove();
+  },
 
-    const allQuests = client?.questState?.quests || [];
-    const activeMain = allQuests.find(
-      (q) =>
-        q.category === 'MAIN' &&
-        (q.status === 'IN_PROGRESS' || q.status === 'READY_TO_TURN_IN') &&
-        (q.sequentialObjectives || (q.objectives || []).length > 1)
-    );
+  /**
+   * Renderiza o Checklist completo de etapas da Quest Principal dentro do Modal de Quests.
+   */
+  renderQuestLogChecklistHtml(q) {
+    const objectives = Array.isArray(q?.objectives) ? q.objectives : [];
+    const completedSteps = objectives.filter((o) => Boolean(o.completed)).length;
+    const isTurnIn = q.status === 'READY_TO_TURN_IN';
+    const isDoneAll = q.status === 'COMPLETED';
+    const totalSteps = objectives.length + 1;
+    const doneSteps = isDoneAll ? totalSteps : completedSteps;
+    const pct = Math.min(100, Math.round((doneSteps / Math.max(1, totalSteps)) * 100));
 
-    if (!activeMain) {
-      widget.style.display = 'none';
-      return;
-    }
-
-    widget.style.display = 'flex';
-    const titleEl = document.getElementById('questChecklistHudTitle');
-    const bodyEl = document.getElementById('questChecklistHudBody');
-    const toggleBtn = document.getElementById('questChecklistHudToggle');
-    if (titleEl) titleEl.textContent = `📜 ${activeMain.titlePtBr}`;
-    if (toggleBtn) toggleBtn.textContent = this._checklistCollapsed ? '▼' : '▲';
-    if (!bodyEl) return;
-
-    if (this._checklistCollapsed) {
-      bodyEl.style.display = 'none';
-      return;
-    }
-    bodyEl.style.display = 'flex';
-
-    const rows = (activeMain.objectives || []).map((obj) => {
+    const rows = objectives.map((obj, idx) => {
       const done = Boolean(obj.completed);
-      const isAct = Boolean(obj.isActiveStep) && !done;
-      const eqHint =
-        obj.stepActionType === 'GRANT_AND_EQUIP' && obj.itemsGranted && !done
-          ? ` <span style="color:#38bdf8;">(${obj.equippedCount}/${obj.totalRequiredEquip} equip.)</span>`
-          : '';
+      const isAct = Boolean(obj.isActiveStep) && !done && q.status === 'IN_PROGRESS';
+      const stepStateClass = done ? 'is-done' : isAct ? 'is-active' : '';
+      const marker = done ? '[X]' : isAct ? '[▶]' : '[ ]';
+
+      let rightBadge = `<span style="font-size:0.68rem; font-family:monospace; white-space:nowrap; opacity:0.85;">${done ? 'Concluída' : isAct ? 'Atual' : `Etapa ${idx + 1}`}</span>`;
+      let inlineActionHtml = '';
+
+      if (obj.stepActionType === 'GRANT_AND_EQUIP' && !done) {
+        const eqCur = Number(obj.equippedCount || 0);
+        const eqTot = Number(obj.totalRequiredEquip || obj.requiredCount || 1);
+        rightBadge = `<span style="font-size:0.7rem; font-family:monospace; color:${obj.itemsGranted ? '#38bdf8' : '#fde047'}; white-space:nowrap;">${eqCur}/${eqTot} equip.</span>`;
+        if (isAct && obj.itemsGranted) {
+          inlineActionHtml = `
+            <button type="button" class="btn-primary" style="margin-top:6px; padding:6px 10px; font-size:0.74rem; width:100%;" onclick="PlayApp.openBagFromQuestStep()">
+              🎒 Abrir Mochila e Equipar Peças (${eqCur}/${eqTot})
+            </button>
+          `;
+        }
+      } else if (obj.stepActionType === 'QUEST_BATTLE' && isAct && !done) {
+        inlineActionHtml = `
+          <button type="button" class="btn-primary" style="margin-top:6px; padding:7px 10px; font-size:0.76rem; width:100%; background:linear-gradient(135deg, #7c3aed, #4f46e5); border-color:#a78bfa; color:#fff;" onclick="PlayApp.startQuestBattle(${q.id})">
+            ⚔️ ${obj.stepButtonLabelPtBr || 'Iniciar Treino no Véu'}
+          </button>
+        `;
+      }
+
       return `
-        <div style="font-size:0.72rem; line-height:1.3; display:flex; align-items:flex-start; gap:5px; color:${done ? '#4ade80' : isAct ? '#fde047' : '#64748b'}; font-weight:${isAct ? '800' : '500'}; ${done ? 'text-decoration:line-through; opacity:0.85;' : ''}">
-          <span style="font-family:monospace;">${done ? '[X]' : isAct ? '[▶]' : '[ ]'}</span>
-          <span>${obj.descriptionPtBr || obj.labelPtBr}${eqHint}</span>
+        <div class="quest-checklist-step ${stepStateClass}">
+          <div style="display:flex; flex-direction:column; gap:2px; flex:1; min-width:0;">
+            <div style="display:flex; align-items:flex-start; gap:7px;">
+              <span class="quest-checklist-marker">${marker}</span>
+              <span style="${done ? 'text-decoration:line-through; opacity:0.85;' : ''}">${obj.descriptionPtBr || obj.labelPtBr || obj.type}</span>
+            </div>
+            ${inlineActionHtml}
+          </div>
+          ${rightBadge}
         </div>
       `;
     });
 
-    const isTurnIn = activeMain.status === 'READY_TO_TURN_IN';
-    const turnInName = activeMain.turnInNpcNamePtBr || activeMain.giverNpcNamePtBr || 'Comandante';
+    const turnInName = q.turnInNpcNamePtBr || q.giverNpcNamePtBr || 'Comandante';
     rows.push(`
-      <div style="font-size:0.72rem; line-height:1.3; display:flex; align-items:flex-start; gap:5px; color:${isTurnIn ? '#fde047' : '#64748b'}; font-weight:${isTurnIn ? '800' : '500'};">
-        <span style="font-family:monospace;">${isTurnIn ? '[▶]' : '[ ]'}</span>
-        <span>Retornar à ${turnInName}</span>
+      <div class="quest-checklist-step ${isDoneAll ? 'is-done' : isTurnIn ? 'is-active' : ''}">
+        <div style="display:flex; align-items:flex-start; gap:7px;">
+          <span class="quest-checklist-marker">${isDoneAll ? '[X]' : isTurnIn ? '[▶]' : '[ ]'}</span>
+          <span style="${isDoneAll ? 'text-decoration:line-through; opacity:0.85;' : ''}">Retornar à ${turnInName} para concluir</span>
+        </div>
+        <span style="font-size:0.68rem; font-family:monospace; white-space:nowrap;">${isDoneAll ? 'Concluída' : isTurnIn ? 'Pronto!' : 'Final'}</span>
       </div>
     `);
 
-    bodyEl.innerHTML = rows.join('');
+    return `
+      <div style="display:flex; flex-direction:column; gap:6px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.72rem; color:#cbd5e1;">
+          <span>📋 Progresso do Checklist</span>
+          <strong style="font-family:monospace; color:#fde047;">${doneSteps}/${totalSteps} (${pct}%)</strong>
+        </div>
+        <div class="quest-checklist-progress-bar">
+          <div class="quest-checklist-progress-fill" style="width:${pct}%;"></div>
+        </div>
+        <div style="display:flex; flex-direction:column; gap:5px; margin-top:2px;">
+          ${rows.join('')}
+        </div>
+      </div>
+    `;
   },
 
   injectDomAndStyles() {
-    if (!document.getElementById('questStepChecklistStyles')) {
-      const st = document.createElement('style');
-      st.id = 'questStepChecklistStyles';
-      st.textContent = `
-        #questChecklistHudWidget {
-          position: fixed;
-          left: 10px;
-          top: 122px;
-          z-index: 42;
-          width: min(260px, 68vw);
-          background: rgba(2, 6, 23, 0.84);
-          border: 1.5px solid rgba(234, 179, 8, 0.55);
-          border-radius: 10px;
-          padding: 8px 10px;
-          display: none;
-          flex-direction: column;
-          gap: 6px;
-          box-shadow: 0 6px 20px rgba(0, 0, 0, 0.55);
-          pointer-events: auto;
-        }
-        body.is-in-combat #questChecklistHudWidget { display: none !important; }
-        @media (max-height: 500px) and (orientation: landscape) {
-          #questChecklistHudWidget { top: 84px; width: 220px; padding: 6px 8px; }
-        }
-      `;
-      document.head.appendChild(st);
-    }
-
-    if (!document.getElementById('questChecklistHudWidget')) {
-      const w = document.createElement('div');
-      w.id = 'questChecklistHudWidget';
-      w.innerHTML = `
-        <div style="display:flex; justify-content:space-between; align-items:center; gap:6px; border-bottom:1px solid rgba(148,163,184,0.2); padding-bottom:4px; cursor:pointer;" onclick="PlayQuestStepModal._checklistCollapsed = !PlayQuestStepModal._checklistCollapsed; PlayQuestStepModal.updateQuestChecklistHud(window.PlayApp);">
-          <strong id="questChecklistHudTitle" style="font-size:0.75rem; color:#fde047; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">📜 Missão Principal</strong>
-          <span id="questChecklistHudToggle" style="font-size:0.7rem; color:#94a3b8;">▲</span>
-        </div>
-        <div id="questChecklistHudBody" style="display:flex; flex-direction:column; gap:4px;"></div>
-      `;
-      document.body.appendChild(w);
-    }
+    this.updateQuestChecklistHud();
 
     if (!document.getElementById('starterPetPickerModal')) {
       const m = document.createElement('div');

@@ -8,9 +8,9 @@
 ---
 
 ## 📌 Status Atual do Projeto
-* **Versão Atual:** `v0.57.0`
-* **Última Atualização:** `2026-11-23`
-* **Fase Atual:** **Coeficientes de XP/Ouro em Quests, Checklist Sequencial Comandado e Capítulo 1: O Chamado da Curadoria (`v0.57.0`)** — Adicionados `expCoefficient` e `goldCoefficient` (padrão `1.0`, edição individual e em lote no `/admin`) + modo dinâmico `LEVEL_RANGE_PCT` baseado na tabela real `level_experience_templates`. Implementados os módulos `QuestStepActionService.ts`, `AdminQuestStepsEditor.js` e `PlayQuestStepModal.js` com checklist sequencial comandado na HUD, modais interativos por NPC, validação obrigatória de equipamento de todas as peças (`GRANT_AND_EQUIP`), seletor de 2 companheiros distintos Rank F (`CHOOSE_PETS`) e batalhas instanciadas por etapa (`QUEST_BATTLE`). Quests narrativas reconstruídas do zero no banco (mantendo intactas todas as 104 Meta Quests): **Capítulo 1 (`#2273 q_cap1_izumo`)** completo na Vila Izumo (Lv 1 → Lv 10 = `1.890.000` XP + `#4136 Iniciado da Bruma`) e gancho do **Capítulo 2 (`#2274 q_cap2_kael_intro`)** no Vigia Kael (`#36`) no Pantanal das Nuvens. Todos os arquivos estritamente < 1.000 linhas (Regra #7).
+* **Versão Atual:** `v0.57.1`
+* **Última Atualização:** `2026-11-24`
+* **Fase Atual:** **Menu Inferior Mobile-First, Checklist Integrado no Modal de Quests e "Recolher Tudo" nas Metas de Caça (`v0.57.1`)** — Removido o widget flutuante `#questChecklistHudWidget` do mapa, concentrando status da missão atual e checklist sequencial exclusivamente no modal Quests (`#questLogModal`). Menu inferior redesenhado em `play_quests_and_menu.css` + `PlayHudController.js` com vidro fosco confortável para mobile, safe-area inset, ícones com rótulos sutis e badge `#hudBottomQuestsBadge`. Aba `Metas de Caça` agora ordena concluídas no topo e possui botão **`Recolher Tudo`** ligado ao endpoint autoritário `POST /api/play/characters/:charId/quests/claim-all-meta`. Todos os arquivos estritamente < 1.000 linhas (Regra #7).
 * **Repositório Oficial:** `https://github.com/SeytaniR/etheria-campus`
 * **Fonte Bruta de Assets:** `https://github.com/SeytaniR/mcrework` (`https://seytanir.github.io/mcrework/`)
 
