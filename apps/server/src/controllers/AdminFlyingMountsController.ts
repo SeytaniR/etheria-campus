@@ -66,6 +66,8 @@ export class AdminFlyingMountsController {
         const cleanId = m.id;
         return {
           id: cleanId,
+          mcreworkMountKey: cleanId,
+          suggestedName: m.name,
           name: m.name,
           tier: m.tier || 1,
           type: m.type || 'male_mount',

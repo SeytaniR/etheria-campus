@@ -8,9 +8,9 @@
 ---
 
 ## 📌 Status Atual do Projeto
-* **Versão Atual:** `v0.57.2`
+* **Versão Atual:** `v0.58.0`
 * **Última Atualização:** `2026-11-24`
-* **Fase Atual:** **Ícones Originais nas Recompensas de Quests & Previews de Companheiros Corrigidos na Caçadora (`v0.57.2`)** — `QuestProgressService.ts` agora resolve e envia `rewardItemsPreview[]` (com `iconUrl` original e `rarityTier`) e `stepGrantItemsPreview[]` para todas as recompensas e entregas de etapa; `PlayQuestsController.js` e `PlayQuestStepModal.js` renderizam sempre o ícone original dos itens com borda de raridade. Corrigido o carregamento de miniaturas de companheiros/monstros de `thumb.png` para `thumb.webp` em `QuestStepActionService.ts`, `HunterPetController.ts` (agora 100% via `/api/assets/mcrework/`) e `AssetMirrorService.ts`, garantindo que todos os companheiros exibam preview nítido nos modais da Caçadora. Todos os arquivos estritamente < 1.000 linhas (Regra #7).
+* **Fase Atual:** **Modal Minimalista Mobile da Caçadora (Quests/Criar/Vender/Upgrade) & Calibração 2.5D de Baús, Asas e Montarias (`v0.58.0`)** — Redesign minimalista do modal unificado da Caçadora (`PlayHunterController.js` + `HunterPetController.ts`) com 4 seções discretas no topo (`Quests`, `Criar`, `Vender`, `Upgrade`) e correção dos bugs de atualização de essência, carregamento de pets e sincronização da HUD. No `/admin`, corrigido o preview de personagens protótipo (`/api/admin/maps/bootstrap` -> `classTemplates`) e o carregamento instantâneo das montarias voadoras ao selecionar na lista (`mcreworkMountKey` + catálogo completo), além de novos controles mobile-friendly de **Distância ao Chão (`Z` / `groundOffsetY`)** com linha guia de solo para Baús, Asas e Montarias (propagado 1:1 para `/play`). Todos os arquivos estritamente < 1.000 linhas (Regra #7).
 * **Repositório Oficial:** `https://github.com/SeytaniR/etheria-campus`
 * **Fonte Bruta de Assets:** `https://github.com/SeytaniR/mcrework` (`https://seytanir.github.io/mcrework/`)
 

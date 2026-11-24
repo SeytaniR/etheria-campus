@@ -95,7 +95,8 @@ class AdminEquipmentsTab {
           opts.push(`<option value="GLIDER|${g.modelId}|CHAR_MANIFEST">☁️ ${g.name} (${g.modelId})</option>`);
         }
         for (const m of cat.mounts || []) {
-          opts.push(`<option value="MOUNT|${m.modelId}|ATLAS|${m.flyingMountTemplateId}">🦅 [DB #${m.flyingMountTemplateId}] ${m.name} (${m.modelId})</option>`);
+          const tag = m.flyingMountTemplateId ? `[DB #${m.flyingMountTemplateId}] ` : '';
+          opts.push(`<option value="MOUNT|${m.modelId}|ATLAS|${m.flyingMountTemplateId || ''}">🦅 ${tag}${m.name} (${m.modelId})</option>`);
         }
       }
       sel.innerHTML = opts.join('');
@@ -109,12 +110,15 @@ class AdminEquipmentsTab {
       document.getElementById('equipVisualScaleInput').value = fx.visualScale ?? (isWing ? 0.65 : 0.70);
       document.getElementById('equipVisualOffsetXInput').value = fx.visualOffsetX ?? 0;
       document.getElementById('equipVisualOffsetYInput').value = fx.visualOffsetY ?? (isWing ? -30 : 0);
+      const gOffInp = document.getElementById('equipGroundOffsetYInput');
+      if (gOffInp) gOffInp.value = fx.groundOffsetY ?? 0;
       if (isMount) {
         document.getElementById('equipMountAltitudeInput').value = fx.flightAltitude ?? 72;
         document.getElementById('equipMountRiderOffsetXInput').value = fx.riderOffsetX ?? 0;
         document.getElementById('equipMountRiderOffsetInput').value = fx.riderOffsetY ?? -22;
         document.getElementById('equipMountSpeedBonusInput').value = fx.speedBonusPct ?? 25;
       }
+      window.AdminEquipmentVisualPreview?.syncSliders?.();
       window.AdminEquipmentVisualPreview?.start(this);
     };
 
@@ -154,17 +158,21 @@ class AdminEquipmentsTab {
         setNum('equipMountRiderOffsetInput', -22);
         setNum('equipMountAltitudeInput', 72);
       } else if (kind === 'MOUNT') {
-        const m = (cat.mounts || []).find((x) => String(x.flyingMountTemplateId) === String(mountTplId));
+        const m = (cat.mounts || []).find((x) =>
+          (mountTplId && String(x.flyingMountTemplateId) === String(mountTplId)) || x.modelId === modelId
+        );
         if (m) {
           setNum('equipVisualScaleInput', 0.70);
           setNum('equipVisualOffsetXInput', 0);
           setNum('equipVisualOffsetYInput', 0);
+          setNum('equipGroundOffsetYInput', m.groundOffsetY ?? 0);
           setNum('equipMountRiderOffsetXInput', 0);
           setNum('equipMountAltitudeInput', m.flightAltitude ?? 65);
           setNum('equipMountRiderOffsetInput', m.riderOffsetY ?? -45);
           setNum('equipMountSpeedBonusInput', m.speedBonusPct ?? 35);
         }
       }
+      window.AdminEquipmentVisualPreview?.syncSliders?.();
       window.AdminEquipmentVisualPreview?.renderNow?.(this);
     };
 
@@ -459,7 +467,10 @@ class AdminEquipmentsTab {
           const [kind, modelId, visualFormat, mountTplId] = visVal.split('|');
           const visualScale = parseFloat(document.getElementById('equipVisualScaleInput')?.value) || (equipmentSlotCode === 'WINGS' ? 0.65 : 0.70);
           const visualOffsetX = parseInt(document.getElementById('equipVisualOffsetXInput')?.value, 10) || 0;
-          const visualOffsetY = parseInt(document.getElementById('equipVisualOffsetYInput')?.value, 10) ?? (equipmentSlotCode === 'WINGS' ? -30 : 0);
+          const rawOffY = parseInt(document.getElementById('equipVisualOffsetYInput')?.value, 10);
+          const visualOffsetY = Number.isFinite(rawOffY) ? rawOffY : (equipmentSlotCode === 'WINGS' ? -30 : 0);
+          const rawGroundZ = parseInt(document.getElementById('equipGroundOffsetYInput')?.value, 10);
+          const groundOffsetY = Number.isFinite(rawGroundZ) ? rawGroundZ : 0;
           if (equipmentSlotCode === 'WINGS') {
             specialEffectJson = {
               wingModelId: modelId,
@@ -468,8 +479,10 @@ class AdminEquipmentsTab {
               visualScale,
               visualOffsetX,
               visualOffsetY,
+              groundOffsetY,
             };
           } else {
+            const rawRiderY = parseInt(document.getElementById('equipMountRiderOffsetInput')?.value, 10);
             specialEffectJson = {
               mountModelId: modelId,
               visualFormat: visualFormat || 'CHAR_MANIFEST',
@@ -478,9 +491,10 @@ class AdminEquipmentsTab {
               visualScale,
               visualOffsetX,
               visualOffsetY,
+              groundOffsetY,
               flightAltitude: parseInt(document.getElementById('equipMountAltitudeInput')?.value, 10) || 72,
               riderOffsetX: parseInt(document.getElementById('equipMountRiderOffsetXInput')?.value, 10) || 0,
-              riderOffsetY: parseInt(document.getElementById('equipMountRiderOffsetInput')?.value, 10) ?? -22,
+              riderOffsetY: Number.isFinite(rawRiderY) ? rawRiderY : -22,
               speedBonusPct: parseFloat(document.getElementById('equipMountSpeedBonusInput')?.value) || 25,
             };
           }

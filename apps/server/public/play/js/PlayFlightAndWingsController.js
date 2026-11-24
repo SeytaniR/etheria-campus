@@ -529,7 +529,7 @@ class PlayFlightAndWingsController {
     if (!sp) return false;
     const baseScale = Number(customScale) > 0 ? Number(customScale) : 0.70;
     const wingScale = Number(wingsObj.visualScale) > 0 ? Number(wingsObj.visualScale) * (baseScale / 0.70) : baseScale;
-    const gOffY = Math.round((Number(groundOffsetY) || 0) * baseScale);
+    const gOffY = Math.round(((Number(groundOffsetY) || 0) + (Number(wingsObj.groundOffsetY) || 0)) * baseScale);
     const offX = Number(wingsObj.visualOffsetX) || 0;
     const offY = wingsObj.visualOffsetY !== undefined ? Number(wingsObj.visualOffsetY) : -30;
     const wingX = Math.round(x + offX);
@@ -625,7 +625,8 @@ class PlayFlightAndWingsController {
         mSprite?.draw(ctx, mX, mY, action, rawDir, now, null, mountObj.groundOffsetY || 0, mScale, false, 0, 0, true);
       } else {
         const mManifest = this.getOrCreateManifestSprite(mountObj.modelId, mountObj.manifestUrl, mountObj.thumbUrl);
-        mManifest?.drawFrame(ctx, mX, mY - 8, rawDir, action, now, null, mScale, 0.5, 0.55);
+        const mGroundZ = Math.round((Number(mountObj.groundOffsetY) || 0) * mScale);
+        mManifest?.drawFrame(ctx, mX, mY - 8 + mGroundZ, rawDir, action, now, null, mScale, 0.5, 0.55);
       }
 
       // 4. Cavaleiro em Idle + Pet seguidor colado logo atrás do personagem + Asas

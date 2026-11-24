@@ -74,6 +74,9 @@ const PlayQuestStepModal = {
           this.showNotification?.(`✅ Etapa concluída!${xpTxt}`, 'success');
           const npcModal = document.getElementById('npcQuestModal');
           if (npcModal) npcModal.style.display = 'none';
+          if (window.PlayHunterController?.renderQuestsTab) {
+            window.PlayHunterController.renderQuestsTab();
+          }
         } else {
           this.renderNpcQuestModalContent();
         }
@@ -98,6 +101,8 @@ const PlayQuestStepModal = {
         };
         const npcModal = document.getElementById('npcQuestModal');
         if (npcModal) npcModal.style.display = 'none';
+        const hunterModal = document.getElementById('hunterPetModal');
+        if (hunterModal) hunterModal.style.display = 'none';
         PlayQuestStepModal.renderStarterPetPicker();
         const modal = document.getElementById('starterPetPickerModal');
         if (modal) modal.style.display = 'flex';

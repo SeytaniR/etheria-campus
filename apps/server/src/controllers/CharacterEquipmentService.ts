@@ -55,6 +55,7 @@ export interface EquippedWingsVisualDto {
   visualScale: number;
   visualOffsetX: number;
   visualOffsetY: number;
+  groundOffsetY: number;
 }
 
 export interface EquippedMountVisualDto {
@@ -131,6 +132,7 @@ export class CharacterEquipmentService {
           visualScale: Number(fx.visualScale) > 0 ? Number(fx.visualScale) : 0.65,
           visualOffsetX: Number(fx.visualOffsetX) || 0,
           visualOffsetY: fx.visualOffsetY !== undefined ? Number(fx.visualOffsetY) : -30,
+          groundOffsetY: Number(fx.groundOffsetY ?? 0),
         };
       }
     }

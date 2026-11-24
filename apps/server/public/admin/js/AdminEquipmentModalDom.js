@@ -93,82 +93,119 @@ class AdminEquipmentModalDom {
         </div>
 
         <!-- BLOCO 1.5: VÍNCULO 2.5D ANIMADO & PALCO DE CALIBRAÇÃO (ASAS E MONTARIAS VOADORAS) -->
-        <div id="equipVisual25dBox" style="display:none; background:rgba(14,116,144,0.16); border:1.5px solid #22d3ee; border-radius:10px; padding:12px; margin-bottom:12px;">
+        <div id="equipVisual25dBox" style="display:none; background:rgba(14,116,144,0.14); border:1.5px solid #22d3ee; border-radius:12px; padding:12px; margin-bottom:12px;">
           <div style="font-size:0.84rem; font-weight:800; color:#22d3ee; margin-bottom:8px;">
-            🪽 / 🦅 Vínculo, Tamanho & Calibração 2.5D no Mapa Real (Asas & Montarias Voadoras)
+            🪽 / 🦅 Vínculo, Tamanho & Calibração 2.5D (Asas & Montarias Voadoras)
           </div>
-          <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(min(100%, 310px), 1fr)); gap:12px; align-items:start;">
-            <!-- Coluna Esquerda: Seleção de Modelo e Parâmetros -->
-            <div style="display:flex; flex-direction:column; gap:8px;">
-              <div class="field">
-                <label>Modelo 2.5D Animado (mcrework)</label>
-                <select id="equipVisualModelSelect" onchange="AdminApp.onVisualModelSelectChange()">
-                  <option value="">Sem modelo 2.5D vinculado</option>
-                </select>
-              </div>
-              <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px;">
-                <div class="field">
-                  <label>Tamanho / Escala (0.2–2.0)</label>
-                  <div style="display:flex; gap:3px;">
-                    <button type="button" onclick="window.AdminEquipmentVisualPreview?.nudgeInput('equipVisualScaleInput', -0.05, true, 0.2, 2.0)" style="padding:3px 6px;">-</button>
-                    <input type="number" id="equipVisualScaleInput" value="0.70" min="0.20" max="2.00" step="0.05" style="text-align:center;" />
-                    <button type="button" onclick="window.AdminEquipmentVisualPreview?.nudgeInput('equipVisualScaleInput', 0.05, true, 0.2, 2.0)" style="padding:3px 6px;">+</button>
-                  </div>
-                </div>
-                <div class="field">
-                  <label>Posição X (px)</label>
-                  <div style="display:flex; gap:3px;">
-                    <button type="button" onclick="window.AdminEquipmentVisualPreview?.nudgeInput('equipVisualOffsetXInput', -2)" style="padding:3px 6px;">-2</button>
-                    <input type="number" id="equipVisualOffsetXInput" value="0" min="-150" max="150" style="text-align:center;" />
-                    <button type="button" onclick="window.AdminEquipmentVisualPreview?.nudgeInput('equipVisualOffsetXInput', 2)" style="padding:3px 6px;">+2</button>
-                  </div>
-                </div>
-                <div class="field">
-                  <label>Posição Y (px)</label>
-                  <div style="display:flex; gap:3px;">
-                    <button type="button" onclick="window.AdminEquipmentVisualPreview?.nudgeInput('equipVisualOffsetYInput', -2)" style="padding:3px 6px;">-2</button>
-                    <input type="number" id="equipVisualOffsetYInput" value="-30" min="-150" max="150" style="text-align:center;" />
-                    <button type="button" onclick="window.AdminEquipmentVisualPreview?.nudgeInput('equipVisualOffsetYInput', 2)" style="padding:3px 6px;">+2</button>
-                  </div>
-                </div>
-              </div>
-              <div id="equipMountCalibrationRow" style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
-                <div class="field" id="equipMountAltitudeField">
-                  <label>Altitude de Voo (px)</label>
-                  <input type="number" id="equipMountAltitudeInput" value="72" min="20" max="150" />
-                </div>
-                <div class="field" id="equipMountSpeedBonusField">
-                  <label>Bônus Velocidade Voo (%)</label>
-                  <input type="number" id="equipMountSpeedBonusInput" value="25" min="0" max="200" />
-                </div>
-                <div class="field" id="equipMountRiderOffsetXField">
-                  <label>Cavaleiro Offset X (px)</label>
-                  <input type="number" id="equipMountRiderOffsetXInput" value="0" min="-100" max="100" />
-                </div>
-                <div class="field" id="equipMountRiderOffsetField">
-                  <label>Cavaleiro Offset Y (px)</label>
-                  <input type="number" id="equipMountRiderOffsetInput" value="-22" min="-120" max="40" />
-                </div>
-              </div>
-            </div>
-
-            <!-- Coluna Direita: Palco Canvas 2.5D com Mapa Real, Classe Modelo e Pet -->
-            <div style="background:rgba(2,6,23,0.9); border:1px solid #38bdf8; border-radius:8px; padding:8px; display:flex; flex-direction:column; gap:6px;">
+          <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(min(100%, 300px), 1fr)); gap:12px; align-items:start;">
+            <!-- Palco Canvas 2.5D (primeiro no mobile para feedback imediato ao tocar nos controles) -->
+            <div style="background:rgba(2,6,23,0.92); border:1px solid #38bdf8; border-radius:10px; padding:8px; display:flex; flex-direction:column; gap:7px;">
               <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.74rem; color:#38bdf8; font-weight:700;">
                 <span>🎮 Palco 2.5D ao Vivo</span>
                 <span id="equipPreviewDirLabel" style="color:#fde047;">Sul (S)</span>
               </div>
               <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:4px;">
-                <select id="equipPreviewMapSelect" onchange="window.AdminEquipmentVisualPreview?.syncMapImage(AdminApp)" style="font-size:0.68rem; padding:3px;"></select>
-                <select id="equipPreviewClassSelect" style="font-size:0.68rem; padding:3px;"></select>
-                <select id="equipPreviewPetSelect" style="font-size:0.68rem; padding:3px;"><option value="">Sem Pet</option></select>
+                <select id="equipPreviewMapSelect" onchange="window.AdminEquipmentVisualPreview?.syncMapImage(AdminApp)" style="font-size:0.70rem; padding:5px 4px; min-height:34px;"></select>
+                <select id="equipPreviewClassSelect" onchange="window.AdminEquipmentVisualPreview?.renderNow(AdminApp)" style="font-size:0.70rem; padding:5px 4px; min-height:34px;"></select>
+                <select id="equipPreviewPetSelect" onchange="window.AdminEquipmentVisualPreview?.renderNow(AdminApp)" style="font-size:0.70rem; padding:5px 4px; min-height:34px;"><option value="">🐾 Sem Pet</option></select>
               </div>
-              <canvas id="equipVisualPreviewCanvas" width="380" height="240" style="width:100%; border-radius:6px; border:1px solid #1e293b; background:#0b1120; display:block;"></canvas>
-              <div style="display:flex; justify-content:space-between; align-items:center; gap:4px;">
-                <button type="button" onclick="window.AdminEquipmentVisualPreview?.rotateDir(-1)" style="flex:1; font-size:0.72rem; padding:4px;">◀ Girar</button>
-                <button type="button" id="btnEquipPrevAct0" class="btn-primary" onclick="window.AdminEquipmentVisualPreview?.setAction(0)" style="font-size:0.70rem; padding:4px 8px;">Parado</button>
-                <button type="button" id="btnEquipPrevAct1" onclick="window.AdminEquipmentVisualPreview?.setAction(1)" style="font-size:0.70rem; padding:4px 8px;">Movimento</button>
-                <button type="button" onclick="window.AdminEquipmentVisualPreview?.rotateDir(1)" style="flex:1; font-size:0.72rem; padding:4px;">Girar ▶</button>
+              <canvas id="equipVisualPreviewCanvas" width="380" height="240" style="width:100%; border-radius:8px; border:1px solid #1e293b; background:#0b1120; display:block;"></canvas>
+              <div style="display:grid; grid-template-columns:1fr auto auto 1fr; gap:5px;">
+                <button type="button" onclick="window.AdminEquipmentVisualPreview?.rotateDir(-1)" style="font-size:0.74rem; padding:7px 4px; min-height:36px;">◀ Girar</button>
+                <button type="button" id="btnEquipPrevAct0" class="btn-primary" onclick="window.AdminEquipmentVisualPreview?.setAction(0)" style="font-size:0.72rem; padding:7px 10px; min-height:36px;">Parado</button>
+                <button type="button" id="btnEquipPrevAct1" onclick="window.AdminEquipmentVisualPreview?.setAction(1)" style="font-size:0.72rem; padding:7px 10px; min-height:36px;">Voar/Andar</button>
+                <button type="button" onclick="window.AdminEquipmentVisualPreview?.rotateDir(1)" style="font-size:0.74rem; padding:7px 4px; min-height:36px;">Girar ▶</button>
+              </div>
+            </div>
+
+            <!-- Controles Mobile-Friendly de Modelo, Distância ao Chão (Z), Escala e Offsets -->
+            <div style="display:flex; flex-direction:column; gap:8px;">
+              <div class="field" style="margin:0;">
+                <label>Modelo 2.5D Animado (mcrework)</label>
+                <select id="equipVisualModelSelect" onchange="AdminApp.onVisualModelSelectChange()" style="min-height:38px;">
+                  <option value="">Sem modelo 2.5D vinculado</option>
+                </select>
+              </div>
+
+              <!-- Distância do Modelo em relação ao Chão (Z / groundOffsetY) -->
+              <div style="background:rgba(2,6,23,0.72); border:1px solid rgba(250,204,21,0.35); border-radius:9px; padding:8px; display:flex; flex-direction:column; gap:5px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.72rem;">
+                  <strong style="color:#fde047;">📏 Distância ao Chão (Z / Ground Offset)</strong>
+                  <span id="equipGroundZStatusBadge" style="font-family:monospace; font-weight:800; color:#86efac;">0px (Solo)</span>
+                </div>
+                <input type="range" id="equipGroundOffsetYRange" min="-120" max="120" step="1" value="0" oninput="window.AdminEquipmentVisualPreview?.setInputValue('equipGroundOffsetYInput', this.value, false)" style="width:100%;" />
+                <div style="display:grid; grid-template-columns:repeat(2, auto) 1fr repeat(3, auto); gap:4px; align-items:center;">
+                  <button type="button" onclick="window.AdminEquipmentVisualPreview?.nudgeInput('equipGroundOffsetYInput', -5, false, -120, 120)" style="padding:6px 8px; min-height:34px; font-size:0.72rem;">⬆ -5</button>
+                  <button type="button" onclick="window.AdminEquipmentVisualPreview?.nudgeInput('equipGroundOffsetYInput', -1, false, -120, 120)" style="padding:6px 8px; min-height:34px; font-size:0.72rem;">-1</button>
+                  <input type="number" id="equipGroundOffsetYInput" value="0" min="-120" max="120" oninput="window.AdminEquipmentVisualPreview?.syncSliders()" style="text-align:center; min-height:34px; padding:4px;" />
+                  <button type="button" onclick="window.AdminEquipmentVisualPreview?.nudgeInput('equipGroundOffsetYInput', 1, false, -120, 120)" style="padding:6px 8px; min-height:34px; font-size:0.72rem;">+1</button>
+                  <button type="button" onclick="window.AdminEquipmentVisualPreview?.nudgeInput('equipGroundOffsetYInput', 5, false, -120, 120)" style="padding:6px 8px; min-height:34px; font-size:0.72rem;">+5 ⬇</button>
+                  <button type="button" onclick="window.AdminEquipmentVisualPreview?.setInputValue('equipGroundOffsetYInput', 0, false)" title="Zerar Z" style="padding:6px 7px; min-height:34px; font-size:0.72rem;">↩0</button>
+                </div>
+              </div>
+
+              <!-- Tamanho / Escala -->
+              <div style="background:rgba(2,6,23,0.65); border:1px solid #334155; border-radius:9px; padding:8px; display:flex; flex-direction:column; gap:5px;">
+                <label style="font-size:0.72rem; color:#7dd3fc; font-weight:700;">🔍 Tamanho / Escala (0.20–2.00)</label>
+                <input type="range" id="equipVisualScaleRange" min="0.20" max="2.00" step="0.05" value="0.70" oninput="window.AdminEquipmentVisualPreview?.setInputValue('equipVisualScaleInput', this.value, true)" style="width:100%;" />
+                <div style="display:grid; grid-template-columns:auto 1fr auto; gap:5px; align-items:center;">
+                  <button type="button" onclick="window.AdminEquipmentVisualPreview?.nudgeInput('equipVisualScaleInput', -0.05, true, 0.2, 2.0)" style="padding:6px 12px; min-height:34px;">-0.05</button>
+                  <input type="number" id="equipVisualScaleInput" value="0.70" min="0.20" max="2.00" step="0.05" oninput="window.AdminEquipmentVisualPreview?.syncSliders()" style="text-align:center; min-height:34px;" />
+                  <button type="button" onclick="window.AdminEquipmentVisualPreview?.nudgeInput('equipVisualScaleInput', 0.05, true, 0.2, 2.0)" style="padding:6px 12px; min-height:34px;">+0.05</button>
+                </div>
+              </div>
+
+              <!-- Posição X e Y -->
+              <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+                <div class="field" style="margin:0;">
+                  <label>↔️ Posição X (px)</label>
+                  <div style="display:grid; grid-template-columns:auto 1fr auto; gap:3px;">
+                    <button type="button" onclick="window.AdminEquipmentVisualPreview?.nudgeInput('equipVisualOffsetXInput', -2)" style="padding:6px 8px; min-height:34px;">-2</button>
+                    <input type="number" id="equipVisualOffsetXInput" value="0" min="-150" max="150" style="text-align:center; min-height:34px;" />
+                    <button type="button" onclick="window.AdminEquipmentVisualPreview?.nudgeInput('equipVisualOffsetXInput', 2)" style="padding:6px 8px; min-height:34px;">+2</button>
+                  </div>
+                </div>
+                <div class="field" style="margin:0;">
+                  <label>↕️ Posição Y (px)</label>
+                  <div style="display:grid; grid-template-columns:auto 1fr auto; gap:3px;">
+                    <button type="button" onclick="window.AdminEquipmentVisualPreview?.nudgeInput('equipVisualOffsetYInput', -2)" style="padding:6px 8px; min-height:34px;">-2</button>
+                    <input type="number" id="equipVisualOffsetYInput" value="-30" min="-150" max="150" style="text-align:center; min-height:34px;" />
+                    <button type="button" onclick="window.AdminEquipmentVisualPreview?.nudgeInput('equipVisualOffsetYInput', 2)" style="padding:6px 8px; min-height:34px;">+2</button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Parâmetros Exclusivos de Montaria Voadora -->
+              <div id="equipMountCalibrationRow" style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+                <div class="field" id="equipMountAltitudeField" style="margin:0; grid-column:1 / -1;">
+                  <label>🛫 Altitude de Voo (px)</label>
+                  <input type="range" id="equipMountAltitudeRange" min="15" max="160" step="1" value="72" oninput="window.AdminEquipmentVisualPreview?.setInputValue('equipMountAltitudeInput', this.value, false)" style="width:100%;" />
+                  <div style="display:grid; grid-template-columns:auto 1fr auto; gap:4px;">
+                    <button type="button" onclick="window.AdminEquipmentVisualPreview?.nudgeInput('equipMountAltitudeInput', -5, false, 15, 160)" style="padding:6px 10px; min-height:34px;">-5</button>
+                    <input type="number" id="equipMountAltitudeInput" value="72" min="15" max="160" oninput="window.AdminEquipmentVisualPreview?.syncSliders()" style="text-align:center; min-height:34px;" />
+                    <button type="button" onclick="window.AdminEquipmentVisualPreview?.nudgeInput('equipMountAltitudeInput', 5, false, 15, 160)" style="padding:6px 10px; min-height:34px;">+5</button>
+                  </div>
+                </div>
+                <div class="field" id="equipMountRiderOffsetXField" style="margin:0;">
+                  <label>👤 Cavaleiro X (px)</label>
+                  <div style="display:grid; grid-template-columns:auto 1fr auto; gap:3px;">
+                    <button type="button" onclick="window.AdminEquipmentVisualPreview?.nudgeInput('equipMountRiderOffsetXInput', -2, false, -100, 100)" style="padding:6px 8px; min-height:34px;">-2</button>
+                    <input type="number" id="equipMountRiderOffsetXInput" value="0" min="-100" max="100" style="text-align:center; min-height:34px;" />
+                    <button type="button" onclick="window.AdminEquipmentVisualPreview?.nudgeInput('equipMountRiderOffsetXInput', 2, false, -100, 100)" style="padding:6px 8px; min-height:34px;">+2</button>
+                  </div>
+                </div>
+                <div class="field" id="equipMountRiderOffsetField" style="margin:0;">
+                  <label>👤 Cavaleiro Y (px)</label>
+                  <div style="display:grid; grid-template-columns:auto 1fr auto; gap:3px;">
+                    <button type="button" onclick="window.AdminEquipmentVisualPreview?.nudgeInput('equipMountRiderOffsetInput', -2, false, -120, 40)" style="padding:6px 8px; min-height:34px;">-2</button>
+                    <input type="number" id="equipMountRiderOffsetInput" value="-22" min="-120" max="40" style="text-align:center; min-height:34px;" />
+                    <button type="button" onclick="window.AdminEquipmentVisualPreview?.nudgeInput('equipMountRiderOffsetInput', 2, false, -120, 40)" style="padding:6px 8px; min-height:34px;">+2</button>
+                  </div>
+                </div>
+                <div class="field" id="equipMountSpeedBonusField" style="margin:0; grid-column:1 / -1;">
+                  <label>⚡ Bônus Velocidade Voo (%)</label>
+                  <input type="number" id="equipMountSpeedBonusInput" value="25" min="0" max="200" style="min-height:34px;" />
+                </div>
               </div>
             </div>
           </div>

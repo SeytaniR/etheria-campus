@@ -264,30 +264,19 @@ const PlayQuestsController = {
         await this.loadCharacterQuests();
       }
 
+      // Se for NPC com papel HUNTER (Caçadora), abre o modal unificado minimalista com abas Quests/Criar/Vender/Upgrade
+      const npcRoles = Array.isArray(npc.rolesJson) ? npc.rolesJson : [];
+      if (npcRoles.includes('HUNTER') && window.PlayHunterController?.openModal) {
+        await window.PlayHunterController.openModal(npc);
+        return;
+      }
+
       this.renderNpcQuestModalContent();
       document.getElementById('npcQuestModal').style.display = 'flex';
     };
 
-    client.renderNpcQuestModalContent = function () {
-      const npc = this.activeNpcInteraction;
-      if (!npc) return;
-
-      const headerEl = document.getElementById('npcQuestModalHeader');
-      const bodyEl = document.getElementById('npcQuestModalBody');
-
-      headerEl.innerHTML = `
-        <div style="display:flex; align-items:center; gap:10px;">
-          <img src="${npc.thumbUrl}" style="width:46px; height:46px; object-fit:contain; background:#020617; border-radius:10px; border:1px solid #334155;" onerror="this.style.display='none'" />
-          <div>
-            <strong style="font-size:1rem; color:#86efac;">🧙 ${npc.namePtBr}</strong>
-            <div style="font-size:0.73rem; color:#94a3b8;">
-              📍 #${this.currentMap?.id} ${this.currentMap?.namePtBr} (Nv.${this.currentMap?.requiredLevel || 1})
-            </div>
-          </div>
-        </div>
-        <button class="btn-danger" onclick="document.getElementById('npcQuestModal').style.display='none'">Fechar</button>
-      `;
-
+    client.buildNpcQuestCardsHtml = function (npc) {
+      if (!npc) return { cards: [], count: 0 };
       const allQuests = this.questState?.quests || [];
       const npcId = Number(npc.npcTemplateId);
 
@@ -417,27 +406,40 @@ const PlayQuestsController = {
         `);
       }
 
-      const roles = Array.isArray(npc.rolesJson) ? npc.rolesJson : [];
-      let roleBannersHtml = '';
-      if (roles.includes('HUNTER')) {
-        roleBannersHtml += `
-          <div style="background:linear-gradient(135deg, rgba(217,119,6,0.22), rgba(180,83,9,0.12)); border:1.5px solid #f59e0b; border-radius:10px; padding:12px; display:flex; justify-content:space-between; align-items:center; gap:10px; margin-bottom:10px; flex-wrap:wrap;">
-            <div style="display:flex; align-items:center; gap:8px;">
-              <span style="font-size:1.6rem;">🐾</span>
-              <div>
-                <strong style="font-size:0.92rem; color:#fde047;">Santuário do Caçador (Criação de Pets)</strong>
-                <div style="font-size:0.75rem; color:#cbd5e1;">Canalize essências dos monstros derrotados para criar novos companheiros.</div>
-              </div>
-            </div>
-            <button type="button" class="btn-primary" style="background:linear-gradient(135deg, #d97706, #b45309); border:1.5px solid #fbbf24; color:#fff; font-weight:800; padding:8px 16px; font-size:0.86rem; border-radius:8px; cursor:pointer;" onclick="if (typeof PlayApp.openHunterPetModal === 'function') PlayApp.openHunterPetModal(PlayApp.activeNpcInteraction);">
-              🐾 Criar Novo Pet
-            </button>
-          </div>
-        `;
+      return { cards, count: cards.length };
+    };
+
+    client.renderNpcQuestModalContent = function () {
+      const npc = this.activeNpcInteraction;
+      if (!npc) return;
+
+      // Mantém a aba de Quests do modal da Caçadora sincronizada caso ele esteja aberto
+      const hunterModal = document.getElementById('hunterPetModal');
+      if (hunterModal && hunterModal.style.display !== 'none' && window.PlayHunterController?.renderQuestsTab) {
+        window.PlayHunterController.renderQuestsTab();
       }
 
+      const headerEl = document.getElementById('npcQuestModalHeader');
+      const bodyEl = document.getElementById('npcQuestModalBody');
+      if (!headerEl || !bodyEl) return;
+
+      headerEl.innerHTML = `
+        <div style="display:flex; align-items:center; gap:10px;">
+          <img src="${npc.thumbUrl}" style="width:46px; height:46px; object-fit:contain; background:#020617; border-radius:10px; border:1px solid #334155;" onerror="this.style.display='none'" />
+          <div>
+            <strong style="font-size:1rem; color:#86efac;">🧙 ${npc.namePtBr}</strong>
+            <div style="font-size:0.73rem; color:#94a3b8;">
+              📍 #${this.currentMap?.id} ${this.currentMap?.namePtBr} (Nv.${this.currentMap?.requiredLevel || 1})
+            </div>
+          </div>
+        </div>
+        <button class="btn-danger" onclick="document.getElementById('npcQuestModal').style.display='none'">Fechar</button>
+      `;
+
+      const { cards } = this.buildNpcQuestCardsHtml(npc);
+
       if (!cards.length) {
-        bodyEl.innerHTML = roleBannersHtml + `
+        bodyEl.innerHTML = `
           <div style="background:#020617; border:1px solid #1e293b; border-radius:10px; padding:14px; text-align:center; color:#94a3b8; font-size:0.84rem;">
             💬 <strong>${npc.namePtBr}:</strong> "Saudações, <strong>${this.activeChar.name}</strong>! Que os ventos de <strong>${this.currentMap?.namePtBr || 'Etheria'}</strong> guiem sua jornada."
             <div style="margin-top:8px; font-size:0.75rem; color:#64748b;">
@@ -446,7 +448,7 @@ const PlayQuestsController = {
           </div>
         `;
       } else {
-        bodyEl.innerHTML = roleBannersHtml + cards.join('');
+        bodyEl.innerHTML = cards.join('');
       }
     };
 

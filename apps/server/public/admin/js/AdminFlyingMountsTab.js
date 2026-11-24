@@ -101,7 +101,9 @@ class AdminFlyingMountsTab {
       this.updateMountOffsetsPreview();
 
       const defaultMount = this.mcreworkMounts[0];
-      this.selectMcreworkMount(defaultMount ? defaultMount.mcreworkMountKey : 'mount_000003');
+      const defKey = defaultMount ? (defaultMount.mcreworkMountKey || defaultMount.id) : 'mount_000003';
+      await this.ensureMountPreviewRefs?.();
+      this.selectMcreworkMount(defKey);
 
       this.renderMountGallery();
       document.getElementById('flyingMountModal').style.display = 'flex';
@@ -146,20 +148,73 @@ class AdminFlyingMountsTab {
       document.getElementById('mountCombatMdefInput').value = String(cb.MDEF ?? 25);
 
       this.updateMountOffsetsPreview();
+      await this.ensureMountPreviewRefs?.();
       this.selectMcreworkMount(mount.mcreworkMountKey || 'mount_000003');
       this.renderMountGallery();
       document.getElementById('flyingMountModal').style.display = 'flex';
     };
 
+    app.ensureMountPreviewRefs = async function () {
+      let maps = Array.isArray(this.savedMaps) && this.savedMaps.length > 0 ? this.savedMaps : [];
+      let classes = Array.isArray(this.classTemplates) && this.classTemplates.length > 0 ? this.classTemplates : [];
+      if (maps.length === 0 || classes.length === 0) {
+        try {
+          const boot = await this.api('/api/admin/maps/bootstrap');
+          if (Array.isArray(boot?.maps)) { maps = boot.maps; this.savedMaps = boot.maps; }
+          if (Array.isArray(boot?.classTemplates)) { classes = boot.classTemplates; this.classTemplates = boot.classTemplates; }
+        } catch {}
+      }
+      const mapSel = document.getElementById('mountPreviewMapSelect');
+      if (mapSel && mapSel.options.length === 0 && maps.length > 0) {
+        mapSel.innerHTML = maps.map((m) => `<option value="${m.id}" ${Number(m.id) === 1 ? 'selected' : ''}>🗺️ #${m.id} ${m.namePtBr}</option>`).join('');
+      }
+      const clsSel = document.getElementById('mountPreviewClassSelect');
+      if (clsSel && clsSel.options.length === 0 && classes.length > 0) {
+        clsSel.innerHTML = '<option value="">👤 Sem Personagem</option>' +
+          classes.map((c, idx) => `<option value="${c.id}" ${idx === 0 ? 'selected' : ''}>👤 #${c.id} ${c.namePtBr}</option>`).join('');
+      }
+      this.syncMountPreviewRefs?.();
+    };
+
+    app.syncMountPreviewRefs = function () {
+      const mapId = Number(document.getElementById('mountPreviewMapSelect')?.value) || 1;
+      if (this._mountPreviewMapId !== mapId) {
+        this._mountPreviewMapId = mapId;
+        const img = new Image();
+        img.crossOrigin = 'anonymous';
+        img.src = `/api/assets/map-image/${mapId}`;
+        this._mountPreviewMapImg = img;
+      }
+      const clsId = Number(document.getElementById('mountPreviewClassSelect')?.value) || 0;
+      if (clsId > 0 && window.McreworkSpriteSheet) {
+        const cls = (this.classTemplates || []).find((c) => Number(c.id) === clsId);
+        const cKey = cls?.mcreworkCharKey;
+        if (cKey && this._mountPreviewHeroKey !== cKey) {
+          this._mountPreviewHeroKey = cKey;
+          this._mountPreviewHeroGroundY = Number(cls?.groundOffsetY) || 0;
+          this._mountPreviewHeroSheet = new window.McreworkSpriteSheet(
+            `/api/assets/mcrework/assets/characters/${cKey}/atlas.json`,
+            `/api/assets/mcrework/assets/characters/${cKey}/atlas.webp`,
+            `/api/assets/mcrework/assets/characters/${cKey}/thumb.webp`
+          );
+          this._mountPreviewHeroSheet.load();
+        }
+      } else {
+        this._mountPreviewHeroKey = null;
+        this._mountPreviewHeroSheet = null;
+      }
+    };
+
     app.selectMcreworkMount = function (key) {
+      if (!key || key === 'undefined') return;
       this.selectedMcreworkMountKey = key;
       const keyInp = document.getElementById('mountAssetKeyInput');
       if (keyInp) keyInp.value = key;
 
-      const meta = this.mcreworkMounts.find((m) => m.mcreworkMountKey === key);
+      const meta = (this.mcreworkMounts || []).find((m) => (m.mcreworkMountKey || m.id) === key);
       const nameInp = document.getElementById('mountNameInput');
-      if (nameInp && !nameInp.value.trim() && meta?.suggestedName) {
-        nameInp.value = meta.suggestedName;
+      if (nameInp && !nameInp.value.trim() && (meta?.suggestedName || meta?.name)) {
+        nameInp.value = meta.suggestedName || meta.name;
       }
       const tierSelect = document.getElementById('mountTierSelect');
       if (tierSelect && meta?.tier && !document.getElementById('mountEditIdInput').value) {
@@ -174,7 +229,7 @@ class AdminFlyingMountsTab {
       const inp = document.getElementById('mountGroundOffsetYInput');
       if (!inp) return;
       let val = (Number(inp.value) || 0) + delta;
-      val = Math.max(-100, Math.min(100, val));
+      val = Math.max(-120, Math.min(120, val));
       inp.value = String(val);
       this.updateMountOffsetsPreview();
     };
@@ -183,7 +238,16 @@ class AdminFlyingMountsTab {
       const inp = document.getElementById('mountRiderOffsetYInput');
       if (!inp) return;
       let val = (Number(inp.value) || 0) + delta;
-      val = Math.max(-160, Math.min(20, val));
+      val = Math.max(-160, Math.min(40, val));
+      inp.value = String(val);
+      this.updateMountOffsetsPreview();
+    };
+
+    app.adjustMountAltitude = function (delta) {
+      const inp = document.getElementById('mountFlightAltitudeInput');
+      if (!inp) return;
+      let val = (Number(inp.value) || 50) + delta;
+      val = Math.max(10, Math.min(160, val));
       inp.value = String(val);
       this.updateMountOffsetsPreview();
     };
@@ -191,15 +255,22 @@ class AdminFlyingMountsTab {
     app.updateMountOffsetsPreview = function () {
       const gVal = Number(document.getElementById('mountGroundOffsetYInput')?.value) || 0;
       const rVal = Number(document.getElementById('mountRiderOffsetYInput')?.value) || 0;
+      const aVal = Number(document.getElementById('mountFlightAltitudeInput')?.value) || 50;
       const gBadge = document.getElementById('mountGroundOffsetBadge');
       const rBadge = document.getElementById('mountRiderOffsetBadge');
+      const gRng = document.getElementById('mountGroundOffsetYRange');
+      const rRng = document.getElementById('mountRiderOffsetYRange');
+      const aRng = document.getElementById('mountFlightAltitudeRange');
       if (gBadge) gBadge.textContent = `${gVal >= 0 ? '+' : ''}${gVal}px`;
       if (rBadge) rBadge.textContent = `${rVal >= 0 ? '+' : ''}${rVal}px`;
+      if (gRng) gRng.value = String(gVal);
+      if (rRng) rRng.value = String(rVal);
+      if (aRng) aRng.value = String(aVal);
     };
 
     app.rotateMountPreviewDir = function (delta) {
       this.mountPreviewDir = (this.mountPreviewDir + delta + 8) % 8;
-      const dirLabels = ['Sul (S)', 'Sudoeste (SW)', 'Oeste (W)', 'Noroeste (NW)', 'Norte (N)', 'Nordeste (NE)', 'Leste (E)', 'Sudeste (SE)'];
+      const dirLabels = ['Sul (S)', 'Sudeste (SE)', 'Leste (L)', 'Nordeste (NE)', 'Norte (N)', 'Noroeste (NO)', 'Oeste (O)', 'Sudoeste (SO)'];
       const lbl = document.getElementById('mountPreviewDirLabel');
       if (lbl) lbl.textContent = dirLabels[this.mountPreviewDir];
     };
@@ -216,61 +287,103 @@ class AdminFlyingMountsTab {
       if (this.mountPreviewAnimFrame) cancelAnimationFrame(this.mountPreviewAnimFrame);
 
       const canvas = document.getElementById('mountPreviewCanvas');
-      if (!canvas) return;
+      if (!canvas || !key) return;
       const ctx = canvas.getContext('2d');
-      const meta = this.mcreworkMounts.find((m) => m.mcreworkMountKey === key);
-      if (!meta) return;
+      const meta = (this.mcreworkMounts || []).find((m) => (m.mcreworkMountKey || m.id) === key);
+
+      const jsonUrl = `/api/assets/mcrework/assets/mounts/${key}/atlas.json`;
+      const webpUrl = `/api/assets/mcrework/assets/mounts/${key}/atlas.webp`;
+      const thumbUrl = meta?.thumbUrl || `/api/assets/mcrework/assets/mounts/${key}/thumb.webp`;
 
       if (window.McreworkSpriteSheet) {
-        this.mountPreviewSheet = new window.McreworkSpriteSheet(meta.atlasJsonUrl, meta.atlasWebpUrl, meta.thumbUrl);
+        this.mountPreviewSheet = new window.McreworkSpriteSheet(jsonUrl, webpUrl, thumbUrl);
         this.mountPreviewSheet.load();
       }
 
       const animate = (now) => {
+        const modal = document.getElementById('flyingMountModal');
+        if (modal && modal.style.display === 'none') {
+          this.mountPreviewAnimFrame = null;
+          return;
+        }
         ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        // Fundo de mapa real
+        if (this._mountPreviewMapImg && this._mountPreviewMapImg.complete && this._mountPreviewMapImg.naturalWidth > 0) {
+          const iw = this._mountPreviewMapImg.naturalWidth;
+          const ih = this._mountPreviewMapImg.naturalHeight;
+          const sx = Math.max(0, Math.round((iw - canvas.width) / 2));
+          const sy = Math.max(0, Math.round((ih - canvas.height) / 2));
+          ctx.drawImage(this._mountPreviewMapImg, sx, sy, Math.min(canvas.width, iw), Math.min(canvas.height, ih), 0, 0, canvas.width, canvas.height);
+        } else {
+          ctx.fillStyle = '#0b1120';
+          ctx.fillRect(0, 0, canvas.width, canvas.height);
+        }
+
         const cx = canvas.width / 2;
-        const cy = canvas.height * 0.76;
+        const cy = canvas.height * 0.80;
 
         const alt = Number(document.getElementById('mountFlightAltitudeInput')?.value) || 50;
         const gOffsetY = Number(document.getElementById('mountGroundOffsetYInput')?.value) || 0;
         const rOffsetY = Number(document.getElementById('mountRiderOffsetYInput')?.value) || -45;
 
+        // Linha guia de referência do solo (Z = 0)
+        ctx.save();
+        ctx.strokeStyle = 'rgba(253, 224, 71, 0.45)';
+        ctx.setLineDash([4, 3]);
+        ctx.beginPath();
+        ctx.moveTo(cx - 56, cy);
+        ctx.lineTo(cx + 56, cy);
+        ctx.stroke();
+        ctx.restore();
+
         // 1. Sombra projetada no chão
         ctx.beginPath();
-        const shadowScale = Math.max(16, 42 - alt * 0.12);
-        ctx.ellipse(cx, cy, shadowScale, shadowScale * 0.38, 0, 0, Math.PI * 2);
-        ctx.fillStyle = 'rgba(15, 23, 42, 0.45)';
+        const shadowScale = Math.max(16, 40 - alt * 0.12);
+        ctx.ellipse(cx, cy, shadowScale, shadowScale * 0.36, 0, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.45)';
         ctx.fill();
 
         // 2. Linha guia vertical de altitude
+        const mountY = cy - alt * 0.65 + gOffsetY;
         ctx.beginPath();
         ctx.setLineDash([3, 3]);
         ctx.moveTo(cx, cy);
-        const mountY = cy - alt * 0.65 + gOffsetY;
         ctx.lineTo(cx, mountY);
-        ctx.strokeStyle = 'rgba(56, 189, 248, 0.35)';
+        ctx.strokeStyle = 'rgba(56, 189, 248, 0.40)';
         ctx.stroke();
         ctx.setLineDash([]);
 
         // 3. Renderiza Sprite 2.5D da Montaria
         if (this.mountPreviewSheet) {
-          this.mountPreviewSheet.draw(ctx, cx, mountY, this.mountPreviewAction, this.mountPreviewDir, now, null, 0, 0.65);
+          this.mountPreviewSheet.draw(ctx, cx, mountY, this.mountPreviewAction, this.mountPreviewDir, now, null, 0, 0.65, false, 0, 0, true);
         }
 
-        // 4. Indicador visual da âncora do Cavaleiro (Rider Mount Point)
+        // 4. Protótipo de Personagem montado (ou marcador do cavaleiro)
         const riderY = mountY + rOffsetY * 0.65;
-        ctx.beginPath();
-        ctx.arc(cx, riderY, 4.5, 0, Math.PI * 2);
-        ctx.fillStyle = '#38bdf8';
-        ctx.fill();
-        ctx.strokeStyle = '#ffffff';
-        ctx.lineWidth = 1.5;
-        ctx.stroke();
+        if (this._mountPreviewHeroSheet) {
+          this._mountPreviewHeroSheet.draw(ctx, cx, riderY, 0, this.mountPreviewDir, now, null, this._mountPreviewHeroGroundY || 0, 0.65, false, 0, 0, true);
+        } else {
+          ctx.beginPath();
+          ctx.arc(cx, riderY, 4.5, 0, Math.PI * 2);
+          ctx.fillStyle = '#38bdf8';
+          ctx.fill();
+          ctx.strokeStyle = '#ffffff';
+          ctx.lineWidth = 1.5;
+          ctx.stroke();
+          ctx.font = '10px sans-serif';
+          ctx.fillStyle = '#bae6fd';
+          ctx.textAlign = 'center';
+          ctx.fillText('👤 Cavaleiro', cx, riderY - 8);
+        }
 
-        ctx.font = '10px sans-serif';
-        ctx.fillStyle = '#bae6fd';
-        ctx.textAlign = 'center';
-        ctx.fillText('👤 Cavaleiro', cx, riderY - 8);
+        // Badge Z/Solo no canto
+        ctx.fillStyle = 'rgba(2, 6, 23, 0.78)';
+        ctx.fillRect(6, 6, 128, 20);
+        ctx.font = 'bold 10px sans-serif';
+        ctx.fillStyle = '#fde047';
+        ctx.textAlign = 'left';
+        ctx.fillText(`📏 Chão (Z): ${gOffsetY >= 0 ? '+' : ''}${gOffsetY}px`, 12, 19);
 
         this.mountPreviewAnimFrame = requestAnimationFrame(animate);
       };
@@ -291,20 +404,22 @@ class AdminFlyingMountsTab {
 
       const q = (this.mountGallerySearchQuery || '').toLowerCase();
       const filtered = (this.mcreworkMounts || []).filter((m) => {
+        const mKey = m.mcreworkMountKey || m.id || '';
         if (!q) return true;
         return (m.name && m.name.toLowerCase().includes(q)) ||
-               (m.mcreworkMountKey && m.mcreworkMountKey.toLowerCase().includes(q));
+               (mKey && mKey.toLowerCase().includes(q));
       });
 
       grid.innerHTML = filtered.map((m) => {
-        const isSelected = m.mcreworkMountKey === this.selectedMcreworkMountKey;
+        const mKey = m.mcreworkMountKey || m.id;
+        const isSelected = mKey === this.selectedMcreworkMountKey;
         return `
-          <div onclick="AdminApp.selectMcreworkMount('${m.mcreworkMountKey}')"
+          <div onclick="AdminApp.selectMcreworkMount('${mKey}')"
                style="border:2px solid ${isSelected ? '#38bdf8' : '#334155'}; background:${isSelected ? 'rgba(56,189,248,0.15)' : 'rgba(15,23,42,0.85)'};
                       border-radius:8px; padding:6px; cursor:pointer; text-align:center; transition:all 0.15s ease;">
-            <img src="${m.thumbUrl}" alt="${m.name}" style="width:58px; height:58px; object-fit:contain; border-radius:6px; background:#0f172a; margin-bottom:4px;" onerror="this.src='/play/assets/placeholder_pet.png'" />
+            <img src="${m.thumbUrl}" alt="${m.name}" style="width:58px; height:58px; object-fit:contain; border-radius:6px; background:#0f172a; margin-bottom:4px;" onerror="this.onerror=null; this.src='/play/assets/hud/menu_pets.png'" />
             <div style="font-weight:700; font-size:0.75rem; color:#f8fafc; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${m.name}</div>
-            <div style="font-size:0.68rem; color:#94a3b8;">${m.mcreworkMountKey}</div>
+            <div style="font-size:0.68rem; color:#94a3b8;">${mKey}</div>
             <span style="display:inline-block; margin-top:2px; font-size:0.65rem; background:#1e293b; color:#fbbf24; padding:1px 5px; border-radius:4px;">Tier ${m.tier || 1}</span>
           </div>
         `;
@@ -623,8 +738,40 @@ class AdminFlyingMountsTab {
         <input type="hidden" id="mountEditIdInput" value="" />
         <input type="hidden" id="mountAssetKeyInput" value="" />
 
-        <div style="display:grid; grid-template-columns:1fr 340px; gap:16px; align-items:start;">
-          <!-- COLUNA ESQUERDA: FORMULÁRIO -->
+        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(min(100%, 320px), 1fr)); gap:14px; align-items:start;">
+          <!-- PALCO 2.5D & GALERIA MCREWORK (PRIMEIRO PARA CONTROLE EFETIVO NO MOBILE) -->
+          <div>
+            <!-- PALCO CANVAS 2.5D AO VIVO -->
+            <div style="background:rgba(15,23,42,0.92); border:1px solid #38bdf8; border-radius:10px; padding:10px; margin-bottom:12px; text-align:center;">
+              <div style="font-size:0.75rem; font-weight:700; color:#38bdf8; margin-bottom:6px; display:flex; justify-content:space-between; align-items:center;">
+                <span>🎮 Palco de Teste 2.5D</span>
+                <span id="mountPreviewDirLabel" style="color:#fde047; font-size:0.72rem;">Sul (S)</span>
+              </div>
+              <div style="display:grid; grid-template-columns:1fr 1fr; gap:5px; margin-bottom:6px;">
+                <select id="mountPreviewMapSelect" onchange="AdminApp.syncMountPreviewRefs()" style="font-size:0.72rem; padding:5px; min-height:34px;"></select>
+                <select id="mountPreviewClassSelect" onchange="AdminApp.syncMountPreviewRefs()" style="font-size:0.72rem; padding:5px; min-height:34px;"></select>
+              </div>
+              <canvas id="mountPreviewCanvas" width="340" height="230" style="background:#0b1120; border-radius:8px; border:1px solid #1e293b; width:100%; display:block; margin:0 auto;"></canvas>
+              <!-- Controles Direcionais e Ação Mobile-Friendly -->
+              <div style="display:grid; grid-template-columns:1fr auto auto 1fr; align-items:center; margin-top:8px; gap:5px;">
+                <button type="button" onclick="AdminApp.rotateMountPreviewDir(-1)" style="font-size:0.75rem; padding:7px 4px; min-height:36px;">◀ Girar</button>
+                <button type="button" id="btnMountActIdle" class="btn-primary" onclick="AdminApp.setMountPreviewAction(0)" style="font-size:0.72rem; padding:7px 10px; min-height:36px;">Parado</button>
+                <button type="button" id="btnMountActMove" onclick="AdminApp.setMountPreviewAction(1)" style="font-size:0.72rem; padding:7px 10px; min-height:36px;">Voar</button>
+                <button type="button" onclick="AdminApp.rotateMountPreviewDir(1)" style="font-size:0.75rem; padding:7px 4px; min-height:36px;">Girar ▶</button>
+              </div>
+            </div>
+
+            <!-- GALERIA MCREWORK (20 MONTARIAS OFICIAIS) -->
+            <div style="background:rgba(15,23,42,0.75); border:1px solid #334155; border-radius:10px; padding:10px;">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                <span style="font-size:0.75rem; font-weight:700; color:#cbd5e1;">🦅 Galeria mcrework (20)</span>
+              </div>
+              <input type="text" id="mountGallerySearchInput" placeholder="🔍 Filtrar montaria..." oninput="AdminApp.filterMountGallery()" style="width:100%; font-size:0.78rem; padding:7px 10px; margin-bottom:8px;" />
+              <div id="mcreworkMountsGrid" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(112px, 1fr)); gap:6px; max-height:240px; overflow-y:auto; -webkit-overflow-scrolling:touch; padding-right:2px;"></div>
+            </div>
+          </div>
+
+          <!-- FORMULÁRIO & CALIBRAÇÃO MOBILE-FRIENDLY -->
           <div>
             <!-- BLOCO 1: IDENTIFICAÇÃO & TIPO -->
             <div style="background:rgba(15,23,42,0.75); border:1px solid #334155; border-radius:10px; padding:12px; margin-bottom:12px;">
@@ -703,28 +850,35 @@ class AdminFlyingMountsTab {
                   <input type="number" id="mountPriceInput" min="0" value="500" />
                 </div>
               </div>
-              <!-- Calibração de Offsets com botões de ajuste fino -->
-              <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:10px; padding-top:10px; border-top:1px solid rgba(255,255,255,0.08);">
-                <div class="field">
+              <!-- Calibração de Offsets com controles mobile-friendly (Z / Altitude / Cavaleiro) -->
+              <div style="display:flex; flex-direction:column; gap:10px; margin-top:10px; padding-top:10px; border-top:1px solid rgba(255,255,255,0.08);">
+                <div class="field" style="margin:0;">
                   <label style="display:flex; justify-content:space-between;">
-                    <span>Calibração Solo (groundOffsetY)</span>
-                    <span id="mountGroundOffsetBadge" style="color:#38bdf8; font-weight:700;">0px</span>
+                    <span style="color:#fde047; font-weight:700;">📏 Distância do Modelo ao Chão (Z / groundOffsetY)</span>
+                    <span id="mountGroundOffsetBadge" style="color:#38bdf8; font-weight:800; font-family:monospace;">0px</span>
                   </label>
-                  <div style="display:flex; gap:4px; align-items:center;">
-                    <button type="button" onclick="AdminApp.adjustMountGroundOffset(-5)" style="padding:4px 8px;">-5</button>
-                    <input type="number" id="mountGroundOffsetYInput" value="0" style="text-align:center;" oninput="AdminApp.updateMountOffsetsPreview()" />
-                    <button type="button" onclick="AdminApp.adjustMountGroundOffset(5)" style="padding:4px 8px;">+5</button>
+                  <input type="range" id="mountGroundOffsetYRange" min="-120" max="120" step="1" value="0" oninput="document.getElementById('mountGroundOffsetYInput').value=this.value; AdminApp.updateMountOffsetsPreview()" style="width:100%; margin:4px 0;" />
+                  <div style="display:grid; grid-template-columns:auto auto 1fr auto auto auto; gap:4px; align-items:center;">
+                    <button type="button" onclick="AdminApp.adjustMountGroundOffset(-5)" style="padding:6px 8px; min-height:34px;">⬆ -5</button>
+                    <button type="button" onclick="AdminApp.adjustMountGroundOffset(-1)" style="padding:6px 8px; min-height:34px;">-1</button>
+                    <input type="number" id="mountGroundOffsetYInput" value="0" style="text-align:center; min-height:34px;" oninput="AdminApp.updateMountOffsetsPreview()" />
+                    <button type="button" onclick="AdminApp.adjustMountGroundOffset(1)" style="padding:6px 8px; min-height:34px;">+1</button>
+                    <button type="button" onclick="AdminApp.adjustMountGroundOffset(5)" style="padding:6px 8px; min-height:34px;">+5 ⬇</button>
+                    <button type="button" onclick="document.getElementById('mountGroundOffsetYInput').value='0'; AdminApp.updateMountOffsetsPreview()" style="padding:6px 7px; min-height:34px;" title="Zerar Z">↩0</button>
                   </div>
                 </div>
-                <div class="field">
+                <div class="field" style="margin:0;">
                   <label style="display:flex; justify-content:space-between;">
-                    <span>Ponto Montador (riderOffsetY)</span>
-                    <span id="mountRiderOffsetBadge" style="color:#38bdf8; font-weight:700;">-45px</span>
+                    <span>👤 Ponto Montador (riderOffsetY)</span>
+                    <span id="mountRiderOffsetBadge" style="color:#38bdf8; font-weight:800; font-family:monospace;">-45px</span>
                   </label>
-                  <div style="display:flex; gap:4px; align-items:center;">
-                    <button type="button" onclick="AdminApp.adjustMountRiderOffset(-5)" style="padding:4px 8px;">-5</button>
-                    <input type="number" id="mountRiderOffsetYInput" value="-45" style="text-align:center;" oninput="AdminApp.updateMountOffsetsPreview()" />
-                    <button type="button" onclick="AdminApp.adjustMountRiderOffset(5)" style="padding:4px 8px;">+5</button>
+                  <input type="range" id="mountRiderOffsetYRange" min="-160" max="40" step="1" value="-45" oninput="document.getElementById('mountRiderOffsetYInput').value=this.value; AdminApp.updateMountOffsetsPreview()" style="width:100%; margin:4px 0;" />
+                  <div style="display:grid; grid-template-columns:auto auto 1fr auto auto; gap:4px; align-items:center;">
+                    <button type="button" onclick="AdminApp.adjustMountRiderOffset(-5)" style="padding:6px 8px; min-height:34px;">-5</button>
+                    <button type="button" onclick="AdminApp.adjustMountRiderOffset(-1)" style="padding:6px 8px; min-height:34px;">-1</button>
+                    <input type="number" id="mountRiderOffsetYInput" value="-45" style="text-align:center; min-height:34px;" oninput="AdminApp.updateMountOffsetsPreview()" />
+                    <button type="button" onclick="AdminApp.adjustMountRiderOffset(1)" style="padding:6px 8px; min-height:34px;">+1</button>
+                    <button type="button" onclick="AdminApp.adjustMountRiderOffset(5)" style="padding:6px 8px; min-height:34px;">+5</button>
                   </div>
                 </div>
               </div>
@@ -751,36 +905,6 @@ class AdminFlyingMountsTab {
                 <div class="field"><label>Defesa Física (PDEF)</label><input type="number" id="mountCombatPdefInput" value="25" /></div>
                 <div class="field"><label>Defesa Mágica (MDEF)</label><input type="number" id="mountCombatMdefInput" value="25" /></div>
               </div>
-            </div>
-          </div>
-
-          <!-- COLUNA DIREITA: PALCO 2.5D & GALERIA MCREWORK -->
-          <div>
-            <!-- PALCO CANVAS 2.5D AO VIVO -->
-            <div style="background:rgba(15,23,42,0.9); border:1px solid #38bdf8; border-radius:10px; padding:10px; margin-bottom:12px; text-align:center;">
-              <div style="font-size:0.75rem; font-weight:700; color:#38bdf8; margin-bottom:6px; display:flex; justify-content:space-between; align-items:center;">
-                <span>🎮 Palco de Teste 2.5D</span>
-                <span id="mountPreviewDirLabel" style="color:#94a3b8; font-size:0.70rem;">Sul (S)</span>
-              </div>
-              <canvas id="mountPreviewCanvas" width="310" height="220" style="background:#0b1120; border-radius:8px; border:1px solid #1e293b; width:100%; max-width:310px; display:block; margin:0 auto;"></canvas>
-              <!-- Controles Direcionais e Ação -->
-              <div style="display:flex; justify-content:space-between; align-items:center; margin-top:8px; gap:6px;">
-                <button type="button" onclick="AdminApp.rotateMountPreviewDir(-1)" style="flex:1; font-size:0.75rem; padding:4px;">◀ Girar</button>
-                <div style="display:flex; gap:4px;">
-                  <button type="button" id="btnMountActIdle" class="btn-primary" onclick="AdminApp.setMountPreviewAction(0)" style="font-size:0.72rem; padding:4px 8px;">Parado</button>
-                  <button type="button" id="btnMountActMove" onclick="AdminApp.setMountPreviewAction(1)" style="font-size:0.72rem; padding:4px 8px;">Voar</button>
-                </div>
-                <button type="button" onclick="AdminApp.rotateMountPreviewDir(1)" style="flex:1; font-size:0.75rem; padding:4px;">Girar ▶</button>
-              </div>
-            </div>
-
-            <!-- GALERIA MCREWORK (20 MONTARIAS OFICIAIS) -->
-            <div style="background:rgba(15,23,42,0.75); border:1px solid #334155; border-radius:10px; padding:10px;">
-              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-                <span style="font-size:0.75rem; font-weight:700; color:#cbd5e1;">🦅 Galeria mcrework (20)</span>
-              </div>
-              <input type="text" id="mountGallerySearchInput" placeholder="🔍 Filtrar montaria..." oninput="AdminApp.filterMountGallery()" style="width:100%; font-size:0.75rem; padding:4px 8px; margin-bottom:8px;" />
-              <div id="mcreworkMountsGrid" style="display:grid; grid-template-columns:repeat(2, 1fr); gap:6px; max-height:260px; overflow-y:auto; -webkit-overflow-scrolling:touch; padding-right:2px;"></div>
             </div>
           </div>
         </div>

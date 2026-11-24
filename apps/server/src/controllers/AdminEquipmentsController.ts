@@ -164,13 +164,15 @@ export class AdminEquipmentsController {
    * Lista os modelos 2.5D animados de Asas e Montarias Voadoras disponíveis (wings/catalog.json + flying_mount_templates).
    */
   public async getMcreworkVisualModelsCatalog() {
-    const [wingsRes, mountsDb, i18n] = await Promise.all([
+    const [wingsRes, mountsCatalogRes, mountsDb, i18n] = await Promise.all([
       fetch(`${this.mcreworkRawBaseUrl}/assets/wings/catalog.json`).then((r) => (r.ok ? r.json() : [])).catch(() => []),
+      fetch(`${this.mcreworkRawBaseUrl}/assets/mounts/catalog.json`).then((r) => (r.ok ? r.json() : { mounts: [] })).catch(() => ({ mounts: [] })),
       this.prisma.flyingMountTemplate.findMany({ where: { isActive: true }, orderBy: [{ tier: 'asc' }, { id: 'asc' }] }),
       this.prisma.i18nTranslation.findMany({ where: { locale: 'pt-BR' } }),
     ]);
     const tmap = new Map(i18n.map((t) => [t.key, t.text]));
     const wingsCatalog = Array.isArray(wingsRes) ? wingsRes : [];
+    const rawCatalogMounts = Array.isArray((mountsCatalogRes as any)?.mounts) ? (mountsCatalogRes as any).mounts : [];
 
     const wings = wingsCatalog
       .filter((w: any) => !w.is_fly_mount)
@@ -194,16 +196,38 @@ export class AdminEquipmentsController {
         visualFormat: 'CHAR_MANIFEST',
       }));
 
-    const mounts = mountsDb.map((m) => ({
-      flyingMountTemplateId: m.id,
-      modelId: m.mcreworkMountKey,
-      name: tmap.get(m.nameI18nKey) || m.code,
-      flightAltitude: m.flightAltitude,
-      riderOffsetY: m.riderOffsetY,
-      speedBonusPct: m.speedBonusPct,
-      visualFormat: 'ATLAS',
-      iconUrl: `${this.mcreworkPagesBaseUrl}/assets/mounts/${m.mcreworkMountKey}/thumb.webp`,
-    }));
+    const seenMountKeys = new Set<string>();
+    const mounts: any[] = mountsDb.map((m) => {
+      seenMountKeys.add(m.mcreworkMountKey);
+      return {
+        flyingMountTemplateId: m.id,
+        modelId: m.mcreworkMountKey,
+        name: tmap.get(m.nameI18nKey) || m.code,
+        flightAltitude: m.flightAltitude,
+        riderOffsetY: m.riderOffsetY,
+        groundOffsetY: m.groundOffsetY ?? 0,
+        speedBonusPct: m.speedBonusPct,
+        visualFormat: 'ATLAS',
+        iconUrl: `${this.mcreworkPagesBaseUrl}/assets/mounts/${m.mcreworkMountKey}/thumb.webp`,
+      };
+    });
+
+    for (const cm of rawCatalogMounts) {
+      const mid = String(cm?.id || '').trim();
+      if (!mid || seenMountKeys.has(mid)) continue;
+      seenMountKeys.add(mid);
+      mounts.push({
+        flyingMountTemplateId: null,
+        modelId: mid,
+        name: cm.name || mid,
+        flightAltitude: 65,
+        riderOffsetY: -45,
+        groundOffsetY: 0,
+        speedBonusPct: 30,
+        visualFormat: 'ATLAS',
+        iconUrl: `${this.mcreworkPagesBaseUrl}/${String(cm.thumb || `assets/mounts/${mid}/thumb.webp`).replace(/^\/+/, '')}`,
+      });
+    }
 
     return { wings, gliders, mounts };
   }

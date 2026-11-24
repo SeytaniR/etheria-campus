@@ -51,6 +51,37 @@ class AdminDungeonChestsTab {
       );
     };
 
+    app.nudgeSelectedChestField = function (field, delta, min, max, isFloat = false) {
+      const c = this.getSelectedDungeonChest();
+      if (!c) return;
+      const cur = Number(c[field]);
+      const base = Number.isFinite(cur) ? cur : 0;
+      let next = Math.max(min, Math.min(max, base + delta));
+      next = isFloat ? Math.round(next * 100) / 100 : Math.round(next);
+      this.updateSelectedChestField(field, next);
+      this.syncChestControlInputs?.();
+    };
+
+    app.syncChestControlInputs = function () {
+      const c = this.getSelectedDungeonChest();
+      if (!c) return;
+      const setPair = (id, val, lblId, lblTxt) => {
+        const el = document.getElementById(id);
+        if (el) el.value = String(val);
+        const l = document.getElementById(lblId);
+        if (l) l.textContent = lblTxt;
+      };
+      const sc = Number(c.visualScale) || 0.36;
+      const ox = Number(c.visualOffsetX) || 0;
+      const oy = Number(c.visualOffsetY ?? -10);
+      setPair('dcScaleRange', sc, 'dcScaleLbl', `🔍 Tamanho no Mapa (${sc.toFixed(2)}x)`);
+      setPair('dcScaleNum', sc, '', '');
+      setPair('dcOffsetXRange', ox, 'dcOffsetXLbl', `↔️ Posição Horizontal X (${ox >= 0 ? '+' : ''}${ox}px)`);
+      setPair('dcOffsetXNum', ox, '', '');
+      setPair('dcOffsetYRange', oy, 'dcOffsetYLbl', `📏 Distância ao Chão / Z (${oy >= 0 ? '+' : ''}${oy}px)`);
+      setPair('dcOffsetYNum', oy, '', '');
+    };
+
     app.updateSelectedChestField = function (field, val) {
       const c = this.getSelectedDungeonChest();
       if (!c) return;
@@ -254,25 +285,48 @@ class AdminDungeonChestsTab {
               .join('');
 
       formEl.innerHTML = `
-        <div style="display:grid; grid-template-columns:1.2fr 1fr 100px 90px; gap:8px; align-items:end;">
+        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(min(100%, 140px), 1fr)); gap:8px; align-items:end;">
           <div class="field" style="margin:0;"><label>Nome do Baú</label><input type="text" value="${this.escapeHtml(c.namePtBr)}" oninput="AdminApp.updateSelectedChestField('namePtBr', this.value)" /></div>
-          <div class="field" style="margin:0;"><label>Chance de Spawn na Dungeon (%)</label><input type="number" min="0" max="100" step="0.5" value="${Number(c.spawnChancePct)}" oninput="AdminApp.updateSelectedChestField('spawnChancePct', this.value)" /></div>
+          <div class="field" style="margin:0;"><label>Chance de Spawn (%)</label><input type="number" min="0" max="100" step="0.5" value="${Number(c.spawnChancePct)}" oninput="AdminApp.updateSelectedChestField('spawnChancePct', this.value)" /></div>
           <div class="field" style="margin:0;"><label>Cor Aura</label><input type="color" value="${this.escapeHtml(c.glowColorHex || '#38bdf8')}" oninput="AdminApp.updateSelectedChestField('glowColorHex', this.value)" style="height:36px; width:100%; padding:2px;" /></div>
           <label style="display:flex; align-items:center; gap:5px; font-size:0.78rem; padding-bottom:8px; cursor:pointer;"><input type="checkbox" ${c.isActive !== false ? 'checked' : ''} onchange="AdminApp.updateSelectedChestField('isActive', this.checked)" /> Ativo</label>
         </div>
 
-        <div style="background:#020617; border:1px solid #334155; border-radius:10px; padding:10px; display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px;">
+        <div style="background:#020617; border:1px solid #334155; border-radius:10px; padding:10px; display:flex; flex-direction:column; gap:10px;">
+          <!-- Distância do Baú ao Chão (Z / Offset Y) -->
           <div class="field" style="margin:0;">
-            <label>🔍 Tamanho no Mapa (${Number(c.visualScale).toFixed(2)}x)</label>
-            <input type="range" min="0.15" max="1.20" step="0.01" value="${Number(c.visualScale) || 0.36}" oninput="this.previousElementSibling.textContent='🔍 Tamanho no Mapa ('+Number(this.value).toFixed(2)+'x)'; AdminApp.updateSelectedChestField('visualScale', this.value)" />
+            <label id="dcOffsetYLbl" style="color:#fde047; font-weight:700;">📏 Distância ao Chão / Z (${Number(c.visualOffsetY ?? -10) >= 0 ? '+' : ''}${Number(c.visualOffsetY ?? -10)}px)</label>
+            <input id="dcOffsetYRange" type="range" min="-140" max="140" step="1" value="${Number(c.visualOffsetY ?? -10)}" oninput="AdminApp.updateSelectedChestField('visualOffsetY', this.value); AdminApp.syncChestControlInputs()" style="width:100%; margin:3px 0;" />
+            <div style="display:grid; grid-template-columns:auto auto 1fr auto auto auto; gap:4px; align-items:center;">
+              <button type="button" onclick="AdminApp.nudgeSelectedChestField('visualOffsetY', -5, -140, 140)" style="padding:6px 8px; min-height:34px;">⬆ -5</button>
+              <button type="button" onclick="AdminApp.nudgeSelectedChestField('visualOffsetY', -1, -140, 140)" style="padding:6px 8px; min-height:34px;">-1</button>
+              <input id="dcOffsetYNum" type="number" min="-140" max="140" value="${Number(c.visualOffsetY ?? -10)}" oninput="AdminApp.updateSelectedChestField('visualOffsetY', this.value); AdminApp.syncChestControlInputs()" style="text-align:center; min-height:34px;" />
+              <button type="button" onclick="AdminApp.nudgeSelectedChestField('visualOffsetY', 1, -140, 140)" style="padding:6px 8px; min-height:34px;">+1</button>
+              <button type="button" onclick="AdminApp.nudgeSelectedChestField('visualOffsetY', 5, -140, 140)" style="padding:6px 8px; min-height:34px;">+5 ⬇</button>
+              <button type="button" onclick="AdminApp.updateSelectedChestField('visualOffsetY', 0); AdminApp.syncChestControlInputs()" style="padding:6px 7px; min-height:34px;" title="Zerar Z">↩0</button>
+            </div>
           </div>
-          <div class="field" style="margin:0;">
-            <label>↔️ Offset X (${Number(c.visualOffsetX) || 0}px)</label>
-            <input type="range" min="-120" max="120" step="1" value="${Number(c.visualOffsetX) || 0}" oninput="this.previousElementSibling.textContent='↔️ Offset X ('+this.value+'px)'; AdminApp.updateSelectedChestField('visualOffsetX', this.value)" />
-          </div>
-          <div class="field" style="margin:0;">
-            <label>↕️ Offset Y (${Number(c.visualOffsetY) ?? -10}px)</label>
-            <input type="range" min="-120" max="120" step="1" value="${Number(c.visualOffsetY) ?? -10}" oninput="this.previousElementSibling.textContent='↕️ Offset Y ('+this.value+'px)'; AdminApp.updateSelectedChestField('visualOffsetY', this.value)" />
+
+          <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(min(100%, 210px), 1fr)); gap:10px;">
+            <div class="field" style="margin:0;">
+              <label id="dcScaleLbl">🔍 Tamanho no Mapa (${Number(c.visualScale || 0.36).toFixed(2)}x)</label>
+              <input id="dcScaleRange" type="range" min="0.15" max="1.20" step="0.01" value="${Number(c.visualScale) || 0.36}" oninput="AdminApp.updateSelectedChestField('visualScale', this.value); AdminApp.syncChestControlInputs()" style="width:100%; margin:3px 0;" />
+              <div style="display:grid; grid-template-columns:auto 1fr auto; gap:4px; align-items:center;">
+                <button type="button" onclick="AdminApp.nudgeSelectedChestField('visualScale', -0.02, 0.15, 1.20, true)" style="padding:6px 10px; min-height:34px;">-0.02</button>
+                <input id="dcScaleNum" type="number" min="0.15" max="1.20" step="0.01" value="${Number(c.visualScale) || 0.36}" oninput="AdminApp.updateSelectedChestField('visualScale', this.value); AdminApp.syncChestControlInputs()" style="text-align:center; min-height:34px;" />
+                <button type="button" onclick="AdminApp.nudgeSelectedChestField('visualScale', 0.02, 0.15, 1.20, true)" style="padding:6px 10px; min-height:34px;">+0.02</button>
+              </div>
+            </div>
+            <div class="field" style="margin:0;">
+              <label id="dcOffsetXLbl">↔️ Posição Horizontal X (${Number(c.visualOffsetX) || 0}px)</label>
+              <input id="dcOffsetXRange" type="range" min="-120" max="120" step="1" value="${Number(c.visualOffsetX) || 0}" oninput="AdminApp.updateSelectedChestField('visualOffsetX', this.value); AdminApp.syncChestControlInputs()" style="width:100%; margin:3px 0;" />
+              <div style="display:grid; grid-template-columns:auto 1fr auto auto; gap:4px; align-items:center;">
+                <button type="button" onclick="AdminApp.nudgeSelectedChestField('visualOffsetX', -2, -120, 120)" style="padding:6px 10px; min-height:34px;">-2</button>
+                <input id="dcOffsetXNum" type="number" min="-120" max="120" value="${Number(c.visualOffsetX) || 0}" oninput="AdminApp.updateSelectedChestField('visualOffsetX', this.value); AdminApp.syncChestControlInputs()" style="text-align:center; min-height:34px;" />
+                <button type="button" onclick="AdminApp.nudgeSelectedChestField('visualOffsetX', 2, -120, 120)" style="padding:6px 10px; min-height:34px;">+2</button>
+                <button type="button" onclick="AdminApp.updateSelectedChestField('visualOffsetX', 0); AdminApp.syncChestControlInputs()" style="padding:6px 7px; min-height:34px;">↩0</button>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -318,31 +372,58 @@ class AdminDungeonChestsTab {
 
   static async ensurePreviewRefs(app) {
     const mapSel = document.getElementById('dcPreviewMapSelect');
-    const maps = Array.isArray(app?.mapsList) ? app.mapsList : [];
+    const clsSel = document.getElementById('dcPreviewClassSelect');
+    let maps = Array.isArray(app?.savedMaps) && app.savedMaps.length > 0
+      ? app.savedMaps
+      : (Array.isArray(app?.mapsList) ? app.mapsList : []);
+    let classes = Array.isArray(app?.classTemplates) && app.classTemplates.length > 0
+      ? app.classTemplates
+      : (Array.isArray(this.previewClassesCache) ? this.previewClassesCache : []);
+
+    if ((maps.length === 0 || classes.length === 0) && app?.api) {
+      try {
+        const boot = await app.api('/api/admin/maps/bootstrap');
+        if (Array.isArray(boot?.maps) && boot.maps.length > 0) {
+          maps = boot.maps;
+          app.savedMaps = boot.maps;
+          app.mapsList = boot.maps;
+        }
+        if (Array.isArray(boot?.classTemplates) && boot.classTemplates.length > 0) {
+          classes = boot.classTemplates;
+          app.classTemplates = boot.classTemplates;
+        }
+      } catch {}
+    }
+
+    this.previewClassesCache = classes;
+
     if (mapSel && mapSel.options.length === 0 && maps.length > 0) {
       const sorted = [...maps].sort((a, b) => (b.mapType?.code === 'DUNGEON' ? 1 : 0) - (a.mapType?.code === 'DUNGEON' ? 1 : 0));
       mapSel.innerHTML = sorted
-        .map((m) => `<option value="${m.id}">${m.mapType?.code === 'DUNGEON' ? '🏰 ' : ''}#${m.id} ${m.namePtBr}</option>`)
+        .map((m) => `<option value="${m.id}">${m.mapType?.code === 'DUNGEON' ? '🏰 ' : '🗺️ '}#${m.id} ${m.namePtBr}</option>`)
         .join('');
     }
+    if (clsSel && clsSel.options.length === 0 && classes.length > 0) {
+      clsSel.innerHTML = classes
+        .map((c, idx) => `<option value="${c.id}" ${idx === 0 ? 'selected' : ''}>👤 #${c.id} ${c.namePtBr}</option>`)
+        .join('');
+    }
+
     const mapId = Number(mapSel?.value || maps.find((m) => m.mapType?.code === 'DUNGEON')?.id || 1);
     if (this.previewMapId !== mapId) {
       this.previewMapId = mapId;
       const img = new Image();
+      img.crossOrigin = 'anonymous';
       img.src = `/api/assets/map-image/${mapId}`;
       this.previewMapImg = img;
     }
 
-    if (!this.previewClassesCache && app?.api) {
-      try {
-        this.previewClassesCache = await app.api('/api/admin/classes');
-      } catch {
-        this.previewClassesCache = [];
-      }
-    }
-    if (!this.previewHeroSprite && Array.isArray(this.previewClassesCache) && this.previewClassesCache.length > 0 && window.McreworkSpriteSheet) {
-      const c0 = this.previewClassesCache[0];
-      const key = c0.mcreworkCharKey || '100101';
+    const selClassId = Number(clsSel?.value || classes[0]?.id || 0);
+    const chosenCls = classes.find((c) => Number(c.id) === selClassId) || classes[0];
+    const key = chosenCls?.mcreworkCharKey || 'char_000001';
+    this.previewHeroGroundY = Number(chosenCls?.groundOffsetY) || 0;
+    if (key && this.previewHeroKey !== key && window.McreworkSpriteSheet) {
+      this.previewHeroKey = key;
       this.previewHeroSprite = new window.McreworkSpriteSheet(
         `/api/assets/mcrework/assets/characters/${key}/atlas.json`,
         `/api/assets/mcrework/assets/characters/${key}/atlas.webp`,
@@ -401,8 +482,18 @@ class AdminDungeonChestsTab {
 
     // Herói de referência ao lado esquerdo para comparar proporção real
     if (this.previewHeroSprite) {
-      this.previewHeroSprite.draw(ctx, Math.round(W * 0.30), anchorY, 0, 2, now, null, 0, 0.70, false, 0, 0, false);
+      this.previewHeroSprite.draw(ctx, Math.round(W * 0.28), anchorY, 0, 2, now, null, this.previewHeroGroundY || 0, 0.70, false, 0, 0, false);
     }
+
+    // Linha horizontal de referência do solo (Z = 0)
+    ctx.save();
+    ctx.strokeStyle = 'rgba(253, 224, 71, 0.45)';
+    ctx.setLineDash([4, 3]);
+    ctx.beginPath();
+    ctx.moveTo(anchorX - 58, anchorY);
+    ctx.lineTo(anchorX + 58, anchorY);
+    ctx.stroke();
+    ctx.restore();
 
     const cx = anchorX + (Number(chest.visualOffsetX) || 0);
     const cy = anchorY + (Number(chest.visualOffsetY) ?? -10);
@@ -459,15 +550,18 @@ class AdminDungeonChestsTab {
 
       <div id="dcChestCardsBar" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(250px, 1fr)); gap:10px;"></div>
 
-      <div style="display:grid; grid-template-columns:390px 1fr; gap:12px; align-items:start;">
+      <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(min(100%, 340px), 1fr)); gap:12px; align-items:start;">
         <div class="panel" style="padding:12px; display:flex; flex-direction:column; gap:8px;">
-          <div style="display:flex; justify-content:space-between; align-items:center;">
+          <div style="display:flex; justify-content:space-between; align-items:center; gap:6px; flex-wrap:wrap;">
             <strong style="font-size:0.84rem; color:#38bdf8;">🎬 Preview 2.5D no Mapa</strong>
-            <select id="dcPreviewMapSelect" onchange="AdminDungeonChestsTab.ensurePreviewRefs(AdminApp)" style="max-width:210px; padding:3px 6px; font-size:0.72rem;"></select>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:5px; width:100%;">
+              <select id="dcPreviewMapSelect" onchange="AdminDungeonChestsTab.ensurePreviewRefs(AdminApp)" style="padding:5px 6px; font-size:0.72rem; min-height:34px;"></select>
+              <select id="dcPreviewClassSelect" onchange="AdminDungeonChestsTab.ensurePreviewRefs(AdminApp)" style="padding:5px 6px; font-size:0.72rem; min-height:34px;"></select>
+            </div>
           </div>
           <canvas id="dcPreviewCanvas" width="366" height="260" style="width:100%; border-radius:10px; border:1.5px solid #334155; background:#020617;"></canvas>
           <div style="font-size:0.7rem; color:#94a3b8; line-height:1.35;">
-            O círculo tracejado indica a posição de morte do último monstro. O herói à esquerda serve de referência real de proporção (escala <code>0.70x</code>).
+            A linha tracejada dourada indica o solo (Z=0) e o círculo indica o ponto de morte do último monstro. O herói protótipo à esquerda serve de referência real (<code>0.70x</code>).
           </div>
         </div>
 

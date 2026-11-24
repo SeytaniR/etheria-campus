@@ -5,6 +5,20 @@ Qualquer IA trabalhando neste repositório **DEVE** incrementar a versão e regi
 
 ---
 
+## [v0.58.0] - 2026-11-24
+### Modal Minimalista Mobile da Caçadora (4 Abas + Correções) & Calibração 2.5D (Z/Chão, Protótipos e Montarias) no `/admin`
+* **Redesign Minimalista & Correção de Bugs no Modal da Caçadora (`PlayHunterController.js`, `HunterPetController.ts`, `PlayQuestsController.js`):**
+  * Modal unificado da Caçadora com visual limpo e confortável no mobile, contendo **4 seções discretas no topo**: **`Quests`** (exibe missões ativas/disponíveis/etapas com badge numérico e abre automaticamente quando houver quest pendente), **`Criar`** (invocação de companheiros por essências), **`Vender`** (reciclagem de companheiros por essências) e **`Upgrade`** (estrutura pronta para futura evolução de companheiros).
+  * Corrigidos os bugs na criação e venda de pets: `selectRace()` agora atualiza imediatamente o saldo de essências exigido; `hunter-bootstrap` passou a retornar `petsPayload` completo (corrigindo lista vazia na aba Vender); criação e venda sincronizam `petsPayload`, `equippedPets` na HUD e inventário sem reabilitar indevidamente o botão quando faltar essência.
+* **Correções & Controles Mobile-First de Distância ao Chão (Z) em Baús, Asas e Montarias (`/admin` & `/play`):**
+  * **Correção do Preview de Personagem Protótipo (`AdminEquipmentVisualPreview.js`, `AdminDungeonChestsTab.js`, `AdminFlyingMountsTab.js`):** Substituída a chamada quebrada `/api/admin/classes` (404) e `app.mapsList` pela fonte oficial `/api/admin/maps/bootstrap` (`app.classTemplates` e `app.savedMaps`), adicionando seletor de classe protótipo e mapa real em todos os 3 palcos 2.5D.
+  * **Correção do Preview de Montaria Voadora ao Selecionar na Lista (`AdminFlyingMountsController.ts`, `AdminFlyingMountsTab.js`, `AdminEquipmentsController.ts`, `AdminEquipmentVisualPreview.js`):** Corrigido `getMcreworkMountsGallery()` para incluir `mcreworkMountKey` e `suggestedName`, adicionado carregamento de todas as 20 montarias do catálogo `mcrework` no seletor de equipamentos `FLYING_MOUNT` e implementado `renderNow()` com atualização instantânea do sprite selecionado.
+  * **Controle de Distância ao Chão (`Z` / `groundOffsetY`) & Botões Mobile-Friendly (`AdminEquipmentModalDom.js`, `AdminEquipmentsTab.js`, `AdminFlyingMountsTab.js`, `AdminDungeonChestsTab.js`, `CharacterEquipmentService.ts`, `PlayFlightAndWingsController.js`):** Adicionados sliders + botões táteis (`⬆ -5`, `-1`, `+1`, `+5 ⬇`, `↩0`), linha guia horizontal de solo (`Z = 0`) e persistência completa de `groundOffsetY` em Asas, Montarias Voadoras e Baús de Dungeon com fidelidade 1:1 entre `/admin` e `/play`.
+* **Governança e Cumprimento Estrito de Regras:**
+  * Todos os arquivos rigorosamente abaixo de 1.000 linhas (Regra #7), `node --check` e builds TypeScript com 0 erros, deploy na VPS Azure verificado com HTTP 200.
+
+---
+
 ## [v0.57.2] - 2026-11-24
 ### Ícones Originais no Preview de Recompensas das Quests & Correção dos Previews de Companheiros na Caçadora
 * **Preview de Recompensas com Ícones Originais (`QuestProgressService.ts`, `PlayQuestsController.js` & `PlayQuestStepModal.js`):**

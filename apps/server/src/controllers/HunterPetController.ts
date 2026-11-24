@@ -217,12 +217,15 @@ export class HunterPetController {
       };
     });
 
+    const petsPayload = await CharacterPetService.getCharacterPetsPayload(prisma, characterId);
+
     return {
       costRules,
       rewardRules,
       races,
       tamablePets,
       playerEssences: essenceCounts,
+      petsPayload,
     };
   }
 
