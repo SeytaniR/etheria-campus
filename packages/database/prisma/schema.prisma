@@ -91,9 +91,11 @@ model GameMap {
   dominatedById     String?     @map("dominated_by_id") /// ID da Aliança ou Facção dominante (sistema de domínio/guerra)
   spawnX            Float       @default(500) @map("spawn_x") /// Ponto de Spawn padrão (Novatos no Mapa 1, Itens de Teleporte, Respawn em Cidade/Vila e Destravar Personagem)
   spawnY            Float       @default(500) @map("spawn_y") /// Coordenada Y do Ponto de Spawn padrão do mapa
-  collisionMeshJson Json        @default("[]") @map("collision_mesh_json") /// Áreas editáveis onde o personagem colide
-  overlapMeshJson   Json        @default("[]") @map("overlap_mesh_json") /// Áreas editáveis acima do personagem que reduzem sua opacidade
-  overlapOpacity    Float       @default(0.45) @map("overlap_opacity") /// Opacidade aplicada à região coberta do corpo do personagem
+  collisionMeshJson  Json        @default("[]") @map("collision_mesh_json") /// Áreas editáveis onde o personagem colide
+  overlapMeshJson    Json        @default("[]") @map("overlap_mesh_json") /// Áreas editáveis acima do personagem que reduzem sua opacidade
+  overlapOpacity     Float       @default(0.45) @map("overlap_opacity") /// Opacidade aplicada à região coberta do corpo do personagem
+  buildingMeshJson   Json        @default("[]") @map("building_mesh_json") /// Malha editável de construção (colisão se ocupada, passeio livre se vazia)
+  plantationMeshJson Json        @default("[]") @map("plantation_mesh_json") /// Malha editável de plantação (sobreposição se ocupada, passeio livre sem sobreposição se vazia)
   isActive          Boolean     @default(true) @map("is_active")
   createdAt         DateTime    @default(now()) @map("created_at")
   updatedAt         DateTime    @updatedAt @map("updated_at")

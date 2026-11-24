@@ -5,6 +5,23 @@ Qualquer IA trabalhando neste repositório **DEVE** incrementar a versão e regi
 
 ---
 
+## [v0.59.0] - 2026-11-24
+### Novas Malhas de Edição de Mapas: Construção (`BUILDING`) & Plantação (`PLANTATION`)
+* **Banco de Dados & Snapshot (`schema.prisma`, `SnapshotManager.ts`):**
+  * Adicionados os campos `buildingMeshJson` (`building_mesh_json`) e `plantationMeshJson` (`plantation_mesh_json`) ao modelo `GameMap` (`maps`), com persistência e restauração completas em snapshots.
+* **Backend (`AdminMapsController.ts`, `GamePlayController.ts`):**
+  * Suporte completo a leitura/gravação das malhas `buildingMeshJson` e `plantationMeshJson` no CRUD de mapas e envio no payload de carregamento de mapa em `/play` (`/api/play/map/:mapId`).
+* **Editor Visual de Mapas `/admin` (`admin/index.html`, `admin.js`, `AdminCanvasEditor.js`, `AdminLayersDrawer.js`):**
+  * Adicionadas ferramentas na barra superior (**`🏗️ +Construção`** / `➕ Nova Const.` e **`🌾 +Plantação`** / `➕ Nova Plant.`) com polígonos desenhados em **âmbar (`#f59e0b`)** e **verde (`#22c55e`)**, seções próprias na Gaveta de Camadas, contadores nos cards de mapas e suporte completo a edição de vértices e Undo/Redo (refatoração via `POLY_META` mantendo `< 1.000` linhas).
+* **Runtime & Lógica das Malhas no `/play` (`ClientPolygonMesh.js`, `play.js`, `PortalTravelController.js`, `play/index.html`):**
+  * **Malha de Construção (`BUILDING`):** comporta-se como **colisão** (bloqueio + recálculo automático da grade A* `initNavGrid` em `setOccupiedBuildings`) somente quando o polígono contiver construção ocupada (`hasBuilding` ou em `occupiedBuildingIds`); quando vazia, permite **livre passeio**.
+  * **Malha de Plantação (`PLANTATION`):** comporta-se como **sobreposição** (opacidade + `getIntersectingOverlapPolygons` via `setOccupiedPlantations` / `hasPlantation`) somente quando houver plantação; quando vazia, permite **passeio livre sem sobreposição**.
+  * Adicionada renderização das novas malhas no debug visual GM em `play.js` e atualizados os cache-busters `?v=20261124_mesh1`.
+* **Governança e Cumprimento Estrito de Regras:**
+  * Todos os arquivos rigorosamente abaixo de 1.000 linhas (Regra #7), testes unitários em `ClientPolygonMesh` validando estados vazio e ocupado, `node --check`, `prisma generate` e builds TypeScript com 0 erros, deploy na VPS verificado com HTTP 200.
+
+---
+
 ## [v0.58.3] - 2026-11-24
 ### Remoção Definitiva da Tabela Obsoleta `flying_mount_templates` ("Montarias Voadoras") & Centralização Total na Tabela de Equipamentos
 * **Remoção Completa do Modelo, Controlador, Rotas e Aba `/admin`:**

@@ -563,6 +563,8 @@ export class GamePlayController {
       overlapOpacity: map.overlapOpacity,
       collisionMeshJson: (map.collisionMeshJson as unknown as MapPolygon[]) ?? [],
       overlapMeshJson: (map.overlapMeshJson as unknown as MapPolygon[]) ?? [],
+      buildingMeshJson: ((map as any).buildingMeshJson as unknown as MapPolygon[]) ?? [],
+      plantationMeshJson: ((map as any).plantationMeshJson as unknown as MapPolygon[]) ?? [],
       mapType: {
         id: map.mapType.id,
         code: map.mapType.code,

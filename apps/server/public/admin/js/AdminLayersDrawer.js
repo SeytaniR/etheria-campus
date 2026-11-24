@@ -26,21 +26,21 @@ class AdminLayersDrawer {
     };
 
     app.renderLayerLists = function () {
-      const cLen = this.collisionPolygons.length;
-      const oLen = this.overlapPolygons.length;
-      const pLen = this.portals.length;
-      const nLen = this.npcs.length;
+      const cLen = (this.collisionPolygons || []).length;
+      const oLen = (this.overlapPolygons || []).length;
+      const bLen = (this.buildingPolygons || []).length;
+      const plLen = (this.plantationPolygons || []).length;
+      const pLen = (this.portals || []).length;
+      const nLen = (this.npcs || []).length;
 
-      const cc = document.getElementById('countCollision');
-      if (cc) cc.textContent = String(cLen);
-      const co = document.getElementById('countOverlap');
-      if (co) co.textContent = String(oLen);
-      const cp = document.getElementById('countPortals');
-      if (cp) cp.textContent = String(pLen);
-      const cn = document.getElementById('countNpcs');
-      if (cn) cn.textContent = String(nLen);
-      const dt = document.getElementById('drawerTotalBadge');
-      if (dt) dt.textContent = String(cLen + oLen + pLen + nLen);
+      const setCount = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = String(v); };
+      setCount('countCollision', cLen);
+      setCount('countOverlap', oLen);
+      setCount('countBuilding', bLen);
+      setCount('countPlantation', plLen);
+      setCount('countPortals', pLen);
+      setCount('countNpcs', nLen);
+      setCount('drawerTotalBadge', cLen + oLen + bLen + plLen + pLen + nLen);
 
       const summaryBox = document.getElementById('mapSummaryCounters');
       if (summaryBox) {
@@ -48,54 +48,39 @@ class AdminLayersDrawer {
           <span>⭐ <strong>Spawn:</strong> (${this.spawnX}, ${this.spawnY})</span> &bull;
           <span>🛑 <strong>Colisões:</strong> ${cLen} malha(s)</span> &bull;
           <span>🟦 <strong>Sobreposições:</strong> ${oLen} malha(s)</span> &bull;
+          <span>🏗️ <strong>Construções:</strong> ${bLen} malha(s)</span> &bull;
+          <span>🌾 <strong>Plantações:</strong> ${plLen} malha(s)</span> &bull;
           <span>🌀 <strong>Portais:</strong> ${pLen}</span> &bull;
           <span>🧙 <strong>NPCs:</strong> ${nLen}</span>
         `;
       }
 
-      const colList = document.getElementById('collisionList');
-      if (colList) {
-        colList.innerHTML = this.collisionPolygons
+      const renderPolyList = (type, elId, list, activeIdx) => {
+        const container = document.getElementById(elId);
+        if (!container) return;
+        container.innerHTML = (list || [])
           .map((p, idx) => {
-            const isEditingThis =
-              this.tool === 'EDIT' && this.editableLayerType === 'COLLISION' && idx === this.activeCollisionPolyIndex;
-            const isAddingThis = this.tool === 'COLLISION' && idx === this.activeCollisionPolyIndex;
+            const isEditingThis = this.tool === 'EDIT' && this.editableLayerType === type && idx === activeIdx;
+            const isAddingThis = this.tool === type && idx === activeIdx;
             return `
           <div class="item-row ${isEditingThis || isAddingThis ? 'selected' : ''}">
-            <div onclick="AdminApp.selectPolygon('COLLISION', ${idx})" style="cursor:pointer; flex:1;">
+            <div onclick="AdminApp.selectPolygon('${type}', ${idx})" style="cursor:pointer; flex:1;">
               <strong>${isEditingThis ? '🔓' : '🔒'} ${p.name}</strong>
               <span style="color:var(--text-muted); font-size:0.72rem;">(${p.points.length} pts)</span>
             </div>
-            <button onclick="AdminApp.enterPolygonEditMode('COLLISION', ${idx})" style="padding:3px 7px; font-size:0.72rem;">
+            <button onclick="AdminApp.enterPolygonEditMode('${type}', ${idx})" style="padding:3px 7px; font-size:0.72rem;">
               ${isEditingThis ? '✏️ Editando' : '✏️ Editar'}
             </button>
-            <button class="btn-danger" style="padding:3px 7px;" onclick="AdminApp.removePolygon('COLLISION', ${idx})">✕</button>
+            <button class="btn-danger" style="padding:3px 7px;" onclick="AdminApp.removePolygon('${type}', ${idx})">✕</button>
           </div>`;
           })
           .join('');
-      }
+      };
 
-      const ovlList = document.getElementById('overlapList');
-      if (ovlList) {
-        ovlList.innerHTML = this.overlapPolygons
-          .map((p, idx) => {
-            const isEditingThis =
-              this.tool === 'EDIT' && this.editableLayerType === 'OVERLAP' && idx === this.activeOverlapPolyIndex;
-            const isAddingThis = this.tool === 'OVERLAP' && idx === this.activeOverlapPolyIndex;
-            return `
-          <div class="item-row ${isEditingThis || isAddingThis ? 'selected' : ''}">
-            <div onclick="AdminApp.selectPolygon('OVERLAP', ${idx})" style="cursor:pointer; flex:1;">
-              <strong>${isEditingThis ? '🔓' : '🔒'} ${p.name}</strong>
-              <span style="color:var(--text-muted); font-size:0.72rem;">(${p.points.length} pts)</span>
-            </div>
-            <button onclick="AdminApp.enterPolygonEditMode('OVERLAP', ${idx})" style="padding:3px 7px; font-size:0.72rem;">
-              ${isEditingThis ? '✏️ Editando' : '✏️ Editar'}
-            </button>
-            <button class="btn-danger" style="padding:3px 7px;" onclick="AdminApp.removePolygon('OVERLAP', ${idx})">✕</button>
-          </div>`;
-          })
-          .join('');
-      }
+      renderPolyList('COLLISION', 'collisionList', this.collisionPolygons, this.activeCollisionPolyIndex);
+      renderPolyList('OVERLAP', 'overlapList', this.overlapPolygons, this.activeOverlapPolyIndex);
+      renderPolyList('BUILDING', 'buildingList', this.buildingPolygons, this.activeBuildingPolyIndex);
+      renderPolyList('PLANTATION', 'plantationList', this.plantationPolygons, this.activePlantationPolyIndex);
 
       const pList = document.getElementById('portalsList');
       if (pList) {
@@ -211,27 +196,29 @@ class AdminLayersDrawer {
       }
     };
 
+    const POLY_MAP = {
+      COLLISION: { prop: 'collisionPolygons', idxProp: 'activeCollisionPolyIndex' },
+      OVERLAP: { prop: 'overlapPolygons', idxProp: 'activeOverlapPolyIndex' },
+      BUILDING: { prop: 'buildingPolygons', idxProp: 'activeBuildingPolyIndex' },
+      PLANTATION: { prop: 'plantationPolygons', idxProp: 'activePlantationPolyIndex' },
+    };
+
     app.selectPolygon = function (type, idx) {
-      if (type === 'COLLISION') {
-        this.activeCollisionPolyIndex = idx;
-        this.setTool('COLLISION');
-      } else {
-        this.activeOverlapPolyIndex = idx;
-        this.setTool('OVERLAP');
-      }
+      const meta = POLY_MAP[type];
+      if (!meta) return;
+      this[meta.idxProp] = idx;
+      this.setTool(type);
       this.renderLayerLists();
       this.drawCanvas();
     };
 
     app.removePolygon = function (type, idx) {
+      const meta = POLY_MAP[type];
+      if (!meta) return;
       this.pushHistorySnapshot();
-      if (type === 'COLLISION') {
-        this.collisionPolygons.splice(idx, 1);
-        this.activeCollisionPolyIndex = this.collisionPolygons.length - 1;
-      } else {
-        this.overlapPolygons.splice(idx, 1);
-        this.activeOverlapPolyIndex = this.overlapPolygons.length - 1;
-      }
+      const list = this[meta.prop] || [];
+      list.splice(idx, 1);
+      this[meta.idxProp] = list.length - 1;
       this.renderLayerLists();
       this.drawCanvas();
     };

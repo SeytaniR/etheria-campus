@@ -351,7 +351,9 @@ class EtheriaPortalTravelController {
       playApp.mesh = new ClientPolygonMesh(
         mapData.collisionMeshJson,
         mapData.overlapMeshJson,
-        mapData.overlapOpacity
+        mapData.overlapOpacity,
+        mapData.buildingMeshJson,
+        mapData.plantationMeshJson
       );
 
       if (loadedMapImg && loadedMapImg.naturalWidth > 0) {

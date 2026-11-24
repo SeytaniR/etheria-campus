@@ -39,6 +39,8 @@ export interface SaveMapDto {
   isActive?: boolean;
   collisionMeshJson: MapPolygon[];
   overlapMeshJson: MapPolygon[];
+  buildingMeshJson?: MapPolygon[];
+  plantationMeshJson?: MapPolygon[];
   portals: Array<{
     id?: number | null;
     label?: string;
@@ -697,6 +699,8 @@ export class AdminMapsController {
       isActive: dto.isActive !== undefined ? Boolean(dto.isActive) : true,
       collisionMeshJson: Array.isArray(dto.collisionMeshJson) ? (dto.collisionMeshJson as any) : [],
       overlapMeshJson: Array.isArray(dto.overlapMeshJson) ? (dto.overlapMeshJson as any) : [],
+      buildingMeshJson: Array.isArray(dto.buildingMeshJson) ? (dto.buildingMeshJson as any) : [],
+      plantationMeshJson: Array.isArray(dto.plantationMeshJson) ? (dto.plantationMeshJson as any) : [],
     };
 
     let savedMapId = id;

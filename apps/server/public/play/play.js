@@ -204,9 +204,7 @@ class EtheriaPlayClient {
       const mapData = await this.api(`/api/play/map/${mapId}`);
       this.currentMap = mapData;
       this.mesh = new ClientPolygonMesh(
-        mapData.collisionMeshJson,
-        mapData.overlapMeshJson,
-        mapData.overlapOpacity
+        mapData.collisionMeshJson, mapData.overlapMeshJson, mapData.overlapOpacity, mapData.buildingMeshJson, mapData.plantationMeshJson
       );
       this.playerX = startX !== undefined ? Number(startX) : Number(mapData.spawnX);
       this.playerY = startY !== undefined ? Number(startY) : Number(mapData.spawnY);
@@ -817,6 +815,8 @@ class EtheriaPlayClient {
       };
       drawPolyMesh(this.currentMap.collisionMeshJson, 'rgba(239, 68, 68, 0.30)', '#ef4444');
       drawPolyMesh(this.currentMap.overlapMeshJson, 'rgba(56, 189, 248, 0.28)', '#38bdf8');
+      drawPolyMesh(this.currentMap.buildingMeshJson, 'rgba(245, 158, 11, 0.26)', '#f59e0b');
+      drawPolyMesh(this.currentMap.plantationMeshJson, 'rgba(34, 197, 94, 0.26)', '#22c55e');
       ctx.beginPath();
       ctx.arc(this.currentMap.spawnX, this.currentMap.spawnY, 32, 0, Math.PI * 2);
       ctx.fillStyle = 'rgba(245, 158, 11, 0.35)'; ctx.fill();

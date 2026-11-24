@@ -59,9 +59,13 @@ class FastMinHeap {
 }
 
 class ClientPolygonMesh {
-  constructor(collisionPolygons = [], overlapPolygons = [], overlapOpacity = 0.45) {
+  constructor(collisionPolygons = [], overlapPolygons = [], overlapOpacity = 0.45, buildingPolygons = [], plantationPolygons = []) {
     this.collisionPolygons = this.compileBounds(collisionPolygons);
     this.overlapPolygons = this.compileBounds(overlapPolygons);
+    this.buildingPolygons = this.compileBounds(buildingPolygons);
+    this.plantationPolygons = this.compileBounds(plantationPolygons);
+    this.occupiedBuildingIds = new Set();
+    this.occupiedPlantationIds = new Set();
     this.overlapOpacity = Math.max(0.1, Math.min(1.0, Number(overlapOpacity) || 0.45));
 
     // Grade de Navegação para Desvio Automático de Obstáculos (Pathfinding)
@@ -93,6 +97,8 @@ class ClientPolygonMesh {
       compiled.push({
         id: poly.id,
         name: poly.name,
+        hasBuilding: Boolean(poly.hasBuilding),
+        hasPlantation: Boolean(poly.hasPlantation),
         points: pts,
         minX,
         maxX,
@@ -101,6 +107,41 @@ class ClientPolygonMesh {
       });
     }
     return compiled;
+  }
+
+  isBuildingPolyOccupied(poly) {
+    return Boolean(poly && (poly.hasBuilding || (poly.id != null && this.occupiedBuildingIds.has(poly.id))));
+  }
+
+  isPlantationPolyOccupied(poly) {
+    return Boolean(poly && (poly.hasPlantation || (poly.id != null && this.occupiedPlantationIds.has(poly.id))));
+  }
+
+  setOccupiedBuildings(ids = []) {
+    this.occupiedBuildingIds = new Set(Array.isArray(ids) ? ids : []);
+    if (this.navGrid) this.initNavGrid(this.mapWidth, this.mapHeight);
+  }
+
+  setOccupiedPlantations(ids = []) {
+    this.occupiedPlantationIds = new Set(Array.isArray(ids) ? ids : []);
+  }
+
+  findBuildingPolygonAt(x, y) {
+    for (let i = 0; i < this.buildingPolygons.length; i++) {
+      if (ClientPolygonMesh.isPointInCompiledPolygon(x, y, this.buildingPolygons[i])) {
+        return this.buildingPolygons[i];
+      }
+    }
+    return null;
+  }
+
+  findPlantationPolygonAt(x, y) {
+    for (let i = 0; i < this.plantationPolygons.length; i++) {
+      if (ClientPolygonMesh.isPointInCompiledPolygon(x, y, this.plantationPolygons[i])) {
+        return this.plantationPolygons[i];
+      }
+    }
+    return null;
   }
 
   static isPointInCompiledPolygon(x, y, poly) {
@@ -131,6 +172,13 @@ class ClientPolygonMesh {
         return true;
       }
     }
+    // Malha de construção: comporta-se como colisão apenas quando ocupada por edifício; senão é livre passeio
+    for (let i = 0; i < this.buildingPolygons.length; i++) {
+      const poly = this.buildingPolygons[i];
+      if (this.isBuildingPolyOccupied(poly) && ClientPolygonMesh.isPointInCompiledPolygon(x, y, poly)) {
+        return true;
+      }
+    }
     return false;
   }
 
@@ -154,20 +202,35 @@ class ClientPolygonMesh {
         return this.overlapOpacity;
       }
     }
+    // Malha de plantação: comporta-se como sobreposição apenas quando há plantação; senão é passeio livre sem sobreposição
+    for (let i = 0; i < this.plantationPolygons.length; i++) {
+      const poly = this.plantationPolygons[i];
+      if (this.isPlantationPolyOccupied(poly) && ClientPolygonMesh.isPointInCompiledPolygon(x, y, poly)) {
+        return this.overlapOpacity;
+      }
+    }
     return 1.0;
   }
 
   getIntersectingOverlapPolygons(x, y, w, h) {
-    if (!this.overlapPolygons || this.overlapPolygons.length === 0) return [];
+    const hasOvl = this.overlapPolygons && this.overlapPolygons.length > 0;
+    const hasPlt = this.plantationPolygons && this.plantationPolygons.length > 0;
+    if (!hasOvl && !hasPlt) return [];
     const minX = x;
     const maxX = x + w;
     const minY = y;
     const maxY = y + h;
 
     const hits = [];
-    for (let i = 0; i < this.overlapPolygons.length; i++) {
+    for (let i = 0; i < (this.overlapPolygons?.length || 0); i++) {
       const poly = this.overlapPolygons[i];
       if (!(maxX < poly.minX || minX > poly.maxX || maxY < poly.minY || minY > poly.maxY)) {
+        hits.push(poly);
+      }
+    }
+    for (let i = 0; i < (this.plantationPolygons?.length || 0); i++) {
+      const poly = this.plantationPolygons[i];
+      if (this.isPlantationPolyOccupied(poly) && !(maxX < poly.minX || minX > poly.maxX || maxY < poly.minY || minY > poly.maxY)) {
         hits.push(poly);
       }
     }
@@ -239,6 +302,15 @@ class ClientPolygonMesh {
       if (!(segMaxX < p.minX || segMinX > p.maxX || segMaxY < p.minY || segMinY > p.maxY)) {
         hasOverlappingPoly = true;
         break;
+      }
+    }
+    if (!hasOverlappingPoly) {
+      for (let i = 0; i < this.buildingPolygons.length; i++) {
+        const p = this.buildingPolygons[i];
+        if (this.isBuildingPolyOccupied(p) && !(segMaxX < p.minX || segMinX > p.maxX || segMaxY < p.minY || segMinY > p.maxY)) {
+          hasOverlappingPoly = true;
+          break;
+        }
       }
     }
     if (!hasOverlappingPoly) return true;

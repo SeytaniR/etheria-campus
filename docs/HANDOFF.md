@@ -8,9 +8,9 @@
 ---
 
 ## 📌 Status Atual do Projeto
-* **Versão Atual:** `v0.58.3`
+* **Versão Atual:** `v0.59.0`
 * **Última Atualização:** `2026-11-24`
-* **Fase Atual:** **Remoção Definitiva da Tabela `flying_mount_templates` & Centralização na Tabela de Equipamentos (`v0.58.3`)** — Removida completamente a tabela obsoleta `flying_mount_templates` ("Montarias Voadoras") do Prisma Schema, `SnapshotManager`, PostgreSQL, backend (`AdminFlyingMountsController`, rotas `/api/admin/flying-mounts`, `CharacterEquipmentService`, `MapPresenceService`, `AssetMirrorService`) e `/admin` (`AdminFlyingMountsTab.js`). Todas as montarias voadoras (slot `FLYING_MOUNT`) permanecem 100% centralizadas na tabela `item_templates` (Equipamentos), assim como as Asas (`WINGS`), respeitando estritamente os 6 atributos permitidos (`MAX_HP`, `MAX_MP`, `PHYS_ATK`, `MAG_ATK`, `PHYS_DEF`, `MAG_DEF`). Todos os arquivos estritamente < 1.000 linhas (Regra #7).
+* **Fase Atual:** **Malhas de Construção (`BUILDING`) e Plantação (`PLANTATION`) na Edição de Mapas (`v0.59.0`)** — Adicionadas as duas novas malhas poligonais (`building_mesh_json` e `plantation_mesh_json`) ao schema Prisma, `SnapshotManager`, backend (`/admin` e `/play`), editor visual `/admin` (ferramentas `🏗️ +Construção` e `🌾 +Plantação`, gaveta de camadas, Undo/Redo) e `ClientPolygonMesh` (construção = colisão apenas se ocupada, senão livre passeio; plantação = sobreposição apenas se ocupada, senão livre passeio sem sobreposição), prontas para a próxima etapa de edifícios e plantações. Todos os arquivos estritamente < 1.000 linhas (Regra #7).
 * **Repositório Oficial:** `https://github.com/SeytaniR/etheria-campus`
 * **Fonte Bruta de Assets:** `https://github.com/SeytaniR/mcrework` (`https://seytanir.github.io/mcrework/`)
 

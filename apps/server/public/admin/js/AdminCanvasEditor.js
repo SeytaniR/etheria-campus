@@ -10,6 +10,14 @@ class AdminCanvasEditor {
     app.npcEditorSpriteCache = new Map();
     app.selectedMapNpcIndex = -1;
 
+    const POLY_META = {
+      COLLISION: { prop: 'collisionPolygons', idxProp: 'activeCollisionPolyIndex', prefix: 'col', label: 'Colisão', fillRgb: '239, 68, 68', strokeHex: '#ef4444' },
+      OVERLAP: { prop: 'overlapPolygons', idxProp: 'activeOverlapPolyIndex', prefix: 'ovl', label: 'Sobreposição', fillRgb: '56, 189, 248', strokeHex: '#38bdf8' },
+      BUILDING: { prop: 'buildingPolygons', idxProp: 'activeBuildingPolyIndex', prefix: 'bld', label: 'Construção', fillRgb: '245, 158, 11', strokeHex: '#f59e0b' },
+      PLANTATION: { prop: 'plantationPolygons', idxProp: 'activePlantationPolyIndex', prefix: 'plt', label: 'Plantação', fillRgb: '34, 197, 94', strokeHex: '#22c55e' },
+    };
+    const POLY_TYPES = ['COLLISION', 'OVERLAP', 'BUILDING', 'PLANTATION'];
+
     window.onMcreworkSpriteLoaded = () => {
       const editorScreen = document.getElementById('visualMapEditorScreen');
       if (editorScreen && editorScreen.style.display !== 'none') {
@@ -135,10 +143,14 @@ class AdminCanvasEditor {
         spawnY: this.spawnY,
         collisionPolygons: this.collisionPolygons,
         overlapPolygons: this.overlapPolygons,
+        buildingPolygons: this.buildingPolygons,
+        plantationPolygons: this.plantationPolygons,
         portals: this.portals,
         npcs: this.npcs,
         activeCollisionPolyIndex: this.activeCollisionPolyIndex,
         activeOverlapPolyIndex: this.activeOverlapPolyIndex,
+        activeBuildingPolyIndex: this.activeBuildingPolyIndex,
+        activePlantationPolyIndex: this.activePlantationPolyIndex,
       });
     };
 
@@ -163,10 +175,14 @@ class AdminCanvasEditor {
       document.getElementById('mapSpawnY').value = String(this.spawnY);
       this.collisionPolygons = parsed.collisionPolygons || [];
       this.overlapPolygons = parsed.overlapPolygons || [];
+      this.buildingPolygons = parsed.buildingPolygons || [];
+      this.plantationPolygons = parsed.plantationPolygons || [];
       this.portals = parsed.portals || [];
       this.npcs = parsed.npcs || [];
       this.activeCollisionPolyIndex = parsed.activeCollisionPolyIndex ?? this.collisionPolygons.length - 1;
       this.activeOverlapPolyIndex = parsed.activeOverlapPolyIndex ?? this.overlapPolygons.length - 1;
+      this.activeBuildingPolyIndex = parsed.activeBuildingPolyIndex ?? this.buildingPolygons.length - 1;
+      this.activePlantationPolyIndex = parsed.activePlantationPolyIndex ?? this.plantationPolygons.length - 1;
 
       this.renderLayerLists();
       this.drawCanvas();
@@ -241,6 +257,8 @@ class AdminCanvasEditor {
         SPAWN: 'toolSpawn',
         COLLISION: 'toolCollision',
         OVERLAP: 'toolOverlap',
+        BUILDING: 'toolBuilding',
+        PLANTATION: 'toolPlantation',
         PORTAL: 'toolPortal',
         NPC: 'toolNpc',
         EDIT: 'toolEdit',
@@ -256,10 +274,9 @@ class AdminCanvasEditor {
       }
       this.updateSelectedMapNpcQuickBar();
 
-      if (toolName === 'COLLISION' && this.collisionPolygons.length === 0) {
-        this.startNewPolygon('COLLISION');
-      } else if (toolName === 'OVERLAP' && this.overlapPolygons.length === 0) {
-        this.startNewPolygon('OVERLAP');
+      const polyMeta = POLY_META[toolName];
+      if (polyMeta && (!Array.isArray(this[polyMeta.prop]) || this[polyMeta.prop].length === 0)) {
+        this.startNewPolygon(toolName);
       }
 
       const hint = document.getElementById('canvasHint');
@@ -284,35 +301,22 @@ class AdminCanvasEditor {
 
     app.enterPolygonEditMode = function (type, idx) {
       this.editableLayerType = type;
-      if (type === 'COLLISION') {
-        this.activeCollisionPolyIndex = idx;
-      } else {
-        this.activeOverlapPolyIndex = idx;
+      if (POLY_META[type]) {
+        this[POLY_META[type].idxProp] = idx;
       }
       this.setTool('EDIT');
     };
 
     app.startNewPolygon = function (type) {
+      const meta = POLY_META[type];
+      if (!meta) return;
       this.pushHistorySnapshot();
-      if (type === 'COLLISION') {
-        const idx = this.collisionPolygons.length + 1;
-        this.collisionPolygons.push({
-          id: `col_${Date.now()}_${idx}`,
-          name: `Colisão #${idx}`,
-          points: [],
-        });
-        this.activeCollisionPolyIndex = this.collisionPolygons.length - 1;
-        this.setTool('COLLISION');
-      } else {
-        const idx = this.overlapPolygons.length + 1;
-        this.overlapPolygons.push({
-          id: `ovl_${Date.now()}_${idx}`,
-          name: `Sobreposição #${idx}`,
-          points: [],
-        });
-        this.activeOverlapPolyIndex = this.overlapPolygons.length - 1;
-        this.setTool('OVERLAP');
-      }
+      if (!Array.isArray(this[meta.prop])) this[meta.prop] = [];
+      const list = this[meta.prop];
+      const idx = list.length + 1;
+      list.push({ id: `${meta.prefix}_${Date.now()}_${idx}`, name: `${meta.label} #${idx}`, points: [] });
+      this[meta.idxProp] = list.length - 1;
+      this.setTool(type);
       this.renderLayerLists();
       this.drawCanvas();
     };
@@ -329,7 +333,7 @@ class AdminCanvasEditor {
 
       if (this.tool === 'PAN') {
         alert(
-          'Selecione primeiro uma ferramenta na barra superior (⭐ Spawn, 🛑 +Colisão, 🟦 +Sobrep., 🌀 +Portal ou 🧙 +NPC) para marcar no Alvo Central!'
+          'Selecione primeiro uma ferramenta na barra superior (⭐ Spawn, 🛑 +Colisão, 🟦 +Sobrep., 🏗️ +Construção, 🌾 +Plantação, 🌀 +Portal ou 🧙 +NPC) para marcar no Alvo Central!'
         );
         return;
       }
@@ -346,28 +350,16 @@ class AdminCanvasEditor {
         this.spawnY = y;
         document.getElementById('mapSpawnX').value = String(x);
         document.getElementById('mapSpawnY').value = String(y);
-      } else if (this.tool === 'COLLISION') {
-        if (this.activeCollisionPolyIndex < 0 || !this.collisionPolygons[this.activeCollisionPolyIndex]) {
-          const idx = this.collisionPolygons.length + 1;
-          this.collisionPolygons.push({
-            id: `col_${Date.now()}_${idx}`,
-            name: `Colisão #${idx}`,
-            points: [],
-          });
-          this.activeCollisionPolyIndex = this.collisionPolygons.length - 1;
+      } else if (POLY_META[this.tool]) {
+        const meta = POLY_META[this.tool];
+        if (!Array.isArray(this[meta.prop])) this[meta.prop] = [];
+        const list = this[meta.prop];
+        if (this[meta.idxProp] < 0 || !list[this[meta.idxProp]]) {
+          const idx = list.length + 1;
+          list.push({ id: `${meta.prefix}_${Date.now()}_${idx}`, name: `${meta.label} #${idx}`, points: [] });
+          this[meta.idxProp] = list.length - 1;
         }
-        this.collisionPolygons[this.activeCollisionPolyIndex].points.push({ x, y });
-      } else if (this.tool === 'OVERLAP') {
-        if (this.activeOverlapPolyIndex < 0 || !this.overlapPolygons[this.activeOverlapPolyIndex]) {
-          const idx = this.overlapPolygons.length + 1;
-          this.overlapPolygons.push({
-            id: `ovl_${Date.now()}_${idx}`,
-            name: `Sobreposição #${idx}`,
-            points: [],
-          });
-          this.activeOverlapPolyIndex = this.overlapPolygons.length - 1;
-        }
-        this.overlapPolygons[this.activeOverlapPolyIndex].points.push({ x, y });
+        list[this[meta.idxProp]].points.push({ x, y });
       } else if (this.tool === 'PORTAL') {
         const nextNum = this.portals.length + 1;
         this.portals.push({
@@ -446,9 +438,12 @@ class AdminCanvasEditor {
           return null;
         };
 
-        const polyHit =
-          checkPolyList('COLLISION', this.collisionPolygons, this.activeCollisionPolyIndex) ||
-          checkPolyList('OVERLAP', this.overlapPolygons, this.activeOverlapPolyIndex);
+        let polyHit = null;
+        for (const t of POLY_TYPES) {
+          const m = POLY_META[t];
+          polyHit = checkPolyList(t, this[m.prop] || [], this[m.idxProp]);
+          if (polyHit) break;
+        }
         if (polyHit) return polyHit;
 
         if (Math.hypot(this.spawnX - worldX, this.spawnY - worldY) <= Math.max(hitRadius, 36)) {
@@ -501,8 +496,7 @@ class AdminCanvasEditor {
                 this.preDragSnapshot = this.captureCurrentSnapshot();
                 this.dragChanged = false;
                 this.draggingVertex = hit;
-                if (hit.list === 'COLLISION') this.activeCollisionPolyIndex = hit.polyIdx;
-                if (hit.list === 'OVERLAP') this.activeOverlapPolyIndex = hit.polyIdx;
+                if (POLY_META[hit.list]) this[POLY_META[hit.list].idxProp] = hit.polyIdx;
                 if (hit.list === 'NPC') {
                   this.selectedMapNpcIndex = hit.polyIdx;
                   this.updateSelectedMapNpcQuickBar();
@@ -620,9 +614,9 @@ class AdminCanvasEditor {
         if (this.tool !== 'EDIT') return;
         const { x, y } = toWorldCoords(e.clientX, e.clientY);
         const hit = findHitObjectInEditMode(x, y, false);
-        if (hit && (hit.list === 'COLLISION' || hit.list === 'OVERLAP')) {
+        if (hit && POLY_META[hit.list]) {
           this.pushHistorySnapshot();
-          const targetList = hit.list === 'COLLISION' ? this.collisionPolygons : this.overlapPolygons;
+          const targetList = this[POLY_META[hit.list].prop];
           targetList[hit.polyIdx].points.splice(hit.ptIdx, 1);
           this.renderLayerLists();
           this.drawCanvas();
@@ -646,8 +640,7 @@ class AdminCanvasEditor {
             this.preDragSnapshot = this.captureCurrentSnapshot();
             this.dragChanged = false;
             this.draggingVertex = hit;
-            if (hit.list === 'COLLISION') this.activeCollisionPolyIndex = hit.polyIdx;
-            if (hit.list === 'OVERLAP') this.activeOverlapPolyIndex = hit.polyIdx;
+            if (POLY_META[hit.list]) this[POLY_META[hit.list].idxProp] = hit.polyIdx;
             this.renderLayerLists();
             this.drawCanvas();
             return;
@@ -714,10 +707,11 @@ class AdminCanvasEditor {
     app.moveDraggedObject = function (x, y) {
       if (!this.draggingVertex) return;
       const { list, polyIdx, ptIdx } = this.draggingVertex;
-      if (list === 'COLLISION' && this.collisionPolygons[polyIdx]?.points[ptIdx]) {
-        this.collisionPolygons[polyIdx].points[ptIdx] = { x, y };
-      } else if (list === 'OVERLAP' && this.overlapPolygons[polyIdx]?.points[ptIdx]) {
-        this.overlapPolygons[polyIdx].points[ptIdx] = { x, y };
+      if (POLY_META[list]) {
+        const polyList = this[POLY_META[list].prop] || [];
+        if (polyList[polyIdx]?.points[ptIdx]) {
+          polyList[polyIdx].points[ptIdx] = { x, y };
+        }
       } else if (list === 'SPAWN') {
         this.spawnX = x;
         this.spawnY = y;
@@ -803,21 +797,10 @@ class AdminCanvasEditor {
         });
       };
 
-      drawPolygonLayer(
-        'COLLISION',
-        this.collisionPolygons,
-        this.activeCollisionPolyIndex,
-        '239, 68, 68',
-        '#ef4444'
-      );
-
-      drawPolygonLayer(
-        'OVERLAP',
-        this.overlapPolygons,
-        this.activeOverlapPolyIndex,
-        '56, 189, 248',
-        '#38bdf8'
-      );
+      for (const t of POLY_TYPES) {
+        const m = POLY_META[t];
+        drawPolygonLayer(t, this[m.prop] || [], this[m.idxProp], m.fillRgb, m.strokeHex);
+      }
 
       // Ponto de Spawn do Mapa (⭐ SPAWN)
       ctx.beginPath();

@@ -37,12 +37,16 @@ class EtheriaAdminStudio {
     this.spawnY = 500;
     this.collisionPolygons = [];
     this.overlapPolygons = [];
+    this.buildingPolygons = [];
+    this.plantationPolygons = [];
     this.portals = [];
     this.npcs = [];
 
     // Polígono atualmente selecionado para adicionar pontos ou editar vértices
     this.activeCollisionPolyIndex = -1;
     this.activeOverlapPolyIndex = -1;
+    this.activeBuildingPolyIndex = -1;
+    this.activePlantationPolyIndex = -1;
     this.editableLayerType = 'ALL';
 
     // Histórico completo de ações (Undo / Redo de criações e de arrastes de vértices)
@@ -52,7 +56,7 @@ class EtheriaAdminStudio {
     this.dragChanged = false;
 
     // Câmera, Toque Mobile e Canvas
-    // Ferramentas: PAN | SPAWN | COLLISION | OVERLAP | PORTAL | NPC | EDIT
+    // Ferramentas: PAN | SPAWN | COLLISION | OVERLAP | BUILDING | PLANTATION | PORTAL | NPC | EDIT
     this.tool = 'PAN';
     this.bgImage = null;
     this.camX = 20;
@@ -330,6 +334,8 @@ class EtheriaAdminStudio {
       .map((m) => {
         const colCount = Array.isArray(m.collisionMeshJson) ? m.collisionMeshJson.length : 0;
         const ovlCount = Array.isArray(m.overlapMeshJson) ? m.overlapMeshJson.length : 0;
+        const bldCount = Array.isArray(m.buildingMeshJson) ? m.buildingMeshJson.length : 0;
+        const pltCount = Array.isArray(m.plantationMeshJson) ? m.plantationMeshJson.length : 0;
         const prtCount = Array.isArray(m.outgoingPortals) ? m.outgoingPortals.length : 0;
         const npcCount = Array.isArray(m.npcs) ? m.npcs.length : 0;
         const statusBadge = m.isActive
@@ -343,7 +349,7 @@ class EtheriaAdminStudio {
           ${statusBadge}
         </div>
         <div style="font-size:0.7rem; color:var(--text-muted);">
-          ${m.code} &bull; 🛑${colCount} &bull; 🟦${ovlCount} &bull; 🌀${prtCount} &bull; 🧙${npcCount}
+          ${m.code} &bull; 🛑${colCount} &bull; 🟦${ovlCount} &bull; 🏗️${bldCount} &bull; 🌾${pltCount} &bull; 🌀${prtCount} &bull; 🧙${npcCount}
         </div>
       </div>`;
       })
@@ -376,10 +382,14 @@ class EtheriaAdminStudio {
 
     this.collisionPolygons = [];
     this.overlapPolygons = [];
+    this.buildingPolygons = [];
+    this.plantationPolygons = [];
     this.portals = [];
     this.npcs = [];
     this.activeCollisionPolyIndex = -1;
     this.activeOverlapPolyIndex = -1;
+    this.activeBuildingPolyIndex = -1;
+    this.activePlantationPolyIndex = -1;
     this.cameraInitializedForUrl = '';
     if (typeof this.clearHistory === 'function') this.clearHistory();
 
@@ -449,11 +459,15 @@ class EtheriaAdminStudio {
 
     this.collisionPolygons = Array.isArray(m.collisionMeshJson) ? JSON.parse(JSON.stringify(m.collisionMeshJson)) : [];
     this.overlapPolygons = Array.isArray(m.overlapMeshJson) ? JSON.parse(JSON.stringify(m.overlapMeshJson)) : [];
+    this.buildingPolygons = Array.isArray(m.buildingMeshJson) ? JSON.parse(JSON.stringify(m.buildingMeshJson)) : [];
+    this.plantationPolygons = Array.isArray(m.plantationMeshJson) ? JSON.parse(JSON.stringify(m.plantationMeshJson)) : [];
     this.portals = Array.isArray(m.outgoingPortals) ? JSON.parse(JSON.stringify(m.outgoingPortals)) : [];
     this.npcs = Array.isArray(m.npcs) ? JSON.parse(JSON.stringify(m.npcs)) : [];
 
     this.activeCollisionPolyIndex = this.collisionPolygons.length - 1;
     this.activeOverlapPolyIndex = this.overlapPolygons.length - 1;
+    this.activeBuildingPolyIndex = this.buildingPolygons.length - 1;
+    this.activePlantationPolyIndex = this.plantationPolygons.length - 1;
 
     if (prevMapId !== m.id) {
       this.cameraInitializedForUrl = '';
@@ -525,6 +539,8 @@ class EtheriaAdminStudio {
         isActive: document.getElementById('mapIsActiveSelect').value === 'true',
         collisionMeshJson: this.collisionPolygons,
         overlapMeshJson: this.overlapPolygons,
+        buildingMeshJson: this.buildingPolygons,
+        plantationMeshJson: this.plantationPolygons,
         portals: this.portals,
         npcs: this.npcs,
       };

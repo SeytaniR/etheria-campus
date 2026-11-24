@@ -530,6 +530,10 @@
         <button onclick="AdminApp.startNewPolygon('COLLISION')" title="Iniciar novo polígono de colisão separado">➕ Nova Col.</button>
         <button id="toolOverlap" onclick="AdminApp.setTool('OVERLAP')">🟦 +Sobrep.</button>
         <button onclick="AdminApp.startNewPolygon('OVERLAP')" title="Iniciar novo polígono de sobreposição separado">➕ Nova Sob.</button>
+        <button id="toolBuilding" onclick="AdminApp.setTool('BUILDING')">🏗️ +Construção</button>
+        <button onclick="AdminApp.startNewPolygon('BUILDING')" title="Iniciar novo polígono de área de construção separado">➕ Nova Const.</button>
+        <button id="toolPlantation" onclick="AdminApp.setTool('PLANTATION')">🌾 +Plantação</button>
+        <button onclick="AdminApp.startNewPolygon('PLANTATION')" title="Iniciar novo polígono de área de plantação separado">➕ Nova Plant.</button>
         <button id="toolPortal" onclick="AdminApp.setTool('PORTAL')">🌀 +Portal</button>
         <button id="toolNpc" onclick="AdminApp.setTool('NPC')">🧙 +NPC</button>
         <button id="toolEdit" onclick="AdminApp.setTool('EDIT')">✏️ Editar Vértices</button>
@@ -588,6 +592,20 @@
             <button onclick="AdminApp.startNewPolygon('OVERLAP')" style="font-size:0.72rem; padding:3px 7px;">➕ Nova</button>
           </div>
           <div id="overlapList" class="item-list"></div>
+        </div>
+        <div>
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+            <strong style="font-size:0.82rem; color:#fcd34d;">🏗️ Áreas de Construção (<span id="countBuilding">0</span>)</strong>
+            <button onclick="AdminApp.startNewPolygon('BUILDING')" style="font-size:0.72rem; padding:3px 7px;">➕ Nova</button>
+          </div>
+          <div id="buildingList" class="item-list"></div>
+        </div>
+        <div>
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+            <strong style="font-size:0.82rem; color:#86efac;">🌾 Áreas de Plantação (<span id="countPlantation">0</span>)</strong>
+            <button onclick="AdminApp.startNewPolygon('PLANTATION')" style="font-size:0.72rem; padding:3px 7px;">➕ Nova</button>
+          </div>
+          <div id="plantationList" class="item-list"></div>
         </div>
         <div>
           <strong style="font-size:0.82rem; color:#d8b4fe; display:block; margin-bottom:6px;">
@@ -861,12 +879,12 @@
   <script src="/admin/js/AdminQuestsModalDom.js"></script>
   <script src="/admin/js/AdminQuestStepsEditor.js?v=20261123_q1"></script>
   <script src="/admin/js/AdminQuestsTab.js"></script>
-  <script src="/admin/js/AdminCanvasEditor.js"></script>
-  <script src="/admin/js/AdminLayersDrawer.js"></script>
+  <script src="/admin/js/AdminCanvasEditor.js?v=20261124_mesh1"></script>
+  <script src="/admin/js/AdminLayersDrawer.js?v=20261124_mesh1"></script>
   <script src="/admin/js/AdminTeleportNpcsTab.js"></script>
   <script src="/admin/js/AdminWorldMapsDom.js"></script>
   <script src="/admin/js/AdminWorldMapsTab.js"></script>
   <script src="/admin/js/AdminDungeonChestsTab.js?v=20261124_q4"></script>
-  <script src="/admin/admin.js?v=20261124_rmmount1"></script>
+  <script src="/admin/admin.js?v=20261124_mesh1"></script>
 </body>
 </html>

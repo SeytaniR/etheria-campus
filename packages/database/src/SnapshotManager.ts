@@ -242,6 +242,7 @@ export class SnapshotManager {
               dungeonBossTemplateId: m.dungeonBossTemplateId ?? null,
               dominatedById: m.dominatedById ?? null,
               overlapOpacity: m.overlapOpacity, collisionMeshJson: m.collisionMeshJson, overlapMeshJson: m.overlapMeshJson,
+              buildingMeshJson: m.buildingMeshJson ?? [], plantationMeshJson: m.plantationMeshJson ?? [],
             },
             update: {
               code: m.code, nameI18nKey: m.nameI18nKey,
@@ -255,6 +256,7 @@ export class SnapshotManager {
               dungeonBossTemplateId: m.dungeonBossTemplateId ?? null,
               dominatedById: m.dominatedById ?? null,
               overlapOpacity: m.overlapOpacity, collisionMeshJson: m.collisionMeshJson, overlapMeshJson: m.overlapMeshJson,
+              buildingMeshJson: m.buildingMeshJson ?? [], plantationMeshJson: m.plantationMeshJson ?? [],
             },
           });
         }
