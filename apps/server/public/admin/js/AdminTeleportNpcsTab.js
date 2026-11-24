@@ -167,7 +167,7 @@ class AdminTeleportNpcsTab {
                     const thumbUrl =
                       tpl?.thumbUrl ||
                       (tpl?.mcreworkNpcKey
-                        ? `https://seytanir.github.io/mcrework/assets/npcs/${tpl.mcreworkNpcKey}/thumb.png`
+                        ? `/api/assets/mcrework/assets/npcs/${tpl.mcreworkNpcKey}/thumb.png`
                         : '');
                     const destinations = Array.isArray(tn.teleportDestinationsJson) ? tn.teleportDestinationsJson : [];
 
@@ -351,7 +351,7 @@ class AdminTeleportNpcsTab {
       const tpl = this.npcTemplates.find((t) => t.id === tplId);
       if (tpl) {
         const thumbUrl =
-          tpl.thumbUrl || `https://seytanir.github.io/mcrework/assets/npcs/${tpl.mcreworkNpcKey}/thumb.png`;
+          tpl.thumbUrl || `/api/assets/mcrework/assets/npcs/${tpl.mcreworkNpcKey}/thumb.png`;
         preview.innerHTML = `<img src="${thumbUrl}" alt="" style="width:100%; height:100%; object-fit:contain;" />`;
       } else {
         preview.innerHTML = `<span style="font-size:1.4rem;">🧙</span>`;

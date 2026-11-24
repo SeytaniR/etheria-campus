@@ -242,7 +242,7 @@ class AdminItemsTab {
       const badge = document.getElementById('itemActiveIconBadge');
       if (!iconKey) iconKey = 'assets/items/icons/item_normal_060009.png';
       const clean = iconKey.replace(/^\/+/, '');
-      const url = `https://seytanir.github.io/mcrework/${clean}`;
+      const url = `/api/assets/mcrework/${clean}`;
       if (preview) preview.src = url;
       if (badge) badge.textContent = clean;
     };

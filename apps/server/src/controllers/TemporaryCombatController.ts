@@ -18,6 +18,7 @@ import { MonsterGlobalConfigService } from './MonsterGlobalConfigService.js';
 import { PartyService } from './PartyService.js';
 import { CharacterPetService } from './CharacterPetService.js';
 import { CharacterEquipmentService, type EquippedWingsVisualDto } from './CharacterEquipmentService.js';
+import { AssetMirrorService } from './AssetMirrorService.js';
 
 export interface ActiveStatusInstance {
   code: string;
@@ -584,7 +585,7 @@ export class TemporaryCombatController {
     }
 
     const resolveIcon = (key?: string | null) =>
-      key ? (key.startsWith('http') ? key : `${this.mcreworkPagesBaseUrl}/${key.replace(/^\/+/, '')}`) : `${this.mcreworkPagesBaseUrl}/assets/skills/icons/100156.png`;
+      key ? AssetMirrorService.toSameOriginUrl(key) : `${this.mcreworkPagesBaseUrl}/assets/skills/icons/100156.png`;
 
     const skillCatalog = (allSkills || []).map((sk: any) => ({
       ...sk,

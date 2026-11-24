@@ -421,10 +421,11 @@ class AdminMonsterModalDom {
         return this.monsterPreviewSpriteCache.get(monsterKey);
       }
       const found = (this.mcreworkMonsters || []).find((m) => m.mcreworkMonsterKey === monsterKey);
-      const baseUrl = 'https://seytanir.github.io/mcrework';
-      const jsonUrl = found?.atlasJsonUrl || `${baseUrl}/assets/monsters/${monsterKey}/atlas.json`;
-      const webpUrl = found?.atlasWebpUrl || `${baseUrl}/assets/monsters/${monsterKey}/atlas.webp`;
-      const thumbUrl = found?.thumbUrl || `${baseUrl}/assets/monsters/${monsterKey}/thumb.webp`;
+      const savedMob = (this.monsterTemplates || []).find((m) => m.mcreworkMonsterKey === monsterKey);
+      const baseUrl = '/api/assets/mcrework';
+      const jsonUrl = savedMob ? `${baseUrl}/assets/monsters/${monsterKey}/atlas.json` : (found?.atlasJsonUrl || `${baseUrl}/assets/monsters/${monsterKey}/atlas.json`);
+      const webpUrl = savedMob ? `${baseUrl}/assets/monsters/${monsterKey}/atlas.webp` : (found?.atlasWebpUrl || `${baseUrl}/assets/monsters/${monsterKey}/atlas.webp`);
+      const thumbUrl = savedMob ? `${baseUrl}/assets/monsters/${monsterKey}/thumb.webp` : (found?.thumbUrl || `${baseUrl}/assets/monsters/${monsterKey}/thumb.webp`);
       const sprite = new window.McreworkSpriteSheet(jsonUrl, webpUrl, thumbUrl);
       sprite.load();
       this.monsterPreviewSpriteCache.set(monsterKey, sprite);

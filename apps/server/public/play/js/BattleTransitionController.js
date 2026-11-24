@@ -529,19 +529,18 @@ class BattleTransitionController {
     if (p < 0.22) {
       const slashT = p / 0.22;
       ctx.save();
-      ctx.strokeStyle = '#ef4444';
-      ctx.shadowColor = '#f43f5e';
-      ctx.shadowBlur = 18;
-      ctx.lineWidth = 6;
-
       ctx.beginPath();
       ctx.moveTo(0, 0);
       ctx.lineTo(w * slashT, h * slashT);
-      ctx.stroke();
-
-      ctx.beginPath();
       ctx.moveTo(w, 0);
       ctx.lineTo(w - w * slashT, h * slashT);
+
+      ctx.strokeStyle = 'rgba(244, 63, 94, 0.34)';
+      ctx.lineWidth = 14;
+      ctx.stroke();
+
+      ctx.strokeStyle = '#ef4444';
+      ctx.lineWidth = 6;
       ctx.stroke();
       ctx.restore();
     }
@@ -674,16 +673,17 @@ class BattleTransitionController {
       ctx.restore();
     }
 
-    // Linha de laser horizontal no ponto de abertura
-    ctx.strokeStyle = '#c084fc';
-    ctx.shadowColor = '#a855f7';
-    ctx.shadowBlur = 14;
-    ctx.lineWidth = 3;
+    // Linha de laser horizontal no ponto de abertura (halo sem shadowBlur)
     ctx.beginPath();
     ctx.moveTo(0, h / 2 - slitH);
     ctx.lineTo(w, h / 2 - slitH);
     ctx.moveTo(0, h / 2 + slitH);
     ctx.lineTo(w, h / 2 + slitH);
+    ctx.strokeStyle = 'rgba(168, 85, 247, 0.35)';
+    ctx.lineWidth = 9;
+    ctx.stroke();
+    ctx.strokeStyle = '#c084fc';
+    ctx.lineWidth = 3;
     ctx.stroke();
 
     ctx.restore();
@@ -718,10 +718,11 @@ class BattleTransitionController {
     ctx.roundRect(bx, by, bannerW, bannerH, 12);
     ctx.fill();
 
-    // Borda Dourada / Neon com Glow
+    // Borda Dourada / Neon com Halo (sem shadowBlur)
+    ctx.strokeStyle = this.encounterInfo.enemyTier === 'BOSS' ? 'rgba(244, 63, 94, 0.35)' : 'rgba(234, 179, 8, 0.30)';
+    ctx.lineWidth = 6;
+    ctx.stroke();
     ctx.strokeStyle = this.encounterInfo.enemyTier === 'BOSS' ? '#f43f5e' : '#eab308';
-    ctx.shadowColor = this.encounterInfo.enemyTier === 'BOSS' ? 'rgba(244, 63, 94, 0.7)' : 'rgba(234, 179, 8, 0.6)';
-    ctx.shadowBlur = 12;
     ctx.lineWidth = 2.2;
     ctx.stroke();
 

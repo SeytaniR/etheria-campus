@@ -21,7 +21,7 @@ class AdminNpcsTab {
       }
 
       const thumbUrl =
-        existingNpc.thumbUrl || `https://seytanir.github.io/mcrework/assets/npcs/${existingNpc.mcreworkNpcKey}/thumb.png`;
+        existingNpc.thumbUrl || `/api/assets/mcrework/assets/npcs/${existingNpc.mcreworkNpcKey}/thumb.png`;
 
       box.style.display = 'flex';
       box.innerHTML = `
@@ -256,7 +256,7 @@ class AdminNpcsTab {
 
       tbody.innerHTML = this.npcTemplates
         .map((n) => {
-          const thumbUrl = n.thumbUrl || `https://seytanir.github.io/mcrework/assets/npcs/${n.mcreworkNpcKey}/thumb.png`;
+          const thumbUrl = n.thumbUrl || `/api/assets/mcrework/assets/npcs/${n.mcreworkNpcKey}/thumb.png`;
 
           const rawRoles = Array.isArray(n.rolesJson) ? n.rolesJson : [];
           const roleBadgeConfigs = {

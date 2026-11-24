@@ -49,10 +49,11 @@ class AdminClassesTab {
         return this.classPreviewSpriteCache.get(charKey);
       }
       const found = (this.mcreworkChars || []).find((c) => c.mcreworkCharKey === charKey);
-      const baseUrl = 'https://seytanir.github.io/mcrework';
-      const jsonUrl = found?.atlasJsonUrl || `${baseUrl}/assets/characters/${charKey}/atlas.json`;
-      const webpUrl = found?.atlasWebpUrl || `${baseUrl}/assets/characters/${charKey}/atlas.webp`;
-      const thumbUrl = found?.thumbUrl || `${baseUrl}/assets/characters/${charKey}/thumb.webp`;
+      const savedClass = (this.classTemplates || []).find((c) => c.mcreworkCharKey === charKey || c.rebornMcreworkCharKey === charKey);
+      const baseUrl = '/api/assets/mcrework';
+      const jsonUrl = savedClass ? `${baseUrl}/assets/characters/${charKey}/atlas.json` : (found?.atlasJsonUrl || `${baseUrl}/assets/characters/${charKey}/atlas.json`);
+      const webpUrl = savedClass ? `${baseUrl}/assets/characters/${charKey}/atlas.webp` : (found?.atlasWebpUrl || `${baseUrl}/assets/characters/${charKey}/atlas.webp`);
+      const thumbUrl = savedClass ? `${baseUrl}/assets/characters/${charKey}/thumb.webp` : (found?.thumbUrl || `${baseUrl}/assets/characters/${charKey}/thumb.webp`);
       const sprite = new window.McreworkSpriteSheet(jsonUrl, webpUrl, thumbUrl);
       sprite.load();
       this.classPreviewSpriteCache.set(charKey, sprite);

@@ -25,6 +25,7 @@ import { CharacterPetService } from './CharacterPetService.js';
 import { MonsterCombatBuilder, type MonsterScalingContext } from './MonsterCombatBuilder.js';
 import { DungeonService } from './DungeonService.js';
 import { CharacterEquipmentService, type CharacterVisualAppearanceDto } from './CharacterEquipmentService.js';
+import { MapRuntimeCacheService } from './MapRuntimeCacheService.js';
 import { InputSanitizer } from '../security/InputSanitizer.js';
 
 export interface CreateCharacterDto {
@@ -57,11 +58,6 @@ export class GamePlayController {
    * Reduzida em 20% do valor anterior de 210 px/s (210 * 0.80 = 168 px/s).
    */
   public static readonly AUTHORITATIVE_BASE_MOVE_SPEED = 168;
-
-  /**
-   * Registro do último sync de movimento por personagem para validação autoritária de velocidade.
-   */
-  private readonly lastSyncTimes = new Map<number, number>();
 
   constructor(prisma: PrismaClient, assetMirrorService?: AssetMirrorService) {
     this.prisma = prisma;
@@ -234,7 +230,7 @@ export class GamePlayController {
       namePtBr: i18nMap.get(sk.nameI18nKey) ?? sk.code,
       descriptionPtBr: sk.descriptionI18nKey ? (i18nMap.get(sk.descriptionI18nKey) ?? '') : '',
       iconUrl: sk.mcreworkIconKey
-        ? (sk.mcreworkIconKey.startsWith('http') ? sk.mcreworkIconKey : `${this.mcreworkPagesBaseUrl}/${sk.mcreworkIconKey.replace(/^\/+/, '')}`)
+        ? AssetMirrorService.toSameOriginUrl(sk.mcreworkIconKey)
         : `${this.mcreworkPagesBaseUrl}/assets/skills/icons/100156.png`,
       skillType: sk.skillType,
       triggerType: sk.triggerType,
@@ -476,6 +472,7 @@ export class GamePlayController {
     if (!char || char.userAccountId !== userAccountId) {
       throw new Error('Personagem não encontrado ou não pertence à sua conta.');
     }
+    await MapRuntimeCacheService.flushAndInvalidateCharacter(this.prisma, characterId);
     await this.prisma.playerCharacter.delete({ where: { id: characterId } });
     return { deletedId: characterId };
   }
@@ -621,95 +618,15 @@ export class GamePlayController {
     characterId: number,
     dto: SyncPositionDto
   ) {
-    const char = await this.prisma.playerCharacter.findUnique({ where: { id: characterId } });
-    if (!char || char.userAccountId !== userAccountId) {
-      throw new Error('Personagem inválido.');
-    }
-
-    const mapId = Number(dto.mapId) || char.currentMapId || 1;
-    const map = await this.prisma.gameMap.findUnique({ where: { id: mapId } });
-    if (!map) {
-      throw new Error('Mapa não encontrado.');
-    }
-
-    // Impede que requisições atrasadas do mapa anterior sobrescrevam uma travessia de portal concluída
-    if (char.currentMapId && char.currentMapId !== map.id) {
-      return {
-        ok: false,
-        staleMapIgnored: true,
-        blocked: false,
-        speedClamped: false,
-        currentMapId: char.currentMapId,
-        posX: char.posX,
-        posY: char.posY,
-      };
-    }
-
-    const asset = await this.assetMirrorService.getOrFetchAsset(map.mcreworkMapImage);
-    const dims = asset ? AssetMirrorService.getImageDimensions(asset.buffer) : null;
-    const clampBoundX = (val: number) =>
-      dims ? Math.max(16, Math.min(dims.width - 16, val)) : Math.max(16, val);
-    const clampBoundY = (val: number) =>
-      dims ? Math.max(20, Math.min(dims.height - 16, val)) : Math.max(20, val);
-
-    const posX = clampBoundX(Math.round(Number(dto.posX) || map.spawnX));
-    const posY = clampBoundY(Math.round(Number(dto.posY) || map.spawnY));
-    const isGmNoClip = Boolean(dto.noClip) && ['ADMIN', 'GM', 'DEV'].includes(userRole);
-    const flightPerm = await CharacterEquipmentService.resolveAuthoritativeFlightPermission(this.prisma, char, dto.isFlying);
-    const ignoreCollision = isGmNoClip || flightPerm.isFlyingAllowed;
-
-    // Validação autoritária de velocidade: impede speedhack em contas normais
-    let finalPosX = posX;
-    let finalPosY = posY;
-    let speedClamped = false;
-    const now = Date.now();
-    const lastSync = this.lastSyncTimes.get(characterId);
-    this.lastSyncTimes.set(characterId, now);
-
-    if (!isGmNoClip && char.currentMapId === map.id && lastSync) {
-      const elapsedSec = Math.max(0.1, (now - lastSync) / 1000);
-      const dist = Math.hypot(posX - char.posX, posY - char.posY);
-      // Margem tolerante (1.5x + 40px) considerando velocidade da montaria voadora
-      const maxAllowedDist = GamePlayController.AUTHORITATIVE_BASE_MOVE_SPEED * flightPerm.speedMultiplier * elapsedSec * 1.5 + 40;
-      if (dist > maxAllowedDist) {
-        const ratio = maxAllowedDist / dist;
-        finalPosX = clampBoundX(Math.round(char.posX + (posX - char.posX) * ratio));
-        finalPosY = clampBoundY(Math.round(char.posY + (posY - char.posY) * ratio));
-        speedClamped = true;
-      }
-    }
-
-    if (!ignoreCollision) {
-      const collisionPolys = Array.isArray(map.collisionMeshJson)
-        ? (map.collisionMeshJson as unknown as MapPolygon[])
-        : [];
-      const mesh = new MapPolygonMesh(collisionPolys);
-      if (mesh.containsPoint(finalPosX, finalPosY)) {
-        return {
-          ok: false,
-          blocked: true,
-          speedClamped,
-          currentMapId: char.currentMapId ?? map.id,
-          posX: char.posX,
-          posY: char.posY,
-        };
-      }
-    }
-
-    await this.prisma.playerCharacter.update({
-      where: { id: characterId },
-      data: { currentMapId: map.id, posX: finalPosX, posY: finalPosY, isFlying: flightPerm.isFlyingAllowed } as any,
-    });
-
-    return {
-      ok: true,
-      blocked: false,
-      speedClamped,
-      isFlying: flightPerm.isFlyingAllowed,
-      currentMapId: map.id,
-      posX: finalPosX,
-      posY: finalPosY,
-    };
+    return MapRuntimeCacheService.validateAndBufferPosition(
+      this.prisma,
+      this.assetMirrorService,
+      userAccountId,
+      userRole,
+      characterId,
+      dto,
+      GamePlayController.AUTHORITATIVE_BASE_MOVE_SPEED
+    );
   }
 
   /**
@@ -816,7 +733,7 @@ export class GamePlayController {
       }
     }
 
-    this.lastSyncTimes.delete(characterId);
+    await MapRuntimeCacheService.flushAndInvalidateCharacter(this.prisma, characterId);
     await this.prisma.playerCharacter.update({
       where: { id: characterId },
       data: {
@@ -848,7 +765,7 @@ export class GamePlayController {
     const spawnX = map ? map.spawnX : 500;
     const spawnY = map ? map.spawnY : 500;
 
-    this.lastSyncTimes.delete(characterId);
+    await MapRuntimeCacheService.flushAndInvalidateCharacter(this.prisma, characterId);
     await this.prisma.playerCharacter.update({
       where: { id: characterId },
       data: {
@@ -897,7 +814,7 @@ export class GamePlayController {
     const posX = dto.targetX !== undefined ? Number(dto.targetX) : targetMap.spawnX;
     const posY = dto.targetY !== undefined ? Number(dto.targetY) : targetMap.spawnY;
 
-    this.lastSyncTimes.delete(characterId);
+    await MapRuntimeCacheService.flushAndInvalidateCharacter(this.prisma, characterId);
     await this.prisma.playerCharacter.update({
       where: { id: characterId },
       data: {

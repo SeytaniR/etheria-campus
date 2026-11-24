@@ -333,7 +333,7 @@ class AdminEquipmentsTab {
       const badge = document.getElementById('equipActiveIconBadge');
       if (!iconKey) iconKey = 'assets/equipment/icons/equip_normal_100001.png';
       const clean = iconKey.replace(/^\/+/, '');
-      const url = `https://seytanir.github.io/mcrework/${clean}`;
+      const url = `/api/assets/mcrework/${clean}`;
       if (preview) preview.src = url;
       if (badge) badge.textContent = clean;
     };

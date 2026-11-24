@@ -31,7 +31,7 @@ class AdminCanvasEditor {
       if (this.npcEditorSpriteCache.has(key)) {
         return this.npcEditorSpriteCache.get(key);
       }
-      const baseUrl = 'https://seytanir.github.io/mcrework';
+      const baseUrl = '/api/assets/mcrework';
       const jsonUrl = tpl.atlasJsonUrl || `${baseUrl}/assets/npcs/${key}/atlas.json`;
       const webpUrl = tpl.atlasWebpUrl || `${baseUrl}/assets/npcs/${key}/atlas.webp`;
       const thumbUrl = tpl.thumbUrl || `${baseUrl}/assets/npcs/${key}/thumb.png`;

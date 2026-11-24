@@ -9,6 +9,7 @@
 
 import { PrismaClient } from '@prisma/client';
 import { I18nCache, SnapshotManager } from '@etheria/database';
+import { AssetMirrorService } from './AssetMirrorService.js';
 
 export interface ShopCatalogEntryDto {
   entryType: 'ITEM' | 'EQUIPMENT';
@@ -42,7 +43,6 @@ interface CatalogMeta {
 export class AdminShopsController {
   private readonly prisma: PrismaClient;
   private readonly snapshotManager: SnapshotManager;
-  private readonly mcreworkPagesBaseUrl = 'https://mcrework.com';
 
   constructor(prisma: PrismaClient) {
     this.prisma = prisma;
@@ -51,14 +51,7 @@ export class AdminShopsController {
 
   private resolveIconUrl(rawKey?: string | null): string {
     if (!rawKey) return '/play/assets/hud/menu_shop.png';
-    const key = String(rawKey).trim();
-    if (key.startsWith('/play/') || key.startsWith('play/')) {
-      return key.startsWith('/') ? key : `/${key}`;
-    }
-    if (key.startsWith('http://') || key.startsWith('https://')) {
-      return key;
-    }
-    return `${this.mcreworkPagesBaseUrl}/${key.replace(/^\/+/, '')}`;
+    return AssetMirrorService.toSameOriginUrl(String(rawKey).trim()) || '/play/assets/hud/menu_shop.png';
   }
 
   private sanitizeCatalog(raw: unknown): ShopCatalogEntryDto[] {

@@ -33,6 +33,7 @@
 import type * as http from 'node:http';
 import { PrismaClient, SnapshotManager, I18nCache } from '@etheria/database';
 import { MonsterCombatBuilder, type MonsterScalingContext } from './MonsterCombatBuilder.js';
+import { MapPresenceService } from './MapPresenceService.js';
 import { CharacterInventoryService } from './CharacterInventoryService.js';
 import { CharacterProgressionService } from './CharacterProgressionService.js';
 import type { CombatUnit } from './TemporaryCombatController.js';
@@ -630,6 +631,8 @@ export class CharacterPetService {
         data: { deploySlot: normalizedSlot },
       });
     });
+
+    MapPresenceService.invalidateCharacterCache(characterId);
 
     return await prisma.characterPet.findUnique({
       where: { id: pet.id },

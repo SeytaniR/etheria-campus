@@ -80,8 +80,8 @@ class AdminSkillsAndBuffsTab {
       const entry = { key, ready: false, atlasData: null, image: null };
       this.vfxPreviewCache.set(key, entry);
 
-      const jsonUrl = `https://seytanir.github.io/mcrework/assets/effects/${key}/atlas.json`;
-      const webpUrl = `https://seytanir.github.io/mcrework/assets/effects/${key}/atlas.webp`;
+      const jsonUrl = `/api/assets/mcrework/assets/effects/${key}/atlas.json`;
+      const webpUrl = `/api/assets/mcrework/assets/effects/${key}/atlas.webp`;
 
       fetch(jsonUrl)
         .then((r) => (r.ok ? r.json() : Promise.reject(new Error(`HTTP ${r.status}`))))
@@ -357,7 +357,7 @@ class AdminSkillsAndBuffsTab {
       this.startVfxPreviewCanvasLoop(
         'skillVfxPreviewCanvas',
         () => this.selectedSkillVfxKey,
-        () => `https://seytanir.github.io/mcrework/${this.selectedSkillIconKey.replace(/^\/+/, '')}`,
+        () => `/api/assets/mcrework/${this.selectedSkillIconKey.replace(/^\/+/, '')}`,
         () => ({ colorHex: this.selectedSkillVfxColorHex, intensity: this.selectedSkillVfxColorIntensity })
       );
     };
@@ -416,7 +416,7 @@ class AdminSkillsAndBuffsTab {
 
       const iconImg = document.getElementById('skillSelectedIconImg');
       if (iconImg) {
-        iconImg.src = `https://seytanir.github.io/mcrework/${this.selectedSkillIconKey.replace(/^\/+/, '')}`;
+        iconImg.src = `/api/assets/mcrework/${this.selectedSkillIconKey.replace(/^\/+/, '')}`;
       }
       const vfxLabel = document.getElementById('skillSelectedVfxLabel');
       if (vfxLabel) {

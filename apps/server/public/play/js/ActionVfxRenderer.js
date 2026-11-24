@@ -296,10 +296,11 @@ class ActionVfxRenderer {
       const pulse = 0.85 + 0.15 * Math.sin(now / 260);
       ctx.beginPath();
       ctx.ellipse(cx, cy, rx, ry, 0, 0, Math.PI * 2);
+      ctx.strokeStyle = `rgba(56, 189, 248, ${0.18 * pulse})`;
+      ctx.lineWidth = 6 / zoom;
+      ctx.stroke();
       ctx.strokeStyle = `rgba(56, 189, 248, ${0.50 * pulse})`;
       ctx.lineWidth = 2.5 / zoom;
-      ctx.shadowColor = '#38bdf8';
-      ctx.shadowBlur = 8;
       ctx.stroke();
 
       for (let i = 0; i < 8; i++) {
@@ -332,12 +333,17 @@ class ActionVfxRenderer {
 
     this.drawGroundZonesAndTelegraphs(ctx, arena.groundZones, now);
     for (const p of arena.projectiles || []) {
+      const projColor = p.color || '#fde047';
       ctx.save();
+      ctx.globalAlpha = 0.28;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, 10.5 / zoom, 0, Math.PI * 2);
+      ctx.fillStyle = projColor;
+      ctx.fill();
+      ctx.globalAlpha = 1;
       ctx.beginPath();
       ctx.arc(p.x, p.y, 6.5 / zoom, 0, Math.PI * 2);
-      ctx.fillStyle = p.color || '#fde047';
-      ctx.shadowColor = p.color || '#fde047';
-      ctx.shadowBlur = 10;
+      ctx.fillStyle = projColor;
       ctx.fill();
       ctx.restore();
     }
@@ -355,13 +361,14 @@ class ActionVfxRenderer {
     const rx = Math.max(26, (target.bodyRadiusX || 24) * 1.35 * pulse);
     const ry = Math.max(16, (target.bodyRadiusY || 17) * 1.35 * pulse);
 
-    // 1. Anel externo com brilho e borda em destaque
+    // 1. Anel externo com brilho e borda em destaque (halo sem shadowBlur)
     ctx.beginPath();
     ctx.ellipse(target.x, target.y - 4, rx, ry, 0, 0, Math.PI * 2);
+    ctx.strokeStyle = 'rgba(245, 158, 11, 0.30)';
+    ctx.lineWidth = 5.4 / zoom;
+    ctx.stroke();
     ctx.strokeStyle = 'rgba(239, 68, 68, 0.90)';
     ctx.lineWidth = 2.4 / zoom;
-    ctx.shadowColor = '#f59e0b';
-    ctx.shadowBlur = 9;
     ctx.stroke();
 
     // 2. 4 Pips de mira em cruz giratória
@@ -398,8 +405,10 @@ class ActionVfxRenderer {
     ctx.fillStyle = '#ef4444';
     ctx.font = 'bold 15px sans-serif';
     ctx.textAlign = 'center';
-    ctx.shadowColor = '#f59e0b';
-    ctx.shadowBlur = 8;
+    ctx.lineJoin = 'round';
+    ctx.strokeStyle = 'rgba(245, 158, 11, 0.85)';
+    ctx.lineWidth = 3;
+    ctx.strokeText('▼', target.x, cy);
     ctx.fillText('▼', target.x, cy);
     ctx.restore();
   }
@@ -409,10 +418,12 @@ class ActionVfxRenderer {
       ctx.save();
       ctx.font = 'bold 13px system-ui, -apple-system, sans-serif';
       ctx.textAlign = 'center';
-      ctx.fillStyle = f.color || '#fff';
-      ctx.shadowColor = 'rgba(0, 0, 0, 0.9)';
-      ctx.shadowBlur = 3;
+      ctx.lineJoin = 'round';
       ctx.globalAlpha = Math.max(0, Math.min(1, f.life));
+      ctx.strokeStyle = 'rgba(0, 0, 0, 0.92)';
+      ctx.lineWidth = 3;
+      ctx.strokeText(f.text, f.x, f.y);
+      ctx.fillStyle = f.color || '#fff';
       ctx.fillText(f.text, f.x, f.y);
       ctx.restore();
     }

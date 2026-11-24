@@ -10,6 +10,29 @@
 
 class PlayDungeonChestController {
   static imageCache = new Map();
+  static glowTexCache = new Map();
+
+  static getGlowTexture(glowHex) {
+    const key = String(glowHex || '#fbbf24').trim();
+    const cached = this.glowTexCache.get(key);
+    if (cached) return cached;
+    const size = 128;
+    const off = document.createElement('canvas');
+    off.width = size;
+    off.height = size;
+    const gctx = off.getContext('2d');
+    if (gctx) {
+      const mid = size / 2;
+      const grad = gctx.createRadialGradient(mid, mid, 4, mid, mid, mid);
+      grad.addColorStop(0, `${key}88`);
+      grad.addColorStop(0.55, `${key}33`);
+      grad.addColorStop(1, 'rgba(0,0,0,0)');
+      gctx.fillStyle = grad;
+      gctx.fillRect(0, 0, size, size);
+    }
+    this.glowTexCache.set(key, off);
+    return off;
+  }
 
   static getChestImage(url) {
     if (!url) return null;
@@ -162,18 +185,20 @@ class PlayDungeonChestController {
     const glow = chest.glowColorHex || '#fbbf24';
 
     ctx.save();
-    // 1. Halo luminoso pulsante no chão
+    // 1. Halo luminoso pulsante no chão (offscreen texture pré-renderizada)
     const pulse = 0.88 + 0.12 * Math.sin(now / 260);
     const rx = Math.round(drawSize * 0.56 * pulse);
     const ry = Math.round(drawSize * 0.26 * pulse);
-    const grad = ctx.createRadialGradient(cx, cy + 4, 4, cx, cy + 4, Math.max(12, rx * 1.25));
-    grad.addColorStop(0, `${glow}88`);
-    grad.addColorStop(0.55, `${glow}33`);
-    grad.addColorStop(1, 'rgba(0,0,0,0)');
-    ctx.fillStyle = grad;
-    ctx.beginPath();
-    ctx.ellipse(cx, cy + 4, rx * 1.25, ry * 1.4, 0, 0, Math.PI * 2);
-    ctx.fill();
+    const glowTex = this.getGlowTexture(glow);
+    const haloW = Math.max(24, Math.round(rx * 2.5));
+    const haloH = Math.max(14, Math.round(ry * 2.8));
+    ctx.drawImage(
+      glowTex,
+      Math.round(cx - haloW / 2),
+      Math.round(cy + 4 - haloH / 2),
+      haloW,
+      haloH
+    );
 
     // Sombra base
     ctx.fillStyle = 'rgba(0, 0, 0, 0.48)';

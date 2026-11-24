@@ -52,6 +52,7 @@ export interface LowCodeDatabaseSnapshot {
   shopTemplates?: any[];
   hunterPetCostRules?: any[];
   monsterGlobalConfigs?: any[];
+  dungeonChestConfigs?: any[];
 }
 
 /**
@@ -90,7 +91,12 @@ export class SnapshotManager {
     'world_map_templates',
     'client_ui_layout_templates',
     'monster_global_configs',
+    'dungeon_chest_configs',
+    'dungeon_runs',
   ] as const;
+
+  private static exportInFlight: Promise<string> | null = null;
+  private static exportQueued = false;
 
   private readonly prisma: PrismaClient;
   private readonly snapshotFilePath: string;
@@ -138,48 +144,151 @@ export class SnapshotManager {
    * Deve ser chamado automaticamente após alterações na Rota `/admin`.
    */
   public async exportToDisk(): Promise<string> {
+    if (SnapshotManager.exportInFlight) {
+      SnapshotManager.exportQueued = true;
+      return SnapshotManager.exportInFlight;
+    }
+
+    const run = async (): Promise<string> => {
+      do {
+        SnapshotManager.exportQueued = false;
+        await this.performExportToDisk();
+      } while (SnapshotManager.exportQueued);
+      return this.snapshotFilePath;
+    };
+
+    SnapshotManager.exportInFlight = run().finally(() => {
+      SnapshotManager.exportInFlight = null;
+    });
+    return SnapshotManager.exportInFlight;
+  }
+
+  private async performExportToDisk(): Promise<string> {
     await fs.mkdir(path.dirname(this.snapshotFilePath), { recursive: true });
+
+    const [
+      i18nTranslations,
+      biomes,
+      mapTypes,
+      maps,
+      mapPortals,
+      npcTemplates,
+      mapNpcs,
+      elements,
+      elementMatchups,
+      races,
+    ] = await Promise.all([
+      this.prisma.i18nTranslation.findMany({ orderBy: { id: 'asc' } }),
+      this.prisma.biome.findMany({ orderBy: { id: 'asc' } }),
+      this.prisma.mapType.findMany({ orderBy: { id: 'asc' } }),
+      this.prisma.gameMap.findMany({ orderBy: { id: 'asc' } }),
+      this.prisma.mapPortal.findMany({ orderBy: { id: 'asc' } }),
+      this.prisma.npcTemplate.findMany({ orderBy: { id: 'asc' } }),
+      this.prisma.mapNpc.findMany({ orderBy: { id: 'asc' } }),
+      this.prisma.element.findMany({ orderBy: { code: 'asc' } }),
+      this.prisma.elementMatchup.findMany({ orderBy: { id: 'asc' } }),
+      this.prisma.race.findMany({ orderBy: { code: 'asc' } }),
+    ]);
+
+    const [
+      raceMatchups,
+      baseAttributes,
+      combatAttributes,
+      attributeConversions,
+      equipmentSlots,
+      equipmentSets,
+      classTemplates,
+      monsterRarities,
+      monsterTemplates,
+      monsterBiomes,
+    ] = await Promise.all([
+      this.prisma.raceMatchup.findMany({ orderBy: { id: 'asc' } }),
+      this.prisma.baseAttribute.findMany({ orderBy: { code: 'asc' } }),
+      this.prisma.combatAttribute.findMany({ orderBy: { code: 'asc' } }),
+      this.prisma.attributeConversion.findMany({ orderBy: { id: 'asc' } }),
+      this.prisma.equipmentSlot.findMany({ orderBy: [{ ownerType: 'asc' }, { slotIndex: 'asc' }] }),
+      (this.prisma as any).equipmentSet.findMany({ orderBy: { id: 'asc' } }),
+      this.prisma.classTemplate.findMany({ orderBy: { id: 'asc' } }),
+      this.prisma.monsterRarity.findMany({ orderBy: { id: 'asc' } }),
+      this.prisma.monsterTemplate.findMany({ orderBy: { id: 'asc' } }),
+      this.prisma.monsterBiome.findMany({ orderBy: { id: 'asc' } }),
+    ]);
+
+    const [
+      skillTemplates,
+      statusEffectTemplates,
+      itemTemplates,
+      questTemplates,
+      levelExpRaw,
+      worldMapTemplates,
+      clientUiLayoutTemplates,
+      shopTemplates,
+      hunterPetCostRules,
+      monsterGlobalConfigs,
+      dungeonChestConfigs,
+    ] = await Promise.all([
+      this.prisma.skillTemplate.findMany({ orderBy: { id: 'asc' } }),
+      this.prisma.statusEffectTemplate.findMany({ orderBy: { id: 'asc' } }),
+      this.prisma.itemTemplate.findMany({ orderBy: { id: 'asc' } }),
+      this.prisma.questTemplate.findMany({ orderBy: { id: 'asc' } }),
+      this.prisma.levelExperienceTemplate.findMany({ orderBy: { level: 'asc' } }),
+      this.prisma.worldMapTemplate.findMany({ orderBy: { id: 'asc' } }),
+      this.prisma.clientUiLayoutTemplate.findMany({ orderBy: { id: 'asc' } }),
+      (this.prisma as any).shopTemplate?.findMany({ orderBy: { id: 'asc' } }).catch(() => []) ?? [],
+      (this.prisma as any).hunterPetCostRule?.findMany({ orderBy: { id: 'asc' } }).catch(() => []) ?? [],
+      (this.prisma as any).monsterGlobalConfig?.findMany({ orderBy: { id: 'asc' } }).catch(() => []) ?? [],
+      (this.prisma as any).dungeonChestConfig?.findMany({ orderBy: { id: 'asc' } }).catch(() => []) ?? [],
+    ]);
 
     const snapshot: LowCodeDatabaseSnapshot = {
       version: '0.2.0',
       exportedAt: new Date().toISOString(),
-      i18nTranslations: await this.prisma.i18nTranslation.findMany({ orderBy: { id: 'asc' } }),
-      biomes: await this.prisma.biome.findMany({ orderBy: { id: 'asc' } }),
-      mapTypes: await this.prisma.mapType.findMany({ orderBy: { id: 'asc' } }),
-      maps: await this.prisma.gameMap.findMany({ orderBy: { id: 'asc' } }),
-      mapPortals: await this.prisma.mapPortal.findMany({ orderBy: { id: 'asc' } }),
-      npcTemplates: await this.prisma.npcTemplate.findMany({ orderBy: { id: 'asc' } }),
-      mapNpcs: await this.prisma.mapNpc.findMany({ orderBy: { id: 'asc' } }),
-      elements: await this.prisma.element.findMany({ orderBy: { code: 'asc' } }),
-      elementMatchups: await this.prisma.elementMatchup.findMany({ orderBy: { id: 'asc' } }),
-      races: await this.prisma.race.findMany({ orderBy: { code: 'asc' } }),
-      raceMatchups: await this.prisma.raceMatchup.findMany({ orderBy: { id: 'asc' } }),
-      baseAttributes: await this.prisma.baseAttribute.findMany({ orderBy: { code: 'asc' } }),
-      combatAttributes: await this.prisma.combatAttribute.findMany({ orderBy: { code: 'asc' } }),
-      attributeConversions: await this.prisma.attributeConversion.findMany({ orderBy: { id: 'asc' } }),
-      equipmentSlots: await this.prisma.equipmentSlot.findMany({ orderBy: [{ ownerType: 'asc' }, { slotIndex: 'asc' }] }),
-      equipmentSets: await (this.prisma as any).equipmentSet.findMany({ orderBy: { id: 'asc' } }),
-      classTemplates: await this.prisma.classTemplate.findMany({ orderBy: { id: 'asc' } }),
-      monsterRarities: await this.prisma.monsterRarity.findMany({ orderBy: { id: 'asc' } }),
-      monsterTemplates: await this.prisma.monsterTemplate.findMany({ orderBy: { id: 'asc' } }),
-      monsterBiomes: await this.prisma.monsterBiome.findMany({ orderBy: { id: 'asc' } }),
-      skillTemplates: await this.prisma.skillTemplate.findMany({ orderBy: { id: 'asc' } }),
-      statusEffectTemplates: await this.prisma.statusEffectTemplate.findMany({ orderBy: { id: 'asc' } }),
-      itemTemplates: await this.prisma.itemTemplate.findMany({ orderBy: { id: 'asc' } }),
-      questTemplates: await this.prisma.questTemplate.findMany({ orderBy: { id: 'asc' } }),
-      levelExperienceTemplates: (await this.prisma.levelExperienceTemplate.findMany({ orderBy: { level: 'asc' } })).map((l) => ({
+      i18nTranslations,
+      biomes,
+      mapTypes,
+      maps,
+      mapPortals,
+      npcTemplates,
+      mapNpcs,
+      elements,
+      elementMatchups,
+      races,
+      raceMatchups,
+      baseAttributes,
+      combatAttributes,
+      attributeConversions,
+      equipmentSlots,
+      equipmentSets,
+      classTemplates,
+      monsterRarities,
+      monsterTemplates,
+      monsterBiomes,
+      skillTemplates,
+      statusEffectTemplates,
+      itemTemplates,
+      questTemplates,
+      levelExperienceTemplates: levelExpRaw.map((l) => ({
         ...l,
         experienceToNext: l.experienceToNext.toString(),
         totalExperience: l.totalExperience.toString(),
       })),
-      worldMapTemplates: await this.prisma.worldMapTemplate.findMany({ orderBy: { id: 'asc' } }),
-      clientUiLayoutTemplates: await this.prisma.clientUiLayoutTemplate.findMany({ orderBy: { id: 'asc' } }),
-      shopTemplates: await (this.prisma as any).shopTemplate?.findMany({ orderBy: { id: 'asc' } }).catch(() => []) ?? [],
-      hunterPetCostRules: await (this.prisma as any).hunterPetCostRule?.findMany({ orderBy: { id: 'asc' } }).catch(() => []) ?? [],
-      monsterGlobalConfigs: await (this.prisma as any).monsterGlobalConfig?.findMany({ orderBy: { id: 'asc' } }).catch(() => []) ?? [],
+      worldMapTemplates,
+      clientUiLayoutTemplates,
+      shopTemplates: shopTemplates ?? [],
+      hunterPetCostRules: hunterPetCostRules ?? [],
+      monsterGlobalConfigs: monsterGlobalConfigs ?? [],
+      dungeonChestConfigs: dungeonChestConfigs ?? [],
     };
 
-    await fs.writeFile(this.snapshotFilePath, JSON.stringify(snapshot, null, 2), 'utf-8');
+    const tmpPath = `${this.snapshotFilePath}.tmp.${process.pid}.${Date.now()}`;
+    try {
+      await fs.writeFile(tmpPath, JSON.stringify(snapshot, null, 2), 'utf-8');
+      await fs.rename(tmpPath, this.snapshotFilePath);
+    } catch (err) {
+      await fs.unlink(tmpPath).catch(() => {});
+      throw err;
+    }
+
     I18nCache.invalidate();
     return this.snapshotFilePath;
   }
@@ -654,6 +763,43 @@ export class SnapshotManager {
               dungeonBossHpMult: mc.dungeonBossHpMult ?? 3.0,
               dungeonBossDamageDealtMult: mc.dungeonBossDamageDealtMult ?? 0.70,
               dungeonBossAggroRadius: mc.dungeonBossAggroRadius ?? 250,
+            },
+          });
+        }
+      }
+
+      // 11.6 Baús de Recompensa de Dungeon (DungeonChestConfig)
+      if (Array.isArray(snapshot.dungeonChestConfigs)) {
+        for (const dc of snapshot.dungeonChestConfigs) {
+          if (!dc?.rarityCode) continue;
+          await (this.prisma as any).dungeonChestConfig.upsert({
+            where: { rarityCode: dc.rarityCode },
+            create: {
+              rarityCode: dc.rarityCode,
+              namePtBr: dc.namePtBr ?? dc.rarityCode,
+              imageUrl: dc.imageUrl ?? '',
+              spawnChancePct: dc.spawnChancePct ?? 75,
+              visualScale: dc.visualScale ?? 0.36,
+              visualOffsetX: dc.visualOffsetX ?? 0,
+              visualOffsetY: dc.visualOffsetY ?? -10,
+              glowColorHex: dc.glowColorHex ?? '#38bdf8',
+              goldRewardsJson: dc.goldRewardsJson ?? [],
+              xpRewardsJson: dc.xpRewardsJson ?? [],
+              itemDropsJson: dc.itemDropsJson ?? [],
+              isActive: dc.isActive ?? true,
+            },
+            update: {
+              namePtBr: dc.namePtBr ?? dc.rarityCode,
+              imageUrl: dc.imageUrl ?? '',
+              spawnChancePct: dc.spawnChancePct ?? 75,
+              visualScale: dc.visualScale ?? 0.36,
+              visualOffsetX: dc.visualOffsetX ?? 0,
+              visualOffsetY: dc.visualOffsetY ?? -10,
+              glowColorHex: dc.glowColorHex ?? '#38bdf8',
+              goldRewardsJson: dc.goldRewardsJson ?? [],
+              xpRewardsJson: dc.xpRewardsJson ?? [],
+              itemDropsJson: dc.itemDropsJson ?? [],
+              isActive: dc.isActive ?? true,
             },
           });
         }

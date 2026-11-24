@@ -16,6 +16,7 @@ import { PrismaClient, SnapshotManager, I18nCache } from '@etheria/database';
 import type { MapPolygon } from '@etheria/shared';
 import { MapSpawnResolver } from './MapSpawnResolver.js';
 import type { AssetMirrorService } from './AssetMirrorService.js';
+import { MapRuntimeCacheService } from './MapRuntimeCacheService.js';
 
 export interface SaveMapDto {
   code?: string;
@@ -112,6 +113,7 @@ export class AdminMapsController {
   private readonly snapshotManager: SnapshotManager;
   private readonly mcreworkRawBaseUrl = 'https://raw.githubusercontent.com/SeytaniR/mcrework/main/web';
   private readonly mcreworkPagesBaseUrl = 'https://seytanir.github.io/mcrework';
+  private readonly localAssetBaseUrl = '/api/assets/mcrework';
 
   private cachedMcreworkMaps: any[] | null = null;
   private cachedMcreworkNpcs: any[] | null = null;
@@ -124,18 +126,23 @@ export class AdminMapsController {
     this.assetMirrorService = assetMirrorService;
   }
 
+  private async fetchMcreworkCatalogJson<T>(relPath: string): Promise<T | null> {
+    try {
+      const res = await fetch(`${this.mcreworkRawBaseUrl}/${relPath.replace(/^\/+/, '')}`);
+      return res.ok ? ((await res.json()) as T) : null;
+    } catch {
+      return null;
+    }
+  }
+
   /**
    * Busca a galeria de 76 mapas do `mcrework` retornando EXCLUSIVAMENTE a imagem base limpa e dimensões,
    * ignorando colisões ou pontos antigos conforme regra estrita do projeto.
    */
   public async getMcreworkCleanMapGallery() {
     if (this.cachedMcreworkMaps) return this.cachedMcreworkMaps;
-
-    const res = await fetch(`${this.mcreworkRawBaseUrl}/assets/maps/catalog.json`);
-    if (!res.ok) {
-      throw new Error(`Falha ao ler catálogo de imagens de mapas do mcrework (${res.status})`);
-    }
-    const data = (await res.json()) as { maps?: any[] };
+    const data = await this.fetchMcreworkCatalogJson<{ maps?: any[] }>('assets/maps/catalog.json');
+    if (!data) return [];
     const cleanMaps = (data.maps ?? []).map((m) => ({
       mcreworkId: m.id,
       folderCode: `map_${m.id}`,
@@ -145,7 +152,6 @@ export class AdminMapsController {
       bgImageUrl: `${this.mcreworkPagesBaseUrl}/${m.bg_image}`,
       thumbUrl: `${this.mcreworkPagesBaseUrl}/${m.thumb}`,
     }));
-
     this.cachedMcreworkMaps = cleanMaps;
     return cleanMaps;
   }
@@ -155,19 +161,14 @@ export class AdminMapsController {
    */
   public async getMcreworkNpcGallery() {
     if (this.cachedMcreworkNpcs) return this.cachedMcreworkNpcs;
-
-    const res = await fetch(`${this.mcreworkRawBaseUrl}/assets/npcs/catalog.json`);
-    if (!res.ok) {
-      throw new Error(`Falha ao ler catálogo de NPCs do mcrework (${res.status})`);
-    }
-    const data = (await res.json()) as { npcs?: any[] };
+    const data = await this.fetchMcreworkCatalogJson<{ npcs?: any[] }>('assets/npcs/catalog.json');
+    if (!data) return [];
     const cleanNpcs = (data.npcs ?? []).map((n) => ({
       mcreworkNpcKey: n.id,
       thumbUrl: `${this.mcreworkPagesBaseUrl}/${n.thumb}`,
       atlasUrl: `${this.mcreworkPagesBaseUrl}/${n.atlas}`,
       jsonUrl: `${this.mcreworkPagesBaseUrl}/${n.json}`,
     }));
-
     this.cachedMcreworkNpcs = cleanNpcs;
     return cleanNpcs;
   }
@@ -177,12 +178,8 @@ export class AdminMapsController {
    */
   public async getMcreworkCharacterGallery() {
     if (this.cachedMcreworkChars) return this.cachedMcreworkChars;
-
-    const res = await fetch(`${this.mcreworkRawBaseUrl}/assets/characters/catalog.json`);
-    if (!res.ok) {
-      throw new Error(`Falha ao ler catálogo de Personagens do mcrework (${res.status})`);
-    }
-    const data = (await res.json()) as { classes?: any[] };
+    const data = await this.fetchMcreworkCatalogJson<{ classes?: any[] }>('assets/characters/catalog.json');
+    if (!data) return [];
     const cleanChars = (data.classes ?? []).map((c) => ({
       mcreworkCharKey: c.id,
       suggestedName: c.name ?? c.id,
@@ -193,7 +190,6 @@ export class AdminMapsController {
       atlasWebpUrl: `${this.mcreworkPagesBaseUrl}/assets/characters/${c.id}/atlas.webp`,
       anchor: c.anchor ?? [0.5, 0.9],
     }));
-
     this.cachedMcreworkChars = cleanChars;
     return cleanChars;
   }
@@ -259,17 +255,17 @@ export class AdminMapsController {
       namePtBr: i18nMap.get(ct.nameI18nKey) ?? ct.code,
       descriptionPtBr: ct.descriptionI18nKey ? (i18nMap.get(ct.descriptionI18nKey) ?? '') : '',
       raceNamePtBr: ct.race ? (i18nMap.get(ct.race.nameI18nKey) ?? ct.race.code) : ct.raceCode,
-      thumbUrl: `${this.mcreworkPagesBaseUrl}/assets/characters/${ct.mcreworkCharKey}/thumb.webp`,
-      atlasJsonUrl: `${this.mcreworkPagesBaseUrl}/assets/characters/${ct.mcreworkCharKey}/atlas.json`,
-      atlasWebpUrl: `${this.mcreworkPagesBaseUrl}/assets/characters/${ct.mcreworkCharKey}/atlas.webp`,
+      thumbUrl: `${this.localAssetBaseUrl}/assets/characters/${ct.mcreworkCharKey}/thumb.webp`,
+      atlasJsonUrl: `${this.localAssetBaseUrl}/assets/characters/${ct.mcreworkCharKey}/atlas.json`,
+      atlasWebpUrl: `${this.localAssetBaseUrl}/assets/characters/${ct.mcreworkCharKey}/atlas.webp`,
       rebornThumbUrl: ct.rebornMcreworkCharKey
-        ? `${this.mcreworkPagesBaseUrl}/assets/characters/${ct.rebornMcreworkCharKey}/thumb.webp`
+        ? `${this.localAssetBaseUrl}/assets/characters/${ct.rebornMcreworkCharKey}/thumb.webp`
         : null,
       rebornAtlasJsonUrl: ct.rebornMcreworkCharKey
-        ? `${this.mcreworkPagesBaseUrl}/assets/characters/${ct.rebornMcreworkCharKey}/atlas.json`
+        ? `${this.localAssetBaseUrl}/assets/characters/${ct.rebornMcreworkCharKey}/atlas.json`
         : null,
       rebornAtlasWebpUrl: ct.rebornMcreworkCharKey
-        ? `${this.mcreworkPagesBaseUrl}/assets/characters/${ct.rebornMcreworkCharKey}/atlas.webp`
+        ? `${this.localAssetBaseUrl}/assets/characters/${ct.rebornMcreworkCharKey}/atlas.webp`
         : null,
       characterCount: ct._count?.characters ?? 0,
     }));
@@ -301,9 +297,9 @@ export class AdminMapsController {
         rolesJson: Array.from(rolesSet),
         shopTemplateId: nt.shopTemplateId ?? null,
         shopNamePtBr: nt.shopTemplate?.namePtBr ?? null,
-        thumbUrl: `${this.mcreworkPagesBaseUrl}/assets/npcs/${nt.mcreworkNpcKey}/thumb.png`,
-        atlasJsonUrl: `${this.mcreworkPagesBaseUrl}/assets/npcs/${nt.mcreworkNpcKey}/atlas.json`,
-        atlasWebpUrl: `${this.mcreworkPagesBaseUrl}/assets/npcs/${nt.mcreworkNpcKey}/atlas.webp`,
+        thumbUrl: `${this.localAssetBaseUrl}/assets/npcs/${nt.mcreworkNpcKey}/thumb.png`,
+        atlasJsonUrl: `${this.localAssetBaseUrl}/assets/npcs/${nt.mcreworkNpcKey}/atlas.json`,
+        atlasWebpUrl: `${this.localAssetBaseUrl}/assets/npcs/${nt.mcreworkNpcKey}/atlas.webp`,
         placements: (nt.placements ?? []).map((pl) => ({
           ...pl,
           mapNamePtBr: pl.map ? (i18nMap.get(pl.map.nameI18nKey) ?? pl.map.code) : `Mapa #${pl.mapId}`,
@@ -344,7 +340,7 @@ export class AdminMapsController {
       namePtBr: i18nMap.get(mt.nameI18nKey) ?? mt.code,
       raceCode: mt.raceCode,
       rarityTier: mt.rarityTier,
-      thumbUrl: `${this.mcreworkPagesBaseUrl}/assets/monsters/${mt.mcreworkMonsterKey}/thumb.webp`,
+      thumbUrl: `${this.localAssetBaseUrl}/assets/monsters/${mt.mcreworkMonsterKey}/thumb.webp`,
     }));
 
     return {
@@ -508,17 +504,17 @@ export class AdminMapsController {
       ...savedClass,
       namePtBr: finalNamePtBr,
       descriptionPtBr: finalDescPtBr,
-      thumbUrl: `${this.mcreworkPagesBaseUrl}/assets/characters/${savedClass.mcreworkCharKey}/thumb.webp`,
-      atlasJsonUrl: `${this.mcreworkPagesBaseUrl}/assets/characters/${savedClass.mcreworkCharKey}/atlas.json`,
-      atlasWebpUrl: `${this.mcreworkPagesBaseUrl}/assets/characters/${savedClass.mcreworkCharKey}/atlas.webp`,
+      thumbUrl: `${this.localAssetBaseUrl}/assets/characters/${savedClass.mcreworkCharKey}/thumb.webp`,
+      atlasJsonUrl: `${this.localAssetBaseUrl}/assets/characters/${savedClass.mcreworkCharKey}/atlas.json`,
+      atlasWebpUrl: `${this.localAssetBaseUrl}/assets/characters/${savedClass.mcreworkCharKey}/atlas.webp`,
       rebornThumbUrl: savedClass.rebornMcreworkCharKey
-        ? `${this.mcreworkPagesBaseUrl}/assets/characters/${savedClass.rebornMcreworkCharKey}/thumb.webp`
+        ? `${this.localAssetBaseUrl}/assets/characters/${savedClass.rebornMcreworkCharKey}/thumb.webp`
         : null,
       rebornAtlasJsonUrl: savedClass.rebornMcreworkCharKey
-        ? `${this.mcreworkPagesBaseUrl}/assets/characters/${savedClass.rebornMcreworkCharKey}/atlas.json`
+        ? `${this.localAssetBaseUrl}/assets/characters/${savedClass.rebornMcreworkCharKey}/atlas.json`
         : null,
       rebornAtlasWebpUrl: savedClass.rebornMcreworkCharKey
-        ? `${this.mcreworkPagesBaseUrl}/assets/characters/${savedClass.rebornMcreworkCharKey}/atlas.webp`
+        ? `${this.localAssetBaseUrl}/assets/characters/${savedClass.rebornMcreworkCharKey}/atlas.webp`
         : null,
     };
   }
@@ -637,9 +633,9 @@ export class AdminMapsController {
     return {
       ...savedNpc,
       namePtBr: finalNamePtBr,
-      thumbUrl: `${this.mcreworkPagesBaseUrl}/assets/npcs/${savedNpc.mcreworkNpcKey}/thumb.png`,
-      atlasJsonUrl: `${this.mcreworkPagesBaseUrl}/assets/npcs/${savedNpc.mcreworkNpcKey}/atlas.json`,
-      atlasWebpUrl: `${this.mcreworkPagesBaseUrl}/assets/npcs/${savedNpc.mcreworkNpcKey}/atlas.webp`,
+      thumbUrl: `${this.localAssetBaseUrl}/assets/npcs/${savedNpc.mcreworkNpcKey}/thumb.png`,
+      atlasJsonUrl: `${this.localAssetBaseUrl}/assets/npcs/${savedNpc.mcreworkNpcKey}/atlas.json`,
+      atlasWebpUrl: `${this.localAssetBaseUrl}/assets/npcs/${savedNpc.mcreworkNpcKey}/atlas.webp`,
     };
   }
 
@@ -873,6 +869,9 @@ export class AdminMapsController {
     });
 
     await this.snapshotManager.exportToDisk();
+    if (savedMapId) {
+      MapRuntimeCacheService.invalidateMap(savedMapId);
+    }
     if (this.assetMirrorService && dto.mcreworkMapImage) {
       await this.assetMirrorService.mirrorMapImage(dto.mcreworkMapImage);
     }
@@ -982,6 +981,7 @@ export class AdminMapsController {
    */
   public async deleteMap(id: number) {
     await this.prisma.gameMap.delete({ where: { id } });
+    MapRuntimeCacheService.invalidateMap(id);
     await this.snapshotManager.exportToDisk();
     return { deletedId: id };
   }

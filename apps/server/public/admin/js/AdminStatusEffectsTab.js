@@ -235,7 +235,7 @@ class AdminStatusEffectsTab {
       this.startVfxPreviewCanvasLoop(
         'statusVfxPreviewCanvas',
         () => this.selectedStatusVfxKey,
-        () => `https://seytanir.github.io/mcrework/${this.selectedStatusIconKey.replace(/^\/+/, '')}`,
+        () => `/api/assets/mcrework/${this.selectedStatusIconKey.replace(/^\/+/, '')}`,
         () => ({ colorHex: this.selectedStatusVfxColorHex, intensity: this.selectedStatusVfxColorIntensity })
       );
     };
@@ -331,7 +331,7 @@ class AdminStatusEffectsTab {
 
       const iconImg = document.getElementById('statusSelectedIconImg');
       if (iconImg) {
-        iconImg.src = `https://seytanir.github.io/mcrework/${this.selectedStatusIconKey.replace(/^\/+/, '')}`;
+        iconImg.src = `/api/assets/mcrework/${this.selectedStatusIconKey.replace(/^\/+/, '')}`;
       }
       const vfxLabel = document.getElementById('statusSelectedVfxLabel');
       if (vfxLabel) {

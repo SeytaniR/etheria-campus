@@ -11,7 +11,7 @@
 
 import { PrismaClient } from '@prisma/client';
 import { SnapshotManager } from '@etheria/database';
-import type { AssetMirrorService } from './AssetMirrorService.js';
+import { AssetMirrorService } from './AssetMirrorService.js';
 
 export interface ItemTemplateDto {
   code?: string;
@@ -155,9 +155,7 @@ export class AdminItemsController {
         }
       }
 
-        const resolvedIconUrl = (iconKey.startsWith('/play/') || iconKey.startsWith('play/'))
-          ? (iconKey.startsWith('/') ? iconKey : `/${iconKey}`)
-          : `${this.mcreworkPagesBaseUrl}/${iconKey.replace(/^\/+/, '')}`;
+        const resolvedIconUrl = AssetMirrorService.toSameOriginUrl(iconKey);
 
       return {
         id: item.id,

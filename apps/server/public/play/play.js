@@ -224,7 +224,7 @@ class EtheriaPlayClient {
       let rawBg = (mapData.bgImageUrl || mapData.mcreworkMapImage || '').trim();
       let finalBgUrl = rawBg;
       if (!finalBgUrl.startsWith('http://') && !finalBgUrl.startsWith('https://') && !finalBgUrl.startsWith('/')) {
-        finalBgUrl = `https://seytanir.github.io/mcrework/${finalBgUrl.replace(/^\/+/, '')}`;
+        finalBgUrl = `/api/assets/mcrework/${finalBgUrl.replace(/^\/+/, '')}`;
       }
       this.loadMapBackground(mapData.id, finalBgUrl);
       // Pré-aquece os sprites do personagem e dos NPCs do mapa

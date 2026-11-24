@@ -67,6 +67,7 @@ export class AdminMonstersController {
   private readonly snapshotManager: SnapshotManager;
   private readonly mcreworkRawBaseUrl = 'https://raw.githubusercontent.com/SeytaniR/mcrework/main/web';
   private readonly mcreworkPagesBaseUrl = 'https://seytanir.github.io/mcrework';
+  private readonly localAssetBaseUrl = '/api/assets/mcrework';
   private cachedMcreworkMonsters: any[] | null = null;
   private readonly assetMirrorService?: AssetMirrorService;
 
@@ -83,37 +84,39 @@ export class AdminMonstersController {
   public async getMcreworkMonsterGallery() {
     if (this.cachedMcreworkMonsters) return this.cachedMcreworkMonsters;
 
-    const res = await fetch(`${this.mcreworkRawBaseUrl}/assets/monsters/catalog.json`);
-    if (!res.ok) {
-      throw new Error(`Falha ao ler catálogo de monstros do mcrework (${res.status})`);
+    try {
+      const res = await fetch(`${this.mcreworkRawBaseUrl}/assets/monsters/catalog.json`);
+      if (!res.ok) return [];
+
+      const data = (await res.json()) as { monsters?: any[] };
+      const rawList = data.monsters || [];
+      const seenKeys = new Set<string>();
+      const cleanList: any[] = [];
+
+      for (const m of rawList) {
+        if (!m || !m.id || seenKeys.has(m.id)) continue;
+        seenKeys.add(m.id);
+
+        cleanList.push({
+          mcreworkMonsterKey: m.id,
+          suggestedName: m.real_name || m.name || m.id,
+          category: m.category || 'monster',
+          isPet: !!m.is_pet,
+          width: m.width || 100,
+          height: m.height || 100,
+          feetY: m.feet_y || Math.round(m.height * 0.9),
+          anchor: Array.isArray(m.anchor) ? m.anchor : [0.5, 0.95],
+          thumbUrl: `${this.mcreworkPagesBaseUrl}/${m.thumb}`,
+          atlasJsonUrl: `${this.mcreworkPagesBaseUrl}/${m.path}`,
+          atlasWebpUrl: `${this.mcreworkPagesBaseUrl}/assets/monsters/${m.id}/atlas.webp`,
+        });
+      }
+
+      this.cachedMcreworkMonsters = cleanList;
+      return cleanList;
+    } catch {
+      return [];
     }
-
-    const data = (await res.json()) as { monsters?: any[] };
-    const rawList = data.monsters || [];
-    const seenKeys = new Set<string>();
-    const cleanList: any[] = [];
-
-    for (const m of rawList) {
-      if (!m || !m.id || seenKeys.has(m.id)) continue;
-      seenKeys.add(m.id);
-
-      cleanList.push({
-        mcreworkMonsterKey: m.id,
-        suggestedName: m.real_name || m.name || m.id,
-        category: m.category || 'monster',
-        isPet: !!m.is_pet,
-        width: m.width || 100,
-        height: m.height || 100,
-        feetY: m.feet_y || Math.round(m.height * 0.9),
-        anchor: Array.isArray(m.anchor) ? m.anchor : [0.5, 0.95],
-        thumbUrl: `${this.mcreworkPagesBaseUrl}/${m.thumb}`,
-        atlasJsonUrl: `${this.mcreworkPagesBaseUrl}/${m.path}`,
-        atlasWebpUrl: `${this.mcreworkPagesBaseUrl}/assets/monsters/${m.id}/atlas.webp`,
-      });
-    }
-
-    this.cachedMcreworkMonsters = cleanList;
-    return cleanList;
   }
 
   /**
@@ -166,9 +169,9 @@ export class AdminMonstersController {
       descriptionPtBr: mt.descriptionI18nKey ? (i18nMap.get(mt.descriptionI18nKey) ?? '') : '',
       raceNamePtBr: mt.race ? (i18nMap.get(mt.race.nameI18nKey) ?? mt.race.code) : mt.raceCode,
       elementNamePtBr: mt.fixedElement ? (i18nMap.get(mt.fixedElement.nameI18nKey) ?? mt.fixedElement.code) : mt.fixedElementCode,
-      thumbUrl: `${this.mcreworkPagesBaseUrl}/assets/monsters/${mt.mcreworkMonsterKey}/thumb.webp`,
-      atlasJsonUrl: `${this.mcreworkPagesBaseUrl}/assets/monsters/${mt.mcreworkMonsterKey}/atlas.json`,
-      atlasWebpUrl: `${this.mcreworkPagesBaseUrl}/assets/monsters/${mt.mcreworkMonsterKey}/atlas.webp`,
+      thumbUrl: `${this.localAssetBaseUrl}/assets/monsters/${mt.mcreworkMonsterKey}/thumb.webp`,
+      atlasJsonUrl: `${this.localAssetBaseUrl}/assets/monsters/${mt.mcreworkMonsterKey}/atlas.json`,
+      atlasWebpUrl: `${this.localAssetBaseUrl}/assets/monsters/${mt.mcreworkMonsterKey}/atlas.webp`,
       biomesList: [],
     }; });
   }

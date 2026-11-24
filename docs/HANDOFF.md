@@ -8,9 +8,9 @@
 ---
 
 ## 📌 Status Atual do Projeto
-* **Versão Atual:** `v0.61.0`
+* **Versão Atual:** `v0.62.0`
 * **Última Atualização:** `2026-11-24`
-* **Fase Atual:** **Onda P0 Concluída — Segurança Crítica, Regra #10 Reforçada (`mcrework`) & Deploy Seguro via Chave SSH (`v0.61.0`)** — Removidos os 17 scripts com senha hardcoded e migrado `scripts/deploy_vps.py` para autenticação via chave SSH (`~/.ssh/id_ed25519`) com backup automático pré-pull; criados `RateLimiter.ts`, `InputSanitizer.ts`, `CombatAntiCheatService.ts`, `PlayCombatRouter.ts` e `PlaySecurityUtils.js`; corrigidos combate não-autoritário (`battleNonce`), sandbox aberto a `PLAYER`, RBAC fail-closed (`NONE`) + permissões de `hunter-costs` e `dungeon-chests`, IDOR em chat/presença, race condition em `distribute-stats`, `toggle-reborn`, Stored XSS e hardening HTTP. Todos os arquivos < 1.000 linhas (Regra #7).
+* **Fase Atual:** **Onda P1 Concluída — Independência Total Pós-Salvamento `mcrework`, Snapshots Atômicos, Cache em RAM, Índices no Banco & Performance HTTP/Canvas 2D (`v0.62.0`)** — Eliminados 100% dos ponteiros externos residuais para `mcrework` em rotas/entidades salvas (`/admin`, `/gm`, `/play` e backend), `SnapshotManager` atômico com mutex/coalesce e `dungeonChestConfigs`, novo `MapRuntimeCacheService` para física de mapas e posições em RAM, TTL/cap em `MapPresenceService`, 9 `@@index` aditivos no `schema.prisma`, `ETag`/`304`/`gzip`/shutdown gracioso no `index.ts`, e Canvas 2D livre de `ctx.shadowBlur` e `createRadialGradient` por frame. Todos os arquivos < 1.000 linhas (Regra #7).
 * **Repositório Oficial:** `https://github.com/SeytaniR/etheria-campus`
 * **Fonte Bruta de Assets:** `https://github.com/SeytaniR/mcrework` (`https://seytanir.github.io/mcrework/`)
 
@@ -86,14 +86,17 @@
   * VPS Azure: `/home/azureuser/backups/pre-p0-20261124-141915/` (`lowcode.snapshot.json` 4.8M + `etheria_db.sql.gz` 345K)
 * **Entregas Verificadas:** Remoção de credenciais SSH expostas + migração para chave `~/.ssh/id_ed25519` + `scripts/deploy_vps.py` seguro (Regra #9.2/#9.3); trava de combate autoritário (`battleNonce` + `CombatAntiCheatService`) e extração de `PlayCombatRouter`; bloqueio `/temporary-combat/*` só `GM`/`ADMIN`/`DEV`; rate limiter em login/chat; `distribute-stats` atômico via `$transaction`; `toggle-reborn` restrito a `GM`/`ADMIN`/`DEV`; correção de IDOR em chat/presença; RBAC fail-closed (`NONE`) + proteção de `hunter-costs` e `dungeon-chests`; Stored XSS (`escapeHtml` + `InputSanitizer`); hardening HTTP (headers, limite JSON 1 MB padrão / 15 MB mapas, path traversal com `path.sep`, remoção de CORS `*` wildcard). Testes `test_p0_security.mjs` e `test_action_motion_engine.mjs` aprovados 100%.
 
-### 🟠 Onda P1 — Independência Total Pós-Salvamento `mcrework`, Bugs & Performance (PRÓXIMA DA FILA — Iniciar com Backup Preventivo)
-* **Regra #10 Reforçada (Independência Total Pós-Salvamento em `/admin`, `/gm`, `/play` e Backend):**
-  * Eliminar todos os ponteiros residuais para `seytanir.github.io/mcrework` e `https://mcrework.com` em entidades salvas retornadas por `AdminMapsController`, `AdminMonstersController`, `AdminEquipmentsController`, `AdminItemsController`, `AdminSkillsController`, `AdminShopsController`, `play.js` (L227), `PortalTravelController.js` (L323), `GamePlayController.ts` (L236) e `TemporaryCombatController.ts` (L586), roteando 100% para `/api/assets/mcrework/*`. Garantir espelhamento automático de registros já salvos no disco local (`apps/server/cache/mcrework/`), deixando o GitHub `mcrework` estritamente para descoberta de assets novos no `/admin`.
-* **Bugs & Persistência:** `SnapshotManager` atômico (`temp` + `rename`) com mutex/debounce + `Promise.all` + inclusão de `dungeonChestConfigs` e `dungeon_runs`; TTL/eviction em `MapPresenceService.metadataCache`.
-* **Performance Backend/Banco:** Cache de `MapPolygonMesh` + dimensões + metadados de mapa + dirty-flush em `syncPosition`; `@@index` aditivos em `schema.prisma`; `ETag` + `gzip` para estáticos.
-* **Performance Canvas 2D (`PERFORMANCE_STANDARDS.md`):** Zerar `ctx.shadowBlur` em `ActionVfxRenderer.js` (L302, L340, L364, L402, L414) e `BattleTransitionController.js` (L534, L680, L724); cachear/pré-renderizar `createRadialGradient` de `ActionVfxRenderer.js` (L544), `PlayDungeonChestController.js` (L169) e `PlayHudController.js` (L885).
+### 🟠 Onda P1 — Independência Total Pós-Salvamento `mcrework`, Bugs & Performance (✅ CONCLUÍDA em `v0.62.0`)
+* **Backups Preventivos Pré-P1:**
+  * Local: `.backups/pre-p1-20261124-144840/` (`lowcode.snapshot.json` 4.98M + `git-head.txt`)
+  * VPS Azure: `/home/azureuser/backups/pre-p1-20261124-144840/` (`lowcode.snapshot.json` 4.8M + `etheria_db.sql.gz` 345K)
+* **Entregas Verificadas:**
+  * **Regra #10 Reforçada:** `0` URLs externas `github.io`/`githubusercontent`/`mcrework.com` em `apps/server/public/**`, entidades salvas roteadas para `/api/assets/mcrework/*`, espelhamento de asas/montarias/VFX e traversal guard em `AssetMirrorService.ts`.
+  * **Persistência & Índices:** `SnapshotManager.ts` atômico (`exportInFlight`/`exportQueued`, 3 lotes `Promise.all`, `.tmp` + `rename`, `dungeonChestConfigs` + `dungeon_runs`); 9 `@@index` aditivos em `schema.prisma`.
+  * **Performance Backend & HTTP:** `MapRuntimeCacheService.ts` (cache de `MapPolygonMesh`/dimensões TTL 5 min + dirty-flush 3s + flush em voo/portal/respawn/shutdown), `MapPresenceService.ts` (TTL 5 min + cap 2000 + hooks de invalidação), `ETag` + `304` + `gzip` + `Cache-Control` longo em `index.ts`.
+  * **Performance Canvas 2D:** Zero `ctx.shadowBlur` em `/play` (`ActionVfxRenderer.js`, `BattleTransitionController.js`) e gradientes pré-renderizados em offscreen (`PlayDungeonChestController.js`, `PlayHudController.js`). Testes `test_p0_security.mjs` (5/5), `test_p1_assets_and_cache.mjs` (5/5) e `test_action_motion_engine.mjs` (4/4) aprovados.
 
-### 🟡 Onda P2 — Modularização Real (`< 650` linhas), Limpeza de Código Morto & Testes
+### 🟡 Onda P2 — Modularização Real (`< 650` linhas), Limpeza de Código Morto & Testes (PRÓXIMA DA FILA — Iniciar com Backup Preventivo)
 * Fatiar módulos no teto da Regra #7 (`PlayGmController.js`, `play.js`, `GamePlayController.ts`, `AdminMapsController.ts`, `admin.js`, `play/index.html`, `ActionCombatArena.js`, `AdminQuestsTab.js`).
 * Mover regras compartilhadas para `@etheria/shared`; remover `web/index.html`, `scratch/`, constantes legadas mortas em `MonsterCombatBuilder.ts` e avaliar migração de modelos/colunas legados (`ArenaFormation`, `MonsterRarity`, `apCost`, `cooldownTurns`) mediante autorização.
 * Expandir suíte de testes automatizados (`npm test`).
@@ -105,4 +108,4 @@
 ---
 
 ## 🎯 Próxima Tarefa Exata da Fila
-* Realizar **backup preventivo pré-P1** (local + VPS) e executar a **Onda P1**, priorizando a **Independência Total Pós-Salvamento `mcrework`** em `/admin`, `/gm`, `/play` e backend (Regra #10 reforçada), seguida das correções de `SnapshotManager`, otimizações Backend/Banco e remoção de `ctx.shadowBlur` / gradientes por frame.
+* Realizar **backup preventivo pré-P2** (local + VPS) e executar a **Onda P2** (fatiamento de módulos grandes para manter folga ampla abaixo de 1.000 linhas, remoção de legado morto e expansão dos testes automatizados), sempre aguardando autorização do usuário antes de alterar registros do banco ou remover colunas Prisma.

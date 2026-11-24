@@ -114,7 +114,7 @@ class AdminArenaPreview {
     };
 
     app.resolveArenaUnitDescriptor = function (selectValue, fallbackIsMonster = false) {
-      const baseUrl = 'https://seytanir.github.io/mcrework';
+      const baseUrl = '/api/assets/mcrework';
       if (selectValue && selectValue.startsWith('monster:')) {
         const id = Number(selectValue.split(':')[1]);
         const m = (this.monsterTemplates || []).find((x) => Number(x.id) === id) || this.monsterTemplates?.[0];
@@ -367,7 +367,7 @@ class AdminArenaPreview {
               const cleanseOnSelf = (blk.cleanseTarget || 'SELF') !== 'TARGET' || isSelfTarget;
               const sampleDebuff = (this.statusEffectTemplates || []).find((s) => !s.isBuff);
               preImpactDebuffIcons.push({
-                iconUrl: sampleDebuff?.iconUrl || 'https://seytanir.github.io/mcrework/assets/skills/icons/100180.png',
+                iconUrl: sampleDebuff?.iconUrl || '/api/assets/mcrework/assets/skills/icons/100180.png',
                 isBuff: false,
                 onSelf: cleanseOnSelf,
                 namePtBr: sampleDebuff?.namePtBr || 'Debuff',

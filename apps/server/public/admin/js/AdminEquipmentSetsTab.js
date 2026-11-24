@@ -106,9 +106,10 @@ class AdminEquipmentSetsTab {
             <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(260px, 1fr)); gap:10px;">
               ${s.items.map((it) => {
                 const icon = it.mcreworkIconKey || 'assets/equipment/icons/equip_normal_200001.png';
+                const iconUrl = it.iconUrl || `/api/assets/mcrework/${icon.replace(/^\/+/, '')}`;
                 return `
                   <div style="background:#0f172a; border:1px solid #334155; border-radius:8px; padding:10px; display:flex; align-items:center; gap:10px;">
-                    <img src="https://seytanir.github.io/mcrework/${icon.replace(/^\/+/, '')}" style="width:40px; height:40px; object-fit:contain; border-radius:6px; background:#020617; border:1px solid #1e293b;" />
+                    <img src="${iconUrl}" style="width:40px; height:40px; object-fit:contain; border-radius:6px; background:#020617; border:1px solid #1e293b;" />
                     <div style="flex:1; overflow:hidden;">
                       <div style="font-size:0.82rem; font-weight:800; color:#fde047; white-space:nowrap; text-overflow:ellipsis; overflow:hidden;">${it.namePtBr}</div>
                       <div style="font-size:0.7rem; color:#94a3b8;">Slot: <strong style="color:#38bdf8;">${it.equipmentSlotCode}</strong> &bull; Nv.${it.requiredLevel}</div>

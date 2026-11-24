@@ -1,12 +1,12 @@
 /**
  * @file apps/server/src/controllers/MapPresenceService.ts
+ * @module @etheria/server
  * @description Serviço autoritário de presença em tempo real e respawn de personagens.
- * 
- * RECURSOS:
- * - Rastreamento otimizado de jogadores online por mapa (em memória, sem overhead de DB).
- * - Notificação de status de combate (avatar parado com espadas se batendo sobre a cabeça).
- * - Respawn inteligente: ao morrer em combate, o personagem é teletransportado para o spawn da Cidade/Vila mais próxima.
- * - Limpeza automática de conexões inativas (heartbeat timeout de 15 segundos).
+ * @rules
+ *   1. Mantém rastreamento otimizado de jogadores online por mapa em memória com remoção automática após 15s sem heartbeat.
+ *   2. Mantém cache de metadados visuais (`metadataCache`) limitado a 2000 entradas com TTL de 5 minutos, invalidado em troca de equipamentos, pet seguidor ou level up.
+ *   3. Processa respawn autoritário de personagens caídos para o spawn seguro da Cidade/Vila mais próxima, esvaziando buffers de posição.
+ * @dependencies @prisma/client, ./PartyService.js, ./CharacterEquipmentService.js, ./MapRuntimeCacheService.js
  */
 
 import type { PrismaClient } from '@prisma/client';
@@ -16,6 +16,7 @@ import {
   type EquippedMountVisualDto,
   type EquippedWingsVisualDto,
 } from './CharacterEquipmentService.js';
+import { MapRuntimeCacheService } from './MapRuntimeCacheService.js';
 
 export interface MapPlayerPresence {
   characterId: number;
@@ -69,8 +70,11 @@ export class MapPresenceService {
   /** Relação de jogadores ativos em memória: mapId -> Map<characterId, MapPlayerPresence> */
   private static playersByMap = new Map<number, Map<number, MapPlayerPresence>>();
 
-  /** Cache de metadados visuais de personagens para evitar queries desnecessárias */
-  private static metadataCache = new Map<number, Partial<MapPlayerPresence>>();
+  /** Cache de metadados visuais de personagens (TTL 5 min, cap 2000) para evitar queries desnecessárias */
+  private static metadataCache = new Map<number, { data: Partial<MapPlayerPresence>; cachedAt: number }>();
+
+  private static readonly METADATA_TTL_MS = 5 * 60 * 1000;
+  private static readonly MAX_METADATA_ENTRIES = 2000;
 
   /** Timeout de inatividade para remoção automática de jogadores deslogados (15s) */
   private static readonly INACTIVE_TIMEOUT_MS = 15000;
@@ -86,8 +90,12 @@ export class MapPresenceService {
     const now = Date.now();
     const mapId = Number(dto.mapId) || 1;
 
-    // 1. Obtém metadados visuais do personagem (do cache ou banco)
-    let meta = this.metadataCache.get(characterId);
+    // 1. Obtém metadados visuais do personagem (do cache com TTL 5m ou banco)
+    const cachedMeta = this.metadataCache.get(characterId);
+    let meta: Partial<MapPlayerPresence> | undefined =
+      cachedMeta && now - cachedMeta.cachedAt < this.METADATA_TTL_MS
+        ? cachedMeta.data
+        : undefined;
     if (!meta) {
       const pc = await prisma.playerCharacter.findUnique({
         where: { id: characterId },
@@ -136,7 +144,11 @@ export class MapPresenceService {
           primaryFollowerPet,
           elementCode: pc.elementCode || 'NEUTRAL',
         };
-        this.metadataCache.set(characterId, meta);
+        if (this.metadataCache.size >= this.MAX_METADATA_ENTRIES) {
+          const oldestKey = this.metadataCache.keys().next().value;
+          if (oldestKey !== undefined) this.metadataCache.delete(oldestKey);
+        }
+        this.metadataCache.set(characterId, { data: meta, cachedAt: now });
       }
     }
 
@@ -374,6 +386,7 @@ export class MapPresenceService {
     const targetSpawnX = targetMap ? targetMap.spawnX : 500;
     const targetSpawnY = targetMap ? targetMap.spawnY : 500;
 
+    await MapRuntimeCacheService.flushAndInvalidateCharacter(prisma as any, characterId);
     await prisma.playerCharacter.update({
       where: { id: characterId },
       data: {

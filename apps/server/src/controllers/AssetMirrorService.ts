@@ -5,6 +5,11 @@
  *   assets curados do jogo (mapas, personagens, NPCs, monstros, pets, montarias, itens, ícones e VFX).
  *   Garante autonomia total frente a instabilidades ou rate-limits externos do GitHub, e expõe o
  *   manifesto de download offline/local (`/api/play/assets-manifest`) para o client `/play`.
+ * @rules
+ *   1. O repositório `mcrework` é usado apenas no `/admin` para descoberta de assets novos; após salvamento,
+ *      todos os assets são baixados localmente e servidos em mesma origem (`/api/assets/mcrework/*`).
+ *   2. Bloqueia qualquer tentativa de path traversal (`..` ou `\`) garantindo resolução estrita dentro de `cache/mcrework/`.
+ * @dependencies node:fs/promises, node:fs, node:path, node:url, @etheria/database
  */
 
 import * as fs from 'node:fs/promises';
@@ -50,12 +55,17 @@ export class AssetMirrorService {
     if (rel.startsWith('http://') || rel.startsWith('https://')) {
       try {
         const u = new URL(rel);
-        rel = u.pathname.replace(/^\/mcrework\//i, '').replace(/^\/+/, '');
+        const assetMatch = u.pathname.match(/\/(assets\/.+)$/i);
+        rel = assetMatch ? assetMatch[1] : u.pathname.replace(/^\/mcrework\//i, '').replace(/^\/+/, '');
       } catch {
         return null;
       }
     } else {
       rel = rel.replace(/^\/api\/assets\/mcrework\//i, '').replace(/^\/+/, '');
+    }
+
+    if (rel.includes('..') || rel.includes('\\')) {
+      return null;
     }
 
     const safe = path.posix.normalize(rel).replace(/^(\.\.\/)+/, '').replace(/^\/+/, '');
@@ -69,10 +79,10 @@ export class AssetMirrorService {
     if (!relOrRemote) return '';
     const trimmed = String(relOrRemote).trim();
     if (!trimmed) return '';
-    if (trimmed.startsWith('/api/assets/mcrework/')) return trimmed;
-    if (trimmed.startsWith('/assets/worldmap/') || trimmed.startsWith('/assets/maps/') || trimmed.startsWith('/play/')) return trimmed;
+    if (trimmed.startsWith('/api/assets/mcrework/') || trimmed.startsWith('/api/')) return trimmed;
+    if (trimmed.startsWith('/assets/worldmap/') || trimmed.startsWith('/assets/maps/') || trimmed.startsWith('/play/') || trimmed.startsWith('data:')) return trimmed;
     if (trimmed.startsWith('http://') || trimmed.startsWith('https://')) {
-      const m = trimmed.match(/\/mcrework\/(assets\/.+)$/i);
+      const m = trimmed.match(/\/(assets\/.+)$/i);
       if (m) return `/api/assets/mcrework/${m[1]}`;
       return trimmed;
     }
@@ -143,8 +153,9 @@ export class AssetMirrorService {
   }
 
   private getDiskPath(relPath: string): string | null {
-    const full = path.resolve(this.cacheRootDir, relPath);
-    if (!full.startsWith(this.cacheRootDir)) return null;
+    const resolvedRoot = path.resolve(this.cacheRootDir);
+    const full = path.resolve(resolvedRoot, relPath);
+    if (!full.startsWith(resolvedRoot + path.sep)) return null;
     return full;
   }
 
@@ -280,6 +291,7 @@ export class AssetMirrorService {
         const vk = String(sk.mcreworkVfxKey).trim();
         addRel(`assets/effects/${vk}/atlas.json`);
         addRel(`assets/effects/${vk}/atlas.webp`);
+        addRel(`assets/effects/${vk}/thumb.png`);
       }
     }
 
@@ -289,8 +301,14 @@ export class AssetMirrorService {
         const vk = String(st.mcreworkVfxKey).trim();
         addRel(`assets/effects/${vk}/atlas.json`);
         addRel(`assets/effects/${vk}/atlas.webp`);
+        addRel(`assets/effects/${vk}/thumb.png`);
       }
     }
+
+    // Ícones fallback utilizados pelo motor de combate
+    addRel('assets/skills/icons/100156.png');
+    addRel('assets/skills/icons/100180.png');
+    addRel('assets/skills/icons/100150.png');
 
     for (const it of items) {
       addRel(it.mcreworkIconKey);
@@ -323,6 +341,13 @@ export class AssetMirrorService {
         for (const r of results) {
           if (r) okCount++;
         }
+      }
+      // Pré-aquece também todos os frames individuais (bmp_*.png) de asas e planadores já salvos
+      const visualItems = await prisma.itemTemplate.findMany({
+        select: { specialEffectJson: true },
+      });
+      for (const it of visualItems) {
+        await this.mirrorVisualModelAssets(it.specialEffectJson);
       }
       console.log(`📦 [AssetMirrorService] ${okCount}/${relPaths.length} assets curados prontos no disco local da VPS.`);
       return okCount;
@@ -437,15 +462,71 @@ export class AssetMirrorService {
   }
 
   /**
-   * Baixa e instala no disco da VPS o pacote completo de sprites de uma Montaria (atlas.json, atlas.webp, thumb.png).
+   * Baixa e instala no disco da VPS o `char_manifest.json`, thumbs e todos os frames `bmp_*.png`
+   * de uma Asa Celestial ou Planador (`equip_wing_*` / `equip_fly_*`).
+   */
+  public async mirrorWingAssets(modelId: string | null | undefined): Promise<void> {
+    if (!modelId) return;
+    const cleanId = String(modelId).trim();
+    if (!cleanId) return;
+
+    const manifestAsset = await this.getOrFetchAsset(`assets/wings/${cleanId}/char_manifest.json`);
+    await Promise.allSettled([
+      this.getOrFetchAsset(`assets/wings/${cleanId}/thumb.png`),
+      this.getOrFetchAsset(`assets/wings/${cleanId}/thumb.webp`),
+    ]);
+
+    if (!manifestAsset?.buffer) return;
+    try {
+      const manifestData = JSON.parse(manifestAsset.buffer.toString('utf-8')) as Record<string, any>;
+      const frameFiles = new Set<string>();
+      for (const seq of Object.values(manifestData)) {
+        if (!Array.isArray(seq)) continue;
+        for (const entry of seq) {
+          if (entry && typeof entry.file === 'string' && entry.file.trim()) {
+            frameFiles.add(entry.file.replace(/^\/+/, ''));
+          }
+        }
+      }
+      const list = Array.from(frameFiles);
+      const concurrency = 6;
+      for (let i = 0; i < list.length; i += concurrency) {
+        await Promise.allSettled(list.slice(i, i + concurrency).map((rel) => this.getOrFetchAsset(rel)));
+      }
+    } catch {
+      // Ignora manifesto inválido
+    }
+  }
+
+  /**
+   * Baixa e instala no disco da VPS o pacote completo de sprites de uma Montaria ou Asa/Planador.
    */
   public async mirrorMountAssets(mountKey: string | null | undefined): Promise<void> {
     if (!mountKey) return;
+    const cleanKey = String(mountKey).trim();
+    if (!cleanKey) return;
+    if (cleanKey.startsWith('equip_wing_') || cleanKey.startsWith('equip_fly_')) {
+      await this.mirrorWingAssets(cleanKey);
+      return;
+    }
     await Promise.allSettled([
-      this.getOrFetchAsset(`assets/mounts/${mountKey}/atlas.json`),
-      this.getOrFetchAsset(`assets/mounts/${mountKey}/atlas.webp`),
-      this.getOrFetchAsset(`assets/mounts/${mountKey}/thumb.png`),
+      this.getOrFetchAsset(`assets/mounts/${cleanKey}/atlas.json`),
+      this.getOrFetchAsset(`assets/mounts/${cleanKey}/atlas.webp`),
+      this.getOrFetchAsset(`assets/mounts/${cleanKey}/thumb.webp`),
+      this.getOrFetchAsset(`assets/mounts/${cleanKey}/thumb.png`),
     ]);
+  }
+
+  /**
+   * Espelha automaticamente quaisquer modelos visuais configurados em `specialEffectJson` (`wingModelId` / `mountModelId`).
+   */
+  public async mirrorVisualModelAssets(specialEffectJson: unknown): Promise<void> {
+    if (!specialEffectJson || typeof specialEffectJson !== 'object') return;
+    const fx = specialEffectJson as Record<string, unknown>;
+    const wingId = typeof fx.wingModelId === 'string' ? fx.wingModelId.trim() : '';
+    const mountId = typeof fx.mountModelId === 'string' ? fx.mountModelId.trim() : '';
+    if (wingId) await this.mirrorMountAssets(wingId);
+    if (mountId && mountId !== wingId) await this.mirrorMountAssets(mountId);
   }
 
   /**

@@ -13,6 +13,8 @@ import * as http from 'node:http';
 import * as fs from 'node:fs/promises';
 import * as fsSync from 'node:fs';
 import * as path from 'node:path';
+import * as zlib from 'node:zlib';
+import { promisify } from 'node:util';
 import { spawn } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { PrismaClient, SnapshotManager } from '@etheria/database';
@@ -36,6 +38,7 @@ import { TemporaryCombatController } from './controllers/TemporaryCombatControll
 import { DungeonService } from './controllers/DungeonService.js';
 import { MonsterGlobalConfigService } from './controllers/MonsterGlobalConfigService.js';
 import { AssetMirrorService } from './controllers/AssetMirrorService.js';
+import { MapRuntimeCacheService } from './controllers/MapRuntimeCacheService.js';
 import { AdminRouter } from './routes/AdminRouter.js';
 import { PlayRouter } from './routes/PlayRouter.js';
 import { InputSanitizer } from './security/InputSanitizer.js';
@@ -246,25 +249,73 @@ export class EtheriaServerApp {
     '.pdf': 'application/pdf',
   };
 
+  private static readonly gzipAsync = promisify(zlib.gzip);
+  private static readonly COMPRESSIBLE_EXTS = new Set(['.html', '.js', '.mjs', '.css', '.json', '.svg']);
+  private static readonly IMMUTABLE_ASSET_EXTS = new Set(['.png', '.webp', '.jpg', '.jpeg', '.gif', '.svg', '.woff', '.woff2']);
+
   /**
    * Serve arquivos estáticos de `apps/server/public` de forma segura e modular.
-   * Suporta rotas raiz, subpastas (/admin/js/*, /play/js/*) e sanitização contra traversal.
+   * Suporta rotas raiz, subpastas (/admin/js/*, /play/js/*), ETag/304 e compressão Gzip.
    */
-  private async tryServeStatic(pathname: string, res: http.ServerResponse): Promise<boolean> {
-    if (pathname === '/shared/CombatDamageCalculator.js') {
+  private async tryServeStatic(
+    req: http.IncomingMessage,
+    res: http.ServerResponse,
+    pathname: string
+  ): Promise<boolean> {
+    if (req.method !== 'GET' && req.method !== 'HEAD') {
+      return false;
+    }
+
+    const sendStaticPayload = async (
+      resolvedFull: string,
+      ext: string,
+      cacheControl: string,
+      extraHeaders: Record<string, string> = {}
+    ): Promise<boolean> => {
       try {
-        const sharedCalcPath = path.resolve(__dirname, '../../../packages/shared/dist/CombatDamageCalculator.js');
-        const data = await fs.readFile(sharedCalcPath);
-        res.writeHead(200, {
-          'Content-Type': 'application/javascript; charset=utf-8',
-          'Cache-Control': 'no-cache, no-store, must-revalidate, max-age=0',
+        const stats = await fs.stat(resolvedFull);
+        if (!stats.isFile()) return false;
+        const etag = `W/"${stats.size}-${Math.floor(stats.mtimeMs)}"`;
+        const isCompressible = EtheriaServerApp.COMPRESSIBLE_EXTS.has(ext);
+        const acceptEncoding = String(req.headers['accept-encoding'] || '');
+        const useGzip = isCompressible && stats.size >= 1024 && /\bgzip\b/i.test(acceptEncoding);
+
+        const baseHeaders: Record<string, string> = {
+          'Content-Type': EtheriaServerApp.MIME_TYPES[ext] || 'application/octet-stream',
+          'Cache-Control': cacheControl,
+          ETag: etag,
           ...EtheriaServerApp.SECURITY_HEADERS,
-        });
-        res.end(data);
+          ...extraHeaders,
+        };
+        if (isCompressible) {
+          baseHeaders['Vary'] = 'Accept-Encoding';
+        }
+
+        const ifNoneMatch = String(req.headers['if-none-match'] || '').trim();
+        if (ifNoneMatch === etag) {
+          res.writeHead(304, baseHeaders);
+          res.end();
+          return true;
+        }
+
+        let payload: Buffer = await fs.readFile(resolvedFull);
+        if (useGzip) {
+          payload = await EtheriaServerApp.gzipAsync(payload);
+          baseHeaders['Content-Encoding'] = 'gzip';
+        }
+        baseHeaders['Content-Length'] = String(payload.length);
+        res.writeHead(200, baseHeaders);
+        if (req.method === 'HEAD') res.end();
+        else res.end(payload);
         return true;
       } catch {
         return false;
       }
+    };
+
+    if (pathname === '/shared/CombatDamageCalculator.js') {
+      const sharedCalcPath = path.resolve(__dirname, '../../../packages/shared/dist/CombatDamageCalculator.js');
+      return sendStaticPayload(sharedCalcPath, '.js', 'no-cache');
     }
 
     let relPath = pathname;
@@ -282,28 +333,18 @@ export class EtheriaServerApp {
       return false;
     }
 
-    try {
-      const stats = await fs.stat(resolvedFull);
-      if (!stats.isFile()) return false;
-      const ext = path.extname(resolvedFull).toLowerCase();
-      const contentType = EtheriaServerApp.MIME_TYPES[ext] || 'application/octet-stream';
-      const fileData = await fs.readFile(resolvedFull);
-      const headers: Record<string, string> = {
-        'Content-Type': contentType,
-        'Cache-Control': 'no-cache, no-store, must-revalidate, max-age=0',
-        'Pragma': 'no-cache',
-        'Expires': '0',
-        ...EtheriaServerApp.SECURITY_HEADERS,
-      };
-      if (safeRel === 'play/sw.js' || safeRel === 'play\\sw.js') {
-        headers['Service-Worker-Allowed'] = '/';
-      }
-      res.writeHead(200, headers);
-      res.end(fileData);
-      return true;
-    } catch {
-      return false;
+    const ext = path.extname(resolvedFull).toLowerCase();
+    const normalizedRel = safeRel.replace(/\\/g, '/');
+    const isLongLivedAsset =
+      (normalizedRel.startsWith('play/assets/') || normalizedRel.startsWith('assets/')) &&
+      EtheriaServerApp.IMMUTABLE_ASSET_EXTS.has(ext);
+    const cacheControl = isLongLivedAsset ? 'public, max-age=86400' : 'no-cache';
+    const extraHeaders: Record<string, string> = {};
+    if (normalizedRel === 'play/sw.js') {
+      extraHeaders['Service-Worker-Allowed'] = '/';
     }
+
+    return sendStaticPayload(resolvedFull, ext, cacheControl, extraHeaders);
   }
 
   /**
@@ -445,7 +486,7 @@ export class EtheriaServerApp {
       }
 
       // 3. Servir Arquivos Estáticos de `apps/server/public` (/admin, /play, /gm, subpastas /js, etc.)
-      const served = await this.tryServeStatic(pathname, res);
+      const served = await this.tryServeStatic(req, res, pathname);
       if (served) return;
 
       this.sendJson(res, 404, { error: 'Página não encontrada.' });
@@ -489,6 +530,32 @@ export class EtheriaServerApp {
         void MonsterGlobalConfigService.ensureLoaded(this.prisma);
       })();
     });
+
+    let shuttingDown = false;
+    const gracefulShutdown = async (signal: string) => {
+      if (shuttingDown) return;
+      shuttingDown = true;
+      console.log(`🛑 [Etheria Campus Server] Encerrando com segurança (${signal})...`);
+      const forceExitTimer = setTimeout(() => {
+        process.exit(0);
+      }, 3000);
+      forceExitTimer.unref();
+
+      try {
+        await MapRuntimeCacheService.flushAll(this.prisma);
+      } catch (err: any) {
+        console.warn('[EtheriaServerApp] Aviso ao descarregar posições em cache:', err?.message || err);
+      }
+      await new Promise<void>((resolve) => {
+        server.close(() => resolve());
+      });
+      await this.prisma.$disconnect().catch(() => {});
+      process.exit(0);
+    };
+
+    process.once('SIGTERM', () => void gracefulShutdown('SIGTERM'));
+    process.once('SIGINT', () => void gracefulShutdown('SIGINT'));
+
     return server;
   }
 }

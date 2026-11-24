@@ -171,7 +171,7 @@ class AdminLayersDrawer {
                   const thumbUrl =
                     tpl?.thumbUrl ||
                     (tpl?.mcreworkNpcKey
-                      ? `https://seytanir.github.io/mcrework/assets/npcs/${tpl.mcreworkNpcKey}/thumb.png`
+                      ? `/api/assets/mcrework/assets/npcs/${tpl.mcreworkNpcKey}/thumb.png`
                       : '');
                   return `
                   <div style="display:flex; align-items:center; gap:8px; background:#020617; border:1px solid var(--border); padding:5px 8px; border-radius:8px;">

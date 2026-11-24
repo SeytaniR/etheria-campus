@@ -105,7 +105,7 @@ class AdminItemContainerPanel {
         code: i.code,
         category: i.itemCategory || 'CONSUMABLE',
         rarityTier: i.rarityTier || 'COMMON',
-        iconUrl: i.iconUrl || `https://seytanir.github.io/mcrework/${(i.mcreworkIconKey || '').replace(/^\/+/, '')}`,
+        iconUrl: i.iconUrl || `/api/assets/mcrework/${(i.mcreworkIconKey || '').replace(/^\/+/, '')}`,
         isEquip: false,
       }));
 
@@ -115,7 +115,7 @@ class AdminItemContainerPanel {
         code: e.code,
         category: `EQUIP (${e.equipmentSlotCode || 'GERAL'})`,
         rarityTier: e.rarityTier || 'COMMON',
-        iconUrl: e.iconUrl || `https://seytanir.github.io/mcrework/${(e.mcreworkIconKey || '').replace(/^\/+/, '')}`,
+        iconUrl: e.iconUrl || `/api/assets/mcrework/${(e.mcreworkIconKey || '').replace(/^\/+/, '')}`,
         isEquip: true,
       }));
 

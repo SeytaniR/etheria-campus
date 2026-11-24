@@ -12,6 +12,7 @@
 import { PrismaClient } from '@etheria/database';
 import { GameChatService } from './GameChatService.js';
 import { PartyService } from './PartyService.js';
+import { MapPresenceService } from './MapPresenceService.js';
 
 export interface PlayerProgressionResult {
   leveledUp: boolean;
@@ -138,6 +139,7 @@ export class CharacterProgressionService {
     });
 
     if (levelsGained > 0) {
+      MapPresenceService.invalidateCharacterCache(characterId);
       try {
         GameChatService.sendSystemMessage(
           `🎉 Parabéns! ${pc.name} alcançou o Nível ${currentLevel}! (+${statPointsGained} Pontos de Atributos)`

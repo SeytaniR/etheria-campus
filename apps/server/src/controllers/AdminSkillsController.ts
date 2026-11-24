@@ -68,6 +68,7 @@ export class AdminSkillsController {
   private readonly snapshotManager: SnapshotManager;
   private readonly mcreworkRawBaseUrl = 'https://raw.githubusercontent.com/SeytaniR/mcrework/main/web';
   private readonly mcreworkPagesBaseUrl = 'https://seytanir.github.io/mcrework';
+  private readonly localAssetBaseUrl = '/api/assets/mcrework';
   private cachedSkillAssets: { icons: any[]; vfxList: any[] } | null = null;
   private readonly assetMirrorService?: AssetMirrorService;
 
@@ -83,55 +84,59 @@ export class AdminSkillsController {
   public async getMcreworkSkillAssets() {
     if (this.cachedSkillAssets) return this.cachedSkillAssets;
 
-    const [skillsRes, effectsRes] = await Promise.all([
-      fetch(`${this.mcreworkRawBaseUrl}/assets/skills/catalog.json`),
-      fetch(`${this.mcreworkRawBaseUrl}/assets/effects/catalog.json`),
-    ]);
+    try {
+      const [skillsRes, effectsRes] = await Promise.all([
+        fetch(`${this.mcreworkRawBaseUrl}/assets/skills/catalog.json`).catch(() => null),
+        fetch(`${this.mcreworkRawBaseUrl}/assets/effects/catalog.json`).catch(() => null),
+      ]);
 
-    const rawSkills = skillsRes.ok ? ((await skillsRes.json()) as any[]) : [];
-    const rawEffects = effectsRes.ok ? ((await effectsRes.json()) as any[]) : [];
+      const rawSkills = skillsRes?.ok ? ((await skillsRes.json()) as any[]) : [];
+      const rawEffects = effectsRes?.ok ? ((await effectsRes.json()) as any[]) : [];
 
-    // Desduplica ícones por icon_path para uma galeria limpa e rápida
-    const seenIcons = new Set<string>();
-    const icons: any[] = [];
-    for (const s of rawSkills) {
-      const iconPath = s.icon_path || s.icon;
-      if (!iconPath || seenIcons.has(iconPath)) continue;
-      seenIcons.add(iconPath);
-      icons.push({
-        iconKey: iconPath,
-        iconNum: s.icon_num || icons.length + 1,
-        suggestedName: s.name || s.code_name || `Ícone #${s.icon_num}`,
-        typeName: s.type_name || '',
-        defaultVfxKey: s.effect_id ? String(s.effect_id) : '',
-        iconUrl: `${this.mcreworkPagesBaseUrl}/${iconPath.replace(/^\/+/, '')}`,
+      const seenIcons = new Set<string>();
+      const icons: any[] = [];
+      for (const s of rawSkills) {
+        const iconPath = s.icon_path || s.icon;
+        if (!iconPath || seenIcons.has(iconPath)) continue;
+        seenIcons.add(iconPath);
+        icons.push({
+          iconKey: iconPath,
+          iconNum: s.icon_num || icons.length + 1,
+          suggestedName: s.name || s.code_name || `Ícone #${s.icon_num}`,
+          typeName: s.type_name || '',
+          defaultVfxKey: s.effect_id ? String(s.effect_id) : '',
+          iconUrl: `${this.mcreworkPagesBaseUrl}/${iconPath.replace(/^\/+/, '')}`,
+        });
+      }
+
+      const vfxList = (Array.isArray(rawEffects) ? rawEffects : []).map((e) => {
+        const idStr = String(e.id ?? e.num);
+        return {
+          vfxKey: idStr,
+          name: `VFX #${idStr} (${e.frames || 8} frames)`,
+          swfName: e.swf || '',
+          frames: Number(e.frames) || 8,
+          width: Number(e.width) || 140,
+          height: Number(e.height) || 140,
+          durationMs: Number(e.duration_ms) || 500,
+          thumbUrl: `${this.mcreworkPagesBaseUrl}/${(e.thumb || `assets/effects/${idStr}/thumb.png`).replace(/^\/+/, '')}`,
+          atlasJsonUrl: `${this.mcreworkPagesBaseUrl}/${(e.atlas || `assets/effects/${idStr}/atlas.json`).replace(/^\/+/, '')}`,
+          atlasWebpUrl: `${this.mcreworkPagesBaseUrl}/assets/effects/${idStr}/atlas.webp`,
+        };
       });
+
+      if (icons.length > 0 || vfxList.length > 0) {
+        this.cachedSkillAssets = { icons, vfxList };
+      }
+      return { icons, vfxList };
+    } catch {
+      return { icons: [], vfxList: [] };
     }
-
-    const vfxList = (Array.isArray(rawEffects) ? rawEffects : []).map((e) => {
-      const idStr = String(e.id ?? e.num);
-      return {
-        vfxKey: idStr,
-        name: `VFX #${idStr} (${e.frames || 8} frames)`,
-        swfName: e.swf || '',
-        frames: Number(e.frames) || 8,
-        width: Number(e.width) || 140,
-        height: Number(e.height) || 140,
-        durationMs: Number(e.duration_ms) || 500,
-        thumbUrl: `${this.mcreworkPagesBaseUrl}/${(e.thumb || `assets/effects/${idStr}/thumb.png`).replace(/^\/+/, '')}`,
-        atlasJsonUrl: `${this.mcreworkPagesBaseUrl}/${(e.atlas || `assets/effects/${idStr}/atlas.json`).replace(/^\/+/, '')}`,
-        atlasWebpUrl: `${this.mcreworkPagesBaseUrl}/assets/effects/${idStr}/atlas.webp`,
-      };
-    });
-
-    this.cachedSkillAssets = { icons, vfxList };
-    return this.cachedSkillAssets;
   }
 
   private resolveIconUrl(iconKey?: string | null): string {
-    if (!iconKey) return `${this.mcreworkPagesBaseUrl}/assets/skills/icons/100156.png`;
-    if (iconKey.startsWith('http://') || iconKey.startsWith('https://')) return iconKey;
-    return `${this.mcreworkPagesBaseUrl}/${iconKey.replace(/^\/+/, '')}`;
+    if (!iconKey) return `${this.localAssetBaseUrl}/assets/skills/icons/100156.png`;
+    return `${this.localAssetBaseUrl}/${String(iconKey).replace(/^https?:\/\/[^/]+(?:\/mcrework)?\//i, '').replace(/^\/+/, '')}`;
   }
 
   /**
@@ -166,9 +171,9 @@ export class AdminSkillsController {
     }
     const cleanId = String(vfxKey).trim();
     return {
-      vfxThumbUrl: `${this.mcreworkPagesBaseUrl}/assets/effects/${cleanId}/thumb.png`,
-      vfxAtlasJsonUrl: `${this.mcreworkPagesBaseUrl}/assets/effects/${cleanId}/atlas.json`,
-      vfxAtlasWebpUrl: `${this.mcreworkPagesBaseUrl}/assets/effects/${cleanId}/atlas.webp`,
+      vfxThumbUrl: `${this.localAssetBaseUrl}/assets/effects/${cleanId}/thumb.png`,
+      vfxAtlasJsonUrl: `${this.localAssetBaseUrl}/assets/effects/${cleanId}/atlas.json`,
+      vfxAtlasWebpUrl: `${this.localAssetBaseUrl}/assets/effects/${cleanId}/atlas.webp`,
     };
   }
 

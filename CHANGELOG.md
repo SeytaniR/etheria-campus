@@ -5,6 +5,31 @@ Qualquer IA trabalhando neste repositório **DEVE** incrementar a versão e regi
 
 ---
 
+## [v0.62.0] - 2026-11-24
+### Onda P1 — Independência Total Pós-Salvamento (`mcrework`), Snapshots Atômicos, Cache em RAM, Índices no Banco & Performance HTTP/Canvas 2D
+* **Backups Preventivos Pré-P1:**
+  * Local: `.backups/pre-p1-20261124-144840/` (`lowcode.snapshot.json` 4,980,671 bytes + `git-head.txt`).
+  * VPS Azure: `/home/azureuser/backups/pre-p1-20261124-144840/` (`lowcode.snapshot.json` 4.8M + `etheria_db.sql.gz` 345K).
+* **Regra #10 Reforçada (`mcrework` Apenas para Descoberta no `/admin` — Independência Total Pós-Salvamento):**
+  * `apps/server/src/controllers/AssetMirrorService.ts`: cabeçalho completo Regra #1; bloqueio estrito de traversal (`..` / `\`) antes da normalização em `normalizeRelPath()`; endurecimento de `getDiskPath()`; normalização universal `toSameOriginUrl()`; métodos `mirrorWingAssets()` e `mirrorVisualModelAssets()` (download automático de `char_manifest.json`, `thumb.png`, `thumb.webp` e frames `bmp_*.png`); e pré-aquecimento local em `prewarmCuratedAssets()` incluindo efeitos VFX e ícones de habilidades de fallback.
+  * Backend curado (`AdminMapsController.ts`, `AdminMonstersController.ts`, `AdminEquipmentsController.ts`, `AdminItemsController.ts`, `AdminSkillsController.ts`, `AdminShopsController.ts`, `GamePlayController.ts`, `TemporaryCombatController.ts`): todas as entidades salvas passaram a retornar `/api/assets/mcrework/*` em vez de `github.io` ou `mcrework.com`; galerias de descoberta de assets novos no `/admin` retornam lista vazia com segurança se o GitHub estiver inacessível.
+  * Frontend (`/play` e `/admin`): removidas 100% das referências a `github.io`, `githubusercontent` e `mcrework.com` em `play.js`, `PortalTravelController.js` e nos 14 módulos `apps/server/public/admin/js/*.js`, preservando `/api/assets/mcrework/*` em todas as rotas.
+* **Snapshots Atômicos & Integridade (`packages/database/src/SnapshotManager.ts`, `packages/database/prisma/schema.prisma`):**
+  * Adicionados mutex estático com coalesce (`exportInFlight` / `exportQueued`), leitura paralela em 3 lotes `Promise.all`, gravação atômica (`.tmp` + `fs.rename`) e suporte completo de exportação/restauração para `dungeonChestConfigs` (`dungeon_chest_configs`) e sequência de `dungeon_runs`.
+  * Adicionados 9 `@@index` aditivos em `DungeonRun`, `MapPortal`, `MapNpc`, `MonsterBiome`, `ItemTemplate`, `PlayerCharacter` e `CharacterPet`.
+* **Performance Backend, Cache & HTTP (`MapRuntimeCacheService.ts`, `MapPresenceService.ts`, `index.ts`):**
+  * Novo módulo `apps/server/src/controllers/MapRuntimeCacheService.ts`: cache de física de mapa (`MapPolygonMesh` + dimensões, TTL 5 min) e buffer de posição em RAM com coalesce de 3s para gravação no PostgreSQL (e flush imediato em transição `isFlying`), integrado em `GamePlayController.ts`, `AdminMapsController.ts`, `MapPresenceService.ts` e `CharacterEquipmentService.ts`.
+  * `MapPresenceService.ts`: cabeçalho Regra #1, TTL de 5 minutos + teto de 2.000 entradas em `metadataCache`, e invalidação imediata em level up (`CharacterProgressionService.ts`), troca de pet ativo (`CharacterPetService.ts`) e troca de equipamento (`CharacterEquipmentService.ts`).
+  * `apps/server/src/index.ts`: estáticos com `ETag` + `304 Not Modified`, compressão `gzip` (`node:zlib`) para arquivos textuais >= 1 KB, `Cache-Control: public, max-age=86400` para imagens/fontes locais (`assets/`, `play/assets/`), tratamento seguro de `HEAD`, e shutdown gracioso em `SIGTERM`/`SIGINT` descarregando `MapRuntimeCacheService.flushAll()`.
+* **Performance Canvas 2D (`docs/PERFORMANCE_STANDARDS.md`):**
+  * Eliminados todos os `ctx.shadowBlur` em `ActionVfxRenderer.js` (5 pontos) e `BattleTransitionController.js` (3 pontos), substituídos por halos concêntricos e contornos sem blur.
+  * Substituídos gradientes radiais por frame por texturas em Canvas Offscreen em `PlayDungeonChestController.js` (`glowTexCache`) e `PlayHudController.js` (placeholder do minimap).
+  * Atualizado cache-busting `?v=20261124_p1` nos scripts modificados em `play/index.html` e `admin/index.html`.
+* **Qualidade & Verificações:**
+  * Auditoria Regra #7 (`0` arquivos `>= 1.000` linhas), Regra #10 (`0` URLs externas em `public/` e `0` `mcrework.com`), `0` usos ativos de `ctx.shadowBlur` em `/play`, `npm run typecheck`, builds e `node --check` sem erros; suítes `test_p0_security.mjs` (5/5), `test_p1_assets_and_cache.mjs` (5/5) e `test_action_motion_engine.mjs` (4/4) 100% aprovadas.
+
+---
+
 ## [v0.61.0] - 2026-11-24
 ### Onda P0 — Segurança Crítica, Regra #10 Reforçada (`mcrework`), Backups & Deploy Seguro via Chave SSH
 * **Governança & Plano Mestre (`AGENTS.md`, `docs/HANDOFF.md`, `.gitignore`):**

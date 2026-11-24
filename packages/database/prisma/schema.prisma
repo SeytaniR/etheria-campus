@@ -129,6 +129,7 @@ model DungeonRun {
   dungeonMap     GameMap         @relation(fields: [dungeonMapId], references: [id], onDelete: Cascade)
 
   @@unique([characterId, dungeonMapId, entryDate])
+  @@index([characterId, entryDate])
   @@map("dungeon_runs")
 }
 
@@ -150,6 +151,7 @@ model MapPortal {
   sourceMap      GameMap    @relation("SourceMapPortals", fields: [sourceMapId], references: [id], onDelete: Cascade)
   targetMap      GameMap?   @relation("TargetMapPortals", fields: [targetMapId], references: [id], onDelete: SetNull)
 
+  @@index([sourceMapId])
   @@map("map_portals")
 }
 
@@ -198,6 +200,7 @@ model MapNpc {
   map                      GameMap     @relation(fields: [mapId], references: [id], onDelete: Cascade)
   npcTemplate              NpcTemplate @relation(fields: [npcTemplateId], references: [id], onDelete: Cascade)
 
+  @@index([mapId])
   @@map("map_npcs")
 }
 
@@ -399,6 +402,7 @@ model MonsterBiome {
   biome             Biome           @relation(fields: [biomeId], references: [id], onDelete: Cascade)
 
   @@unique([monsterTemplateId, biomeId])
+  @@index([biomeId])
   @@map("monster_biomes")
 }
 
@@ -532,6 +536,8 @@ model ItemTemplate {
   equipmentSet          EquipmentSet?            @relation(fields: [equipmentSetId], references: [id], onDelete: SetNull)
   inventoryStacks       CharacterInventoryItem[]
 
+  @@index([itemCategory])
+  @@index([equipmentSlotCode])
   @@map("item_templates")
 }
 
@@ -582,6 +588,8 @@ model PlayerCharacter {
   inventoryItems      CharacterInventoryItem[]
   dungeonRuns         DungeonRun[]
 
+  @@index([userAccountId])
+  @@index([currentMapId])
   @@map("player_characters")
 }
 
@@ -622,6 +630,8 @@ model CharacterPet {
   character            PlayerCharacter  @relation(fields: [characterId], references: [id], onDelete: Cascade)
   monsterTemplate      MonsterTemplate? @relation(fields: [monsterTemplateId], references: [id], onDelete: Cascade)
 
+  @@index([characterId])
+  @@index([characterId, deploySlot])
   @@map("character_pets")
 }
 

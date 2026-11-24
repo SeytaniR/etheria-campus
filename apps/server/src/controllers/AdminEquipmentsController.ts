@@ -11,7 +11,7 @@
 
 import { PrismaClient } from '@prisma/client';
 import { SnapshotManager } from '@etheria/database';
-import type { AssetMirrorService } from './AssetMirrorService.js';
+import { AssetMirrorService } from './AssetMirrorService.js';
 
 export interface EquipmentTemplateDto {
   code?: string;
@@ -243,11 +243,7 @@ export class AdminEquipmentsController {
 
     return items.map((item) => {
       const iconKey = item.mcreworkIconKey || 'assets/equipment/icons/equip_normal_200001.png';
-      const resolvedIconUrl = (iconKey.startsWith('/play/') || iconKey.startsWith('play/'))
-        ? (iconKey.startsWith('/') ? iconKey : `/${iconKey}`)
-        : (iconKey.startsWith('http://') || iconKey.startsWith('https://'))
-        ? iconKey
-        : `${this.mcreworkPagesBaseUrl}/${iconKey.replace(/^\/+/, '')}`;
+      const resolvedIconUrl = AssetMirrorService.toSameOriginUrl(iconKey);
       return {
         id: item.id,
         code: item.code,
@@ -355,8 +351,11 @@ export class AdminEquipmentsController {
     });
 
     await this.snapshotManager.exportToDisk();
-    if (this.assetMirrorService && created.mcreworkIconKey) {
-      await this.assetMirrorService.mirrorItemIcon(created.mcreworkIconKey);
+    if (this.assetMirrorService) {
+      if (created.mcreworkIconKey) {
+        await this.assetMirrorService.mirrorItemIcon(created.mcreworkIconKey);
+      }
+      await this.assetMirrorService.mirrorVisualModelAssets(created.specialEffectJson);
     }
     return created;
   }
@@ -416,8 +415,11 @@ export class AdminEquipmentsController {
     });
 
     await this.snapshotManager.exportToDisk();
-    if (this.assetMirrorService && updated.mcreworkIconKey) {
-      await this.assetMirrorService.mirrorItemIcon(updated.mcreworkIconKey);
+    if (this.assetMirrorService) {
+      if (updated.mcreworkIconKey) {
+        await this.assetMirrorService.mirrorItemIcon(updated.mcreworkIconKey);
+      }
+      await this.assetMirrorService.mirrorVisualModelAssets(updated.specialEffectJson);
     }
     return updated;
   }

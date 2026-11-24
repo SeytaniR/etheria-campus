@@ -881,19 +881,29 @@ class PlayHudController {
 
       ctx.drawImage(mapImage, srcX, srcY, viewW, viewH, 0, 0, S, S);
     } else {
-      // Placeholder elegante caso imagem esteja carregando
-      const grad = ctx.createRadialGradient(cx, cy, 10, cx, cy, radius);
-      grad.addColorStop(0, '#1e3a5f');
-      grad.addColorStop(1, '#060f1e');
-      ctx.fillStyle = grad;
-      ctx.fillRect(0, 0, S, S);
-
-      ctx.strokeStyle = 'rgba(56, 189, 248, 0.2)';
-      ctx.lineWidth = 1;
-      ctx.beginPath();
-      ctx.arc(cx, cy, radius * 0.4, 0, Math.PI * 2);
-      ctx.arc(cx, cy, radius * 0.7, 0, Math.PI * 2);
-      ctx.stroke();
+      // Placeholder pré-renderizado em offscreen canvas caso imagem esteja carregando
+      if (!this._minimapPlaceholder || this._minimapPlaceholderSize !== S) {
+        const off = document.createElement('canvas');
+        off.width = S;
+        off.height = S;
+        const octx = off.getContext('2d');
+        if (octx) {
+          const grad = octx.createRadialGradient(cx, cy, 10, cx, cy, radius);
+          grad.addColorStop(0, '#1e3a5f');
+          grad.addColorStop(1, '#060f1e');
+          octx.fillStyle = grad;
+          octx.fillRect(0, 0, S, S);
+          octx.strokeStyle = 'rgba(56, 189, 248, 0.2)';
+          octx.lineWidth = 1;
+          octx.beginPath();
+          octx.arc(cx, cy, radius * 0.4, 0, Math.PI * 2);
+          octx.arc(cx, cy, radius * 0.7, 0, Math.PI * 2);
+          octx.stroke();
+        }
+        this._minimapPlaceholder = off;
+        this._minimapPlaceholderSize = S;
+      }
+      ctx.drawImage(this._minimapPlaceholder, 0, 0);
     }
 
     // 4. Marcador direcional do jogador (cone ciano idêntico à referência)

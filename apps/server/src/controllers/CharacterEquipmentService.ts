@@ -13,6 +13,7 @@ import { PrismaClient } from '@prisma/client';
 import { I18nCache } from '@etheria/database';
 import { CharacterInventoryService } from './CharacterInventoryService.js';
 import { MapPresenceService } from './MapPresenceService.js';
+import { MapRuntimeCacheService } from './MapRuntimeCacheService.js';
 
 export const VALID_CHARACTER_EQUIPMENT_SLOTS = [
   'HEAD',
@@ -491,6 +492,7 @@ export class CharacterEquipmentService {
     });
 
     MapPresenceService.invalidateCharacterCache(pc.id);
+    MapRuntimeCacheService.invalidateCharacter(pc.id);
 
     const [equippedDetails, bag] = await Promise.all([
       this.getCharacterEquippedDetails(prisma, pc.id),
@@ -568,6 +570,7 @@ export class CharacterEquipmentService {
     });
 
     MapPresenceService.invalidateCharacterCache(pc.id);
+    MapRuntimeCacheService.invalidateCharacter(pc.id);
 
     const [equippedDetails, bag] = await Promise.all([
       this.getCharacterEquippedDetails(prisma, pc.id),

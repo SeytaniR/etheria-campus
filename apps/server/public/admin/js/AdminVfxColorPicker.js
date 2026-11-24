@@ -85,7 +85,7 @@ class AdminVfxColorPicker {
       if (!canvas || !window.VfxColorProcessor) return;
       const st = this.getVfxColorStateForPrefix(prefix);
       const url = st.vfxKey
-        ? `https://seytanir.github.io/mcrework/assets/effects/${String(st.vfxKey).trim()}/thumb.png`
+        ? `/api/assets/mcrework/assets/effects/${String(st.vfxKey).trim()}/thumb.png`
         : '';
       window.VfxColorProcessor.renderThumbToCanvas(canvas, url, st.colorHex, st.intensity);
     };
