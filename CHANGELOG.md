@@ -5,6 +5,32 @@ Qualquer IA trabalhando neste repositório **DEVE** incrementar a versão e regi
 
 ---
 
+## [v0.63.0] - 2026-11-24
+### Onda P2 — Modularização Real (Regra #7), Regras Compartilhadas (`@etheria/shared`), Limpeza de Legado & Suíte `npm test`
+* **Backups Preventivos Pré-P2:**
+  * Local: `.backups/pre-p2-20261124-151620/` (`lowcode.snapshot.json` 4,980,671 bytes + `git-head.txt` 42 bytes).
+  * VPS Azure: `/home/azureuser/backups/pre-p2-20261124-151620/` (`lowcode.snapshot.json` 4.8M + `etheria_db.sql.gz` 345K).
+* **Centralização de Regras em `@etheria/shared` & Limpeza de Legado Morto:**
+  * Criado `packages/shared/src/GameRulesConstants.ts` (zero dependências externas, compatível nativamente com ES Module nos navegadores) expondo `MAX_BATTLE_MOVE_SPEED` (`185`), `MIN_BATTLE_MOVE_SPEED` (`60`), `AUTHORITATIVE_BASE_MOVE_SPEED` (`168`), `ELEVATED_ROLES`, `ACTIVE_ELEMENTS`, os 16 `VALID_CHARACTER_EQUIPMENT_SLOTS`, `isElevatedRole()` e `clampBattleMoveSpeed()`.
+  * Exposta a rota `/shared/GameRulesConstants.js` em `apps/server/src/index.ts` e integrada ao backend (`GamePlayController.ts`, `CharacterEquipmentService.ts`, `PlayerMapTravelService.ts`) e cliente `/play` (`play/index.html`, `ActionCombatArena.js`, `ArenaPhysicsSolver.js`, `PlayStatsModalController.js`).
+  * Removidos os diretórios obsoletos sem uso `web/` (`web/index.html`) e `scratch/` (`scratch/monster_thumbs/`).
+  * Removidas as 8 tabelas estáticas legadas mortas de `MonsterCombatBuilder.ts` (unificando fallback em `DEFAULT_MONSTER_GLOBAL_CONFIG.rankConfigsJson`) e corrigido arredondamento em ponto flutuante em `applyMapLevelingPenalty()`.
+  * Mantidos intactos os modelos/colunas legados no PostgreSQL/Prisma (`ArenaFormation`, `MonsterRarity`, `apCost`, `cooldownTurns`) em respeito estrito à **Cláusula 0.2**.
+* **Modularização Backend & Frontend (Regra #7 com Ampla Folga < 780 Linhas):**
+  * `AdminMapsController.ts` (`988 → 683` linhas): extraído `apps/server/src/controllers/AdminClassesAndNpcsService.ts` (`366` linhas).
+  * `GamePlayController.ts` (`910 → 609` linhas): extraído `apps/server/src/controllers/PlayerMapTravelService.ts` (`366` linhas).
+  * `play/index.html` (`985 → 509` linhas): extraído `apps/server/public/play/css/play_core.css` (`482` linhas).
+  * `PlayGmController.js` (`996 → 283` linhas): extraído `apps/server/public/play/js/PlayStatsModalController.js` (`732` linhas).
+  * `play.js` (`996 → 656` linhas): extraídos `PlayWorldRenderer.js` (`255` linhas) e `PlayWorldInputController.js` (`114` linhas).
+  * `ActionCombatArena.js` (`984 → 773` linhas): extraídos `ArenaProjectileResolver.js` (`144` linhas) e `ArenaHudControls.js` (`125` linhas).
+  * `admin/admin.js` (`986 → 594` linhas): extraído `apps/server/public/admin/js/AdminMapPickerModal.js` (`406` linhas).
+  * `AdminQuestsTab.js` (`976 → 620` linhas): extraído `apps/server/public/admin/js/AdminQuestsBoardView.js` (`369` linhas).
+* **Expansão de Testes & Runner Unificado (`npm test`):**
+  * Criados `tests/test_p2_shared_and_monsters.mjs` (5 suítes testando `@etheria/shared` e sorteio justo Rank-First + recompensas/penalidades em `MonsterCombatBuilder`) e `tests/run_all_tests.mjs` ligado ao script `"test"` no `package.json`.
+  * Verificações finais aprovadas com exit `0`: `npm run typecheck`, builds de pacotes/servidor, `node --check` em todos os `.js`, `0` arquivos `>= 1.000` linhas (Regra #7), `0` URLs externas proibidas em `public/` (Regra #10) e `npm test` (`4/4` suítes: P0 `5/5`, P1 `5/5`, P2 `5/5`, ActionMotion `4/4`).
+
+---
+
 ## [v0.62.0] - 2026-11-24
 ### Onda P1 — Independência Total Pós-Salvamento (`mcrework`), Snapshots Atômicos, Cache em RAM, Índices no Banco & Performance HTTP/Canvas 2D
 * **Backups Preventivos Pré-P1:**

@@ -318,6 +318,11 @@ export class EtheriaServerApp {
       return sendStaticPayload(sharedCalcPath, '.js', 'no-cache');
     }
 
+    if (pathname === '/shared/GameRulesConstants.js') {
+      const sharedRulesPath = path.resolve(__dirname, '../../../packages/shared/dist/GameRulesConstants.js');
+      return sendStaticPayload(sharedRulesPath, '.js', 'no-cache');
+    }
+
     let relPath = pathname;
     if (relPath === '/' || relPath === '/admin' || relPath === '/admin/') {
       relPath = '/admin/index.html';

@@ -11,30 +11,12 @@
 
 import { PrismaClient } from '@prisma/client';
 import { I18nCache } from '@etheria/database';
+import { VALID_CHARACTER_EQUIPMENT_SLOTS, type CharacterEquipmentSlotCode } from '@etheria/shared';
 import { CharacterInventoryService } from './CharacterInventoryService.js';
 import { MapPresenceService } from './MapPresenceService.js';
 import { MapRuntimeCacheService } from './MapRuntimeCacheService.js';
 
-export const VALID_CHARACTER_EQUIPMENT_SLOTS = [
-  'HEAD',
-  'SHOULDER',
-  'CHEST',
-  'BELT',
-  'LEGS',
-  'FEET',
-  'ORNAMENT_1',
-  'ORNAMENT_2',
-  'RING',
-  'NECKLACE',
-  'WEAPON_1',
-  'WEAPON_2',
-  'FISHING_ROD',
-  'FLYING_MOUNT',
-  'WINGS',
-  'FASHION',
-] as const;
-
-export type CharacterEquipmentSlotCode = typeof VALID_CHARACTER_EQUIPMENT_SLOTS[number];
+export { VALID_CHARACTER_EQUIPMENT_SLOTS, type CharacterEquipmentSlotCode };
 
 export interface ActiveSetBonusDto {
   setId: number;

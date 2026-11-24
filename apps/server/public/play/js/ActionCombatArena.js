@@ -204,7 +204,9 @@ class ActionCombatArena {
     const agiConv = (this.client?.attributeConversions || []).find((c) => c.baseAttributeCode === 'AGI' && c.combatAttributeCode === 'BATTLE_MOVE_SPEED');
     const agiRatio = agiConv ? Number(agiConv.ratioPerPoint) : 0.5;
     const totalAgi = (Number(this.client?.activeChar?.distributedStatsJson?.AGI) || 0) + (Number(this.client?.activeChar?.baseAttributesJson?.AGI) || 10);
-    const battleSpeed = Math.min(185, Math.max(60, Number(pState.battleMoveSpeed || (classMoveSpeed ? classMoveSpeed + totalAgi * agiRatio : null) || (globalDefaultSpeed ? globalDefaultSpeed + totalAgi * agiRatio : null) || 180)));
+    const battleSpeed = window.GameRulesConstants
+      ? window.GameRulesConstants.clampBattleMoveSpeed(Number(pState.battleMoveSpeed || (classMoveSpeed ? classMoveSpeed + totalAgi * agiRatio : null) || (globalDefaultSpeed ? globalDefaultSpeed + totalAgi * agiRatio : null) || 180))
+      : Math.min(185, Math.max(60, Number(pState.battleMoveSpeed || (classMoveSpeed ? classMoveSpeed + totalAgi * agiRatio : null) || (globalDefaultSpeed ? globalDefaultSpeed + totalAgi * agiRatio : null) || 180)));
 
     this.projectiles = []; this.groundZones = [];
     this.vfxRenderer?.reset(); this.motionEngine?.reset();
@@ -296,97 +298,15 @@ class ActionCombatArena {
     this.updateHud();
   }
 
-  updateCombatShortcutsHud() {
-    const hud = window.PlayHudController;
-    for (let i = 0; i < 2; i++) {
-      const btn = document.getElementById(`btnActShortcut${i + 1}`), img = document.getElementById(`imgActShortcut${i + 1}`), qty = document.getElementById(`qtyActShortcut${i + 1}`);
-      if (!btn) continue;
-      const s = hud?.state?.shortcuts?.[i];
-      if (s?.item) {
-        btn.style.display = 'flex';
-        btn.title = `${s.item.name} (${s.item.count !== undefined ? 'x' + s.item.count : 'Usar'})`;
-        if (img) img.src = s.item.icon;
-        if (qty) qty.textContent = s.item.count !== undefined ? String(s.item.count) : '';
-        btn.style.opacity = (s.item.count !== undefined && s.item.count <= 0) ? '0.4' : '1';
-      } else {
-        btn.style.display = 'none';
-      }
-    }
-  }
+  updateCombatShortcutsHud() { window.ArenaHudControls?.updateCombatShortcutsHud(this); }
 
-  triggerCombatShortcut(slotIdx) {
-    if (!this.isActive || !this.player || !this.player.isAlive) return;
-    const hud = window.PlayHudController, slot = hud?.state?.shortcuts?.[slotIdx];
-    if (!slot?.item) {
-      if (this.client?.showNotification) this.client.showNotification(`Slot #${slotIdx + 1} vazio!`, 'info');
-      return;
-    }
-    const it = slot.item;
-    if (it.count !== undefined && it.count <= 0) {
-      if (this.client?.showNotification) this.client.showNotification(`${it.name} esgotado!`, 'warning');
-      return;
-    }
-    const now = performance.now(), cdKey = `shortcut${slotIdx}`;
-    if (this.skillCooldowns[cdKey] && this.skillCooldowns[cdKey] > now) return;
-    this.skillCooldowns[cdKey] = now + 1200;
+  triggerCombatShortcut(slotIdx) { window.ArenaHudControls?.triggerCombatShortcut(this, slotIdx); }
 
-    const isMp = it.type === 'HEAL_MP' || it.name.toLowerCase().includes('mana') || it.name.toLowerCase().includes('mp');
-    if (isMp) {
-      const healMp = it.value || 80;
-      this.player.mp = Math.min(this.player.maxMp, this.player.mp + healMp);
-      this.floatingTexts.push({ x: this.player.x, y: this.player.y - 50, text: `+${healMp} MP`, color: '#38bdf8', life: 1.4 });
-    } else {
-      const healHp = it.value || 150;
-      this.player.hp = Math.min(this.player.maxHp, this.player.hp + healHp);
-      this.floatingTexts.push({ x: this.player.x, y: this.player.y - 50, text: `+${healHp} HP`, color: '#22c55e', life: 1.4 });
-    }
-    if (it.count !== undefined) it.count--;
-    this.updateCombatShortcutsHud();
-    if (hud?.updateShortcutsDisplay) hud.updateShortcutsDisplay();
-    this.updateHud();
-  }
+  renderSkillButtonsHud() { window.ArenaHudControls?.renderSkillButtonsHud(this); }
 
-  renderSkillButtonsHud() {
-    const fallbackIcons = ['⚡', '🌀', '🛡️', '💥'];
-    for (let i = 1; i <= 4; i++) {
-      const btn = document.getElementById(`btnActSkill${i}`);
-      const lbl = document.getElementById(`lblActSkill${i}`);
-      const sk = (this.classSkills || [])[i - 1];
-      if (!btn || !lbl) continue;
-      if (sk) {
-        btn.title = `${sk.namePtBr} (${sk.mpCost || 0} MP • ${sk.cooldownSeconds ?? 0}s) [Tecla ${i}]`;
-        lbl.innerHTML = sk.iconUrl ? `<img class="action-skill-icon-img" src="${sk.iconUrl}" alt="${sk.namePtBr}" />` : fallbackIcons[i - 1];
-        btn.style.opacity = '1';
-      } else {
-        btn.title = `Slot #${i} (Sem habilidade vinculada)`;
-        lbl.textContent = fallbackIcons[i - 1];
-        btn.style.opacity = '0.6';
-      }
-    }
-  }
+  toggleReady() { window.ArenaHudControls?.toggleReady(this); }
 
-  toggleReady() {
-    if (!this.isActive || this.combatState !== 'PREPARATION') return;
-    this.isLocalPlayerReady = !this.isLocalPlayerReady;
-    const localId = this.client?.activeChar?.id || 'p1', btnReady = document.getElementById('btnActReady'), statusEl = document.getElementById('actPrepStatusText');
-    if (this.isLocalPlayerReady) {
-      this.readyPlayerIds.add(localId);
-      if (btnReady) { btnReady.classList.add('ready'); btnReady.textContent = '✔️ VOCÊ ESTÁ PRONTO'; }
-    } else {
-      this.readyPlayerIds.delete(localId);
-      if (btnReady) { btnReady.classList.remove('ready'); btnReady.textContent = '⚡ PRONTO!'; }
-    }
-    if (this.readyPlayerIds.size >= this.totalRealPlayers) this.startFightNow();
-    else if (statusEl) statusEl.textContent = `Aguardando: ${this.readyPlayerIds.size}/${this.totalRealPlayers} jogadores prontos...`;
-  }
-
-  startFightNow() {
-    if (!this.isActive || this.combatState !== 'PREPARATION') return;
-    this.combatState = 'FIGHTING';
-    const prepBanner = document.getElementById('actionPrepBanner'); if (prepBanner) prepBanner.style.display = 'none';
-    const px = this.player ? this.player.x : this.arenaCenterX, py = (this.player ? this.player.y : this.arenaCenterY) - 70;
-    this.floatingTexts.push({ x: px, y: py, text: 'COMBATE INICIADO', color: '#fde047', life: 1.8 });
-  }
+  startFightNow() { window.ArenaHudControls?.startFightNow(this); }
 
   closeArena() {
     this.isTransitioning = false; this.isActive = false; this.combatState = 'INACTIVE';
@@ -442,28 +362,9 @@ class ActionCombatArena {
     this.showResult(false, 'Você fugiu da Dungeon! Seu ingresso diário de hoje foi consumido.', true);
   }
 
-  updateHud() {
-    if (!this.player) return;
-    const hpPct = Math.max(0, Math.min(100, (this.player.hp / this.player.maxHp) * 100));
-    const mpPct = Math.max(0, Math.min(100, (this.player.mp / this.player.maxMp) * 100));
-    const hpBar = document.getElementById('actHudPlayerHpBar'); if (hpBar) hpBar.style.width = `${hpPct}%`;
-    const mpBar = document.getElementById('actHudPlayerMpBar'); if (mpBar) mpBar.style.width = `${mpPct}%`;
-    const hpText = document.getElementById('actHudPlayerHpText'); if (hpText) hpText.textContent = `${Math.ceil(this.player.hp)} / ${this.player.maxHp}`;
-    const pName = document.getElementById('actHudPlayerName'); if (pName) pName.textContent = this.player.name;
-    const aliveCount = this.monsters.filter((m) => m.isAlive).length;
-    const mobCountElem = document.getElementById('actHudMonstersAlive'); if (mobCountElem) mobCountElem.textContent = String(aliveCount);
-    const now = performance.now();
-    this.updateCooldownOverlay('cdOverlaySkill1', this.skillCooldowns.skill1, now);
-    this.updateCooldownOverlay('cdOverlaySkill2', this.skillCooldowns.skill2, now);
-    this.updateCooldownOverlay('cdOverlaySkill3', this.skillCooldowns.skill3, now);
-    this.updateCooldownOverlay('cdOverlaySkill4', this.skillCooldowns.skill4, now);
-  }
+  updateHud() { window.ArenaHudControls?.updateHud(this); }
 
-  updateCooldownOverlay(elemId, expireTime, now) {
-    const el = document.getElementById(elemId); if (!el) return;
-    if (expireTime > now) { el.textContent = `${((expireTime - now) / 1000).toFixed(1)}s`; el.style.display = 'flex'; }
-    else el.style.display = 'none';
-  }
+  updateCooldownOverlay(elemId, expireTime, now) { window.ArenaHudControls?.updateCooldownOverlay(elemId, expireTime, now); }
 
   dealDamageToUnit(unit, dmg, text, color, now) {
     if (!unit || !unit.isAlive) return;
@@ -565,81 +466,19 @@ class ActionCombatArena {
   }
 
   executeHomingSkill(target, mpCost, cdMs, skillType, aoeRadius, dmgMultiplier, emoji, color, isMagical, now, cdKey) {
-    if (now < this.skillCooldowns[cdKey] || this.player.mp < mpCost) return;
-    this.skillCooldowns[cdKey] = now + cdMs;
-    this.player.mp = Math.max(0, this.player.mp - mpCost);
-    this.player.actionStartTime = now; this.player.action = 7; this.player.attackTimer = 0.40;
-    this.player.dir = this.compute8Direction(target.x - this.player.x, target.y - this.player.y);
-    this.spawnHomingProjectile(target, skillType, aoeRadius, this.player.atk, false, emoji, color, isMagical, undefined, undefined, undefined, undefined, 'ALLY', this.player.critDmg, { attackerUnit: this.player, skillMultiplier: dmgMultiplier });
-    this.updateHud();
+    window.ArenaProjectileResolver?.executeHomingSkill(this, target, mpCost, cdMs, skillType, aoeRadius, dmgMultiplier, emoji, color, isMagical, now, cdKey);
   }
 
   spawnHomingProjectile(target, skillType, aoeRadius, dmg, isCrit, emoji, color, isMagical, startX, startY, speed, attackerAcc, team = 'ALLY', critDmgMult = null, extra = null) {
-    this.projectiles.push({
-      x: startX !== undefined ? startX : this.player.x,
-      y: startY !== undefined ? startY : this.player.y - 20,
-      target, skillType, aoeRadius, dmg, isCrit, emoji, color, isMagical,
-      speed: speed || 620, attackerAcc, team, critDmgMult,
-      attackerUnit: extra?.attackerUnit || (team === 'ALLY' ? this.player : null),
-      skillMultiplier: extra?.skillMultiplier ?? 1.0,
-    });
+    window.ArenaProjectileResolver?.spawnHomingProjectile(this, target, skillType, aoeRadius, dmg, isCrit, emoji, color, isMagical, startX, startY, speed, attackerAcc, team, critDmgMult, extra);
   }
 
   updateProjectiles(dt, now) {
-    for (let i = this.projectiles.length - 1; i >= 0; i--) {
-      const p = this.projectiles[i];
-      if (!p.target || !p.target.isAlive) {
-        if (p.team === 'ENEMY') {
-          const aliveAllies = [this.player, ...this.pets].filter((u) => u && u.isAlive);
-          p.target = aliveAllies[0] || null;
-        } else {
-          p.target = this.getLockedTarget();
-        }
-        if (!p.target) { this.projectiles.splice(i, 1); continue; }
-      }
-      const tx = p.target.x;
-      const ty = p.target.y - 20;
-      const dx = tx - p.x;
-      const dy = ty - p.y;
-      const dist = Math.hypot(dx, dy);
-
-      if (dist <= 26 || p.skillType === 'GLOBAL_AOE') {
-        this.resolveHomingImpact(p, now);
-        this.projectiles.splice(i, 1);
-      } else {
-        p.x += (dx / dist) * p.speed * dt;
-        p.y += (dy / dist) * p.speed * dt;
-      }
-    }
+    window.ArenaProjectileResolver?.updateProjectiles(this, dt, now);
   }
 
   resolveHomingImpact(p, now) {
-    const acc = p.attackerAcc !== undefined ? p.attackerAcc : (p.isMagical ? (this.player.magAccuracy || 100) : (this.player.physAccuracy || 100));
-
-    if (p.team === 'ENEMY') {
-      this.applyDamageWithHitEvasionRoll(p.target, p, acc, now);
-      this.updateHud();
-      return;
-    }
-
-    if (p.skillType === 'TARGET_AOE') {
-      const cx = p.target.x;
-      const cy = p.target.y;
-      for (const mob of this.monsters) {
-        if (!mob.isAlive) continue;
-        if (Math.hypot(mob.x - cx, mob.y - cy) <= p.aoeRadius) {
-          this.applyDamageWithHitEvasionRoll(mob, p, acc, now);
-        }
-      }
-    } else if (p.skillType === 'GLOBAL_AOE') {
-      for (const mob of this.monsters) {
-        if (mob.isAlive) this.applyDamageWithHitEvasionRoll(mob, p, acc, now);
-      }
-    } else {
-      this.applyDamageWithHitEvasionRoll(p.target, p, acc, now);
-    }
-    this.updateHud();
-    this.checkVictoryCondition();
+    window.ArenaProjectileResolver?.resolveHomingImpact(this, p, now);
   }
 
   calculateHitRate(attackerAcc, defenderEva) {
@@ -658,58 +497,7 @@ class ActionCombatArena {
    * Executa ataque de Pet ou Monstro (suportando disparo à distância Ranged ou golpe Melee/Corpo a Corpo).
    */
   executeAiUnitAttack(attacker, target, isCloseBrawl, now) {
-    if (window.ActionSkillEngine && !window.ActionSkillEngine.isActionBlocked(attacker) && !window.ActionSkillEngine.isSilenced(attacker) && Array.isArray(attacker.skillIds) && attacker.skillIds.length > 0 && Math.random() < 0.28) {
-      const skId = attacker.skillIds[Math.floor(Math.random() * attacker.skillIds.length)];
-      const sk = (this.skillCatalog || []).find((s) => Number(s.id) === Number(skId) && s.skillType !== 'PASSIVE');
-      if (sk && attacker.mp >= (Number(sk.mpCost) || 0)) {
-        const aspd = Number(attacker.attackSpeed) || 1.0;
-        attacker.nextAttackTime = now + Math.round(1600 / aspd);
-        window.ActionSkillEngine.executeSkill(this, attacker, sk, target, now, null);
-        return;
-      }
-    }
-    const effAtt = window.ActionSkillEngine ? window.ActionSkillEngine.getEffectiveStats(attacker) : attacker;
-    const aspd = Number(effAtt.attackSpeed || attacker.attackSpeed) || 1.0;
-    const baseCd = attacker.team === 'ALLY' ? 1400 : 1550;
-    attacker.nextAttackTime = now + Math.round(baseCd / aspd) + Math.random() * 350;
-    attacker.attackTimer = 0.34;
-    attacker.actionStartTime = now;
-
-    const isMag = attacker.damageType === 'MAGICAL';
-    const isRangedShot = attacker.combatStyle === 'RANGED' && !isCloseBrawl;
-    attacker.action = isRangedShot ? 7 : 3;
-
-    const acc = isMag ? (attacker.magAccuracy || 95) : (attacker.physAccuracy || 95);
-    if (isRangedShot) {
-      const emoji = isMag ? (attacker.team === 'ALLY' ? '✨' : '🔮') : '🏹';
-      const color = attacker.team === 'ALLY' ? (isMag ? '#c084fc' : '#38bdf8') : (isMag ? '#f43f5e' : '#fb923c');
-      this.spawnHomingProjectile(
-        target, 'SINGLE_TARGET', 0, attacker.atk, false, emoji, color, isMag,
-        attacker.x, attacker.y - 20, 560, acc, attacker.team, attacker.critDmg || 1.5,
-        { attackerUnit: attacker, skillMultiplier: 1.0 }
-      );
-      return;
-    }
-
-    const dmgScale = isCloseBrawl ? 0.85 : 1.0;
-    this.applyDamageWithHitEvasionRoll(
-      target,
-      {
-        team: attacker.team, dmg: attacker.atk, attackerUnit: attacker, skillMultiplier: dmgScale,
-        critDmgMult: attacker.critDmg || 1.5,
-        emoji: isMag ? '💥' : (attacker.team === 'ALLY' ? '🐾' : '💔'),
-        color: attacker.team === 'ALLY' ? (isMag ? '#c084fc' : '#38bdf8') : (isMag ? '#c084fc' : '#ef4444'),
-        isMagical: isMag,
-      },
-      acc, now
-    );
-
-    if (attacker.team === 'ALLY') {
-      this.updateHud();
-      this.checkVictoryCondition();
-    } else {
-      this.updateHud();
-    }
+    window.ArenaProjectileResolver?.executeAiUnitAttack(this, attacker, target, isCloseBrawl, now);
   }
 
   async checkVictoryCondition() {
@@ -831,7 +619,8 @@ class ActionCombatArena {
       return;
     }
     const pEffMove = window.ActionSkillEngine ? window.ActionSkillEngine.getEffectiveStats(this.player).moveSpeedMult : 1.0;
-    let curSpeed = Math.min(185, this.player.speed * pEffMove);
+    const maxBattleSpeed = window.GameRulesConstants?.MAX_BATTLE_MOVE_SPEED ?? 185;
+    let curSpeed = Math.min(maxBattleSpeed, this.player.speed * pEffMove);
 
     // FASES 1, 2, 3 e 4: Cinemática Suave, Aceleração/Desaceleração, Deslize Vetorial e Windup/CastPoint
     if (this.motionEngine) {

@@ -13,7 +13,7 @@
  */
 
 import type { ElementMatchupEntry } from '@etheria/shared';
-import { MonsterGlobalConfigService } from './MonsterGlobalConfigService.js';
+import { DEFAULT_MONSTER_GLOBAL_CONFIG, MonsterGlobalConfigService } from './MonsterGlobalConfigService.js';
 
 export type MonsterVariantTier = 'NORMAL' | 'LEADER' | 'BOSS';
 
@@ -84,106 +84,6 @@ export interface RarityScalingProfile {
 }
 
 export class MonsterCombatBuilder {
-  /**
-   * Multiplicadores oficiais por Rank:
-   * F = 1.0x em tudo, 0% crit, 0 prec
-   * D = 1.3x em tudo, 0% crit, 0 prec
-   * C = 1.5x em tudo, 5% crit, 0 prec
-   * B = 1.8x em tudo, 5% crit, 5 prec
-   * A = 2.1x em tudo, 10% crit, 5 prec
-   * S = 2.7x em tudo, 15% crit, 5 prec
-   * SS = 4.0x em tudo, 20% crit, 10 prec
-   */
-  public static readonly RARITY_PROFILES: Record<string, RarityScalingProfile> = {
-    SS: { hp: 4.0, atk: 4.0, def: 4.0, critBonus: 0.20, accBonus: 10, spawnWeight: 1 },
-    S: { hp: 2.7, atk: 2.7, def: 2.7, critBonus: 0.15, accBonus: 5, spawnWeight: 4 },
-    A: { hp: 2.1, atk: 2.1, def: 2.1, critBonus: 0.10, accBonus: 5, spawnWeight: 15 },
-    B: { hp: 1.8, atk: 1.8, def: 1.8, critBonus: 0.05, accBonus: 5, spawnWeight: 35 },
-    C: { hp: 1.5, atk: 1.5, def: 1.5, critBonus: 0.05, accBonus: 0, spawnWeight: 70 },
-    D: { hp: 1.3, atk: 1.3, def: 1.3, critBonus: 0.00, accBonus: 0, spawnWeight: 110 },
-    F: { hp: 1.0, atk: 1.0, def: 1.0, critBonus: 0.00, accBonus: 0, spawnWeight: 140 },
-    COMMON: { hp: 1.0, atk: 1.0, def: 1.0, critBonus: 0.00, accBonus: 0, spawnWeight: 140 },
-  };
-
-  /**
-   * Unidade base de XP por nível de um monstro Rank F Comum (28 XP).
-   * Como 1.500 × 28 = 42.000 (MMC exato de 1500, 1200, 1000, 700, 300, 150 e 100),
-   * todas as classes de raridade entregam valores inteiros perfeitos de XP.
-   */
-  public static readonly BASE_UNIT_XP_PER_LEVEL = 28;
-  public static readonly DEFAULT_BASE_KILL_TARGET = 1500;
-
-  /**
-   * Pesos de XP por Rank (relativos ao Rank F = 1.0x):
-   * F = 1.00x (100% dos abates -> 1.500 na âncora 1500)
-   * D = 1.25x (80% dos abates -> 1.200 na âncora 1500)
-   * C = 1.50x (66,67% dos abates -> 1.000 na âncora 1500)
-   * B = 15/7x (~2.1429x, 46,67% dos abates -> 700 na âncora 1500)
-   * A = 5.00x (20% dos abates -> 300 na âncora 1500)
-   * S = 10.00x (10% dos abates -> 150 na âncora 1500)
-   * SS = 15.00x (6,67% dos abates -> 100 na âncora 1500)
-   */
-  public static readonly RANK_XP_WEIGHTS: Record<string, number> = {
-    F: 1.0,
-    COMMON: 1.0,
-    D: 1.25,
-    C: 1.5,
-    B: 15 / 7,
-    A: 5.0,
-    S: 10.0,
-    SS: 15.0,
-  };
-
-  /**
-   * Multiplicadores de XP por Hierarquia (Variante):
-   * NORMAL = 1.00x (100% dos abates)
-   * LEADER = 1 / 0.85 (~1.1765x -> exatamente 15% a menos de abates)
-   * BOSS   = 1 / 0.70 (~1.4286x -> exatamente 30% a menos de abates)
-   */
-  public static readonly VARIANT_XP_WEIGHTS: Record<MonsterVariantTier, number> = {
-    NORMAL: 1.0,
-    LEADER: 1 / 0.85,
-    BOSS: 1 / 0.70,
-  };
-
-  /**
-   * Unidade base de Ouro por nível de monstro (10 de ouro a cada nível).
-   */
-  public static readonly BASE_UNIT_GOLD_PER_LEVEL = 10;
-
-  /**
-   * Boost de Ouro por Raridade / Rank:
-   * Rank F  = -20% de ouro (0.80x)
-   * Rank D  = 1.0x ouro (sem bônus, sem perda, 1.00x)
-   * Rank C  = +20% de ouro (1.20x)
-   * Rank B  = +35% de ouro (1.35x)
-   * Rank A  = +60% de ouro (1.60x)
-   * Rank S  = +80% de ouro (1.80x)
-   * Rank SS = +150% de ouro (2.50x)
-   */
-  public static readonly RANK_GOLD_WEIGHTS: Record<string, number> = {
-    F: 0.80,
-    COMMON: 0.80,
-    D: 1.00,
-    C: 1.20,
-    B: 1.35,
-    A: 1.60,
-    S: 1.80,
-    SS: 2.50,
-  };
-
-  /**
-   * Multiplicadores de Ouro por Hierarquia (Variante):
-   * NORMAL = 1.00x (sem bônus)
-   * LEADER = 1.30x (bônus de +30%)
-   * BOSS   = 1.50x (bônus de +50%)
-   */
-  public static readonly VARIANT_GOLD_WEIGHTS: Record<MonsterVariantTier, number> = {
-    NORMAL: 1.00,
-    LEADER: 1.30,
-    BOSS: 1.50,
-  };
-
   public static calculateMonsterGoldReward(
     level: number,
     rarityTier?: string | null,
@@ -234,10 +134,10 @@ export class MonsterCombatBuilder {
     const mLevel = Math.max(1, Math.round(Number(mapLevel) || 1));
 
     if (mLevel >= pLevel + cfg.overlevelDiffThreshold) {
-      penaltyMultiplier = Math.max(0, 1 - cfg.overlevelPenaltyPct / 100);
+      penaltyMultiplier = Math.max(0, Math.round((100 - cfg.overlevelPenaltyPct) * 100) / 10000);
       penaltyReason = 'MAP_OVERLEVEL_95';
     } else if (mLevel <= pLevel - cfg.underlevelDiffThreshold) {
-      penaltyMultiplier = Math.max(0, 1 - cfg.underlevelPenaltyPct / 100);
+      penaltyMultiplier = Math.max(0, Math.round((100 - cfg.underlevelPenaltyPct) * 100) / 10000);
       penaltyReason = 'MAP_UNDERLEVEL_50';
     }
 
@@ -280,18 +180,18 @@ export class MonsterCombatBuilder {
 
   public static resolveRarityProfile(rarityTier?: string | null): RarityScalingProfile {
     const key = MonsterGlobalConfigService.normalizeRankCode(rarityTier);
-    const cfgRank = MonsterGlobalConfigService.getCachedConfig().rankConfigsJson?.[key];
-    if (cfgRank) {
-      return {
-        hp: cfgRank.hpMult,
-        atk: cfgRank.atkMult,
-        def: cfgRank.defMult,
-        critBonus: cfgRank.critBonusPct / 100,
-        accBonus: cfgRank.accBonus,
-        spawnWeight: cfgRank.spawnWeight,
-      };
-    }
-    return MonsterCombatBuilder.RARITY_PROFILES[key] || MonsterCombatBuilder.RARITY_PROFILES.F;
+    const cfgRank =
+      MonsterGlobalConfigService.getCachedConfig().rankConfigsJson?.[key] ||
+      DEFAULT_MONSTER_GLOBAL_CONFIG.rankConfigsJson[key] ||
+      DEFAULT_MONSTER_GLOBAL_CONFIG.rankConfigsJson.F;
+    return {
+      hp: cfgRank.hpMult,
+      atk: cfgRank.atkMult,
+      def: cfgRank.defMult,
+      critBonus: cfgRank.critBonusPct / 100,
+      accBonus: cfgRank.accBonus,
+      spawnWeight: cfgRank.spawnWeight,
+    };
   }
 
   /**

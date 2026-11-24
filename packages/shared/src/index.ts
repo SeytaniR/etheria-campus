@@ -6,3 +6,4 @@
 
 export * from './MapPolygonMesh.js';
 export * from './CombatDamageCalculator.js';
+export * from './GameRulesConstants.js';

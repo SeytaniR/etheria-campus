@@ -8,9 +8,9 @@
 ---
 
 ## 📌 Status Atual do Projeto
-* **Versão Atual:** `v0.62.0`
+* **Versão Atual:** `v0.63.0`
 * **Última Atualização:** `2026-11-24`
-* **Fase Atual:** **Onda P1 Concluída — Independência Total Pós-Salvamento `mcrework`, Snapshots Atômicos, Cache em RAM, Índices no Banco & Performance HTTP/Canvas 2D (`v0.62.0`)** — Eliminados 100% dos ponteiros externos residuais para `mcrework` em rotas/entidades salvas (`/admin`, `/gm`, `/play` e backend), `SnapshotManager` atômico com mutex/coalesce e `dungeonChestConfigs`, novo `MapRuntimeCacheService` para física de mapas e posições em RAM, TTL/cap em `MapPresenceService`, 9 `@@index` aditivos no `schema.prisma`, `ETag`/`304`/`gzip`/shutdown gracioso no `index.ts`, e Canvas 2D livre de `ctx.shadowBlur` e `createRadialGradient` por frame. Todos os arquivos < 1.000 linhas (Regra #7).
+* **Fase Atual:** **Onda P2 Concluída — Modularização Real (`< 780` linhas nos arquivos refatorados), Shared Rules (`@etheria/shared`), Limpeza de Legado Morto & Suíte Unificada `npm test` (`v0.63.0`)** — Fatiados os 8 maiores arquivos quentes do frontend/backend sem quebra de globals/rotas (`AdminClassesAndNpcsService`, `PlayerMapTravelService`, `play_core.css`, `PlayStatsModalController`, `PlayWorldRenderer`, `PlayWorldInputController`, `ArenaProjectileResolver`, `ArenaHudControls`, `AdminMapPickerModal`, `AdminQuestsBoardView`), criado `GameRulesConstants` em `@etheria/shared` com rota `/shared/GameRulesConstants.js`, removidos `web/` e `scratch/` além de constantes mortas em `MonsterCombatBuilder.ts`, e configurada suíte `npm test` (4 módulos aprovados 100%). Todos os arquivos < 1.000 linhas (Regra #7).
 * **Repositório Oficial:** `https://github.com/SeytaniR/etheria-campus`
 * **Fonte Bruta de Assets:** `https://github.com/SeytaniR/mcrework` (`https://seytanir.github.io/mcrework/`)
 
@@ -96,16 +96,20 @@
   * **Performance Backend & HTTP:** `MapRuntimeCacheService.ts` (cache de `MapPolygonMesh`/dimensões TTL 5 min + dirty-flush 3s + flush em voo/portal/respawn/shutdown), `MapPresenceService.ts` (TTL 5 min + cap 2000 + hooks de invalidação), `ETag` + `304` + `gzip` + `Cache-Control` longo em `index.ts`.
   * **Performance Canvas 2D:** Zero `ctx.shadowBlur` em `/play` (`ActionVfxRenderer.js`, `BattleTransitionController.js`) e gradientes pré-renderizados em offscreen (`PlayDungeonChestController.js`, `PlayHudController.js`). Testes `test_p0_security.mjs` (5/5), `test_p1_assets_and_cache.mjs` (5/5) e `test_action_motion_engine.mjs` (4/4) aprovados.
 
-### 🟡 Onda P2 — Modularização Real (`< 650` linhas), Limpeza de Código Morto & Testes (PRÓXIMA DA FILA — Iniciar com Backup Preventivo)
-* Fatiar módulos no teto da Regra #7 (`PlayGmController.js`, `play.js`, `GamePlayController.ts`, `AdminMapsController.ts`, `admin.js`, `play/index.html`, `ActionCombatArena.js`, `AdminQuestsTab.js`).
-* Mover regras compartilhadas para `@etheria/shared`; remover `web/index.html`, `scratch/`, constantes legadas mortas em `MonsterCombatBuilder.ts` e avaliar migração de modelos/colunas legados (`ArenaFormation`, `MonsterRarity`, `apCost`, `cooldownTurns`) mediante autorização.
-* Expandir suíte de testes automatizados (`npm test`).
+### 🟡 Onda P2 — Modularização Real (`< 650–780` linhas), Limpeza de Código Morto & Testes (✅ CONCLUÍDA em `v0.63.0`)
+* **Backups Preventivos Pré-P2:**
+  * Local: `.backups/pre-p2-20261124-151620/` (`lowcode.snapshot.json` 4.98M + `git-head.txt`)
+  * VPS Azure: `/home/azureuser/backups/pre-p2-20261124-151620/` (`lowcode.snapshot.json` 4.8M + `etheria_db.sql.gz` 345K)
+* **Entregas Verificadas:**
+  * **Fatiamento Modular:** `AdminMapsController.ts` (`988 → 683` via `AdminClassesAndNpcsService`), `GamePlayController.ts` (`910 → 609` via `PlayerMapTravelService`), `play/index.html` (`985 → 509` via `play_core.css`), `PlayGmController.js` (`996 → 283` via `PlayStatsModalController`), `play.js` (`996 → 656` via `PlayWorldRenderer` + `PlayWorldInputController`), `ActionCombatArena.js` (`984 → 773` via `ArenaProjectileResolver` + `ArenaHudControls`), `admin.js` (`986 → 594` via `AdminMapPickerModal`) e `AdminQuestsTab.js` (`976 → 620` via `AdminQuestsBoardView`).
+  * **Regras Compartilhadas & Legado:** `GameRulesConstants.ts` em `@etheria/shared` + `/shared/GameRulesConstants.js`, remoção de `web/` e `scratch/`, limpeza das constantes mortas em `MonsterCombatBuilder.ts` e preservação dos modelos/colunas Prisma legados (`ArenaFormation`, `MonsterRarity`, `apCost`, `cooldownTurns`) por Cláusula 0.2.
+  * **Testes:** `npm test` (`tests/run_all_tests.mjs`) executando `test_p0_security.mjs` (5/5), `test_p1_assets_and_cache.mjs` (5/5), `test_p2_shared_and_monsters.mjs` (5/5) e `test_action_motion_engine.mjs` (4/4) com 100% de aprovação.
 
-### 🔵 Onda P3 — Conformidade 100% `i18n` (Regra #4) & Documentação Atualizada
+### 🔵 Onda P3 — Conformidade 100% `i18n` (Regra #4) & Documentação Atualizada (PRÓXIMA DA FILA — Iniciar com Backup Preventivo)
 * Implementar motor `i18n` unificado (`pt-BR`, `en-US`, `es-ES`) no `/play`, `/admin` e API (eliminando os 137 `'pt-BR'` hardcoded no backend), além de normalização `'en'` → `'en-US'` e preenchimento `'es-ES'` no banco mediante autorização explícita (Cláusula 0.2).
 * Atualizar `README.md`, `docs/ARCHITECTURE.md`, `docs/DATABASE_SCHEMA.md`, `AGENTS.md` e cabeçalhos JSDoc faltantes da Regra #1.
 
 ---
 
 ## 🎯 Próxima Tarefa Exata da Fila
-* Realizar **backup preventivo pré-P2** (local + VPS) e executar a **Onda P2** (fatiamento de módulos grandes para manter folga ampla abaixo de 1.000 linhas, remoção de legado morto e expansão dos testes automatizados), sempre aguardando autorização do usuário antes de alterar registros do banco ou remover colunas Prisma.
+* Realizar **backup preventivo pré-P3** (local + VPS) e executar a **Onda P3** (conformidade completa de `i18n` multi-idioma em backend/frontend e atualização final de toda a documentação técnica/regras), solicitando confirmação explícita antes de qualquer mutação de traduções no PostgreSQL (Cláusula 0.2).
