@@ -70,7 +70,9 @@ export class QuestProgressService {
       this.getAllQuestsFn(),
       this.prisma.characterQuestProgress.findMany({ where: { characterId: Number(characterId) } }),
       CharacterInventoryService.getBagQuantityMap(this.prisma, Number(characterId)),
-      this.prisma.itemTemplate.findMany({ select: { id: true, code: true, nameI18nKey: true } }),
+      this.prisma.itemTemplate.findMany({
+        select: { id: true, code: true, nameI18nKey: true, mcreworkIconKey: true, rarityTier: true },
+      }),
       this.prisma.monsterTemplate.findMany({ select: { id: true, code: true, nameI18nKey: true } }),
       this.prisma.race.findMany({ select: { code: true, nameI18nKey: true } }),
       I18nCache.getTranslations(this.prisma, 'pt-BR'),
@@ -81,8 +83,22 @@ export class QuestProgressService {
       throw new Error(`Personagem #${characterId} não encontrado.`);
     }
 
+    const itemMetaMap = new Map<
+      number,
+      { itemTemplateId: number; namePtBr: string; iconUrl: string; rarityTier: string }
+    >(
+      items.map((i: any) => [
+        Number(i.id),
+        {
+          itemTemplateId: Number(i.id),
+          namePtBr: i18nMap.get(i.nameI18nKey) ?? i.code,
+          iconUrl: CharacterInventoryService.resolveIconUrl(i.mcreworkIconKey),
+          rarityTier: String(i.rarityTier || 'COMMON').toUpperCase(),
+        },
+      ]),
+    );
     const itemNameMap = new Map<number, string>(
-      items.map((i: any) => [Number(i.id), i18nMap.get(i.nameI18nKey) ?? i.code]),
+      Array.from(itemMetaMap.entries()).map(([id, meta]) => [id, meta.namePtBr]),
     );
     const mobNameMap = new Map<number, string>(
       monsters.map((m: any) => [Number(m.id), i18nMap.get(m.nameI18nKey) ?? m.code]),
@@ -191,10 +207,18 @@ export class QuestProgressService {
             const eqCheck = QuestStepActionService.inspectEquippedItems(character.equippedItemsJson, reqEquipIds);
             const itemsGranted = rawFlag >= 1;
             const isDone = rawFlag >= 2 || (itemsGranted && eqCheck.totalRequired > 0 && eqCheck.missingIds.length === 0);
+            const stepGrantItemsPreview = grantIds
+              .map((gId: any) => {
+                const meta = itemMetaMap.get(Number(gId));
+                if (!meta) return null;
+                return { ...meta, quantity: 1 };
+              })
+              .filter(Boolean);
             return {
               ...obj,
               stepIndex: idx,
               itemsGranted,
+              stepGrantItemsPreview,
               equippedCount: eqCheck.equippedCount,
               totalRequiredEquip: eqCheck.totalRequired,
               missingEquipItemIds: eqCheck.missingIds,
@@ -318,6 +342,36 @@ export class QuestProgressService {
         const rewardItemId = rew.rewardItemTemplateId ? Number(rew.rewardItemTemplateId) : null;
         const rewardItemQty = rewardItemId ? Math.max(1, Number(rew.rewardItemQuantity) || 1) : 0;
 
+        const rewardItemsPreview: Array<{
+          itemTemplateId: number;
+          namePtBr: string;
+          iconUrl: string;
+          rarityTier: string;
+          quantity: number;
+        }> = [];
+        const pushPreviewItem = (rawId: any, rawQty: any = 1) => {
+          const idNum = Number(rawId);
+          if (!Number.isInteger(idNum) || idNum <= 0) return;
+          const qtyNum = Math.max(1, Number(rawQty) || 1);
+          const meta = itemMetaMap.get(idNum);
+          rewardItemsPreview.push({
+            itemTemplateId: idNum,
+            namePtBr: meta?.namePtBr ?? `Item #${idNum}`,
+            iconUrl: meta?.iconUrl ?? CharacterInventoryService.resolveIconUrl(null),
+            rarityTier: meta?.rarityTier ?? 'COMMON',
+            quantity: qtyNum,
+          });
+        };
+        if (rewardItemId) pushPreviewItem(rewardItemId, rewardItemQty);
+        if (Array.isArray(rew.rewardItemTemplateIds)) {
+          for (const rId of rew.rewardItemTemplateIds) pushPreviewItem(rId, 1);
+        } else if (Array.isArray(rew.rewardItems)) {
+          for (const rItem of rew.rewardItems) {
+            pushPreviewItem(rItem?.itemTemplateId ?? rItem?.id, rItem?.quantity ?? rItem?.qty ?? 1);
+          }
+        }
+        const primaryItemMeta = rewardItemId ? itemMetaMap.get(rewardItemId) : null;
+
         const effRewards = isMeta
           ? {
               exp: Number(rew.exp) || 0,
@@ -351,12 +405,14 @@ export class QuestProgressService {
             baseGold: effRewards.baseGold,
             expCoefficient: effRewards.expCoefficient,
             goldCoefficient: effRewards.goldCoefficient,
-            freePointsBonus: 0,
+            freePointsBonus: Math.max(0, Number(rew.rewardStatPoints ?? rew.statPoints) || 0),
             rewardItemTemplateId: rewardItemId,
             rewardItemQuantity: rewardItemQty,
             rewardItemTemplateIds: Array.isArray(rew.rewardItemTemplateIds) ? rew.rewardItemTemplateIds : [],
             rewardItems: Array.isArray(rew.rewardItems) ? rew.rewardItems : [],
-            rewardItemNamePtBr: rewardItemId ? (itemNameMap.get(rewardItemId) ?? `Item #${rewardItemId}`) : null,
+            rewardItemsPreview,
+            rewardItemNamePtBr: primaryItemMeta?.namePtBr ?? (rewardItemId ? `Item #${rewardItemId}` : null),
+            rewardItemIconUrl: primaryItemMeta?.iconUrl ?? null,
             triggerReborn: Boolean(rew.triggerReborn),
           },
           category: q.questCategory,

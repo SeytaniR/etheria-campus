@@ -147,28 +147,71 @@ const PlayQuestsController = {
       return `<span style="background:${st.bg}; color:${st.color}; border:1px solid ${st.border}; padding:2px 8px; border-radius:99px; font-size:0.7rem; font-weight:700;">${st.label}</span>`;
     };
 
+    client.getRewardRarityBorder = function (rarityTier) {
+      const r = String(rarityTier || 'COMMON').toUpperCase();
+      if (r === 'D' || r === 'UNCOMMON') return '#22c55e';
+      if (r === 'C' || r === 'RARE') return '#3b82f6';
+      if (r === 'B' || r === 'EPIC') return '#a855f7';
+      if (r === 'A' || r === 'LEGENDARY') return '#f97316';
+      if (r === 'S' || r === 'MYTHIC') return '#ef4444';
+      if (r === 'SS' || r === 'COSMIC') return '#111827';
+      return '#cbd5e1';
+    };
+
     client.renderRewardsSummaryHtml = function (rewards) {
       const r = rewards || {};
       const pills = [];
       if (r.exp > 0) {
-        pills.push(`<span style="color:#86efac; font-weight:700;">✨ +${r.exp} EXP</span>`);
+        pills.push(
+          `<span style="display:inline-flex; align-items:center; gap:4px; color:#86efac; font-weight:800; background:rgba(34,197,94,0.10); border:1px solid rgba(74,222,128,0.28); padding:3px 8px; border-radius:7px;">⚡ +${Number(r.exp).toLocaleString('pt-BR')} EXP</span>`
+        );
       }
       if (r.gold > 0) {
-        pills.push(`<span style="color:#fde047; font-weight:700;">🪙 +${r.gold} Ouro</span>`);
+        pills.push(
+          `<span style="display:inline-flex; align-items:center; gap:4px; color:#fde047; font-weight:800; background:rgba(234,179,8,0.10); border:1px solid rgba(250,204,21,0.28); padding:3px 8px; border-radius:7px;"><img src="/play/assets/hud/gold_coin_icon.png" alt="Ouro" style="width:16px; height:16px; object-fit:contain;" /> +${Number(r.gold).toLocaleString('pt-BR')} Ouro</span>`
+        );
       }
-      if (r.rewardItemTemplateId && r.rewardItemNamePtBr) {
-        pills.push(`<span style="color:#d8b4fe; font-weight:700;">🎒 +${Number(r.rewardItemQuantity || 1).toLocaleString('pt-BR')}x ${r.rewardItemNamePtBr}</span>`);
+
+      const previewItems = Array.isArray(r.rewardItemsPreview) && r.rewardItemsPreview.length > 0
+        ? r.rewardItemsPreview
+        : (r.rewardItemTemplateId && r.rewardItemNamePtBr
+            ? [{
+                itemTemplateId: r.rewardItemTemplateId,
+                namePtBr: r.rewardItemNamePtBr,
+                iconUrl: r.rewardItemIconUrl || '/api/assets/mcrework/assets/items/icons/item_normal_060009.png',
+                rarityTier: 'COMMON',
+                quantity: Number(r.rewardItemQuantity || 1),
+              }]
+            : []);
+
+      for (const it of previewItems) {
+        const borderCol = this.getRewardRarityBorder(it.rarityTier);
+        const qtyTxt = Number(it.quantity || 1).toLocaleString('pt-BR');
+        pills.push(`
+          <span title="${it.namePtBr}" style="display:inline-flex; align-items:center; gap:6px; color:#f1f5f9; font-weight:700; background:rgba(15,23,42,0.92); border:1.5px solid ${borderCol}; padding:3px 8px 3px 4px; border-radius:8px;">
+            <span style="position:relative; width:26px; height:26px; display:inline-flex; align-items:center; justify-content:center; background:#020617; border-radius:6px; border:1px solid ${borderCol}; flex-shrink:0;">
+              <img src="${it.iconUrl}" alt="${it.namePtBr}" style="width:22px; height:22px; object-fit:contain;" onerror="this.onerror=null; this.src='/play/assets/hud/menu_inventory.png';" />
+              <span style="position:absolute; right:-3px; bottom:-3px; background:#020617; color:#fde047; font-size:0.56rem; font-weight:900; padding:0 3px; border-radius:4px; border:1px solid #334155; font-family:monospace;">${qtyTxt}</span>
+            </span>
+            <span style="font-size:0.74rem; line-height:1.15;">${it.namePtBr}</span>
+          </span>
+        `);
       }
+
       if (r.freePointsBonus > 0) {
-        pills.push(`<span style="color:#38bdf8; font-weight:700;">📊 +${r.freePointsBonus} Pts Atributo</span>`);
+        pills.push(
+          `<span style="display:inline-flex; align-items:center; gap:4px; color:#38bdf8; font-weight:800; background:rgba(56,189,248,0.10); border:1px solid rgba(56,189,248,0.28); padding:3px 8px; border-radius:7px;">★ +${Number(r.freePointsBonus).toLocaleString('pt-BR')} Pts Atributo</span>`
+        );
       }
       if (r.triggerReborn) {
-        pills.push(`<span style="color:#c084fc; font-weight:700;">👑 Despertar Reborn</span>`);
+        pills.push(
+          `<span style="display:inline-flex; align-items:center; gap:4px; color:#c084fc; font-weight:800; background:rgba(168,85,247,0.12); border:1px solid rgba(192,132,252,0.35); padding:3px 8px; border-radius:7px;">👑 Despertar Reborn</span>`
+        );
       }
       if (!pills.length) {
         return `<span style="color:#64748b; font-size:0.75rem;">Sem recompensas extras</span>`;
       }
-      return `<div style="display:flex; gap:10px; flex-wrap:wrap; font-size:0.76rem; background:#020617; padding:6px 10px; border-radius:6px; border:1px solid #1e293b;">${pills.join('')}</div>`;
+      return `<div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center; font-size:0.76rem; background:#020617; padding:7px 9px; border-radius:8px; border:1px solid #1e293b;">${pills.join('')}</div>`;
     };
 
     client.renderObjectivesListHtml = function (objectives) {
@@ -637,13 +680,26 @@ const PlayQuestsController = {
                     <!-- Resumo das Recompensas do Estágio Atual -->
                     <div style="background:rgba(15,23,42,0.8); border:1px solid rgba(255,255,255,0.06); border-radius:8px; padding:6px 10px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:6px;">
                       <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap; font-size:0.72rem; font-weight:800;">
-                        <span style="color:#fde047;">💰 +${(q.rewards?.gold || 0).toLocaleString('pt-BR')} Ouro</span>
-                        <span style="color:#38bdf8;">⚡ +${(q.rewards?.exp || 0).toLocaleString('pt-BR')} XP</span>
-                        <span style="color:#a855f7;">★ +1 Ponto Atributo</span>
-                        <span style="color:#f472b6; display:flex; align-items:center; gap:3px;">
-                          <img src="/play/assets/hud/item_hunter_medal.png" style="width:16px; height:16px; object-fit:contain;" alt="Medalha" />
-                          1x Medalha de Caçador
+                        <span style="color:#fde047; display:inline-flex; align-items:center; gap:3px;">
+                          <img src="/play/assets/hud/gold_coin_icon.png" style="width:15px; height:15px; object-fit:contain;" alt="Ouro" />
+                          +${(q.rewards?.gold || 0).toLocaleString('pt-BR')} Ouro
                         </span>
+                        <span style="color:#38bdf8;">⚡ +${(q.rewards?.exp || 0).toLocaleString('pt-BR')} XP</span>
+                        ${
+                          Array.isArray(q.rewards?.rewardItemsPreview) && q.rewards.rewardItemsPreview.length > 0
+                            ? q.rewards.rewardItemsPreview
+                                .map((it) => `
+                                  <span style="color:#f472b6; display:inline-flex; align-items:center; gap:4px; background:rgba(2,6,23,0.75); border:1px solid ${this.getRewardRarityBorder(it.rarityTier)}; border-radius:6px; padding:2px 6px 2px 3px;">
+                                    <img src="${it.iconUrl}" style="width:18px; height:18px; object-fit:contain;" alt="${it.namePtBr}" onerror="this.onerror=null; this.src='/play/assets/hud/menu_inventory.png';" />
+                                    ${Number(it.quantity || 1).toLocaleString('pt-BR')}x ${it.namePtBr}
+                                  </span>
+                                `)
+                                .join('')
+                            : `<span style="color:#f472b6; display:inline-flex; align-items:center; gap:3px;">
+                                <img src="/play/assets/hud/item_hunter_medal.png" style="width:16px; height:16px; object-fit:contain;" alt="Medalha" />
+                                1x Medalha de Caçador
+                              </span>`
+                        }
                       </div>
 
                       ${

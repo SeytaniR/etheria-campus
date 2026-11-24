@@ -5,6 +5,19 @@ Qualquer IA trabalhando neste repositório **DEVE** incrementar a versão e regi
 
 ---
 
+## [v0.57.2] - 2026-11-24
+### Ícones Originais no Preview de Recompensas das Quests & Correção dos Previews de Companheiros na Caçadora
+* **Preview de Recompensas com Ícones Originais (`QuestProgressService.ts`, `PlayQuestsController.js` & `PlayQuestStepModal.js`):**
+  * `QuestProgressService.getCharacterQuestState` agora consulta `mcreworkIconKey` e `rarityTier` de `ItemTemplate`, resolvendo via `CharacterInventoryService.resolveIconUrl` e enviando `rewardItemsPreview[]` e `rewardItemIconUrl` nas recompensas das quests e `stepGrantItemsPreview[]` nas etapas `GRANT_AND_EQUIP` (Armeiro e Joalheira).
+  * `renderRewardsSummaryHtml` e os modais de etapa / Diário de Quests / Metas de Caça passaram a exibir sempre o **ícone original do item** com moldura colorida conforme a raridade e badge de quantidade, além do ícone oficial de Ouro (`/play/assets/hud/gold_coin_icon.png`).
+* **Correção das Imagens dos Companheiros na Caçadora (`QuestStepActionService.ts`, `HunterPetController.ts`, `AssetMirrorService.ts`, `PlayQuestStepModal.js` & `PlayHunterController.js`):**
+  * Corrigido o formato de miniatura de monstros/pets de `thumb.png` (404 no repositório de assets) para o formato oficial **`thumb.webp`**, garantindo carregamento perfeito tanto no seletor inicial de 2 companheiros Rank F quanto no Santuário do Caçador.
+  * Alinhado `HunterPetController` à Arquitetura Sagrada de Assets (servindo miniaturas exclusivamente do cache local `/api/assets/mcrework/...` em vez de domínio externo) e corrigido `AssetMirrorService` para espelhar `thumb.webp` no disco da VPS.
+* **Governança e Cumprimento Estrito de Regras:**
+  * Todos os arquivos rigorosamente abaixo de 1.000 linhas (Regra #7), build TypeScript com 0 erros e verificação de carregamento real das miniaturas na VPS.
+
+---
+
 ## [v0.57.1] - 2026-11-24
 ### Menu Inferior Mobile-First, Remoção do Checklist Flutuante e Recolher Tudo nas Metas de Caça
 * **Remoção do Widget Flutuante de Missão (`PlayQuestStepModal.js` & `PlayQuestsController.js`):**

@@ -204,7 +204,9 @@ export class QuestStepActionService {
       fixedElementCode: m.fixedElementCode,
       combatStyle: m.combatStyle || 'MELEE',
       damageType: m.damageType || 'PHYSICAL',
-      thumbUrl: `/api/assets/mcrework/assets/monsters/${m.mcreworkMonsterKey}/thumb.png`,
+      thumbUrl: `/api/assets/mcrework/assets/monsters/${m.mcreworkMonsterKey}/thumb.webp`,
+      atlasJsonUrl: `/api/assets/mcrework/assets/monsters/${m.mcreworkMonsterKey}/atlas.json`,
+      atlasWebpUrl: `/api/assets/mcrework/assets/monsters/${m.mcreworkMonsterKey}/atlas.webp`,
     }));
   }
 

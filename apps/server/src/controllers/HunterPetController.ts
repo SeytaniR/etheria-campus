@@ -121,7 +121,7 @@ export const DEFAULT_HUNTER_REWARD_RULES: Record<string, number> = {
 };
 
 export class HunterPetController {
-  private static readonly mcreworkPagesBaseUrl = 'https://mcrework.com';
+  private static readonly mcreworkPagesBaseUrl = '/api/assets/mcrework';
 
   /**
    * Retorna os custos de essências por raridade salvos na tabela `hunter_pet_cost_rules` (com fallback padrão).
@@ -209,7 +209,7 @@ export class HunterPetController {
         combatStyle: m.combatStyle,
         attackRange: m.attackRange,
         damageType: m.damageType,
-        thumbUrl: `${this.mcreworkPagesBaseUrl}/assets/monsters/${key}/thumb.png`,
+        thumbUrl: `${this.mcreworkPagesBaseUrl}/assets/monsters/${key}/thumb.webp`,
         atlasJsonUrl: `${this.mcreworkPagesBaseUrl}/assets/monsters/${key}/atlas.json`,
         atlasWebpUrl: `${this.mcreworkPagesBaseUrl}/assets/monsters/${key}/atlas.webp`,
         baseAttributesJson: m.baseAttributesJson,

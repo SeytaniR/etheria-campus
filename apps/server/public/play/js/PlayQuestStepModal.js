@@ -240,6 +240,29 @@ const PlayQuestStepModal = {
 
       let actionButtonHtml = '';
       let extraStatusHtml = '';
+      let stepItemsPreviewHtml = '';
+
+      if (Array.isArray(activeObj.stepGrantItemsPreview) && activeObj.stepGrantItemsPreview.length > 0) {
+        const itemsChips = activeObj.stepGrantItemsPreview
+          .map((it) => {
+            const borderCol = client.getRewardRarityBorder ? client.getRewardRarityBorder(it.rarityTier) : '#cbd5e1';
+            return `
+              <span title="${it.namePtBr}" style="display:inline-flex; align-items:center; gap:5px; background:rgba(2,6,23,0.9); border:1.5px solid ${borderCol}; border-radius:8px; padding:3px 7px 3px 4px; font-size:0.72rem; color:#f1f5f9; font-weight:700;">
+                <img src="${it.iconUrl}" alt="${it.namePtBr}" style="width:22px; height:22px; object-fit:contain; border-radius:4px;" onerror="this.onerror=null; this.src='/play/assets/hud/menu_inventory.png';" />
+                <span>${it.namePtBr}</span>
+              </span>
+            `;
+          })
+          .join('');
+        stepItemsPreviewHtml = `
+          <div style="display:flex; flex-direction:column; gap:5px;">
+            <span style="font-size:0.72rem; color:#94a3b8; font-weight:700;">🎁 Itens desta etapa:</span>
+            <div style="display:flex; flex-wrap:wrap; gap:6px; background:rgba(2,6,23,0.65); padding:7px; border-radius:8px; border:1px solid #1e293b;">
+              ${itemsChips}
+            </div>
+          </div>
+        `;
+      }
 
       if (actType === 'GRANT_AND_EQUIP' && activeObj.itemsGranted && !activeObj.completed) {
         const eqCur = Number(activeObj.equippedCount || 0);
@@ -288,6 +311,7 @@ const PlayQuestStepModal = {
           <div style="font-size:0.84rem; color:#f8fafc; line-height:1.5; background:#020617; padding:10px 12px; border-radius:8px; border-left:3px solid #38bdf8;">
             "${dialogueHtml}"
           </div>
+          ${stepItemsPreviewHtml}
           ${extraStatusHtml}
           ${actionButtonHtml}
         </div>
@@ -328,7 +352,7 @@ const PlayQuestStepModal = {
                   border:2px solid ${isSel ? '#fde047' : '#334155'}; position:relative;
                 ">
                   ${isSel ? `<span style="position:absolute; top:5px; right:6px; background:#fde047; color:#020617; font-weight:900; font-size:0.68rem; padding:1px 6px; border-radius:99px;">#${selIdx + 1}</span>` : ''}
-                  <img src="${m.thumbUrl}" alt="${m.namePtBr}" style="width:54px; height:54px; object-fit:contain; background:#020617; border-radius:8px; border:1px solid #1e293b;" onerror="this.style.opacity='0.3'" />
+                  <img src="${m.thumbUrl}" alt="${m.namePtBr}" style="width:64px; height:64px; object-fit:contain; background:#020617; border-radius:10px; border:1px solid #1e293b; padding:3px;" onerror="this.onerror=null; this.src='/play/assets/hud/menu_pets.png';" />
                   <strong style="font-size:0.78rem; color:${isSel ? '#fde047' : '#f8fafc'}; line-height:1.2;">${m.namePtBr}</strong>
                   <span style="font-size:0.67rem; color:#94a3b8;">Rank ${m.rarityTier} • ${raceNames[m.raceCode] || m.raceCode}</span>
                   <span style="font-size:0.65rem; color:#7dd3fc;">${m.combatStyle === 'RANGED' ? '🏹 Distância' : '⚔️ Corpo a Corpo'}</span>

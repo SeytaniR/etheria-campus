@@ -397,7 +397,7 @@ const PlayHunterController = {
         const isActive = pet.id === this.selectedMonsterId;
         return `
           <div class="hunter-pet-card ${isActive ? 'active' : ''}" onclick="PlayHunterController.selectPet(${pet.id})">
-            <img src="${pet.thumbUrl}" alt="" onerror="this.src='/play/assets/placeholder_pet.png'" />
+            <img src="${pet.thumbUrl}" alt="${pet.namePtBr}" onerror="this.onerror=null; this.src='/play/assets/hud/menu_pets.png'" />
             <strong class="hunter-pet-card-name">${pet.namePtBr}</strong>
             <span style="font-size:0.65rem; color:#94a3b8;">${pet.combatStyle === 'RANGED' ? '🏹 Distância' : '⚔️ Físico'}</span>
           </div>
@@ -426,7 +426,7 @@ const PlayHunterController = {
     }
 
     box.innerHTML = `
-      <img src="${pet.thumbUrl}" alt="" style="width:58px; height:58px; object-fit:contain; background:#020617; border:1.5px solid #38bdf8; border-radius:10px; padding:2px;" />
+      <img src="${pet.thumbUrl}" alt="${pet.namePtBr}" style="width:58px; height:58px; object-fit:contain; background:#020617; border:1.5px solid #38bdf8; border-radius:10px; padding:2px;" onerror="this.onerror=null; this.src='/play/assets/hud/menu_pets.png'" />
       <div style="flex:1; min-width:0;">
         <div style="display:flex; justify-content:space-between; align-items:center;">
           <strong style="font-size:0.88rem; color:#f8fafc;">${pet.namePtBr}</strong>

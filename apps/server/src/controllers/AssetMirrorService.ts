@@ -272,7 +272,7 @@ export class AssetMirrorService {
       if (!mo.mcreworkMonsterKey) continue;
       addRel(`assets/monsters/${mo.mcreworkMonsterKey}/atlas.json`);
       addRel(`assets/monsters/${mo.mcreworkMonsterKey}/atlas.webp`);
-      addRel(`assets/monsters/${mo.mcreworkMonsterKey}/thumb.png`);
+      addRel(`assets/monsters/${mo.mcreworkMonsterKey}/thumb.webp`);
     }
 
     for (const mt of mounts) {
@@ -433,14 +433,14 @@ export class AssetMirrorService {
   }
 
   /**
-   * Baixa e instala no disco da VPS o pacote completo de sprites de um Monstro (atlas.json, atlas.webp, thumb.png).
+   * Baixa e instala no disco da VPS o pacote completo de sprites de um Monstro (atlas.json, atlas.webp, thumb.webp).
    */
   public async mirrorMonsterAssets(monsterKey: string | null | undefined): Promise<void> {
     if (!monsterKey) return;
     await Promise.allSettled([
       this.getOrFetchAsset(`assets/monsters/${monsterKey}/atlas.json`),
       this.getOrFetchAsset(`assets/monsters/${monsterKey}/atlas.webp`),
-      this.getOrFetchAsset(`assets/monsters/${monsterKey}/thumb.png`),
+      this.getOrFetchAsset(`assets/monsters/${monsterKey}/thumb.webp`),
     ]);
   }
 

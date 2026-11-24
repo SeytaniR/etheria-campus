@@ -8,9 +8,9 @@
 ---
 
 ## 📌 Status Atual do Projeto
-* **Versão Atual:** `v0.57.1`
+* **Versão Atual:** `v0.57.2`
 * **Última Atualização:** `2026-11-24`
-* **Fase Atual:** **Menu Inferior Mobile-First, Checklist Integrado no Modal de Quests e "Recolher Tudo" nas Metas de Caça (`v0.57.1`)** — Removido o widget flutuante `#questChecklistHudWidget` do mapa, concentrando status da missão atual e checklist sequencial exclusivamente no modal Quests (`#questLogModal`). Menu inferior redesenhado em `play_quests_and_menu.css` + `PlayHudController.js` com vidro fosco confortável para mobile, safe-area inset, ícones com rótulos sutis e badge `#hudBottomQuestsBadge`. Aba `Metas de Caça` agora ordena concluídas no topo e possui botão **`Recolher Tudo`** ligado ao endpoint autoritário `POST /api/play/characters/:charId/quests/claim-all-meta`. Todos os arquivos estritamente < 1.000 linhas (Regra #7).
+* **Fase Atual:** **Ícones Originais nas Recompensas de Quests & Previews de Companheiros Corrigidos na Caçadora (`v0.57.2`)** — `QuestProgressService.ts` agora resolve e envia `rewardItemsPreview[]` (com `iconUrl` original e `rarityTier`) e `stepGrantItemsPreview[]` para todas as recompensas e entregas de etapa; `PlayQuestsController.js` e `PlayQuestStepModal.js` renderizam sempre o ícone original dos itens com borda de raridade. Corrigido o carregamento de miniaturas de companheiros/monstros de `thumb.png` para `thumb.webp` em `QuestStepActionService.ts`, `HunterPetController.ts` (agora 100% via `/api/assets/mcrework/`) e `AssetMirrorService.ts`, garantindo que todos os companheiros exibam preview nítido nos modais da Caçadora. Todos os arquivos estritamente < 1.000 linhas (Regra #7).
 * **Repositório Oficial:** `https://github.com/SeytaniR/etheria-campus`
 * **Fonte Bruta de Assets:** `https://github.com/SeytaniR/mcrework` (`https://seytanir.github.io/mcrework/`)
 
