@@ -585,10 +585,12 @@ export class HunterPetController {
     method: string,
     prisma: PrismaClient,
     sendJson: (res: http.ServerResponse, statusCode: number, data: unknown) => void,
-    readJsonBody: <T = any>(req: http.IncomingMessage) => Promise<T>
+    readJsonBody: <T = any>(req: http.IncomingMessage) => Promise<T>,
+    enforcePermission?: (mode: 'READ' | 'READ_WRITE') => boolean
   ): Promise<boolean> {
     if (pathname === '/api/admin/hunter/costs') {
       if (method === 'GET') {
+        if (enforcePermission && !enforcePermission('READ')) return true;
         try {
           const list = await this.getAdminCostRules(prisma);
           sendJson(res, 200, list);
@@ -598,6 +600,7 @@ export class HunterPetController {
         return true;
       }
       if (method === 'PUT') {
+        if (enforcePermission && !enforcePermission('READ_WRITE')) return true;
         try {
           const body = await readJsonBody<{ rules: Array<{ rarityTier: string; essenceCost: number; goldCost?: number; essenceReward?: number; goldReward?: number }> }>(req);
           const updated = await this.updateAdminCostRules(prisma, body.rules);

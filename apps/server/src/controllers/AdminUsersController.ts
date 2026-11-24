@@ -18,6 +18,7 @@ import {
   type TablePermissionLevel,
   ALL_TABLE_CODES,
 } from '../security/AdminAuthService.js';
+import { InputSanitizer } from '../security/InputSanitizer.js';
 
 export interface CreateOrUpdateUserDto {
   username: string;
@@ -86,12 +87,12 @@ export class AdminUsersController {
       throw new Error('Acesso negado: Somente o Desenvolvedor (DEV) pode criar novas contas no sistema.');
     }
 
-    const username = (dto.username ?? '').trim();
+    const username = InputSanitizer.validateUsername(dto.username ?? '');
     const email = (dto.email ?? '').trim();
     const password = dto.password ?? '';
     const role = ['DEV', 'ADMIN', 'GM', 'PLAYER'].includes(dto.role) ? dto.role : 'ADMIN';
 
-    if (!username || !email || password.length < 4) {
+    if (!email || password.length < 4) {
       throw new Error('Preencha username, email e uma senha de pelo menos 4 caracteres.');
     }
 
@@ -107,12 +108,12 @@ export class AdminUsersController {
 
     const passwordHash = AdminAuthService.hashPassword(password);
 
-    // Constrói permissões padrão se for ADMIN e não foram informadas
+    // Constrói permissões padrão fail-closed se for ADMIN e não foram informadas
     let permissions = dto.tablePermissionsJson;
     if (role === 'ADMIN' && (!permissions || Object.keys(permissions).length === 0)) {
       const defPerms: Record<string, TablePermissionLevel> = {};
       for (const t of ALL_TABLE_CODES) {
-        defPerms[t] = t === 'USERS' ? 'NONE' : 'READ_WRITE';
+        defPerms[t] = 'NONE';
       }
       permissions = defPerms;
     }
@@ -159,7 +160,7 @@ export class AdminUsersController {
 
     const updateData: Record<string, unknown> = {};
 
-    if (dto.username !== undefined) updateData.username = dto.username.trim();
+    if (dto.username !== undefined) updateData.username = InputSanitizer.validateUsername(dto.username);
     if (dto.email !== undefined) updateData.email = dto.email.trim();
     if (dto.locale !== undefined) updateData.locale = dto.locale;
 

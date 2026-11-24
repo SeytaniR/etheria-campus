@@ -38,6 +38,7 @@ import { MonsterGlobalConfigService } from './controllers/MonsterGlobalConfigSer
 import { AssetMirrorService } from './controllers/AssetMirrorService.js';
 import { AdminRouter } from './routes/AdminRouter.js';
 import { PlayRouter } from './routes/PlayRouter.js';
+import { InputSanitizer } from './security/InputSanitizer.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -153,16 +154,46 @@ export class EtheriaServerApp {
   }
 
   /**
-   * Lê e decodifica o corpo JSON de uma requisição HTTP com limite de segurança (10 MB para malhas de mapas).
+   * Cabeçalhos padrão de endurecimento HTTP (Security Headers).
    */
-  public async readJsonBody<T = any>(req: http.IncomingMessage): Promise<T> {
+  private static readonly SECURITY_HEADERS: Record<string, string> = {
+    'X-Content-Type-Options': 'nosniff',
+    'X-Frame-Options': 'SAMEORIGIN',
+    'Referrer-Policy': 'strict-origin-when-cross-origin',
+    'Permissions-Policy': 'camera=(), microphone=(), geolocation=()',
+  };
+
+  /**
+   * Retorna cabeçalhos CORS estritos apenas quando `ALLOWED_CORS_ORIGINS` está configurado.
+   */
+  private buildCorsHeaders(req?: http.IncomingMessage): Record<string, string> {
+    const allowedRaw = (process.env.ALLOWED_CORS_ORIGINS ?? '').trim();
+    const origin = req?.headers?.origin;
+    if (!allowedRaw || !origin) return {};
+    const allowList = allowedRaw.split(',').map((o) => o.trim()).filter(Boolean);
+    if (allowList.includes(origin)) {
+      return {
+        'Access-Control-Allow-Origin': origin,
+        'Vary': 'Origin',
+      };
+    }
+    return {};
+  }
+
+  /**
+   * Lê e decodifica o corpo JSON de uma requisição HTTP com limite de segurança padrão de 1 MB
+   * (rotas específicas de malha/upload de mapas podem passar limite explícito de 15 MB).
+   */
+  public async readJsonBody<T = any>(req: http.IncomingMessage, maxBytes: number = 1 * 1024 * 1024): Promise<T> {
+    const limit = Math.max(1024, Number(maxBytes) || 1 * 1024 * 1024);
+    const limitMb = Math.round((limit / (1024 * 1024)) * 10) / 10;
     return new Promise((resolve, reject) => {
       const chunks: Buffer[] = [];
       let totalSize = 0;
       req.on('data', (chunk: Buffer) => {
         totalSize += chunk.length;
-        if (totalSize > 25 * 1024 * 1024) {
-          reject(new Error('Payload excede o limite de 25 MB.'));
+        if (totalSize > limit) {
+          reject(new Error(`Payload excede o limite de ${limitMb} MB.`));
           req.destroy();
           return;
         }
@@ -190,6 +221,7 @@ export class EtheriaServerApp {
     res.writeHead(statusCode, {
       'Content-Type': 'application/json; charset=utf-8',
       'Cache-Control': 'no-store',
+      ...EtheriaServerApp.SECURITY_HEADERS,
     });
     res.end(payload);
   }
@@ -226,6 +258,7 @@ export class EtheriaServerApp {
         res.writeHead(200, {
           'Content-Type': 'application/javascript; charset=utf-8',
           'Cache-Control': 'no-cache, no-store, must-revalidate, max-age=0',
+          ...EtheriaServerApp.SECURITY_HEADERS,
         });
         res.end(data);
         return true;
@@ -242,23 +275,25 @@ export class EtheriaServerApp {
     }
 
     const safeRel = path.normalize(relPath).replace(/^(\.\.[\/\\])+/, '').replace(/^[\\\/]+/, '');
-    const fullPath = path.join(this.publicDir, safeRel);
+    const resolvedPublic = path.resolve(this.publicDir);
+    const resolvedFull = path.resolve(resolvedPublic, safeRel);
 
-    if (!fullPath.startsWith(this.publicDir)) {
+    if (!resolvedFull.startsWith(resolvedPublic + path.sep)) {
       return false;
     }
 
     try {
-      const stats = await fs.stat(fullPath);
+      const stats = await fs.stat(resolvedFull);
       if (!stats.isFile()) return false;
-      const ext = path.extname(fullPath).toLowerCase();
+      const ext = path.extname(resolvedFull).toLowerCase();
       const contentType = EtheriaServerApp.MIME_TYPES[ext] || 'application/octet-stream';
-      const fileData = await fs.readFile(fullPath);
+      const fileData = await fs.readFile(resolvedFull);
       const headers: Record<string, string> = {
         'Content-Type': contentType,
         'Cache-Control': 'no-cache, no-store, must-revalidate, max-age=0',
         'Pragma': 'no-cache',
         'Expires': '0',
+        ...EtheriaServerApp.SECURITY_HEADERS,
       };
       if (safeRel === 'play/sw.js' || safeRel === 'play\\sw.js') {
         headers['Service-Worker-Allowed'] = '/';
@@ -274,15 +309,22 @@ export class EtheriaServerApp {
   /**
    * Proxy reverso resiliente para imagens de mapas via cache persistente em disco + RAM.
    */
-  private async handleMapImageAsset(mapId: number, res: http.ServerResponse, method: string = 'GET'): Promise<void> {
+  private async handleMapImageAsset(
+    mapId: number,
+    res: http.ServerResponse,
+    method: string = 'GET',
+    req?: http.IncomingMessage
+  ): Promise<void> {
     try {
+      const corsHeaders = this.buildCorsHeaders(req);
       const cached = this.mapImageCache.get(mapId);
       if (cached) {
         res.writeHead(200, {
           'Content-Type': cached.contentType,
           'Content-Length': cached.buffer.length,
           'Cache-Control': 'public, max-age=31536000, immutable',
-          'Access-Control-Allow-Origin': '*',
+          ...EtheriaServerApp.SECURITY_HEADERS,
+          ...corsHeaders,
         });
         if (method === 'HEAD') res.end();
         else res.end(cached.buffer);
@@ -311,7 +353,8 @@ export class EtheriaServerApp {
             'Content-Type': contentType,
             'Content-Length': buffer.length,
             'Cache-Control': 'public, max-age=31536000, immutable',
-            'Access-Control-Allow-Origin': '*',
+            ...EtheriaServerApp.SECURITY_HEADERS,
+            ...corsHeaders,
           });
           if (method === 'HEAD') res.end();
           else res.end(buffer);
@@ -337,7 +380,8 @@ export class EtheriaServerApp {
         'Content-Type': asset.contentType,
         'Content-Length': asset.buffer.length,
         'Cache-Control': 'public, max-age=31536000, immutable',
-        'Access-Control-Allow-Origin': '*',
+        ...EtheriaServerApp.SECURITY_HEADERS,
+        ...corsHeaders,
       });
       if (method === 'HEAD') res.end();
       else res.end(asset.buffer);
@@ -366,7 +410,7 @@ export class EtheriaServerApp {
       const mapAssetMatch = pathname.match(/^\/api\/assets\/map-image\/(\d+)$/);
       if (mapAssetMatch && (method === 'GET' || method === 'HEAD')) {
         const mapId = Number(mapAssetMatch[1]);
-        await this.handleMapImageAsset(mapId, res, method);
+        await this.handleMapImageAsset(mapId, res, method, req);
         return;
       }
 
@@ -382,7 +426,8 @@ export class EtheriaServerApp {
           'Content-Type': asset.contentType,
           'Content-Length': asset.buffer.length,
           'Cache-Control': 'public, max-age=31536000, immutable',
-          'Access-Control-Allow-Origin': '*',
+          ...EtheriaServerApp.SECURITY_HEADERS,
+          ...this.buildCorsHeaders(req),
         });
         if (method === 'HEAD') res.end();
         else res.end(asset.buffer);
@@ -406,8 +451,8 @@ export class EtheriaServerApp {
       this.sendJson(res, 404, { error: 'Página não encontrada.' });
     } catch (err: any) {
       console.error('❌ [EtheriaServerApp Error]:', err);
-      const isForbidden = typeof err?.message === 'string' && err.message.toLowerCase().includes('acesso negado');
-      this.sendJson(res, isForbidden ? 403 : 400, { error: err?.message ?? 'Erro interno no servidor.' });
+      const safeErr = InputSanitizer.sanitizeHttpError(err);
+      this.sendJson(res, safeErr.statusCode, { error: safeErr.message });
     }
   }
 

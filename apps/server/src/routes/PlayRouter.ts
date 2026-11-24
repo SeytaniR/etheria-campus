@@ -29,6 +29,8 @@ import { GameChatService } from '../controllers/GameChatService.js';
 import { MapPresenceService } from '../controllers/MapPresenceService.js';
 import { PartyService } from '../controllers/PartyService.js';
 import { PartyRouter } from './PartyRouter.js';
+import { PlayCombatRouter } from './PlayCombatRouter.js';
+import { RateLimiter } from '../security/RateLimiter.js';
 
 export interface PlayRouterDeps {
   prisma: PrismaClient;
@@ -38,17 +40,27 @@ export interface PlayRouterDeps {
   questsController: AdminQuestsController;
   assetMirrorService: AssetMirrorService;
   sendJson: (res: http.ServerResponse, statusCode: number, data: unknown) => void;
-  readJsonBody: <T = any>(req: http.IncomingMessage) => Promise<T>;
+  readJsonBody: <T = any>(req: http.IncomingMessage, maxBytes?: number) => Promise<T>;
 }
 
 export class PlayRouter {
   private readonly partyRouter: PartyRouter;
+  private readonly combatRouter: PlayCombatRouter;
+  private readonly rateLimiter = new RateLimiter();
 
   constructor(private readonly deps: PlayRouterDeps) {
     this.partyRouter = new PartyRouter({
       prisma: deps.prisma,
       readJsonBody: deps.readJsonBody,
       sendJson: deps.sendJson,
+      verifyCharacterOwnership: (uid, r, cid) => this.verifyCharacterOwnership(uid, r, cid),
+    });
+    this.combatRouter = new PlayCombatRouter({
+      prisma: deps.prisma,
+      combatController: deps.combatController,
+      questsController: deps.questsController,
+      sendJson: deps.sendJson,
+      readJsonBody: deps.readJsonBody,
       verifyCharacterOwnership: (uid, r, cid) => this.verifyCharacterOwnership(uid, r, cid),
     });
   }
@@ -81,8 +93,16 @@ export class PlayRouter {
       return false;
     }
 
-    // 1. Endpoint de Login da Rota /play
+    // 1. Endpoint de Login da Rota /play (Rate-limited contra brute-force)
     if (pathname === '/api/play/auth/login' && method === 'POST') {
+      const clientIp = RateLimiter.getClientIp(req);
+      const rl = this.rateLimiter.consume(`play_login:${clientIp}`, 10, 60_000);
+      if (!rl.allowed) {
+        this.deps.sendJson(res, 429, {
+          error: `Muitas tentativas de login. Aguarde ${rl.retryAfterSec}s e tente novamente.`,
+        });
+        return true;
+      }
       const body = await this.deps.readJsonBody<{ username?: string; password?: string }>(req);
       const result = await this.deps.authService.authenticatePlay(
         req,
@@ -255,40 +275,57 @@ export class PlayRouter {
         return true;
       }
 
-      const pc = await this.deps.prisma.playerCharacter.findUnique({ where: { id: charId } });
-      if (!pc) {
-        this.deps.sendJson(res, 404, { error: 'Personagem não encontrado.' });
-        return true;
-      }
+      try {
+        const result = await this.deps.prisma.$transaction(async (tx) => {
+          const dec = await tx.playerCharacter.updateMany({
+            where: {
+              id: charId,
+              unspentStatPoints: { gte: totalRequested },
+            },
+            data: {
+              unspentStatPoints: { decrement: totalRequested },
+            },
+          });
 
-      if ((pc.unspentStatPoints || 0) < totalRequested) {
-        this.deps.sendJson(res, 400, {
-          error: `Pontos insuficientes para distribuir (Disponíveis: ${pc.unspentStatPoints || 0}, Solicitados: ${totalRequested}).`,
+          if (dec.count === 0) {
+            return null;
+          }
+
+          const pc = await tx.playerCharacter.findUnique({ where: { id: charId } });
+          if (!pc) {
+            throw new Error('Personagem não encontrado.');
+          }
+
+          const dist = (pc.distributedStatsJson && typeof pc.distributedStatsJson === 'object'
+            ? { ...(pc.distributedStatsJson as Record<string, number>) }
+            : { VIT: 0, STR: 0, INT: 0, WIS: 0, AGI: 0, DEX: 0 }) as Record<string, number>;
+
+          for (const [attr, pts] of Object.entries(allocationsToApply)) {
+            dist[attr] = (Number(dist[attr]) || 0) + pts;
+          }
+
+          return await tx.playerCharacter.update({
+            where: { id: charId },
+            data: { distributedStatsJson: dist },
+            select: { unspentStatPoints: true, distributedStatsJson: true },
+          });
         });
-        return true;
+
+        if (!result) {
+          this.deps.sendJson(res, 400, {
+            error: `Pontos insuficientes para distribuir (Solicitados: ${totalRequested}).`,
+          });
+          return true;
+        }
+
+        this.deps.sendJson(res, 200, {
+          success: true,
+          unspentStatPoints: result.unspentStatPoints,
+          distributedStatsJson: result.distributedStatsJson,
+        });
+      } catch (err: any) {
+        this.deps.sendJson(res, 400, { error: err?.message || 'Erro ao distribuir pontos.' });
       }
-
-      const dist = (pc.distributedStatsJson && typeof pc.distributedStatsJson === 'object'
-        ? { ...(pc.distributedStatsJson as Record<string, number>) }
-        : { VIT: 0, STR: 0, INT: 0, WIS: 0, AGI: 0, DEX: 0 }) as Record<string, number>;
-
-      for (const [attr, pts] of Object.entries(allocationsToApply)) {
-        dist[attr] = (Number(dist[attr]) || 0) + pts;
-      }
-
-      const updated = await this.deps.prisma.playerCharacter.update({
-        where: { id: charId },
-        data: {
-          unspentStatPoints: Math.max(0, (pc.unspentStatPoints || 0) - totalRequested),
-          distributedStatsJson: dist,
-        },
-      });
-
-      this.deps.sendJson(res, 200, {
-        success: true,
-        unspentStatPoints: updated.unspentStatPoints,
-        distributedStatsJson: updated.distributedStatsJson,
-      });
       return true;
     }
 
@@ -349,6 +386,10 @@ export class PlayRouter {
     const traverseMatch = pathname.match(/^\/api\/play\/characters\/(\d+)\/traverse-portal$/);
     if (traverseMatch && method === 'POST') {
       const charId = Number(traverseMatch[1]);
+      if (!(await this.verifyCharacterOwnership(userAccountId, session.role, charId))) {
+        this.deps.sendJson(res, 403, { error: 'Acesso negado: personagem não pertence à sua conta.' });
+        return true;
+      }
       MapPresenceService.removePlayer(charId);
       const dto = await this.deps.readJsonBody<{ portalId: number }>(req);
       const travelResult = await this.deps.playController.traversePortal(userAccountId, charId, Number(dto.portalId));
@@ -371,6 +412,10 @@ export class PlayRouter {
     const unstuckMatch = pathname.match(/^\/api\/play\/characters\/(\d+)\/unstuck$/);
     if (unstuckMatch && method === 'POST') {
       const charId = Number(unstuckMatch[1]);
+      if (!(await this.verifyCharacterOwnership(userAccountId, session.role, charId))) {
+        this.deps.sendJson(res, 403, { error: 'Acesso negado: personagem não pertence à sua conta.' });
+        return true;
+      }
       MapPresenceService.removePlayer(charId);
       this.deps.sendJson(res, 200, await this.deps.playController.unstuckCharacter(userAccountId, charId));
       return true;
@@ -541,21 +586,38 @@ export class PlayRouter {
     // 💬 Chat Multi-Canal (Sistema, Mundo, Local, Guilda, Facção, Equipe)
     if (pathname === '/api/play/chat/messages' && method === 'GET') {
       const sinceId = urlObj.searchParams.get('sinceId') ? Number(urlObj.searchParams.get('sinceId')) : undefined;
-      const mapId = urlObj.searchParams.get('mapId') ? Number(urlObj.searchParams.get('mapId')) : undefined;
-      const guildId = urlObj.searchParams.get('guildId') ? Number(urlObj.searchParams.get('guildId')) : undefined;
-      const factionId = urlObj.searchParams.get('factionId') || undefined;
       const charId = urlObj.searchParams.get('charId') ? Number(urlObj.searchParams.get('charId')) : undefined;
-      let teamId: string | number | undefined = urlObj.searchParams.get('teamId') || undefined;
-      if (!teamId && charId) {
+      let mapId = urlObj.searchParams.get('mapId') ? Number(urlObj.searchParams.get('mapId')) : undefined;
+      let teamId: string | undefined;
+
+      if (charId) {
+        if (!(await this.verifyCharacterOwnership(userAccountId, session.role, charId))) {
+          this.deps.sendJson(res, 403, { error: 'Acesso negado: personagem não pertence à sua conta.' });
+          return true;
+        }
+        const pc = await this.deps.prisma.playerCharacter.findUnique({
+          where: { id: charId },
+          select: { currentMapId: true },
+        });
+        if (pc?.currentMapId) mapId = pc.currentMapId;
         const p = PartyService.getPartyByCharacterId(charId);
         if (p) teamId = p.id;
       }
-      const messages = GameChatService.getMessages({ sinceId, mapId, guildId, factionId, teamId });
+
+      // Ignora guildId, factionId e teamId vindos da query string do cliente (anti-IDOR)
+      const messages = GameChatService.getMessages({ sinceId, mapId, teamId });
       this.deps.sendJson(res, 200, { success: true, messages });
       return true;
     }
 
     if (pathname === '/api/play/chat/send' && method === 'POST') {
+      const rl = this.rateLimiter.consume(`play_chat:${userAccountId}`, 15, 30_000);
+      if (!rl.allowed) {
+        this.deps.sendJson(res, 429, {
+          error: `Chat em cooldown. Aguarde ${rl.retryAfterSec}s antes de enviar outra mensagem.`,
+        });
+        return true;
+      }
       const body = await this.deps.readJsonBody<{
         channel: string;
         message: string;
@@ -645,347 +707,14 @@ export class PlayRouter {
       return true;
     }
 
-    // 🏆 Registro Autoritário de Vitória na Arena em Tempo Real (Avança KILL_MONSTER, KILL_RACE e Drops de Quest)
-    if (pathname === '/api/play/combat/victory' && method === 'POST') {
-      const body = await this.deps.readJsonBody<{ battleId: string }>(req);
-      const victoryData = this.deps.combatController.finalizeRealTimeVictory(String(body.battleId || ''));
-      if (!victoryData) {
-        this.deps.sendJson(res, 200, { alreadyRecorded: true });
-        return true;
-      }
-      if (!(await this.verifyCharacterOwnership(userAccountId, session.role, victoryData.characterId))) {
-        this.deps.sendJson(res, 403, { error: 'Acesso negado: esta batalha não pertence à sua conta.' });
-        return true;
-      }
-      // 🏆 Cálculo de Recompensas em Equipe (+30% dividido com Math.ceil) e Avanço Coletivo de Quests
-      const party = PartyService.getPartyByCharacterId(victoryData.characterId);
-      const partySize = party ? party.members.length : 1;
-      const rewards = PartyService.calculatePartyRewards(victoryData.expReward, victoryData.goldReward, partySize);
-
-      // ⚖️ Limite de Nivelamento de Mapa (Map Leveling Scaling: -95% se map >= pLv+10, -50% se map <= pLv-30)
-      const battleMapId = Number((victoryData as any).mapId) || 1;
-      const [battleMap, primaryPc] = await Promise.all([
-        this.deps.prisma.gameMap.findUnique({ where: { id: battleMapId }, select: { requiredLevel: true } }),
-        this.deps.prisma.playerCharacter.findUnique({ where: { id: victoryData.characterId }, select: { level: true } }),
-      ]);
-      const mapLvl = battleMap?.requiredLevel ?? 1;
-      const primaryScaling = MonsterCombatBuilder.applyMapLevelingPenalty(
-        rewards.expPerMember,
-        rewards.goldPerMember,
-        primaryPc?.level ?? 1,
-        mapLvl
-      );
-
-      const chestRewards = (victoryData as any).isDungeon
-        ? await DungeonChestService.rollAndGrantChestItems(this.deps.prisma, victoryData.characterId, (victoryData as any).dungeonChest)
-        : null;
-      const awardedExp = primaryScaling.exp + (chestRewards?.exp || 0);
-      const awardedGold = primaryScaling.gold + (chestRewards?.gold || 0);
-
-      const progressResult = await this.deps.questsController.recordBattleVictoryBatch(
-        victoryData.characterId,
-        victoryData.defeatedMonsters,
-        awardedGold
-      );
-      const progression = await CharacterProgressionService.awardProgression(
-        this.deps.prisma,
-        victoryData.characterId,
-        awardedExp
-      );
-
-      // Concede a recompensa escalonada individualmente para os companheiros de equipe
-      if (party && party.members.length > 1) {
-        for (const member of party.members) {
-          if (member.characterId !== victoryData.characterId) {
-            try {
-              const memScaling = MonsterCombatBuilder.applyMapLevelingPenalty(
-                rewards.expPerMember,
-                rewards.goldPerMember,
-                member.level || 1,
-                mapLvl
-              );
-              await this.deps.questsController.recordBattleVictoryBatch(
-                member.characterId,
-                victoryData.defeatedMonsters,
-                memScaling.gold
-              );
-              await CharacterProgressionService.awardProgression(
-                this.deps.prisma,
-                member.characterId,
-                memScaling.exp
-              );
-            } catch {}
-          }
-        }
-      }
-
-      const exitDestination = (victoryData as any).isDungeon
-        ? await DungeonService.completeDungeonRun(this.deps.prisma, String(body.battleId || ''), victoryData.characterId, (victoryData as any).dungeonRunId)
-        : null;
-
-      this.deps.sendJson(res, 200, {
-        alreadyRecorded: false,
-        expGained: awardedExp,
-        goldGained: awardedGold,
-        levelingPenaltyMultiplier: primaryScaling.penaltyMultiplier,
-        levelingPenaltyReason: primaryScaling.penaltyReason,
-        partyBonusApplied: partySize > 1,
-        partyMembersCount: partySize,
-        playerProgression: progression?.player ?? null,
-        petsProgression: progression?.pets ?? [],
-        dungeonCompleted: Boolean((victoryData as any).isDungeon),
-        chestRewards,
-        exitDestination,
-        ...progressResult,
-      });
-      return true;
-    }
-
-    // ⚔️ Rotas da Arena de Combate em Tempo Real e Encontros no Mapa
-    if (pathname === '/api/play/combat/encounter' && method === 'POST') {
-      const body = await this.deps.readJsonBody<{ characterId?: number; mapId: number }>(req);
-      const characterId = Number(body.characterId) || 0;
-      if (characterId > 0 && !(await this.verifyCharacterOwnership(userAccountId, session.role, characterId))) {
-        this.deps.sendJson(res, 403, { error: 'Acesso negado: este personagem não pertence à sua conta.' });
-        return true;
-      }
-      const state = await this.deps.combatController.startEncounterByMap(
-        characterId || 1,
-        Number(body.mapId)
-      );
-      this.deps.sendJson(res, 200, state);
-      return true;
-    }
-
-    // ⚔️ Iniciar Batalha de Treino / Missão no Véu (ex: Izumo Nv 1-10)
-    if (pathname === '/api/play/combat/quest-battle' && method === 'POST') {
-      const body = await this.deps.readJsonBody<{ characterId: number; questId: number }>(req);
-      const characterId = Number(body.characterId) || 0;
-      const questId = Number(body.questId) || 0;
-      if (characterId > 0 && !(await this.verifyCharacterOwnership(userAccountId, session.role, characterId))) {
-        this.deps.sendJson(res, 403, { error: 'Acesso negado: este personagem não pertence à sua conta.' });
-        return true;
-      }
-
-      const [character, quest] = await Promise.all([
-        this.deps.prisma.playerCharacter.findUnique({ where: { id: characterId } }),
-        this.deps.prisma.questTemplate.findUnique({ where: { id: questId } }),
-      ]);
-
-      if (!character || !quest) {
-        this.deps.sendJson(res, 404, { error: 'Personagem ou Missão não encontrados.' });
-        return true;
-      }
-      if ((character as any).isFlying) {
-        this.deps.sendJson(res, 400, { error: 'Você precisa estar no chão para iniciar uma luta! Pouse sua montaria primeiro.' });
-        return true;
-      }
-
-      const trigCfg = (quest.triggerConfigJson || {}) as { questBattleConfig?: QuestBattleConfigDto | null };
-      const stepObjBattle = Array.isArray(quest.objectivesJson) ? (quest.objectivesJson as any[]).find((o) => o?.stepBattleConfig?.enabled)?.stepBattleConfig : null;
-      const questBattleCfg: QuestBattleConfigDto | null = (stepObjBattle || trigCfg.questBattleConfig || null) as QuestBattleConfigDto | null;
-
-      if (
-        questBattleCfg &&
-        questBattleCfg.enabled &&
-        Array.isArray(questBattleCfg.monsters) &&
-        questBattleCfg.monsters.length > 0
-      ) {
-        const [scalingCtx, i18nMap] = await Promise.all([
-          MonsterCombatBuilder.loadScalingContext(this.deps.prisma),
-          I18nCache.getTranslations(this.deps.prisma, 'pt-BR'),
-        ]);
-
-        const requestedIds = Array.from(
-          new Set(
-            questBattleCfg.monsters
-              .map((m) => Number(m.monsterTemplateId))
-              .filter((id) => Number.isFinite(id) && id > 0),
-          ),
-        );
-
-        const templates = await this.deps.prisma.monsterTemplate.findMany({
-          where: requestedIds.length > 0 ? { id: { in: requestedIds } } : { isActive: true },
-          orderBy: { id: 'asc' },
-        });
-        const templateMap = new Map<number, any>(templates.map((t) => [t.id, t]));
-        const fallbackTemplate = templates[0] || (await this.deps.prisma.monsterTemplate.findFirst());
-
-        if (fallbackTemplate) {
-          const customUnits: CombatUnit[] = [];
-          for (const slot of questBattleCfg.monsters) {
-            const baseTpl = templateMap.get(Number(slot.monsterTemplateId)) || fallbackTemplate;
-            const defaultNamePtBr = i18nMap.get(baseTpl.nameI18nKey) ?? baseTpl.code;
-            const units = MonsterCombatBuilder.buildCustomQuestMonsterUnits(
-              baseTpl,
-              defaultNamePtBr,
-              slot,
-              character.level || 1,
-              customUnits.length,
-              scalingCtx,
-              '/api/assets/mcrework',
-            );
-            customUnits.push(...units);
-          }
-
-          if (customUnits.length > 0) {
-            const state = await this.deps.combatController.startBattle(
-              characterId,
-              customUnits[0].monsterTemplateId || fallbackTemplate.id,
-              customUnits.length,
-              character.level || 1,
-              customUnits,
-              scalingCtx,
-            );
-            this.deps.sendJson(res, 200, state);
-            return true;
-          }
-        }
-      }
-
-      let targetMobId = 1;
-      let targetVariantTier: 'NORMAL' | 'LEADER' | 'BOSS' = 'NORMAL';
-      const objs = Array.isArray(quest.objectivesJson) ? (quest.objectivesJson as any[]) : [];
-      const mobObj = objs.find(
-        (o) => (o.type === 'KILL_MONSTER' || o.type === 'KILL_LEADER' || o.type === 'KILL_BOSS') && o.monsterTemplateId
-      );
-      if (mobObj) {
-        targetMobId = Number(mobObj.monsterTemplateId) || 1;
-        const effTier =
-          mobObj.type === 'KILL_BOSS'
-            ? 'BOSS'
-            : mobObj.type === 'KILL_LEADER'
-            ? 'LEADER'
-            : String(mobObj.variantTier || 'NORMAL').toUpperCase();
-        if (effTier === 'BOSS' || effTier === 'LEADER') targetVariantTier = effTier;
-      } else {
-        const availableMobs = await this.deps.prisma.monsterTemplate.findMany({
-          select: { id: true, rarityTier: true },
-          where: { isActive: true },
-          orderBy: { id: 'asc' },
-        });
-        if (availableMobs.length > 0) {
-          const suitable = availableMobs.find((m: any) => m.rarityTier === 'F') || availableMobs[0];
-          targetMobId = suitable.id;
-        }
-      }
-
-      const qty = targetVariantTier === 'BOSS' ? 1 : Math.floor(Math.random() * 2) + 1;
-      const state = await this.deps.combatController.startBattle(
-        characterId,
-        targetMobId,
-        qty,
-        character.level || 1,
-        undefined,
-        undefined,
-        targetVariantTier,
-      );
-      this.deps.sendJson(res, 200, state);
-      return true;
-    }
-
-    if (pathname === '/api/play/temporary-combat/monsters' && method === 'GET') {
-      this.deps.sendJson(res, 200, await this.deps.combatController.getAvailableMonsters());
-      return true;
-    }
-
-    if (pathname === '/api/play/temporary-combat/start' && method === 'POST') {
-      const body = await this.deps.readJsonBody<{
-        characterId?: number;
-        monsterTemplateId: number;
-        quantity?: number;
-        monsterLevel?: number;
-      }>(req);
-      const characterId = Number(body.characterId) || 0;
-      if (characterId > 0 && !(await this.verifyCharacterOwnership(userAccountId, session.role, characterId))) {
-        this.deps.sendJson(res, 403, { error: 'Acesso negado: este personagem não pertence à sua conta.' });
-        return true;
-      }
-      const state = await this.deps.combatController.startBattle(
-        characterId,
-        Number(body.monsterTemplateId),
-        Number(body.quantity) || 1,
-        Number(body.monsterLevel) || 1
-      );
-      this.deps.sendJson(res, 200, state);
-      return true;
-    }
-
-    if (pathname === '/api/play/temporary-combat/action' && method === 'POST') {
-      const body = await this.deps.readJsonBody<{
-        battleId: string;
-        actionType: 'ATTACK' | 'SKILL' | 'DEFEND';
-        targetMonsterIndex?: number;
-      }>(req);
-      const state = this.deps.combatController.executeAction(
-        body.battleId,
-        body.actionType || 'ATTACK',
-        Number(body.targetMonsterIndex) || 0
-      );
-      if (state.isFinished && state.winner === 'PLAYER' && !state.victoryRecorded) {
-        state.victoryRecorded = true;
-        if (state.characterId && (await this.verifyCharacterOwnership(userAccountId, session.role, state.characterId))) {
-          const batch = this.deps.combatController.buildDefeatedBatch(state);
-          const [bMap, pc] = await Promise.all([
-            this.deps.prisma.gameMap.findUnique({ where: { id: state.mapId || 1 }, select: { requiredLevel: true } }),
-            this.deps.prisma.playerCharacter.findUnique({ where: { id: state.characterId }, select: { level: true } }),
-          ]);
-          const scaled = MonsterCombatBuilder.applyMapLevelingPenalty(
-            Number(state.rewards?.exp) || 0,
-            Number(state.rewards?.gold) || 0,
-            pc?.level ?? 1,
-            bMap?.requiredLevel ?? 1
-          );
-          await this.deps.questsController.recordBattleVictoryBatch(state.characterId, batch, scaled.gold);
-          const progression = await CharacterProgressionService.awardProgression(
-            this.deps.prisma,
-            state.characterId,
-            scaled.exp
-          );
-          if (progression && state.rewards) {
-            state.rewards.exp = scaled.exp;
-            state.rewards.gold = scaled.gold;
-            (state.rewards as any).playerProgression = progression.player;
-            (state.rewards as any).petsProgression = progression.pets;
-          }
-        }
-      }
-      this.deps.sendJson(res, 200, state);
-      return true;
-    }
-
-    if (pathname === '/api/play/temporary-combat/auto-resolve' && method === 'POST') {
-      const body = await this.deps.readJsonBody<{ battleId: string }>(req);
-      const state = this.deps.combatController.autoResolve(body.battleId);
-      if (state.isFinished && state.winner === 'PLAYER' && !state.victoryRecorded) {
-        state.victoryRecorded = true;
-        if (state.characterId && (await this.verifyCharacterOwnership(userAccountId, session.role, state.characterId))) {
-          const batch = this.deps.combatController.buildDefeatedBatch(state);
-          const [bMap, pc] = await Promise.all([
-            this.deps.prisma.gameMap.findUnique({ where: { id: state.mapId || 1 }, select: { requiredLevel: true } }),
-            this.deps.prisma.playerCharacter.findUnique({ where: { id: state.characterId }, select: { level: true } }),
-          ]);
-          const scaled = MonsterCombatBuilder.applyMapLevelingPenalty(
-            Number(state.rewards?.exp) || 0,
-            Number(state.rewards?.gold) || 0,
-            pc?.level ?? 1,
-            bMap?.requiredLevel ?? 1
-          );
-          await this.deps.questsController.recordBattleVictoryBatch(state.characterId, batch, scaled.gold);
-          const progression = await CharacterProgressionService.awardProgression(
-            this.deps.prisma,
-            state.characterId,
-            scaled.exp
-          );
-          if (progression && state.rewards) {
-            state.rewards.exp = scaled.exp;
-            state.rewards.gold = scaled.gold;
-            (state.rewards as any).playerProgression = progression.player;
-            (state.rewards as any).petsProgression = progression.pets;
-          }
-        }
-      }
-      this.deps.sendJson(res, 200, state);
+    // ⚔️ Rotas de Combate, Encontros, Missões de Batalha e Simulador GM
+    if (
+      await this.combatRouter.handle(req, res, pathname, method, {
+        userAccountId,
+        username: session.username,
+        role: session.role,
+      })
+    ) {
       return true;
     }
 

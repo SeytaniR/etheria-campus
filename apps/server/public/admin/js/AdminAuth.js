@@ -5,6 +5,14 @@
  *   Gerencia hierarquia de permissões (DEV Master vs ADMIN Controlado por Tabela).
  */
 
+window.AdminEscapeHtml = (value) =>
+  String(value ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+
 class AdminAuth {
   static attach(app) {
     app.api = async function (path, options = {}) {
@@ -92,7 +100,9 @@ class AdminAuth {
 
       const badge = document.getElementById('sessionBadge');
       if (badge) {
-        badge.innerHTML = `<span style="padding:2px 8px; border-radius:99px; background:${roleBg}; color:${roleColor}; border:1px solid ${roleBorder}; font-weight:700; font-size:0.75rem;">${roleIcon} ${this.session.role}: ${this.session.username}</span>`;
+        const safeUser = window.AdminEscapeHtml(this.session?.username || '');
+        const safeRole = window.AdminEscapeHtml(this.session?.role || '');
+        badge.innerHTML = `<span style="padding:2px 8px; border-radius:99px; background:${roleBg}; color:${roleColor}; border:1px solid ${roleBorder}; font-weight:700; font-size:0.75rem;">${roleIcon} ${safeRole}: ${safeUser}</span>`;
       }
 
       this.applyTablePermissions();
@@ -114,15 +124,16 @@ class AdminAuth {
       const tabMap = {
         maps: 'MAPS',
         'world-maps': 'MAPS',
+        'dungeon-chests': 'MAPS',
         npcs: 'NPCS',
         classes: 'CLASSES',
         monsters: 'MONSTERS',
         'monster-config': 'MONSTERS',
+        'hunter-costs': 'MONSTERS',
         'ui-layouts': 'MAPS',
         equipments: 'MONSTERS',
         'equipment-sets': 'MONSTERS',
         items: 'MONSTERS',
-        mounts: 'MONSTERS',
         shops: 'SHOPS',
         experience: 'ATTRIBUTES',
         attributes: 'ATTRIBUTES',
@@ -135,7 +146,9 @@ class AdminAuth {
       const btnMap = {
         maps: document.getElementById('tabBtnMaps'),
         'world-maps': document.getElementById('tabBtnWorldMaps'),
+        'dungeon-chests': document.getElementById('tabBtnDungeonChests'),
         npcs: document.getElementById('tabBtnNpcs'),
+        'hunter-costs': document.getElementById('tabBtnHunterCosts'),
         classes: document.getElementById('tabBtnClasses'),
         monsters: document.getElementById('tabBtnMonsters'),
         'monster-config': document.getElementById('tabBtnMonsterConfig'),
@@ -295,15 +308,16 @@ class AdminAuth {
       const tabMap = {
         maps: 'MAPS',
         'world-maps': 'MAPS',
+        'dungeon-chests': 'MAPS',
         npcs: 'NPCS',
         classes: 'CLASSES',
         monsters: 'MONSTERS',
         'monster-config': 'MONSTERS',
+        'hunter-costs': 'MONSTERS',
         'ui-layouts': 'MAPS',
         equipments: 'MONSTERS',
         'equipment-sets': 'MONSTERS',
         items: 'MONSTERS',
-        mounts: 'MONSTERS',
         shops: 'SHOPS',
         experience: 'ATTRIBUTES',
         attributes: 'ATTRIBUTES',
@@ -319,12 +333,18 @@ class AdminAuth {
         const containerMap = {
           maps: document.getElementById('tabMaps'),
           'world-maps': document.getElementById('tabWorldMaps'),
+          'dungeon-chests': document.getElementById('tabDungeonChests'),
           npcs: document.getElementById('tabNpcs'),
+          'hunter-costs': document.getElementById('tabHunterCosts'),
           classes: document.getElementById('tabClasses'),
           monsters: document.getElementById('tabMonsters'),
+          'monster-config': document.getElementById('tabMonsterConfig'),
           'ui-layouts': document.getElementById('tabUiLayouts'),
           equipments: document.getElementById('tabEquipments'),
+          'equipment-sets': document.getElementById('tabEquipmentSets'),
           items: document.getElementById('tabItems'),
+          shops: document.getElementById('tabShops'),
+          experience: document.getElementById('tabExperience'),
           attributes: document.getElementById('tabAttributes'),
           skills: document.getElementById('tabSkills'),
           'status-effects': document.getElementById('tabStatusEffects'),

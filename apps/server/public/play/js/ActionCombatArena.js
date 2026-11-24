@@ -168,6 +168,7 @@ class ActionCombatArena {
     if (!this.isDungeonMode && window.BattleTransitionController) window.BattleTransitionController.start(battleState, this);
     else this.isTransitioning = false;
     this.currentBattle = battleState;
+    this.combatDamageDealt = 0; this.combatHitsCount = 0;
     this.isActive = true;
     const vig = document.getElementById('veilVignetteOverlay'); if (vig) vig.classList.add('active');
     this.combatState = this.isDungeonMode ? 'FIGHTING' : 'PREPARATION';
@@ -466,6 +467,7 @@ class ActionCombatArena {
 
   dealDamageToUnit(unit, dmg, text, color, now) {
     if (!unit || !unit.isAlive) return;
+    if (unit.team === 'ENEMY') { this.combatDamageDealt = (this.combatDamageDealt || 0) + Math.max(0, Number(dmg) || 0); this.combatHitsCount = (this.combatHitsCount || 0) + 1; }
     if (unit.team === 'ENEMY' && this.isDungeonMode && !unit.isAggroed) {
       unit.isAggroed = true;
       this.floatingTexts.push({ x: unit.x, y: unit.y - 68, text: '!', color: '#ef4444', life: 0.9 });
@@ -735,7 +737,7 @@ class ActionCombatArena {
   async recordBattleVictoryOnServer() {
     try {
       if (!this.currentBattle || !this.client) return null;
-      const res = await this.client.api('/api/play/combat/victory', { method: 'POST', body: JSON.stringify({ battleId: this.currentBattle.battleId }) });
+      const res = await this.client.api('/api/play/combat/victory', { method: 'POST', body: JSON.stringify({ battleId: this.currentBattle.battleId, battleNonce: this.currentBattle.battleNonce, totalDamageDealt: Math.round(this.combatDamageDealt || 0), hitsCount: this.combatHitsCount || 0 }) });
       if (res?.exitDestination) { this.dungeonExitDestination = res.exitDestination; }
       if (res?.questState) { this.client.questState = res.questState; this.client.updateQuestHudBadge?.(); }
       if (res?.characterGold !== undefined && this.client.activeChar) { this.client.activeChar.gold = res.characterGold; }

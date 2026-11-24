@@ -24,6 +24,7 @@ class AdminUsersTab {
     app.loadUsers = async function () {
       const isDev = this.session?.role === 'DEV';
       const users = await this.api('/api/admin/users');
+      this.usersList = Array.isArray(users) ? users : [];
 
       // 1. Ajusta o visual conforme o papel (DEV Master vs ADMIN Comum)
       const titleEl = document.getElementById('usersPanelTitle');
@@ -115,20 +116,22 @@ class AdminUsersTab {
                 .join(' ');
             }
 
-            const permsJsonEscaped = JSON.stringify(u.tablePermissionsJson || {}).replace(/"/g, '&quot;');
             const isLoggedUser = this.session?.username === u.username;
+            const esc = window.AdminEscapeHtml || ((v) => String(v ?? ''));
+            const safeUsername = esc(u.username);
+            const safeEmail = esc(u.email);
 
             return `
             <tr>
               <td><strong>#${u.id}</strong></td>
-              <td><strong>${u.username}</strong> ${isLoggedUser ? '<span style="font-size:0.68rem; color:#86efac;">(você)</span>' : ''}</td>
-              <td>${u.email}</td>
+              <td><strong>${safeUsername}</strong> ${isLoggedUser ? '<span style="font-size:0.68rem; color:#86efac;">(você)</span>' : ''}</td>
+              <td>${safeEmail}</td>
               <td>${roleBadge}</td>
               <td><div style="display:flex; flex-wrap:wrap; max-width:320px;">${permsBadges}</div></td>
               <td style="font-size:0.75rem; color:var(--text-muted);">${new Date(u.createdAt).toLocaleDateString('pt-BR')}</td>
               <td>
                 <div style="display:flex; gap:6px;">
-                  <button type="button" onclick="AdminApp.populateUserForm(${u.id}, '${u.username}', '${u.email}', '${u.role}', ${permsJsonEscaped})">✏️ Editar</button>
+                  <button type="button" onclick="AdminApp.populateUserFormById(${u.id})">✏️ Editar</button>
                   ${isUserDev && isLoggedUser ? '' : `<button type="button" class="btn-danger" onclick="AdminApp.deleteUserAccount(${u.id})">🗑️</button>`}
                 </div>
               </td>
@@ -239,6 +242,12 @@ class AdminUsersTab {
           if (r.value === level) r.checked = true;
         }
       }
+    };
+
+    app.populateUserFormById = function (id) {
+      const u = (this.usersList || []).find((row) => Number(row.id) === Number(id));
+      if (!u) return;
+      this.populateUserForm(u.id, u.username, u.email, u.role, u.tablePermissionsJson || {});
     };
 
     app.populateUserForm = function (id, username, email, role, perms = {}) {

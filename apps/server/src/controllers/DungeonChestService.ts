@@ -378,14 +378,17 @@ export class DungeonChestService {
     prisma: PrismaClient,
     snapshotManager: SnapshotManager | undefined,
     sendJson: (res: http.ServerResponse, statusCode: number, data: unknown) => void,
-    readJsonBody: <T = any>(req: http.IncomingMessage) => Promise<T>
+    readJsonBody: <T = any>(req: http.IncomingMessage) => Promise<T>,
+    enforcePermission?: (mode: 'READ' | 'READ_WRITE') => boolean
   ): Promise<boolean> {
     if (pathname === '/api/admin/dungeon-chests' && method === 'GET') {
+      if (enforcePermission && !enforcePermission('READ')) return true;
       sendJson(res, 200, await this.listAdminPayload(prisma));
       return true;
     }
     const putMatch = pathname.match(/^\/api\/admin\/dungeon-chests\/(\d+)$/);
     if (putMatch && method === 'PUT') {
+      if (enforcePermission && !enforcePermission('READ_WRITE')) return true;
       const dto = await readJsonBody<Record<string, unknown>>(req);
       sendJson(res, 200, await this.updateChestConfig(prisma, snapshotManager, Number(putMatch[1]), dto));
       return true;

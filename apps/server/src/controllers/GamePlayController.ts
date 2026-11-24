@@ -25,6 +25,7 @@ import { CharacterPetService } from './CharacterPetService.js';
 import { MonsterCombatBuilder, type MonsterScalingContext } from './MonsterCombatBuilder.js';
 import { DungeonService } from './DungeonService.js';
 import { CharacterEquipmentService, type CharacterVisualAppearanceDto } from './CharacterEquipmentService.js';
+import { InputSanitizer } from '../security/InputSanitizer.js';
 
 export interface CreateCharacterDto {
   name: string;
@@ -415,10 +416,7 @@ export class GamePlayController {
    * - Posiciona no Ponto de Spawn oficial (`spawnX, spawnY`) do Mapa #1
    */
   public async createCharacter(userAccountId: number, dto: CreateCharacterDto) {
-    const cleanName = (dto.name ?? '').trim();
-    if (cleanName.length < 2 || cleanName.length > 24) {
-      throw new Error('O nome do personagem deve ter entre 2 e 24 caracteres.');
-    }
+    const cleanName = InputSanitizer.validateCharacterName(dto.name ?? '');
 
     const existingName = await this.prisma.playerCharacter.findUnique({
       where: { name: cleanName },
@@ -929,8 +927,8 @@ export class GamePlayController {
       throw new Error('Personagem não encontrado.');
     }
 
-    if (char.userAccountId !== userAccountId && !['ADMIN', 'GM', 'DEV'].includes(role)) {
-      throw new Error('Não autorizado a alterar este personagem.');
+    if (!['ADMIN', 'GM', 'DEV'].includes(role)) {
+      throw new Error('Apenas contas GM, ADMIN ou DEV podem alternar o estado Reborn diretamente.');
     }
 
     const nextReborn = !char.isReborn;

@@ -1,14 +1,11 @@
 /**
  * @file apps/server/src/controllers/GameChatService.ts
+ * @module @etheria/server
  * @description Serviço autoritário de chat multi-canal em tempo real para o Etheria Campus.
- * 
- * CANAIS DE COMUNICAÇÃO:
- * - SISTEMA: Mensagens oficiais do servidor (anúncios, level-up, recompensas). Visualizadas em todos os canais!
- * - MUNDO: Chat global livre entre todos os aventureiros do continente.
- * - LOCAL: Chat restrito aos jogadores presentes no mapa atual (currentMapId).
- * - GUILDA: Chat exclusivo para membros da guilda do jogador.
- * - FACCÃO: Chat exclusivo para membros da facção do jogador.
- * - EQUIPE: Chat exclusivo para integrantes do grupo/equipe atual do jogador.
+ * @rules
+ *   - Canais suportados: SISTEMA (visível em todos), MUNDO, LOCAL, GUILDA, FACÇÃO e EQUIPE.
+ *   - Bloqueia envio manual de mensagens no canal SISTEMA e aplica filtro comunitário 16+.
+ * @dependencies @prisma/client, ../security/ChatModerationFilter.js, ./PartyService.js
  */
 
 import type { PrismaClient } from '@prisma/client';
@@ -208,7 +205,7 @@ export class GameChatService {
     const playerMapId = query.mapId ? Number(query.mapId) : undefined;
     const guildId = query.guildId ? Number(query.guildId) : undefined;
     const factionId = query.factionId ? String(query.factionId) : undefined;
-    const teamId = query.teamId ? Number(query.teamId) : undefined;
+    const teamId = query.teamId !== undefined && query.teamId !== '' ? String(query.teamId) : undefined;
     const limit = Math.min(100, Math.max(1, Number(query.limit) || 60));
 
     // Filtra mensagens mais recentes que sinceId e compatíveis com a visibilidade

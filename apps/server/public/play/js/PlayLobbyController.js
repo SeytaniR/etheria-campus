@@ -73,6 +73,9 @@ class PlayLobbyController {
         return;
       }
 
+      const esc = (v) => (window.EtheriaSanitizer ? window.EtheriaSanitizer.escapeHtml(v) : String(v ?? ''));
+      const canToggleReborn = ['ADMIN', 'GM', 'DEV'].includes(this.session?.role);
+
       container.innerHTML = myChars
         .map((c) => {
           const el = this.getElementStyle(c.elementCode);
@@ -84,35 +87,39 @@ class PlayLobbyController {
           const xp = Number(c.experience) || 0;
           const maxXp = Number(c.maxXp) || (c.level || 1) * 200;
           const xpPct = Math.min(100, Math.round((xp / maxXp) * 100));
+          const safeName = esc(c.name);
+          const safeClassName = esc(c.classNamePtBr);
+          const safeElementName = esc(c.elementNamePtBr);
+          const safeMapName = esc(c.currentMapNamePtBr || 'Mapa #1');
 
           return `
             <div class="hero-card">
               <div class="hero-card-header">
                 <div class="hero-avatar-wrap">
-                  <img class="hero-avatar-img" src="${avatarSrc}" alt="${c.name}" onerror="this.src='/play/assets/hud/player_avatar_frame.png'" />
-                  <div class="hero-element-badge-float" style="background: ${el.bg}; border-color: ${el.color};" title="Elemento Primordial: ${c.elementNamePtBr}">
+                  <img class="hero-avatar-img" src="${avatarSrc}" alt="${safeName}" onerror="this.src='/play/assets/hud/player_avatar_frame.png'" />
+                  <div class="hero-element-badge-float" style="background: ${el.bg}; border-color: ${el.color};" title="Elemento Primordial: ${safeElementName}">
                     ${el.icon}
                   </div>
                 </div>
 
                 <div class="hero-info-body">
                   <div class="hero-name-row">
-                    <span class="hero-name" title="${c.name}">${c.name}</span>
+                    <span class="hero-name" title="${safeName}">${safeName}</span>
                     ${isReborn ? '<span class="hero-reborn-pill">🌟 REBORN</span>' : ''}
                   </div>
 
                   <div class="hero-class-meta">
                     <span style="color: #fde047; font-weight: 700;">Nv. ${c.level}</span>
                     <span>&bull;</span>
-                    <span style="color: #cbd5e1;">${c.classNamePtBr}</span>
+                    <span style="color: #cbd5e1;">${safeClassName}</span>
                     <span>&bull;</span>
-                    <span style="color: #94a3b8; font-size: 0.74rem;">${c.raceCode}</span>
+                    <span style="color: #94a3b8; font-size: 0.74rem;">${esc(c.raceCode)}</span>
                   </div>
 
                   <div class="hero-stats-chips">
                     <div class="hero-chip">
                       <span>🗺️</span>
-                      <strong>${c.currentMapNamePtBr || 'Mapa #1'}</strong>
+                      <strong>${safeMapName}</strong>
                     </div>
                     <div class="hero-chip">
                       <span>🪙</span>
@@ -135,13 +142,17 @@ class PlayLobbyController {
 
               <!-- Linha de Ações: Jogar, Alternar Visual (Skin) e Deletar -->
               <div class="hero-actions-row">
-                <button class="hero-btn-play" onclick="PlayApp.enterWorldWithCharacter(${c.id})" title="Entrar no mundo com ${c.name}">
+                <button class="hero-btn-play" onclick="PlayApp.enterWorldWithCharacter(${c.id})" title="Entrar no mundo com ${safeName}">
                   ⚔️ Jogar
                 </button>
 
-                <button class="hero-btn-skin" onclick="PlayApp.toggleCharacterReborn(${c.id}, ${hasRebornSkin})" title="${hasRebornSkin ? 'Alternar entre Visual Padrão e Visual Reborn' : 'Esta classe não possui visual Reborn alternativo'}">
+                ${
+                  canToggleReborn
+                    ? `<button class="hero-btn-skin" onclick="PlayApp.toggleCharacterReborn(${c.id}, ${hasRebornSkin})" title="${hasRebornSkin ? 'Alternar entre Visual Padrão e Visual Reborn' : 'Esta classe não possui visual Reborn alternativo'}">
                   ${isReborn ? '✨ Skin Padrão' : '🌟 Skin Reborn'}
-                </button>
+                </button>`
+                    : ''
+                }
 
                 <button class="hero-btn-delete" onclick="PlayApp.deleteCharacter(${c.id})" title="Excluir este personagem">
                   🗑️
@@ -161,17 +172,19 @@ class PlayLobbyController {
         this.selectedClassIdForCreation = classes[0].id;
       }
 
+      const esc = (v) => (window.EtheriaSanitizer ? window.EtheriaSanitizer.escapeHtml(v) : String(v ?? ''));
       const gridContainer = document.getElementById('creationClassesGrid');
       if (gridContainer) {
         gridContainer.innerHTML = classes
           .map((ct) => {
             const isSel = ct.id === this.selectedClassIdForCreation ? 'selected' : '';
             const thumb = ct.code ? `/play/assets/hud/avatars/${ct.code}.png` : ct.thumbUrl;
+            const safeClassName = esc(ct.namePtBr);
             return `
               <div class="creation-class-pill ${isSel}" onclick="PlayApp.selectClassForCreation(${ct.id})">
-                <img src="${thumb}" alt="${ct.namePtBr}" onerror="this.src='/play/assets/hud/player_avatar_frame.png'" />
-                <span class="creation-class-name">${ct.namePtBr}</span>
-                <span class="creation-class-race">${ct.raceNamePtBr || ct.raceCode}</span>
+                <img src="${thumb}" alt="${safeClassName}" onerror="this.src='/play/assets/hud/player_avatar_frame.png'" />
+                <span class="creation-class-name">${safeClassName}</span>
+                <span class="creation-class-race">${esc(ct.raceNamePtBr || ct.raceCode)}</span>
               </div>`;
           })
           .join('');
@@ -222,17 +235,21 @@ class PlayLobbyController {
             </div>`;
         };
 
+        const safeSelName = esc(selectedClass.namePtBr);
+        const safeSelRace = esc(selectedClass.raceNamePtBr || selectedClass.raceCode);
+        const safeSelDesc = esc(selectedClass.descriptionPtBr || 'Classe lendária de Etheria moldada pela harmonia arcana e treinamento marcial rigoroso.');
+
         previewContainer.innerHTML = `
           <div class="class-preview-card">
             <div class="class-preview-header">
-              <img src="${thumb}" alt="${selectedClass.namePtBr}" onerror="this.src='/play/assets/hud/player_avatar_frame.png'" />
+              <img src="${thumb}" alt="${safeSelName}" onerror="this.src='/play/assets/hud/player_avatar_frame.png'" />
               <div>
-                <h4 style="margin: 0; font-size: 1.15rem; color: #fde047;">${selectedClass.namePtBr}</h4>
+                <h4 style="margin: 0; font-size: 1.15rem; color: #fde047;">${safeSelName}</h4>
                 <div style="font-size: 0.78rem; color: #38bdf8; margin-top: 2px;">
-                  Raça: <strong>${selectedClass.raceNamePtBr || selectedClass.raceCode}</strong> &bull; Código: <code>${selectedClass.code}</code>
+                  Raça: <strong>${safeSelRace}</strong> &bull; Código: <code>${esc(selectedClass.code)}</code>
                 </div>
                 <div style="font-size: 0.76rem; color: #94a3b8; margin-top: 4px; line-height: 1.35;">
-                  ${selectedClass.descriptionPtBr || 'Classe lendária de Etheria moldada pela harmonia arcana e treinamento marcial rigoroso.'}
+                  ${safeSelDesc}
                 </div>
               </div>
             </div>

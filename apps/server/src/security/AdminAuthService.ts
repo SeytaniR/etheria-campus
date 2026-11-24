@@ -112,6 +112,15 @@ export class AdminAuthService {
   }
 
   /**
+   * Comparação em tempo constante resistente a timing attacks usando digest SHA-256.
+   */
+  private static safeStringEqual(a: string, b: string): boolean {
+    const hashA = crypto.createHash('sha256').update(String(a)).digest();
+    const hashB = crypto.createHash('sha256').update(String(b)).digest();
+    return crypto.timingSafeEqual(hashA, hashB);
+  }
+
+  /**
    * Realiza a autenticação do usuário tentando acessar o `/admin`.
    * - Se estiver no localhost: aceita tanto a senha do `.env` quanto contas ADMIN do banco.
    * - Se estiver fora do localhost: bloqueia a senha do `.env` e aceita somente contas ADMIN do banco.
@@ -126,8 +135,8 @@ export class AdminAuthService {
     // 1. Tentativa via credenciais do .env (SOMENTE no localhost estrito)
     if (
       this.localPassword.length > 0 &&
-      username === this.localUsername &&
-      password === this.localPassword
+      AdminAuthService.safeStringEqual(username, this.localUsername) &&
+      AdminAuthService.safeStringEqual(password, this.localPassword)
     ) {
       if (!isLocal) {
         return {
@@ -185,7 +194,7 @@ export class AdminAuthService {
         if (val === 'NONE' || val === 'READ' || val === 'READ_WRITE') {
           permissions[t] = val as TablePermissionLevel;
         } else {
-          permissions[t] = t === 'USERS' ? 'NONE' : 'READ_WRITE';
+          permissions[t] = 'NONE';
         }
       }
     }
@@ -233,8 +242,8 @@ export class AdminAuthService {
     if (
       this.isStrictLocalhost(req) &&
       this.localPassword.length > 0 &&
-      cleanUser === this.localUsername &&
-      password === this.localPassword
+      AdminAuthService.safeStringEqual(cleanUser, this.localUsername) &&
+      AdminAuthService.safeStringEqual(password, this.localPassword)
     ) {
       const firstAdmin = await this.prisma.userAccount.findFirst({
         where: { role: 'ADMIN' },
@@ -359,7 +368,7 @@ export class AdminAuthService {
     if (payload.role !== 'ADMIN') return false;
 
     const perms = payload.tablePermissions || {};
-    const tablePerm = perms[tableKey] || (tableKey === 'USERS' ? 'NONE' : 'READ_WRITE');
+    const tablePerm = perms[tableKey] || 'NONE';
 
     if (tablePerm === 'NONE') return false;
     if (mode === 'READ') return tablePerm === 'READ' || tablePerm === 'READ_WRITE';

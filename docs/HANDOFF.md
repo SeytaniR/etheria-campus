@@ -8,9 +8,9 @@
 ---
 
 ## 📌 Status Atual do Projeto
-* **Versão Atual:** `v0.60.0`
+* **Versão Atual:** `v0.61.0`
 * **Última Atualização:** `2026-11-24`
-* **Fase Atual:** **Aba "Configuração de Monstros" (`monster_global_configs`) & Sorteio Justo Rank-First (`v0.60.0`)** — Implementada a tabela global configurável de monstros no PostgreSQL (`MonsterGlobalConfigService.ts`) e a aba **`⚙️ Config. Monstros`** no `/admin` (`AdminMonsterConfigTab.js`), conectando todos os modificadores de Ranks (`F..SS`), Hierarquia (`Comum/Líder/Boss`), variação/escalonamento de nível, encontros, penalidades de nível e Dungeons ao runtime (`MonsterCombatBuilder`, `TemporaryCombatController`, `DungeonService`, `CombatUtilityHelper`). Corrigido também o sorteio de spawns nos mapas/Dungeons para modelo Rank-First (`pickWeightedMonsterTemplate`), impedindo que a quantidade de monstros raros disponíveis no mapa infle a chance do Rank. Todos os arquivos estritamente < 1.000 linhas (Regra #7).
+* **Fase Atual:** **Onda P0 Concluída — Segurança Crítica, Regra #10 Reforçada (`mcrework`) & Deploy Seguro via Chave SSH (`v0.61.0`)** — Removidos os 17 scripts com senha hardcoded e migrado `scripts/deploy_vps.py` para autenticação via chave SSH (`~/.ssh/id_ed25519`) com backup automático pré-pull; criados `RateLimiter.ts`, `InputSanitizer.ts`, `CombatAntiCheatService.ts`, `PlayCombatRouter.ts` e `PlaySecurityUtils.js`; corrigidos combate não-autoritário (`battleNonce`), sandbox aberto a `PLAYER`, RBAC fail-closed (`NONE`) + permissões de `hunter-costs` e `dungeon-chests`, IDOR em chat/presença, race condition em `distribute-stats`, `toggle-reborn`, Stored XSS e hardening HTTP. Todos os arquivos < 1.000 linhas (Regra #7).
 * **Repositório Oficial:** `https://github.com/SeytaniR/etheria-campus`
 * **Fonte Bruta de Assets:** `https://github.com/SeytaniR/mcrework` (`https://seytanir.github.io/mcrework/`)
 
@@ -56,11 +56,10 @@
    * PostgreSQL 16 local na porta 5432 gerenciando os dados persistentes com snapshots sincronizados no Git.
 12. **Git + VPS 100% Atualizada + Segurança por Backups (`AGENTS.md` Regra #9):**
    * Sempre versionar no Git (`commit` + `push`) e atualizar imediatamente a VPS (`git pull`, `prisma db push` se houver mudança de schema, `build` e `systemctl restart etheria-campus`), preservando backup preventivo do snapshot/banco para rollback.
-13. **Arquitetura Sagrada de Assets: Isolamento Estrito Client-Servidor & Espelhamento Automático no Salvar (`v0.15.0`):**
-    * O repositório de assets no GitHub serve exclusivamente para alimentar as galerias e previews visuais da rota `/admin` durante criação e edição.
-    * No momento em que o admin salva qualquer registro no banco (Mapas, Personagens/Classes, NPCs, Monstros, Pets, Montarias, Equipamentos, Itens, Habilidades, Buffs/Debuffs), o servidor imediatamente baixa e instala todos os assets referenciados em disco local permanente (`apps/server/cache/mcrework/`).
-    * O cliente do jogo (`/play`) comunica-se estrita e exclusivamente com o servidor do jogo (`/api/assets/*`, `/api/play/*`), nunca fazendo requisições ao GitHub.
-    * A rota `/admin` comunica-se com o servidor do jogo para persistência e regras, e com o GitHub apenas para exibir galerias disponíveis para escolha.
+13. **Arquitetura Sagrada de Assets — Independência Total Pós-Salvamento (`AGENTS.md` Regra #10 Reforçada):**
+    * O repositório `mcrework` é consultado **exclusivamente** no `/admin` para descoberta/listagem de **assets novos** ainda não salvos.
+    * Ao salvar qualquer entidade no banco (Mapas, Classes, NPCs, Monstros, Pets, Montarias, Asas, Equipamentos, Itens, Lojas, Baús, Skills, Status/VFX, Ícones), o servidor baixa e instala imediatamente os arquivos no diretório local do projeto (`apps/server/cache/mcrework/`).
+    * Nenhuma entidade já salva pode apontar para `github.io`, `githubusercontent.com` ou domínios externos em **nenhuma rota** (`/admin`, `/gm`, `/play` ou backend) — tudo já salvo é servido exclusivamente por `/api/assets/mcrework/*` e `/api/assets/map-image/:id`. Caso o `mcrework` seja deletado um dia, apenas assets novos deixarão de aparecer nas galerias do `/admin`, mantendo 100% do jogo e dos registros salvos intactos.
 
 14. **Uso Estrito do Navegador em Segundo Plano / Modo Oculto (Headless / Zero Pop-up):**
     * Sempre que qualquer IA ou ferramenta utilizar o navegador (Chrome DevTools MCP, Puppeteer, Playwright ou subagentes), deve operar obrigatoriamente de forma oculta/em segundo plano (`headless: true`, abas abertas em `background: true`).
@@ -79,10 +78,31 @@
 
 ---
 
-## ⚠️ Pendências Documentadas & Base Incompleta (Economia/Inventário)
-* **Carteira (`player_characters.gold`) e Mochila (`character_inventory_items`) criadas na `v0.9.0` são INCOMPLETAS por decisão explícita:** suportam acúmulo/consumo em Quests Meta (`COLLECT_ITEM`), recompensas de ouro/itens e drop provisório vinculado à missão. Ao implementar o módulo completo de **Inventário, Loja, Equipamentos nos 16 Slots e Drops Globais**, estenda essas tabelas existentes sem resetar dados.
-* **Status do Deploy `v0.9.0` na VPS:** `prisma db push`, compilação e reinício do `etheria-campus.service` **já aplicados e validados** em `40.65.63.193` (`HTTP 200` em `/admin` e `/play`).
+## 📋 Plano Mestre de Correção & Progresso das 4 Ondas (P0 → P3)
+
+### 🔴 Onda P0 — Segurança Crítica & Proteção de Produção (✅ CONCLUÍDA em `v0.61.0`)
+* **Backups Preventivos Pré-P0:**
+  * Local: `.backups/pre-p0-20261124-141915/` (`lowcode.snapshot.json` + `git-head.txt`)
+  * VPS Azure: `/home/azureuser/backups/pre-p0-20261124-141915/` (`lowcode.snapshot.json` 4.8M + `etheria_db.sql.gz` 345K)
+* **Entregas Verificadas:** Remoção de credenciais SSH expostas + migração para chave `~/.ssh/id_ed25519` + `scripts/deploy_vps.py` seguro (Regra #9.2/#9.3); trava de combate autoritário (`battleNonce` + `CombatAntiCheatService`) e extração de `PlayCombatRouter`; bloqueio `/temporary-combat/*` só `GM`/`ADMIN`/`DEV`; rate limiter em login/chat; `distribute-stats` atômico via `$transaction`; `toggle-reborn` restrito a `GM`/`ADMIN`/`DEV`; correção de IDOR em chat/presença; RBAC fail-closed (`NONE`) + proteção de `hunter-costs` e `dungeon-chests`; Stored XSS (`escapeHtml` + `InputSanitizer`); hardening HTTP (headers, limite JSON 1 MB padrão / 15 MB mapas, path traversal com `path.sep`, remoção de CORS `*` wildcard). Testes `test_p0_security.mjs` e `test_action_motion_engine.mjs` aprovados 100%.
+
+### 🟠 Onda P1 — Independência Total Pós-Salvamento `mcrework`, Bugs & Performance (PRÓXIMA DA FILA — Iniciar com Backup Preventivo)
+* **Regra #10 Reforçada (Independência Total Pós-Salvamento em `/admin`, `/gm`, `/play` e Backend):**
+  * Eliminar todos os ponteiros residuais para `seytanir.github.io/mcrework` e `https://mcrework.com` em entidades salvas retornadas por `AdminMapsController`, `AdminMonstersController`, `AdminEquipmentsController`, `AdminItemsController`, `AdminSkillsController`, `AdminShopsController`, `play.js` (L227), `PortalTravelController.js` (L323), `GamePlayController.ts` (L236) e `TemporaryCombatController.ts` (L586), roteando 100% para `/api/assets/mcrework/*`. Garantir espelhamento automático de registros já salvos no disco local (`apps/server/cache/mcrework/`), deixando o GitHub `mcrework` estritamente para descoberta de assets novos no `/admin`.
+* **Bugs & Persistência:** `SnapshotManager` atômico (`temp` + `rename`) com mutex/debounce + `Promise.all` + inclusão de `dungeonChestConfigs` e `dungeon_runs`; TTL/eviction em `MapPresenceService.metadataCache`.
+* **Performance Backend/Banco:** Cache de `MapPolygonMesh` + dimensões + metadados de mapa + dirty-flush em `syncPosition`; `@@index` aditivos em `schema.prisma`; `ETag` + `gzip` para estáticos.
+* **Performance Canvas 2D (`PERFORMANCE_STANDARDS.md`):** Zerar `ctx.shadowBlur` em `ActionVfxRenderer.js` (L302, L340, L364, L402, L414) e `BattleTransitionController.js` (L534, L680, L724); cachear/pré-renderizar `createRadialGradient` de `ActionVfxRenderer.js` (L544), `PlayDungeonChestController.js` (L169) e `PlayHudController.js` (L885).
+
+### 🟡 Onda P2 — Modularização Real (`< 650` linhas), Limpeza de Código Morto & Testes
+* Fatiar módulos no teto da Regra #7 (`PlayGmController.js`, `play.js`, `GamePlayController.ts`, `AdminMapsController.ts`, `admin.js`, `play/index.html`, `ActionCombatArena.js`, `AdminQuestsTab.js`).
+* Mover regras compartilhadas para `@etheria/shared`; remover `web/index.html`, `scratch/`, constantes legadas mortas em `MonsterCombatBuilder.ts` e avaliar migração de modelos/colunas legados (`ArenaFormation`, `MonsterRarity`, `apCost`, `cooldownTurns`) mediante autorização.
+* Expandir suíte de testes automatizados (`npm test`).
+
+### 🔵 Onda P3 — Conformidade 100% `i18n` (Regra #4) & Documentação Atualizada
+* Implementar motor `i18n` unificado (`pt-BR`, `en-US`, `es-ES`) no `/play`, `/admin` e API (eliminando os 137 `'pt-BR'` hardcoded no backend), além de normalização `'en'` → `'en-US'` e preenchimento `'es-ES'` no banco mediante autorização explícita (Cláusula 0.2).
+* Atualizar `README.md`, `docs/ARCHITECTURE.md`, `docs/DATABASE_SCHEMA.md`, `AGENTS.md` e cabeçalhos JSDoc faltantes da Regra #1.
+
+---
 
 ## 🎯 Próxima Tarefa Exata da Fila
-* **Servidor 24/7 em Produção:** Ativo e acessível publicamente via `https://40-65-63-193.sslip.io/admin` e `https://40-65-63-193.sslip.io/play`.
-* **Próximos passos de desenvolvimento:** Expandir sistema completo de Economia, Drops Globais, Inventário completo e uso de itens conforme direcionamento do usuário.
+* Realizar **backup preventivo pré-P1** (local + VPS) e executar a **Onda P1**, priorizando a **Independência Total Pós-Salvamento `mcrework`** em `/admin`, `/gm`, `/play` e backend (Regra #10 reforçada), seguida das correções de `SnapshotManager`, otimizações Backend/Banco e remoção de `ctx.shadowBlur` / gradientes por frame.

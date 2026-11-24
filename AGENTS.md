@@ -127,16 +127,16 @@ Quando mais de uma IA estiver atuando no projeto (em revezamento de turnos, inst
 
 ---
 
-### 10. Arquitetura Sagrada de Assets: Isolamento Estrito Client-Servidor & Espelhamento Automático no Salvar
-* **10.1 Papel Estrito do Repositório GitHub (`mcrework`):**
-  * O repositório remoto de assets no GitHub serve **exclusivamente** para alimentar a interface do Administrador (`/admin`) durante os processos de criação, edição e consulta de catálogos (mostrar miniaturas e galerias visuais disponíveis para o admin escolher ao cadastrar entidades).
-* **10.2 Espelhamento e Instalação Imediata no Servidor no Momento do Salvamento:**
-  * No exato momento em que o admin clica em **Salvar** qualquer entidade nas tabelas do banco de dados (Mapas, Personagens/Classes, NPCs, Monstros, Pets, Montarias, Equipamentos, Itens, Habilidades ou Efeitos de Status), o servidor do jogo **baixa e instala imediatamente** no disco local permanente da VPS (`apps/server/cache/mcrework/`) todos os arquivos vinculados (imagens de mapa, arquivos `atlas.json`, `atlas.webp`, `thumb.png`/`thumb.webp`, ícones e pastas de efeitos VFX), caso ainda não estejam presentes.
-* **10.3 Comunicação Estrita e Exclusiva do Client (`/play`) com o Servidor do Jogo:**
-  * O cliente do jogo (`/play`) **NUNCA** faz requisições diretas para o GitHub. Ele comunica-se **estrita e exclusivamente** com o servidor do jogo (endpoints `/api/assets/mcrework/*`, `/api/assets/map-image/:id` e `/api/play/*`).
-  * O carregamento de assets pelo client é feito 100% a partir do servidor do jogo e do seu cache local no navegador (`PlayAssetDownloader.js` / Cache Storage).
-* **10.4 Comunicação do Admin (`/admin`):**
-  * A rota `/admin` comunica-se com o servidor do jogo para todas as operações de banco de dados, regras e persistência, e comunica-se com o GitHub apenas para listar os assets brutos disponíveis nas galerias durante a autoria; ao salvar, o servidor se encarrega de instalar o asset selecionado localmente.
+### 10. Arquitetura Sagrada de Assets: Independência Total Pós-Salvamento & Espelhamento Local (`mcrework`)
+* **10.1 Galeria de Descoberta Exclusiva para Assets Novos no `/admin`:**
+  * O repositório `mcrework` serve **unicamente** como fonte bruta opcional para pesquisar, visualizar miniaturas e escolher **assets novos** na rota `/admin` durante a criação ou edição de cadastros.
+* **10.2 Instalação Local Obrigatória no Momento do Salvamento:**
+  * No exato momento em que o administrador clica em **Salvar** qualquer registro nas tabelas do banco de dados (Mapas, Mapas Mundiais, Personagens/Classes, NPCs, Monstros, Pets, Montarias, Asas, Equipamentos, Itens, Lojas, Baús, Habilidades, Efeitos de Status, VFX ou Ícones), o servidor do jogo **DEVE baixar e instalar imediatamente** todos os arquivos vinculados no diretório local permanente do projeto (`apps/server/cache/mcrework/`).
+* **10.3 Zero Ponteiros Externos Pós-Salvamento em TODAS as Rotas:**
+  * Nenhuma entidade já salva no banco de dados pode apontar para `github.io`, `githubusercontent.com`, `mcrework.com` ou qualquer URL externa no runtime.
+  * Todos os registros salvos no banco devem ser servidos 100% pelo servidor local (`/api/assets/mcrework/*` e `/api/assets/map-image/:id`) em **todas as rotas e camadas do jogo**: `/admin`, `/gm`, `/play` (incluindo `PlayAssetDownloader.js` / Cache Storage) e backend.
+* **10.4 Critério de Sobrevivência à Exclusão do `mcrework`:**
+  * Se o repositório remoto `mcrework` for deletado um dia, as tabelas da rota `/admin` deixarão apenas de listar **assets novos/inéditos** nas galerias de seleção, enquanto **100% de tudo que já foi salvo no banco permanecerá disponível, íntegro e funcional** em `/admin`, `/gm`, `/play` e backend.
 
 ---
 

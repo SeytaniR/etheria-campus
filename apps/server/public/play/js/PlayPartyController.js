@@ -351,14 +351,15 @@ class PlayPartyController {
           `;
         }
 
+        const safeMemberName = window.EtheriaSanitizer ? window.EtheriaSanitizer.escapeHtml(member.name) : String(member.name ?? '');
         membersHtml += `
           <div class="party-member-card ${member.isLeader ? 'is-leader-card' : ''} ${isMe ? 'is-me-card' : ''}">
             <div class="party-member-avatar">
-              <img src="${thumb}" alt="${member.name}" onerror="this.src='/play/assets/hud/avatar_frame.png'" />
+              <img src="${thumb}" alt="${safeMemberName}" onerror="this.src='/play/assets/hud/avatar_frame.png'" />
             </div>
             <div class="party-member-info">
               <div class="party-member-name-row">
-                <span class="party-member-name">${member.name} (Nv.${member.level}) ${isMe ? '<small style="color:#38bdf8;">(Você)</small>' : ''}</span>
+                <span class="party-member-name">${safeMemberName} (Nv.${member.level}) ${isMe ? '<small style="color:#38bdf8;">(Você)</small>' : ''}</span>
                 <span class="party-member-badge ${member.isLeader ? 'leader' : 'follower'}">
                   ${member.isLeader ? '👑 Líder' : '🛡️ Membro'}
                 </span>
@@ -447,10 +448,11 @@ class PlayPartyController {
       return `<div style="text-align:center; padding:8px; color:#64748b; font-size:0.72rem;">Nenhum jogador desocupado a menos de 350px.</div>`;
     }
 
+    const esc = (v) => (window.EtheriaSanitizer ? window.EtheriaSanitizer.escapeHtml(v) : String(v ?? ''));
     return list.map((p) => `
       <div class="party-nearby-row">
         <div>
-          <span class="party-nearby-name">${p.name} (Nv.${p.level})</span>
+          <span class="party-nearby-name">${esc(p.name)} (Nv.${p.level})</span>
           <span class="party-nearby-dist">~${p.distance || 0}px</span>
         </div>
         <button type="button" class="party-btn-invite" onclick="window.PlayPartyController.invitePlayer(${p.characterId})">
@@ -532,7 +534,7 @@ class PlayPartyController {
           <span class="party-invite-banner-timer" id="inviteTimer_${inv.inviteId}">${remainingSec}s</span>
         </div>
         <div class="party-invite-banner-body">
-          <strong>${inv.fromName}</strong> (Nv.${inv.fromLevel}) convidou você para formar uma equipe!
+          <strong>${window.EtheriaSanitizer ? window.EtheriaSanitizer.escapeHtml(inv.fromName) : inv.fromName}</strong> (Nv.${inv.fromLevel}) convidou você para formar uma equipe!
         </div>
         <div class="party-invite-banner-actions">
           <button type="button" class="party-invite-btn-decline" onclick="window.PlayPartyController.declineInvite('${inv.inviteId}')">

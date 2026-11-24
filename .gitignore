@@ -13,4 +13,5 @@ coverage/
 
 apps/server/cache/
 scratch/
+.backups/
 

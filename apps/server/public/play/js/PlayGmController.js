@@ -319,8 +319,8 @@ class PlayGmController {
                   ${leftDefs.map(renderSlotBox).join('')}
                 </div>
                 <div class="stats-paperdoll-center">
-                  <img class="stats-paperdoll-avatar" src="${c.thumbUrl || '/play/assets/hud/menu_character.png'}" alt="${c.name}" />
-                  <span style="font-size:0.68rem; color:#fde047; font-weight:800; margin-top:4px;">${c.name}</span>
+                  <img class="stats-paperdoll-avatar" src="${c.thumbUrl || '/play/assets/hud/menu_character.png'}" alt="${window.EtheriaSanitizer?.escapeHtml(c.name) || ''}" />
+                  <span style="font-size:0.68rem; color:#fde047; font-weight:800; margin-top:4px;">${window.EtheriaSanitizer?.escapeHtml(c.name) || ''}</span>
                   <span style="font-size:0.60rem; color:#94a3b8;">${c.classNamePtBr || 'Herói'}</span>
                   <div class="stats-paperdoll-special-row">
                     ${centerDefs.map(renderSlotBox).join('')}
@@ -760,9 +760,9 @@ class PlayGmController {
         <!-- Banner do Herói -->
         <div class="stats-hero-banner">
           <div class="stats-hero-profile">
-            <img class="stats-hero-thumb" src="${c.thumbUrl || '/play/assets/hud/menu_character.png'}" alt="${c.name}" />
+            <img class="stats-hero-thumb" src="${c.thumbUrl || '/play/assets/hud/menu_character.png'}" alt="${window.EtheriaSanitizer?.escapeHtml(c.name) || ''}" />
             <div>
-              <div class="stats-hero-name">${c.name} (Nv. ${c.level})</div>
+              <div class="stats-hero-name">${window.EtheriaSanitizer?.escapeHtml(c.name) || ''} (Nv. ${c.level})</div>
               <div class="stats-hero-meta">${c.classNamePtBr || 'Classe'} &bull; ${c.raceCode || 'HUMAN'} &bull; <span style="color:${el.color}; font-weight:700;">${el.icon} ${c.elementNamePtBr || c.elementCode}</span></div>
             </div>
           </div>

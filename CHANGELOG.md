@@ -5,6 +5,36 @@ Qualquer IA trabalhando neste repositório **DEVE** incrementar a versão e regi
 
 ---
 
+## [v0.61.0] - 2026-11-24
+### Onda P0 — Segurança Crítica, Regra #10 Reforçada (`mcrework`), Backups & Deploy Seguro via Chave SSH
+* **Governança & Plano Mestre (`AGENTS.md`, `docs/HANDOFF.md`, `.gitignore`):**
+  * Reforçada a **Regra #10** (`Independência Total Pós-Salvamento`): o repositório `mcrework` é apenas galeria bruta opcional no `/admin` para descoberta de **assets novos**; todo registro salvo no banco DEVE ser baixado imediatamente para `apps/server/cache/mcrework/` e servido 100% pelo servidor local em `/admin`, `/gm`, `/play` e backend (mantendo o jogo íntegro caso o `mcrework` seja excluído no futuro).
+  * Adicionado `.backups/` ao `.gitignore` e registrados backups preventivos pré-P0 locais (`.backups/pre-p0-20261124-141915/`) e na VPS Azure (`/home/azureuser/backups/pre-p0-20261124-141915/` — snapshot + `pg_dump` gzip).
+  * Documentado em `docs/HANDOFF.md` o Plano Mestre de Correção das 4 Ondas (**P0 → P3**).
+* **Segurança de Infraestrutura & Deploy (`scripts/deploy_vps.py`, Chave SSH Ed25519):**
+  * Removidos **17 scripts obsoletos** em `scripts/` que continham credenciais SSH em texto claro no Git (Regra #9.3).
+  * Reescrito `scripts/deploy_vps.py` autenticando exclusivamente por chave SSH (`~/.ssh/id_ed25519`), executando backup preventivo automático antes do `git pull`, mantendo retenção de 10 backups e validando `HTTP 200` em `/admin` e `/play` sem re-executar seeds antigos nem `--force-reset`.
+* **Novos Módulos de Segurança & Sub-Roteador de Combate (`@etheria/server`):**
+  * `apps/server/src/security/RateLimiter.ts`: limitador em memória contra brute-force/spam no login Admin, login Play e envio no Chat.
+  * `apps/server/src/security/InputSanitizer.ts`: validação estrita de nome de personagem e username contra XSS + sanitização de exceções internas Prisma/PostgreSQL.
+  * `apps/server/src/security/CombatAntiCheatService.ts`: validação de `battleNonce` criptográfico, golpes mínimos, dano acumulado plausível vs HP dos monstros, tempo mínimo proporcional ao DPS da equipe e cooldown entre encontros.
+  * `apps/server/src/routes/PlayCombatRouter.ts`: extração modular das rotas `/api/play/combat/*` e `/api/play/temporary-combat/*` (reduzindo `PlayRouter.ts`), exigindo posse ANTES de mutar estado no `/combat/victory`, corrigindo `characterId || 1` no `/combat/encounter` e bloqueando integralmente `/api/play/temporary-combat/*` com HTTP `403` para contas que não sejam `GM`/`ADMIN`/`DEV`.
+* **Endurecimento Backend & Banco (`TemporaryCombatController.ts`, `PlayRouter.ts`, `GameChatService.ts`, `GamePlayController.ts`, `AdminAuthService.ts`, `AdminRouter.ts`, `HunterPetController.ts`, `DungeonChestService.ts`, `AdminUsersController.ts`, `index.ts`):**
+  * `TemporaryCombatController.ts` emite `battleNonce` (`randomBytes(16)`) em toda instância de batalha.
+  * `PlayRouter.ts`: distribuição de pontos (`distribute-stats`) atômica via `$transaction` + `updateMany` condicional; verificação de posse antes de `MapPresenceService.removePlayer` em `traverse-portal`/`unstuck`; eliminação de IDOR no `GET /api/play/chat/messages` (ignorando `guildId`/`factionId`/`teamId` da query string).
+  * `GameChatService.ts`: cabeçalho completo Regra #1 e correção de bug de tipo em `teamId` (string UUID da party).
+  * `GamePlayController.ts`: validação anti-XSS no `createCharacter` e restrição do endpoint `toggle-reborn` direto a `GM`/`ADMIN`/`DEV`.
+  * `AdminAuthService.ts` & `AdminUsersController.ts`: comparação constante SHA-256 + `timingSafeEqual` nas credenciais `.env` locais e modo **fail-closed (`NONE`)** para permissões ausentes de `ADMIN`.
+  * `AdminRouter.ts`, `HunterPetController.ts` & `DungeonChestService.ts`: proteção RBAC (`enforceTablePermission`) adicionada nas rotas de custos do Caçador (`MONSTERS`) e Baús de Dungeon (`MAPS`); limite de JSON aumentado para 15 MB apenas em rotas de mapa/upload.
+  * `apps/server/src/index.ts`: limite JSON global reduzido de 25 MB para **1 MB**, adicionados headers de segurança (`X-Content-Type-Options`, `X-Frame-Options`, `Referrer-Policy`, `Permissions-Policy`), correção de path traversal com `path.sep`, remoção de CORS `*` wildcard em assets e sanitização de erros HTTP 500.
+* **Endurecimento Frontend & Mitigação Stored XSS (`/play` e `/admin`):**
+  * `PlaySecurityUtils.js` (`EtheriaSanitizer.escapeHtml`), escape HTML aplicado em `PlayLobbyController.js` (ocultando também botão Reborn para `PLAYER`), `PlayPartyController.js`, `PlayGmController.js`, `AdminAuth.js` e `AdminUsersTab.js` (substituindo interpolação insegura em `onclick` por `populateUserFormById`), além de correção de `containerMap`/`mounts` morto em `AdminAuth.js`.
+  * `ActionCombatArena.js`: contabiliza dano e golpes reais em `dealDamageToUnit` e envia `{ battleId, battleNonce, totalDamageDealt, hitsCount }` para `/api/play/combat/victory`.
+* **Qualidade & Verificações (`tests/test_p0_security.mjs`):**
+  * `0` arquivos `>= 1.000` linhas (Regra #7), `0` ocorrências de senha em scripts, `npm run typecheck` e builds sem erros, suíte `test_p0_security.mjs` e `test_action_motion_engine.mjs` 100% aprovadas.
+
+---
+
 ## [v0.60.0] - 2026-11-24
 ### Aba "Configuração de Monstros" (`monster_global_configs`) no `/admin` & Sorteio Justo Rank-First nos Mapas
 * **Nova Tabela e Serviço Centralizado (`schema.prisma`, `SnapshotManager.ts`, `MonsterGlobalConfigService.ts`, `AdminRouter.ts`, `index.ts`):**

@@ -27,6 +27,7 @@ import type { AdminMapUploadController } from '../controllers/AdminMapUploadCont
 import { HunterPetController } from '../controllers/HunterPetController.js';
 import { DungeonChestService } from '../controllers/DungeonChestService.js';
 import { MonsterGlobalConfigService } from '../controllers/MonsterGlobalConfigService.js';
+import { RateLimiter } from '../security/RateLimiter.js';
 
 export interface AdminRouterDeps {
   prisma: PrismaClient;
@@ -46,10 +47,12 @@ export interface AdminRouterDeps {
   experienceController: AdminExperienceController;
   worldMapsController: AdminWorldMapsController;
   sendJson: (res: http.ServerResponse, statusCode: number, data: unknown) => void;
-  readJsonBody: <T = any>(req: http.IncomingMessage) => Promise<T>;
+  readJsonBody: <T = any>(req: http.IncomingMessage, maxBytes?: number) => Promise<T>;
 }
 
 export class AdminRouter {
+  private readonly rateLimiter = new RateLimiter();
+
   constructor(private readonly deps: AdminRouterDeps) {}
 
   /**
@@ -102,8 +105,16 @@ export class AdminRouter {
       return true;
     }
 
-    // 2. Endpoint de Login da Rota /admin
+    // 2. Endpoint de Login da Rota /admin (Rate-limited contra brute-force)
     if (pathname === '/api/admin/auth/login' && method === 'POST') {
+      const clientIp = RateLimiter.getClientIp(req);
+      const rl = this.rateLimiter.consume(`admin_login:${clientIp}`, 8, 60_000);
+      if (!rl.allowed) {
+        this.deps.sendJson(res, 429, {
+          error: `Muitas tentativas de login Admin. Aguarde ${rl.retryAfterSec}s e tente novamente.`,
+        });
+        return true;
+      }
       const body = await this.deps.readJsonBody<{ username?: string; password?: string }>(req);
       const result = await this.deps.authService.authenticate(
         req,
@@ -167,7 +178,7 @@ export class AdminRouter {
     }
     if (pathname === '/api/admin/maps/upload' && method === 'POST') {
       if (this.enforceTablePermission(res, session, 'MAPS', 'READ_WRITE')) {
-        this.deps.sendJson(res, 201, await this.deps.mapUploadController.uploadMapImage(await this.deps.readJsonBody(req)));
+        this.deps.sendJson(res, 201, await this.deps.mapUploadController.uploadMapImage(await this.deps.readJsonBody(req, 15 * 1024 * 1024)));
       }
       return true;
     }
@@ -241,14 +252,14 @@ export class AdminRouter {
     }
     if (pathname === '/api/admin/maps' && method === 'POST') {
       if (this.enforceTablePermission(res, session, 'MAPS', 'READ_WRITE')) {
-        this.deps.sendJson(res, 201, await this.deps.mapsController.saveMap(null, await this.deps.readJsonBody(req)));
+        this.deps.sendJson(res, 201, await this.deps.mapsController.saveMap(null, await this.deps.readJsonBody(req, 15 * 1024 * 1024)));
       }
       return true;
     }
     const mapMatch = pathname.match(/^\/api\/admin\/maps\/(\d+)$/);
     if (mapMatch && method === 'PUT') {
       if (this.enforceTablePermission(res, session, 'MAPS', 'READ_WRITE')) {
-        this.deps.sendJson(res, 200, await this.deps.mapsController.saveMap(Number(mapMatch[1]), await this.deps.readJsonBody(req)));
+        this.deps.sendJson(res, 200, await this.deps.mapsController.saveMap(Number(mapMatch[1]), await this.deps.readJsonBody(req, 15 * 1024 * 1024)));
       }
       return true;
     }
@@ -304,7 +315,7 @@ export class AdminRouter {
     }
     if (pathname === '/api/admin/world-maps' && method === 'POST') {
       if (this.enforceTablePermission(res, session, 'MAPS', 'READ_WRITE')) {
-        this.deps.sendJson(res, 200, await this.deps.worldMapsController.saveWorldMap(await this.deps.readJsonBody(req)));
+        this.deps.sendJson(res, 200, await this.deps.worldMapsController.saveWorldMap(await this.deps.readJsonBody(req, 15 * 1024 * 1024)));
       }
       return true;
     }
@@ -684,7 +695,8 @@ export class AdminRouter {
       method,
       this.deps.prisma,
       this.deps.sendJson,
-      this.deps.readJsonBody
+      this.deps.readJsonBody,
+      (mode) => this.enforceTablePermission(res, session, 'MONSTERS', mode)
     )) {
       return true;
     }
@@ -697,7 +709,8 @@ export class AdminRouter {
       this.deps.prisma,
       (this.deps.mapsController as any)?.snapshotManager,
       this.deps.sendJson,
-      this.deps.readJsonBody
+      this.deps.readJsonBody,
+      (mode) => this.enforceTablePermission(res, session, 'MAPS', mode)
     )) {
       return true;
     }

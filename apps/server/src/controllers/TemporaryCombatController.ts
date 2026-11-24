@@ -10,7 +10,7 @@
 import { PrismaClient, type MonsterTemplate } from '@prisma/client';
 import { I18nCache } from '@etheria/database';
 import { CombatDamageCalculator, type ElementMatchupEntry } from '@etheria/shared';
-import { randomUUID } from 'node:crypto';
+import { randomUUID, randomBytes } from 'node:crypto';
 import { MapSpawnResolver } from './MapSpawnResolver.js';
 import { CombatUtilityHelper } from './CombatUtilityHelper.js';
 import { MonsterCombatBuilder, type MonsterScalingContext, type MonsterVariantTier } from './MonsterCombatBuilder.js';
@@ -103,6 +103,7 @@ export interface FloatingCombatNumber {
 
 export interface TemporaryBattleState {
   battleId: string;
+  battleNonce?: string;
   mapId?: number;
   createdAt?: number;
   characterId?: number;
@@ -612,6 +613,7 @@ export class TemporaryCombatController {
     const battleId = randomUUID();
     const state: TemporaryBattleState = {
       battleId,
+      battleNonce: randomBytes(16).toString('hex'),
       mapId: mapId || pc?.currentMapId || 1,
       characterId: Number(characterId) || 1,
       createdAt: Date.now(),
