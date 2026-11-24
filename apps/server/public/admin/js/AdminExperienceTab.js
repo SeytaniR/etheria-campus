@@ -530,9 +530,9 @@ class AdminExperienceTab {
       btn.textContent = '📈 Níveis & XP';
       btn.onclick = () => AdminApp.switchTab('experience');
 
-      const btnMounts = document.getElementById('tabBtnFlyingMounts');
-      if (btnMounts && btnMounts.nextSibling) {
-        navTabs.insertBefore(btn, btnMounts.nextSibling);
+      const btnItems = document.getElementById('tabBtnItems');
+      if (btnItems && btnItems.nextSibling) {
+        navTabs.insertBefore(btn, btnItems.nextSibling);
       } else {
         navTabs.appendChild(btn);
       }
@@ -627,9 +627,9 @@ class AdminExperienceTab {
         </div>
       `;
 
-      const tabMounts = document.getElementById('tabFlyingMounts');
-      if (tabMounts && tabMounts.nextSibling) {
-        adminApp.insertBefore(panel, tabMounts.nextSibling);
+      const tabItems = document.getElementById('tabItems');
+      if (tabItems && tabItems.nextSibling) {
+        adminApp.insertBefore(panel, tabItems.nextSibling);
       } else {
         adminApp.appendChild(panel);
       }

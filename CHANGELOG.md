@@ -5,6 +5,21 @@ Qualquer IA trabalhando neste repositório **DEVE** incrementar a versão e regi
 
 ---
 
+## [v0.58.3] - 2026-11-24
+### Remoção Definitiva da Tabela Obsoleta `flying_mount_templates` ("Montarias Voadoras") & Centralização Total na Tabela de Equipamentos
+* **Remoção Completa do Modelo, Controlador, Rotas e Aba `/admin`:**
+  * Removidos `model FlyingMountTemplate` (`flying_mount_templates`) de `packages/database/prisma/schema.prisma`, `SnapshotManager.ts` e `lowcode.snapshot.json`, além do `DROP TABLE` da tabela obsoleta e limpeza de chaves `flying_mount.*` no PostgreSQL da VPS.
+  * Excluídos `apps/server/src/controllers/AdminFlyingMountsController.ts` e `apps/server/public/admin/js/AdminFlyingMountsTab.js`.
+  * Removidas todas as referências e rotas obsoletas (`/api/admin/flying-mounts`, `/api/admin/mcrework/mounts`) em `apps/server/src/index.ts`, `AdminRouter.ts`, `AssetMirrorService.ts`, `CharacterEquipmentService.ts`, `MapPresenceService.ts`, `AdminAuth.js`, `AdminExperienceTab.js`, `admin.js` e `apps/server/public/admin/index.html`.
+* **Centralização 100% na Tabela de Equipamentos (`item_templates`, slot `FLYING_MOUNT`):**
+  * `AdminEquipmentsController.getMcreworkVisualModelsCatalog()` passa a ler os modelos de asas e montarias diretamente dos catálogos `mcrework` (`wings/catalog.json` + `mounts/catalog.json`), sem dependência da tabela removida.
+  * Em `AdminEquipmentsTab.js`, ao selecionar o slot `FLYING_MOUNT`, todos os campos de combate fora dos 6 permitidos (`MAX_HP`, `MAX_MP`, `PHYS_ATK`, `MAG_ATK`, `PHYS_DEF`, `MAG_DEF`) são desabilitados e zerados automaticamente, alinhado à sanitização do backend.
+  * Atualizados os cache-busters `?v=20261124_rmmount1` em `apps/server/public/admin/index.html`.
+* **Governança e Cumprimento Estrito de Regras:**
+  * Zero referências residuais à tabela `flying_mount_templates`, todos os arquivos < 1.000 linhas (Regra #7), `prisma generate`, `node --check` e builds TypeScript com 0 erros, deploy na VPS verificado com HTTP 200.
+
+---
+
 ## [v0.58.2] - 2026-11-24
 ### Restrição Estrita de Atributos em Montarias Voadoras e Conjuntos de Equipamentos (Apenas HP, MP, ATQ/DEF Fís/Mág)
 * **Sanitização Completa de Banco, Seeds e Snapshot (`sanitize_mounts_and_sets_stats.ts`, `equipment_sets_definitions.json`, `build_level60_data.mjs`, `build_level70_data.mjs`, `build_level70_batch2_data.mjs`, `lowcode.snapshot.json`, `deploy_vps.py`):**

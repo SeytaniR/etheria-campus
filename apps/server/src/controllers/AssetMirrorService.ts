@@ -226,12 +226,11 @@ export class AssetMirrorService {
     mapEntries: Array<{ id: number; relPath: string }>;
     relPaths: string[];
   }> {
-    const [maps, classes, npcs, monsters, mounts, skills, statuses, items] = await Promise.all([
+    const [maps, classes, npcs, monsters, skills, statuses, items] = await Promise.all([
       prisma.gameMap.findMany({ select: { id: true, mcreworkMapImage: true } }),
       prisma.classTemplate.findMany({ select: { mcreworkCharKey: true, rebornMcreworkCharKey: true } }),
       prisma.npcTemplate.findMany({ select: { mcreworkNpcKey: true } }),
       prisma.monsterTemplate.findMany({ select: { mcreworkMonsterKey: true } }),
-      prisma.flyingMountTemplate.findMany({ select: { mcreworkMountKey: true } }),
       prisma.skillTemplate.findMany({ select: { mcreworkIconKey: true, mcreworkVfxKey: true } }),
       prisma.statusEffectTemplate.findMany({ select: { iconKey: true, mcreworkVfxKey: true } }),
       prisma.itemTemplate.findMany({ select: { mcreworkIconKey: true, specialEffectJson: true } }),
@@ -273,13 +272,6 @@ export class AssetMirrorService {
       addRel(`assets/monsters/${mo.mcreworkMonsterKey}/atlas.json`);
       addRel(`assets/monsters/${mo.mcreworkMonsterKey}/atlas.webp`);
       addRel(`assets/monsters/${mo.mcreworkMonsterKey}/thumb.webp`);
-    }
-
-    for (const mt of mounts) {
-      if (!mt.mcreworkMountKey) continue;
-      addRel(`assets/mounts/${mt.mcreworkMountKey}/atlas.json`);
-      addRel(`assets/mounts/${mt.mcreworkMountKey}/atlas.webp`);
-      addRel(`assets/mounts/${mt.mcreworkMountKey}/thumb.png`);
     }
 
     for (const sk of skills) {

@@ -95,11 +95,20 @@ class AdminEquipmentsTab {
           opts.push(`<option value="GLIDER|${g.modelId}|CHAR_MANIFEST">☁️ ${g.name} (${g.modelId})</option>`);
         }
         for (const m of cat.mounts || []) {
-          const tag = m.flyingMountTemplateId ? `[DB #${m.flyingMountTemplateId}] ` : '';
-          opts.push(`<option value="MOUNT|${m.modelId}|ATLAS|${m.flyingMountTemplateId || ''}">🦅 ${tag}${m.name} (${m.modelId})</option>`);
+          opts.push(`<option value="MOUNT|${m.modelId}|ATLAS">🦅 ${m.name} (${m.modelId})</option>`);
         }
       }
       sel.innerHTML = opts.join('');
+
+      // Montarias voadoras só interferem nos 6 atributos permitidos (HP, MP, ATQ/DEF Fís/Mág)
+      const disallowedForMount = ['HEAL_POWER', 'ATTACK_RANGE', 'BATTLE_MOVE_SPEED', 'ATTACK_SPEED', 'CRIT_RATE', 'CRIT_DMG', 'PHYS_ACCURACY', 'PHYS_EVASION', 'MAG_ACCURACY', 'MAG_EVASION'];
+      for (const statCode of disallowedForMount) {
+        const inp = document.getElementById(`equipCombat${statCode}Input`);
+        if (inp) {
+          if (isMount) { inp.value = '0'; inp.disabled = true; inp.style.opacity = '0.35'; }
+          else { inp.disabled = false; inp.style.opacity = '1'; }
+        }
+      }
 
       const fx = currentFx && typeof currentFx === 'object' ? currentFx : {};
       const mid = isWing ? (fx.wingModelId || '') : (fx.mountModelId || '');
@@ -130,7 +139,7 @@ class AdminEquipmentsTab {
     app.onVisualModelSelectChange = function () {
       const val = document.getElementById('equipVisualModelSelect')?.value || '';
       if (!val) return;
-      const [kind, modelId, , mountTplId] = val.split('|');
+      const [kind, modelId] = val.split('|');
       const cat = this.mcreworkVisualModels || { wings: [], gliders: [], mounts: [] };
       const setNum = (id, v) => {
         const el = document.getElementById(id);
@@ -158,9 +167,7 @@ class AdminEquipmentsTab {
         setNum('equipMountRiderOffsetInput', -22);
         setNum('equipMountAltitudeInput', 72);
       } else if (kind === 'MOUNT') {
-        const m = (cat.mounts || []).find((x) =>
-          (mountTplId && String(x.flyingMountTemplateId) === String(mountTplId)) || x.modelId === modelId
-        );
+        const m = (cat.mounts || []).find((x) => x.modelId === modelId);
         if (m) {
           setNum('equipVisualScaleInput', 0.70);
           setNum('equipVisualOffsetXInput', 0);
@@ -486,7 +493,6 @@ class AdminEquipmentsTab {
             specialEffectJson = {
               mountModelId: modelId,
               visualFormat: visualFormat || 'CHAR_MANIFEST',
-              flyingMountTemplateId: mountTplId ? Number(mountTplId) : undefined,
               manifestUrl: kind === 'GLIDER' ? `/api/assets/mcrework/assets/wings/${modelId}/char_manifest.json` : undefined,
               visualScale,
               visualOffsetX,

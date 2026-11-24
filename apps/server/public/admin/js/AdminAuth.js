@@ -141,7 +141,6 @@ class AdminAuth {
         equipments: document.getElementById('tabBtnEquipments'),
         'equipment-sets': document.getElementById('tabBtnEquipmentSets'),
         items: document.getElementById('tabBtnItems'),
-        mounts: document.getElementById('tabBtnFlyingMounts'),
         shops: document.getElementById('tabBtnShops'),
         experience: document.getElementById('tabBtnExperience'),
         attributes: document.getElementById('tabBtnAttributes'),
@@ -201,7 +200,6 @@ class AdminAuth {
         { id: 'tabEquipments', btn: 'tabBtnEquipments', key: 'equipments', code: 'MONSTERS' },
         { id: 'tabEquipmentSets', btn: 'tabBtnEquipmentSets', key: 'equipment-sets', code: 'MONSTERS' },
         { id: 'tabItems', btn: 'tabBtnItems', key: 'items', code: 'MONSTERS' },
-        { id: 'tabFlyingMounts', btn: 'tabBtnFlyingMounts', key: 'mounts', code: 'MONSTERS' },
         { id: 'tabShops', btn: 'tabBtnShops', key: 'shops', code: 'SHOPS' },
         { id: 'tabExperience', btn: 'tabBtnExperience', key: 'experience', code: 'ATTRIBUTES' },
         { id: 'tabSkills', btn: 'tabBtnSkills', key: 'skills', code: 'SKILLS' },
@@ -251,9 +249,6 @@ class AdminAuth {
       }
       if (tab === 'items' && typeof this.renderItemsCrudTable === 'function') {
         this.renderItemsCrudTable();
-      }
-      if (tab === 'mounts' && typeof this.renderFlyingMountsCrudTable === 'function') {
-        this.renderFlyingMountsCrudTable();
       }
       if (tab === 'shops' && typeof this.loadShops === 'function') {
         this.loadShops();

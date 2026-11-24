@@ -17,7 +17,6 @@ import type { AdminUiLayoutsController } from '../controllers/AdminUiLayoutsCont
 import type { AdminEquipmentsController } from '../controllers/AdminEquipmentsController.js';
 import type { AdminEquipmentSetsController } from '../controllers/AdminEquipmentSetsController.js';
 import type { AdminItemsController } from '../controllers/AdminItemsController.js';
-import type { AdminFlyingMountsController } from '../controllers/AdminFlyingMountsController.js';
 import type { AdminShopsController } from '../controllers/AdminShopsController.js';
 import type { AdminSkillsController } from '../controllers/AdminSkillsController.js';
 import type { AdminQuestsController } from '../controllers/AdminQuestsController.js';
@@ -39,7 +38,6 @@ export interface AdminRouterDeps {
   equipmentsController: AdminEquipmentsController;
   equipmentSetsController: AdminEquipmentSetsController;
   itemsController: AdminItemsController;
-  mountsController: AdminFlyingMountsController;
   shopsController: AdminShopsController;
   skillsController: AdminSkillsController;
   questsController: AdminQuestsController;
@@ -492,40 +490,6 @@ export class AdminRouter {
     if (itemMatch && method === 'DELETE') {
       if (this.enforceTablePermission(res, session, 'MONSTERS', 'READ_WRITE')) {
         this.deps.sendJson(res, 200, await this.deps.itemsController.deleteItemTemplate(Number(itemMatch[1])));
-      }
-      return true;
-    }
-
-    // --- Montarias Voadoras (mcrework & PostgreSQL) ---
-    if (pathname === '/api/admin/mcrework/mounts' && method === 'GET') {
-      if (this.enforceTablePermission(res, session, 'MONSTERS', 'READ')) {
-        this.deps.sendJson(res, 200, await this.deps.mountsController.getMcreworkMountsGallery());
-      }
-      return true;
-    }
-    if (pathname === '/api/admin/flying-mounts' && method === 'GET') {
-      const type = urlObj.searchParams.get('type') || undefined;
-      if (this.enforceTablePermission(res, session, 'MONSTERS', 'READ')) {
-        this.deps.sendJson(res, 200, await this.deps.mountsController.getFlyingMountTemplates(type));
-      }
-      return true;
-    }
-    if (pathname === '/api/admin/flying-mounts' && method === 'POST') {
-      if (this.enforceTablePermission(res, session, 'MONSTERS', 'READ_WRITE')) {
-        this.deps.sendJson(res, 201, await this.deps.mountsController.createFlyingMountTemplate(await this.deps.readJsonBody(req)));
-      }
-      return true;
-    }
-    const mountMatch = pathname.match(/^\/api\/admin\/flying-mounts\/(\d+)$/);
-    if (mountMatch && method === 'PUT') {
-      if (this.enforceTablePermission(res, session, 'MONSTERS', 'READ_WRITE')) {
-        this.deps.sendJson(res, 200, await this.deps.mountsController.updateFlyingMountTemplate(Number(mountMatch[1]), await this.deps.readJsonBody(req)));
-      }
-      return true;
-    }
-    if (mountMatch && method === 'DELETE') {
-      if (this.enforceTablePermission(res, session, 'MONSTERS', 'READ_WRITE')) {
-        this.deps.sendJson(res, 200, await this.deps.mountsController.deleteFlyingMountTemplate(Number(mountMatch[1])));
       }
       return true;
     }

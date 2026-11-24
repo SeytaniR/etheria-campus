@@ -25,7 +25,6 @@ import { AdminUiLayoutsController } from './controllers/AdminUiLayoutsController
 import { AdminEquipmentsController } from './controllers/AdminEquipmentsController.js';
 import { AdminEquipmentSetsController } from './controllers/AdminEquipmentSetsController.js';
 import { AdminItemsController } from './controllers/AdminItemsController.js';
-import { AdminFlyingMountsController } from './controllers/AdminFlyingMountsController.js';
 import { AdminShopsController } from './controllers/AdminShopsController.js';
 import { AdminSkillsController } from './controllers/AdminSkillsController.js';
 import { AdminQuestsController } from './controllers/AdminQuestsController.js';
@@ -78,7 +77,6 @@ export class EtheriaServerApp {
   private readonly equipmentsController: AdminEquipmentsController;
   private readonly equipmentSetsController: AdminEquipmentSetsController;
   private readonly itemsController: AdminItemsController;
-  private readonly mountsController: AdminFlyingMountsController;
   private readonly shopsController: AdminShopsController;
   private readonly skillsController: AdminSkillsController;
   private readonly questsController: AdminQuestsController;
@@ -107,7 +105,6 @@ export class EtheriaServerApp {
     this.equipmentsController = new AdminEquipmentsController(this.prisma, this.assetMirrorService);
     this.equipmentSetsController = new AdminEquipmentSetsController(this.prisma);
     this.itemsController = new AdminItemsController(this.prisma, this.assetMirrorService);
-    this.mountsController = new AdminFlyingMountsController(this.prisma, this.assetMirrorService);
     this.shopsController = new AdminShopsController(this.prisma);
     this.skillsController = new AdminSkillsController(this.prisma, this.assetMirrorService);
     this.questsController = new AdminQuestsController(this.prisma, snapshotManager);
@@ -132,7 +129,6 @@ export class EtheriaServerApp {
       equipmentsController: this.equipmentsController,
       equipmentSetsController: this.equipmentSetsController,
       itemsController: this.itemsController,
-      mountsController: this.mountsController,
       shopsController: this.shopsController,
       skillsController: this.skillsController,
       questsController: this.questsController,
@@ -441,7 +437,6 @@ export class EtheriaServerApp {
         void this.uiLayoutsController.seedInitialUiLayoutsIfEmpty();
         void this.equipmentsController.seedInitialEquipmentsIfEmpty();
         void this.itemsController.seedInitialItemsIfEmpty();
-        void this.mountsController.seedInitialFlyingMountsIfEmpty();
         void this.experienceController.seedInitialLevelExperienceIfEmpty();
         void this.worldMapsController.seedInitialWorldMapsIfEmpty();
         void DungeonService.ensureDungeonMapType(this.prisma);

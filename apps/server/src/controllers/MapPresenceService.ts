@@ -109,13 +109,7 @@ export class MapPresenceService {
           ? await prisma.itemTemplate.findMany({ where: { id: { in: visIds } } })
           : [];
         const visById = new Map<number, any>(visItems.map((it) => [it.id, it]));
-        const mountTplId = Number((visById.get(Number(eqMap.FLYING_MOUNT) || 0)?.specialEffectJson as any)?.flyingMountTemplateId) || 0;
-        const mountsById = new Map<number, any>();
-        if (mountTplId > 0) {
-          const mt = await prisma.flyingMountTemplate.findUnique({ where: { id: mountTplId } });
-          if (mt) mountsById.set(mt.id, mt);
-        }
-        const visual = CharacterEquipmentService.resolveVisualAppearance(eqMap, visById, mountsById);
+        const visual = CharacterEquipmentService.resolveVisualAppearance(eqMap, visById);
         const slot1Pet = pc.pets?.[0]?.monsterTemplate;
         const primaryFollowerPet = slot1Pet?.mcreworkMonsterKey
           ? {

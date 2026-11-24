@@ -46,7 +46,6 @@ export interface LowCodeDatabaseSnapshot {
   statusEffectTemplates: any[];
   itemTemplates: any[];
   questTemplates?: any[];
-  flyingMountTemplates?: any[];
   levelExperienceTemplates?: any[];
   worldMapTemplates?: any[];
   clientUiLayoutTemplates?: any[];
@@ -80,7 +79,6 @@ export class SnapshotManager {
     'status_effect_templates',
     'equipment_sets',
     'item_templates',
-    'flying_mount_templates',
     'user_accounts',
     'player_characters',
     'character_inventory_items',
@@ -167,7 +165,6 @@ export class SnapshotManager {
       statusEffectTemplates: await this.prisma.statusEffectTemplate.findMany({ orderBy: { id: 'asc' } }),
       itemTemplates: await this.prisma.itemTemplate.findMany({ orderBy: { id: 'asc' } }),
       questTemplates: await this.prisma.questTemplate.findMany({ orderBy: { id: 'asc' } }),
-      flyingMountTemplates: await this.prisma.flyingMountTemplate.findMany({ orderBy: { id: 'asc' } }),
       levelExperienceTemplates: (await this.prisma.levelExperienceTemplate.findMany({ orderBy: { level: 'asc' } })).map((l) => ({
         ...l,
         experienceToNext: l.experienceToNext.toString(),

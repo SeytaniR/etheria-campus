@@ -107,8 +107,7 @@ export class CharacterEquipmentService {
 
   public static resolveVisualAppearance(
     equippedMap: Record<string, number>,
-    itemsById: Map<number, any>,
-    mountsById?: Map<number, any>
+    itemsById: Map<number, any>
   ): CharacterVisualAppearanceDto {
     let equippedWings: EquippedWingsVisualDto | null = null;
     let equippedMount: EquippedMountVisualDto | null = null;
@@ -141,14 +140,13 @@ export class CharacterEquipmentService {
     const mountItem = mountItemId > 0 ? itemsById.get(mountItemId) : null;
     if (mountItem) {
       const fx = (mountItem.specialEffectJson && typeof mountItem.specialEffectJson === 'object' ? mountItem.specialEffectJson : {}) as any;
-      const linkedTpl = fx.flyingMountTemplateId && mountsById ? mountsById.get(Number(fx.flyingMountTemplateId)) : null;
-      let modelId = String(fx.mountModelId || linkedTpl?.mcreworkMountKey || '').trim();
+      let modelId = String(fx.mountModelId || '').trim();
       if (!modelId && typeof mountItem.mcreworkIconKey === 'string') {
         const m = mountItem.mcreworkIconKey.match(/assets\/wings\/([^/]+)\//i);
         if (m) modelId = m[1];
       }
       if (modelId) {
-        const isAtlas = fx.visualFormat === 'ATLAS' || modelId.startsWith('mount_') || Boolean(linkedTpl && !modelId.startsWith('equip_'));
+        const isAtlas = fx.visualFormat === 'ATLAS' || modelId.startsWith('mount_');
         equippedMount = isAtlas
           ? {
               itemId: mountItem.id,
@@ -157,14 +155,14 @@ export class CharacterEquipmentService {
               atlasJsonUrl: `/api/assets/mcrework/assets/mounts/${modelId}/atlas.json`,
               atlasWebpUrl: `/api/assets/mcrework/assets/mounts/${modelId}/atlas.webp`,
               thumbUrl: `/api/assets/mcrework/assets/mounts/${modelId}/thumb.webp`,
-              flightAltitude: Number(fx.flightAltitude ?? linkedTpl?.flightAltitude ?? 65),
+              flightAltitude: Number(fx.flightAltitude ?? 65),
               riderOffsetX: Number(fx.riderOffsetX ?? 0),
-              riderOffsetY: Number(fx.riderOffsetY ?? linkedTpl?.riderOffsetY ?? -42),
-              groundOffsetY: Number(fx.groundOffsetY ?? linkedTpl?.groundOffsetY ?? 0),
+              riderOffsetY: Number(fx.riderOffsetY ?? -42),
+              groundOffsetY: Number(fx.groundOffsetY ?? 0),
               visualScale: Number(fx.visualScale) > 0 ? Number(fx.visualScale) : 0.70,
               visualOffsetX: Number(fx.visualOffsetX) || 0,
               visualOffsetY: Number(fx.visualOffsetY) || 0,
-              speedBonusPct: Number(fx.speedBonusPct ?? linkedTpl?.speedBonusPct ?? 25),
+              speedBonusPct: Number(fx.speedBonusPct ?? 25),
             }
           : {
               itemId: mountItem.id,
@@ -207,17 +205,10 @@ export class CharacterEquipmentService {
     }
     const items = await prisma.itemTemplate.findMany({ where: { id: { in: Array.from(itemIds) } } });
     const itemsById = new Map<number, any>(items.map((it) => [it.id, it]));
-    const mountTplIds = items
-      .map((it) => Number((it.specialEffectJson as any)?.flyingMountTemplateId) || 0)
-      .filter((id) => id > 0);
-    const mounts = mountTplIds.length > 0
-      ? await prisma.flyingMountTemplate.findMany({ where: { id: { in: mountTplIds } } })
-      : [];
-    const mountsById = new Map<number, any>(mounts.map((mt) => [mt.id, mt]));
 
     for (const c of characters) {
       const eq = (c.equippedItemsJson && typeof c.equippedItemsJson === 'object' ? c.equippedItemsJson : {}) as Record<string, number>;
-      result.set(c.id, this.resolveVisualAppearance(eq, itemsById, mountsById));
+      result.set(c.id, this.resolveVisualAppearance(eq, itemsById));
     }
     return result;
   }
@@ -326,13 +317,7 @@ export class CharacterEquipmentService {
       };
     });
 
-    const mountFxId = Number((itemsById.get(Number(equippedMap?.FLYING_MOUNT) || 0)?.specialEffectJson as any)?.flyingMountTemplateId) || 0;
-    const mountsById = new Map<number, any>();
-    if (mountFxId > 0) {
-      const mTpl = await prisma.flyingMountTemplate.findUnique({ where: { id: mountFxId } });
-      if (mTpl) mountsById.set(mTpl.id, mTpl);
-    }
-    const visualAppearance = this.resolveVisualAppearance(equippedMap, itemsById, mountsById);
+    const visualAppearance = this.resolveVisualAppearance(equippedMap, itemsById);
 
     // --- Cálculo de Bônus de Conjuntos de Equipamentos (100% full = 100% bônus, 50% half = 40% bônus) ---
     const setPiecesCount = new Map<number, { set: any; count: number }>();
