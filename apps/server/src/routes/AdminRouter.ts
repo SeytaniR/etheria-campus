@@ -26,6 +26,7 @@ import type { AdminWorldMapsController } from '../controllers/AdminWorldMapsCont
 import type { AdminMapUploadController } from '../controllers/AdminMapUploadController.js';
 import { HunterPetController } from '../controllers/HunterPetController.js';
 import { DungeonChestService } from '../controllers/DungeonChestService.js';
+import { MonsterGlobalConfigService } from '../controllers/MonsterGlobalConfigService.js';
 
 export interface AdminRouterDeps {
   prisma: PrismaClient;
@@ -697,6 +698,20 @@ export class AdminRouter {
       (this.deps.mapsController as any)?.snapshotManager,
       this.deps.sendJson,
       this.deps.readJsonBody
+    )) {
+      return true;
+    }
+
+    if (await MonsterGlobalConfigService.handleAdminRoutes(
+      req,
+      res,
+      pathname,
+      method,
+      this.deps.prisma,
+      (this.deps.mapsController as any)?.snapshotManager,
+      this.deps.sendJson,
+      this.deps.readJsonBody,
+      (mode) => this.enforceTablePermission(res, session, 'MONSTERS', mode)
     )) {
       return true;
     }

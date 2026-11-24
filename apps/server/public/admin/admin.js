@@ -79,6 +79,7 @@ class EtheriaAdminStudio {
     if (window.AdminAttributesTab) window.AdminAttributesTab.attach(this);
     if (window.AdminClassesTab) window.AdminClassesTab.attach(this);
     if (window.AdminMonstersTab) window.AdminMonstersTab.attach(this);
+    if (window.AdminMonsterConfigTab) window.AdminMonsterConfigTab.attach(this);
     if (window.AdminSkillsAndBuffsTab) window.AdminSkillsAndBuffsTab.attach(this);
     if (window.AdminQuestsTab) window.AdminQuestsTab.attach(this);
     if (window.AdminCanvasEditor) window.AdminCanvasEditor.attach(this);

@@ -5,6 +5,22 @@ Qualquer IA trabalhando neste repositório **DEVE** incrementar a versão e regi
 
 ---
 
+## [v0.60.0] - 2026-11-24
+### Aba "Configuração de Monstros" (`monster_global_configs`) no `/admin` & Sorteio Justo Rank-First nos Mapas
+* **Nova Tabela e Serviço Centralizado (`schema.prisma`, `SnapshotManager.ts`, `MonsterGlobalConfigService.ts`, `AdminRouter.ts`, `index.ts`):**
+  * Criada a tabela `monster_global_configs` (`code = 'GLOBAL'`) com cache em memória sincronizado e backup automático em `lowcode.snapshot.json`.
+  * Rotas `/admin`: `GET /api/admin/monster-config`, `PUT /api/admin/monster-config` e `POST /api/admin/monster-config/reset`.
+* **Integração Total no Motor Procedural de Combate, Encontros e Dungeons (`MonsterCombatBuilder.ts`, `TemporaryCombatController.ts`, `DungeonService.ts`, `CombatUtilityHelper.ts`):**
+  * Todos os parâmetros de monstros passam a ser lidos da Configuração Global: multiplicadores por Rank (`F..SS`: HP/MP, ATQ/Cura, DEF/MDEF, Crítico, Precisão, Peso de Spawn, XP e Ouro), Hierarquia (`Comum`, `Líder`, `Boss`: atributos, escala, rolagens de drop, XP, Ouro, chance de spawn, limite de Líderes e bloqueio por Boss), variação/escalonamento de nível, quantidade por encontro (solo e por aliado), penalidades de nível do mapa e modificadores específicos de Dungeons.
+* **Correção no Sorteio de Spawn dos Mapas & Dungeons (Sorteio em 2 Etapas / Rank-First):**
+  * Novo método `MonsterCombatBuilder.pickWeightedMonsterTemplate()` agrupa os monstros elegíveis por Rank (`F..SS`) e sorteia **primeiro o Rank** pelo seu `spawnWeight` único, sorteando só depois um template dentro do Rank escolhido — garantindo que colocar mais monstros raros em um mapa **não** aumente a chance desse Rank nascer.
+* **Nova Aba no `/admin` (`AdminMonsterConfigTab.js`, `admin/index.html`, `AdminAuth.js`, `admin.js`):**
+  * Adicionada a aba **`⚙️ Config. Monstros`** no painel `/admin` com edição completa de todos os parâmetros, cálculo em tempo real da chance `%` de cada Rank e botão de restauração de padrões (`?v=20261124_mcfg1`).
+* **Governança e Cumprimento Estrito de Regras:**
+  * Todos os arquivos rigorosamente abaixo de 1.000 linhas (Regra #7), teste estatístico (20.000 amostras) comprovando sorteio Rank-First justo, `node --check`, `prisma generate` e builds TypeScript com 0 erros.
+
+---
+
 ## [v0.59.1] - 2026-11-24
 ### Regra #12 — Guarda de Contexto do Chat (Parada Imediata em Pedidos Fora de Escopo)
 * **Adicionada Regra #12 (`AGENTS.md`, `.gemini/rules/AGENTS.md`, `.gemini/rules/chat_scope_guard.md`, `C:\Users\Dell\.gemini\config\rules\chat_scope_guard.md` & `docs/HANDOFF.md`):**

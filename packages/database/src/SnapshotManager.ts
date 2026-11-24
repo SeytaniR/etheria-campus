@@ -51,6 +51,7 @@ export interface LowCodeDatabaseSnapshot {
   clientUiLayoutTemplates?: any[];
   shopTemplates?: any[];
   hunterPetCostRules?: any[];
+  monsterGlobalConfigs?: any[];
 }
 
 /**
@@ -88,6 +89,7 @@ export class SnapshotManager {
     'character_quest_progress',
     'world_map_templates',
     'client_ui_layout_templates',
+    'monster_global_configs',
   ] as const;
 
   private readonly prisma: PrismaClient;
@@ -174,6 +176,7 @@ export class SnapshotManager {
       clientUiLayoutTemplates: await this.prisma.clientUiLayoutTemplate.findMany({ orderBy: { id: 'asc' } }),
       shopTemplates: await (this.prisma as any).shopTemplate?.findMany({ orderBy: { id: 'asc' } }).catch(() => []) ?? [],
       hunterPetCostRules: await (this.prisma as any).hunterPetCostRule?.findMany({ orderBy: { id: 'asc' } }).catch(() => []) ?? [],
+      monsterGlobalConfigs: await (this.prisma as any).monsterGlobalConfig?.findMany({ orderBy: { id: 'asc' } }).catch(() => []) ?? [],
     };
 
     await fs.writeFile(this.snapshotFilePath, JSON.stringify(snapshot, null, 2), 'utf-8');
@@ -593,6 +596,64 @@ export class SnapshotManager {
               goldCost: r.goldCost ?? 0,
               essenceReward: r.essenceReward ?? 15,
               goldReward: r.goldReward ?? 0,
+            },
+          });
+        }
+      }
+
+      // 11.5 Configuração Global de Monstros (MonsterGlobalConfig)
+      if (Array.isArray(snapshot.monsterGlobalConfigs)) {
+        for (const mc of snapshot.monsterGlobalConfigs) {
+          await (this.prisma as any).monsterGlobalConfig.upsert({
+            where: { code: mc.code || 'GLOBAL' },
+            create: {
+              code: mc.code || 'GLOBAL',
+              levelVarianceMin: mc.levelVarianceMin ?? -10,
+              levelVarianceMax: mc.levelVarianceMax ?? 10,
+              levelStatBonusPct: mc.levelStatBonusPct ?? 20.0,
+              baseUnitXpPerLevel: mc.baseUnitXpPerLevel ?? 28.0,
+              baseUnitGoldPerLevel: mc.baseUnitGoldPerLevel ?? 10.0,
+              encounterMinMonsters: mc.encounterMinMonsters ?? 2,
+              encounterMaxMonsters: mc.encounterMaxMonsters ?? 6,
+              encounterExtraPerAllyMin: mc.encounterExtraPerAllyMin ?? 1,
+              encounterExtraPerAllyMax: mc.encounterExtraPerAllyMax ?? 2,
+              encounterMaxTotalCap: mc.encounterMaxTotalCap ?? 25,
+              overlevelDiffThreshold: mc.overlevelDiffThreshold ?? 10,
+              overlevelPenaltyPct: mc.overlevelPenaltyPct ?? 95.0,
+              underlevelDiffThreshold: mc.underlevelDiffThreshold ?? 30,
+              underlevelPenaltyPct: mc.underlevelPenaltyPct ?? 50.0,
+              variantConfigsJson: mc.variantConfigsJson ?? {},
+              rankConfigsJson: mc.rankConfigsJson ?? {},
+              dungeonNormalHpMult: mc.dungeonNormalHpMult ?? 2.0,
+              dungeonNormalDamageDealtMult: mc.dungeonNormalDamageDealtMult ?? 0.70,
+              dungeonNormalAggroRadius: mc.dungeonNormalAggroRadius ?? 210,
+              dungeonBossHpMult: mc.dungeonBossHpMult ?? 3.0,
+              dungeonBossDamageDealtMult: mc.dungeonBossDamageDealtMult ?? 0.70,
+              dungeonBossAggroRadius: mc.dungeonBossAggroRadius ?? 250,
+            },
+            update: {
+              levelVarianceMin: mc.levelVarianceMin ?? -10,
+              levelVarianceMax: mc.levelVarianceMax ?? 10,
+              levelStatBonusPct: mc.levelStatBonusPct ?? 20.0,
+              baseUnitXpPerLevel: mc.baseUnitXpPerLevel ?? 28.0,
+              baseUnitGoldPerLevel: mc.baseUnitGoldPerLevel ?? 10.0,
+              encounterMinMonsters: mc.encounterMinMonsters ?? 2,
+              encounterMaxMonsters: mc.encounterMaxMonsters ?? 6,
+              encounterExtraPerAllyMin: mc.encounterExtraPerAllyMin ?? 1,
+              encounterExtraPerAllyMax: mc.encounterExtraPerAllyMax ?? 2,
+              encounterMaxTotalCap: mc.encounterMaxTotalCap ?? 25,
+              overlevelDiffThreshold: mc.overlevelDiffThreshold ?? 10,
+              overlevelPenaltyPct: mc.overlevelPenaltyPct ?? 95.0,
+              underlevelDiffThreshold: mc.underlevelDiffThreshold ?? 30,
+              underlevelPenaltyPct: mc.underlevelPenaltyPct ?? 50.0,
+              variantConfigsJson: mc.variantConfigsJson ?? {},
+              rankConfigsJson: mc.rankConfigsJson ?? {},
+              dungeonNormalHpMult: mc.dungeonNormalHpMult ?? 2.0,
+              dungeonNormalDamageDealtMult: mc.dungeonNormalDamageDealtMult ?? 0.70,
+              dungeonNormalAggroRadius: mc.dungeonNormalAggroRadius ?? 210,
+              dungeonBossHpMult: mc.dungeonBossHpMult ?? 3.0,
+              dungeonBossDamageDealtMult: mc.dungeonBossDamageDealtMult ?? 0.70,
+              dungeonBossAggroRadius: mc.dungeonBossAggroRadius ?? 250,
             },
           });
         }

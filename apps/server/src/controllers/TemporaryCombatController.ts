@@ -14,6 +14,7 @@ import { randomUUID } from 'node:crypto';
 import { MapSpawnResolver } from './MapSpawnResolver.js';
 import { CombatUtilityHelper } from './CombatUtilityHelper.js';
 import { MonsterCombatBuilder, type MonsterScalingContext, type MonsterVariantTier } from './MonsterCombatBuilder.js';
+import { MonsterGlobalConfigService } from './MonsterGlobalConfigService.js';
 import { PartyService } from './PartyService.js';
 import { CharacterPetService } from './CharacterPetService.js';
 import { CharacterEquipmentService, type EquippedWingsVisualDto } from './CharacterEquipmentService.js';
@@ -277,15 +278,17 @@ export class TemporaryCombatController {
     const activeDeployedPets = (pc?.pets || [])
       .filter((cp: any) => cp.deploySlot && (inParty ? Number(cp.deploySlot) === 1 : [1, 2, 3].includes(Number(cp.deploySlot))) && !CharacterPetService.isPetTemporarilyDisabled(cp.monsterTemplate))
       .slice(0, maxAllowedPets);
+    const monsterCfg = await MonsterGlobalConfigService.ensureLoaded(this.prisma);
     const numPets = activeDeployedPets.length;
     const extraPartyMembers = inParty && party ? Math.max(0, party.members.length - 1) : 0;
     const extraAllies = numPets + extraPartyMembers;
-    // Regra de Spawn: Solo (com ou sem pet base) spawna 2 a 6 monstros; cada pet ou integrante na equipe adiciona de 1 a 2 monstros
-    let totalMonstersToSpawn = Math.floor(Math.random() * 5) + 2; // 2 a 6
+    const baseSpan = Math.max(0, monsterCfg.encounterMaxMonsters - monsterCfg.encounterMinMonsters);
+    let totalMonstersToSpawn = monsterCfg.encounterMinMonsters + Math.floor(Math.random() * (baseSpan + 1));
+    const allySpan = Math.max(0, monsterCfg.encounterExtraPerAllyMax - monsterCfg.encounterExtraPerAllyMin);
     for (let i = 0; i < extraAllies; i++) {
-      totalMonstersToSpawn += Math.floor(Math.random() * 2) + 1; // +1 a +2 por pet ou membro extra
+      totalMonstersToSpawn += monsterCfg.encounterExtraPerAllyMin + Math.floor(Math.random() * (allySpan + 1));
     }
-    totalMonstersToSpawn = Math.max(2, Math.min(25, totalMonstersToSpawn));
+    totalMonstersToSpawn = Math.max(monsterCfg.encounterMinMonsters, Math.min(monsterCfg.encounterMaxTotalCap, totalMonstersToSpawn));
 
     const candidateTemplates = await MapSpawnResolver.findEligibleMonstersForMap<MonsterTemplate>(
       this.prisma,
@@ -303,32 +306,19 @@ export class TemporaryCombatController {
     ]);
     const i18nMap = new Map(translations.map((t) => [t.key, t.text]));
 
-    const pickWeightedCandidate = () => {
-      let totalW = 0;
-      const weights = candidateTemplates.map((c) => {
-        const w = MonsterCombatBuilder.resolveRarityProfile(c.rarityTier).spawnWeight;
-        totalW += w;
-        return w;
-      });
-      let roll = Math.random() * totalW;
-      for (let i = 0; i < candidateTemplates.length; i++) {
-        roll -= weights[i];
-        if (roll <= 0) return candidateTemplates[i];
-      }
-      return candidateTemplates[candidateTemplates.length - 1];
-    };
-
-    // Regra de Hierarquia de Monstros no Encontro (BÁSICO / LÍDER / BOSS):
-    // - Boss: 5% de chance de spawnar, limite de 1 e não podem nascer líderes com ele (status 4x, recompensa 4x).
-    // - Líder: se não houver Boss, cada monstro spawnado tem 30% de chance de ser Líder, até no máximo 2 (atributos base 2x, recompensa 2x).
-    // - Básico: sem alterações (1x).
-    const hasBossInEncounter = Math.random() < 0.05;
+    // Regra de Hierarquia de Monstros no Encontro (BÁSICO / LÍDER / BOSS) e Sorteio Rank-First:
+    const bossCfg = monsterCfg.variantConfigsJson.BOSS;
+    const leaderCfg = monsterCfg.variantConfigsJson.LEADER;
+    const hasBossInEncounter = Math.random() < (Number(bossCfg.spawnChancePct ?? 5) / 100);
     const bossSpawnIndex = hasBossInEncounter ? Math.floor(Math.random() * totalMonstersToSpawn) : -1;
+    const canRollLeaderWithBoss = bossCfg.blocksLeaders === false;
+    const leaderChance = Number(leaderCfg.spawnChancePct ?? 30) / 100;
+    const maxLeaders = Number(leaderCfg.maxPerEncounter ?? 2);
     let leadersSpawnedCount = 0;
 
     const monsterUnits: CombatUnit[] = [];
     for (let i = 0; i < totalMonstersToSpawn; i++) {
-      const tmpl = pickWeightedCandidate();
+      const tmpl = MonsterCombatBuilder.pickWeightedMonsterTemplate(candidateTemplates);
       const mobLvl = MonsterCombatBuilder.resolveBalancedMapMonsterLevel(
         map.requiredLevel || 1,
         map.levelVarianceMin,
@@ -339,9 +329,9 @@ export class TemporaryCombatController {
       const raritySuffix = rTier === 'SS' ? ' ⭐[SS]' : rTier === 'S' ? ' ⭐[S]' : '';
 
       let variantTier: MonsterVariantTier = 'NORMAL';
-      if (hasBossInEncounter) {
-        if (i === bossSpawnIndex) variantTier = 'BOSS';
-      } else if (leadersSpawnedCount < 2 && Math.random() < 0.30) {
+      if (hasBossInEncounter && i === bossSpawnIndex) {
+        variantTier = 'BOSS';
+      } else if ((!hasBossInEncounter || canRollLeaderWithBoss) && leadersSpawnedCount < maxLeaders && Math.random() < leaderChance) {
         variantTier = 'LEADER';
         leadersSpawnedCount += 1;
       }

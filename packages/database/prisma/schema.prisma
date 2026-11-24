@@ -779,3 +779,34 @@ model DungeonChestConfig {
 
   @@map("dungeon_chest_configs")
 }
+
+/// Configuração Global Procedural de Monstros (Escalonamento, Hierarquia, Ranks F..SS, Encontros e Dungeons).
+model MonsterGlobalConfig {
+  id                           Int      @id @default(autoincrement())
+  code                         String   @unique @default("GLOBAL")
+  levelVarianceMin             Int      @default(-10) @map("level_variance_min")
+  levelVarianceMax             Int      @default(10) @map("level_variance_max")
+  levelStatBonusPct            Float    @default(20.0) @map("level_stat_bonus_pct")
+  baseUnitXpPerLevel           Float    @default(28.0) @map("base_unit_xp_per_level")
+  baseUnitGoldPerLevel         Float    @default(10.0) @map("base_unit_gold_per_level")
+  encounterMinMonsters         Int      @default(2) @map("encounter_min_monsters")
+  encounterMaxMonsters         Int      @default(6) @map("encounter_max_monsters")
+  encounterExtraPerAllyMin     Int      @default(1) @map("encounter_extra_per_ally_min")
+  encounterExtraPerAllyMax     Int      @default(2) @map("encounter_extra_per_ally_max")
+  encounterMaxTotalCap         Int      @default(25) @map("encounter_max_total_cap")
+  overlevelDiffThreshold       Int      @default(10) @map("overlevel_diff_threshold")
+  overlevelPenaltyPct          Float    @default(95.0) @map("overlevel_penalty_pct")
+  underlevelDiffThreshold      Int      @default(30) @map("underlevel_diff_threshold")
+  underlevelPenaltyPct         Float    @default(50.0) @map("underlevel_penalty_pct")
+  variantConfigsJson           Json     @default("{}") @map("variant_configs_json")
+  rankConfigsJson              Json     @default("{}") @map("rank_configs_json")
+  dungeonNormalHpMult          Float    @default(2.0) @map("dungeon_normal_hp_mult")
+  dungeonNormalDamageDealtMult Float    @default(0.70) @map("dungeon_normal_damage_dealt_mult")
+  dungeonNormalAggroRadius     Int      @default(210) @map("dungeon_normal_aggro_radius")
+  dungeonBossHpMult            Float    @default(3.0) @map("dungeon_boss_hp_mult")
+  dungeonBossDamageDealtMult   Float    @default(0.70) @map("dungeon_boss_damage_dealt_mult")
+  dungeonBossAggroRadius       Int      @default(250) @map("dungeon_boss_aggro_radius")
+  updatedAt                    DateTime @updatedAt @map("updated_at")
+
+  @@map("monster_global_configs")
+}

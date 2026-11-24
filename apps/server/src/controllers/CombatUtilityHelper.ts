@@ -4,6 +4,8 @@
  * @description Utilitários puros de suporte ao combate temporário (Limpeza de Debuffs e Agrupamento de Monstros Derrotados para Quests).
  */
 
+import { MonsterGlobalConfigService } from './MonsterGlobalConfigService.js';
+
 export interface CleanseResult {
   removedCount: number;
   removedNames: string[];
@@ -93,7 +95,9 @@ export class CombatUtilityHelper {
       const rawTier = String(mob.variantTier || 'NORMAL').toUpperCase();
       const variantTier: 'NORMAL' | 'LEADER' | 'BOSS' =
         rawTier === 'BOSS' ? 'BOSS' : rawTier === 'LEADER' ? 'LEADER' : 'NORMAL';
-      const rewardMult = Math.max(1, Math.round(Number(mob.rewardMultiplier) || (variantTier === 'BOSS' ? 4 : variantTier === 'LEADER' ? 2 : 1)));
+      const defaultRolls = MonsterGlobalConfigService.getCachedConfig().variantConfigsJson[variantTier]?.lootRolls
+        ?? (variantTier === 'BOSS' ? 4 : variantTier === 'LEADER' ? 2 : 1);
+      const rewardMult = Math.max(1, Math.round(Number(mob.rewardMultiplier) || defaultRolls));
       const key = `${mobId}:${raceCode}:${variantTier}`;
       const existing = grouped.get(key);
       if (existing) {

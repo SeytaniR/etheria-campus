@@ -117,6 +117,7 @@ class AdminAuth {
         npcs: 'NPCS',
         classes: 'CLASSES',
         monsters: 'MONSTERS',
+        'monster-config': 'MONSTERS',
         'ui-layouts': 'MAPS',
         equipments: 'MONSTERS',
         'equipment-sets': 'MONSTERS',
@@ -137,6 +138,7 @@ class AdminAuth {
         npcs: document.getElementById('tabBtnNpcs'),
         classes: document.getElementById('tabBtnClasses'),
         monsters: document.getElementById('tabBtnMonsters'),
+        'monster-config': document.getElementById('tabBtnMonsterConfig'),
         'ui-layouts': document.getElementById('tabBtnUiLayouts'),
         equipments: document.getElementById('tabBtnEquipments'),
         'equipment-sets': document.getElementById('tabBtnEquipmentSets'),
@@ -196,6 +198,7 @@ class AdminAuth {
         { id: 'tabQuests', btn: 'tabBtnQuests', key: 'quests', code: 'QUESTS' },
         { id: 'tabClasses', btn: 'tabBtnClasses', key: 'classes', code: 'CLASSES' },
         { id: 'tabMonsters', btn: 'tabBtnMonsters', key: 'monsters', code: 'MONSTERS' },
+        { id: 'tabMonsterConfig', btn: 'tabBtnMonsterConfig', key: 'monster-config', code: 'MONSTERS' },
         { id: 'tabUiLayouts', btn: 'tabBtnUiLayouts', key: 'ui-layouts', code: 'MAPS' },
         { id: 'tabEquipments', btn: 'tabBtnEquipments', key: 'equipments', code: 'MONSTERS' },
         { id: 'tabEquipmentSets', btn: 'tabBtnEquipmentSets', key: 'equipment-sets', code: 'MONSTERS' },
@@ -237,6 +240,9 @@ class AdminAuth {
       }
       if (tab === 'monsters' && typeof this.renderMonstersCrudTable === 'function') {
         this.renderMonstersCrudTable();
+      }
+      if (tab === 'monster-config' && typeof this.loadMonsterGlobalConfig === 'function') {
+        this.loadMonsterGlobalConfig();
       }
       if (tab === 'ui-layouts' && typeof this.renderUiLayoutsCrudTable === 'function') {
         this.renderUiLayoutsCrudTable();
@@ -292,6 +298,7 @@ class AdminAuth {
         npcs: 'NPCS',
         classes: 'CLASSES',
         monsters: 'MONSTERS',
+        'monster-config': 'MONSTERS',
         'ui-layouts': 'MAPS',
         equipments: 'MONSTERS',
         'equipment-sets': 'MONSTERS',

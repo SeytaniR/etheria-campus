@@ -8,9 +8,9 @@
 ---
 
 ## 📌 Status Atual do Projeto
-* **Versão Atual:** `v0.59.1`
+* **Versão Atual:** `v0.60.0`
 * **Última Atualização:** `2026-11-24`
-* **Fase Atual:** **Regra #12 — Guarda de Contexto do Chat (`v0.59.1`) & Malhas de Construção/Plantação (`v0.59.0`)** — Adicionada a Regra #12 em `AGENTS.md`, `.gemini/rules/AGENTS.md`, `.gemini/rules/chat_scope_guard.md` e `C:\Users\Dell\.gemini\config\rules\chat_scope_guard.md` determinando parada imediata e alerta ao usuário caso solicite algo sem relação com este chat/projeto. Todos os arquivos estritamente < 1.000 linhas (Regra #7).
+* **Fase Atual:** **Aba "Configuração de Monstros" (`monster_global_configs`) & Sorteio Justo Rank-First (`v0.60.0`)** — Implementada a tabela global configurável de monstros no PostgreSQL (`MonsterGlobalConfigService.ts`) e a aba **`⚙️ Config. Monstros`** no `/admin` (`AdminMonsterConfigTab.js`), conectando todos os modificadores de Ranks (`F..SS`), Hierarquia (`Comum/Líder/Boss`), variação/escalonamento de nível, encontros, penalidades de nível e Dungeons ao runtime (`MonsterCombatBuilder`, `TemporaryCombatController`, `DungeonService`, `CombatUtilityHelper`). Corrigido também o sorteio de spawns nos mapas/Dungeons para modelo Rank-First (`pickWeightedMonsterTemplate`), impedindo que a quantidade de monstros raros disponíveis no mapa infle a chance do Rank. Todos os arquivos estritamente < 1.000 linhas (Regra #7).
 * **Repositório Oficial:** `https://github.com/SeytaniR/etheria-campus`
 * **Fonte Bruta de Assets:** `https://github.com/SeytaniR/mcrework` (`https://seytanir.github.io/mcrework/`)
 

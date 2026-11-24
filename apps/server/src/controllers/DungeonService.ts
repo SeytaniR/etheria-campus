@@ -15,6 +15,7 @@ import { I18nCache } from '@etheria/database';
 import { MapPolygonMesh, type MapPolygon } from '@etheria/shared';
 import { MapSpawnResolver } from './MapSpawnResolver.js';
 import { MonsterCombatBuilder } from './MonsterCombatBuilder.js';
+import { MonsterGlobalConfigService } from './MonsterGlobalConfigService.js';
 import type { TemporaryCombatController, CombatUnit } from './TemporaryCombatController.js';
 import { AssetMirrorService } from './AssetMirrorService.js';
 import { MapPresenceService } from './MapPresenceService.js';
@@ -467,24 +468,10 @@ export class DungeonService {
       mobCount
     );
 
-    const pickWeightedCandidate = () => {
-      let totalW = 0;
-      const weights = candidates.map((c) => {
-        const w = MonsterCombatBuilder.resolveRarityProfile(c.rarityTier).spawnWeight;
-        totalW += w;
-        return w;
-      });
-      let roll = Math.random() * totalW;
-      for (let i = 0; i < candidates.length; i++) {
-        roll -= weights[i];
-        if (roll <= 0) return candidates[i];
-      }
-      return candidates[candidates.length - 1];
-    };
-
+    const cfg = MonsterGlobalConfigService.getCachedConfig();
     const monsterUnits: CombatUnit[] = [];
     for (let i = 0; i < mobCount; i++) {
-      const tmpl = pickWeightedCandidate();
+      const tmpl = MonsterCombatBuilder.pickWeightedMonsterTemplate(candidates);
       const mobLvl = MonsterCombatBuilder.resolveBalancedMapMonsterLevel(
         map.requiredLevel || 1,
         map.levelVarianceMin,
@@ -504,17 +491,17 @@ export class DungeonService {
         this.mcreworkPagesBaseUrl,
         'NORMAL'
       );
-      // Regra Oficial de Dungeon: Monstros recebem HP * 2, -30% dano final e aggro curto
-      unit.maxHp = Math.max(50, Math.round(unit.maxHp * 2));
+      // Regra de Dungeon via Configuração Global de Monstros
+      unit.maxHp = Math.max(50, Math.round(unit.maxHp * cfg.dungeonNormalHpMult));
       unit.hp = unit.maxHp;
-      unit.damageDealtMultiplier = 0.70;
-      unit.aggroRadius = 210;
+      unit.damageDealtMultiplier = cfg.dungeonNormalDamageDealtMult;
+      unit.aggroRadius = cfg.dungeonNormalAggroRadius;
       unit.spawnX = mobPoints[i].x;
       unit.spawnY = mobPoints[i].y;
       monsterUnits.push(unit);
     }
 
-    // Spawna o Boss Específico da Dungeon (Status normais de BOSS + HP * 3, -30% dano final)
+    // Spawna o Boss Específico da Dungeon (Status de BOSS + modificadores globais de Dungeon)
     const bossLvl = MonsterCombatBuilder.resolveBalancedMapMonsterLevel(
       map.requiredLevel || 1,
       map.levelVarianceMin,
@@ -532,10 +519,10 @@ export class DungeonService {
       this.mcreworkPagesBaseUrl,
       'BOSS'
     );
-    bossUnit.maxHp = Math.max(150, Math.round(bossUnit.maxHp * 3));
+    bossUnit.maxHp = Math.max(150, Math.round(bossUnit.maxHp * cfg.dungeonBossHpMult));
     bossUnit.hp = bossUnit.maxHp;
-    bossUnit.damageDealtMultiplier = 0.70;
-    bossUnit.aggroRadius = 250;
+    bossUnit.damageDealtMultiplier = cfg.dungeonBossDamageDealtMult;
+    bossUnit.aggroRadius = cfg.dungeonBossAggroRadius;
     bossUnit.isDungeonBoss = true;
     bossUnit.spawnX = bossPoint.x;
     bossUnit.spawnY = bossPoint.y;

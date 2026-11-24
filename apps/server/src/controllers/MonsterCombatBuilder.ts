@@ -13,6 +13,7 @@
  */
 
 import type { ElementMatchupEntry } from '@etheria/shared';
+import { MonsterGlobalConfigService } from './MonsterGlobalConfigService.js';
 
 export type MonsterVariantTier = 'NORMAL' | 'LEADER' | 'BOSS';
 
@@ -188,13 +189,14 @@ export class MonsterCombatBuilder {
     rarityTier?: string | null,
     variantTier: MonsterVariantTier = 'NORMAL'
   ): number {
+    const cfg = MonsterGlobalConfigService.getCachedConfig();
     const mobLvl = Math.max(1, Math.round(Number(level) || 1));
-    const rKey = String(rarityTier || 'D').trim().toUpperCase();
-    const rankWeight = MonsterCombatBuilder.RANK_GOLD_WEIGHTS[rKey] ?? 1.00;
-    const variantWeight = MonsterCombatBuilder.VARIANT_GOLD_WEIGHTS[variantTier] ?? 1.00;
+    const rKey = MonsterGlobalConfigService.normalizeRankCode(rarityTier || 'D');
+    const rankWeight = cfg.rankConfigsJson[rKey]?.goldMult ?? 1.00;
+    const variantWeight = cfg.variantConfigsJson[variantTier]?.goldMult ?? 1.00;
     return Math.max(
       1,
-      Math.ceil(mobLvl * MonsterCombatBuilder.BASE_UNIT_GOLD_PER_LEVEL * rankWeight * variantWeight)
+      Math.ceil(mobLvl * cfg.baseUnitGoldPerLevel * rankWeight * variantWeight)
     );
   }
 
@@ -203,21 +205,20 @@ export class MonsterCombatBuilder {
     rarityTier?: string | null,
     variantTier: MonsterVariantTier = 'NORMAL'
   ): number {
+    const cfg = MonsterGlobalConfigService.getCachedConfig();
     const mobLvl = Math.max(1, Math.round(Number(level) || 1));
-    const rKey = String(rarityTier || 'F').trim().toUpperCase();
-    const rankWeight = MonsterCombatBuilder.RANK_XP_WEIGHTS[rKey] ?? 1.0;
-    const variantWeight = MonsterCombatBuilder.VARIANT_XP_WEIGHTS[variantTier] ?? 1.0;
+    const rKey = MonsterGlobalConfigService.normalizeRankCode(rarityTier || 'F');
+    const rankWeight = cfg.rankConfigsJson[rKey]?.xpMult ?? 1.0;
+    const variantWeight = cfg.variantConfigsJson[variantTier]?.xpMult ?? 1.0;
     return Math.max(
       1,
-      Math.round(MonsterCombatBuilder.BASE_UNIT_XP_PER_LEVEL * mobLvl * rankWeight * variantWeight)
+      Math.round(cfg.baseUnitXpPerLevel * mobLvl * rankWeight * variantWeight)
     );
   }
 
   /**
    * Limite de Nivelamento (Map Leveling Scaling):
-   * - Reduz em 95% o ganho de XP e Ouro se o mapa for 10 níveis ou mais acima do jogador (mapLevel >= playerLevel + 10).
-   * - Reduz em 50% o ganho de XP e Ouro se o mapa for 30 níveis ou mais abaixo do jogador (mapLevel <= playerLevel - 30).
-   * - Retorna os valores finais com Math.ceil para XP e Ouro.
+   * Reduz XP e Ouro conforme configurações globais de mapa acima/abaixo do nível do jogador.
    */
   public static applyMapLevelingPenalty(
     baseExp: number,
@@ -225,17 +226,18 @@ export class MonsterCombatBuilder {
     playerLevel: number,
     mapLevel: number
   ): { exp: number; gold: number; penaltyMultiplier: number; penaltyReason: string | null } {
+    const cfg = MonsterGlobalConfigService.getCachedConfig();
     let penaltyMultiplier = 1.0;
     let penaltyReason: string | null = null;
 
     const pLevel = Math.max(1, Math.round(Number(playerLevel) || 1));
     const mLevel = Math.max(1, Math.round(Number(mapLevel) || 1));
 
-    if (mLevel >= pLevel + 10) {
-      penaltyMultiplier = 0.05; // Redução de 95%
+    if (mLevel >= pLevel + cfg.overlevelDiffThreshold) {
+      penaltyMultiplier = Math.max(0, 1 - cfg.overlevelPenaltyPct / 100);
       penaltyReason = 'MAP_OVERLEVEL_95';
-    } else if (mLevel <= pLevel - 30) {
-      penaltyMultiplier = 0.50; // Redução de 50%
+    } else if (mLevel <= pLevel - cfg.underlevelDiffThreshold) {
+      penaltyMultiplier = Math.max(0, 1 - cfg.underlevelPenaltyPct / 100);
       penaltyReason = 'MAP_UNDERLEVEL_50';
     }
 
@@ -250,6 +252,7 @@ export class MonsterCombatBuilder {
       prisma.attributeConversion.findMany(),
       prisma.combatAttribute.findUnique({ where: { code: 'BATTLE_MOVE_SPEED' } }),
       prisma.elementMatchup ? prisma.elementMatchup.findMany() : Promise.resolve([]),
+      MonsterGlobalConfigService.ensureLoaded(prisma),
     ]);
 
     return {
@@ -276,28 +279,81 @@ export class MonsterCombatBuilder {
   }
 
   public static resolveRarityProfile(rarityTier?: string | null): RarityScalingProfile {
-    const key = String(rarityTier || 'F').trim().toUpperCase();
+    const key = MonsterGlobalConfigService.normalizeRankCode(rarityTier);
+    const cfgRank = MonsterGlobalConfigService.getCachedConfig().rankConfigsJson?.[key];
+    if (cfgRank) {
+      return {
+        hp: cfgRank.hpMult,
+        atk: cfgRank.atkMult,
+        def: cfgRank.defMult,
+        critBonus: cfgRank.critBonusPct / 100,
+        accBonus: cfgRank.accBonus,
+        spawnWeight: cfgRank.spawnWeight,
+      };
+    }
     return MonsterCombatBuilder.RARITY_PROFILES[key] || MonsterCombatBuilder.RARITY_PROFILES.F;
   }
 
   /**
-   * Sorteia o nível do monstro no mapa com variação de -10 a +10 em relação ao nível do mapa
-   * (ex: se o mapa é nível 100, os monstros nascem com nível entre 90 e 110).
+   * Sorteio Justo em 2 Etapas (Rank-First):
+   *   1) Agrupa os candidatos por Rank (F..SS) e sorteia primeiro o Rank pelo `spawnWeight` único de cada Rank presente,
+   *      impedindo que maior quantidade de monstros raros em um mapa aumente a chance desse Rank nascer.
+   *   2) Sorteia uniformemente um template dentro do Rank escolhido.
+   */
+  public static pickWeightedMonsterTemplate<T extends { rarityTier?: string | null }>(candidates: T[]): T {
+    const buckets = new Map<string, T[]>();
+    for (const c of candidates) {
+      const rank = MonsterGlobalConfigService.normalizeRankCode(c.rarityTier);
+      const list = buckets.get(rank);
+      if (list) list.push(c);
+      else buckets.set(rank, [c]);
+    }
+    const ranks = Array.from(buckets.keys());
+    if (ranks.length === 1) {
+      const only = buckets.get(ranks[0])!;
+      return only[Math.floor(Math.random() * only.length)];
+    }
+    let totalWeight = 0;
+    const rankWeights = ranks.map((r) => {
+      const w = Math.max(0, Number(MonsterCombatBuilder.resolveRarityProfile(r).spawnWeight) || 0);
+      totalWeight += w;
+      return w;
+    });
+    let chosenRank = ranks[ranks.length - 1];
+    if (totalWeight <= 0) {
+      chosenRank = ranks[Math.floor(Math.random() * ranks.length)];
+    } else {
+      let roll = Math.random() * totalWeight;
+      for (let i = 0; i < ranks.length; i++) {
+        roll -= rankWeights[i];
+        if (roll <= 0) {
+          chosenRank = ranks[i];
+          break;
+        }
+      }
+    }
+    const bucket = buckets.get(chosenRank)!;
+    return bucket[Math.floor(Math.random() * bucket.length)];
+  }
+
+  /**
+   * Sorteia o nível do monstro no mapa usando a variação configurável (padrão -10 a +10) em relação ao nível do mapa.
    */
   public static resolveBalancedMapMonsterLevel(
     requiredLevel: number,
     _levelVarianceMin?: number | null,
     _levelVarianceMax?: number | null
   ): number {
+    const cfg = MonsterGlobalConfigService.getCachedConfig();
     const reqLvl = Math.max(1, Math.round(Number(requiredLevel) || 1));
-    const minLvl = Math.max(1, reqLvl - 10);
-    const maxLvl = Math.max(minLvl, reqLvl + 10);
+    const minLvl = Math.max(1, reqLvl + cfg.levelVarianceMin);
+    const maxLvl = Math.max(minLvl, reqLvl + cfg.levelVarianceMax);
     return minLvl + Math.floor(Math.random() * (maxLvl - minLvl + 1));
   }
 
   /**
    * Constrói os atributos finais de combate de um Monstro usando 100% das conversões do banco,
-   * escalonamento de +20% por nível, multiplicadores de Rank (F..SS) e hierarquia (NORMAL/LEADER/BOSS).
+   * escalonamento por nível, multiplicadores de Rank (F..SS) e hierarquia (NORMAL/LEADER/BOSS) da Configuração Global.
    */
   public static buildMonsterUnit(
     template: any,
@@ -308,12 +364,12 @@ export class MonsterCombatBuilder {
     pagesBaseUrl: string,
     variantTier: MonsterVariantTier = 'NORMAL'
   ) {
+    const cfg = MonsterGlobalConfigService.getCachedConfig();
     const mobLvl = Math.max(1, Math.round(Number(monsterLevel) || 1));
     const lvUps = Math.max(0, mobLvl - 1);
-    // Cada nível aplica um bônus de +20% nos atributos do monstro
-    const levelStatFactor = 1 + lvUps * 0.20;
-    // Bônus de Hierarquia: Básico = 1x, Líder = 2x atributos base, Boss = 4x status
-    const variantStatMultiplier = variantTier === 'BOSS' ? 4.0 : variantTier === 'LEADER' ? 2.0 : 1.0;
+    const levelStatFactor = 1 + lvUps * (cfg.levelStatBonusPct / 100);
+    const vCfg = cfg.variantConfigsJson[variantTier] || cfg.variantConfigsJson.NORMAL;
+    const variantStatMultiplier = vCfg.statMult;
     const combinedStatFactor = levelStatFactor * variantStatMultiplier;
 
     const rawBase = (template.baseAttributesJson as any) || {};
@@ -369,9 +425,9 @@ export class MonsterCombatBuilder {
     const rarityCritBonus = rarity.critBonus;
 
     const mobKey = template.mcreworkMonsterKey;
-    const modelScale = variantTier === 'BOSS' ? 1.65 : variantTier === 'LEADER' ? 1.28 : 1.0;
+    const modelScale = vCfg.scaleMult;
     const nameColorHex = variantTier === 'BOSS' ? '#fb7185' : variantTier === 'LEADER' ? '#38bdf8' : '#f8fafc';
-    const rewardMultiplier = variantTier === 'BOSS' ? 4 : variantTier === 'LEADER' ? 2 : 1;
+    const rewardMultiplier = vCfg.lootRolls;
     const expReward = this.calculateMonsterExpReward(mobLvl, rTier, variantTier);
     const goldReward = this.calculateMonsterGoldReward(mobLvl, rTier, variantTier);
 
