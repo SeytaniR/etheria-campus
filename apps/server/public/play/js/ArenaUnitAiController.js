@@ -349,7 +349,7 @@ class ArenaUnitAiController {
 
     const sLen = Math.hypot(steerX, steerY) || 1;
     const statusSpeedMult = window.ActionSkillEngine ? window.ActionSkillEngine.getEffectiveStats(unit).moveSpeedMult : 1.0;
-    const step = (Number(unit.speed) || 140) * speedScale * statusSpeedMult * dt;
+    const step = Math.min(185, (Number(unit.speed) || 140) * speedScale * statusSpeedMult) * dt;
     const nextX = unit.x + (steerX / sLen) * step;
     const nextY = unit.y + (steerY / sLen) * step;
     const prevX = unit.x;

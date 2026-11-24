@@ -5,6 +5,19 @@ Qualquer IA trabalhando neste repositório **DEVE** incrementar a versão e regi
 
 ---
 
+## [v0.58.1] - 2026-11-24
+### Teto Máximo de Velocidade em Batalha (`185 px/s`) & Sincronização da Ficha de Atributos (`/play`)
+* **Teto Saudável Global de Velocidade em Batalha (`MAX_BATTLE_MOVE_SPEED = 185`):**
+  * **Backend (`TemporaryCombatController.ts`, `CharacterPetService.ts`, `MonsterCombatBuilder.ts`):** Aplicado o limite máximo de **`185`** (piso `60` para jogadores/pets, `40` para monstros) no cálculo de `battleMoveSpeed` em combate, evitando que personagens em níveis altos (ex.: Barda Lv 100 com AGI elevada + equipamentos + conjuntos) ou monstros/pets atinjam velocidades irreais na arena.
+  * **Arena Action 2.5D (`ActionCombatArena.js`, `ArenaPhysicsSolver.js`, `ArenaUnitAiController.js`):** Aplicado o teto de **`185`** tanto no spawn das unidades quanto no tick de física/IA **após** multiplicadores de buffs de status (`BATTLE_MOVE_SPEED_PCT` e `SPEED_PCT`, ex.: *Ária da Bravura*, *Passo das Sombras*, *Instinto de Falcão*, *Fúria de Batalha*), preservando penalidades de lentidão (`SLOW`) e garantindo que nenhuma unidade ultrapasse `185 px/s`.
+* **Fidelidade na Ficha de Atributos do Personagem (`PlayGmController.js` & `index.html`):**
+  * A linha `BATTLE_MOVE_SPEED` (*Velocidade em Batalha*) da ficha de atributos agora calcula exatamente a mesma fórmula do combate (`base da classe + AGI × ratio + equipamentos/conjuntos`), aplicando o teto de **`185`** e exibindo o indicador `(Máx. 185)` quando o personagem atingir o limite.
+  * Atualizados os cache-busters `?v=20261124_spd1` em `apps/server/public/play/index.html`.
+* **Governança e Cumprimento Estrito de Regras:**
+  * Todos os arquivos rigorosamente abaixo de 1.000 linhas (Regra #7), `node --check` e builds TypeScript com 0 erros, deploy na VPS Azure verificado com HTTP 200.
+
+---
+
 ## [v0.58.0] - 2026-11-24
 ### Modal Minimalista Mobile da Caçadora (4 Abas + Correções) & Calibração 2.5D (Z/Chão, Protótipos e Montarias) no `/admin`
 * **Redesign Minimalista & Correção de Bugs no Modal da Caçadora (`PlayHunterController.js`, `HunterPetController.ts`, `PlayQuestsController.js`):**

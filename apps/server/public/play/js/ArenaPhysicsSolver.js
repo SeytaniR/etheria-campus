@@ -139,7 +139,7 @@ class ArenaPhysicsSolver {
       physEvasion: Math.min(75, Number(raw.physEvasion) || 5),
       magAccuracy: Number(raw.magAccuracy) || 95,
       magEvasion: Math.min(75, Number(raw.magEvasion) || 5),
-      speed: Number(raw.battleMoveSpeed) || Number(raw.speed) || Math.round(fallbackSpeed * (isEnemy ? 0.72 : 0.90)),
+      speed: Math.min(185, Number(raw.battleMoveSpeed) || Number(raw.speed) || Math.round(fallbackSpeed * (isEnemy ? 0.72 : 0.90))),
       combatStyle: raw.combatStyle || 'MELEE',
       attackRange: raw.attackRange || (raw.combatStyle === 'RANGED' ? 220 : 60),
       damageType: raw.damageType || 'PHYSICAL',

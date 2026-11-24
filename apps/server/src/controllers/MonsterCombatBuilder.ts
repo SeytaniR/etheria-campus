@@ -357,7 +357,7 @@ export class MonsterCombatBuilder {
 
     const cb = (template.baseCombatAttributesJson as any) || {};
     const baseMoveSpeed = Number(cb.BATTLE_MOVE_SPEED) || ctx.globalDefaultMoveSpeed;
-    const battleMoveSpeed = Math.round(baseMoveSpeed + Math.min(120, effStats.AGI * agiMoveRatio));
+    const battleMoveSpeed = Math.max(40, Math.min(185, Math.round(baseMoveSpeed + Math.min(120, effStats.AGI * agiMoveRatio))));
     const dexCritBonus = Math.max(0, effStats.DEX - 10) * this.getConversionRatio(ctx, 'DEX', 'CRIT_RATE', 0.002);
     const strCritDmgBonus = Math.max(0, effStats.STR - 10) * this.getConversionRatio(ctx, 'STR', 'CRIT_DMG', 0.003);
     const agiEvaBonusPct = Math.max(0, effStats.AGI - 10) * (this.getConversionRatio(ctx, 'AGI', 'PHYS_EVASION', 0.002) * 100);
@@ -501,7 +501,7 @@ export class MonsterCombatBuilder {
       if (hasNum(ov.def)) u.def = Math.max(1, Math.round(Number(ov.def)));
       if (hasNum(ov.magDef)) u.magDef = Math.max(1, Math.round(Number(ov.magDef)));
       if (hasNum(ov.speed)) u.speed = Math.max(1, Math.round(Number(ov.speed)));
-      if (hasNum(ov.battleMoveSpeed)) u.battleMoveSpeed = Math.max(40, Math.round(Number(ov.battleMoveSpeed)));
+      if (hasNum(ov.battleMoveSpeed)) u.battleMoveSpeed = Math.min(185, Math.max(40, Math.round(Number(ov.battleMoveSpeed))));
       if (hasNum(ov.attackSpeed)) u.attackSpeed = Math.max(0.2, Number(ov.attackSpeed));
       if (hasNum(ov.critRatePct)) u.critRate = Math.min(0.95, Math.max(0, Number(ov.critRatePct) / 100));
       if (hasNum(ov.critDmgPct)) u.critDmg = Math.min(5.0, Math.max(1.0, Number(ov.critDmgPct) / 100));

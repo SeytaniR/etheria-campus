@@ -492,7 +492,11 @@ export class TemporaryCombatController {
       }
     }
 
-    const playerMoveSpeed = Math.round(classBaseSpeed + charBaseStats.AGI * agiMoveRatio + (eqBonuses.BATTLE_MOVE_SPEED || 0));
+    const MAX_BATTLE_MOVE_SPEED = 185;
+    const playerMoveSpeed = Math.max(
+      60,
+      Math.min(MAX_BATTLE_MOVE_SPEED, Math.round(classBaseSpeed + charBaseStats.AGI * agiMoveRatio + (eqBonuses.BATTLE_MOVE_SPEED || 0)))
+    );
 
     const playerMaxHp = Math.round(charBaseStats.VIT * vitHpRatio + charLevel * 20 + (eqBonuses.MAX_HP || 0));
     const playerMaxMp = Math.round(charBaseStats.INT * intMpRatio + charLevel * 10 + (eqBonuses.MAX_MP || 0));

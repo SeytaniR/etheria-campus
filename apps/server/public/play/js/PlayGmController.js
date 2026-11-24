@@ -433,13 +433,28 @@ class PlayGmController {
           previewTotals[k] = permanentBase + (Number(pending[k]) || 0);
         }
 
+        const classCb = c.baseCombatAttributesJson || {};
+        const eqCons = this._equippedDetails?.consolidatedBonuses || {};
         const combatRows = (this.combatAttributes || []).map((ca) => {
           let baseVal = Number(ca.baseDefault) || 0;
           let previewVal = Number(ca.baseDefault) || 0;
-          for (const conv of (this.attributeConversions || [])) {
-            if (conv.combatAttributeCode === ca.code) {
-              baseVal += (baseTotals[conv.baseAttributeCode] || 0) * Number(conv.ratioPerPoint);
-              previewVal += (previewTotals[conv.baseAttributeCode] || 0) * Number(conv.ratioPerPoint);
+          let cappedTag = '';
+          if (ca.code === 'BATTLE_MOVE_SPEED') {
+            const clsBase = Number(classCb.BATTLE_MOVE_SPEED) || baseVal || 160;
+            const agiConv = (this.attributeConversions || []).find((x) => x.baseAttributeCode === 'AGI' && x.combatAttributeCode === 'BATTLE_MOVE_SPEED');
+            const agiRatio = agiConv ? Number(agiConv.ratioPerPoint) : 0.5;
+            const eqBms = Number(eqCons.BATTLE_MOVE_SPEED) || 0;
+            const rawBase = Math.round(clsBase + (baseTotals.AGI || 0) * agiRatio + eqBms);
+            const rawPrev = Math.round(clsBase + (previewTotals.AGI || 0) * agiRatio + eqBms);
+            if (rawBase > 185 || rawPrev > 185) cappedTag = ' <span style="font-size:0.62rem; color:#f59e0b; font-weight:700;">(Máx. 185)</span>';
+            baseVal = Math.max(60, Math.min(185, rawBase));
+            previewVal = Math.max(60, Math.min(185, rawPrev));
+          } else {
+            for (const conv of (this.attributeConversions || [])) {
+              if (conv.combatAttributeCode === ca.code) {
+                baseVal += (baseTotals[conv.baseAttributeCode] || 0) * Number(conv.ratioPerPoint);
+                previewVal += (previewTotals[conv.baseAttributeCode] || 0) * Number(conv.ratioPerPoint);
+              }
             }
           }
           const diff = previewVal - baseVal;
@@ -454,7 +469,7 @@ class PlayGmController {
                 <span class="stats-combat-code">${ca.code}</span>
               </div>
               <div style="display:flex; align-items:center;">
-                <span class="stats-combat-val">${hasDiff ? prevFormatted : curFormatted}</span>
+                <span class="stats-combat-val">${hasDiff ? prevFormatted : curFormatted}${cappedTag}</span>
                 ${hasDiff ? `<span class="stats-combat-preview">(+${ca.isPercentage ? diff.toFixed(1) + '%' : Math.round(diff)})</span>` : ''}
               </div>
             </div>

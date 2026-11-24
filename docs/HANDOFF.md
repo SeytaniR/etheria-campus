@@ -8,9 +8,9 @@
 ---
 
 ## 📌 Status Atual do Projeto
-* **Versão Atual:** `v0.58.0`
+* **Versão Atual:** `v0.58.1`
 * **Última Atualização:** `2026-11-24`
-* **Fase Atual:** **Modal Minimalista Mobile da Caçadora (Quests/Criar/Vender/Upgrade) & Calibração 2.5D de Baús, Asas e Montarias (`v0.58.0`)** — Redesign minimalista do modal unificado da Caçadora (`PlayHunterController.js` + `HunterPetController.ts`) com 4 seções discretas no topo (`Quests`, `Criar`, `Vender`, `Upgrade`) e correção dos bugs de atualização de essência, carregamento de pets e sincronização da HUD. No `/admin`, corrigido o preview de personagens protótipo (`/api/admin/maps/bootstrap` -> `classTemplates`) e o carregamento instantâneo das montarias voadoras ao selecionar na lista (`mcreworkMountKey` + catálogo completo), além de novos controles mobile-friendly de **Distância ao Chão (`Z` / `groundOffsetY`)** com linha guia de solo para Baús, Asas e Montarias (propagado 1:1 para `/play`). Todos os arquivos estritamente < 1.000 linhas (Regra #7).
+* **Fase Atual:** **Teto Máximo de Velocidade em Batalha (`185 px/s`) & Auditoria de Fontes de Velocidade (`v0.58.1`)** — Aplicado teto rígido e saudável de `185` de velocidade de movimento em batalha (`BATTLE_MOVE_SPEED`) no backend (`TemporaryCombatController.ts`, `CharacterPetService.ts`, `MonsterCombatBuilder.ts`), na física/IA da Arena 2.5D incluindo buffs percentuais (`ActionCombatArena.js`, `ArenaPhysicsSolver.js`, `ArenaUnitAiController.js`), e na ficha de atributos do personagem (`PlayGmController.js` com indicador `(Máx. 185)` e cálculo fiel de classe + AGI + equipamentos/conjuntos). Todos os arquivos estritamente < 1.000 linhas (Regra #7).
 * **Repositório Oficial:** `https://github.com/SeytaniR/etheria-campus`
 * **Fonte Bruta de Assets:** `https://github.com/SeytaniR/mcrework` (`https://seytanir.github.io/mcrework/`)
 

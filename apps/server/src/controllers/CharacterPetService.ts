@@ -203,8 +203,11 @@ export class CharacterPetService {
     // Atributos de combate não-derivados mantidos iguais aos do MonsterTemplate
     const cb = (monsterTemplate?.baseCombatAttributesJson as any) || {};
     const baseMoveSpeed = Number(cb.BATTLE_MOVE_SPEED) || ctx.globalDefaultMoveSpeed || 160;
-    const battleMoveSpeed = Math.round(
-      baseMoveSpeed + Math.min(120, totalBaseStats.AGI * agiMoveRatio) + (eqCombatBonuses.BATTLE_MOVE_SPEED || 0)
+    const battleMoveSpeed = Math.max(
+      60,
+      Math.min(185, Math.round(
+        baseMoveSpeed + Math.min(120, totalBaseStats.AGI * agiMoveRatio) + (eqCombatBonuses.BATTLE_MOVE_SPEED || 0)
+      ))
     );
     const attackSpeed = Math.max(
       0.2,

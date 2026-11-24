@@ -203,7 +203,7 @@ class ActionCombatArena {
     const agiConv = (this.client?.attributeConversions || []).find((c) => c.baseAttributeCode === 'AGI' && c.combatAttributeCode === 'BATTLE_MOVE_SPEED');
     const agiRatio = agiConv ? Number(agiConv.ratioPerPoint) : 0.5;
     const totalAgi = (Number(this.client?.activeChar?.distributedStatsJson?.AGI) || 0) + (Number(this.client?.activeChar?.baseAttributesJson?.AGI) || 10);
-    const battleSpeed = Math.max(60, Number(pState.battleMoveSpeed || (classMoveSpeed ? classMoveSpeed + totalAgi * agiRatio : null) || (globalDefaultSpeed ? globalDefaultSpeed + totalAgi * agiRatio : null) || 180));
+    const battleSpeed = Math.min(185, Math.max(60, Number(pState.battleMoveSpeed || (classMoveSpeed ? classMoveSpeed + totalAgi * agiRatio : null) || (globalDefaultSpeed ? globalDefaultSpeed + totalAgi * agiRatio : null) || 180)));
 
     this.projectiles = []; this.groundZones = [];
     this.vfxRenderer?.reset(); this.motionEngine?.reset();
@@ -829,7 +829,7 @@ class ActionCombatArena {
       return;
     }
     const pEffMove = window.ActionSkillEngine ? window.ActionSkillEngine.getEffectiveStats(this.player).moveSpeedMult : 1.0;
-    let curSpeed = this.player.speed * pEffMove;
+    let curSpeed = Math.min(185, this.player.speed * pEffMove);
 
     // FASES 1, 2, 3 e 4: Cinemática Suave, Aceleração/Desaceleração, Deslize Vetorial e Windup/CastPoint
     if (this.motionEngine) {
