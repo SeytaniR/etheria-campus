@@ -92,9 +92,9 @@ class AdminEquipmentModalDom {
           </div>
         </div>
 
-        <!-- BLOCO 1.5: VÍNCULO 2.5D ANIMADO & PALCO DE CALIBRAÇÃO (ASAS E MONTARIAS VOADORAS) -->
+        <!-- BLOCO 1.5: VÍNCULO 2.5D ANIMADO & PALCO DE CALIBRAÇÃO (ASAS, MONTARIAS E ARMAS) -->
         <div id="equipVisual25dBox" style="display:none; background:rgba(14,116,144,0.14); border:1.5px solid #22d3ee; border-radius:12px; padding:12px; margin-bottom:12px;">
-          <div style="font-size:0.84rem; font-weight:800; color:#22d3ee; margin-bottom:8px;">
+          <div id="equipVisual25dTitle" style="font-size:0.84rem; font-weight:800; color:#22d3ee; margin-bottom:8px;">
             🪽 / 🦅 Vínculo, Tamanho & Calibração 2.5D (Asas & Montarias Voadoras)
           </div>
           <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(min(100%, 300px), 1fr)); gap:12px; align-items:start;">
@@ -187,20 +187,22 @@ class AdminEquipmentModalDom {
                 </div>
               </div>
 
-              <!-- Parâmetros Exclusivos de Profundidade & Direções de Asas -->
+              <!-- Parâmetros Exclusivos de Profundidade & Direções de Asas / Armas -->
               <div id="equipWingDepthBox" style="display:none; background:rgba(168,85,247,0.12); border:1px solid #a855f7; border-radius:9px; padding:8px; flex-direction:column; gap:6px;">
-                <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.72rem;">
-                  <strong style="color:#e9d5ff;">📐 Profundidade 2.5D nas Costas (Todas 8 Dirs)</strong>
-                  <span style="font-size:0.66rem; color:#c4b5fd;">+ afasta das costas • - encaixa</span>
-                </div>
-                <input type="range" id="equipWingBackDepthRange" min="-50" max="50" step="1" value="0" oninput="window.AdminEquipmentVisualPreview?.setInputValue('equipWingBackDepthInput', this.value, false)" style="width:100%;" />
-                <div style="display:grid; grid-template-columns:repeat(2, auto) 1fr repeat(3, auto); gap:4px; align-items:center;">
-                  <button type="button" onclick="window.AdminEquipmentVisualPreview?.nudgeInput('equipWingBackDepthInput', -5, false, -50, 50)" style="padding:5px 7px; font-size:0.70rem;">-5</button>
-                  <button type="button" onclick="window.AdminEquipmentVisualPreview?.nudgeInput('equipWingBackDepthInput', -1, false, -50, 50)" style="padding:5px 7px; font-size:0.70rem;">-1</button>
-                  <input type="number" id="equipWingBackDepthInput" value="0" min="-50" max="50" oninput="window.AdminEquipmentVisualPreview?.syncSliders()" style="text-align:center; min-height:32px; padding:3px;" />
-                  <button type="button" onclick="window.AdminEquipmentVisualPreview?.nudgeInput('equipWingBackDepthInput', 1, false, -50, 50)" style="padding:5px 7px; font-size:0.70rem;">+1</button>
-                  <button type="button" onclick="window.AdminEquipmentVisualPreview?.nudgeInput('equipWingBackDepthInput', 5, false, -50, 50)" style="padding:5px 7px; font-size:0.70rem;">+5</button>
-                  <button type="button" onclick="window.AdminEquipmentVisualPreview?.setInputValue('equipWingBackDepthInput', 0, false)" style="padding:5px 7px; font-size:0.70rem;" title="Zerar Profundidade">↩0</button>
+                <div id="equipWingBackDepthSection" style="display:flex; flex-direction:column; gap:6px;">
+                  <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.72rem;">
+                    <strong style="color:#e9d5ff;">📐 Profundidade 2.5D nas Costas (Todas 8 Dirs)</strong>
+                    <span style="font-size:0.66rem; color:#c4b5fd;">+ afasta das costas • - encaixa</span>
+                  </div>
+                  <input type="range" id="equipWingBackDepthRange" min="-50" max="50" step="1" value="0" oninput="window.AdminEquipmentVisualPreview?.setInputValue('equipWingBackDepthInput', this.value, false)" style="width:100%;" />
+                  <div style="display:grid; grid-template-columns:repeat(2, auto) 1fr repeat(3, auto); gap:4px; align-items:center;">
+                    <button type="button" onclick="window.AdminEquipmentVisualPreview?.nudgeInput('equipWingBackDepthInput', -5, false, -50, 50)" style="padding:5px 7px; font-size:0.70rem;">-5</button>
+                    <button type="button" onclick="window.AdminEquipmentVisualPreview?.nudgeInput('equipWingBackDepthInput', -1, false, -50, 50)" style="padding:5px 7px; font-size:0.70rem;">-1</button>
+                    <input type="number" id="equipWingBackDepthInput" value="0" min="-50" max="50" oninput="window.AdminEquipmentVisualPreview?.syncSliders()" style="text-align:center; min-height:32px; padding:3px;" />
+                    <button type="button" onclick="window.AdminEquipmentVisualPreview?.nudgeInput('equipWingBackDepthInput', 1, false, -50, 50)" style="padding:5px 7px; font-size:0.70rem;">+1</button>
+                    <button type="button" onclick="window.AdminEquipmentVisualPreview?.nudgeInput('equipWingBackDepthInput', 5, false, -50, 50)" style="padding:5px 7px; font-size:0.70rem;">+5</button>
+                    <button type="button" onclick="window.AdminEquipmentVisualPreview?.setInputValue('equipWingBackDepthInput', 0, false)" style="padding:5px 7px; font-size:0.70rem;" title="Zerar Profundidade">↩0</button>
+                  </div>
                 </div>
                 <div style="border-top:1px dashed rgba(168,85,247,0.35); padding-top:6px; display:flex; flex-direction:column; gap:5px;">
                   <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.70rem;">

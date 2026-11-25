@@ -553,6 +553,7 @@ export class EtheriaServerApp {
         void this.questsController.ensureInitialQuests();
         void this.uiLayoutsController.seedInitialUiLayoutsIfEmpty();
         void this.equipmentsController.seedInitialEquipmentsIfEmpty();
+        void this.equipmentsController.backfillMissingWeaponVisuals();
         void this.itemsController.seedInitialItemsIfEmpty();
         void this.experienceController.seedInitialLevelExperienceIfEmpty();
         void this.worldMapsController.seedInitialWorldMapsIfEmpty();

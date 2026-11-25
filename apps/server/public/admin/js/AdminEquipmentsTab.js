@@ -71,22 +71,33 @@ class AdminEquipmentsTab {
 
     app.populateVisualModelsDropdown = function (slotCode, currentFx) {
       const box = document.getElementById('equipVisual25dBox');
+      const titleEl = document.getElementById('equipVisual25dTitle');
       const sel = document.getElementById('equipVisualModelSelect');
       const mountRow = document.getElementById('equipMountCalibrationRow');
+      const wingDepthSec = document.getElementById('equipWingBackDepthSection');
       if (!box || !sel) return;
 
       const isWing = slotCode === 'WINGS';
       const isMount = slotCode === 'FLYING_MOUNT';
+      const isWeapon = slotCode === 'WEAPON_1';
       const wingBox = document.getElementById('equipWingDepthBox');
-      box.style.display = (isWing || isMount) ? 'block' : 'none';
-      if (wingBox) wingBox.style.display = isWing ? 'flex' : 'none';
+      box.style.display = (isWing || isMount || isWeapon) ? 'block' : 'none';
+      if (wingBox) wingBox.style.display = (isWing || isWeapon) ? 'flex' : 'none';
+      if (wingDepthSec) wingDepthSec.style.display = isWing ? 'flex' : 'none';
       if (mountRow) mountRow.style.display = isMount ? 'grid' : 'none';
-      if (!isWing && !isMount) {
+      if (titleEl) {
+        titleEl.textContent = isWeapon
+          ? '⚔️ Vínculo, Tamanho & Calibração 2.5D (Arma Principal)'
+          : isWing
+            ? '🪽 Vínculo, Tamanho & Calibração 2.5D (Asas Celestiais)'
+            : '🦅 Vínculo, Tamanho & Calibração 2.5D (Montaria Voadora)';
+      }
+      if (!isWing && !isMount && !isWeapon) {
         window.AdminEquipmentVisualPreview?.stop();
         return;
       }
 
-      const cat = this.mcreworkVisualModels || { wings: [], gliders: [], mounts: [] };
+      const cat = this.mcreworkVisualModels || { wings: [], gliders: [], mounts: [], weapons: [] };
       const opts = ['<option value="">Sem modelo 2.5D vinculado</option>'];
       if (isWing) {
         for (const w of cat.wings || []) {
@@ -98,6 +109,10 @@ class AdminEquipmentsTab {
         }
         for (const m of cat.mounts || []) {
           opts.push(`<option value="MOUNT|${m.modelId}|ATLAS">🦅 ${m.name} (${m.modelId})</option>`);
+        }
+      } else if (isWeapon) {
+        for (const w of cat.weapons || []) {
+          opts.push(`<option value="WEAPON|${w.maleModelId}|CHAR_MANIFEST|${w.femaleModelId || ''}">⚔️ [${w.typeName || 'Arma'}] ${w.name} (${w.maleModelId})</option>`);
         }
       }
       sel.innerHTML = opts.join('');
@@ -113,9 +128,16 @@ class AdminEquipmentsTab {
       }
 
       const fx = currentFx && typeof currentFx === 'object' ? currentFx : {};
-      const mid = isWing ? (fx.wingModelId || '') : (fx.mountModelId || '');
+      const mid = isWing ? (fx.wingModelId || '') : (isMount ? (fx.mountModelId || '') : (fx.weaponModelId || ''));
       if (mid) {
-        const match = Array.from(sel.options).find((o) => o.value.includes(`|${mid}|`));
+        let match = Array.from(sel.options).find((o) => o.value.includes(`|${mid}|`));
+        if (!match && isWeapon) {
+          const customOpt = document.createElement('option');
+          customOpt.value = `WEAPON|${mid}|CHAR_MANIFEST|${fx.weaponFemaleModelId || ''}`;
+          customOpt.textContent = `⚔️ [Custom] ${mid}`;
+          sel.appendChild(customOpt);
+          match = customOpt;
+        }
         if (match) sel.value = match.value;
       }
       document.getElementById('equipVisualScaleInput').value = fx.visualScale ?? (isWing ? 0.65 : 0.70);
@@ -125,7 +147,7 @@ class AdminEquipmentsTab {
       if (gOffInp) gOffInp.value = fx.groundOffsetY ?? 0;
       const depthInp = document.getElementById('equipWingBackDepthInput');
       if (depthInp) depthInp.value = fx.backDepth ?? 0;
-      window.AdminEquipmentVisualPreview?.loadWingDirOffsets?.(isWing ? (fx.dirOffsets || {}) : {});
+      window.AdminEquipmentVisualPreview?.loadWingDirOffsets?.((isWing || isWeapon) ? (fx.dirOffsets || {}) : {});
       if (isMount) {
         document.getElementById('equipMountAltitudeInput').value = fx.flightAltitude ?? 72;
         document.getElementById('equipMountRiderOffsetXInput').value = fx.riderOffsetX ?? 0;
@@ -173,6 +195,12 @@ class AdminEquipmentsTab {
         setNum('equipMountRiderOffsetXInput', 0);
         setNum('equipMountRiderOffsetInput', -22);
         setNum('equipMountAltitudeInput', 72);
+      } else if (kind === 'WEAPON') {
+        setNum('equipVisualScaleInput', 0.70);
+        setNum('equipVisualOffsetXInput', 0);
+        setNum('equipVisualOffsetYInput', 0);
+        setNum('equipGroundOffsetYInput', 0);
+        window.AdminEquipmentVisualPreview?.loadWingDirOffsets?.({});
       } else if (kind === 'MOUNT') {
         const m = (cat.mounts || []).find((x) => x.modelId === modelId);
         if (m) {
@@ -361,10 +389,18 @@ class AdminEquipmentsTab {
 
       if (item.suggestedSlot) {
         document.getElementById('equipSlotSelect').value = item.suggestedSlot;
-        this.populateVisualModelsDropdown(item.suggestedSlot, item.suggestedModelId ? {
-          wingModelId: item.suggestedSlot === 'WINGS' ? item.suggestedModelId : undefined,
-          mountModelId: item.suggestedSlot === 'FLYING_MOUNT' ? item.suggestedModelId : undefined,
-        } : {});
+        const initFx = item.suggestedSlot === 'WEAPON_1' && (item.suggestedWeaponMaleModelId || item.suggestedWeaponFemaleModelId)
+          ? {
+              weaponModelId: item.suggestedWeaponMaleModelId || item.suggestedWeaponFemaleModelId,
+              weaponFemaleModelId: item.suggestedWeaponFemaleModelId || undefined,
+            }
+          : item.suggestedModelId
+            ? {
+                wingModelId: item.suggestedSlot === 'WINGS' ? item.suggestedModelId : undefined,
+                mountModelId: item.suggestedSlot === 'FLYING_MOUNT' ? item.suggestedModelId : undefined,
+              }
+            : {};
+        this.populateVisualModelsDropdown(item.suggestedSlot, initFx);
       }
       if (item.suggestedCategory) {
         document.getElementById('equipCategorySelect').value = item.suggestedCategory;
@@ -475,11 +511,13 @@ class AdminEquipmentsTab {
         ? Number(document.getElementById('equipSetSelect').value)
         : null;
 
-      let specialEffectJson = {};
-      if (equipmentSlotCode === 'WINGS' || equipmentSlotCode === 'FLYING_MOUNT') {
+      const existingItem = editId ? (this.equipmentTemplates || []).find((e) => String(e.id) === String(editId)) : null;
+      const baseFx = (existingItem?.specialEffectJson && typeof existingItem.specialEffectJson === 'object') ? { ...existingItem.specialEffectJson } : {};
+      let specialEffectJson = baseFx;
+      if (equipmentSlotCode === 'WINGS' || equipmentSlotCode === 'FLYING_MOUNT' || equipmentSlotCode === 'WEAPON_1') {
         const visVal = document.getElementById('equipVisualModelSelect')?.value || '';
         if (visVal) {
-          const [kind, modelId, visualFormat, mountTplId] = visVal.split('|');
+          const [kind, modelId, visualFormat, femaleModelId] = visVal.split('|');
           const visualScale = parseFloat(document.getElementById('equipVisualScaleInput')?.value) || (equipmentSlotCode === 'WINGS' ? 0.65 : 0.70);
           const visualOffsetX = parseInt(document.getElementById('equipVisualOffsetXInput')?.value, 10) || 0;
           const rawOffY = parseInt(document.getElementById('equipVisualOffsetYInput')?.value, 10);
@@ -501,7 +539,7 @@ class AdminEquipmentsTab {
               backDepth,
               ...(Object.keys(dirOffsets).length > 0 ? { dirOffsets } : {}),
             };
-          } else {
+          } else if (equipmentSlotCode === 'FLYING_MOUNT') {
             const rawRiderY = parseInt(document.getElementById('equipMountRiderOffsetInput')?.value, 10);
             specialEffectJson = {
               mountModelId: modelId,
@@ -516,7 +554,31 @@ class AdminEquipmentsTab {
               riderOffsetY: Number.isFinite(rawRiderY) ? rawRiderY : -22,
               speedBonusPct: parseFloat(document.getElementById('equipMountSpeedBonusInput')?.value) || 25,
             };
+          } else if (kind === 'WEAPON' && modelId) {
+            const dirOffsets = window.AdminEquipmentVisualPreview?.getWingDirOffsets?.() || {};
+            delete specialEffectJson.weaponVisualCleared;
+            delete specialEffectJson.weaponFemaleModelId;
+            delete specialEffectJson.femaleManifestUrl;
+            delete specialEffectJson.dirOffsets;
+            Object.assign(specialEffectJson, {
+              weaponModelId: modelId,
+              ...(femaleModelId ? { weaponFemaleModelId: femaleModelId, femaleManifestUrl: `/api/assets/mcrework/assets/weapons/${femaleModelId}/char_manifest.json` } : {}),
+              visualFormat: 'CHAR_MANIFEST',
+              manifestUrl: `/api/assets/mcrework/assets/weapons/${modelId}/char_manifest.json`,
+              visualScale,
+              visualOffsetX,
+              visualOffsetY,
+              groundOffsetY,
+              ...(Object.keys(dirOffsets).length > 0 ? { dirOffsets } : {}),
+            });
           }
+        } else if (equipmentSlotCode === 'WEAPON_1') {
+          for (const k of ['weaponModelId', 'weaponFemaleModelId', 'manifestUrl', 'femaleManifestUrl', 'visualFormat', 'visualScale', 'visualOffsetX', 'visualOffsetY', 'groundOffsetY', 'dirOffsets']) {
+            delete specialEffectJson[k];
+          }
+          specialEffectJson.weaponVisualCleared = true;
+        } else {
+          specialEffectJson = {};
         }
       }
 
@@ -691,7 +753,7 @@ class AdminEquipmentsTab {
                       <img src="${item.iconUrl}" alt="${item.namePtBr}" style="width:40px; height:40px; object-fit:contain; border-radius:6px; background:#020617; border:1px solid ${rStyle.border};" />
                     </td>
                     <td style="padding:8px 10px;">
-                      <strong style="color:#f8fafc; font-size:0.88rem;">${item.namePtBr}</strong>
+                      <strong style="color:#f8fafc; font-size:0.88rem;">${item.namePtBr}</strong>${item.equipmentSlotCode === 'WEAPON_1' && item.specialEffectJson?.weaponModelId ? '<span style="font-size:0.65rem; color:#22d3ee; background:rgba(34,211,238,0.12); border:1px solid #0891b2; padding:1px 5px; border-radius:4px; margin-left:4px;">⚔️ 2.5D</span>' : ''}
                       <div style="font-size:0.71rem; color:var(--text-muted); font-family:monospace;">${item.code}</div>
                       ${item.descriptionPtBr ? `<div style="font-size:0.71rem; color:#94a3b8; max-width:240px; margin-top:2px; line-height:1.2;">📜 ${item.descriptionPtBr}</div>` : ''}
                     </td>
@@ -756,7 +818,7 @@ class AdminEquipmentsTab {
 
                 <!-- Chips de Slot e Categoria -->
                 <div style="display:flex; flex-wrap:wrap; gap:4px; font-size:0.72rem;">
-                  <span style="padding:2px 8px; border-radius:99px; background:rgba(56,189,248,0.15); color:#bae6fd; font-weight:700;">${sIcon} ${item.slotNamePtBr}</span>
+                  <span style="padding:2px 8px; border-radius:99px; background:rgba(56,189,248,0.15); color:#bae6fd; font-weight:700;">${sIcon} ${item.slotNamePtBr}</span>${item.equipmentSlotCode === 'WEAPON_1' && item.specialEffectJson?.weaponModelId ? '<span style="padding:2px 7px; border-radius:99px; background:rgba(34,211,238,0.12); border:1px solid #0891b2; color:#22d3ee; font-weight:700;">⚔️ 2.5D</span>' : ''}
                   <span style="padding:2px 8px; border-radius:99px; background:${isPet ? 'rgba(192,132,252,0.15)' : 'rgba(148,163,184,0.15)'}; color:${isPet ? '#c084fc' : '#cbd5e1'}; font-weight:600;">${isPet ? '🐾 Pet' : '👤 Personagem'}</span>
                   <span style="padding:2px 8px; border-radius:99px; background:rgba(234,179,8,0.15); color:#fde047; font-weight:700;">Nv. ${item.requiredLevel}</span>
                   ${item.equipmentSetNamePtBr ? `<span style="padding:2px 8px; border-radius:99px; background:rgba(234,179,8,0.2); border:1px solid #eab308; color:#fde047; font-weight:700;">👑 ${item.equipmentSetNamePtBr}</span>` : ''}

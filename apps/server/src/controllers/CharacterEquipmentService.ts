@@ -68,9 +68,26 @@ export interface EquippedMountVisualDto {
   speedBonusPct: number;
 }
 
+export interface EquippedWeaponVisualDto {
+  itemId: number;
+  modelId: string;
+  maleModelId: string;
+  femaleModelId?: string | null;
+  visualFormat: 'CHAR_MANIFEST';
+  manifestUrl: string;
+  maleManifestUrl: string;
+  femaleManifestUrl?: string | null;
+  visualScale: number;
+  visualOffsetX: number;
+  visualOffsetY: number;
+  groundOffsetY: number;
+  dirOffsets?: Record<string, WingDirOffsetDto>;
+}
+
 export interface CharacterVisualAppearanceDto {
   equippedWings: EquippedWingsVisualDto | null;
   equippedMount: EquippedMountVisualDto | null;
+  equippedWeapon: EquippedWeaponVisualDto | null;
 }
 
 export interface EquippedSlotDetailDto {
@@ -97,12 +114,22 @@ export class CharacterEquipmentService {
     return `/api/assets/mcrework/${key.replace(/^\/+/, '')}`;
   }
 
+  private static resolveCharacterActiveCharKey(character: any): string | null {
+    if (!character) return null;
+    if (character.isReborn && character.classTemplate?.rebornMcreworkCharKey) {
+      return character.classTemplate.rebornMcreworkCharKey;
+    }
+    return character.classTemplate?.mcreworkCharKey ?? character.mcreworkCharKey ?? null;
+  }
+
   public static resolveVisualAppearance(
     equippedMap: Record<string, number>,
-    itemsById: Map<number, any>
+    itemsById: Map<number, any>,
+    charKey?: string | null
   ): CharacterVisualAppearanceDto {
     let equippedWings: EquippedWingsVisualDto | null = null;
     let equippedMount: EquippedMountVisualDto | null = null;
+    let equippedWeapon: EquippedWeaponVisualDto | null = null;
 
     const wingItemId = Number(equippedMap?.WINGS) || 0;
     const wingItem = wingItemId > 0 ? itemsById.get(wingItemId) : null;
@@ -176,15 +203,51 @@ export class CharacterEquipmentService {
       }
     }
 
-    return { equippedWings, equippedMount };
+    const weaponItemId = Number(equippedMap?.WEAPON_1) || 0;
+    const weaponItem = weaponItemId > 0 ? itemsById.get(weaponItemId) : null;
+    if (weaponItem) {
+      const fx = (weaponItem.specialEffectJson && typeof weaponItem.specialEffectJson === 'object' ? weaponItem.specialEffectJson : {}) as any;
+      const maleModelId = String(fx.weaponModelId || '').trim();
+      const femaleModelId = String(fx.weaponFemaleModelId || '').trim() || null;
+      if (maleModelId || femaleModelId) {
+        const isFemale = Boolean(charKey && /female/i.test(String(charKey)));
+        const resolvedMaleId = maleModelId || femaleModelId!;
+        const resolvedModelId = isFemale && femaleModelId ? femaleModelId : resolvedMaleId;
+        const maleManifestUrl = `/api/assets/mcrework/assets/weapons/${resolvedMaleId}/char_manifest.json`;
+        const femaleManifestUrl = femaleModelId ? `/api/assets/mcrework/assets/weapons/${femaleModelId}/char_manifest.json` : null;
+        equippedWeapon = {
+          itemId: weaponItem.id,
+          modelId: resolvedModelId,
+          maleModelId: resolvedMaleId,
+          femaleModelId,
+          visualFormat: 'CHAR_MANIFEST',
+          manifestUrl: `/api/assets/mcrework/assets/weapons/${resolvedModelId}/char_manifest.json`,
+          maleManifestUrl,
+          femaleManifestUrl,
+          visualScale: Number(fx.visualScale) > 0 ? Number(fx.visualScale) : 0.70,
+          visualOffsetX: Number(fx.visualOffsetX) || 0,
+          visualOffsetY: Number(fx.visualOffsetY) || 0,
+          groundOffsetY: Number(fx.groundOffsetY ?? 0),
+          dirOffsets: fx.dirOffsets && typeof fx.dirOffsets === 'object' ? fx.dirOffsets : {},
+        };
+      }
+    }
+
+    return { equippedWings, equippedMount, equippedWeapon };
   }
 
   /**
-   * Carrega em lote a aparência visual equipada (Asas e Montaria Voadora) para uma lista de personagens.
+   * Carrega em lote a aparência visual equipada (Asas, Montaria Voadora e Arma Principal) para uma lista de personagens.
    */
   public static async loadVisualAppearanceByCharId(
     prisma: PrismaClient,
-    characters: Array<{ id: number; equippedItemsJson: any }>
+    characters: Array<{
+      id: number;
+      equippedItemsJson: any;
+      isReborn?: boolean;
+      mcreworkCharKey?: string | null;
+      classTemplate?: { mcreworkCharKey?: string | null; rebornMcreworkCharKey?: string | null } | null;
+    }>
   ): Promise<Map<number, CharacterVisualAppearanceDto>> {
     const result = new Map<number, CharacterVisualAppearanceDto>();
     const itemIds = new Set<number>();
@@ -192,9 +255,10 @@ export class CharacterEquipmentService {
       const eq = (c.equippedItemsJson && typeof c.equippedItemsJson === 'object' ? c.equippedItemsJson : {}) as Record<string, number>;
       if (Number(eq.WINGS) > 0) itemIds.add(Number(eq.WINGS));
       if (Number(eq.FLYING_MOUNT) > 0) itemIds.add(Number(eq.FLYING_MOUNT));
+      if (Number(eq.WEAPON_1) > 0) itemIds.add(Number(eq.WEAPON_1));
     }
     if (itemIds.size === 0) {
-      for (const c of characters) result.set(c.id, { equippedWings: null, equippedMount: null });
+      for (const c of characters) result.set(c.id, { equippedWings: null, equippedMount: null, equippedWeapon: null });
       return result;
     }
     const items = await prisma.itemTemplate.findMany({ where: { id: { in: Array.from(itemIds) } } });
@@ -202,7 +266,8 @@ export class CharacterEquipmentService {
 
     for (const c of characters) {
       const eq = (c.equippedItemsJson && typeof c.equippedItemsJson === 'object' ? c.equippedItemsJson : {}) as Record<string, number>;
-      result.set(c.id, this.resolveVisualAppearance(eq, itemsById));
+      const charKey = this.resolveCharacterActiveCharKey(c);
+      result.set(c.id, this.resolveVisualAppearance(eq, itemsById, charKey));
     }
     return result;
   }
@@ -239,7 +304,12 @@ export class CharacterEquipmentService {
   }> {
     const pc = await prisma.playerCharacter.findUnique({
       where: { id: Number(characterId) },
-      select: { id: true, equippedItemsJson: true },
+      select: {
+        id: true,
+        equippedItemsJson: true,
+        isReborn: true,
+        classTemplate: { select: { mcreworkCharKey: true, rebornMcreworkCharKey: true } },
+      },
     });
     if (!pc) {
       throw new Error(`Personagem #${characterId} não encontrado.`);
@@ -314,7 +384,7 @@ export class CharacterEquipmentService {
       };
     });
 
-    const visualAppearance = this.resolveVisualAppearance(equippedMap, itemsById);
+    const visualAppearance = this.resolveVisualAppearance(equippedMap, itemsById, this.resolveCharacterActiveCharKey(pc));
 
     // --- Cálculo de Bônus de Conjuntos de Equipamentos (100% full = 100% bônus, 50% half = 40% bônus) ---
     const setPiecesCount = new Map<number, { set: any; count: number }>();

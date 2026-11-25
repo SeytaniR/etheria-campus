@@ -340,7 +340,7 @@ export class GamePlayController {
       unspentStatPoints: c.unspentStatPoints,
       distributedStatsJson: c.distributedStatsJson,
       equippedItemsJson: c.equippedItemsJson || {},
-      visualAppearance: visualAppearance || { equippedWings: null, equippedMount: null },
+      visualAppearance: visualAppearance || { equippedWings: null, equippedMount: null, equippedWeapon: null },
       skillIdsJson: Array.isArray(c.classTemplate?.skillIdsJson) ? c.classTemplate.skillIdsJson : [],
       baseAttributesJson: c.classTemplate?.baseAttributesJson ?? {
         VIT: 10,

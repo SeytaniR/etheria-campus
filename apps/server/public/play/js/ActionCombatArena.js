@@ -241,7 +241,9 @@ class ActionCombatArena {
       combatStyle: pState.combatStyle || this.client?.activeChar?.combatStyle || 'MELEE',
       attackRange: pState.attackRange || this.client?.activeChar?.attackRange || (pState.combatStyle === 'RANGED' ? 220 : 60),
       damageType: pState.damageType || this.client?.activeChar?.damageType || 'PHYSICAL',
+      mcreworkCharKey: pState.spriteKey || this.client?.activeChar?.mcreworkCharKey || null,
       equippedWings: pState.equippedWings || this.client?.activeChar?.visualAppearance?.equippedWings || null,
+      equippedWeapon: pState.equippedWeapon || this.client?.activeChar?.visualAppearance?.equippedWeapon || null,
       isAttacking: false, attackTimer: 0, isDashing: false, dashTimer: 0, hitTimer: 0,
     };
     if (this.client) {

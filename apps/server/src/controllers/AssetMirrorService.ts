@@ -322,6 +322,10 @@ export class AssetMirrorService {
         addRel(`assets/mounts/${modelId}/atlas.webp`);
         addRel(`assets/mounts/${modelId}/thumb.webp`);
       }
+      const weaponModelId = String(fx.weaponModelId || '').trim();
+      const weaponFemaleModelId = String(fx.weaponFemaleModelId || '').trim();
+      if (weaponModelId) addRel(`assets/weapons/${weaponModelId}/char_manifest.json`);
+      if (weaponFemaleModelId) addRel(`assets/weapons/${weaponFemaleModelId}/char_manifest.json`);
     }
 
     return { mapEntries, relPaths: Array.from(set) };
@@ -342,12 +346,35 @@ export class AssetMirrorService {
           if (r) okCount++;
         }
       }
-      // Pré-aquece também todos os frames individuais (bmp_*.png) de asas e planadores já salvos
+      // Pré-aquece também todos os frames individuais (bmp_*.png) de asas, planadores e armas já salvos (sem duplicatas)
       const visualItems = await prisma.itemTemplate.findMany({
         select: { specialEffectJson: true },
       });
+      const seenWingOrMount = new Set<string>();
+      const seenWeapons = new Set<string>();
       for (const it of visualItems) {
-        await this.mirrorVisualModelAssets(it.specialEffectJson);
+        if (!it.specialEffectJson || typeof it.specialEffectJson !== 'object') continue;
+        const fx = it.specialEffectJson as Record<string, unknown>;
+        const wingId = typeof fx.wingModelId === 'string' ? fx.wingModelId.trim() : '';
+        const mountId = typeof fx.mountModelId === 'string' ? fx.mountModelId.trim() : '';
+        const wMaleId = typeof fx.weaponModelId === 'string' ? fx.weaponModelId.trim() : '';
+        const wFemaleId = typeof fx.weaponFemaleModelId === 'string' ? fx.weaponFemaleModelId.trim() : '';
+        if (wingId && !seenWingOrMount.has(wingId)) {
+          seenWingOrMount.add(wingId);
+          await this.mirrorMountAssets(wingId);
+        }
+        if (mountId && !seenWingOrMount.has(mountId)) {
+          seenWingOrMount.add(mountId);
+          await this.mirrorMountAssets(mountId);
+        }
+        if (wMaleId && !seenWeapons.has(wMaleId)) {
+          seenWeapons.add(wMaleId);
+          await this.mirrorWeaponAssets(wMaleId);
+        }
+        if (wFemaleId && !seenWeapons.has(wFemaleId)) {
+          seenWeapons.add(wFemaleId);
+          await this.mirrorWeaponAssets(wFemaleId);
+        }
       }
       console.log(`📦 [AssetMirrorService] ${okCount}/${relPaths.length} assets curados prontos no disco local da VPS.`);
       return okCount;
@@ -462,20 +489,10 @@ export class AssetMirrorService {
   }
 
   /**
-   * Baixa e instala no disco da VPS o `char_manifest.json`, thumbs e todos os frames `bmp_*.png`
-   * de uma Asa Celestial ou Planador (`equip_wing_*` / `equip_fly_*`).
+   * Baixa e instala no disco da VPS todos os frames listados dentro de um `char_manifest.json`.
    */
-  public async mirrorWingAssets(modelId: string | null | undefined): Promise<void> {
-    if (!modelId) return;
-    const cleanId = String(modelId).trim();
-    if (!cleanId) return;
-
-    const manifestAsset = await this.getOrFetchAsset(`assets/wings/${cleanId}/char_manifest.json`);
-    await Promise.allSettled([
-      this.getOrFetchAsset(`assets/wings/${cleanId}/thumb.png`),
-      this.getOrFetchAsset(`assets/wings/${cleanId}/thumb.webp`),
-    ]);
-
+  private async mirrorManifestFrames(manifestRelPath: string, concurrency: number = 8): Promise<void> {
+    const manifestAsset = await this.getOrFetchAsset(manifestRelPath);
     if (!manifestAsset?.buffer) return;
     try {
       const manifestData = JSON.parse(manifestAsset.buffer.toString('utf-8')) as Record<string, any>;
@@ -489,13 +506,38 @@ export class AssetMirrorService {
         }
       }
       const list = Array.from(frameFiles);
-      const concurrency = 6;
       for (let i = 0; i < list.length; i += concurrency) {
         await Promise.allSettled(list.slice(i, i + concurrency).map((rel) => this.getOrFetchAsset(rel)));
       }
     } catch {
       // Ignora manifesto inválido
     }
+  }
+
+  /**
+   * Baixa e instala no disco da VPS o `char_manifest.json`, thumbs e todos os frames `bmp_*.png`
+   * de uma Asa Celestial ou Planador (`equip_wing_*` / `equip_fly_*`).
+   */
+  public async mirrorWingAssets(modelId: string | null | undefined): Promise<void> {
+    if (!modelId) return;
+    const cleanId = String(modelId).trim();
+    if (!cleanId) return;
+
+    await Promise.allSettled([
+      this.mirrorManifestFrames(`assets/wings/${cleanId}/char_manifest.json`, 6),
+      this.getOrFetchAsset(`assets/wings/${cleanId}/thumb.png`),
+      this.getOrFetchAsset(`assets/wings/${cleanId}/thumb.webp`),
+    ]);
+  }
+
+  /**
+   * Baixa e instala no disco da VPS o `char_manifest.json` e todos os frames `bmp_*.png` de uma Arma 2.5D (`equip_mc*` / `equip_fc*`).
+   */
+  public async mirrorWeaponAssets(modelId: string | null | undefined): Promise<void> {
+    if (!modelId) return;
+    const cleanId = String(modelId).trim();
+    if (!cleanId) return;
+    await this.mirrorManifestFrames(`assets/weapons/${cleanId}/char_manifest.json`, 12);
   }
 
   /**
@@ -518,15 +560,19 @@ export class AssetMirrorService {
   }
 
   /**
-   * Espelha automaticamente quaisquer modelos visuais configurados em `specialEffectJson` (`wingModelId` / `mountModelId`).
+   * Espelha automaticamente quaisquer modelos visuais configurados em `specialEffectJson` (`wingModelId`, `mountModelId`, `weaponModelId`, `weaponFemaleModelId`).
    */
   public async mirrorVisualModelAssets(specialEffectJson: unknown): Promise<void> {
     if (!specialEffectJson || typeof specialEffectJson !== 'object') return;
     const fx = specialEffectJson as Record<string, unknown>;
     const wingId = typeof fx.wingModelId === 'string' ? fx.wingModelId.trim() : '';
     const mountId = typeof fx.mountModelId === 'string' ? fx.mountModelId.trim() : '';
+    const weaponId = typeof fx.weaponModelId === 'string' ? fx.weaponModelId.trim() : '';
+    const weaponFemaleId = typeof fx.weaponFemaleModelId === 'string' ? fx.weaponFemaleModelId.trim() : '';
     if (wingId) await this.mirrorMountAssets(wingId);
     if (mountId && mountId !== wingId) await this.mirrorMountAssets(mountId);
+    if (weaponId) await this.mirrorWeaponAssets(weaponId);
+    if (weaponFemaleId && weaponFemaleId !== weaponId) await this.mirrorWeaponAssets(weaponFemaleId);
   }
 
   /**

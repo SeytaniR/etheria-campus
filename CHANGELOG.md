@@ -5,6 +5,22 @@ Qualquer IA trabalhando neste repositório **DEVE** incrementar a versão e regi
 
 ---
 
+## [v0.67.0] - 2026-11-25
+### Armas Principais (`WEAPON_1`) 2.5D na Mão do Personagem, Preview `/admin` & Backfill Automático
+* **Resolução Autoritária & Presença Multiplayer (`CharacterEquipmentService.ts`, `GamePlayController.ts`, `MapPresenceService.ts`, `TemporaryCombatController.ts`):**
+  * Adicionado `EquippedWeaponVisualDto` em `CharacterVisualAppearanceDto` (`equippedWeapon`) com seleção automática de modelo masculino (`equip_mc*`) ou feminino (`equip_fc*`) baseada no `mcreworkCharKey` ativo da classe (incluindo Reborn) e URLs estritamente same-origin (`/api/assets/mcrework/assets/weapons/*`, Regra #10).
+  * Propagado `equippedWeapon` na serialização do personagem (`/play`), no cache de presença multiplayer (`MapPresenceService`) e na unidade de jogador na arena (`TemporaryCombatController`).
+* **Renderização 2.5D Sincronizada em `/play` (`PlayFlightAndWingsController.js`, `PlayWorldRenderer.js`, `ActionCombatArena.js`, `PlayMapPresenceController.js`):**
+  * `McreworkManifestSprite`: adicionada ancoragem adaptativa `computeWeaponAnchorY(rawH)` (pivô `110/150` em canvases compactos `<= 200px` e `(rawH / 2 + 46) / rawH` em canvases expandidos `240px–460px`), além de suporte a `clampLastFrame` em animações finais.
+  * `PlayFlightAndWingsController`: `drawWeaponForUnit` e `computeWeaponTransform` sincronizados quadro a quadro com `opts.now` (incluindo ataques/caminhada/morte, espelhamento esquerdo X, camada `AUTO`/`BACK`/`FRONT`, voo em montaria e independência de `char.groundOffsetY`), integrados no mapa aberto, arena de combate e jogadores remotos.
+* **Preview Interativo no `/admin`, Espelhamento Local & Backfill Automático (`AssetMirrorService.ts`, `AdminEquipmentsController.ts`, `AdminEquipmentsTab.js`, `AdminEquipmentModalDom.js`, `AdminEquipmentVisualPreview.js`, `scripts/backfill_weapon_visuals.mjs`):**
+  * `AssetMirrorService`: adicionado `mirrorWeaponAssets` (reaproveitando `mirrorManifestFrames`) e inclusão automática nos manifests curados e pré-aquecimento sem duplicatas.
+  * `AdminEquipmentsController`: exposta lista `weapons` em `/api/admin/equipments/visual-models` + `backfillMissingWeaponVisuals()` idempotente na inicialização (`index.ts`) e CLI (`scripts/backfill_weapon_visuals.mjs`) vinculando automaticamente as armas `WEAPON_1` existentes pelo ícone sem alterar atributos, nomes ou preços (Cláusula 0.2).
+  * Estúdio `/admin`: palco 2.5D ao vivo, badge `⚔️ 2.5D` e calibração opcional (`scale`, `X`, `Y`, `Z`, `dirOffsets` e camada `BACK`/`FRONT`) para itens `WEAPON_1`.
+* **Testes:** Criada suíte `tests/test_weapon_visuals.mjs` integrada ao `npm test` (**8/8 suítes aprovadas**).
+
+---
+
 ## [v0.66.0] - 2026-11-25
 ### Sistema Completo de Pesca Contínua (AFK), Malha de Água, Varas Dedicadas & HUDs Editáveis
 * **Malha Poligonal de Pesca no Mapa (`fishingMeshJson`):**

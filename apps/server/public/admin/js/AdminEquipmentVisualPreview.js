@@ -387,10 +387,11 @@ class AdminEquipmentVisualPreview {
       groundOffsetY: petTpl.groundOffsetY || 0,
     } : null;
 
+    const [kind, modelId, visualFormat, extraModelId] = visVal.split('|');
     let wingsObj = null;
     let mountObj = null;
+    let weaponObj = null;
     if (visVal) {
-      const [kind, modelId, visualFormat] = visVal.split('|');
       if (slotCode === 'WINGS' && modelId) {
         wingsObj = {
           modelId,
@@ -432,6 +433,21 @@ class AdminEquipmentVisualPreview {
           visualOffsetX,
           visualOffsetY,
         };
+      } else if (slotCode === 'WEAPON_1' && modelId) {
+        weaponObj = {
+          modelId,
+          maleModelId: modelId,
+          femaleModelId: extraModelId || null,
+          visualFormat: 'CHAR_MANIFEST',
+          manifestUrl: `/api/assets/mcrework/assets/weapons/${modelId}/char_manifest.json`,
+          maleManifestUrl: `/api/assets/mcrework/assets/weapons/${modelId}/char_manifest.json`,
+          femaleManifestUrl: extraModelId ? `/api/assets/mcrework/assets/weapons/${extraModelId}/char_manifest.json` : null,
+          visualScale,
+          visualOffsetX,
+          visualOffsetY,
+          groundOffsetY: groundOffsetZ,
+          dirOffsets: this.getWingDirOffsets(),
+        };
       }
     }
 
@@ -467,6 +483,8 @@ class AdminEquipmentVisualPreview {
         shadowOffsetY: cls.shadowOffsetY || 0,
         wingsObj,
         mountObj,
+        weaponObj,
+        charKey: cKey,
         followerPet,
         isFlying: slotCode === 'FLYING_MOUNT' && Boolean(mountObj),
         flightAltitude: slotCode === 'FLYING_MOUNT' && Boolean(mountObj) ? flightAlt : 0,

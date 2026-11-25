@@ -151,6 +151,8 @@ export class AdminEquipmentsController {
           suggestedSlot,
           suggestedCategory: isPet ? 'PET_EQUIPMENT' : 'CHARACTER_EQUIPMENT',
           suggestedModelId: isWingThumb ? isWingThumb[1] : null,
+          suggestedWeaponMaleModelId: item.active_weapon_model ? String(item.active_weapon_model).trim() : null,
+          suggestedWeaponFemaleModelId: item.active_female_weapon_model ? String(item.active_female_weapon_model).trim() : null,
         };
       });
 
@@ -163,12 +165,13 @@ export class AdminEquipmentsController {
   }
 
   /**
-   * Lista os modelos 2.5D animados de Asas e Montarias Voadoras disponíveis (wings/catalog.json + mounts/catalog.json).
+   * Lista os modelos 2.5D animados disponíveis de Asas, Planadores, Montarias Voadoras e Armas Principais.
    */
   public async getMcreworkVisualModelsCatalog() {
-    const [wingsRes, mountsCatalogRes] = await Promise.all([
+    const [wingsRes, mountsCatalogRes, equipmentGallery] = await Promise.all([
       fetch(`${this.mcreworkRawBaseUrl}/assets/wings/catalog.json`).then((r) => (r.ok ? r.json() : [])).catch(() => []),
       fetch(`${this.mcreworkRawBaseUrl}/assets/mounts/catalog.json`).then((r) => (r.ok ? r.json() : { mounts: [] })).catch(() => ({ mounts: [] })),
+      this.getMcreworkEquipmentGallery(),
     ]);
     const wingsCatalog = Array.isArray(wingsRes) ? wingsRes : [];
     const rawCatalogMounts = Array.isArray((mountsCatalogRes as any)?.mounts) ? (mountsCatalogRes as any).mounts : [];
@@ -213,7 +216,126 @@ export class AdminEquipmentsController {
       });
     }
 
-    return { wings, gliders, mounts };
+    const seenWeaponPairs = new Set<string>();
+    const weapons: any[] = [];
+    for (const it of equipmentGallery) {
+      const male = it.suggestedWeaponMaleModelId ? String(it.suggestedWeaponMaleModelId).trim() : '';
+      const female = it.suggestedWeaponFemaleModelId ? String(it.suggestedWeaponFemaleModelId).trim() : '';
+      if (!male && !female) continue;
+      const pairKey = `${male}|${female}`;
+      if (seenWeaponPairs.has(pairKey)) continue;
+      seenWeaponPairs.add(pairKey);
+      const primaryId = male || female;
+      weapons.push({
+        modelId: primaryId,
+        maleModelId: primaryId,
+        femaleModelId: female || null,
+        name: it.name || primaryId,
+        typeName: it.typeName || 'Arma',
+        iconUrl: it.iconUrl,
+        iconKey: it.mcreworkIconKey,
+        manifestUrl: `/api/assets/mcrework/assets/weapons/${primaryId}/char_manifest.json`,
+        femaleManifestUrl: female ? `/api/assets/mcrework/assets/weapons/${female}/char_manifest.json` : null,
+        visualFormat: 'CHAR_MANIFEST',
+      });
+    }
+    weapons.sort((a, b) => {
+      const tCmp = String(a.typeName || '').localeCompare(String(b.typeName || ''), 'pt-BR');
+      return tCmp !== 0 ? tCmp : String(a.name || '').localeCompare(String(b.name || ''), 'pt-BR');
+    });
+
+    return { wings, gliders, mounts, weapons };
+  }
+
+  /**
+   * Backfill idempotente e não-destrutivo que vincula automaticamente os modelos 2.5D nativos (male/female)
+   * às armas `WEAPON_1` já cadastradas no banco cujo `specialEffectJson.weaponModelId` ainda esteja vazio.
+   */
+  public async backfillMissingWeaponVisuals(options?: { awaitMirror?: boolean }): Promise<{ linked: number; skipped: number; unmatched: number }> {
+    try {
+      const rows = await this.prisma.itemTemplate.findMany({
+        where: { equipmentSlotCode: 'WEAPON_1' },
+        select: { id: true, code: true, mcreworkIconKey: true, specialEffectJson: true },
+      });
+
+      const candidates = rows.filter((r) => {
+        const fx = (r.specialEffectJson && typeof r.specialEffectJson === 'object' ? r.specialEffectJson : {}) as Record<string, any>;
+        return !String(fx.weaponModelId || '').trim() && fx.weaponVisualCleared !== true;
+      });
+      if (candidates.length === 0) {
+        return { linked: 0, skipped: rows.length, unmatched: 0 };
+      }
+
+      const gallery = await this.getMcreworkEquipmentGallery();
+      const byIcon = new Map<string, { male: string | null; female: string | null }>();
+      for (const it of gallery) {
+        if (!it.mcreworkIconKey) continue;
+        const clean = String(it.mcreworkIconKey).replace(/^\/+/, '');
+        const male = it.suggestedWeaponMaleModelId ? String(it.suggestedWeaponMaleModelId).trim() : null;
+        const female = it.suggestedWeaponFemaleModelId ? String(it.suggestedWeaponFemaleModelId).trim() : null;
+        if ((male || female) && !byIcon.has(clean)) {
+          byIcon.set(clean, { male, female });
+        }
+      }
+
+      let linked = 0;
+      let unmatched = 0;
+      const mirroredSet = new Set<string>();
+
+      for (const row of candidates) {
+        const cleanIcon = String(row.mcreworkIconKey || '').replace(/^\/+/, '');
+        const match = cleanIcon ? byIcon.get(cleanIcon) : undefined;
+        if (!match || (!match.male && !match.female)) {
+          unmatched++;
+          continue;
+        }
+        const maleModelId = match.male || match.female!;
+        const femaleModelId = match.female || null;
+        const existingFx = (row.specialEffectJson && typeof row.specialEffectJson === 'object' ? row.specialEffectJson : {}) as Record<string, any>;
+        const nextFx: Record<string, any> = {
+          ...existingFx,
+          weaponModelId: maleModelId,
+          ...(femaleModelId ? { weaponFemaleModelId: femaleModelId } : {}),
+          visualFormat: 'CHAR_MANIFEST',
+          manifestUrl: `/api/assets/mcrework/assets/weapons/${maleModelId}/char_manifest.json`,
+          ...(femaleModelId ? { femaleManifestUrl: `/api/assets/mcrework/assets/weapons/${femaleModelId}/char_manifest.json` } : {}),
+          visualScale: existingFx.visualScale ?? 0.70,
+          visualOffsetX: existingFx.visualOffsetX ?? 0,
+          visualOffsetY: existingFx.visualOffsetY ?? 0,
+          groundOffsetY: existingFx.groundOffsetY ?? 0,
+        };
+        await this.prisma.itemTemplate.update({
+          where: { id: row.id },
+          data: { specialEffectJson: nextFx as any },
+        });
+        linked++;
+        mirroredSet.add(maleModelId);
+        if (femaleModelId) mirroredSet.add(femaleModelId);
+      }
+
+      const skipped = rows.length - candidates.length;
+      if (linked > 0) {
+        console.log(`⚔️ [AdminEquipmentsController] Backfill 2.5D: ${linked} armas WEAPON_1 vinculadas automaticamente (${unmatched} sem modelo nativo).`);
+        await this.snapshotManager.exportToDisk();
+        if (this.assetMirrorService && mirroredSet.size > 0) {
+          const mirrorTask = (async () => {
+            for (const mid of mirroredSet) {
+              try {
+                await this.assetMirrorService!.mirrorWeaponAssets(mid);
+              } catch {
+                // ignora falha individual de espelhamento em background
+              }
+            }
+          })();
+          if (options?.awaitMirror) await mirrorTask;
+          else void mirrorTask;
+        }
+      }
+      return { linked, skipped, unmatched };
+    } catch (err: any) {
+      console.warn('[AdminEquipmentsController] Aviso ao executar backfill 2.5D de armas:', err?.message || err);
+      return { linked: 0, skipped: 0, unmatched: 0 };
+    }
   }
 
   /**

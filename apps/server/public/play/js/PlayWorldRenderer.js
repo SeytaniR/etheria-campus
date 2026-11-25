@@ -141,6 +141,7 @@ class PlayWorldRenderer {
             action: client.isMoving ? 1 : 0, dir: client.playerDir, now, mesh: client.mesh,
             groundOffsetY, shadowOffsetX: char.shadowOffsetX || 0, shadowOffsetY: char.shadowOffsetY || 0,
             wingsObj: char.visualAppearance?.equippedWings || null, mountObj: char.visualAppearance?.equippedMount || null,
+            weaponObj: char.visualAppearance?.equippedWeapon || null, charKey: char.mcreworkCharKey || null,
             followerPet: window.PlayPetsController?.getPrimaryFollowerPet?.() || null,
             isFlying: Boolean(client.isFlying), flightAltitude: Number(client.flightAltitudeCurrent) || 0, customScale: window.PlayFlightAndWingsController?.getFlyingPlayerScale?.(client, 0.70) || 0.70,
           });
@@ -164,7 +165,10 @@ class PlayWorldRenderer {
             client: client, charSprite: p.sprite, worldX: p.x, worldY: p.y,
             action: p.action, dir: p.dir, now: elapsed, wingNow: now, mesh: client.mesh,
             groundOffsetY: p.groundOffsetY || 0, shadowOffsetX: p.shadowOffsetX || 0, shadowOffsetY: p.shadowOffsetY || 0,
-            wingsObj: p.equippedWings || null, mountObj: null, isFlying: false, flightAltitude: 0, customScale: 0.70,
+            wingsObj: p.equippedWings || null, mountObj: null, weaponObj: p.equippedWeapon || null,
+            charKey: p.mcreworkCharKey || client.activeChar?.mcreworkCharKey || null,
+            clampLastFrame: p.action === 6,
+            isFlying: false, flightAltitude: 0, customScale: 0.70,
           });
         } else if (p.sprite) {
           p.sprite.draw(ctx, p.x, p.y, p.action, p.dir, elapsed, client.mesh, p.groundOffsetY || 0, 0.70, false, p.shadowOffsetX || 0, p.shadowOffsetY || 0);

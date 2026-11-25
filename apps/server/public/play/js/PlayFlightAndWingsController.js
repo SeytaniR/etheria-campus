@@ -137,14 +137,24 @@ class McreworkManifestSprite {
       });
   }
 
-  drawFrame(ctx, worldX, worldY, direction = 0, action = 0, elapsedMs = 0, meshOrAlpha = null, scale = 0.70, anchorX = 0.5, anchorY = 0.5) {
+  static computeWeaponAnchorY(rawH) {
+    if (!rawH || rawH <= 0) return 110 / 150;
+    // Canvases compactos (<= 200px, ex: 200x150, 250x188, 190x143) mantêm pivô proporcional 110/150 (~0.733).
+    // Canvases expandidos (> 200px, ex: 300x240, 320x256, 400x300, 460x460) mantêm pivô central h/2 com pés em h/2 + 46px.
+    return rawH > 200 ? (rawH / 2 + 46) / rawH : (110 / 150);
+  }
+
+  drawFrame(ctx, worldX, worldY, direction = 0, action = 0, elapsedMs = 0, meshOrAlpha = null, scale = 0.70, anchorX = 0.5, anchorY = 0.5, clampLastFrame = false) {
     if (!this.loading && !this.ready) this.load();
     if (!this.manifestData) return false;
 
     const { seq, flipX } = this.resolveSequence(direction, action);
     if (!Array.isArray(seq) || seq.length === 0) return false;
 
-    const frameIdx = Math.floor(Math.max(0, elapsedMs) / 80) % seq.length;
+    const rawFrameIdx = Math.floor(Math.max(0, elapsedMs) / 80);
+    const frameIdx = clampLastFrame
+      ? Math.min(seq.length - 1, rawFrameIdx)
+      : rawFrameIdx % seq.length;
     const entry = seq[frameIdx];
     const rel = entry?.file ? entry.file.replace(/^\/+/, '') : '';
     const img = rel ? this.frameImages.get(rel) : null;
@@ -154,8 +164,12 @@ class McreworkManifestSprite {
     const rawH = entry.height || img.naturalHeight;
     const dw = Math.round(rawW * scale);
     const dh = Math.round(rawH * scale);
+    const resolvedAnchorY =
+      anchorY === 'WEAPON_AUTO'
+        ? McreworkManifestSprite.computeWeaponAnchorY(rawH)
+        : anchorY;
     const dx = Math.round(worldX - dw * anchorX);
-    const dy = Math.round(worldY - dh * anchorY);
+    const dy = Math.round(worldY - dh * resolvedAnchorY);
 
     ctx.save();
     if (window.McreworkSpriteSheet?.prototype?.renderSpriteWithOverlapClipping) {
@@ -207,15 +221,36 @@ class PlayFlightAndWingsController {
     return sp;
   }
 
+  static resolveWeaponModelForChar(weaponObj, charKey) {
+    if (!weaponObj) return null;
+    const isFemale = Boolean(charKey && /female/i.test(String(charKey)));
+    const modelId =
+      isFemale && weaponObj.femaleModelId
+        ? weaponObj.femaleModelId
+        : (weaponObj.maleModelId || weaponObj.modelId || weaponObj.femaleModelId || '');
+    if (!modelId) return null;
+    const manifestUrl =
+      isFemale && weaponObj.femaleModelId
+        ? (weaponObj.femaleManifestUrl || `/api/assets/mcrework/assets/weapons/${modelId}/char_manifest.json`)
+        : (weaponObj.maleManifestUrl || weaponObj.manifestUrl || `/api/assets/mcrework/assets/weapons/${modelId}/char_manifest.json`);
+    return { modelId, manifestUrl };
+  }
+
   static syncVisualAppearance(client, visualAppearance) {
     if (!client) return;
-    const vis = visualAppearance || { equippedWings: null, equippedMount: null };
+    const vis = visualAppearance || { equippedWings: null, equippedMount: null, equippedWeapon: null };
     if (client.activeChar) {
       client.activeChar.visualAppearance = vis;
     }
 
     if (vis.equippedWings?.modelId) {
       this.getOrCreateManifestSprite(vis.equippedWings.modelId, vis.equippedWings.manifestUrl, vis.equippedWings.thumbUrl);
+    }
+    if (vis.equippedWeapon) {
+      const wRes = this.resolveWeaponModelForChar(vis.equippedWeapon, client.activeChar?.mcreworkCharKey);
+      if (wRes) {
+        this.getOrCreateManifestSprite(wRes.modelId, wRes.manifestUrl, null);
+      }
     }
     if (vis.equippedMount?.modelId) {
       if (vis.equippedMount.visualFormat === 'ATLAS') {
@@ -628,6 +663,43 @@ class PlayFlightAndWingsController {
     return sp.drawFrame(ctx, wingX, wingY, dir, action, now, mesh, wingScale, 0.5, 0.5);
   }
 
+  static shouldDrawWeaponBehind(rawDir, weaponObj) {
+    const dirKey = String((((Number(rawDir) || 0) % 8) + 8) % 8);
+    const layer = weaponObj?.dirOffsets?.[dirKey]?.layer;
+    if (layer === 'BACK') return true;
+    if (layer === 'FRONT') return false;
+    return false;
+  }
+
+  static computeWeaponTransform(weaponObj, x, y, rawDir, customScale = 0.70) {
+    const d = (((Number(rawDir) || 0) % 8) + 8) % 8;
+    const baseScale = Number(customScale) > 0 ? Number(customScale) : 0.70;
+    const scaleRatio = baseScale / 0.70;
+    const weaponScale = Number(weaponObj.visualScale) > 0 ? Number(weaponObj.visualScale) * scaleRatio : baseScale;
+    const gOffWeapon = Math.round((Number(weaponObj.groundOffsetY) || 0) * baseScale);
+    const isLeftSide = d === 5 || d === 6 || d === 7;
+    const baseOffX = (Number(weaponObj.visualOffsetX) || 0) * (isLeftSide ? -1 : 1) * scaleRatio;
+    const baseOffY = (Number(weaponObj.visualOffsetY) || 0) * scaleRatio;
+    const dOv = weaponObj.dirOffsets && typeof weaponObj.dirOffsets === 'object' ? weaponObj.dirOffsets[String(d)] : null;
+    const dirOffX = (Number(dOv?.x) || 0) * scaleRatio;
+    const dirOffY = (Number(dOv?.y) || 0) * scaleRatio;
+    const feetBaseY = Math.round(4 * scaleRatio);
+    return {
+      weaponX: Math.round(x + baseOffX + dirOffX),
+      weaponY: Math.round(y + feetBaseY + gOffWeapon + baseOffY + dirOffY),
+      weaponScale,
+    };
+  }
+
+  static drawWeaponForUnit(ctx, weaponObj, x, y, dir, action, now, mesh, customScale = 0.70, charKey = null, clampLastFrame = false) {
+    const res = this.resolveWeaponModelForChar(weaponObj, charKey);
+    if (!res) return false;
+    const sp = this.getOrCreateManifestSprite(res.modelId, res.manifestUrl, null);
+    if (!sp) return false;
+    const { weaponX, weaponY, weaponScale } = this.computeWeaponTransform(weaponObj, x, y, dir, customScale);
+    return sp.drawFrame(ctx, weaponX, weaponY, dir, action, now, mesh, weaponScale, 0.5, 'WEAPON_AUTO', clampLastFrame);
+  }
+
   static getDirVector8(rawDir) {
     const table = [
       [0, 1],        // 0: S
@@ -676,12 +748,14 @@ class PlayFlightAndWingsController {
     const {
       client, charSprite, worldX, worldY, action, dir, now, mesh,
       groundOffsetY = 0, shadowOffsetX = 0, shadowOffsetY = 0,
-      wingsObj = null, mountObj = null, followerPet = null,
+      wingsObj = null, mountObj = null, weaponObj = null, charKey = null,
+      followerPet = null, clampLastFrame = false,
       isFlying = false, flightAltitude = 0, customScale = 0.70,
     } = opts;
 
     const rawDir = (((Number(dir) || 0) % 8) + 8) % 8;
     const drawWingsBehind = this.shouldDrawWingsBehind(rawDir, wingsObj);
+    const drawWeaponBehind = weaponObj ? this.shouldDrawWeaponBehind(rawDir, weaponObj) : false;
     const wingTime = opts.wingNow !== undefined ? opts.wingNow : now;
     const alt = isFlying || flightAltitude > 0.5 ? Math.max(0, Number(flightAltitude) || 0) : 0;
     const scale = Number(customScale) > 0 ? Number(customScale) : 0.70;
@@ -721,7 +795,7 @@ class PlayFlightAndWingsController {
         mManifest?.drawFrame(ctx, mX, mY - 8 + mGroundZ, rawDir, action, now, null, mScale, 0.5, 0.55);
       }
 
-      // 4. Cavaleiro em Idle + Pet seguidor colado logo atrás do personagem + Asas
+      // 4. Cavaleiro em Idle + Arma equipada + Pet seguidor colado logo atrás do personagem + Asas
       const riderX = Math.round(worldX + (Number(mountObj.riderOffsetX) || 0));
       const riderY = Math.round(elevY + (Number(mountObj.riderOffsetY) ?? -22));
       const petInFrontOfRider = rawDir === 3 || rawDir === 4 || rawDir === 5;
@@ -732,7 +806,13 @@ class PlayFlightAndWingsController {
       if (wingsObj && drawWingsBehind) {
         this.drawWingForUnit(ctx, wingsObj, riderX, riderY, rawDir, 0, wingTime, null, groundOffsetY, scale);
       }
+      if (weaponObj && drawWeaponBehind) {
+        this.drawWeaponForUnit(ctx, weaponObj, riderX, riderY, rawDir, 0, now, null, scale, charKey, false);
+      }
       charSprite?.draw(ctx, riderX, riderY, 0, rawDir, now, null, groundOffsetY, scale, false, shadowOffsetX, shadowOffsetY, true);
+      if (weaponObj && !drawWeaponBehind) {
+        this.drawWeaponForUnit(ctx, weaponObj, riderX, riderY, rawDir, 0, now, null, scale, charKey, false);
+      }
       if (wingsObj && !drawWingsBehind) {
         this.drawWingForUnit(ctx, wingsObj, riderX, riderY, rawDir, 0, wingTime, null, groundOffsetY, scale);
       }
@@ -744,11 +824,17 @@ class PlayFlightAndWingsController {
       return elevY - 66 + Math.round((groundOffsetY + (Number(mountObj.riderOffsetY) ?? -22)) * scale);
     }
 
-    // No solo (sem voo ativo): personagem + asas equipadas (com clip de sobreposição ativo no chão)
+    // No solo (sem voo ativo): personagem + arma equipada + asas equipadas (com clip de sobreposição ativo no chão)
     if (wingsObj && drawWingsBehind) {
       this.drawWingForUnit(ctx, wingsObj, worldX, worldY, rawDir, action, wingTime, effectiveMesh, groundOffsetY, scale);
     }
-    charSprite?.draw(ctx, worldX, worldY, action, rawDir, now, effectiveMesh, groundOffsetY, scale, false, shadowOffsetX, shadowOffsetY, false);
+    if (weaponObj && drawWeaponBehind) {
+      this.drawWeaponForUnit(ctx, weaponObj, worldX, worldY, rawDir, action, now, effectiveMesh, scale, charKey, clampLastFrame);
+    }
+    charSprite?.draw(ctx, worldX, worldY, action, rawDir, now, effectiveMesh, groundOffsetY, scale, clampLastFrame, shadowOffsetX, shadowOffsetY, false);
+    if (weaponObj && !drawWeaponBehind) {
+      this.drawWeaponForUnit(ctx, weaponObj, worldX, worldY, rawDir, action, now, effectiveMesh, scale, charKey, clampLastFrame);
+    }
     if (wingsObj && !drawWingsBehind) {
       this.drawWingForUnit(ctx, wingsObj, worldX, worldY, rawDir, action, wingTime, effectiveMesh, groundOffsetY, scale);
     }

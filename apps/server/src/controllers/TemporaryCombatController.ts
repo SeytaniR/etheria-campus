@@ -19,7 +19,7 @@ import { MonsterCombatBuilder, type MonsterScalingContext, type MonsterVariantTi
 import { MonsterGlobalConfigService } from './MonsterGlobalConfigService.js';
 import { PartyService } from './PartyService.js';
 import { CharacterPetService } from './CharacterPetService.js';
-import { CharacterEquipmentService, type EquippedWingsVisualDto } from './CharacterEquipmentService.js';
+import { CharacterEquipmentService, type EquippedWeaponVisualDto, type EquippedWingsVisualDto } from './CharacterEquipmentService.js';
 import { AssetMirrorService } from './AssetMirrorService.js';
 
 export interface ActiveStatusInstance {
@@ -84,6 +84,7 @@ export interface CombatUnit {
   damageDealtMultiplier?: number;
   isDungeonBoss?: boolean;
   equippedWings?: EquippedWingsVisualDto | null;
+  equippedWeapon?: EquippedWeaponVisualDto | null;
   isAlive: boolean;
   activeStatuses?: ActiveStatusInstance[];
 }
@@ -506,7 +507,7 @@ export class TemporaryCombatController {
     const pMagAcc = (eqBonuses.MAG_ACCURACY || 0);
 
     const eqItemsById = new Map<number, any>(eqItems.map((eq) => [eq.id, eq]));
-    const playerVisual = CharacterEquipmentService.resolveVisualAppearance(equippedMap, eqItemsById);
+    const playerVisual = CharacterEquipmentService.resolveVisualAppearance(equippedMap, eqItemsById, charSpriteKey);
 
     const playerUnit: CombatUnit = {
       id: `player_${characterId || 1}`,
@@ -546,6 +547,7 @@ export class TemporaryCombatController {
       magAccuracy: Math.min(125, Math.max(20, Math.round((Number(classCb.MAG_ACCURACY) || 95) + pMagAcc))),
       magEvasion: Math.min(75, Math.max(0, Math.round((Number(classCb.MAG_EVASION) || 5) + pWisEva))),
       equippedWings: playerVisual.equippedWings,
+      equippedWeapon: playerVisual.equippedWeapon,
       isAlive: true,
       activeStatuses: [],
     };

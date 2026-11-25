@@ -8,9 +8,9 @@
 ---
 
 ## 📌 Status Atual do Projeto
-* **Versão Atual:** `v0.66.0`
+* **Versão Atual:** `v0.67.0`
 * **Última Atualização:** `2026-11-25`
-* **Fase Atual:** **Sistema de Pesca Contínua AFK Concluído (`v0.66.0`)** — Malha `fishing_mesh_json` nos mapas (`/admin` + `/play`), aba dedicada `🎣 Varas de Pesca` (`rod_N`, Nv. 50, zero stats de combate, `type === 1201`), categorias `FISH` e `FISHING_BAIT` na aba Itens com filtros `mcrework`, motor autoritativo `FishingService` (proximidade à água, fila ordenada de iscas, sorteio global Rank-First com redistribuição automática), animações Canvas 2.5D (boia + vara/progresso overhead) e as 3 novas UIs (`HUD_FISHING_ACTION_BTN`, `HUD_FISHING_STATUS_BAR`, `MODAL_FISHING_SETUP`) registradas em `client_ui_layout_templates` e editáveis no `/admin` e `/play`. Suíte `npm test` com **7 módulos aprovados**; todos os arquivos < 1.000 linhas (Regra #7).
+* **Fase Atual:** **Armas Principais (`WEAPON_1`) 2.5D na Mão do Personagem (`v0.67.0`)** — Renderização 2.5D nativa em 8 direções × 8 ações sincronizada quadro a quadro em `/play` (mapa aberto chão/voo, arena de combate e outros jogadores via `MapPresenceService`), seleção automática masculino/feminino (`equip_mc*` / `equip_fc*` inclusive Reborn), ancoragem adaptativa `computeWeaponAnchorY`, espelhamento local em `AssetMirrorService`, palco de calibração opcional no `/admin` para `WEAPON_1` e backfill idempotente automático na inicialização (`AdminEquipmentsController.backfillMissingWeaponVisuals` + `scripts/backfill_weapon_visuals.mjs`). Suíte `npm test` com **8 módulos aprovados**; todos os arquivos < 1.000 linhas (Regra #7).
 * **Repositório Oficial:** `https://github.com/SeytaniR/etheria-campus`
 * **Fonte Bruta de Assets:** `https://github.com/SeytaniR/mcrework` (`https://seytanir.github.io/mcrework/`)
 

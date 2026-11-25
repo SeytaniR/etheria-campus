@@ -14,6 +14,7 @@ import { PartyService } from './PartyService.js';
 import {
   CharacterEquipmentService,
   type EquippedMountVisualDto,
+  type EquippedWeaponVisualDto,
   type EquippedWingsVisualDto,
 } from './CharacterEquipmentService.js';
 import { MapRuntimeCacheService } from './MapRuntimeCacheService.js';
@@ -33,6 +34,7 @@ export interface MapPlayerPresence {
   shadowOffsetY?: number;
   equippedWings?: EquippedWingsVisualDto | null;
   equippedMount?: EquippedMountVisualDto | null;
+  equippedWeapon?: EquippedWeaponVisualDto | null;
   primaryFollowerPet?: {
     mcreworkMonsterKey: string;
     atlasJsonUrl: string;
@@ -112,12 +114,19 @@ export class MapPresenceService {
         const eqMap = (pc.equippedItemsJson && typeof pc.equippedItemsJson === 'object'
           ? (pc.equippedItemsJson as Record<string, number>)
           : {}) as Record<string, number>;
-        const visIds = [Number(eqMap.WINGS) || 0, Number(eqMap.FLYING_MOUNT) || 0].filter((id) => id > 0);
+        const visIds = [
+          Number(eqMap.WINGS) || 0,
+          Number(eqMap.FLYING_MOUNT) || 0,
+          Number(eqMap.WEAPON_1) || 0,
+        ].filter((id) => id > 0);
         const visItems = visIds.length > 0
           ? await prisma.itemTemplate.findMany({ where: { id: { in: visIds } } })
           : [];
         const visById = new Map<number, any>(visItems.map((it) => [it.id, it]));
-        const visual = CharacterEquipmentService.resolveVisualAppearance(eqMap, visById);
+        const activeCharKey = pc.isReborn && pc.classTemplate?.rebornMcreworkCharKey
+          ? pc.classTemplate.rebornMcreworkCharKey
+          : (pc.classTemplate?.mcreworkCharKey || '100101');
+        const visual = CharacterEquipmentService.resolveVisualAppearance(eqMap, visById, activeCharKey);
         const slot1Pet = pc.pets?.[0]?.monsterTemplate;
         const primaryFollowerPet = slot1Pet?.mcreworkMonsterKey
           ? {
@@ -134,13 +143,14 @@ export class MapPresenceService {
           level: pc.level || 1,
           classTemplateId: pc.classTemplateId,
           classCode: pc.classTemplate?.code || 'WARRIOR',
-          mcreworkCharKey: pc.classTemplate?.mcreworkCharKey || '100101',
-          atlasJsonUrl: `/api/assets/mcrework/assets/characters/${pc.classTemplate?.mcreworkCharKey || '100101'}/atlas.json`,
-          atlasWebpUrl: `/api/assets/mcrework/assets/characters/${pc.classTemplate?.mcreworkCharKey || '100101'}/atlas.webp`,
-          thumbUrl: `/api/assets/mcrework/assets/characters/${pc.classTemplate?.mcreworkCharKey || '100101'}/thumb.webp`,
+          mcreworkCharKey: activeCharKey,
+          atlasJsonUrl: `/api/assets/mcrework/assets/characters/${activeCharKey}/atlas.json`,
+          atlasWebpUrl: `/api/assets/mcrework/assets/characters/${activeCharKey}/atlas.webp`,
+          thumbUrl: `/api/assets/mcrework/assets/characters/${activeCharKey}/thumb.webp`,
           groundOffsetY: pc.classTemplate?.groundOffsetY || 0,
           equippedWings: visual.equippedWings,
           equippedMount: visual.equippedMount,
+          equippedWeapon: visual.equippedWeapon,
           primaryFollowerPet,
           elementCode: pc.elementCode || 'NEUTRAL',
         };
@@ -195,6 +205,7 @@ export class MapPresenceService {
       shadowOffsetY: meta?.shadowOffsetY || 0,
       equippedWings: meta?.equippedWings || null,
       equippedMount: meta?.equippedMount || null,
+      equippedWeapon: meta?.equippedWeapon || null,
       primaryFollowerPet: meta?.primaryFollowerPet || null,
       elementCode: meta?.elementCode || 'NEUTRAL',
       posX: Number(dto.posX) || 500,

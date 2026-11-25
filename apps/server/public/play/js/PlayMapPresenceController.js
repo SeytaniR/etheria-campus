@@ -158,6 +158,8 @@ class PlayMapPresenceController {
         shadowOffsetY: other.shadowOffsetY || 0,
         wingsObj: other.equippedWings || null,
         mountObj: other.equippedMount || null,
+        weaponObj: other.equippedWeapon || null,
+        charKey: other.mcreworkCharKey || null,
         followerPet: other.primaryFollowerPet || null,
         isFlying: Boolean(other.isFlying),
         flightAltitude: Number(other.flightAltitude) || 0,
