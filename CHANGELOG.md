@@ -5,6 +5,19 @@ Qualquer IA trabalhando neste repositório **DEVE** incrementar a versão e regi
 
 ---
 
+## [v0.67.1] - 2026-11-25
+### Palco 2.5D Interativo no `/admin` para Armas Principais (`WEAPON_1`) & Simetria de Encaixe na Mão
+* **Palco 2.5D de Calibração no `/admin` (`AdminEquipmentModalDom.js`, `AdminEquipmentVisualPreview.js`, `AdminEquipmentsTab.js`):**
+  * Mapa real + seletor das 12 classes + botão **`👤 Base` / `✨ Reborn`** + pet seguidor no palco 2.5D dentro do modal de Equipamentos (`WEAPON_1`).
+  * Zoom interativo **`1x` / `1.5x` / `2x` / `3x`** (padrão `2x` para armas, escalando mapa + herói + arma 1:1) e **arraste direto com mouse ou dedo no canvas** para posicionar a arma na mão em modo **Global** ou **Direção Atual** (`S/SE/L/NE/N/NO/O/SO`), com destaque visual dourado nos botões de direções já ajustadas.
+  * Controles ergonômicos com sliders e botões **`-5 / -1 / +1 / +5 / ↩0`** para X, Y, Z, Escala, ajustes por direção (`dirOffsets` + camada `AUTO`/`BACK`/`FRONT`), seletor separado de modelo **Feminino (`equip_fc*`)** e dobra opcional **`👩 Ajuste Extra Feminino`**.
+  * Corrigida ordem de exibição do modal ao abrir criação/edição (exibir modal antes de iniciar o `requestAnimationFrame` do preview) e checkbox `🪞 Espelhar par` desmarcado por padrão em armas (mantido marcado em asas).
+* **Simetria Direcional de Armas (`PlayFlightAndWingsController.js`, `CharacterEquipmentService.ts`):**
+  * Removida a inversão automática de sinal do `visualOffsetX` global nas direções esquerdas (`NO/O/SO`) em `computeWeaponTransform` e adicionado suporte a `femaleOffsetX` / `femaleOffsetY` opcionais por gênero do personagem.
+* **Testes:** Atualizada suíte `tests/test_weapon_visuals.mjs` garantindo cobertura de assimetria direcional e offsets femininos (**8/8 suítes aprovadas**).
+
+---
+
 ## [v0.67.0] - 2026-11-25
 ### Armas Principais (`WEAPON_1`) 2.5D na Mão do Personagem, Preview `/admin` & Backfill Automático
 * **Resolução Autoritária & Presença Multiplayer (`CharacterEquipmentService.ts`, `GamePlayController.ts`, `MapPresenceService.ts`, `TemporaryCombatController.ts`):**

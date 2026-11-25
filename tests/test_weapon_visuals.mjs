@@ -168,7 +168,7 @@ test('PlayFlightAndWingsController.resolveWeaponModelForChar alterna equip_mc* v
   assert.equal(PlayFlightAndWingsController.resolveWeaponModelForChar(null, 'PC_MALE_000001'), null);
 });
 
-test('PlayFlightAndWingsController.computeWeaponTransform ignora char.groundOffsetY, espelha X esquerdo e aplica dirOffsets', () => {
+test('PlayFlightAndWingsController.computeWeaponTransform ignora char.groundOffsetY, preserva sinal assimétrico de X e aplica femaleOffset/dirOffsets', () => {
   const sb = createFlightSandbox();
   const { PlayFlightAndWingsController } = sb;
 
@@ -177,6 +177,8 @@ test('PlayFlightAndWingsController.computeWeaponTransform ignora char.groundOffs
     visualScale: 0.70,
     visualOffsetX: 6,
     visualOffsetY: -10,
+    femaleOffsetX: -4,
+    femaleOffsetY: 5,
     groundOffsetY: -5,
     dirOffsets: {
       '6': { x: 3, y: 4, layer: 'BACK' },
@@ -184,15 +186,20 @@ test('PlayFlightAndWingsController.computeWeaponTransform ignora char.groundOffs
   };
 
   // feetBaseY = Math.round(4 * 1) = 4; weapon gOffY = Math.round(-5 * 0.70) = -3; baseOffY = -10 => Y = 400 + 4 - 3 - 10 = 391
-  const east = PlayFlightAndWingsController.computeWeaponTransform(weaponObj, 500, 400, 2, 0.70);
+  const east = PlayFlightAndWingsController.computeWeaponTransform(weaponObj, 500, 400, 2, 0.70, 'PC_MALE_000001');
   assert.equal(east.weaponX, 506);
   assert.equal(east.weaponY, 391);
   assert.equal(east.weaponScale, 0.70);
 
-  // Direção esquerda (6 - Oeste): espelha visualOffsetX (-6) + dirOffsets['6'].x (+3) = -3 -> 497; Y = 391 + 4 = 395
-  const west = PlayFlightAndWingsController.computeWeaponTransform(weaponObj, 500, 400, 6, 0.70);
-  assert.equal(west.weaponX, 497);
-  assert.equal(west.weaponY, 395);
+  // Direção esquerda (6 - Oeste) NÃO deve inverter visualOffsetX: +6 + 3 = +9 -> 509; Y = 391 + 4 = 395
+  const westMale = PlayFlightAndWingsController.computeWeaponTransform(weaponObj, 500, 400, 6, 0.70, 'PC_MALE_000001');
+  assert.equal(westMale.weaponX, 509);
+  assert.equal(westMale.weaponY, 395);
+
+  // Para classe feminina, aplica femaleOffsetX (-4) e femaleOffsetY (+5) além do ajuste global/direcional
+  const westFemale = PlayFlightAndWingsController.computeWeaponTransform(weaponObj, 500, 400, 6, 0.70, 'PC_FEMALE_000001');
+  assert.equal(westFemale.weaponX, 505);
+  assert.equal(westFemale.weaponY, 400);
 });
 
 test('PlayFlightAndWingsController.drawPlayerWithCosmetics respeita Z-order, relógio now vs wingNow, char.groundOffsetY neutro na arma e voo', () => {
@@ -297,6 +304,8 @@ test('CharacterEquipmentService.resolveVisualAppearance resolve equippedWeapon s
           visualScale: 0.72,
           visualOffsetX: 2,
           visualOffsetY: -3,
+          femaleOffsetX: -4,
+          femaleOffsetY: 6,
           groundOffsetY: 1,
           dirOffsets: { '4': { layer: 'BACK', x: 1 } },
         },
@@ -309,6 +318,8 @@ test('CharacterEquipmentService.resolveVisualAppearance resolve equippedWeapon s
   assert.equal(maleVis.equippedWeapon.modelId, 'equip_mc4_000000');
   assert.equal(maleVis.equippedWeapon.maleModelId, 'equip_mc4_000000');
   assert.equal(maleVis.equippedWeapon.femaleModelId, 'equip_fc4_000000');
+  assert.equal(maleVis.equippedWeapon.femaleOffsetX, -4);
+  assert.equal(maleVis.equippedWeapon.femaleOffsetY, 6);
   assert.equal(maleVis.equippedWeapon.manifestUrl, '/api/assets/mcrework/assets/weapons/equip_mc4_000000/char_manifest.json');
   assert.equal(maleVis.equippedWeapon.femaleManifestUrl, '/api/assets/mcrework/assets/weapons/equip_fc4_000000/char_manifest.json');
   assert.ok(!maleVis.equippedWeapon.manifestUrl.startsWith('http'));

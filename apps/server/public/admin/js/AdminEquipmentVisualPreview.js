@@ -14,6 +14,11 @@ class AdminEquipmentVisualPreview {
   static action = 0;
   static autoRotate = false;
   static lastAutoRotateAt = 0;
+  static previewZoom = 1.0;
+  static previewReborn = false;
+  static dragTarget = 'GLOBAL';
+  static dragState = null;
+  static lastStartedSlot = '';
   static wingDirOffsets = {};
   static spriteCache = new Map();
   static mapImg = null;
@@ -118,11 +123,109 @@ class AdminEquipmentVisualPreview {
     }
   }
 
+  static syncPreviewControlsUi() {
+    document.querySelectorAll('.equip-zoom-btn').forEach((btn) => {
+      const z = parseFloat(btn.dataset.zoom || '1');
+      btn.className = Math.abs(z - this.previewZoom) < 0.05 ? 'equip-zoom-btn btn-primary' : 'equip-zoom-btn';
+    });
+    const rebBtn = document.getElementById('btnEquipPrevReborn');
+    if (rebBtn) {
+      rebBtn.textContent = this.previewReborn ? '✨ Reborn' : '👤 Base';
+      rebBtn.className = this.previewReborn ? 'btn-primary' : '';
+    }
+    const dragBtn = document.getElementById('btnEquipPrevDragMode');
+    if (dragBtn) {
+      dragBtn.textContent = this.dragTarget === 'DIR' ? '🎯 Arraste: Dir Atual' : '🖐️ Arraste: Global';
+      dragBtn.className = this.dragTarget === 'DIR' ? 'btn-primary' : '';
+    }
+  }
+
+  static setZoom(z) {
+    const num = parseFloat(z);
+    this.previewZoom = Number.isFinite(num) ? Math.max(1.0, Math.min(3.0, num)) : 1.0;
+    this.syncPreviewControlsUi();
+  }
+
+  static toggleReborn(app) {
+    this.previewReborn = !this.previewReborn;
+    this.syncPreviewControlsUi();
+    this.renderNow(app);
+  }
+
+  static toggleDragTarget() {
+    this.dragTarget = this.dragTarget === 'DIR' ? 'GLOBAL' : 'DIR';
+    this.syncPreviewControlsUi();
+  }
+
+  static bindCanvasDrag(app) {
+    const canvas = document.getElementById('equipVisualPreviewCanvas');
+    if (!canvas || canvas.dataset.dragBound === '1') return;
+    canvas.dataset.dragBound = '1';
+
+    canvas.addEventListener('pointerdown', (e) => {
+      const slotCode = document.getElementById('equipSlotSelect')?.value || '';
+      if (!slotCode) return;
+      canvas.setPointerCapture?.(e.pointerId);
+      canvas.style.cursor = 'grabbing';
+      const curDir = this.wingDirOffsets?.[String(this.dir)] || { x: 0, y: 0, layer: 'AUTO' };
+      this.dragState = {
+        pointerId: e.pointerId,
+        startClientX: e.clientX,
+        startClientY: e.clientY,
+        startGlobalX: this.parseSafeNum('equipVisualOffsetXInput', 0, false),
+        startGlobalY: this.parseSafeNum('equipVisualOffsetYInput', 0, false),
+        startDirX: Number(curDir.x) || 0,
+        startDirY: Number(curDir.y) || 0,
+      };
+    });
+
+    canvas.addEventListener('pointermove', (e) => {
+      if (!this.dragState || (this.dragState.pointerId !== undefined && e.pointerId !== this.dragState.pointerId)) return;
+      const rect = canvas.getBoundingClientRect();
+      if (!rect.width || !rect.height) return;
+      const scaleX = canvas.width / rect.width;
+      const scaleY = canvas.height / rect.height;
+      const zoom = Math.max(1.0, Number(this.previewZoom) || 1.0);
+      const dx = Math.round(((e.clientX - this.dragState.startClientX) * scaleX) / zoom);
+      const dy = Math.round(((e.clientY - this.dragState.startClientY) * scaleY) / zoom);
+      if (this.dragTarget === 'DIR') {
+        this.updateCurrentDirOffset('x', this.dragState.startDirX + dx);
+        this.updateCurrentDirOffset('y', this.dragState.startDirY + dy);
+      } else {
+        const nextX = Math.max(-150, Math.min(150, this.dragState.startGlobalX + dx));
+        const nextY = Math.max(-150, Math.min(150, this.dragState.startGlobalY + dy));
+        const xEl = document.getElementById('equipVisualOffsetXInput');
+        const yEl = document.getElementById('equipVisualOffsetYInput');
+        if (xEl) xEl.value = String(nextX);
+        if (yEl) yEl.value = String(nextY);
+        this.syncSliders();
+      }
+      this.renderFrame(app, performance.now());
+    });
+
+    const endDrag = (e) => {
+      if (this.dragState && (this.dragState.pointerId === undefined || e.pointerId === this.dragState.pointerId)) {
+        canvas.releasePointerCapture?.(e.pointerId);
+        this.dragState = null;
+        canvas.style.cursor = 'grab';
+      }
+    };
+    canvas.addEventListener('pointerup', endDrag);
+    canvas.addEventListener('pointercancel', endDrag);
+  }
+
   static start(app) {
     this.stop();
+    this.bindCanvasDrag(app);
+    const slotCode = document.getElementById('equipSlotSelect')?.value || '';
+    if (slotCode && slotCode !== this.lastStartedSlot) {
+      this.lastStartedSlot = slotCode;
+      this.previewZoom = slotCode === 'WEAPON_1' ? 2.0 : 1.0;
+    }
     void this.ensureCatalogsLoaded(app);
     this.lastAutoRotateAt = performance.now();
     this.syncDirUi();
+    this.syncPreviewControlsUi();
     const loop = (now) => {
       const box = document.getElementById('equipVisual25dBox');
       const modal = document.getElementById('equipmentModal');
@@ -181,7 +284,11 @@ class AdminEquipmentVisualPreview {
     const fineLbl = document.getElementById('equipWingCurDirLabel');
     if (fineLbl) fineLbl.textContent = labelText;
     document.querySelectorAll('.equip-dir-btn').forEach((btn) => {
+      const dStr = String(btn.dataset.dir);
+      const ov = this.wingDirOffsets?.[dStr];
+      const hasOverride = Boolean(ov && (Number(ov.x) || Number(ov.y) || (ov.layer && ov.layer !== 'AUTO')));
       btn.className = Number(btn.dataset.dir) === this.dir ? 'equip-dir-btn btn-primary' : 'equip-dir-btn';
+      btn.style.borderColor = hasOverride ? '#fde047' : '';
     });
     const rotBtn = document.getElementById('btnEquipPrevAutoRot');
     if (rotBtn) rotBtn.className = this.autoRotate ? 'btn-primary' : '';
@@ -203,7 +310,7 @@ class AdminEquipmentVisualPreview {
         }
       }
     }
-    this.syncDirFineInputs();
+    this.syncDirUi();
   }
 
   static getWingDirOffsets() {
@@ -259,7 +366,7 @@ class AdminEquipmentVisualPreview {
         this.wingDirOffsets[mKey] = mEntry;
       }
     }
-    this.syncDirFineInputs();
+    this.syncDirUi();
   }
 
   static nudgeDirOffset(field, delta) {
@@ -269,7 +376,7 @@ class AdminEquipmentVisualPreview {
 
   static resetAllDirOffsets() {
     this.wingDirOffsets = {};
-    this.syncDirFineInputs();
+    this.syncDirUi();
   }
 
   static setAction(act) {
@@ -304,6 +411,8 @@ class AdminEquipmentVisualPreview {
     const pairs = [
       ['equipGroundOffsetYInput', 'equipGroundOffsetYRange'],
       ['equipVisualScaleInput', 'equipVisualScaleRange'],
+      ['equipVisualOffsetXInput', 'equipVisualOffsetXRange'],
+      ['equipVisualOffsetYInput', 'equipVisualOffsetYRange'],
       ['equipMountAltitudeInput', 'equipMountAltitudeRange'],
       ['equipWingBackDepthInput', 'equipWingBackDepthRange'],
     ];
@@ -320,6 +429,18 @@ class AdminEquipmentVisualPreview {
       zBadge.textContent = zVal === 0 ? '0px (Solo)' : zVal < 0 ? `${zVal}px (Mais Alto)` : `+${zVal}px (Mais Baixo)`;
       zBadge.style.color = zVal === 0 ? '#86efac' : '#fde047';
     }
+    const xBadge = document.getElementById('equipOffsetXStatusBadge');
+    if (xBadge) {
+      const xVal = this.parseSafeNum('equipVisualOffsetXInput', 0, false);
+      xBadge.textContent = `${xVal > 0 ? '+' : ''}${xVal}px`;
+      xBadge.style.color = xVal === 0 ? '#86efac' : '#fde047';
+    }
+    const yBadge = document.getElementById('equipOffsetYStatusBadge');
+    if (yBadge) {
+      const yVal = this.parseSafeNum('equipVisualOffsetYInput', 0, false);
+      yBadge.textContent = `${yVal > 0 ? '+' : ''}${yVal}px`;
+      yBadge.style.color = yVal === 0 ? '#86efac' : '#fde047';
+    }
   }
 
   static renderFrame(app, now) {
@@ -329,27 +450,6 @@ class AdminEquipmentVisualPreview {
     const w = canvas.width;
     const h = canvas.height;
     ctx.clearRect(0, 0, w, h);
-
-    // 1. Mapa de Fundo Real
-    const maps = Array.isArray(app?.savedMaps) && app.savedMaps.length > 0
-      ? app.savedMaps
-      : (Array.isArray(app?.mapsList) ? app.mapsList : []);
-    const mapId = Number(document.getElementById('equipPreviewMapSelect')?.value) || 1;
-    const mapObj = maps.find((m) => Number(m.id) === mapId);
-
-    if (this.mapImg && this.mapImg.complete && this.mapImg.naturalWidth > 0) {
-      const sxCenter = Number(mapObj?.spawnX) || this.mapImg.naturalWidth / 2;
-      const syCenter = Number(mapObj?.spawnY) || this.mapImg.naturalHeight / 2;
-      const cropX = Math.max(0, Math.min(this.mapImg.naturalWidth - w, Math.round(sxCenter - w / 2)));
-      const cropY = Math.max(0, Math.min(this.mapImg.naturalHeight - h, Math.round(syCenter - h * 0.72)));
-      ctx.drawImage(this.mapImg, cropX, cropY, Math.min(w, this.mapImg.naturalWidth), Math.min(h, this.mapImg.naturalHeight), 0, 0, w, h);
-    } else {
-      ctx.fillStyle = '#0b1120';
-      ctx.fillRect(0, 0, w, h);
-      ctx.strokeStyle = 'rgba(56,189,248,0.12)';
-      for (let x = 0; x < w; x += 28) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, h); ctx.stroke(); }
-      for (let y = 0; y < h; y += 28) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke(); }
-    }
 
     const slotCode = document.getElementById('equipSlotSelect')?.value || '';
     const visVal = document.getElementById('equipVisualModelSelect')?.value || '';
@@ -361,15 +461,22 @@ class AdminEquipmentVisualPreview {
     const flightAlt = this.parseSafeNum('equipMountAltitudeInput', 72, false);
     const riderOffsetX = this.parseSafeNum('equipMountRiderOffsetXInput', 0, false);
     const riderOffsetY = this.parseSafeNum('equipMountRiderOffsetInput', -22, false);
+    const femaleOffsetX = this.parseSafeNum('equipWeaponFemaleOffXInput', 0, false);
+    const femaleOffsetY = this.parseSafeNum('equipWeaponFemaleOffYInput', 0, false);
 
     const classes = Array.isArray(this.classesCache) && this.classesCache.length > 0
       ? this.classesCache
       : (Array.isArray(app?.classTemplates) ? app.classTemplates : []);
     const classId = Number(document.getElementById('equipPreviewClassSelect')?.value) || (classes[0]?.id || 1);
     const cls = classes.find((c) => Number(c.id) === classId) || classes[0] || {
-      mcreworkCharKey: 'char_000001', groundOffsetY: 0, shadowOffsetX: 0, shadowOffsetY: 0,
+      mcreworkCharKey: 'PC_MALE_000004', groundOffsetY: 0, shadowOffsetX: 0, shadowOffsetY: 0,
     };
-    const cKey = cls.mcreworkCharKey || 'char_000001';
+    const usingReborn = Boolean(this.previewReborn && cls.rebornMcreworkCharKey);
+    const cKey = usingReborn ? cls.rebornMcreworkCharKey : (cls.mcreworkCharKey || 'PC_MALE_000004');
+    const charGroundOffsetY = usingReborn ? (cls.rebornGroundOffsetY ?? cls.groundOffsetY ?? 0) : (cls.groundOffsetY || 0);
+    const charShadowX = usingReborn ? (cls.rebornShadowOffsetX ?? cls.shadowOffsetX ?? 0) : (cls.shadowOffsetX || 0);
+    const charShadowY = usingReborn ? (cls.rebornShadowOffsetY ?? cls.shadowOffsetY ?? 0) : (cls.shadowOffsetY || 0);
+
     const charSprite = this.getOrCreateAtlasSprite(
       `prev_char_${cKey}`,
       `/api/assets/mcrework/assets/characters/${cKey}/atlas.json`,
@@ -388,6 +495,9 @@ class AdminEquipmentVisualPreview {
     } : null;
 
     const [kind, modelId, visualFormat, extraModelId] = visVal.split('|');
+    const femaleSelEl = document.getElementById('equipWeaponFemaleModelSelect');
+    const resolvedFemaleId = femaleSelEl ? (femaleSelEl.value || null) : (extraModelId || null);
+
     let wingsObj = null;
     let mountObj = null;
     let weaponObj = null;
@@ -437,14 +547,16 @@ class AdminEquipmentVisualPreview {
         weaponObj = {
           modelId,
           maleModelId: modelId,
-          femaleModelId: extraModelId || null,
+          femaleModelId: resolvedFemaleId,
           visualFormat: 'CHAR_MANIFEST',
           manifestUrl: `/api/assets/mcrework/assets/weapons/${modelId}/char_manifest.json`,
           maleManifestUrl: `/api/assets/mcrework/assets/weapons/${modelId}/char_manifest.json`,
-          femaleManifestUrl: extraModelId ? `/api/assets/mcrework/assets/weapons/${extraModelId}/char_manifest.json` : null,
+          femaleManifestUrl: resolvedFemaleId ? `/api/assets/mcrework/assets/weapons/${resolvedFemaleId}/char_manifest.json` : null,
           visualScale,
           visualOffsetX,
           visualOffsetY,
+          femaleOffsetX,
+          femaleOffsetY,
           groundOffsetY: groundOffsetZ,
           dirOffsets: this.getWingDirOffsets(),
         };
@@ -452,7 +564,38 @@ class AdminEquipmentVisualPreview {
     }
 
     const worldX = Math.round(w / 2);
-    const worldY = slotCode === 'FLYING_MOUNT' ? Math.round(h * 0.82) : Math.round(h * 0.70);
+    const worldY = slotCode === 'FLYING_MOUNT' ? Math.round(h * 0.82) : Math.round(h * 0.72);
+    const zoom = Math.max(1.0, Number(this.previewZoom) || 1.0);
+    const pivotX = worldX;
+    const pivotY = worldY - 28;
+
+    ctx.save();
+    if (zoom > 1.01) {
+      ctx.translate(pivotX, pivotY);
+      ctx.scale(zoom, zoom);
+      ctx.translate(-pivotX, -pivotY);
+    }
+
+    // 1. Mapa de Fundo Real (escala 1:1 junto com o personagem no zoom)
+    const maps = Array.isArray(app?.savedMaps) && app.savedMaps.length > 0
+      ? app.savedMaps
+      : (Array.isArray(app?.mapsList) ? app.mapsList : []);
+    const mapId = Number(document.getElementById('equipPreviewMapSelect')?.value) || 1;
+    const mapObj = maps.find((m) => Number(m.id) === mapId);
+
+    if (this.mapImg && this.mapImg.complete && this.mapImg.naturalWidth > 0) {
+      const sxCenter = Number(mapObj?.spawnX) || this.mapImg.naturalWidth / 2;
+      const syCenter = Number(mapObj?.spawnY) || this.mapImg.naturalHeight / 2;
+      const cropX = Math.max(0, Math.min(this.mapImg.naturalWidth - w, Math.round(sxCenter - w / 2)));
+      const cropY = Math.max(0, Math.min(this.mapImg.naturalHeight - h, Math.round(syCenter - h * 0.72)));
+      ctx.drawImage(this.mapImg, cropX, cropY, Math.min(w, this.mapImg.naturalWidth), Math.min(h, this.mapImg.naturalHeight), 0, 0, w, h);
+    } else {
+      ctx.fillStyle = '#0b1120';
+      ctx.fillRect(0, 0, w, h);
+      ctx.strokeStyle = 'rgba(56,189,248,0.12)';
+      for (let x = 0; x < w; x += 28) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, h); ctx.stroke(); }
+      for (let y = 0; y < h; y += 28) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke(); }
+    }
 
     // Linha horizontal de referência do solo (Z = 0)
     ctx.save();
@@ -478,9 +621,9 @@ class AdminEquipmentVisualPreview {
         dir: this.dir,
         now,
         mesh: null,
-        groundOffsetY: cls.groundOffsetY || 0,
-        shadowOffsetX: cls.shadowOffsetX || 0,
-        shadowOffsetY: cls.shadowOffsetY || 0,
+        groundOffsetY: charGroundOffsetY,
+        shadowOffsetX: charShadowX,
+        shadowOffsetY: charShadowY,
         wingsObj,
         mountObj,
         weaponObj,
@@ -491,17 +634,30 @@ class AdminEquipmentVisualPreview {
         customScale: 0.70,
       });
     } else if (charSprite) {
-      charSprite.draw(ctx, worldX, worldY, this.action, this.dir, now, null, cls.groundOffsetY || 0, 0.70);
+      charSprite.draw(ctx, worldX, worldY, this.action, this.dir, now, null, charGroundOffsetY, 0.70);
     }
 
-    // Badge discreto no canto superior esquerdo do palco
+    ctx.restore();
+
+    // Badges HUD fora da matriz de zoom (sempre nítidos)
     ctx.save();
-    ctx.fillStyle = 'rgba(2, 6, 23, 0.75)';
-    ctx.fillRect(6, 6, 128, 20);
+    ctx.fillStyle = 'rgba(2, 6, 23, 0.78)';
+    ctx.fillRect(6, 6, 206, 20);
     ctx.font = 'bold 10px sans-serif';
     ctx.fillStyle = '#fde047';
     ctx.textAlign = 'left';
-    ctx.fillText(`📏 Chão (Z): ${groundOffsetZ >= 0 ? '+' : ''}${groundOffsetZ}px`, 12, 19);
+    ctx.fillText(`🔍 ${zoom.toFixed(1)}x • X:${visualOffsetX} Y:${visualOffsetY} Z:${groundOffsetZ}`, 12, 19);
+
+    if (slotCode === 'WEAPON_1' && weaponObj && window.PlayFlightAndWingsController) {
+      const activeRes = window.PlayFlightAndWingsController.resolveWeaponModelForChar(weaponObj, cKey);
+      const tag = activeRes ? `${activeRes.modelId} (${usingReborn ? 'Reborn' : 'Base'})` : (usingReborn ? 'Reborn' : 'Base');
+      const bw = Math.min(w - 220, Math.max(120, tag.length * 6 + 14));
+      ctx.fillStyle = 'rgba(2, 6, 23, 0.78)';
+      ctx.fillRect(w - bw - 6, 6, bw, 20);
+      ctx.fillStyle = '#38bdf8';
+      ctx.textAlign = 'right';
+      ctx.fillText(tag, w - 12, 19);
+    }
     ctx.restore();
   }
 }

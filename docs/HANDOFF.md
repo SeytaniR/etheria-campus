@@ -8,9 +8,9 @@
 ---
 
 ## 📌 Status Atual do Projeto
-* **Versão Atual:** `v0.67.0`
+* **Versão Atual:** `v0.67.1`
 * **Última Atualização:** `2026-11-25`
-* **Fase Atual:** **Armas Principais (`WEAPON_1`) 2.5D na Mão do Personagem (`v0.67.0`)** — Renderização 2.5D nativa em 8 direções × 8 ações sincronizada quadro a quadro em `/play` (mapa aberto chão/voo, arena de combate e outros jogadores via `MapPresenceService`), seleção automática masculino/feminino (`equip_mc*` / `equip_fc*` inclusive Reborn), ancoragem adaptativa `computeWeaponAnchorY`, espelhamento local em `AssetMirrorService`, palco de calibração opcional no `/admin` para `WEAPON_1` e backfill idempotente automático na inicialização (`AdminEquipmentsController.backfillMissingWeaponVisuals` + `scripts/backfill_weapon_visuals.mjs`). Suíte `npm test` com **8 módulos aprovados**; todos os arquivos < 1.000 linhas (Regra #7).
+* **Fase Atual:** **Palco 2.5D Interativo & Calibração Fina de Armas Principais (`WEAPON_1`, `v0.67.1`)** — Modal de Equipamentos (`/admin`) atualizado com mapa real, 12 classes + alternância `Base`/`Reborn`, zoom `1x–3x` (padrão `2x` em armas), arraste direto no canvas (Global ou por Direção), sliders `-5/-1/+1/+5/↩0` para X/Y/Z/Escala e ajustes direcionais, seletor feminino separado (`equip_fc*`) + `femaleOffsetX`/`femaleOffsetY` opcionais, e correção de assimetria X nas direções esquerdas em `PlayFlightAndWingsController.js` + `CharacterEquipmentService.ts`. Suíte `npm test` com **8 módulos aprovados**; todos os arquivos < 1.000 linhas (Regra #7). **Nota de produção:** a VPS `40-65-63-193.sslip.io` estava em `v0.66.0` antes deste push (aguardando deploy via `scripts/deploy_vps.py` na VPS).
 * **Repositório Oficial:** `https://github.com/SeytaniR/etheria-campus`
 * **Fonte Bruta de Assets:** `https://github.com/SeytaniR/mcrework` (`https://seytanir.github.io/mcrework/`)
 

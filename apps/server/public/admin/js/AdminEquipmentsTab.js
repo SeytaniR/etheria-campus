@@ -81,10 +81,19 @@ class AdminEquipmentsTab {
       const isMount = slotCode === 'FLYING_MOUNT';
       const isWeapon = slotCode === 'WEAPON_1';
       const wingBox = document.getElementById('equipWingDepthBox');
+      const femField = document.getElementById('equipWeaponFemaleModelField');
+      const femSel = document.getElementById('equipWeaponFemaleModelSelect');
+      const femDetails = document.getElementById('equipWeaponFemaleOffsetDetails');
+      const modelLbl = document.getElementById('equipVisualModelLabel');
+      const mirrorChk = document.getElementById('equipWingMirrorPairChk');
       box.style.display = (isWing || isMount || isWeapon) ? 'block' : 'none';
       if (wingBox) wingBox.style.display = (isWing || isWeapon) ? 'flex' : 'none';
       if (wingDepthSec) wingDepthSec.style.display = isWing ? 'flex' : 'none';
       if (mountRow) mountRow.style.display = isMount ? 'grid' : 'none';
+      if (femField) femField.style.display = isWeapon ? 'block' : 'none';
+      if (femDetails) femDetails.style.display = isWeapon ? 'block' : 'none';
+      if (modelLbl) modelLbl.textContent = isWeapon ? '⚔️ Modelo 2.5D Masculino (equip_mc*)' : 'Modelo 2.5D Animado (mcrework)';
+      if (mirrorChk) mirrorChk.checked = isWing;
       if (titleEl) {
         titleEl.textContent = isWeapon
           ? '⚔️ Vínculo, Tamanho & Calibração 2.5D (Arma Principal)'
@@ -114,6 +123,16 @@ class AdminEquipmentsTab {
         for (const w of cat.weapons || []) {
           opts.push(`<option value="WEAPON|${w.maleModelId}|CHAR_MANIFEST|${w.femaleModelId || ''}">⚔️ [${w.typeName || 'Arma'}] ${w.name} (${w.maleModelId})</option>`);
         }
+        if (femSel) {
+          const seenFem = new Set();
+          const femOpts = ['<option value="">Usar mesmo modelo / Padrão</option>'];
+          for (const w of cat.weapons || []) {
+            if (!w.femaleModelId || seenFem.has(w.femaleModelId)) continue;
+            seenFem.add(w.femaleModelId);
+            femOpts.push(`<option value="${w.femaleModelId}">👩 [${w.typeName || 'Arma'}] ${w.name} (${w.femaleModelId})</option>`);
+          }
+          femSel.innerHTML = femOpts.join('');
+        }
       }
       sel.innerHTML = opts.join('');
 
@@ -139,6 +158,20 @@ class AdminEquipmentsTab {
           match = customOpt;
         }
         if (match) sel.value = match.value;
+      }
+      if (isWeapon && femSel) {
+        const fid = String(fx.weaponFemaleModelId || '').trim();
+        if (fid && !Array.from(femSel.options).some((o) => o.value === fid)) {
+          const opt = document.createElement('option');
+          opt.value = fid;
+          opt.textContent = `👩 [Custom] ${fid}`;
+          femSel.appendChild(opt);
+        }
+        femSel.value = fid;
+        const fxX = document.getElementById('equipWeaponFemaleOffXInput');
+        const fxY = document.getElementById('equipWeaponFemaleOffYInput');
+        if (fxX) fxX.value = fx.femaleOffsetX ?? 0;
+        if (fxY) fxY.value = fx.femaleOffsetY ?? 0;
       }
       document.getElementById('equipVisualScaleInput').value = fx.visualScale ?? (isWing ? 0.65 : 0.70);
       document.getElementById('equipVisualOffsetXInput').value = fx.visualOffsetX ?? 0;
@@ -196,11 +229,17 @@ class AdminEquipmentsTab {
         setNum('equipMountRiderOffsetInput', -22);
         setNum('equipMountAltitudeInput', 72);
       } else if (kind === 'WEAPON') {
+        const [, , , femModelId] = val.split('|');
+        const femSel = document.getElementById('equipWeaponFemaleModelSelect');
+        if (femSel) femSel.value = femModelId || '';
         setNum('equipVisualScaleInput', 0.70);
         setNum('equipVisualOffsetXInput', 0);
         setNum('equipVisualOffsetYInput', 0);
         setNum('equipGroundOffsetYInput', 0);
+        setNum('equipWeaponFemaleOffXInput', 0);
+        setNum('equipWeaponFemaleOffYInput', 0);
         window.AdminEquipmentVisualPreview?.loadWingDirOffsets?.({});
+        window.AdminEquipmentVisualPreview?.setZoom?.(2.0);
       } else if (kind === 'MOUNT') {
         const m = (cat.mounts || []).find((x) => x.modelId === modelId);
         if (m) {
@@ -313,9 +352,9 @@ class AdminEquipmentsTab {
         if (inp) inp.value = '0';
       });
 
+      document.getElementById('equipmentModal').style.display = 'flex';
       this.populateVisualModelsDropdown('WEAPON_1', {});
       this.renderEquipmentGallery();
-      document.getElementById('equipmentModal').style.display = 'flex';
     };
 
     app.openEditEquipmentModal = async function (id) {
@@ -359,9 +398,9 @@ class AdminEquipmentsTab {
       const critDmgEl = document.getElementById('equipCombatCRIT_DMGInput');
       if (critDmgEl) critDmgEl.value = cb.CRIT_DMG ?? cb.CRIT_DAMAGE_PCT ?? 0;
 
+      document.getElementById('equipmentModal').style.display = 'flex';
       this.populateVisualModelsDropdown(item.equipmentSlotCode || 'WEAPON_1', item.specialEffectJson || {});
       this.renderEquipmentGallery();
-      document.getElementById('equipmentModal').style.display = 'flex';
     };
 
     app.updateEquipmentIconPreview = function (iconKey) {
@@ -556,24 +595,31 @@ class AdminEquipmentsTab {
             };
           } else if (kind === 'WEAPON' && modelId) {
             const dirOffsets = window.AdminEquipmentVisualPreview?.getWingDirOffsets?.() || {};
+            const chosenFemale = document.getElementById('equipWeaponFemaleModelSelect')?.value || '';
+            const femaleOffsetX = parseInt(document.getElementById('equipWeaponFemaleOffXInput')?.value, 10) || 0;
+            const femaleOffsetY = parseInt(document.getElementById('equipWeaponFemaleOffYInput')?.value, 10) || 0;
             delete specialEffectJson.weaponVisualCleared;
             delete specialEffectJson.weaponFemaleModelId;
             delete specialEffectJson.femaleManifestUrl;
+            delete specialEffectJson.femaleOffsetX;
+            delete specialEffectJson.femaleOffsetY;
             delete specialEffectJson.dirOffsets;
             Object.assign(specialEffectJson, {
               weaponModelId: modelId,
-              ...(femaleModelId ? { weaponFemaleModelId: femaleModelId, femaleManifestUrl: `/api/assets/mcrework/assets/weapons/${femaleModelId}/char_manifest.json` } : {}),
+              ...(chosenFemale ? { weaponFemaleModelId: chosenFemale, femaleManifestUrl: `/api/assets/mcrework/assets/weapons/${chosenFemale}/char_manifest.json` } : {}),
               visualFormat: 'CHAR_MANIFEST',
               manifestUrl: `/api/assets/mcrework/assets/weapons/${modelId}/char_manifest.json`,
               visualScale,
               visualOffsetX,
               visualOffsetY,
+              ...(femaleOffsetX !== 0 ? { femaleOffsetX } : {}),
+              ...(femaleOffsetY !== 0 ? { femaleOffsetY } : {}),
               groundOffsetY,
               ...(Object.keys(dirOffsets).length > 0 ? { dirOffsets } : {}),
             });
           }
         } else if (equipmentSlotCode === 'WEAPON_1') {
-          for (const k of ['weaponModelId', 'weaponFemaleModelId', 'manifestUrl', 'femaleManifestUrl', 'visualFormat', 'visualScale', 'visualOffsetX', 'visualOffsetY', 'groundOffsetY', 'dirOffsets']) {
+          for (const k of ['weaponModelId', 'weaponFemaleModelId', 'manifestUrl', 'femaleManifestUrl', 'visualFormat', 'visualScale', 'visualOffsetX', 'visualOffsetY', 'femaleOffsetX', 'femaleOffsetY', 'groundOffsetY', 'dirOffsets']) {
             delete specialEffectJson[k];
           }
           specialEffectJson.weaponVisualCleared = true;

@@ -671,22 +671,24 @@ class PlayFlightAndWingsController {
     return false;
   }
 
-  static computeWeaponTransform(weaponObj, x, y, rawDir, customScale = 0.70) {
+  static computeWeaponTransform(weaponObj, x, y, rawDir, customScale = 0.70, charKey = null) {
     const d = (((Number(rawDir) || 0) % 8) + 8) % 8;
     const baseScale = Number(customScale) > 0 ? Number(customScale) : 0.70;
     const scaleRatio = baseScale / 0.70;
     const weaponScale = Number(weaponObj.visualScale) > 0 ? Number(weaponObj.visualScale) * scaleRatio : baseScale;
     const gOffWeapon = Math.round((Number(weaponObj.groundOffsetY) || 0) * baseScale);
-    const isLeftSide = d === 5 || d === 6 || d === 7;
-    const baseOffX = (Number(weaponObj.visualOffsetX) || 0) * (isLeftSide ? -1 : 1) * scaleRatio;
+    const baseOffX = (Number(weaponObj.visualOffsetX) || 0) * scaleRatio;
     const baseOffY = (Number(weaponObj.visualOffsetY) || 0) * scaleRatio;
+    const isFemale = Boolean(charKey && /female/i.test(String(charKey)));
+    const femOffX = isFemale ? (Number(weaponObj.femaleOffsetX) || 0) * scaleRatio : 0;
+    const femOffY = isFemale ? (Number(weaponObj.femaleOffsetY) || 0) * scaleRatio : 0;
     const dOv = weaponObj.dirOffsets && typeof weaponObj.dirOffsets === 'object' ? weaponObj.dirOffsets[String(d)] : null;
     const dirOffX = (Number(dOv?.x) || 0) * scaleRatio;
     const dirOffY = (Number(dOv?.y) || 0) * scaleRatio;
     const feetBaseY = Math.round(4 * scaleRatio);
     return {
-      weaponX: Math.round(x + baseOffX + dirOffX),
-      weaponY: Math.round(y + feetBaseY + gOffWeapon + baseOffY + dirOffY),
+      weaponX: Math.round(x + baseOffX + femOffX + dirOffX),
+      weaponY: Math.round(y + feetBaseY + gOffWeapon + baseOffY + femOffY + dirOffY),
       weaponScale,
     };
   }
@@ -696,7 +698,7 @@ class PlayFlightAndWingsController {
     if (!res) return false;
     const sp = this.getOrCreateManifestSprite(res.modelId, res.manifestUrl, null);
     if (!sp) return false;
-    const { weaponX, weaponY, weaponScale } = this.computeWeaponTransform(weaponObj, x, y, dir, customScale);
+    const { weaponX, weaponY, weaponScale } = this.computeWeaponTransform(weaponObj, x, y, dir, customScale, charKey);
     return sp.drawFrame(ctx, weaponX, weaponY, dir, action, now, mesh, weaponScale, 0.5, 'WEAPON_AUTO', clampLastFrame);
   }
 

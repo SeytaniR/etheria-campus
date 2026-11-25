@@ -104,18 +104,26 @@ class AdminEquipmentModalDom {
                 <span>🎮 Palco 2.5D ao Vivo</span>
                 <span id="equipPreviewDirLabel" style="color:#fde047;">Sul (S)</span>
               </div>
-              <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:4px;">
+              <div style="display:grid; grid-template-columns:1fr 1.1fr auto 0.9fr; gap:4px; align-items:center;">
                 <select id="equipPreviewMapSelect" onchange="window.AdminEquipmentVisualPreview?.syncMapImage(AdminApp)" style="font-size:0.70rem; padding:5px 4px; min-height:34px;"></select>
                 <select id="equipPreviewClassSelect" onchange="window.AdminEquipmentVisualPreview?.renderNow(AdminApp)" style="font-size:0.70rem; padding:5px 4px; min-height:34px;"></select>
+                <button type="button" id="btnEquipPrevReborn" onclick="window.AdminEquipmentVisualPreview?.toggleReborn(AdminApp)" title="Alternar entre visual Base e Reborn da Classe" style="font-size:0.68rem; padding:5px 7px; min-height:34px; white-space:nowrap;">👤 Base</button>
                 <select id="equipPreviewPetSelect" onchange="window.AdminEquipmentVisualPreview?.renderNow(AdminApp)" style="font-size:0.70rem; padding:5px 4px; min-height:34px;"><option value="">🐾 Sem Pet</option></select>
               </div>
-              <canvas id="equipVisualPreviewCanvas" width="380" height="240" style="width:100%; border-radius:8px; border:1px solid #1e293b; background:#0b1120; display:block;"></canvas>
+              <canvas id="equipVisualPreviewCanvas" width="380" height="260" style="width:100%; border-radius:8px; border:1px solid #1e293b; background:#0b1120; display:block; cursor:grab; touch-action:none;"></canvas>
               <div style="display:grid; grid-template-columns:1fr auto auto auto 1fr; gap:4px;">
                 <button type="button" onclick="window.AdminEquipmentVisualPreview?.rotateDir(-1)" style="font-size:0.72rem; padding:6px 4px; min-height:34px;">◀ Girar</button>
                 <button type="button" id="btnEquipPrevAct0" class="btn-primary" onclick="window.AdminEquipmentVisualPreview?.setAction(0)" style="font-size:0.70rem; padding:6px 7px; min-height:34px;">Parado</button>
                 <button type="button" id="btnEquipPrevAct1" onclick="window.AdminEquipmentVisualPreview?.setAction(1)" style="font-size:0.70rem; padding:6px 7px; min-height:34px;">Andar</button>
                 <button type="button" id="btnEquipPrevAct3" onclick="window.AdminEquipmentVisualPreview?.setAction(3)" style="font-size:0.70rem; padding:6px 7px; min-height:34px;">Atacar</button>
                 <button type="button" onclick="window.AdminEquipmentVisualPreview?.rotateDir(1)" style="font-size:0.72rem; padding:6px 4px; min-height:34px;">Girar ▶</button>
+              </div>
+              <div style="display:grid; grid-template-columns:repeat(4, auto) 1fr; gap:4px; align-items:center;">
+                <button type="button" class="equip-zoom-btn btn-primary" data-zoom="1" onclick="window.AdminEquipmentVisualPreview?.setZoom(1)" style="font-size:0.68rem; padding:5px 7px; min-height:30px;">1x</button>
+                <button type="button" class="equip-zoom-btn" data-zoom="1.5" onclick="window.AdminEquipmentVisualPreview?.setZoom(1.5)" style="font-size:0.68rem; padding:5px 7px; min-height:30px;">1.5x</button>
+                <button type="button" class="equip-zoom-btn" data-zoom="2" onclick="window.AdminEquipmentVisualPreview?.setZoom(2)" style="font-size:0.68rem; padding:5px 7px; min-height:30px;">2x</button>
+                <button type="button" class="equip-zoom-btn" data-zoom="3" onclick="window.AdminEquipmentVisualPreview?.setZoom(3)" style="font-size:0.68rem; padding:5px 7px; min-height:30px;">3x</button>
+                <button type="button" id="btnEquipPrevDragMode" onclick="window.AdminEquipmentVisualPreview?.toggleDragTarget()" style="font-size:0.68rem; padding:5px 7px; min-height:30px; text-align:center;" title="Arraste no palco para posicionar o modelo">🖐️ Arraste: Global</button>
               </div>
               <div style="display:grid; grid-template-columns:repeat(9, 1fr); gap:3px;">
                 <button type="button" class="equip-dir-btn btn-primary" data-dir="0" onclick="window.AdminEquipmentVisualPreview?.setDir(0)" style="font-size:0.66rem; padding:4px 2px;">S</button>
@@ -133,9 +141,15 @@ class AdminEquipmentModalDom {
             <!-- Controles Mobile-Friendly de Modelo, Distância ao Chão (Z), Escala e Offsets -->
             <div style="display:flex; flex-direction:column; gap:8px;">
               <div class="field" style="margin:0;">
-                <label>Modelo 2.5D Animado (mcrework)</label>
+                <label id="equipVisualModelLabel">Modelo 2.5D Animado (mcrework)</label>
                 <select id="equipVisualModelSelect" onchange="AdminApp.onVisualModelSelectChange()" style="min-height:38px;">
                   <option value="">Sem modelo 2.5D vinculado</option>
+                </select>
+              </div>
+              <div class="field" id="equipWeaponFemaleModelField" style="display:none; margin:0;">
+                <label>👩 Modelo 2.5D Feminino (opcional — equip_fc*)</label>
+                <select id="equipWeaponFemaleModelSelect" onchange="window.AdminEquipmentVisualPreview?.renderNow(AdminApp)" style="min-height:36px;">
+                  <option value="">Usar mesmo modelo / Padrão</option>
                 </select>
               </div>
 
@@ -167,23 +181,36 @@ class AdminEquipmentModalDom {
                 </div>
               </div>
 
-              <!-- Posição X e Y -->
-              <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
-                <div class="field" style="margin:0;">
-                  <label>↔️ Posição X (px)</label>
-                  <div style="display:grid; grid-template-columns:auto 1fr auto; gap:3px;">
-                    <button type="button" onclick="window.AdminEquipmentVisualPreview?.nudgeInput('equipVisualOffsetXInput', -2)" style="padding:6px 8px; min-height:34px;">-2</button>
-                    <input type="number" id="equipVisualOffsetXInput" value="0" min="-150" max="150" style="text-align:center; min-height:34px;" />
-                    <button type="button" onclick="window.AdminEquipmentVisualPreview?.nudgeInput('equipVisualOffsetXInput', 2)" style="padding:6px 8px; min-height:34px;">+2</button>
-                  </div>
+              <!-- Posição Horizontal X e Posição Vertical Y -->
+              <div style="background:rgba(2,6,23,0.68); border:1px solid #334155; border-radius:9px; padding:8px; display:flex; flex-direction:column; gap:5px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.72rem;">
+                  <strong style="color:#38bdf8;">↔️ Posição Horizontal (X)</strong>
+                  <span id="equipOffsetXStatusBadge" style="font-family:monospace; font-weight:800; color:#86efac;">0px</span>
                 </div>
-                <div class="field" style="margin:0;">
-                  <label>↕️ Posição Y (px)</label>
-                  <div style="display:grid; grid-template-columns:auto 1fr auto; gap:3px;">
-                    <button type="button" onclick="window.AdminEquipmentVisualPreview?.nudgeInput('equipVisualOffsetYInput', -2)" style="padding:6px 8px; min-height:34px;">-2</button>
-                    <input type="number" id="equipVisualOffsetYInput" value="-30" min="-150" max="150" style="text-align:center; min-height:34px;" />
-                    <button type="button" onclick="window.AdminEquipmentVisualPreview?.nudgeInput('equipVisualOffsetYInput', 2)" style="padding:6px 8px; min-height:34px;">+2</button>
-                  </div>
+                <input type="range" id="equipVisualOffsetXRange" min="-150" max="150" step="1" value="0" oninput="window.AdminEquipmentVisualPreview?.setInputValue('equipVisualOffsetXInput', this.value, false)" style="width:100%;" />
+                <div style="display:grid; grid-template-columns:repeat(2, auto) 1fr repeat(3, auto); gap:4px; align-items:center;">
+                  <button type="button" onclick="window.AdminEquipmentVisualPreview?.nudgeInput('equipVisualOffsetXInput', -5, false, -150, 150)" style="padding:6px 8px; min-height:34px; font-size:0.72rem;">⬅ -5</button>
+                  <button type="button" onclick="window.AdminEquipmentVisualPreview?.nudgeInput('equipVisualOffsetXInput', -1, false, -150, 150)" style="padding:6px 8px; min-height:34px; font-size:0.72rem;">-1</button>
+                  <input type="number" id="equipVisualOffsetXInput" value="0" min="-150" max="150" oninput="window.AdminEquipmentVisualPreview?.syncSliders()" style="text-align:center; min-height:34px; padding:4px;" />
+                  <button type="button" onclick="window.AdminEquipmentVisualPreview?.nudgeInput('equipVisualOffsetXInput', 1, false, -150, 150)" style="padding:6px 8px; min-height:34px; font-size:0.72rem;">+1</button>
+                  <button type="button" onclick="window.AdminEquipmentVisualPreview?.nudgeInput('equipVisualOffsetXInput', 5, false, -150, 150)" style="padding:6px 8px; min-height:34px; font-size:0.72rem;">+5 ➡</button>
+                  <button type="button" onclick="window.AdminEquipmentVisualPreview?.setInputValue('equipVisualOffsetXInput', 0, false)" title="Zerar X" style="padding:6px 7px; min-height:34px; font-size:0.72rem;">↩0</button>
+                </div>
+              </div>
+
+              <div style="background:rgba(2,6,23,0.68); border:1px solid #334155; border-radius:9px; padding:8px; display:flex; flex-direction:column; gap:5px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.72rem;">
+                  <strong style="color:#38bdf8;">↕️ Posição Vertical (Y)</strong>
+                  <span id="equipOffsetYStatusBadge" style="font-family:monospace; font-weight:800; color:#86efac;">0px</span>
+                </div>
+                <input type="range" id="equipVisualOffsetYRange" min="-150" max="150" step="1" value="0" oninput="window.AdminEquipmentVisualPreview?.setInputValue('equipVisualOffsetYInput', this.value, false)" style="width:100%;" />
+                <div style="display:grid; grid-template-columns:repeat(2, auto) 1fr repeat(3, auto); gap:4px; align-items:center;">
+                  <button type="button" onclick="window.AdminEquipmentVisualPreview?.nudgeInput('equipVisualOffsetYInput', -5, false, -150, 150)" style="padding:6px 8px; min-height:34px; font-size:0.72rem;">⬆ -5</button>
+                  <button type="button" onclick="window.AdminEquipmentVisualPreview?.nudgeInput('equipVisualOffsetYInput', -1, false, -150, 150)" style="padding:6px 8px; min-height:34px; font-size:0.72rem;">-1</button>
+                  <input type="number" id="equipVisualOffsetYInput" value="0" min="-150" max="150" oninput="window.AdminEquipmentVisualPreview?.syncSliders()" style="text-align:center; min-height:34px; padding:4px;" />
+                  <button type="button" onclick="window.AdminEquipmentVisualPreview?.nudgeInput('equipVisualOffsetYInput', 1, false, -150, 150)" style="padding:6px 8px; min-height:34px; font-size:0.72rem;">+1</button>
+                  <button type="button" onclick="window.AdminEquipmentVisualPreview?.nudgeInput('equipVisualOffsetYInput', 5, false, -150, 150)" style="padding:6px 8px; min-height:34px; font-size:0.72rem;">+5 ⬇</button>
+                  <button type="button" onclick="window.AdminEquipmentVisualPreview?.setInputValue('equipVisualOffsetYInput', 0, false)" title="Zerar Y" style="padding:6px 7px; min-height:34px; font-size:0.72rem;">↩0</button>
                 </div>
               </div>
 
@@ -209,37 +236,69 @@ class AdminEquipmentModalDom {
                     <strong style="color:#fde047;">🎯 Ajuste Fino (<span id="equipWingCurDirLabel">Sul (S)</span>)</strong>
                     <button type="button" onclick="window.AdminEquipmentVisualPreview?.resetAllDirOffsets()" style="padding:2px 6px; font-size:0.65rem;">🧹 Resetar 8 Dirs</button>
                   </div>
-                  <div style="display:grid; grid-template-columns:1fr 1fr 1.2fr; gap:5px;">
+                  <div style="display:grid; grid-template-columns:1fr 1fr; gap:6px;">
                     <div>
                       <span style="font-size:0.64rem; color:#94a3b8;">Dir X (px)</span>
-                      <div style="display:grid; grid-template-columns:auto 1fr auto; gap:2px;">
-                        <button type="button" onclick="window.AdminEquipmentVisualPreview?.nudgeDirOffset('x', -1)" style="padding:4px 6px; font-size:0.68rem;">-</button>
+                      <div style="display:grid; grid-template-columns:auto auto 1fr auto auto; gap:2px;">
+                        <button type="button" onclick="window.AdminEquipmentVisualPreview?.nudgeDirOffset('x', -5)" style="padding:4px 5px; font-size:0.66rem;">-5</button>
+                        <button type="button" onclick="window.AdminEquipmentVisualPreview?.nudgeDirOffset('x', -1)" style="padding:4px 5px; font-size:0.66rem;">-1</button>
                         <input type="number" id="equipWingDirOffXInput" value="0" min="-80" max="80" oninput="window.AdminEquipmentVisualPreview?.updateCurrentDirOffset('x', this.value)" style="text-align:center; padding:3px; min-height:30px; font-size:0.72rem;" />
-                        <button type="button" onclick="window.AdminEquipmentVisualPreview?.nudgeDirOffset('x', 1)" style="padding:4px 6px; font-size:0.68rem;">+</button>
+                        <button type="button" onclick="window.AdminEquipmentVisualPreview?.nudgeDirOffset('x', 1)" style="padding:4px 5px; font-size:0.66rem;">+1</button>
+                        <button type="button" onclick="window.AdminEquipmentVisualPreview?.nudgeDirOffset('x', 5)" style="padding:4px 5px; font-size:0.66rem;">+5</button>
                       </div>
                     </div>
                     <div>
                       <span style="font-size:0.64rem; color:#94a3b8;">Dir Y (px)</span>
-                      <div style="display:grid; grid-template-columns:auto 1fr auto; gap:2px;">
-                        <button type="button" onclick="window.AdminEquipmentVisualPreview?.nudgeDirOffset('y', -1)" style="padding:4px 6px; font-size:0.68rem;">-</button>
+                      <div style="display:grid; grid-template-columns:auto auto 1fr auto auto; gap:2px;">
+                        <button type="button" onclick="window.AdminEquipmentVisualPreview?.nudgeDirOffset('y', -5)" style="padding:4px 5px; font-size:0.66rem;">-5</button>
+                        <button type="button" onclick="window.AdminEquipmentVisualPreview?.nudgeDirOffset('y', -1)" style="padding:4px 5px; font-size:0.66rem;">-1</button>
                         <input type="number" id="equipWingDirOffYInput" value="0" min="-80" max="80" oninput="window.AdminEquipmentVisualPreview?.updateCurrentDirOffset('y', this.value)" style="text-align:center; padding:3px; min-height:30px; font-size:0.72rem;" />
-                        <button type="button" onclick="window.AdminEquipmentVisualPreview?.nudgeDirOffset('y', 1)" style="padding:4px 6px; font-size:0.68rem;">+</button>
+                        <button type="button" onclick="window.AdminEquipmentVisualPreview?.nudgeDirOffset('y', 1)" style="padding:4px 5px; font-size:0.66rem;">+1</button>
+                        <button type="button" onclick="window.AdminEquipmentVisualPreview?.nudgeDirOffset('y', 5)" style="padding:4px 5px; font-size:0.66rem;">+5</button>
                       </div>
                     </div>
-                    <div>
-                      <span style="font-size:0.64rem; color:#94a3b8;">Camada</span>
-                      <select id="equipWingDirLayerSelect" onchange="window.AdminEquipmentVisualPreview?.updateCurrentDirOffset('layer', this.value)" style="width:100%; padding:3px; min-height:30px; font-size:0.70rem;">
-                        <option value="AUTO">AUTO (Padrão)</option>
-                        <option value="BACK">Atrás do Herói</option>
-                        <option value="FRONT">Frente do Herói</option>
-                      </select>
-                    </div>
                   </div>
-                  <label style="display:flex; align-items:center; gap:5px; font-size:0.66rem; color:#cbd5e1; cursor:pointer;">
-                    <input type="checkbox" id="equipWingMirrorPairChk" checked /> 🪞 Espelhar par simétrico (SE↔SO, L↔O, NE↔NO)
-                  </label>
+                  <div style="display:grid; grid-template-columns:1fr auto; gap:6px; align-items:center;">
+                    <select id="equipWingDirLayerSelect" onchange="window.AdminEquipmentVisualPreview?.updateCurrentDirOffset('layer', this.value)" style="width:100%; padding:4px; min-height:30px; font-size:0.70rem;">
+                      <option value="AUTO">Camada: AUTO (Padrão)</option>
+                      <option value="BACK">Camada: Atrás do Herói</option>
+                      <option value="FRONT">Camada: Frente do Herói</option>
+                    </select>
+                    <label style="display:flex; align-items:center; gap:5px; font-size:0.66rem; color:#cbd5e1; cursor:pointer; white-space:nowrap;">
+                      <input type="checkbox" id="equipWingMirrorPairChk" checked /> 🪞 Espelhar par
+                    </label>
+                  </div>
                 </div>
               </div>
+
+              <!-- Ajuste Extra Exclusivo para Modelos Femininos (opcional em WEAPON_1) -->
+              <details id="equipWeaponFemaleOffsetDetails" style="display:none; background:rgba(236,72,153,0.10); border:1px solid rgba(236,72,153,0.45); border-radius:9px; padding:7px 9px;">
+                <summary style="cursor:pointer; font-size:0.72rem; font-weight:700; color:#f9a8d4;">👩 Ajuste Extra Feminino (Opcional — X / Y)</summary>
+                <div style="display:grid; grid-template-columns:1fr; gap:6px; margin-top:7px;">
+                  <div>
+                    <span style="font-size:0.66rem; color:#fbcfe8;">👩 Extra X (px)</span>
+                    <div style="display:grid; grid-template-columns:auto auto 1fr auto auto auto; gap:3px; margin-top:2px;">
+                      <button type="button" onclick="window.AdminEquipmentVisualPreview?.nudgeInput('equipWeaponFemaleOffXInput', -5, false, -80, 80)" style="padding:4px 6px; font-size:0.68rem;">-5</button>
+                      <button type="button" onclick="window.AdminEquipmentVisualPreview?.nudgeInput('equipWeaponFemaleOffXInput', -1, false, -80, 80)" style="padding:4px 6px; font-size:0.68rem;">-1</button>
+                      <input type="number" id="equipWeaponFemaleOffXInput" value="0" min="-80" max="80" oninput="window.AdminEquipmentVisualPreview?.syncSliders()" style="text-align:center; padding:3px; min-height:30px; font-size:0.72rem;" />
+                      <button type="button" onclick="window.AdminEquipmentVisualPreview?.nudgeInput('equipWeaponFemaleOffXInput', 1, false, -80, 80)" style="padding:4px 6px; font-size:0.68rem;">+1</button>
+                      <button type="button" onclick="window.AdminEquipmentVisualPreview?.nudgeInput('equipWeaponFemaleOffXInput', 5, false, -80, 80)" style="padding:4px 6px; font-size:0.68rem;">+5</button>
+                      <button type="button" onclick="window.AdminEquipmentVisualPreview?.setInputValue('equipWeaponFemaleOffXInput', 0, false)" style="padding:4px 6px; font-size:0.68rem;">↩0</button>
+                    </div>
+                  </div>
+                  <div>
+                    <span style="font-size:0.66rem; color:#fbcfe8;">👩 Extra Y (px)</span>
+                    <div style="display:grid; grid-template-columns:auto auto 1fr auto auto auto; gap:3px; margin-top:2px;">
+                      <button type="button" onclick="window.AdminEquipmentVisualPreview?.nudgeInput('equipWeaponFemaleOffYInput', -5, false, -80, 80)" style="padding:4px 6px; font-size:0.68rem;">-5</button>
+                      <button type="button" onclick="window.AdminEquipmentVisualPreview?.nudgeInput('equipWeaponFemaleOffYInput', -1, false, -80, 80)" style="padding:4px 6px; font-size:0.68rem;">-1</button>
+                      <input type="number" id="equipWeaponFemaleOffYInput" value="0" min="-80" max="80" oninput="window.AdminEquipmentVisualPreview?.syncSliders()" style="text-align:center; padding:3px; min-height:30px; font-size:0.72rem;" />
+                      <button type="button" onclick="window.AdminEquipmentVisualPreview?.nudgeInput('equipWeaponFemaleOffYInput', 1, false, -80, 80)" style="padding:4px 6px; font-size:0.68rem;">+1</button>
+                      <button type="button" onclick="window.AdminEquipmentVisualPreview?.nudgeInput('equipWeaponFemaleOffYInput', 5, false, -80, 80)" style="padding:4px 6px; font-size:0.68rem;">+5</button>
+                      <button type="button" onclick="window.AdminEquipmentVisualPreview?.setInputValue('equipWeaponFemaleOffYInput', 0, false)" style="padding:4px 6px; font-size:0.68rem;">↩0</button>
+                    </div>
+                  </div>
+                </div>
+              </details>
 
               <!-- Parâmetros Exclusivos de Montaria Voadora -->
               <div id="equipMountCalibrationRow" style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">

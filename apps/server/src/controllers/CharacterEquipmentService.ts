@@ -80,6 +80,8 @@ export interface EquippedWeaponVisualDto {
   visualScale: number;
   visualOffsetX: number;
   visualOffsetY: number;
+  femaleOffsetX?: number;
+  femaleOffsetY?: number;
   groundOffsetY: number;
   dirOffsets?: Record<string, WingDirOffsetDto>;
 }
@@ -227,6 +229,8 @@ export class CharacterEquipmentService {
           visualScale: Number(fx.visualScale) > 0 ? Number(fx.visualScale) : 0.70,
           visualOffsetX: Number(fx.visualOffsetX) || 0,
           visualOffsetY: Number(fx.visualOffsetY) || 0,
+          femaleOffsetX: Number(fx.femaleOffsetX) || 0,
+          femaleOffsetY: Number(fx.femaleOffsetY) || 0,
           groundOffsetY: Number(fx.groundOffsetY ?? 0),
           dirOffsets: fx.dirOffsets && typeof fx.dirOffsets === 'object' ? fx.dirOffsets : {},
         };
