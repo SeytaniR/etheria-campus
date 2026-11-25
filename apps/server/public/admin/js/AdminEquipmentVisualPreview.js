@@ -12,6 +12,9 @@ class AdminEquipmentVisualPreview {
   static animId = null;
   static dir = 0;
   static action = 0;
+  static autoRotate = false;
+  static lastAutoRotateAt = 0;
+  static wingDirOffsets = {};
   static spriteCache = new Map();
   static mapImg = null;
   static mapIdLoaded = null;
@@ -118,12 +121,18 @@ class AdminEquipmentVisualPreview {
   static start(app) {
     this.stop();
     void this.ensureCatalogsLoaded(app);
+    this.lastAutoRotateAt = performance.now();
+    this.syncDirUi();
     const loop = (now) => {
       const box = document.getElementById('equipVisual25dBox');
       const modal = document.getElementById('equipmentModal');
       if (!box || box.style.display === 'none' || !modal || modal.style.display === 'none') {
         this.animId = null;
         return;
+      }
+      if (this.autoRotate && now - this.lastAutoRotateAt >= 900) {
+        this.lastAutoRotateAt = now;
+        this.rotateDir(1);
       }
       this.renderFrame(app, now);
       this.animId = requestAnimationFrame(loop);
@@ -133,6 +142,7 @@ class AdminEquipmentVisualPreview {
 
   static renderNow(app) {
     this.syncSliders();
+    this.syncDirUi();
     if (this.animId === null) {
       this.start(app);
     } else {
@@ -141,24 +151,135 @@ class AdminEquipmentVisualPreview {
   }
 
   static stop() {
+    this.autoRotate = false;
     if (this.animId !== null) {
       cancelAnimationFrame(this.animId);
       this.animId = null;
     }
   }
 
+  static setDir(d) {
+    this.dir = ((Number(d) % 8) + 8) % 8;
+    this.syncDirUi();
+  }
+
   static rotateDir(delta) {
     this.dir = ((this.dir + delta) % 8 + 8) % 8;
+    this.syncDirUi();
+  }
+
+  static toggleAutoRotate() {
+    this.autoRotate = !this.autoRotate;
+    this.lastAutoRotateAt = performance.now();
+    this.syncDirUi();
+  }
+
+  static syncDirUi() {
+    const labelText = this.getDirLabel(this.dir);
     const lbl = document.getElementById('equipPreviewDirLabel');
-    if (lbl) lbl.textContent = this.getDirLabel(this.dir);
+    if (lbl) lbl.textContent = labelText;
+    const fineLbl = document.getElementById('equipWingCurDirLabel');
+    if (fineLbl) fineLbl.textContent = labelText;
+    document.querySelectorAll('.equip-dir-btn').forEach((btn) => {
+      btn.className = Number(btn.dataset.dir) === this.dir ? 'equip-dir-btn btn-primary' : 'equip-dir-btn';
+    });
+    const rotBtn = document.getElementById('btnEquipPrevAutoRot');
+    if (rotBtn) rotBtn.className = this.autoRotate ? 'btn-primary' : '';
+    this.syncDirFineInputs();
+  }
+
+  static loadWingDirOffsets(map) {
+    this.wingDirOffsets = {};
+    if (map && typeof map === 'object') {
+      for (const [k, v] of Object.entries(map)) {
+        if (!v || typeof v !== 'object') continue;
+        const entry = {
+          x: Number(v.x) || 0,
+          y: Number(v.y) || 0,
+          layer: ['AUTO', 'BACK', 'FRONT'].includes(v.layer) ? v.layer : 'AUTO',
+        };
+        if (entry.x !== 0 || entry.y !== 0 || entry.layer !== 'AUTO') {
+          this.wingDirOffsets[String(k)] = entry;
+        }
+      }
+    }
+    this.syncDirFineInputs();
+  }
+
+  static getWingDirOffsets() {
+    const clean = {};
+    for (const [k, v] of Object.entries(this.wingDirOffsets || {})) {
+      if (!v) continue;
+      const x = Number(v.x) || 0;
+      const y = Number(v.y) || 0;
+      const layer = ['AUTO', 'BACK', 'FRONT'].includes(v.layer) ? v.layer : 'AUTO';
+      if (x !== 0 || y !== 0 || layer !== 'AUTO') {
+        clean[String(k)] = { x, y, layer };
+      }
+    }
+    return clean;
+  }
+
+  static syncDirFineInputs() {
+    const cur = this.wingDirOffsets?.[String(this.dir)] || { x: 0, y: 0, layer: 'AUTO' };
+    const xEl = document.getElementById('equipWingDirOffXInput');
+    const yEl = document.getElementById('equipWingDirOffYInput');
+    const lEl = document.getElementById('equipWingDirLayerSelect');
+    if (xEl) xEl.value = String(Number(cur.x) || 0);
+    if (yEl) yEl.value = String(Number(cur.y) || 0);
+    if (lEl) lEl.value = ['AUTO', 'BACK', 'FRONT'].includes(cur.layer) ? cur.layer : 'AUTO';
+  }
+
+  static updateCurrentDirOffset(field, rawVal) {
+    const dirKey = String(this.dir);
+    const cur = { ...(this.wingDirOffsets?.[dirKey] || { x: 0, y: 0, layer: 'AUTO' }) };
+    if (field === 'layer') {
+      cur.layer = ['AUTO', 'BACK', 'FRONT'].includes(rawVal) ? rawVal : 'AUTO';
+    } else {
+      cur[field] = Math.max(-80, Math.min(80, Math.round(Number(rawVal) || 0)));
+    }
+    if ((cur.x || 0) === 0 && (cur.y || 0) === 0 && (cur.layer || 'AUTO') === 'AUTO') {
+      delete this.wingDirOffsets[dirKey];
+    } else {
+      this.wingDirOffsets[dirKey] = cur;
+    }
+
+    const mirrorPair = { 1: 7, 7: 1, 2: 6, 6: 2, 3: 5, 5: 3 }[this.dir];
+    const shouldMirror = Boolean(document.getElementById('equipWingMirrorPairChk')?.checked);
+    if (shouldMirror && mirrorPair !== undefined) {
+      const mKey = String(mirrorPair);
+      const mEntry = {
+        x: -(Number(cur.x) || 0),
+        y: Number(cur.y) || 0,
+        layer: cur.layer || 'AUTO',
+      };
+      if (mEntry.x === 0 && mEntry.y === 0 && mEntry.layer === 'AUTO') {
+        delete this.wingDirOffsets[mKey];
+      } else {
+        this.wingDirOffsets[mKey] = mEntry;
+      }
+    }
+    this.syncDirFineInputs();
+  }
+
+  static nudgeDirOffset(field, delta) {
+    const cur = this.wingDirOffsets?.[String(this.dir)] || { x: 0, y: 0, layer: 'AUTO' };
+    this.updateCurrentDirOffset(field, (Number(cur[field]) || 0) + delta);
+  }
+
+  static resetAllDirOffsets() {
+    this.wingDirOffsets = {};
+    this.syncDirFineInputs();
   }
 
   static setAction(act) {
     this.action = Number(act) || 0;
     const b0 = document.getElementById('btnEquipPrevAct0');
     const b1 = document.getElementById('btnEquipPrevAct1');
+    const b3 = document.getElementById('btnEquipPrevAct3');
     if (b0) b0.className = this.action === 0 ? 'btn-primary' : '';
     if (b1) b1.className = this.action === 1 ? 'btn-primary' : '';
+    if (b3) b3.className = this.action === 3 ? 'btn-primary' : '';
   }
 
   static setInputValue(id, value, isFloat = false) {
@@ -184,6 +305,7 @@ class AdminEquipmentVisualPreview {
       ['equipGroundOffsetYInput', 'equipGroundOffsetYRange'],
       ['equipVisualScaleInput', 'equipVisualScaleRange'],
       ['equipMountAltitudeInput', 'equipMountAltitudeRange'],
+      ['equipWingBackDepthInput', 'equipWingBackDepthRange'],
     ];
     for (const [numId, rngId] of pairs) {
       const n = document.getElementById(numId);
@@ -235,6 +357,7 @@ class AdminEquipmentVisualPreview {
     const visualOffsetX = this.parseSafeNum('equipVisualOffsetXInput', 0, false);
     const visualOffsetY = this.parseSafeNum('equipVisualOffsetYInput', slotCode === 'WINGS' ? -30 : 0, false);
     const groundOffsetZ = this.parseSafeNum('equipGroundOffsetYInput', 0, false);
+    const wingBackDepth = this.parseSafeNum('equipWingBackDepthInput', 0, false);
     const flightAlt = this.parseSafeNum('equipMountAltitudeInput', 72, false);
     const riderOffsetX = this.parseSafeNum('equipMountRiderOffsetXInput', 0, false);
     const riderOffsetY = this.parseSafeNum('equipMountRiderOffsetInput', -22, false);
@@ -278,6 +401,8 @@ class AdminEquipmentVisualPreview {
           visualOffsetX,
           visualOffsetY,
           groundOffsetY: groundOffsetZ,
+          backDepth: wingBackDepth,
+          dirOffsets: this.getWingDirOffsets(),
         };
       } else if (slotCode === 'FLYING_MOUNT' && modelId) {
         const isAtlas = visualFormat === 'ATLAS' || kind === 'MOUNT' || modelId.startsWith('mount_');

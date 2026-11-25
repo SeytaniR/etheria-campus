@@ -158,7 +158,7 @@ class PlayWorldRenderer {
         if (window.PlayFlightAndWingsController && p.sprite) {
           window.PlayFlightAndWingsController.drawPlayerWithCosmetics(ctx, {
             client: client, charSprite: p.sprite, worldX: p.x, worldY: p.y,
-            action: p.action, dir: p.dir, now: elapsed, mesh: client.mesh,
+            action: p.action, dir: p.dir, now: elapsed, wingNow: now, mesh: client.mesh,
             groundOffsetY: p.groundOffsetY || 0, shadowOffsetX: p.shadowOffsetX || 0, shadowOffsetY: p.shadowOffsetY || 0,
             wingsObj: p.equippedWings || null, mountObj: null, isFlying: false, flightAltitude: 0, customScale: 0.70,
           });
@@ -233,6 +233,8 @@ class PlayWorldRenderer {
           client.actionCombatArena?.vfxRenderer?.drawUnitOverlays(ctx, ent, by - 14, now);
         }
         ctx.restore();
+      } else if (item.type === 'DUNGEON_CHEST') {
+        window.PlayDungeonChestController?.renderChestOnCanvas(ctx, client.actionCombatArena, now, client.mesh);
       }
     }
     // 6. VFX Animados & Textos Flutuantes da Arena de Combate

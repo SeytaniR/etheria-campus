@@ -14,6 +14,15 @@ class AdminDungeonChestsTab {
   static previewMapId = null;
   static previewHeroSprite = null;
   static previewClassesCache = null;
+  static previewHeroDepthMode = 'SIDE';
+
+  static setPreviewHeroDepthMode(mode) {
+    this.previewHeroDepthMode = ['BEHIND', 'SIDE', 'FRONT'].includes(mode) ? mode : 'SIDE';
+    ['BEHIND', 'SIDE', 'FRONT'].forEach((m) => {
+      const btn = document.getElementById(`dcDepthBtn${m}`);
+      if (btn) btn.className = this.previewHeroDepthMode === m ? 'btn-primary' : '';
+    });
+  }
 
   static attach(app) {
     app.dungeonChestsList = [];
@@ -78,7 +87,7 @@ class AdminDungeonChestsTab {
       setPair('dcScaleNum', sc, '', '');
       setPair('dcOffsetXRange', ox, 'dcOffsetXLbl', `↔️ Posição Horizontal X (${ox >= 0 ? '+' : ''}${ox}px)`);
       setPair('dcOffsetXNum', ox, '', '');
-      setPair('dcOffsetYRange', oy, 'dcOffsetYLbl', `📏 Distância ao Chão / Z (${oy >= 0 ? '+' : ''}${oy}px)`);
+      setPair('dcOffsetYRange', oy, 'dcOffsetYLbl', `📏 Assento no Chão / Z (0px = base no solo: ${oy >= 0 ? '+' : ''}${oy}px)`);
       setPair('dcOffsetYNum', oy, '', '');
     };
 
@@ -295,7 +304,7 @@ class AdminDungeonChestsTab {
         <div style="background:#020617; border:1px solid #334155; border-radius:10px; padding:10px; display:flex; flex-direction:column; gap:10px;">
           <!-- Distância do Baú ao Chão (Z / Offset Y) -->
           <div class="field" style="margin:0;">
-            <label id="dcOffsetYLbl" style="color:#fde047; font-weight:700;">📏 Distância ao Chão / Z (${Number(c.visualOffsetY ?? -10) >= 0 ? '+' : ''}${Number(c.visualOffsetY ?? -10)}px)</label>
+            <label id="dcOffsetYLbl" style="color:#fde047; font-weight:700;">📏 Assento no Chão / Z (0px = base no solo: ${Number(c.visualOffsetY ?? -10) >= 0 ? '+' : ''}${Number(c.visualOffsetY ?? -10)}px)</label>
             <input id="dcOffsetYRange" type="range" min="-140" max="140" step="1" value="${Number(c.visualOffsetY ?? -10)}" oninput="AdminApp.updateSelectedChestField('visualOffsetY', this.value); AdminApp.syncChestControlInputs()" style="width:100%; margin:3px 0;" />
             <div style="display:grid; grid-template-columns:auto auto 1fr auto auto auto; gap:4px; align-items:center;">
               <button type="button" onclick="AdminApp.nudgeSelectedChestField('visualOffsetY', -5, -140, 140)" style="padding:6px 8px; min-height:34px;">⬆ -5</button>
@@ -472,65 +481,41 @@ class AdminDungeonChestsTab {
 
     const anchorX = Math.round(W * 0.60);
     const anchorY = Math.round(H * 0.68);
-    // Marca do ponto de morte do último monstro
+    // Marca do ponto de morte do último monstro e linha de referência do solo (Z = 0)
+    ctx.save();
     ctx.strokeStyle = 'rgba(255,255,255,0.35)';
     ctx.setLineDash([4, 4]);
     ctx.beginPath();
     ctx.arc(anchorX, anchorY, 16, 0, Math.PI * 2);
     ctx.stroke();
-    ctx.setLineDash([]);
-
-    // Herói de referência ao lado esquerdo para comparar proporção real
-    if (this.previewHeroSprite) {
-      this.previewHeroSprite.draw(ctx, Math.round(W * 0.28), anchorY, 0, 2, now, null, this.previewHeroGroundY || 0, 0.70, false, 0, 0, false);
-    }
-
-    // Linha horizontal de referência do solo (Z = 0)
-    ctx.save();
-    ctx.strokeStyle = 'rgba(253, 224, 71, 0.45)';
+    ctx.strokeStyle = 'rgba(253, 224, 71, 0.55)';
     ctx.setLineDash([4, 3]);
     ctx.beginPath();
-    ctx.moveTo(anchorX - 58, anchorY);
-    ctx.lineTo(anchorX + 58, anchorY);
+    ctx.moveTo(anchorX - 64, anchorY);
+    ctx.lineTo(anchorX + 64, anchorY);
     ctx.stroke();
     ctx.restore();
 
-    const cx = anchorX + (Number(chest.visualOffsetX) || 0);
-    const cy = anchorY + (Number(chest.visualOffsetY) ?? -10);
-    const drawSize = Math.round(256 * Math.max(0.1, Number(chest.visualScale) || 0.36));
-    const glow = chest.glowColorHex || '#38bdf8';
-    const bobY = Math.sin(now / 380) * 3;
+    const mode = this.previewHeroDepthMode || 'SIDE';
+    const heroX = mode === 'SIDE' ? Math.round(W * 0.28) : anchorX - 28;
+    const heroY = mode === 'BEHIND' ? anchorY - 26 : (mode === 'FRONT' ? anchorY + 28 : anchorY);
+    const entities = [
+      { kind: 'HERO', y: heroY },
+      { kind: 'CHEST', y: anchorY },
+    ].sort((a, b) => a.y - b.y);
 
-    // Halo
-    const grad = ctx.createRadialGradient(cx, cy + 4, 4, cx, cy + 4, Math.max(12, drawSize * 0.65));
-    grad.addColorStop(0, `${glow}88`);
-    grad.addColorStop(1, 'rgba(0,0,0,0)');
-    ctx.fillStyle = grad;
-    ctx.beginPath();
-    ctx.ellipse(cx, cy + 4, drawSize * 0.65, drawSize * 0.32, 0, 0, Math.PI * 2);
-    ctx.fill();
-
-    // Sombra
-    ctx.fillStyle = 'rgba(0,0,0,0.45)';
-    ctx.beginPath();
-    ctx.ellipse(cx, cy + 2, drawSize * 0.36, drawSize * 0.14, 0, 0, Math.PI * 2);
-    ctx.fill();
-
-    // Imagem do Baú
-    if (!this.previewImages.has(chest.imageUrl)) {
-      const im = new Image();
-      im.src = chest.imageUrl;
-      this.previewImages.set(chest.imageUrl, im);
+    for (const ent of entities) {
+      if (ent.kind === 'HERO') {
+        if (this.previewHeroSprite) {
+          this.previewHeroSprite.draw(ctx, heroX, heroY, 0, 2, now, null, this.previewHeroGroundY || 0, 0.70, false, 0, 0, false);
+        }
+      } else if (window.PlayDungeonChestController?.renderChestAt) {
+        window.PlayDungeonChestController.renderChestAt(ctx, chest, anchorX, anchorY, now, {
+          isPreview: true,
+          labelText: `✨ ${chest.namePtBr} (${Number(chest.spawnChancePct)}%)`,
+        });
+      }
     }
-    const img = this.previewImages.get(chest.imageUrl);
-    if (img && img.complete && img.naturalWidth > 0) {
-      ctx.drawImage(img, Math.round(cx - drawSize / 2), Math.round(cy - drawSize * 0.88 + bobY), drawSize, drawSize);
-    }
-
-    ctx.font = 'bold 11px sans-serif';
-    ctx.textAlign = 'center';
-    ctx.fillStyle = '#fde047';
-    ctx.fillText(`✨ ${chest.namePtBr} (${Number(chest.spawnChancePct)}%)`, cx, Math.round(cy - drawSize * 0.94 + bobY));
   }
 
   static injectTabDom() {
@@ -560,8 +545,13 @@ class AdminDungeonChestsTab {
             </div>
           </div>
           <canvas id="dcPreviewCanvas" width="366" height="260" style="width:100%; border-radius:10px; border:1.5px solid #334155; background:#020617;"></canvas>
+          <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:5px;">
+            <button type="button" id="dcDepthBtnBEHIND" onclick="AdminDungeonChestsTab.setPreviewHeroDepthMode('BEHIND')" style="font-size:0.70rem; padding:5px;">⬆️ Herói Atrás</button>
+            <button type="button" id="dcDepthBtnSIDE" class="btn-primary" onclick="AdminDungeonChestsTab.setPreviewHeroDepthMode('SIDE')" style="font-size:0.70rem; padding:5px;">↔️ Ao Lado</button>
+            <button type="button" id="dcDepthBtnFRONT" onclick="AdminDungeonChestsTab.setPreviewHeroDepthMode('FRONT')" style="font-size:0.70rem; padding:5px;">⬇️ Na Frente</button>
+          </div>
           <div style="font-size:0.7rem; color:#94a3b8; line-height:1.35;">
-            A linha tracejada dourada indica o solo (Z=0) e o círculo indica o ponto de morte do último monstro. O herói protótipo à esquerda serve de referência real (<code>0.70x</code>).
+            A linha tracejada dourada e a sombra ficam fixas no solo (Z=0). Use os botões acima para testar a profundidade 2.5D (Y-Sorting) entre o Herói (<code>0.70x</code>) e o Baú.
           </div>
         </div>
 

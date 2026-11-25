@@ -8,9 +8,9 @@
 ---
 
 ## 📌 Status Atual do Projeto
-* **Versão Atual:** `v0.64.0`
-* **Última Atualização:** `2026-11-24`
-* **Fase Atual:** **Plano Mestre de Remediação das 4 Ondas (P0 → P3) 100% CONCLUÍDO (`v0.64.0`)** — Onda P3 entregue com motor multi-locale `i18n` (`pt-BR`, `en-US`, `es-ES`) em camadas no `I18nCache` + `AsyncLocalStorage`, `EtheriaI18n.js` nas rotas `/play` e `/admin`, endpoints `GET /api/i18n/meta` e `POST /api/play/locale`, 100% dos arquivos `.ts` ativos com cabeçalho JSDoc completo (Regra #1), documentação técnica (`README.md`, `ARCHITECTURE.md`, `DATABASE_SCHEMA.md`, `AGENTS.md`) totalmente atualizada e suíte `npm test` com 5 módulos aprovados. Todos os arquivos < 1.000 linhas (Regra #7).
+* **Versão Atual:** `v0.65.0`
+* **Última Atualização:** `2026-11-25`
+* **Fase Atual:** **Ajustes Visuais 2.5D Concluídos (`v0.65.0`) — Asas em 8 Direções com Profundidade (`backDepth` + `dirOffsets`) & Baús de Dungeon Fixados no Chão com Y-Sorting Real** — Corrigido colapso de direções esquerdas/animações em manifests 5-dir de asas (`flipX` automático + fallback animado em movimento/ataque), adicionados controles de profundidade 2.5D e ajuste por direção no `/admin`, removida a flutuação contínua dos Baús de Dungeon com sombra travada no solo (`groundY`) e integrado `DUNGEON_CHEST` no Y-Sorting real da arena (`/play`) e preview (`/admin`). Suíte `npm test` com 6 módulos aprovados; todos os arquivos < 1.000 linhas (Regra #7).
 * **Repositório Oficial:** `https://github.com/SeytaniR/etheria-campus`
 * **Fonte Bruta de Assets:** `https://github.com/SeytaniR/mcrework` (`https://seytanir.github.io/mcrework/`)
 

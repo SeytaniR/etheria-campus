@@ -110,11 +110,23 @@ class AdminEquipmentModalDom {
                 <select id="equipPreviewPetSelect" onchange="window.AdminEquipmentVisualPreview?.renderNow(AdminApp)" style="font-size:0.70rem; padding:5px 4px; min-height:34px;"><option value="">🐾 Sem Pet</option></select>
               </div>
               <canvas id="equipVisualPreviewCanvas" width="380" height="240" style="width:100%; border-radius:8px; border:1px solid #1e293b; background:#0b1120; display:block;"></canvas>
-              <div style="display:grid; grid-template-columns:1fr auto auto 1fr; gap:5px;">
-                <button type="button" onclick="window.AdminEquipmentVisualPreview?.rotateDir(-1)" style="font-size:0.74rem; padding:7px 4px; min-height:36px;">◀ Girar</button>
-                <button type="button" id="btnEquipPrevAct0" class="btn-primary" onclick="window.AdminEquipmentVisualPreview?.setAction(0)" style="font-size:0.72rem; padding:7px 10px; min-height:36px;">Parado</button>
-                <button type="button" id="btnEquipPrevAct1" onclick="window.AdminEquipmentVisualPreview?.setAction(1)" style="font-size:0.72rem; padding:7px 10px; min-height:36px;">Voar/Andar</button>
-                <button type="button" onclick="window.AdminEquipmentVisualPreview?.rotateDir(1)" style="font-size:0.74rem; padding:7px 4px; min-height:36px;">Girar ▶</button>
+              <div style="display:grid; grid-template-columns:1fr auto auto auto 1fr; gap:4px;">
+                <button type="button" onclick="window.AdminEquipmentVisualPreview?.rotateDir(-1)" style="font-size:0.72rem; padding:6px 4px; min-height:34px;">◀ Girar</button>
+                <button type="button" id="btnEquipPrevAct0" class="btn-primary" onclick="window.AdminEquipmentVisualPreview?.setAction(0)" style="font-size:0.70rem; padding:6px 7px; min-height:34px;">Parado</button>
+                <button type="button" id="btnEquipPrevAct1" onclick="window.AdminEquipmentVisualPreview?.setAction(1)" style="font-size:0.70rem; padding:6px 7px; min-height:34px;">Andar</button>
+                <button type="button" id="btnEquipPrevAct3" onclick="window.AdminEquipmentVisualPreview?.setAction(3)" style="font-size:0.70rem; padding:6px 7px; min-height:34px;">Atacar</button>
+                <button type="button" onclick="window.AdminEquipmentVisualPreview?.rotateDir(1)" style="font-size:0.72rem; padding:6px 4px; min-height:34px;">Girar ▶</button>
+              </div>
+              <div style="display:grid; grid-template-columns:repeat(9, 1fr); gap:3px;">
+                <button type="button" class="equip-dir-btn btn-primary" data-dir="0" onclick="window.AdminEquipmentVisualPreview?.setDir(0)" style="font-size:0.66rem; padding:4px 2px;">S</button>
+                <button type="button" class="equip-dir-btn" data-dir="1" onclick="window.AdminEquipmentVisualPreview?.setDir(1)" style="font-size:0.66rem; padding:4px 2px;">SE</button>
+                <button type="button" class="equip-dir-btn" data-dir="2" onclick="window.AdminEquipmentVisualPreview?.setDir(2)" style="font-size:0.66rem; padding:4px 2px;">L</button>
+                <button type="button" class="equip-dir-btn" data-dir="3" onclick="window.AdminEquipmentVisualPreview?.setDir(3)" style="font-size:0.66rem; padding:4px 2px;">NE</button>
+                <button type="button" class="equip-dir-btn" data-dir="4" onclick="window.AdminEquipmentVisualPreview?.setDir(4)" style="font-size:0.66rem; padding:4px 2px;">N</button>
+                <button type="button" class="equip-dir-btn" data-dir="5" onclick="window.AdminEquipmentVisualPreview?.setDir(5)" style="font-size:0.66rem; padding:4px 2px;">NO</button>
+                <button type="button" class="equip-dir-btn" data-dir="6" onclick="window.AdminEquipmentVisualPreview?.setDir(6)" style="font-size:0.66rem; padding:4px 2px;">O</button>
+                <button type="button" class="equip-dir-btn" data-dir="7" onclick="window.AdminEquipmentVisualPreview?.setDir(7)" style="font-size:0.66rem; padding:4px 2px;">SO</button>
+                <button type="button" id="btnEquipPrevAutoRot" onclick="window.AdminEquipmentVisualPreview?.toggleAutoRotate()" title="Giro 360° automático" style="font-size:0.66rem; padding:4px 2px;">🔄</button>
               </div>
             </div>
 
@@ -172,6 +184,58 @@ class AdminEquipmentModalDom {
                     <input type="number" id="equipVisualOffsetYInput" value="-30" min="-150" max="150" style="text-align:center; min-height:34px;" />
                     <button type="button" onclick="window.AdminEquipmentVisualPreview?.nudgeInput('equipVisualOffsetYInput', 2)" style="padding:6px 8px; min-height:34px;">+2</button>
                   </div>
+                </div>
+              </div>
+
+              <!-- Parâmetros Exclusivos de Profundidade & Direções de Asas -->
+              <div id="equipWingDepthBox" style="display:none; background:rgba(168,85,247,0.12); border:1px solid #a855f7; border-radius:9px; padding:8px; flex-direction:column; gap:6px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.72rem;">
+                  <strong style="color:#e9d5ff;">📐 Profundidade 2.5D nas Costas (Todas 8 Dirs)</strong>
+                  <span style="font-size:0.66rem; color:#c4b5fd;">+ afasta das costas • - encaixa</span>
+                </div>
+                <input type="range" id="equipWingBackDepthRange" min="-50" max="50" step="1" value="0" oninput="window.AdminEquipmentVisualPreview?.setInputValue('equipWingBackDepthInput', this.value, false)" style="width:100%;" />
+                <div style="display:grid; grid-template-columns:repeat(2, auto) 1fr repeat(3, auto); gap:4px; align-items:center;">
+                  <button type="button" onclick="window.AdminEquipmentVisualPreview?.nudgeInput('equipWingBackDepthInput', -5, false, -50, 50)" style="padding:5px 7px; font-size:0.70rem;">-5</button>
+                  <button type="button" onclick="window.AdminEquipmentVisualPreview?.nudgeInput('equipWingBackDepthInput', -1, false, -50, 50)" style="padding:5px 7px; font-size:0.70rem;">-1</button>
+                  <input type="number" id="equipWingBackDepthInput" value="0" min="-50" max="50" oninput="window.AdminEquipmentVisualPreview?.syncSliders()" style="text-align:center; min-height:32px; padding:3px;" />
+                  <button type="button" onclick="window.AdminEquipmentVisualPreview?.nudgeInput('equipWingBackDepthInput', 1, false, -50, 50)" style="padding:5px 7px; font-size:0.70rem;">+1</button>
+                  <button type="button" onclick="window.AdminEquipmentVisualPreview?.nudgeInput('equipWingBackDepthInput', 5, false, -50, 50)" style="padding:5px 7px; font-size:0.70rem;">+5</button>
+                  <button type="button" onclick="window.AdminEquipmentVisualPreview?.setInputValue('equipWingBackDepthInput', 0, false)" style="padding:5px 7px; font-size:0.70rem;" title="Zerar Profundidade">↩0</button>
+                </div>
+                <div style="border-top:1px dashed rgba(168,85,247,0.35); padding-top:6px; display:flex; flex-direction:column; gap:5px;">
+                  <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.70rem;">
+                    <strong style="color:#fde047;">🎯 Ajuste Fino (<span id="equipWingCurDirLabel">Sul (S)</span>)</strong>
+                    <button type="button" onclick="window.AdminEquipmentVisualPreview?.resetAllDirOffsets()" style="padding:2px 6px; font-size:0.65rem;">🧹 Resetar 8 Dirs</button>
+                  </div>
+                  <div style="display:grid; grid-template-columns:1fr 1fr 1.2fr; gap:5px;">
+                    <div>
+                      <span style="font-size:0.64rem; color:#94a3b8;">Dir X (px)</span>
+                      <div style="display:grid; grid-template-columns:auto 1fr auto; gap:2px;">
+                        <button type="button" onclick="window.AdminEquipmentVisualPreview?.nudgeDirOffset('x', -1)" style="padding:4px 6px; font-size:0.68rem;">-</button>
+                        <input type="number" id="equipWingDirOffXInput" value="0" min="-80" max="80" oninput="window.AdminEquipmentVisualPreview?.updateCurrentDirOffset('x', this.value)" style="text-align:center; padding:3px; min-height:30px; font-size:0.72rem;" />
+                        <button type="button" onclick="window.AdminEquipmentVisualPreview?.nudgeDirOffset('x', 1)" style="padding:4px 6px; font-size:0.68rem;">+</button>
+                      </div>
+                    </div>
+                    <div>
+                      <span style="font-size:0.64rem; color:#94a3b8;">Dir Y (px)</span>
+                      <div style="display:grid; grid-template-columns:auto 1fr auto; gap:2px;">
+                        <button type="button" onclick="window.AdminEquipmentVisualPreview?.nudgeDirOffset('y', -1)" style="padding:4px 6px; font-size:0.68rem;">-</button>
+                        <input type="number" id="equipWingDirOffYInput" value="0" min="-80" max="80" oninput="window.AdminEquipmentVisualPreview?.updateCurrentDirOffset('y', this.value)" style="text-align:center; padding:3px; min-height:30px; font-size:0.72rem;" />
+                        <button type="button" onclick="window.AdminEquipmentVisualPreview?.nudgeDirOffset('y', 1)" style="padding:4px 6px; font-size:0.68rem;">+</button>
+                      </div>
+                    </div>
+                    <div>
+                      <span style="font-size:0.64rem; color:#94a3b8;">Camada</span>
+                      <select id="equipWingDirLayerSelect" onchange="window.AdminEquipmentVisualPreview?.updateCurrentDirOffset('layer', this.value)" style="width:100%; padding:3px; min-height:30px; font-size:0.70rem;">
+                        <option value="AUTO">AUTO (Padrão)</option>
+                        <option value="BACK">Atrás do Herói</option>
+                        <option value="FRONT">Frente do Herói</option>
+                      </select>
+                    </div>
+                  </div>
+                  <label style="display:flex; align-items:center; gap:5px; font-size:0.66rem; color:#cbd5e1; cursor:pointer;">
+                    <input type="checkbox" id="equipWingMirrorPairChk" checked /> 🪞 Espelhar par simétrico (SE↔SO, L↔O, NE↔NO)
+                  </label>
                 </div>
               </div>
 

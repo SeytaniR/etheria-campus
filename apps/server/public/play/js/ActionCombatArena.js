@@ -758,7 +758,6 @@ class ActionCombatArena {
   renderActiveVfx(ctx, now) {
     if (!this.isActive) return;
     this.vfxRenderer?.drawActiveBursts(ctx, now, this);
-    window.PlayDungeonChestController?.renderChestOnCanvas(ctx, this, now);
   }
   populateRenderQueue(renderQueue, now) {
     if (!this.isActive) return;
@@ -766,6 +765,7 @@ class ActionCombatArena {
     if (this.player && this.player.isAlive) push('COMBAT_PLAYER', this.player.y, this.player);
     for (const pet of this.pets) { if (pet.fadeAlpha > 0) push('COMBAT_PET', pet.y, pet); }
     for (const mob of this.monsters) { if (mob.fadeAlpha > 0) push('COMBAT_MONSTER', mob.y, mob); }
+    if (this.dungeonChest && !this.dungeonChest.opened) push('DUNGEON_CHEST', Number(this.dungeonChest.y) || 0, this.dungeonChest);
   }
   renderFloatingTexts(ctx) { this.vfxRenderer?.drawFloatingTexts(ctx, this.floatingTexts); }
 }

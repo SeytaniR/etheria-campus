@@ -89,7 +89,7 @@ class PlayDungeonChestController {
         imageUrl: '/play/assets/dungeon/chest_common.png',
         visualScale: 0.36,
         visualOffsetX: 0,
-        visualOffsetY: -10,
+        visualOffsetY: 0,
         glowColorHex: '#38bdf8',
         x: spawnX,
         y: spawnY,
@@ -121,11 +121,12 @@ class PlayDungeonChestController {
   static handleCanvasClick(arena, worldPt) {
     const chest = arena?.dungeonChest;
     if (!chest || chest.opened || chest.opening || arena.combatState !== 'CHEST_WAIT') return false;
-    const cx = chest.x + (Number(chest.visualOffsetX) || 0);
-    const cy = chest.y + (Number(chest.visualOffsetY) ?? -10);
+    const groundX = chest.x + (Number(chest.visualOffsetX) || 0);
+    const groundY = Number(chest.y) || 0;
+    const spriteBottomY = groundY + (Number(chest.visualOffsetY) || 0);
     const drawSize = Math.max(48, Math.round(256 * (Number(chest.visualScale) || 0.36)));
     const hitRadius = Math.max(58, drawSize * 0.65);
-    if (Math.hypot(worldPt.x - cx, worldPt.y - (cy - drawSize * 0.32)) <= hitRadius) {
+    if (Math.hypot(worldPt.x - groundX, worldPt.y - (spriteBottomY - drawSize * 0.45)) <= hitRadius) {
       void this.openChest(arena);
       return true;
     }
@@ -170,55 +171,75 @@ class PlayDungeonChestController {
     }
   }
 
-  static renderChestOnCanvas(ctx, arena, now) {
-    const chest = arena?.dungeonChest;
-    if (!chest || chest.opened) return;
+  static renderChestAt(ctx, chest, worldX, worldY, now, opts = {}) {
+    if (!chest) return;
 
-    const ageSec = Math.max(0, (now - (chest.spawnedAt || now)) / 1000);
-    const popScale = ageSec < 0.35 ? 0.35 + 0.65 * Math.sin((ageSec / 0.35) * (Math.PI / 2)) : 1.0;
-    const bobY = Math.sin(now / 380) * 3.5;
+    const isPreview = Boolean(opts.isPreview);
+    const ageSec = isPreview ? 10 : Math.max(0, (now - (chest.spawnedAt || now)) / 1000);
+    const popScale = ageSec < 0.28 ? 0.55 + 0.45 * Math.sin((ageSec / 0.28) * (Math.PI / 2)) : 1.0;
+    const dropY = ageSec < 0.32 ? -Math.round(Math.pow(1 - ageSec / 0.32, 2) * 26) : 0;
 
-    const cx = Math.round(chest.x + (Number(chest.visualOffsetX) || 0));
-    const cy = Math.round(chest.y + (Number(chest.visualOffsetY) ?? -10));
+    const groundX = Math.round(Number(worldX) + (Number(chest.visualOffsetX) || 0));
+    const groundY = Math.round(Number(worldY));
+    const zOffset = Number(chest.visualOffsetY ?? 0);
     const scale = Math.max(0.1, Number(chest.visualScale) || 0.36) * popScale;
     const drawSize = Math.round(256 * scale);
     const glow = chest.glowColorHex || '#fbbf24';
 
     ctx.save();
-    // 1. Halo luminoso pulsante no chão (offscreen texture pré-renderizada)
+    // 1. Halo luminoso pulsante fixo no chão (offscreen texture pré-renderizada)
     const pulse = 0.88 + 0.12 * Math.sin(now / 260);
-    const rx = Math.round(drawSize * 0.56 * pulse);
-    const ry = Math.round(drawSize * 0.26 * pulse);
+    const rx = Math.round(drawSize * 0.54 * pulse);
+    const ry = Math.round(drawSize * 0.24 * pulse);
     const glowTex = this.getGlowTexture(glow);
     const haloW = Math.max(24, Math.round(rx * 2.5));
     const haloH = Math.max(14, Math.round(ry * 2.8));
     ctx.drawImage(
       glowTex,
-      Math.round(cx - haloW / 2),
-      Math.round(cy + 4 - haloH / 2),
+      Math.round(groundX - haloW / 2),
+      Math.round(groundY - haloH / 2),
       haloW,
       haloH
     );
 
-    // Sombra base
-    ctx.fillStyle = 'rgba(0, 0, 0, 0.48)';
+    // Sombra de contato fixada no chão em groundY (independente de visualOffsetY / zOffset)
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.34)';
     ctx.beginPath();
-    ctx.ellipse(cx, cy + 2, Math.round(drawSize * 0.36), Math.round(drawSize * 0.14), 0, 0, Math.PI * 2);
+    ctx.ellipse(groundX, groundY, Math.round(drawSize * 0.34), Math.round(drawSize * 0.13), 0, 0, Math.PI * 2);
     ctx.fill();
 
-    // 2. Sprite do Baú
+    // 2. Sprite do Baú ancorado pela base real (94% da altura do PNG 256x256)
+    const spriteBottomY = Math.round(groundY + zOffset + dropY);
+    const dx = Math.round(groundX - drawSize / 2);
+    const dy = Math.round(spriteBottomY - drawSize * 0.94);
+
     const img = this.getChestImage(chest.imageUrl);
     if (img && img.complete && img.naturalWidth > 0) {
-      const dx = Math.round(cx - drawSize / 2);
-      const dy = Math.round(cy - drawSize * 0.88 + bobY);
-      ctx.drawImage(img, dx, dy, drawSize, drawSize);
+      if (opts.mesh && window.McreworkSpriteSheet?.prototype?.renderSpriteWithOverlapClipping) {
+        window.McreworkSpriteSheet.prototype.renderSpriteWithOverlapClipping(
+          ctx,
+          img,
+          0,
+          0,
+          img.naturalWidth,
+          img.naturalHeight,
+          dx,
+          dy,
+          drawSize,
+          drawSize,
+          opts.mesh,
+          false
+        );
+      } else {
+        ctx.drawImage(img, dx, dy, drawSize, drawSize);
+      }
     }
 
-    // 3. Partículas sutis ascendentes
+    // 3. Partículas sutis ascendentes partindo da base do baú
     for (let i = 0; i < 6; i++) {
       const phase = ((now / 1200) + i * 0.17) % 1;
-      const px = cx + Math.sin(i * 2.1 + now / 500) * (drawSize * 0.38);
-      const py = cy - phase * (drawSize * 1.05);
+      const px = groundX + Math.sin(i * 2.1 + now / 500) * (drawSize * 0.36);
+      const py = spriteBottomY - drawSize * 0.18 - phase * (drawSize * 0.90);
       const alpha = Math.sin(phase * Math.PI) * 0.85;
       ctx.fillStyle = glow;
       ctx.globalAlpha = Math.max(0, Math.min(1, alpha));
@@ -228,16 +249,16 @@ class PlayDungeonChestController {
     }
     ctx.globalAlpha = 1;
 
-    // 4. Rótulo clicável acima do baú
-    const labelY = Math.round(cy - drawSize * 0.96 + bobY);
-    const labelText = `✨ ${chest.namePtBr} (Clique para Abrir)`;
+    // 4. Rótulo clicável estável acima do baú
+    const labelY = Math.round(dy - 8);
+    const labelText = opts.labelText || `✨ ${chest.namePtBr} (Clique para Abrir)`;
     ctx.font = 'bold 12px sans-serif';
     ctx.textAlign = 'center';
     const textW = ctx.measureText(labelText).width;
     ctx.fillStyle = 'rgba(2, 6, 23, 0.86)';
     ctx.strokeStyle = glow;
     ctx.lineWidth = 1.5;
-    const pillX = cx - textW / 2 - 10;
+    const pillX = groundX - textW / 2 - 10;
     const pillY = labelY - 15;
     const pillW = textW + 20;
     ctx.beginPath();
@@ -245,8 +266,14 @@ class PlayDungeonChestController {
     ctx.fill();
     ctx.stroke();
     ctx.fillStyle = '#fef08a';
-    ctx.fillText(labelText, cx, labelY);
+    ctx.fillText(labelText, groundX, labelY);
     ctx.restore();
+  }
+
+  static renderChestOnCanvas(ctx, arena, now, mesh = null) {
+    const chest = arena?.dungeonChest;
+    if (!chest || chest.opened) return;
+    this.renderChestAt(ctx, chest, chest.x, chest.y, now, { mesh });
   }
 }
 

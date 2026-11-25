@@ -77,7 +77,9 @@ class AdminEquipmentsTab {
 
       const isWing = slotCode === 'WINGS';
       const isMount = slotCode === 'FLYING_MOUNT';
+      const wingBox = document.getElementById('equipWingDepthBox');
       box.style.display = (isWing || isMount) ? 'block' : 'none';
+      if (wingBox) wingBox.style.display = isWing ? 'flex' : 'none';
       if (mountRow) mountRow.style.display = isMount ? 'grid' : 'none';
       if (!isWing && !isMount) {
         window.AdminEquipmentVisualPreview?.stop();
@@ -121,6 +123,9 @@ class AdminEquipmentsTab {
       document.getElementById('equipVisualOffsetYInput').value = fx.visualOffsetY ?? (isWing ? -30 : 0);
       const gOffInp = document.getElementById('equipGroundOffsetYInput');
       if (gOffInp) gOffInp.value = fx.groundOffsetY ?? 0;
+      const depthInp = document.getElementById('equipWingBackDepthInput');
+      if (depthInp) depthInp.value = fx.backDepth ?? 0;
+      window.AdminEquipmentVisualPreview?.loadWingDirOffsets?.(isWing ? (fx.dirOffsets || {}) : {});
       if (isMount) {
         document.getElementById('equipMountAltitudeInput').value = fx.flightAltitude ?? 72;
         document.getElementById('equipMountRiderOffsetXInput').value = fx.riderOffsetX ?? 0;
@@ -154,6 +159,8 @@ class AdminEquipmentsTab {
         setNum('equipVisualScaleInput', 0.65);
         setNum('equipVisualOffsetXInput', 0);
         setNum('equipVisualOffsetYInput', -30);
+        setNum('equipWingBackDepthInput', 0);
+        window.AdminEquipmentVisualPreview?.loadWingDirOffsets?.({});
       } else if (kind === 'GLIDER') {
         const g = (cat.gliders || []).find((x) => x.modelId === modelId);
         if (g?.iconKey) {
@@ -479,6 +486,9 @@ class AdminEquipmentsTab {
           const rawGroundZ = parseInt(document.getElementById('equipGroundOffsetYInput')?.value, 10);
           const groundOffsetY = Number.isFinite(rawGroundZ) ? rawGroundZ : 0;
           if (equipmentSlotCode === 'WINGS') {
+            const rawDepth = parseInt(document.getElementById('equipWingBackDepthInput')?.value, 10);
+            const backDepth = Number.isFinite(rawDepth) ? rawDepth : 0;
+            const dirOffsets = window.AdminEquipmentVisualPreview?.getWingDirOffsets?.() || {};
             specialEffectJson = {
               wingModelId: modelId,
               visualFormat: visualFormat || 'CHAR_MANIFEST',
@@ -487,6 +497,8 @@ class AdminEquipmentsTab {
               visualOffsetX,
               visualOffsetY,
               groundOffsetY,
+              backDepth,
+              ...(Object.keys(dirOffsets).length > 0 ? { dirOffsets } : {}),
             };
           } else {
             const rawRiderY = parseInt(document.getElementById('equipMountRiderOffsetInput')?.value, 10);

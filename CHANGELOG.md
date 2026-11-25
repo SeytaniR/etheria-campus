@@ -5,6 +5,21 @@ Qualquer IA trabalhando neste repositório **DEVE** incrementar a versão e regi
 
 ---
 
+## [v0.65.0] - 2026-11-25
+### Asas 2.5D em 8 Direções com Profundidade + Baús de Dungeon Fixados no Chão com Y-Sorting Real
+* **Asas (`WINGS`) Corrigidas em Todas as 8 Direções & Profundidade (`PlayFlightAndWingsController.js`, `CharacterEquipmentService.ts`, `PlayWorldRenderer.js`):**
+  * `McreworkManifestSprite`: implementada resolução automática 5→8 direções com espelhamento horizontal (`NW 5 → NE 3`, `W 6 → E 2`, `SW 7 → SE 1` com `flipX = true`) quando o manifest não possui direções esquerdas próprias (preservando planadores/montarias de 8 direções nativas), além de fallback automático para a sequência animada de `idle` quando `action !== 0` (andar/atacar) possui apenas 1 frame estático.
+  * `PlayFlightAndWingsController`: adicionados controle de profundidade 2.5D nas costas (`backDepth` projetado ao longo da direção contrária ao olhar), espelhamento simétrico automático de `visualOffsetX` nas direções esquerdas, overrides granulares por direção (`dirOffsets` `{ x, y, layer }`) e animação contínua das asas em combate (`wingNow`) sem reinício a cada golpe.
+  * Studio `/admin` (`AdminEquipmentModalDom.js`, `AdminEquipmentVisualPreview.js`, `AdminEquipmentsTab.js`): adicionados seletor rápido das 8 direções, botão de giro `360°`, ação `Atacar`, controle de `backDepth` (`-50..+50px`), ajuste fino por direção com espelhamento simétrico automático de pares e escolha de camada (`AUTO`/`BACK`/`FRONT`).
+* **Baús de Dungeon Fixos no Chão & Profundidade 2.5D Real (`PlayDungeonChestController.js`, `ActionCombatArena.js`, `PlayWorldRenderer.js`, `AdminDungeonChestsTab.js`):**
+  * `PlayDungeonChestController.renderChestAt`: eliminada a flutuação contínua (`bobY`) após o breve pop de surgimento (`0.32s`), âncora alinhada à base real dos sprites `256×256` (`0.94`), sombra de contato + halo travados em `groundY` independentemente de `visualOffsetY`, e suporte a recorte pela malha de sobreposição (`overlapMesh`).
+  * `ActionCombatArena.populateRenderQueue` + `PlayWorldRenderer.js`: o Baú (`DUNGEON_CHEST`) agora participa do **Y-Sorting 2.5D real** junto com jogador, pets e monstros (parando de desenhar sempre por cima em `renderActiveVfx`).
+  * `/admin` (`AdminDungeonChestsTab.js` + `admin/index.html`): palco unificado usando `PlayDungeonChestController.renderChestAt` com botões de teste de profundidade (`⬆️ Herói Atrás` / `↔️ Ao Lado` / `⬇️ Na Frente`).
+* **Testes & Conformidade:**
+  * Criado `tests/test_wings_and_chests.mjs` (`4/4` testes) e integrado ao `npm test` (`6/6` suítes aprovadas). Mantidos 100% dos registros salvos no banco intactos (Cláusula 0.2).
+
+---
+
 ## [v0.64.0] - 2026-11-24
 ### Onda P3 — Motor `i18n` Multi-Locale (`pt-BR`, `en-US`, `es-ES`), Cabeçalhos JSDoc (Regra #1) & Documentação Atualizada
 * **Backups Preventivos Pré-P3:**

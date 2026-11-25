@@ -30,6 +30,12 @@ export interface ActiveSetBonusDto {
   appliedStats: Record<string, number>;
 }
 
+export interface WingDirOffsetDto {
+  x?: number;
+  y?: number;
+  layer?: 'AUTO' | 'BACK' | 'FRONT';
+}
+
 export interface EquippedWingsVisualDto {
   itemId: number;
   modelId: string;
@@ -40,6 +46,8 @@ export interface EquippedWingsVisualDto {
   visualOffsetX: number;
   visualOffsetY: number;
   groundOffsetY: number;
+  backDepth?: number;
+  dirOffsets?: Record<string, WingDirOffsetDto>;
 }
 
 export interface EquippedMountVisualDto {
@@ -116,6 +124,8 @@ export class CharacterEquipmentService {
           visualOffsetX: Number(fx.visualOffsetX) || 0,
           visualOffsetY: fx.visualOffsetY !== undefined ? Number(fx.visualOffsetY) : -30,
           groundOffsetY: Number(fx.groundOffsetY ?? 0),
+          backDepth: Number(fx.backDepth ?? 0),
+          dirOffsets: fx.dirOffsets && typeof fx.dirOffsets === 'object' ? fx.dirOffsets : {},
         };
       }
     }

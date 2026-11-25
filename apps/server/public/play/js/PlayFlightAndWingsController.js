@@ -15,10 +15,71 @@ class McreworkManifestSprite {
     this.manifestUrl = manifestUrl;
     this.thumbUrl = thumbUrl;
     this.manifestData = null;
+    this.dirResolution = null;
     this.frameImages = new Map();
     this.thumbImage = null;
     this.ready = false;
     this.loading = false;
+  }
+
+  static getUniqueFileSet(seq) {
+    const files = new Set();
+    if (!Array.isArray(seq)) return files;
+    for (const entry of seq) {
+      if (entry && entry.file) {
+        files.add(String(entry.file).replace(/^\/+/, ''));
+      }
+    }
+    return files;
+  }
+
+  buildDirResolution() {
+    if (!this.manifestData) {
+      this.dirResolution = null;
+      return;
+    }
+    const mirrorMap = { 5: 3, 6: 2, 7: 1 };
+    const u4 = McreworkManifestSprite.getUniqueFileSet(this.manifestData['4-0']);
+    const resolution = {};
+    for (let d = 0; d < 8; d++) {
+      if (d <= 4) {
+        resolution[d] = { effectiveDir: d, flipX: false };
+      } else {
+        const m = mirrorMap[d];
+        const uD = McreworkManifestSprite.getUniqueFileSet(this.manifestData[`${d}-0`]);
+        const uM = McreworkManifestSprite.getUniqueFileSet(this.manifestData[`${m}-0`]);
+        const allCollapsedToNorth = uD.size > 0 && u4.size > 0 && Array.from(uD).every((f) => u4.has(f));
+        if (uM.size >= 2 && (uD.size <= 1 || allCollapsedToNorth)) {
+          resolution[d] = { effectiveDir: m, flipX: true };
+        } else {
+          resolution[d] = { effectiveDir: d, flipX: false };
+        }
+      }
+    }
+    this.dirResolution = resolution;
+  }
+
+  resolveSequence(direction = 0, action = 0) {
+    if (!this.manifestData) return { seq: null, effectiveDir: 0, flipX: false };
+    if (!this.dirResolution) this.buildDirResolution();
+
+    const rawDir = (((Number(direction) || 0) % 8) + 8) % 8;
+    const rawAct = Number(action) || 0;
+    const resolved = this.dirResolution?.[rawDir] || { effectiveDir: rawDir, flipX: false };
+    const effDir = resolved.effectiveDir;
+
+    let seq = this.manifestData[`${effDir}-${rawAct}`];
+    const idleSeq = this.manifestData[`${effDir}-0`];
+    const idleUniqueCount = McreworkManifestSprite.getUniqueFileSet(idleSeq).size;
+    const seqUniqueCount = McreworkManifestSprite.getUniqueFileSet(seq).size;
+
+    if (!Array.isArray(seq) || seq.length === 0 || (rawAct !== 0 && seqUniqueCount <= 1 && idleUniqueCount >= 2)) {
+      seq = idleSeq;
+    }
+    if (!Array.isArray(seq) || seq.length === 0) {
+      seq = this.manifestData[`0-${rawAct}`] || this.manifestData['0-0'];
+    }
+    return { seq, effectiveDir: effDir, flipX: Boolean(resolved.flipX) };
   }
 
   load() {
@@ -38,6 +99,7 @@ class McreworkManifestSprite {
       .then((r) => (r.ok ? r.json() : Promise.reject(new Error(`HTTP ${r.status}`))))
       .then((json) => {
         this.manifestData = json || {};
+        this.buildDirResolution();
         const uniqueFiles = new Set();
         for (const seq of Object.values(this.manifestData)) {
           if (Array.isArray(seq)) {
@@ -79,12 +141,7 @@ class McreworkManifestSprite {
     if (!this.loading && !this.ready) this.load();
     if (!this.manifestData) return false;
 
-    const rawDir = (((Number(direction) || 0) % 8) + 8) % 8;
-    const key = `${rawDir}-${action}`;
-    let seq = this.manifestData[key];
-    if (!Array.isArray(seq) || seq.length === 0) {
-      seq = this.manifestData[`${rawDir}-0`] || this.manifestData[`0-${action}`] || this.manifestData['0-0'];
-    }
+    const { seq, flipX } = this.resolveSequence(direction, action);
     if (!Array.isArray(seq) || seq.length === 0) return false;
 
     const frameIdx = Math.floor(Math.max(0, elapsedMs) / 80) % seq.length;
@@ -103,8 +160,12 @@ class McreworkManifestSprite {
     ctx.save();
     if (window.McreworkSpriteSheet?.prototype?.renderSpriteWithOverlapClipping) {
       window.McreworkSpriteSheet.prototype.renderSpriteWithOverlapClipping(
-        ctx, img, 0, 0, rawW, rawH, dx, dy, dw, dh, meshOrAlpha, false
+        ctx, img, 0, 0, rawW, rawH, dx, dy, dw, dh, meshOrAlpha, flipX
       );
+    } else if (flipX) {
+      ctx.translate(dx + dw, dy);
+      ctx.scale(-1, 1);
+      ctx.drawImage(img, 0, 0, rawW, rawH, 0, 0, dw, dh);
     } else {
       ctx.drawImage(img, 0, 0, rawW, rawH, dx, dy, dw, dh);
     }
@@ -523,17 +584,47 @@ class PlayFlightAndWingsController {
     ctx.restore();
   }
 
+  static shouldDrawWingsBehind(rawDir, wingsObj) {
+    const dirKey = String((((Number(rawDir) || 0) % 8) + 8) % 8);
+    const layer = wingsObj?.dirOffsets?.[dirKey]?.layer;
+    if (layer === 'FRONT') return false;
+    if (layer === 'BACK') return true;
+    const d = Number(dirKey);
+    return !(d === 3 || d === 4 || d === 5);
+  }
+
+  static computeWingTransform(wingsObj, x, y, rawDir, groundOffsetY = 0, customScale = 0.70) {
+    const d = (((Number(rawDir) || 0) % 8) + 8) % 8;
+    const baseScale = Number(customScale) > 0 ? Number(customScale) : 0.70;
+    const scaleRatio = baseScale / 0.70;
+    const wingScale = Number(wingsObj.visualScale) > 0 ? Number(wingsObj.visualScale) * scaleRatio : baseScale;
+    const gOffY = Math.round(((Number(groundOffsetY) || 0) + (Number(wingsObj.groundOffsetY) || 0)) * baseScale);
+
+    const backDepth = Number(wingsObj.backDepth) || 0;
+    const [fx, fy] = this.getDirVector8(d);
+    const depthShiftX = -fx * backDepth * scaleRatio;
+    const depthShiftY = -fy * backDepth * 0.55 * scaleRatio;
+
+    const isLeftSide = d === 5 || d === 6 || d === 7;
+    const baseOffX = (Number(wingsObj.visualOffsetX) || 0) * (isLeftSide ? -1 : 1) * scaleRatio;
+    const baseOffY = (wingsObj.visualOffsetY !== undefined ? Number(wingsObj.visualOffsetY) : -30) * scaleRatio;
+
+    const dOv = wingsObj.dirOffsets && typeof wingsObj.dirOffsets === 'object' ? wingsObj.dirOffsets[String(d)] : null;
+    const dirOffX = (Number(dOv?.x) || 0) * scaleRatio;
+    const dirOffY = (Number(dOv?.y) || 0) * scaleRatio;
+
+    return {
+      wingX: Math.round(x + baseOffX + depthShiftX + dirOffX),
+      wingY: Math.round(y + gOffY + baseOffY + depthShiftY + dirOffY),
+      wingScale,
+    };
+  }
+
   static drawWingForUnit(ctx, wingsObj, x, y, dir, action, now, mesh, groundOffsetY = 0, customScale = 0.70) {
     if (!wingsObj || !wingsObj.modelId) return false;
     const sp = this.getOrCreateManifestSprite(wingsObj.modelId, wingsObj.manifestUrl, wingsObj.thumbUrl);
     if (!sp) return false;
-    const baseScale = Number(customScale) > 0 ? Number(customScale) : 0.70;
-    const wingScale = Number(wingsObj.visualScale) > 0 ? Number(wingsObj.visualScale) * (baseScale / 0.70) : baseScale;
-    const gOffY = Math.round(((Number(groundOffsetY) || 0) + (Number(wingsObj.groundOffsetY) || 0)) * baseScale);
-    const offX = Number(wingsObj.visualOffsetX) || 0;
-    const offY = wingsObj.visualOffsetY !== undefined ? Number(wingsObj.visualOffsetY) : -30;
-    const wingX = Math.round(x + offX);
-    const wingY = Math.round(y + gOffY + offY * (baseScale / 0.70));
+    const { wingX, wingY, wingScale } = this.computeWingTransform(wingsObj, x, y, dir, groundOffsetY, customScale);
     return sp.drawFrame(ctx, wingX, wingY, dir, action, now, mesh, wingScale, 0.5, 0.5);
   }
 
@@ -590,7 +681,8 @@ class PlayFlightAndWingsController {
     } = opts;
 
     const rawDir = (((Number(dir) || 0) % 8) + 8) % 8;
-    const drawWingsBehind = !(rawDir === 3 || rawDir === 4 || rawDir === 5);
+    const drawWingsBehind = this.shouldDrawWingsBehind(rawDir, wingsObj);
+    const wingTime = opts.wingNow !== undefined ? opts.wingNow : now;
     const alt = isFlying || flightAltitude > 0.5 ? Math.max(0, Number(flightAltitude) || 0) : 0;
     const scale = Number(customScale) > 0 ? Number(customScale) : 0.70;
     // Em voo, desabilita malhas de sobreposição (mesh = null) para voar por cima das estruturas
@@ -638,11 +730,11 @@ class PlayFlightAndWingsController {
         this.drawMountedFollowerPet(ctx, client, followerPet, riderX, riderY, rawDir, now, scale);
       }
       if (wingsObj && drawWingsBehind) {
-        this.drawWingForUnit(ctx, wingsObj, riderX, riderY, rawDir, 0, now, null, groundOffsetY, scale);
+        this.drawWingForUnit(ctx, wingsObj, riderX, riderY, rawDir, 0, wingTime, null, groundOffsetY, scale);
       }
       charSprite?.draw(ctx, riderX, riderY, 0, rawDir, now, null, groundOffsetY, scale, false, shadowOffsetX, shadowOffsetY, true);
       if (wingsObj && !drawWingsBehind) {
-        this.drawWingForUnit(ctx, wingsObj, riderX, riderY, rawDir, 0, now, null, groundOffsetY, scale);
+        this.drawWingForUnit(ctx, wingsObj, riderX, riderY, rawDir, 0, wingTime, null, groundOffsetY, scale);
       }
       if (followerPet && petInFrontOfRider) {
         this.drawMountedFollowerPet(ctx, client, followerPet, riderX, riderY, rawDir, now, scale);
@@ -654,11 +746,11 @@ class PlayFlightAndWingsController {
 
     // No solo (sem voo ativo): personagem + asas equipadas (com clip de sobreposição ativo no chão)
     if (wingsObj && drawWingsBehind) {
-      this.drawWingForUnit(ctx, wingsObj, worldX, worldY, rawDir, action, now, effectiveMesh, groundOffsetY, scale);
+      this.drawWingForUnit(ctx, wingsObj, worldX, worldY, rawDir, action, wingTime, effectiveMesh, groundOffsetY, scale);
     }
     charSprite?.draw(ctx, worldX, worldY, action, rawDir, now, effectiveMesh, groundOffsetY, scale, false, shadowOffsetX, shadowOffsetY, false);
     if (wingsObj && !drawWingsBehind) {
-      this.drawWingForUnit(ctx, wingsObj, worldX, worldY, rawDir, action, now, effectiveMesh, groundOffsetY, scale);
+      this.drawWingForUnit(ctx, wingsObj, worldX, worldY, rawDir, action, wingTime, effectiveMesh, groundOffsetY, scale);
     }
     return worldY - 66 + Math.round(groundOffsetY * scale);
   }
