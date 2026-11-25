@@ -252,6 +252,25 @@ class AdminUiStageRenderer {
         <span style="font-size:0.78rem; font-weight:700; color:#f8fafc;">🧙 Guardião Genkapu</span>
         <button type="button" class="btn-primary" style="padding:4px 12px; border-radius:999px; font-size:0.74rem;">💬 Conversar</button>
       </div>
+
+      <!-- 10. Botão Contextual de Pescar (Próximo à Água) -->
+      <button type="button" id="hudFishingActionBtn" class="hud-fishing-action-btn" data-ui-code="HUD_FISHING_ACTION_BTN" style="display:flex;">
+        <span class="fishing-btn-icon">🎣</span>
+        <span>Pescar</span>
+      </button>
+
+      <!-- 11. Painel de Pesca Ativa (AFK) -->
+      <div id="hudFishingStatusBar" class="hud-fishing-status-bar" data-ui-code="HUD_FISHING_STATUS_BAR" style="display:flex;">
+        <div class="fishing-status-top">
+          <span>🎣 <strong>Vara de Bambu</strong> • 🐟 3</span>
+          <span style="color:#67e8f9;">⏱️ 4.2s</span>
+        </div>
+        <div class="fishing-progress-track"><div class="fishing-progress-fill" style="width:62%;"></div></div>
+        <div class="fishing-status-bottom">
+          <span>🪱 Minhoca x12</span>
+          <button type="button" class="fishing-stop-btn">🛑 Parar de Pescar</button>
+        </div>
+      </div>
     `;
 
     if (isCombat) {
@@ -342,6 +361,10 @@ class AdminUiStageRenderer {
     const wrapWithSelector = (selector, innerHtml) => {
       if (selector === '#gmDrawer') {
         return `<aside id="gmDrawer" data-ui-code="${code}" style="position:absolute; right:10px; top:54px; width:280px; background:#0f172a; border:1.5px solid #a855f7; border-radius:12px; padding:12px; pointer-events:auto; z-index:50; color:#f8fafc;">${innerHtml}</aside>`;
+      }
+      if (selector.includes('.fishing-setup-dialog')) {
+        const parentId = selector.split(' ')[0].replace('#', '');
+        return `<div id="${parentId}" style="width:100%; display:flex; justify-content:center;"><div class="fishing-setup-dialog" data-ui-code="${code}" style="${boxStyle}">${innerHtml}</div></div>`;
       }
       if (selector.includes('.hud-modal-dialog')) {
         const parentId = selector.split(' ')[0].replace('#', '');

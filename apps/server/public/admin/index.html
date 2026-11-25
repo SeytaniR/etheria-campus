@@ -8,6 +8,7 @@
   <link rel="stylesheet" href="/play/css/play_hud.css?v=20261123_hud1" />
   <link rel="stylesheet" href="/play/css/play_chat_and_modals.css?v=20261118_ui" />
   <link rel="stylesheet" href="/play/css/play_party.css?v=20261118_ui" />
+  <link rel="stylesheet" href="/play/css/play_fishing.css?v=20261125_fish1" />
 </head>
 <body>
   <!-- TELA DE LOGIN PROTEGIDA -->
@@ -44,6 +45,7 @@
         <button id="tabBtnClasses" onclick="AdminApp.switchTab('classes')" data-i18n="admin.tabs.classes">🦸 Personagens</button>
         <button id="tabBtnMonsters" onclick="AdminApp.switchTab('monsters')" data-i18n="admin.tabs.monsters">🐉 Monstros</button>
         <button id="tabBtnMonsterConfig" onclick="AdminApp.switchTab('monster-config')" data-i18n="admin.tabs.monsterConfig" style="border-color:#f97316; color:#fed7aa;">⚙️ Config. Monstros</button>
+        <button id="tabBtnFishingRods" onclick="AdminApp.switchTab('fishing-rods')" data-i18n="admin.tabs.fishingRods" style="border-color:#06b6d4; color:#67e8f9;">🎣 Varas de Pesca</button>
         <button id="tabBtnUiLayouts" onclick="AdminApp.switchTab('ui-layouts')" data-i18n="admin.tabs.uiLayouts">📐 HUDs & Interfaces</button>
         <button id="tabBtnAttributes" onclick="AdminApp.switchTab('attributes')" data-i18n="admin.tabs.attributes">📊 Atributos & Conversões</button>
         <button id="tabBtnUsers" onclick="AdminApp.switchTab('users')" data-i18n="admin.tabs.users">🔐 Contas</button>
@@ -539,6 +541,8 @@
         <button onclick="AdminApp.startNewPolygon('BUILDING')" title="Iniciar novo polígono de área de construção separado">➕ Nova Const.</button>
         <button id="toolPlantation" onclick="AdminApp.setTool('PLANTATION')">🌾 +Plantação</button>
         <button onclick="AdminApp.startNewPolygon('PLANTATION')" title="Iniciar novo polígono de área de plantação separado">➕ Nova Plant.</button>
+        <button id="toolFishing" onclick="AdminApp.setTool('FISHING')">🎣 +Pesca</button>
+        <button onclick="AdminApp.startNewPolygon('FISHING')" title="Iniciar novo polígono de área de pesca separado">➕ Nova Pesca</button>
         <button id="toolPortal" onclick="AdminApp.setTool('PORTAL')">🌀 +Portal</button>
         <button id="toolNpc" onclick="AdminApp.setTool('NPC')">🧙 +NPC</button>
         <button id="toolEdit" onclick="AdminApp.setTool('EDIT')">✏️ Editar Vértices</button>
@@ -611,6 +615,13 @@
             <button onclick="AdminApp.startNewPolygon('PLANTATION')" style="font-size:0.72rem; padding:3px 7px;">➕ Nova</button>
           </div>
           <div id="plantationList" class="item-list"></div>
+        </div>
+        <div>
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+            <strong style="font-size:0.82rem; color:#67e8f9;">🎣 Áreas de Pesca (<span id="countFishing">0</span>)</strong>
+            <button onclick="AdminApp.startNewPolygon('FISHING')" style="font-size:0.72rem; padding:3px 7px;">➕ Nova</button>
+          </div>
+          <div id="fishingList" class="item-list"></div>
         </div>
         <div>
           <strong style="font-size:0.82rem; color:#d8b4fe; display:block; margin-bottom:6px;">
@@ -869,6 +880,7 @@
   <script src="/admin/js/AdminEquipmentVisualPreview.js?v=20261125_wd1"></script>
   <script src="/admin/js/AdminEquipmentModalDom.js?v=20261125_wd1"></script>
   <script src="/admin/js/AdminEquipmentsTab.js?v=20261125_wd1"></script>
+  <script src="/admin/js/AdminFishingRodsTab.js?v=20261125_fish1"></script>
   <script src="/admin/js/AdminEquipmentSetsTab.js?v=20261124_p1"></script>
   <script src="/admin/js/AdminItemContainerPanel.js?v=20261124_p1"></script>
   <script src="/admin/js/AdminItemsTab.js?v=20261124_p1"></script>

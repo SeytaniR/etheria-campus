@@ -194,7 +194,7 @@ class PlayUiLayoutApplier {
   resolveStyleTarget(el) {
     return (
       el.querySelector(
-        '.hud-player-header-card, .hud-bottom-dock, .hud-shortcuts-dock, .hud-minimap-wrapper, .hud-modal-dialog, .hud-map-modal-dialog'
+        '.hud-player-header-card, .hud-bottom-dock, .hud-shortcuts-dock, .hud-minimap-wrapper, .hud-modal-dialog, .hud-map-modal-dialog, .fishing-setup-dialog'
       ) || el
     );
   }
@@ -270,6 +270,17 @@ class PlayUiLayoutApplier {
 
     // 0. Botão de Voo só pode aparecer quando houver Montaria Voadora equipada no cliente real
     if (el.id === 'hudFlightToggleBtn' && !isStagePreview && el.dataset.mountEquipped !== 'true') {
+      el.style.setProperty('display', 'none', 'important');
+      return;
+    }
+
+    // 0.1 Controles contextuais de Pesca (só visíveis perto da água / pescando / no Editor Pessoal de HUD)
+    if (
+      (el.id === 'hudFishingActionBtn' || el.id === 'hudFishingStatusBar') &&
+      !isStagePreview &&
+      el.dataset.fishingEditorPreview !== 'true' &&
+      el.dataset.fishingVisible !== 'true'
+    ) {
       el.style.setProperty('display', 'none', 'important');
       return;
     }

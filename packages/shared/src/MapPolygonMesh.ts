@@ -19,6 +19,13 @@ export interface MapPolygon {
   points: Point2D[];
 }
 
+export interface ClosestPolygonPointResult {
+  polygon: MapPolygon;
+  point: Point2D;
+  distance: number;
+  inside: boolean;
+}
+
 interface CompiledPolygon {
   polygon: MapPolygon;
   minX: number;
@@ -129,5 +136,66 @@ export class MapPolygonMesh {
       if (intersect) inside = !inside;
     }
     return inside;
+  }
+
+  /**
+   * Projeta o ponto (px, py) sobre o segmento (ax, ay)-(bx, by) e retorna o ponto mais próximo e sua distância.
+   */
+  public static closestPointOnSegment(
+    px: number,
+    py: number,
+    ax: number,
+    ay: number,
+    bx: number,
+    by: number
+  ): { x: number; y: number; distance: number } {
+    const dx = bx - ax;
+    const dy = by - ay;
+    const lenSq = dx * dx + dy * dy;
+    let t = 0;
+    if (lenSq > 1e-9) {
+      t = Math.max(0, Math.min(1, ((px - ax) * dx + (py - ay) * dy) / lenSq));
+    }
+    const cx = ax + t * dx;
+    const cy = ay + t * dy;
+    return { x: cx, y: cy, distance: Math.hypot(px - cx, py - cy) };
+  }
+
+  /**
+   * Encontra o polígono e ponto mais próximo dentro de `maxDistance` (0 se estiver dentro do polígono).
+   */
+  public findClosestPoint(x: number, y: number, maxDistance = Infinity): ClosestPolygonPointResult | null {
+    for (let i = 0; i < this.compiled.length; i++) {
+      const c = this.compiled[i];
+      if (x >= c.minX && x <= c.maxX && y >= c.minY && y <= c.maxY) {
+        if (MapPolygonMesh.rayCastPoints(x, y, c.polygon.points)) {
+          return { polygon: c.polygon, point: { x, y }, distance: 0, inside: true };
+        }
+      }
+    }
+
+    let best: ClosestPolygonPointResult | null = null;
+    for (let i = 0; i < this.compiled.length; i++) {
+      const c = this.compiled[i];
+      if (
+        Number.isFinite(maxDistance) &&
+        (x < c.minX - maxDistance || x > c.maxX + maxDistance || y < c.minY - maxDistance || y > c.maxY + maxDistance)
+      ) {
+        continue;
+      }
+      const pts = c.polygon.points;
+      for (let k = 0, j = pts.length - 1; k < pts.length; j = k++) {
+        const proj = MapPolygonMesh.closestPointOnSegment(x, y, pts[j].x, pts[j].y, pts[k].x, pts[k].y);
+        if (proj.distance <= maxDistance && (!best || proj.distance < best.distance)) {
+          best = {
+            polygon: c.polygon,
+            point: { x: proj.x, y: proj.y },
+            distance: proj.distance,
+            inside: false,
+          };
+        }
+      }
+    }
+    return best;
   }
 }

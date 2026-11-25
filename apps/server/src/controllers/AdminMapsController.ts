@@ -50,6 +50,7 @@ export interface SaveMapDto {
   overlapMeshJson: MapPolygon[];
   buildingMeshJson?: MapPolygon[];
   plantationMeshJson?: MapPolygon[];
+  fishingMeshJson?: MapPolygon[];
   portals: Array<{
     id?: number | null;
     label?: string;
@@ -392,6 +393,7 @@ export class AdminMapsController {
       overlapMeshJson: Array.isArray(dto.overlapMeshJson) ? (dto.overlapMeshJson as any) : [],
       buildingMeshJson: Array.isArray(dto.buildingMeshJson) ? (dto.buildingMeshJson as any) : [],
       plantationMeshJson: Array.isArray(dto.plantationMeshJson) ? (dto.plantationMeshJson as any) : [],
+      fishingMeshJson: Array.isArray(dto.fishingMeshJson) ? (dto.fishingMeshJson as any) : [],
     };
 
     let savedMapId = id;

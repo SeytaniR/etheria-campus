@@ -25,6 +25,7 @@ import { GamePlayController } from './controllers/GamePlayController.js';
 import { AdminMonstersController } from './controllers/AdminMonstersController.js';
 import { AdminUiLayoutsController } from './controllers/AdminUiLayoutsController.js';
 import { AdminEquipmentsController } from './controllers/AdminEquipmentsController.js';
+import { AdminFishingRodsController } from './controllers/AdminFishingRodsController.js';
 import { AdminEquipmentSetsController } from './controllers/AdminEquipmentSetsController.js';
 import { AdminItemsController } from './controllers/AdminItemsController.js';
 import { AdminShopsController } from './controllers/AdminShopsController.js';
@@ -80,6 +81,7 @@ export class EtheriaServerApp {
   private readonly monstersController: AdminMonstersController;
   private readonly uiLayoutsController: AdminUiLayoutsController;
   private readonly equipmentsController: AdminEquipmentsController;
+  private readonly fishingRodsController: AdminFishingRodsController;
   private readonly equipmentSetsController: AdminEquipmentSetsController;
   private readonly itemsController: AdminItemsController;
   private readonly shopsController: AdminShopsController;
@@ -108,6 +110,7 @@ export class EtheriaServerApp {
     this.monstersController = new AdminMonstersController(this.prisma, this.assetMirrorService);
     this.uiLayoutsController = new AdminUiLayoutsController(this.prisma, snapshotManager);
     this.equipmentsController = new AdminEquipmentsController(this.prisma, this.assetMirrorService);
+    this.fishingRodsController = new AdminFishingRodsController(this.prisma, this.assetMirrorService);
     this.equipmentSetsController = new AdminEquipmentSetsController(this.prisma);
     this.itemsController = new AdminItemsController(this.prisma, this.assetMirrorService);
     this.shopsController = new AdminShopsController(this.prisma);
@@ -132,6 +135,7 @@ export class EtheriaServerApp {
       monstersController: this.monstersController,
       uiLayoutsController: this.uiLayoutsController,
       equipmentsController: this.equipmentsController,
+      fishingRodsController: this.fishingRodsController,
       equipmentSetsController: this.equipmentSetsController,
       itemsController: this.itemsController,
       shopsController: this.shopsController,

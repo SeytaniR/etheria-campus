@@ -14,6 +14,8 @@
 import { PrismaClient } from '@prisma/client';
 import { SnapshotManager } from '@etheria/database';
 import { AssetMirrorService } from './AssetMirrorService.js';
+import { normalizeFishingBaitConfig } from './FishingService.js';
+import { FISHING_RANKS } from './AdminFishingRodsController.js';
 
 export interface ItemTemplateDto {
   code?: string;
@@ -69,8 +71,28 @@ export class AdminItemsController {
         let suggestedCategory = 'CONSUMABLE';
         let suggestedEffect = 'HEAL_HP';
         let suggestedTarget = 'SELF';
+        let mcreworkFishingGroup: 'FISH' | 'BAIT' | null = null;
 
-        if (item.category === 'potions') {
+        const rawType = Number(item.type) || 0;
+        const rawName = String(item.name || '').trim();
+        const isFishingBaitType = rawType === 515;
+        const isFishItem =
+          (rawType === 610 && Number(item.id) !== 2688) ||
+          (rawType === 508 &&
+            (/^(cá\s|tôm\s|cua\s|mực\s|bạch tuộc|lươn|sứa\s|hàu\s|rùa\s)/i.test(rawName) ||
+              [580, 2385, 2386, 2387, 2388, 2389, 2390, 2593, 2973, 2975, 2978, 2981].includes(Number(item.id))));
+
+        if (isFishingBaitType) {
+          mcreworkFishingGroup = 'BAIT';
+          suggestedCategory = 'FISHING_BAIT';
+          suggestedEffect = 'FISHING_BAIT';
+          suggestedTarget = 'NONE';
+        } else if (isFishItem) {
+          mcreworkFishingGroup = 'FISH';
+          suggestedCategory = 'FISH';
+          suggestedEffect = 'NONE';
+          suggestedTarget = 'NONE';
+        } else if (item.category === 'potions') {
           suggestedCategory = 'CONSUMABLE';
           suggestedEffect = (item.name || '').toLowerCase().includes('mana') || (item.name || '').toLowerCase().includes('mp') ? 'RESTORE_MP' : 'HEAL_HP';
         } else if (item.category === 'gems') {
@@ -101,6 +123,8 @@ export class AdminItemsController {
           description: item.description || '',
           info: item.info || '',
           category: item.category || 'other',
+          rawType,
+          mcreworkFishingGroup,
           rarity: item.rarity || 'Normal',
           level: item.level || 0,
           price: item.price || 0,
@@ -126,7 +150,7 @@ export class AdminItemsController {
    */
   public async getItemTemplates(categoryFilter?: string) {
     const where: any = {
-      itemCategory: { notIn: ['CHARACTER_EQUIPMENT', 'PET_EQUIPMENT'] },
+      itemCategory: { notIn: ['CHARACTER_EQUIPMENT', 'PET_EQUIPMENT', 'FISHING_ROD'] },
     };
     if (categoryFilter && categoryFilter !== 'ALL') {
       where.itemCategory = categoryFilter;
@@ -155,6 +179,13 @@ export class AdminItemsController {
         } else {
           containerSummaryPtBr = `🎁 ${spec.containerType === 'CAPSULE' ? 'Cápsula' : 'Baú'}: ${entries.length} item(ns) com chance configurada`;
         }
+      } else if (item.itemCategory === 'FISHING_BAIT') {
+        const bCfg = normalizeFishingBaitConfig(spec.fishingBaitConfig);
+        const rankParts = FISHING_RANKS.filter((r) => bCfg.rankBonusWeights[r] > 0).map(
+          (r) => `+${bCfg.rankBonusWeights[r]} ${r}`
+        );
+        const catchTxt = bCfg.catchChanceBonusPct > 0 ? `+${bCfg.catchChanceBonusPct}% fisgada` : 'Sem bônus fisgada';
+        containerSummaryPtBr = `🪱 ${catchTxt}${rankParts.length ? ` | ${rankParts.join(', ')}` : ''}`;
       }
 
         const resolvedIconUrl = AssetMirrorService.toSameOriginUrl(iconKey);
@@ -200,7 +231,8 @@ export class AdminItemsController {
   }
 
   private isPassiveItemEffect(itemCategory: string, effectType: string | null): boolean {
-    if (effectType === null || effectType === 'NONE' || effectType === 'MATERIAL' || effectType === 'QUEST_ITEM') {
+    if (itemCategory === 'FISH' || itemCategory === 'FISHING_BAIT') return true;
+    if (effectType === null || effectType === 'NONE' || effectType === 'MATERIAL' || effectType === 'QUEST_ITEM' || effectType === 'FISHING_BAIT') {
       return true;
     }
     return itemCategory === 'MATERIAL' && !effectType;
@@ -220,6 +252,10 @@ export class AdminItemsController {
 
     if (itemCategory === 'MATERIAL' && dto.effectType === undefined && !base) {
       rawEffect = 'MATERIAL';
+    } else if (itemCategory === 'FISH') {
+      rawEffect = null;
+    } else if (itemCategory === 'FISHING_BAIT') {
+      rawEffect = 'FISHING_BAIT';
     }
 
     const isPassive = this.isPassiveItemEffect(itemCategory, rawEffect);
@@ -236,6 +272,14 @@ export class AdminItemsController {
 
     let specialEffectJson: any =
       dto.specialEffectJson !== undefined ? (dto.specialEffectJson as any) : (base?.specialEffectJson ?? {});
+
+    if (itemCategory === 'FISHING_BAIT') {
+      const baitCfg = normalizeFishingBaitConfig(specialEffectJson?.fishingBaitConfig ?? specialEffectJson);
+      specialEffectJson = {
+        ...(specialEffectJson && typeof specialEffectJson === 'object' ? specialEffectJson : {}),
+        fishingBaitConfig: baitCfg,
+      };
+    }
 
     if (effectType === 'OPEN_CHEST' || effectType === 'ROULETTE') {
       if (specialEffectJson && typeof specialEffectJson === 'object') {
@@ -435,7 +479,7 @@ export class AdminItemsController {
       });
 
       const count = await this.prisma.itemTemplate.count({
-        where: { itemCategory: { notIn: ['CHARACTER_EQUIPMENT', 'PET_EQUIPMENT'] } },
+        where: { itemCategory: { notIn: ['CHARACTER_EQUIPMENT', 'PET_EQUIPMENT', 'FISHING_ROD'] } },
       });
       if (count > 0) return;
 

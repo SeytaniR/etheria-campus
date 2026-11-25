@@ -134,12 +134,14 @@ class PlayClientHudEditor {
     }
 
     this.injectEditorOverlayDom();
+    window.PlayFishingController?.setHudEditorPreview?.(true);
     this.bindStagePointerEvents();
     this.updateGizmoAndControls();
   }
 
   closeEditor(saveChanges = false) {
     this.isActive = false;
+    window.PlayFishingController?.setHudEditorPreview?.(false);
     if (saveChanges) {
       if (window.PlayUiLayoutApplier) {
         window.PlayUiLayoutApplier.saveClientOverrides(this.workingOverrides);

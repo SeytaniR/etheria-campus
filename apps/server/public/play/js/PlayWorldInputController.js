@@ -12,6 +12,10 @@ class PlayWorldInputController {
       if (['INPUT', 'SELECT', 'TEXTAREA'].includes(document.activeElement?.tagName)) return;
       const k = e.key.toLowerCase();
       if (['w', 'a', 's', 'd', 'arrowup', 'arrowdown', 'arrowleft', 'arrowright'].includes(k)) {
+        if (window.PlayFishingController?.isFishing) {
+          window.PlayFishingController.notifyMoveBlocked();
+          return;
+        }
         if (window.PlayPartyController?.isFollower() || (client.isLandingFlight && client.flightLandingTarget)) return;
         client.keysDown.add(k);
         client.currentPath = null; client.moveTargetX = null; client.moveTargetY = null; client.targetDestX = null; client.targetDestY = null;
@@ -54,6 +58,10 @@ class PlayWorldInputController {
         }
       }
       if (client.isLandingFlight) return;
+      if (window.PlayFishingController?.isFishing) {
+        window.PlayFishingController.notifyMoveBlocked();
+        return;
+      }
       client.targetDestX = worldPt.x; client.targetDestY = worldPt.y; client.lastRepathTime = 0;
       if (client.mesh && !client.gmNoClip && !client.isFlying) {
         const path = client.mesh.findPath(client.playerX, client.playerY, worldPt.x, worldPt.y);

@@ -16,6 +16,7 @@ import type { AdminMapsController } from '../controllers/AdminMapsController.js'
 import type { AdminMonstersController } from '../controllers/AdminMonstersController.js';
 import type { AdminUiLayoutsController } from '../controllers/AdminUiLayoutsController.js';
 import type { AdminEquipmentsController } from '../controllers/AdminEquipmentsController.js';
+import type { AdminFishingRodsController } from '../controllers/AdminFishingRodsController.js';
 import type { AdminEquipmentSetsController } from '../controllers/AdminEquipmentSetsController.js';
 import type { AdminItemsController } from '../controllers/AdminItemsController.js';
 import type { AdminShopsController } from '../controllers/AdminShopsController.js';
@@ -39,6 +40,7 @@ export interface AdminRouterDeps {
   monstersController: AdminMonstersController;
   uiLayoutsController: AdminUiLayoutsController;
   equipmentsController: AdminEquipmentsController;
+  fishingRodsController: AdminFishingRodsController;
   equipmentSetsController: AdminEquipmentSetsController;
   itemsController: AdminItemsController;
   shopsController: AdminShopsController;
@@ -436,6 +438,39 @@ export class AdminRouter {
     if (eqMatch && method === 'DELETE') {
       if (this.enforceTablePermission(res, session, 'MONSTERS', 'READ_WRITE')) {
         this.deps.sendJson(res, 200, await this.deps.equipmentsController.deleteEquipmentTemplate(Number(eqMatch[1])));
+      }
+      return true;
+    }
+
+    // --- Varas de Pesca (`fishing-rods` em item_templates) ---
+    if (pathname === '/api/admin/mcrework/fishing-rods' && method === 'GET') {
+      if (this.enforceTablePermission(res, session, 'MONSTERS', 'READ')) {
+        this.deps.sendJson(res, 200, await this.deps.fishingRodsController.getMcreworkFishingRodsCatalog());
+      }
+      return true;
+    }
+    if (pathname === '/api/admin/fishing-rods' && method === 'GET') {
+      if (this.enforceTablePermission(res, session, 'MONSTERS', 'READ')) {
+        this.deps.sendJson(res, 200, await this.deps.fishingRodsController.getFishingRods());
+      }
+      return true;
+    }
+    if (pathname === '/api/admin/fishing-rods' && method === 'POST') {
+      if (this.enforceTablePermission(res, session, 'MONSTERS', 'READ_WRITE')) {
+        this.deps.sendJson(res, 201, await this.deps.fishingRodsController.createFishingRod(await this.deps.readJsonBody(req)));
+      }
+      return true;
+    }
+    const rodMatch = pathname.match(/^\/api\/admin\/fishing-rods\/(\d+)$/);
+    if (rodMatch && method === 'PUT') {
+      if (this.enforceTablePermission(res, session, 'MONSTERS', 'READ_WRITE')) {
+        this.deps.sendJson(res, 200, await this.deps.fishingRodsController.updateFishingRod(Number(rodMatch[1]), await this.deps.readJsonBody(req)));
+      }
+      return true;
+    }
+    if (rodMatch && method === 'DELETE') {
+      if (this.enforceTablePermission(res, session, 'MONSTERS', 'READ_WRITE')) {
+        this.deps.sendJson(res, 200, await this.deps.fishingRodsController.deleteFishingRod(Number(rodMatch[1])));
       }
       return true;
     }

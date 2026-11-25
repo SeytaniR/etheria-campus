@@ -220,7 +220,9 @@ export class AdminEquipmentsController {
    * Lista todos os templates de itens e equipamentos cadastrados no PostgreSQL.
    */
   public async getEquipmentTemplates(categoryFilter?: string) {
-    const where: any = {};
+    const where: any = {
+      equipmentSlotCode: { not: 'FISHING_ROD' },
+    };
     if (categoryFilter && categoryFilter !== 'ALL') {
       where.itemCategory = categoryFilter;
     } else {
@@ -283,6 +285,9 @@ export class AdminEquipmentsController {
     }
     if (!dto.equipmentSlotCode) {
       throw new Error('O slot de equipamento é obrigatório.');
+    }
+    if (String(dto.equipmentSlotCode).toUpperCase() === 'FISHING_ROD') {
+      throw new Error('Varas de Pesca devem ser cadastradas na tabela dedicada "🎣 Varas de Pesca".');
     }
 
     await SnapshotManager.syncTableSequence(this.prisma, 'i18n_translations');
@@ -388,6 +393,9 @@ export class AdminEquipmentsController {
     }
 
     const nextSlot = dto.equipmentSlotCode !== undefined ? dto.equipmentSlotCode : existing.equipmentSlotCode;
+    if (String(nextSlot || '').toUpperCase() === 'FISHING_ROD') {
+      throw new Error('Varas de Pesca devem ser gerenciadas na tabela dedicada "🎣 Varas de Pesca".');
+    }
     const rawNextCombat = dto.combatStatBonusesJson !== undefined ? dto.combatStatBonusesJson : (existing.combatStatBonusesJson as any);
     const allowedMountStats = new Set(['MAX_HP', 'MAX_MP', 'PHYS_ATK', 'MAG_ATK', 'PHYS_DEF', 'MAG_DEF']);
     const nextCombat = nextSlot === 'FLYING_MOUNT'

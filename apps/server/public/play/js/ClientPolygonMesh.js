@@ -59,11 +59,12 @@ class FastMinHeap {
 }
 
 class ClientPolygonMesh {
-  constructor(collisionPolygons = [], overlapPolygons = [], overlapOpacity = 0.45, buildingPolygons = [], plantationPolygons = []) {
+  constructor(collisionPolygons = [], overlapPolygons = [], overlapOpacity = 0.45, buildingPolygons = [], plantationPolygons = [], fishingPolygons = []) {
     this.collisionPolygons = this.compileBounds(collisionPolygons);
     this.overlapPolygons = this.compileBounds(overlapPolygons);
     this.buildingPolygons = this.compileBounds(buildingPolygons);
     this.plantationPolygons = this.compileBounds(plantationPolygons);
+    this.fishingPolygons = this.compileBounds(fishingPolygons);
     this.occupiedBuildingIds = new Set();
     this.occupiedPlantationIds = new Set();
     this.overlapOpacity = Math.max(0.1, Math.min(1.0, Number(overlapOpacity) || 0.45));
@@ -142,6 +143,42 @@ class ClientPolygonMesh {
       }
     }
     return null;
+  }
+
+  /**
+   * Localiza a área de pesca e o ponto mais próximo na borda/interior da água dentro de `maxDistance`.
+   */
+  findClosestFishingPoint(x, y, maxDistance = 96) {
+    const polys = this.fishingPolygons || [];
+    for (let i = 0; i < polys.length; i++) {
+      if (ClientPolygonMesh.isPointInCompiledPolygon(x, y, polys[i])) {
+        return { polygon: polys[i], point: { x, y }, distance: 0, inside: true };
+      }
+    }
+
+    let best = null;
+    for (let i = 0; i < polys.length; i++) {
+      const poly = polys[i];
+      if (x < poly.minX - maxDistance || x > poly.maxX + maxDistance || y < poly.minY - maxDistance || y > poly.maxY + maxDistance) {
+        continue;
+      }
+      const pts = poly.points;
+      for (let k = 0, j = pts.length - 1; k < pts.length; j = k++) {
+        const ax = pts[j].x;
+        const ay = pts[j].y;
+        const dx = pts[k].x - ax;
+        const dy = pts[k].y - ay;
+        const lenSq = dx * dx + dy * dy;
+        const t = lenSq > 1e-9 ? Math.max(0, Math.min(1, ((x - ax) * dx + (y - ay) * dy) / lenSq)) : 0;
+        const cx = ax + t * dx;
+        const cy = ay + t * dy;
+        const dist = Math.hypot(x - cx, y - cy);
+        if (dist <= maxDistance && (!best || dist < best.distance)) {
+          best = { polygon: poly, point: { x: cx, y: cy }, distance: dist, inside: false };
+        }
+      }
+    }
+    return best;
   }
 
   static isPointInCompiledPolygon(x, y, poly) {

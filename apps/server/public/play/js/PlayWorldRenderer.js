@@ -75,6 +75,7 @@ class PlayWorldRenderer {
       drawPolyMesh(client.currentMap.overlapMeshJson, 'rgba(56, 189, 248, 0.28)', '#38bdf8');
       drawPolyMesh(client.currentMap.buildingMeshJson, 'rgba(245, 158, 11, 0.26)', '#f59e0b');
       drawPolyMesh(client.currentMap.plantationMeshJson, 'rgba(34, 197, 94, 0.26)', '#22c55e');
+      drawPolyMesh(client.currentMap.fishingMeshJson, 'rgba(6, 182, 212, 0.28)', '#06b6d4');
       ctx.beginPath();
       ctx.arc(client.currentMap.spawnX, client.currentMap.spawnY, 32, 0, Math.PI * 2);
       ctx.fillStyle = 'rgba(245, 158, 11, 0.35)'; ctx.fill();
@@ -105,6 +106,8 @@ class PlayWorldRenderer {
     }
     // 4.5. Halo Rúnico no Piso de Level Up (desenhado sob os pés do personagem)
     if (client.levelUpVfx) client.levelUpVfx.renderWorldFloor(ctx, now, client.zoom);
+    // 4.6. Linha, boia e ondulações de pesca na água
+    if (!client.actionCombatArena?.isActive) window.PlayFishingController?.drawWorldFishingEffects(client, ctx, now);
     // 5. Ordenação de Profundidade 2.5D (Y-Sorting com Pooling Zero-Alloc)
     for (let i = 0; i < client._renderQueue.length; i++) client._renderPool.push(client._renderQueue[i]);
     client._renderQueue.length = 0;
@@ -149,6 +152,7 @@ class PlayWorldRenderer {
         if (window.PlayPartyController?.hasParty()) { ctx.font = 'bold 9px sans-serif'; ctx.fillStyle = '#38bdf8'; ctx.fillText('[Equipe]', client.playerX, nameY - 3); }
         ctx.fillStyle = '#fde047'; ctx.font = 'bold 13px sans-serif';
         ctx.fillText(`${char.name}${char.isReborn ? ' ✨' : ''}${client.gmNoClip ? ' [NO-CLIP]' : ''}`, client.playerX, nameY);
+        window.PlayFishingController?.drawPlayerFishingOverhead(client, ctx, client.playerX, nameY, now);
       } else if (item.type === 'OTHER_PLAYER') {
         window.PlayMapPresenceController?.drawOtherPlayer(ctx, item.data, now, client.mesh, client.zoom);
       } else if (item.type === 'COMBAT_PLAYER') {

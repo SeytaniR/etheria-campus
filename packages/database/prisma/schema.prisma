@@ -96,6 +96,7 @@ model GameMap {
   overlapOpacity     Float       @default(0.45) @map("overlap_opacity") /// Opacidade aplicada à região coberta do corpo do personagem
   buildingMeshJson   Json        @default("[]") @map("building_mesh_json") /// Malha editável de construção (colisão se ocupada, passeio livre se vazia)
   plantationMeshJson Json        @default("[]") @map("plantation_mesh_json") /// Malha editável de plantação (sobreposição se ocupada, passeio livre sem sobreposição se vazia)
+  fishingMeshJson    Json        @default("[]") @map("fishing_mesh_json") /// Malha editável de pesca (áreas de água onde o jogador pode pescar ao se aproximar)
   isActive          Boolean     @default(true) @map("is_active")
   createdAt         DateTime    @default(now()) @map("created_at")
   updatedAt         DateTime    @updatedAt @map("updated_at")

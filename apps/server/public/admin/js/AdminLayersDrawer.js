@@ -30,6 +30,7 @@ class AdminLayersDrawer {
       const oLen = (this.overlapPolygons || []).length;
       const bLen = (this.buildingPolygons || []).length;
       const plLen = (this.plantationPolygons || []).length;
+      const fsLen = (this.fishingPolygons || []).length;
       const pLen = (this.portals || []).length;
       const nLen = (this.npcs || []).length;
 
@@ -38,9 +39,10 @@ class AdminLayersDrawer {
       setCount('countOverlap', oLen);
       setCount('countBuilding', bLen);
       setCount('countPlantation', plLen);
+      setCount('countFishing', fsLen);
       setCount('countPortals', pLen);
       setCount('countNpcs', nLen);
-      setCount('drawerTotalBadge', cLen + oLen + bLen + plLen + pLen + nLen);
+      setCount('drawerTotalBadge', cLen + oLen + bLen + plLen + fsLen + pLen + nLen);
 
       const summaryBox = document.getElementById('mapSummaryCounters');
       if (summaryBox) {
@@ -50,6 +52,7 @@ class AdminLayersDrawer {
           <span>🟦 <strong>Sobreposições:</strong> ${oLen} malha(s)</span> &bull;
           <span>🏗️ <strong>Construções:</strong> ${bLen} malha(s)</span> &bull;
           <span>🌾 <strong>Plantações:</strong> ${plLen} malha(s)</span> &bull;
+          <span>🎣 <strong>Pesca:</strong> ${fsLen} malha(s)</span> &bull;
           <span>🌀 <strong>Portais:</strong> ${pLen}</span> &bull;
           <span>🧙 <strong>NPCs:</strong> ${nLen}</span>
         `;
@@ -81,6 +84,7 @@ class AdminLayersDrawer {
       renderPolyList('OVERLAP', 'overlapList', this.overlapPolygons, this.activeOverlapPolyIndex);
       renderPolyList('BUILDING', 'buildingList', this.buildingPolygons, this.activeBuildingPolyIndex);
       renderPolyList('PLANTATION', 'plantationList', this.plantationPolygons, this.activePlantationPolyIndex);
+      renderPolyList('FISHING', 'fishingList', this.fishingPolygons, this.activeFishingPolyIndex);
 
       const pList = document.getElementById('portalsList');
       if (pList) {
@@ -201,6 +205,7 @@ class AdminLayersDrawer {
       OVERLAP: { prop: 'overlapPolygons', idxProp: 'activeOverlapPolyIndex' },
       BUILDING: { prop: 'buildingPolygons', idxProp: 'activeBuildingPolyIndex' },
       PLANTATION: { prop: 'plantationPolygons', idxProp: 'activePlantationPolyIndex' },
+      FISHING: { prop: 'fishingPolygons', idxProp: 'activeFishingPolyIndex' },
     };
 
     app.selectPolygon = function (type, idx) {

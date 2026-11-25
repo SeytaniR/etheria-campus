@@ -1,4 +1,4 @@
-# 🗄️ Modelagem do Banco de Dados Low-Code & Procedural (`v0.64.0`)
+# 🗄️ Modelagem do Banco de Dados Low-Code & Procedural (`v0.66.0`)
 
 > **REGRA DA CURADORIA ("WHITELIST") & INDEPENDÊNCIA (`Regra #10`):**
 > Nenhum arquivo de `mcrework` entra no jogo automaticamente. Somente registros cadastrados nas tabelas abaixo pela Rota `/admin` existem no jogo, e seus assets são espelhados localmente no salvamento (`apps/server/cache/mcrework/`).
@@ -22,7 +22,7 @@
 * **`biomes` (`Biome`):** Os **40 biomas** de mundo usados exclusivamente para cruzamento procedural `Mapa <-> Bioma <-> Monstro` (`id`, `code`, `category`, `name_i18n_key`, `description_i18n_key`).
 * **`maps` (`GameMap`):**
   * `id`, `code`, `mcrework_map_image`, `name_i18n_key`, `required_level`, `level_variance_min/max`, `map_type_id`, `primary_biome_id`, `secondary_biome_id`, `encounter_rate_pct`, `allowed_monster_races_json`, `allowed_monster_template_ids_json`, `dungeon_monster_count`, `dungeon_boss_template_id`, `dominated_by_id`, `spawn_x`, `spawn_y`, `is_active`.
-  * **4 Malhas Poligonais Editáveis:** `collision_mesh_json`, `overlap_mesh_json` (`overlap_opacity`), `building_mesh_json` e `plantation_mesh_json`.
+  * **5 Malhas Poligonais Editáveis:** `collision_mesh_json`, `overlap_mesh_json` (`overlap_opacity`), `building_mesh_json`, `plantation_mesh_json` e `fishing_mesh_json`.
 * **`dungeon_runs` (`DungeonRun`):** Controle diário 1x/dia (`entry_date` `YYYY-MM-DD`, `status`, `battle_id`, `return_map_id/x/y`). Índices: `@@unique([characterId, dungeonMapId, entryDate])`, `@@index([characterId, entryDate])`.
 * **`dungeon_chest_configs` (`DungeonChestConfig`):** Baús de recompensa pós-Dungeon (`COMMON` 75%, `EPIC` 20%, `LEGENDARY` 5%) com escala, offsets, brilho, faixas ponderadas de Ouro/XP e lista de drops de itens.
 * **`map_portals` (`MapPortal`):** Duplas bidirecionais de teleporte (`source_map_id`, `source_x/y`, `trigger_radius`, `linked_portal_id`, `target_map_id`, `target_x/y`, `portal_vfx_key`). Índice: `@@index([sourceMapId])`.
@@ -53,7 +53,7 @@
 * **`status_effect_templates` (`StatusEffectTemplate`):** Buffs, Debuffs, DoT/HoT e Controles de Grupo (`status_category`, `break_on_damage`, `trigger_type`, `duration_seconds`, `tick_interval_seconds`, `stat_modifiers_json`, `dot_hot_formula_json`, `control_flags_json`).
 * **`equipment_slots` (`EquipmentSlot`):** 16 slots de personagem (`SHOULDER`, `HEAD`, `CHEST`, `BELT`, `LEGS`, `FEET`, `ORNAMENT_1`, `ORNAMENT_2`, `RING`, `NECKLACE`, `WEAPON_1`, `WEAPON_2`, `FISHING_ROD`, `FLYING_MOUNT`, `WINGS`, `FASHION`) + 6 slots de Pet (`PET_EQUIP_1..6`). Todas as montarias voadoras e asas são unificadas em `item_templates` com `equipment_slot_code` = `FLYING_MOUNT` ou `WINGS`.
 * **`equipment_sets` (`EquipmentSet`):** Conjuntos com regra canônica de bônus `50%` (6 peças → 40% dos stats) e `100%` (12 peças → 100% dos stats).
-* **`item_templates` (`ItemTemplate`):** Catálogo unificado de equipamentos, itens de pet, asas/montarias, consumíveis, trocadores de elemento, baús/roletas (`OPEN_CHEST`/`ROULETTE`), materiais e missões (`@@index([itemCategory])`, `@@index([equipmentSlotCode])`).
+* **`item_templates` (`ItemTemplate`):** Catálogo unificado de equipamentos, itens de pet, asas/montarias, varas de pesca (`FISHING_ROD`), peixes (`FISH`), iscas (`FISHING_BAIT`), consumíveis, trocadores de elemento, baús/roletas (`OPEN_CHEST`/`ROULETTE`), materiais e missões (`@@index([itemCategory])`, `@@index([equipmentSlotCode])`).
 
 ---
 

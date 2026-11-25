@@ -312,6 +312,26 @@ export class AdminUiLayoutsController {
         { offsetX: 0, offsetY: 0, scale: 1.0 },
         { offsetX: 0, offsetY: 0, scale: 1.0 }
       ),
+      mk(
+        'HUD_FISHING_ACTION_BTN',
+        'Botão de Pescar (Próximo à Água)',
+        'EXPLORE_HUD',
+        '#hudFishingActionBtn',
+        'Botão contextual exibido quando o personagem se aproxima de uma área de pesca na água.',
+        { anchorX: 'RIGHT', anchorY: 'BOTTOM', offsetX: -14, offsetY: -175, scale: 1.0 },
+        { anchorX: 'RIGHT', anchorY: 'BOTTOM', offsetX: -18, offsetY: -118, scale: 0.95 },
+        { anchorX: 'RIGHT', anchorY: 'BOTTOM', offsetX: -24, offsetY: -130, scale: 1.0 }
+      ),
+      mk(
+        'HUD_FISHING_STATUS_BAR',
+        'Painel de Pesca Ativa (AFK)',
+        'EXPLORE_HUD',
+        '#hudFishingStatusBar',
+        'Barra flutuante durante a pesca contínua AFK com progresso, fila de iscas e botão Parar de Pescar.',
+        { anchorX: 'CENTER', anchorY: 'BOTTOM', offsetX: 0, offsetY: -102, scale: 0.94, widthPx: 330 },
+        { anchorX: 'CENTER', anchorY: 'BOTTOM', offsetX: 0, offsetY: -78, scale: 0.9, widthPx: 360 },
+        { anchorX: 'CENTER', anchorY: 'BOTTOM', offsetX: 0, offsetY: -96, scale: 1.0, widthPx: 390 }
+      ),
 
       // 2. COMBAT_HUD (HUDs de Batalha no Véu)
       mk(
@@ -465,6 +485,16 @@ export class AdminUiLayoutsController {
         { maxWidthVw: 92, maxHeightVh: 84, scale: 1.0 },
         { maxWidthVw: 82, maxHeightVh: 84, scale: 0.96 },
         { widthPx: 460, maxWidthVw: 88, maxHeightVh: 82, scale: 1.0 }
+      ),
+      mk(
+        'MODAL_FISHING_SETUP',
+        'Modal de Preparação de Pesca & Ordem de Iscas',
+        'MODAL',
+        '#fishingSetupModal .fishing-setup-dialog',
+        'Janela para conferir a vara de pesca equipada e ordenar a sequência de uso das iscas da mochila.',
+        { anchorX: 'CENTER', anchorY: 'CENTER', maxWidthVw: 95, maxHeightVh: 88, scale: 1.0 },
+        { anchorX: 'CENTER', anchorY: 'CENTER', maxWidthVw: 88, maxHeightVh: 92, scale: 1.0 },
+        { anchorX: 'CENTER', anchorY: 'CENTER', widthPx: 540, maxWidthVw: 92, maxHeightVh: 86, scale: 1.0 }
       ),
 
       // 4. INTERFACE (Interfaces Especiais)

@@ -16,6 +16,7 @@ import { MapSpawnResolver } from './MapSpawnResolver.js';
 import { AssetMirrorService } from './AssetMirrorService.js';
 import { DungeonService } from './DungeonService.js';
 import { MapRuntimeCacheService } from './MapRuntimeCacheService.js';
+import { FishingService } from './FishingService.js';
 
 export interface GmTeleportDto {
   targetMapId: number;
@@ -116,6 +117,7 @@ export class PlayerMapTravelService {
       overlapMeshJson: (map.overlapMeshJson as unknown as MapPolygon[]) ?? [],
       buildingMeshJson: ((map as any).buildingMeshJson as unknown as MapPolygon[]) ?? [],
       plantationMeshJson: ((map as any).plantationMeshJson as unknown as MapPolygon[]) ?? [],
+      fishingMeshJson: ((map as any).fishingMeshJson as unknown as MapPolygon[]) ?? [],
       mapType: {
         id: map.mapType.id,
         code: map.mapType.code,
@@ -266,6 +268,7 @@ export class PlayerMapTravelService {
       }
     }
 
+    FishingService.stopSession(characterId);
     await MapRuntimeCacheService.flushAndInvalidateCharacter(this.prisma, characterId);
     await this.prisma.playerCharacter.update({
       where: { id: characterId },
@@ -298,6 +301,7 @@ export class PlayerMapTravelService {
     const spawnX = map ? map.spawnX : 500;
     const spawnY = map ? map.spawnY : 500;
 
+    FishingService.stopSession(characterId);
     await MapRuntimeCacheService.flushAndInvalidateCharacter(this.prisma, characterId);
     await this.prisma.playerCharacter.update({
       where: { id: characterId },
@@ -347,6 +351,7 @@ export class PlayerMapTravelService {
     const posX = dto.targetX !== undefined ? Number(dto.targetX) : targetMap.spawnX;
     const posY = dto.targetY !== undefined ? Number(dto.targetY) : targetMap.spawnY;
 
+    FishingService.stopSession(characterId);
     await MapRuntimeCacheService.flushAndInvalidateCharacter(this.prisma, characterId);
     await this.prisma.playerCharacter.update({
       where: { id: characterId },

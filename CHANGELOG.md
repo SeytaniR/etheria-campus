@@ -5,6 +5,26 @@ Qualquer IA trabalhando neste repositório **DEVE** incrementar a versão e regi
 
 ---
 
+## [v0.66.0] - 2026-11-25
+### Sistema Completo de Pesca Contínua (AFK), Malha de Água, Varas Dedicadas & HUDs Editáveis
+* **Malha Poligonal de Pesca no Mapa (`fishingMeshJson`):**
+  * Adicionada coluna aditiva `maps.fishing_mesh_json` (Prisma + `SnapshotManager.ts`), ferramenta `🎣 +Pesca` no Editor Visual `/admin` (`AdminCanvasEditor.js`, `AdminLayersDrawer.js`, `admin.js`), retorno no `/api/play/map/:id` (`PlayerMapTravelService.ts`) e Raio-X GM em ciano (`#06b6d4`) no `/play` (`PlayWorldRenderer.js`).
+  * Adicionado `findClosestPoint()` em `@etheria/shared` (`MapPolygonMesh.ts`) e `findClosestFishingPoint()` em `ClientPolygonMesh.js` para detecção de proximidade (borda ou interior até 96 px) e cálculo de direção para virar o personagem para a água.
+* **Varas de Pesca Dedicadas (`AdminFishingRodsController.ts`, `AdminFishingRodsTab.js`):**
+  * Separadas da aba de Equipamentos de Combate em aba exclusiva `🎣 Varas de Pesca` no `/admin` (auto-incremento `rod_N`, nível mínimo padrão `50`, zero bônus de combate), integrando as 12 varas do catálogo `mcrework` (`type === 1201`) com espelhamento local ao salvar.
+  * Parametrização de ciclo (`castIntervalSec`), chance de fisgada (`catchChancePct`) e distribuição Rank-First por raridade (`F..SS`). Equipável no slot `FISHING_ROD` (`CharacterEquipmentService.ts`, `PlayBagController.js`, `PlayStatsModalController.js`).
+* **Peixes (`FISH`) e Iscas (`FISHING_BAIT`) na Tabela de Itens (`AdminItemsController.ts`, `AdminItemsTab.js`):**
+  * Adicionadas categorias `FISH` e `FISHING_BAIT`, filtros rápidos `🐟 Peixes` e `🪱 Iscas` na galeria `mcrework`, e painel de bônus de fisgada e raridade (`fishingBaitConfig`) no modal de Itens.
+* **Motor Autoritário de Pesca AFK & Visuais 2.5D (`FishingService.ts`, `PlayRouter.ts`, `PlayFishingController.js`, `play_fishing.css`):**
+  * Endpoints `/api/play/fishing/{status,start,tick,stop}` validando proximidade, chão (`!isFlying`), vara equipada, intervalo mínimo no servidor (`88%`), consumo atômico de 1 isca por ciclo seguindo exatamente a ordem configurada (`1 -> 2 -> 3...`), e sorteio global de peixes Rank-First com redistribuição automática entre ranks cadastrados.
+  * No `/play`: botão contextual `🎣 Pescar` próximo à água, modal responsivo para ordenar as iscas da mochila, barra de status AFK com **`🛑 Parar de Pescar`** (travamento de movimento até clicar em parar), personagem virado para a água, ícone de vara animada + barra de progresso acima da cabeça e linha/boia com ondulações na água (zero `ctx.shadowBlur`).
+* **Tabela de HUDs & Editor Pessoal do Cliente (`AdminUiLayoutsController.ts`, `AdminUiStageRenderer.js`, `PlayClientHudEditor.js`, `PlayUiLayoutApplier.js`):**
+  * Registradas de forma aditiva as 3 novas interfaces (`HUD_FISHING_ACTION_BTN`, `HUD_FISHING_STATUS_BAR`, `MODAL_FISHING_SETUP`) editáveis nos 3 viewports no `/admin` e personalizáveis no editor particular do jogador no `/play`.
+* **Testes & Qualidade:**
+  * Criado `tests/test_fishing_system.mjs` (`6/6` testes) e integrado ao `npm test` (`7/7` suítes aprovadas).
+
+---
+
 ## [v0.65.0] - 2026-11-25
 ### Asas 2.5D em 8 Direções com Profundidade + Baús de Dungeon Fixados no Chão com Y-Sorting Real
 * **Asas (`WINGS`) Corrigidas em Todas as 8 Direções & Profundidade (`PlayFlightAndWingsController.js`, `CharacterEquipmentService.ts`, `PlayWorldRenderer.js`):**

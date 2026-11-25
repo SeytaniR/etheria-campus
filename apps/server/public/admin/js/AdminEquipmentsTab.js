@@ -196,6 +196,7 @@ class AdminEquipmentsTab {
       if (!this.equipmentSlots) return;
 
       const optsHtml = this.equipmentSlots
+        .filter((s) => s.code !== 'FISHING_ROD')
         .map((s) => `<option value="${s.code}">[${s.ownerType === 'PET' ? '🐾 Pet' : '👤 Char'}] ${s.labelPtBr}</option>`)
         .join('');
 

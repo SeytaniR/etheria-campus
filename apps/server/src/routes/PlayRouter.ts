@@ -29,6 +29,7 @@ import { CharacterProgressionService } from '../controllers/CharacterProgression
 import { GameChatService } from '../controllers/GameChatService.js';
 import { MapPresenceService } from '../controllers/MapPresenceService.js';
 import { PartyService } from '../controllers/PartyService.js';
+import { FishingService } from '../controllers/FishingService.js';
 import { PartyRouter } from './PartyRouter.js';
 import { PlayCombatRouter } from './PlayCombatRouter.js';
 import { RateLimiter } from '../security/RateLimiter.js';
@@ -254,6 +255,9 @@ export class PlayRouter {
         charId,
         body.slotCode
       );
+      if (String(body.slotCode || '').trim().toUpperCase() === 'FISHING_ROD') {
+        FishingService.stopSession(charId);
+      }
       this.deps.sendJson(res, 200, result);
       return true;
     }
@@ -732,6 +736,67 @@ export class PlayRouter {
         200,
         await this.deps.questsController.turnInQuest(charId, questId, body.mapId ?? null)
       );
+      return true;
+    }
+
+    // 🎣 Sistema Autoritário de Pesca Contínua (AFK)
+    if (pathname === '/api/play/fishing/status' && method === 'GET') {
+      const charId = Number(urlObj.searchParams.get('characterId'));
+      if (!charId || !(await this.verifyCharacterOwnership(userAccountId, session.role, charId))) {
+        this.deps.sendJson(res, 403, { error: 'Acesso negado: este personagem não pertence à sua conta.' });
+        return true;
+      }
+      try {
+        this.deps.sendJson(res, 200, await FishingService.getStatus(this.deps.prisma, charId));
+      } catch (err: any) {
+        this.deps.sendJson(res, 400, { error: err.message || 'Erro ao consultar status de pesca.' });
+      }
+      return true;
+    }
+
+    if (pathname === '/api/play/fishing/start' && method === 'POST') {
+      const body = await this.deps.readJsonBody<{ characterId: number; baitQueue?: number[]; posX?: number; posY?: number }>(req);
+      const charId = Number(body.characterId);
+      if (!charId || !(await this.verifyCharacterOwnership(userAccountId, session.role, charId))) {
+        this.deps.sendJson(res, 403, { error: 'Acesso negado: este personagem não pertence à sua conta.' });
+        return true;
+      }
+      try {
+        this.deps.sendJson(
+          res,
+          200,
+          await FishingService.startFishing(this.deps.prisma, session.role, charId, body)
+        );
+      } catch (err: any) {
+        this.deps.sendJson(res, 400, { error: err.message || 'Não foi possível iniciar a pesca.' });
+      }
+      return true;
+    }
+
+    if (pathname === '/api/play/fishing/tick' && method === 'POST') {
+      const body = await this.deps.readJsonBody<{ characterId: number }>(req);
+      const charId = Number(body.characterId);
+      if (!charId || !(await this.verifyCharacterOwnership(userAccountId, session.role, charId))) {
+        this.deps.sendJson(res, 403, { error: 'Acesso negado: este personagem não pertence à sua conta.' });
+        return true;
+      }
+      try {
+        this.deps.sendJson(res, 200, await FishingService.tickFishing(this.deps.prisma, charId));
+      } catch (err: any) {
+        this.deps.sendJson(res, 400, { error: err.message || 'Erro no ciclo de pesca.' });
+      }
+      return true;
+    }
+
+    if (pathname === '/api/play/fishing/stop' && method === 'POST') {
+      const body = await this.deps.readJsonBody<{ characterId: number }>(req);
+      const charId = Number(body.characterId);
+      if (!charId || !(await this.verifyCharacterOwnership(userAccountId, session.role, charId))) {
+        this.deps.sendJson(res, 403, { error: 'Acesso negado: este personagem não pertence à sua conta.' });
+        return true;
+      }
+      FishingService.stopSession(charId);
+      this.deps.sendJson(res, 200, { ok: true, stopped: true });
       return true;
     }
 

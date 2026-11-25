@@ -135,6 +135,7 @@ class AdminAuth {
         'hunter-costs': 'MONSTERS',
         'ui-layouts': 'MAPS',
         equipments: 'MONSTERS',
+        'fishing-rods': 'MONSTERS',
         'equipment-sets': 'MONSTERS',
         items: 'MONSTERS',
         shops: 'SHOPS',
@@ -157,6 +158,7 @@ class AdminAuth {
         'monster-config': document.getElementById('tabBtnMonsterConfig'),
         'ui-layouts': document.getElementById('tabBtnUiLayouts'),
         equipments: document.getElementById('tabBtnEquipments'),
+        'fishing-rods': document.getElementById('tabBtnFishingRods'),
         'equipment-sets': document.getElementById('tabBtnEquipmentSets'),
         items: document.getElementById('tabBtnItems'),
         shops: document.getElementById('tabBtnShops'),
@@ -217,6 +219,7 @@ class AdminAuth {
         { id: 'tabMonsterConfig', btn: 'tabBtnMonsterConfig', key: 'monster-config', code: 'MONSTERS' },
         { id: 'tabUiLayouts', btn: 'tabBtnUiLayouts', key: 'ui-layouts', code: 'MAPS' },
         { id: 'tabEquipments', btn: 'tabBtnEquipments', key: 'equipments', code: 'MONSTERS' },
+        { id: 'tabFishingRods', btn: 'tabBtnFishingRods', key: 'fishing-rods', code: 'MONSTERS' },
         { id: 'tabEquipmentSets', btn: 'tabBtnEquipmentSets', key: 'equipment-sets', code: 'MONSTERS' },
         { id: 'tabItems', btn: 'tabBtnItems', key: 'items', code: 'MONSTERS' },
         { id: 'tabShops', btn: 'tabBtnShops', key: 'shops', code: 'SHOPS' },
@@ -265,6 +268,9 @@ class AdminAuth {
       }
       if (tab === 'equipments' && typeof this.renderEquipmentsCrudTable === 'function') {
         this.renderEquipmentsCrudTable();
+      }
+      if (tab === 'fishing-rods' && typeof this.loadFishingRods === 'function') {
+        this.loadFishingRods();
       }
       if (tab === 'equipment-sets' && typeof this.loadEquipmentSets === 'function') {
         this.loadEquipmentSets();
@@ -319,6 +325,7 @@ class AdminAuth {
         'hunter-costs': 'MONSTERS',
         'ui-layouts': 'MAPS',
         equipments: 'MONSTERS',
+        'fishing-rods': 'MONSTERS',
         'equipment-sets': 'MONSTERS',
         items: 'MONSTERS',
         shops: 'SHOPS',

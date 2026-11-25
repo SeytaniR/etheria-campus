@@ -122,9 +122,21 @@ class AdminItemsTab {
       document.getElementById('itemIconKeyInput').value = iconKey;
       this.updateItemIconPreview(iconKey);
       this.syncItemModalFieldStates();
+      this.loadFishingBaitConfigIntoForm(item);
       if (typeof this.loadContainerConfigIntoForm === 'function') {
         this.loadContainerConfigIntoForm(item);
       }
+    };
+
+    app.loadFishingBaitConfigIntoForm = function (item) {
+      const cfg = item?.specialEffectJson?.fishingBaitConfig || {};
+      const catchInp = document.getElementById('baitCatchChanceBonusInput');
+      if (catchInp) catchInp.value = String(cfg.catchChanceBonusPct ?? 5);
+      const rw = cfg.rankBonusWeights || {};
+      ['F', 'D', 'C', 'B', 'A', 'S', 'SS'].forEach((r) => {
+        const inp = document.getElementById(`baitRankBonus_${r}`);
+        if (inp) inp.value = String(rw[r] ?? (r === 'B' ? 5 : r === 'A' ? 3 : r === 'S' ? 1.5 : r === 'SS' ? 0.5 : 0));
+      });
     };
 
     app.syncItemModalFieldStates = function () {
@@ -140,7 +152,10 @@ class AdminItemsTab {
       }
 
       const effectType = document.getElementById('itemEffectSelect')?.value || 'NONE';
-      const isPassive = effectType === 'NONE' || effectType === 'MATERIAL' || effectType === 'QUEST_ITEM';
+      const itemCat = document.getElementById('itemCategorySelect')?.value || 'CONSUMABLE';
+      const isPassive = itemCat === 'FISH' || itemCat === 'FISHING_BAIT' || effectType === 'NONE' || effectType === 'MATERIAL' || effectType === 'QUEST_ITEM' || effectType === 'FISHING_BAIT';
+      const baitSec = document.getElementById('itemFishingBaitConfigSection');
+      if (baitSec) baitSec.style.display = itemCat === 'FISHING_BAIT' ? 'block' : 'none';
       const valInput = document.getElementById('itemEffectValueInput');
       const cdInput = document.getElementById('itemCooldownInput');
       const tgtSelect = document.getElementById('itemTargetSelect');
@@ -171,8 +186,10 @@ class AdminItemsTab {
       const effSel = document.getElementById('itemEffectSelect');
       if (cat === 'MATERIAL' && effSel) {
         effSel.value = 'MATERIAL';
-      } else if (cat === 'QUEST' && effSel) {
+      } else if ((cat === 'QUEST' || cat === 'FISH') && effSel) {
         effSel.value = 'NONE';
+      } else if (cat === 'FISHING_BAIT' && effSel) {
+        effSel.value = 'FISHING_BAIT';
       }
       this.syncItemModalFieldStates();
     };
@@ -266,6 +283,13 @@ class AdminItemsTab {
       if (descInp && !descInp.value.trim() && (item.info || item.description)) {
         descInp.value = item.info || item.description || '';
       }
+      if (item.mcreworkFishingGroup === 'FISH' || item.mcreworkFishingGroup === 'BAIT') {
+        const catSel = document.getElementById('itemCategorySelect');
+        if (catSel) catSel.value = item.suggestedCategory || (item.mcreworkFishingGroup === 'FISH' ? 'FISH' : 'FISHING_BAIT');
+        const stackInp = document.getElementById('itemMaxStackInput');
+        if (stackInp) stackInp.value = '999';
+        this.onItemCategoryChanged();
+      }
     };
 
     app.renderItemGallery = function () {
@@ -276,7 +300,9 @@ class AdminItemsTab {
       const cat = this.itemGalleryCategoryFilter || 'ALL';
 
       const filtered = (this.mcreworkItems || []).filter((item) => {
-        if (cat !== 'ALL' && item.category !== cat) return false;
+        if (cat === 'fish' && item.mcreworkFishingGroup !== 'FISH') return false;
+        else if (cat === 'bait' && item.mcreworkFishingGroup !== 'BAIT') return false;
+        else if (cat !== 'ALL' && cat !== 'fish' && cat !== 'bait' && item.category !== cat) return false;
         if (!q) return true;
         return (item.name && item.name.toLowerCase().includes(q)) ||
                (item.category && item.category.toLowerCase().includes(q)) ||
@@ -345,6 +371,19 @@ class AdminItemsTab {
       } catch (validationErr) {
         alert(validationErr.message);
         return;
+      }
+      if (itemCategory === 'FISHING_BAIT') {
+        const rankBonusWeights = {};
+        ['F', 'D', 'C', 'B', 'A', 'S', 'SS'].forEach((r) => {
+          rankBonusWeights[r] = Math.max(0, Number(document.getElementById(`baitRankBonus_${r}`)?.value) || 0);
+        });
+        specialEffectJson = {
+          ...(specialEffectJson && typeof specialEffectJson === 'object' ? specialEffectJson : {}),
+          fishingBaitConfig: {
+            catchChanceBonusPct: Math.max(0, Math.min(100, Number(document.getElementById('baitCatchChanceBonusInput')?.value) || 0)),
+            rankBonusWeights,
+          },
+        };
       }
 
       if (!namePtBr) {
@@ -440,6 +479,8 @@ class AdminItemsTab {
         CONSUMABLE: '<span style="background:#16a34a; color:#fff; padding:2px 8px; border-radius:4px; font-size:0.75rem;">🧪 Consumível</span>',
         ELEMENT_CHANGER: '<span style="background:#0284c7; color:#fff; padding:2px 8px; border-radius:4px; font-size:0.75rem;">🔮 Trocador Elemental</span>',
         MATERIAL: '<span style="background:#d97706; color:#fff; padding:2px 8px; border-radius:4px; font-size:0.75rem;">🪵 Material</span>',
+        FISH: '<span style="background:#0891b2; color:#fff; padding:2px 8px; border-radius:4px; font-size:0.75rem;">🐟 Peixe</span>',
+        FISHING_BAIT: '<span style="background:#0d9488; color:#fff; padding:2px 8px; border-radius:4px; font-size:0.75rem;">🪱 Isca de Pesca</span>',
         QUEST: '<span style="background:#9333ea; color:#fff; padding:2px 8px; border-radius:4px; font-size:0.75rem;">📜 Missão</span>',
         SPECIAL: '<span style="background:#e11d48; color:#fff; padding:2px 8px; border-radius:4px; font-size:0.75rem;">📦 Especial</span>',
       };
@@ -455,6 +496,7 @@ class AdminItemsTab {
         MATERIAL: () => `⚒️ Recurso Passivo / Crafting`,
         QUEST_ITEM: () => `📜 Item de Missão (Passivo)`,
         LEARN_SKILL: () => `📖 Aprender Habilidade`,
+        FISHING_BAIT: (v, it) => it?.containerSummaryPtBr || '🪱 Isca de Pesca (Bônus de Raridade)',
         OPEN_CHEST: (v, it) => it?.containerSummaryPtBr || (window.AdminApp?.formatContainerLabel ? window.AdminApp.formatContainerLabel(it) : '🎁 Baú / Cápsula'),
         ROULETTE: (v, it) => it?.containerSummaryPtBr || (window.AdminApp?.formatContainerLabel ? window.AdminApp.formatContainerLabel(it) : '🎰 Roleta da Sorte'),
       };
@@ -590,6 +632,8 @@ class AdminItemsTab {
                 <option value="CONSUMABLE">🧪 Consumível (Poções, Comidas)</option>
                 <option value="ELEMENT_CHANGER">🔮 Trocador Elemental (Pedras)</option>
                 <option value="MATERIAL">🪵 Material de Crafting</option>
+                <option value="FISH">🐟 Peixe (Pesca)</option>
+                <option value="FISHING_BAIT">🪱 Isca de Pesca</option>
                 <option value="QUEST">📜 Item de Missão</option>
                 <option value="SPECIAL">📦 Especial (Cápsulas, Baús)</option>
               </select>
@@ -670,6 +714,8 @@ class AdminItemsTab {
                 <option value="CONSUMABLE">🧪 Consumível (Poções, Comidas)</option>
                 <option value="ELEMENT_CHANGER">🔮 Trocador Elemental (Pedras)</option>
                 <option value="MATERIAL">🪵 Material de Crafting / Recurso</option>
+                <option value="FISH">🐟 Peixe (Pesca)</option>
+                <option value="FISHING_BAIT">🪱 Isca de Pesca</option>
                 <option value="QUEST">📜 Item de Missão</option>
                 <option value="SPECIAL">📦 Especial (Cápsulas, Baús)</option>
               </select>
@@ -741,6 +787,7 @@ class AdminItemsTab {
                 <option value="TELEPORT">🌌 Teleporte para Ponto de Retorno</option>
                 <option value="GRANT_EXP">✨ Concessão Direta de Experiência</option>
                 <option value="LEARN_SKILL">📖 Aprender Habilidade / Tomo</option>
+                <option value="FISHING_BAIT">🪱 Isca de Pesca (Bônus de Raridade)</option>
                 <option value="OPEN_CHEST">🎁 Baú / Cápsula de Recompensas</option>
                 <option value="ROULETTE">🎰 Roleta da Sorte (Sorteio %)</option>
               </select>
@@ -766,6 +813,27 @@ class AdminItemsTab {
           </div>
         </div>
 
+        <!-- PAINEL CONDICIONAL: BÔNUS DE ISCA DE PESCA -->
+        <div id="itemFishingBaitConfigSection" style="display:none; background:rgba(13,148,136,0.16); border:1.5px solid #14b8a6; border-radius:10px; padding:12px; margin-bottom:12px;">
+          <div style="font-size:0.82rem; font-weight:800; color:#5eead4; margin-bottom:8px;">
+            🪱 Configuração da Isca de Pesca (Aumenta Raridade & Fisgada — Consome 1/ciclo)
+          </div>
+          <div class="field" style="max-width:240px; margin-bottom:10px;">
+            <label>🎯 Bônus na Chance de Fisgar (+%)</label>
+            <input type="number" id="baitCatchChanceBonusInput" value="5" min="0" max="100" step="0.5" />
+          </div>
+          <div style="font-size:0.73rem; color:#99f6e4; margin-bottom:6px;">Bônus de Peso nos Ranks de Peixe (somado aos pesos da Vara enquanto esta isca estiver ativa):</div>
+          <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(82px, 1fr)); gap:8px;">
+            <div class="field"><label>Rank F</label><input type="number" id="baitRankBonus_F" value="0" min="0" step="0.5" /></div>
+            <div class="field"><label>Rank D</label><input type="number" id="baitRankBonus_D" value="0" min="0" step="0.5" /></div>
+            <div class="field"><label>Rank C</label><input type="number" id="baitRankBonus_C" value="0" min="0" step="0.5" /></div>
+            <div class="field"><label>Rank B</label><input type="number" id="baitRankBonus_B" value="5" min="0" step="0.5" /></div>
+            <div class="field"><label>Rank A</label><input type="number" id="baitRankBonus_A" value="3" min="0" step="0.5" /></div>
+            <div class="field"><label>Rank S</label><input type="number" id="baitRankBonus_S" value="1.5" min="0" step="0.5" /></div>
+            <div class="field"><label>Rank SS</label><input type="number" id="baitRankBonus_SS" value="0.5" min="0" step="0.5" /></div>
+          </div>
+        </div>
+
         ${containerBuilderHtml}
 
         <!-- BLOCO 3: GALERIA DE 6.468 ÍCONES DO MCREWORK & PRÉ-VISUALIZAÇÃO -->
@@ -783,6 +851,8 @@ class AdminItemsTab {
 
           <div style="display:flex; gap:6px; flex-wrap:wrap; margin-bottom:8px;">
             <button class="btn-primary item-gal-btn" data-cat="ALL" onclick="AdminApp.setItemGalleryCategory('ALL')">🌐 Todos</button>
+            <button class="item-gal-btn" data-cat="fish" onclick="AdminApp.setItemGalleryCategory('fish')" style="border-color:#06b6d4; color:#67e8f9;">🐟 Peixes</button>
+            <button class="item-gal-btn" data-cat="bait" onclick="AdminApp.setItemGalleryCategory('bait')" style="border-color:#14b8a6; color:#5eead4;">🪱 Iscas</button>
             <button class="item-gal-btn" data-cat="potions" onclick="AdminApp.setItemGalleryCategory('potions')">🧪 Poções (339)</button>
             <button class="item-gal-btn" data-cat="gems" onclick="AdminApp.setItemGalleryCategory('gems')">💎 Gemas/Pedras (144)</button>
             <button class="item-gal-btn" data-cat="scrolls" onclick="AdminApp.setItemGalleryCategory('scrolls')">📜 Pergaminhos (178)</button>

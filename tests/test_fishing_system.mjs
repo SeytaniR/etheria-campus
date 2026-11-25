@@ -1,0 +1,179 @@
+/**
+ * @file tests/test_fishing_system.mjs
+ * @module @etheria/tests
+ * @description Suíte automatizada de verificação do Sistema de Pesca (`v0.66.0`):
+ *   - Proximidade geométrica à malha de pesca (`MapPolygonMesh.findClosestPoint` + `ClientPolygonMesh.findClosestFishingPoint`);
+ *   - Fila ordenada de iscas (`pickNextAvailableBait`: consome 1ª, passa para 2ª, 3ª...);
+ *   - Sorteio Rank-First de peixes com redistribuição automática de pesos e bônus de raridade da isca;
+ *   - Normalização de config de Vara de Pesca e registro das 3 novas UIs em `AdminUiLayoutsController.getDefaultSeeds()`.
+ * @rules Execução 100% em memória sem mutar banco ou snapshot (Cláusula 0.2).
+ * @dependencies node:assert/strict, node:fs, node:path, node:url, node:vm, @etheria/shared, apps/server/dist/*
+ */
+
+import assert from 'node:assert/strict';
+import * as fs from 'node:fs';
+import * as path from 'node:path';
+import { fileURLToPath } from 'node:url';
+import * as vm from 'node:vm';
+import { MapPolygonMesh } from '../packages/shared/dist/index.js';
+import {
+  computeEffectiveRankWeights,
+  pickNextAvailableBait,
+  rollFishByRankFirst,
+} from '../apps/server/dist/controllers/FishingService.js';
+import { normalizeFishingRodConfig } from '../apps/server/dist/controllers/AdminFishingRodsController.js';
+import { AdminUiLayoutsController } from '../apps/server/dist/controllers/AdminUiLayoutsController.js';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const repoRoot = path.resolve(__dirname, '..');
+
+let passed = 0;
+let total = 0;
+function test(name, fn) {
+  total++;
+  try {
+    fn();
+    passed++;
+    console.log(`✅ [PASS] ${name}`);
+  } catch (err) {
+    console.error(`❌ [FAIL] ${name}:`, err);
+    process.exitCode = 1;
+  }
+}
+
+test('MapPolygonMesh.findClosestPoint calcula distância 0 dentro e projeta borda próxima dentro do limite', () => {
+  const pond = [
+    {
+      id: 'fsh_1',
+      name: 'Lago Sul',
+      points: [
+        { x: 100, y: 100 },
+        { x: 200, y: 100 },
+        { x: 200, y: 200 },
+        { x: 100, y: 200 },
+      ],
+    },
+  ];
+  const mesh = new MapPolygonMesh(pond);
+
+  const inside = mesh.findClosestPoint(150, 150, 96);
+  assert.ok(inside);
+  assert.equal(inside.inside, true);
+  assert.equal(inside.distance, 0);
+
+  const nearEdge = mesh.findClosestPoint(250, 150, 96);
+  assert.ok(nearEdge);
+  assert.equal(nearEdge.inside, false);
+  assert.equal(Math.round(nearEdge.distance), 50);
+  assert.deepEqual(nearEdge.point, { x: 200, y: 150 });
+
+  const tooFar = mesh.findClosestPoint(350, 150, 96);
+  assert.equal(tooFar, null);
+});
+
+test('ClientPolygonMesh.findClosestFishingPoint mantém paridade geométrica exata com o servidor', () => {
+  const code = fs.readFileSync(
+    path.join(repoRoot, 'apps/server/public/play/js/ClientPolygonMesh.js'),
+    'utf8'
+  );
+  const sandbox = { window: {} };
+  sandbox.window = sandbox;
+  vm.runInNewContext(code, sandbox);
+
+  const pond = [
+    {
+      id: 'fsh_lake',
+      name: 'Lago Norte',
+      points: [
+        { x: 300, y: 300 },
+        { x: 420, y: 300 },
+        { x: 420, y: 420 },
+        { x: 300, y: 420 },
+      ],
+    },
+  ];
+  const mesh = new sandbox.ClientPolygonMesh([], [], 0.45, [], [], pond);
+  const hit = mesh.findClosestFishingPoint(460, 360, 96);
+  assert.ok(hit);
+  assert.equal(Math.round(hit.distance), 40);
+  assert.deepEqual({ x: hit.point.x, y: hit.point.y }, { x: 420, y: 360 });
+  assert.equal(mesh.findClosestFishingPoint(600, 360, 96), null);
+});
+
+test('pickNextAvailableBait respeita estritamente a ordem 1 -> 2 -> 3 e avança quando a isca zera', () => {
+  const queue = [101, 102, 103];
+  const inv = new Map([
+    [101, 2],
+    [102, 5],
+    [103, 1],
+  ]);
+
+  assert.equal(pickNextAvailableBait(queue, inv), 101);
+  inv.set(101, 0);
+  assert.equal(pickNextAvailableBait(queue, inv), 102);
+  inv.set(102, 0);
+  assert.equal(pickNextAvailableBait(queue, inv), 103);
+  inv.set(103, 0);
+  assert.equal(pickNextAvailableBait(queue, inv), null);
+});
+
+test('rollFishByRankFirst redistribui pesos entre ranks disponíveis e aplica bônus de isca para raridades altas', () => {
+  const rodWeights = { F: 50, D: 25, C: 15, B: 6, A: 3, S: 1, SS: 0 };
+  const baitBonus = { F: 0, D: 0, C: 0, B: 10, A: 15, S: 10, SS: 5 };
+  const effective = computeEffectiveRankWeights(rodWeights, baitBonus);
+
+  assert.equal(effective.B, 16);
+  assert.equal(effective.SS, 5);
+
+  const fishByRank = new Map([
+    ['F', [{ id: 1, code: 'fish_1', namePtBr: 'Lambari', rarityTier: 'F', iconUrl: '' }]],
+    ['D', []],
+    ['C', []],
+    ['B', []],
+    ['A', [{ id: 2, code: 'fish_2', namePtBr: 'Salmão Dourado', rarityTier: 'A', iconUrl: '' }]],
+    ['S', [{ id: 3, code: 'fish_3', namePtBr: 'Tubarão Arcano', rarityTier: 'S', iconUrl: '' }]],
+    ['SS', [{ id: 4, code: 'fish_4', namePtBr: 'Dragão Abissal', rarityTier: 'SS', iconUrl: '' }]],
+  ]);
+
+  // Apenas ranks com peixes entram: F (50), A (18), S (11), SS (5) => total = 84
+  // Com rng near 0.99, deve escolher SS
+  const mythFish = rollFishByRankFirst(effective, fishByRank, () => 0.99);
+  assert.ok(mythFish);
+  assert.equal(mythFish.rarityTier, 'SS');
+
+  // Com rng = 0.01, escolhe F
+  const commonFish = rollFishByRankFirst(effective, fishByRank, () => 0.01);
+  assert.ok(commonFish);
+  assert.equal(commonFish.rarityTier, 'F');
+
+  // Banco sem peixes retorna null com segurança
+  assert.equal(rollFishByRankFirst(effective, new Map()), null);
+});
+
+test('normalizeFishingRodConfig aplica limites e defaults seguros', () => {
+  const def = normalizeFishingRodConfig({});
+  assert.equal(def.castIntervalSec, 10);
+  assert.equal(def.catchChancePct, 65);
+
+  const clamped = normalizeFishingRodConfig({ castIntervalSec: 0, catchChancePct: 500, rankWeights: { F: -5, SS: 20 } });
+  assert.equal(clamped.castIntervalSec, 2);
+  assert.equal(clamped.catchChancePct, 100);
+  assert.equal(clamped.rankWeights.SS, 20);
+});
+
+test('AdminUiLayoutsController registra as 3 novas interfaces de pesca para /admin e HUD pessoal', () => {
+  const seeds = AdminUiLayoutsController.getDefaultSeeds();
+  const codes = new Set(seeds.map((s) => s.code));
+  assert.ok(codes.has('HUD_FISHING_ACTION_BTN'));
+  assert.ok(codes.has('HUD_FISHING_STATUS_BAR'));
+  assert.ok(codes.has('MODAL_FISHING_SETUP'));
+
+  for (const code of ['HUD_FISHING_ACTION_BTN', 'HUD_FISHING_STATUS_BAR', 'MODAL_FISHING_SETUP']) {
+    const entry = seeds.find((s) => s.code === code);
+    assert.ok(entry.mobilePortrait && entry.mobileLandscape && entry.desktop);
+  }
+});
+
+console.log(`\nResumo Sistema de Pesca: ${passed}/${total} testes aprovados.`);
+if (passed !== total) process.exit(1);

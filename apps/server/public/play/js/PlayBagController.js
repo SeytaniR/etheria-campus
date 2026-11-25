@@ -27,6 +27,7 @@ const PlayBagController = {
     { code: 'ORNAMENT_2', label: 'Talismã', icon: '🧿', col: 'right' },
     { code: 'WINGS', label: 'Asas', icon: '🪽', col: 'center' },
     { code: 'FLYING_MOUNT', label: 'Montaria', icon: '🦅', col: 'center' },
+    { code: 'FISHING_ROD', label: 'Vara de Pesca', icon: '🎣', col: 'center' },
   ],
 
   RARITY_MAP: {
@@ -190,6 +191,8 @@ const PlayBagController = {
             { id: 'EQUIPMENT', label: 'Equipamentos' },
             { id: 'CONSUMABLE', label: 'Consumíveis' },
             { id: 'MATERIAL', label: 'Materiais' },
+            { id: 'FISH', label: '🐟 Peixes' },
+            { id: 'FISHING_BAIT', label: '🪱 Iscas' },
             { id: 'SPECIAL', label: 'Especiais' },
           ].map((cat) => `
             <button type="button" class="bag-cat-btn ${filterCategory === cat.id ? 'active' : ''}" style="padding:2px 8px; font-size:0.68rem; font-weight:700; border-radius:4px; border:1px solid ${filterCategory === cat.id ? '#38bdf8' : '#334155'}; background:${filterCategory === cat.id ? '#0284c7' : '#1e293b'}; color:#f8fafc; cursor:pointer;" onclick="window.PlayBagController.onCategoryChange('${cat.id}')">
@@ -271,6 +274,8 @@ const PlayBagController = {
       if (filterCategory === 'EQUIPMENT' && !it.isNonStackable) matches = false;
       else if (filterCategory === 'CONSUMABLE' && cat !== 'CONSUMABLE') matches = false;
       else if (filterCategory === 'MATERIAL' && cat !== 'MATERIAL') matches = false;
+      else if (filterCategory === 'FISH' && cat !== 'FISH') matches = false;
+      else if (filterCategory === 'FISHING_BAIT' && cat !== 'FISHING_BAIT') matches = false;
       else if (filterCategory === 'SPECIAL' && it.effectType !== 'OPEN_CHEST' && it.effectType !== 'ROULETTE') matches = false;
     }
     if (filterRarity !== 'ALL') {

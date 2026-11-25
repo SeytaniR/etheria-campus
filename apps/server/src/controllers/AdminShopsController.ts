@@ -116,7 +116,10 @@ export class AdminShopsController {
 
     const itemMetaMap = new Map<number, CatalogMeta>();
     for (const item of allItems) {
-      const isEquipment = item.itemCategory === 'CHARACTER_EQUIPMENT' || item.itemCategory === 'PET_EQUIPMENT';
+      const isEquipment =
+        item.itemCategory === 'CHARACTER_EQUIPMENT' ||
+        item.itemCategory === 'PET_EQUIPMENT' ||
+        item.itemCategory === 'FISHING_ROD';
       itemMetaMap.set(item.id, {
         id: item.id,
         code: item.code,

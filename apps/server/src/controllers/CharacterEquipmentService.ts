@@ -275,9 +275,12 @@ export class CharacterEquipmentService {
       const it = itemId > 0 ? itemsById.get(itemId) : null;
 
       if (it) {
-        const bonuses = (it.combatStatBonusesJson && typeof it.combatStatBonusesJson === 'object'
-          ? (it.combatStatBonusesJson as Record<string, number>)
-          : {}) as Record<string, number>;
+        const isFishingRod = it.itemCategory === 'FISHING_ROD' || it.equipmentSlotCode === 'FISHING_ROD';
+        const bonuses = isFishingRod
+          ? {}
+          : ((it.combatStatBonusesJson && typeof it.combatStatBonusesJson === 'object'
+              ? (it.combatStatBonusesJson as Record<string, number>)
+              : {}) as Record<string, number>);
 
         for (const [stat, val] of Object.entries(bonuses)) {
           const numVal = Number(val) || 0;
@@ -408,7 +411,7 @@ export class CharacterEquipmentService {
     });
     if (!item) throw new Error(`Item #${itemTemplateId} não encontrado no catálogo.`);
 
-    if (item.itemCategory !== 'CHARACTER_EQUIPMENT') {
+    if (item.itemCategory !== 'CHARACTER_EQUIPMENT' && item.itemCategory !== 'FISHING_ROD') {
       throw new Error(`O item "${item.code}" não é um equipamento de personagem equipável.`);
     }
 

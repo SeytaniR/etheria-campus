@@ -1,0 +1,246 @@
+/**
+ * @file apps/server/public/play/css/play_fishing.css
+ * @description Estilos fluidos e responsivos do Sistema de Pesca (Mobile Vertical, Mobile Horizontal e Desktop).
+ */
+
+/* Botão Contextual de Pescar (Próximo à Água) */
+.hud-fishing-action-btn {
+  position: fixed;
+  right: 20px;
+  bottom: 128px;
+  z-index: 32;
+  display: none;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  border-radius: 999px;
+  border: 2px solid #22d3ee;
+  background: linear-gradient(135deg, rgba(8, 51, 68, 0.94), rgba(15, 23, 42, 0.96));
+  color: #ecfeff;
+  font-weight: 800;
+  font-size: clamp(0.78rem, 1.8vw, 0.92rem);
+  cursor: pointer;
+  box-shadow: 0 6px 20px rgba(6, 182, 212, 0.45);
+  pointer-events: auto;
+  animation: fishingBtnPulse 2s ease-in-out infinite;
+}
+
+.hud-fishing-action-btn:active {
+  transform: scale(0.95);
+}
+
+.fishing-btn-icon {
+  font-size: 1.15em;
+  display: inline-block;
+  transform-origin: bottom center;
+  animation: fishingRodRock 1.6s ease-in-out infinite;
+}
+
+/* Painel Flutuante de Pesca Ativa (AFK) */
+.hud-fishing-status-bar {
+  position: fixed;
+  left: 50%;
+  bottom: 96px;
+  transform: translateX(-50%);
+  z-index: 34;
+  display: none;
+  flex-direction: column;
+  gap: 6px;
+  width: min(92vw, 380px);
+  padding: 9px 12px;
+  border-radius: 14px;
+  border: 1.5px solid #22d3ee;
+  background: rgba(8, 19, 38, 0.94);
+  color: #f8fafc;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.78);
+  pointer-events: auto;
+  box-sizing: border-box;
+}
+
+.fishing-status-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  font-size: clamp(0.72rem, 1.8vw, 0.82rem);
+}
+
+.fishing-progress-track {
+  width: 100%;
+  height: 8px;
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.95);
+  border: 1px solid #164e63;
+  overflow: hidden;
+}
+
+.fishing-progress-fill {
+  height: 100%;
+  width: 0%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #06b6d4, #38bdf8, #fde047);
+  transition: width 0.12s linear;
+}
+
+.fishing-status-bottom {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  font-size: clamp(0.68rem, 1.6vw, 0.78rem);
+  color: #cbd5e1;
+}
+
+.fishing-stop-btn {
+  padding: 5px 11px;
+  border-radius: 999px;
+  border: 1.5px solid #f43f5e;
+  background: rgba(225, 29, 72, 0.28);
+  color: #fecdd3;
+  font-weight: 800;
+  font-size: clamp(0.68rem, 1.6vw, 0.76rem);
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.fishing-stop-btn:hover {
+  background: rgba(225, 29, 72, 0.45);
+}
+
+/* Modal de Preparação de Pesca & Fila de Iscas */
+#fishingSetupModal {
+  position: fixed;
+  inset: 0;
+  z-index: 950;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  background: rgba(2, 6, 23, 0.76);
+  padding: 10px;
+  box-sizing: border-box;
+}
+
+.fishing-setup-dialog {
+  width: min(95vw, 520px);
+  max-height: 88dvh;
+  background: #0b1326;
+  border: 2px solid #06b6d4;
+  border-radius: 16px;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  color: #f8fafc;
+  box-shadow: 0 18px 46px rgba(0, 0, 0, 0.88);
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+.fishing-rod-summary-card {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(8, 51, 68, 0.42);
+  border: 1px solid #0e7490;
+  border-radius: 10px;
+  padding: 9px 11px;
+}
+
+.fishing-bait-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  overflow-y: auto;
+  max-height: 40dvh;
+  padding-right: 2px;
+  -webkit-overflow-scrolling: touch;
+}
+
+.fishing-bait-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  background: rgba(15, 23, 42, 0.88);
+  border: 1px solid #334155;
+  border-radius: 9px;
+  padding: 7px 9px;
+}
+
+.fishing-bait-row.is-enabled {
+  border-color: #14b8a6;
+}
+
+.fishing-bait-controls {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.fishing-order-btn {
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  border: 1px solid #475569;
+  background: #1e293b;
+  color: #f8fafc;
+  font-size: 0.72rem;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.fishing-order-btn:disabled {
+  opacity: 0.32;
+  cursor: not-allowed;
+}
+
+.fishing-start-btn {
+  width: 100%;
+  padding: 11px 14px;
+  border-radius: 10px;
+  border: 1.5px solid #22d3ee;
+  background: linear-gradient(135deg, #0891b2, #0284c7);
+  color: #fff;
+  font-weight: 800;
+  font-size: 0.92rem;
+  cursor: pointer;
+}
+
+@media (max-height: 460px) and (orientation: landscape) {
+  .fishing-setup-dialog {
+    max-height: 94dvh;
+    padding: 10px 12px;
+    gap: 7px;
+  }
+  .fishing-bait-list {
+    max-height: 34dvh;
+  }
+  .hud-fishing-status-bar {
+    bottom: 72px;
+    width: min(72vw, 350px);
+    padding: 6px 10px;
+  }
+}
+
+@media (max-width: 768px) and (orientation: portrait) {
+  .hud-fishing-action-btn {
+    right: 14px;
+    bottom: 170px;
+    padding: 9px 14px;
+  }
+  .hud-fishing-status-bar {
+    bottom: 102px;
+    width: min(92vw, 330px);
+  }
+}
+
+@keyframes fishingBtnPulse {
+  0%, 100% { box-shadow: 0 4px 16px rgba(6, 182, 212, 0.4); }
+  50% { box-shadow: 0 6px 24px rgba(34, 211, 238, 0.75); }
+}
+
+@keyframes fishingRodRock {
+  0%, 100% { transform: rotate(-10deg); }
+  50% { transform: rotate(12deg); }
+}

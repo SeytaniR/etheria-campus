@@ -15,8 +15,9 @@ class AdminCanvasEditor {
       OVERLAP: { prop: 'overlapPolygons', idxProp: 'activeOverlapPolyIndex', prefix: 'ovl', label: 'Sobreposição', fillRgb: '56, 189, 248', strokeHex: '#38bdf8' },
       BUILDING: { prop: 'buildingPolygons', idxProp: 'activeBuildingPolyIndex', prefix: 'bld', label: 'Construção', fillRgb: '245, 158, 11', strokeHex: '#f59e0b' },
       PLANTATION: { prop: 'plantationPolygons', idxProp: 'activePlantationPolyIndex', prefix: 'plt', label: 'Plantação', fillRgb: '34, 197, 94', strokeHex: '#22c55e' },
+      FISHING: { prop: 'fishingPolygons', idxProp: 'activeFishingPolyIndex', prefix: 'fsh', label: 'Pesca', fillRgb: '6, 182, 212', strokeHex: '#06b6d4' },
     };
-    const POLY_TYPES = ['COLLISION', 'OVERLAP', 'BUILDING', 'PLANTATION'];
+    const POLY_TYPES = ['COLLISION', 'OVERLAP', 'BUILDING', 'PLANTATION', 'FISHING'];
 
     window.onMcreworkSpriteLoaded = () => {
       const editorScreen = document.getElementById('visualMapEditorScreen');
@@ -145,12 +146,14 @@ class AdminCanvasEditor {
         overlapPolygons: this.overlapPolygons,
         buildingPolygons: this.buildingPolygons,
         plantationPolygons: this.plantationPolygons,
+        fishingPolygons: this.fishingPolygons,
         portals: this.portals,
         npcs: this.npcs,
         activeCollisionPolyIndex: this.activeCollisionPolyIndex,
         activeOverlapPolyIndex: this.activeOverlapPolyIndex,
         activeBuildingPolyIndex: this.activeBuildingPolyIndex,
         activePlantationPolyIndex: this.activePlantationPolyIndex,
+        activeFishingPolyIndex: this.activeFishingPolyIndex,
       });
     };
 
@@ -177,12 +180,14 @@ class AdminCanvasEditor {
       this.overlapPolygons = parsed.overlapPolygons || [];
       this.buildingPolygons = parsed.buildingPolygons || [];
       this.plantationPolygons = parsed.plantationPolygons || [];
+      this.fishingPolygons = parsed.fishingPolygons || [];
       this.portals = parsed.portals || [];
       this.npcs = parsed.npcs || [];
       this.activeCollisionPolyIndex = parsed.activeCollisionPolyIndex ?? this.collisionPolygons.length - 1;
       this.activeOverlapPolyIndex = parsed.activeOverlapPolyIndex ?? this.overlapPolygons.length - 1;
       this.activeBuildingPolyIndex = parsed.activeBuildingPolyIndex ?? this.buildingPolygons.length - 1;
       this.activePlantationPolyIndex = parsed.activePlantationPolyIndex ?? this.plantationPolygons.length - 1;
+      this.activeFishingPolyIndex = parsed.activeFishingPolyIndex ?? this.fishingPolygons.length - 1;
 
       this.renderLayerLists();
       this.drawCanvas();
@@ -259,6 +264,7 @@ class AdminCanvasEditor {
         OVERLAP: 'toolOverlap',
         BUILDING: 'toolBuilding',
         PLANTATION: 'toolPlantation',
+        FISHING: 'toolFishing',
         PORTAL: 'toolPortal',
         NPC: 'toolNpc',
         EDIT: 'toolEdit',

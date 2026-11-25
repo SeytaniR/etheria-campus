@@ -39,6 +39,7 @@ class EtheriaAdminStudio {
     this.overlapPolygons = [];
     this.buildingPolygons = [];
     this.plantationPolygons = [];
+    this.fishingPolygons = [];
     this.portals = [];
     this.npcs = [];
 
@@ -47,6 +48,7 @@ class EtheriaAdminStudio {
     this.activeOverlapPolyIndex = -1;
     this.activeBuildingPolyIndex = -1;
     this.activePlantationPolyIndex = -1;
+    this.activeFishingPolyIndex = -1;
     this.editableLayerType = 'ALL';
 
     // Histórico completo de ações (Undo / Redo de criações e de arrastes de vértices)
@@ -87,6 +89,7 @@ class EtheriaAdminStudio {
     if (window.AdminTeleportNpcsTab) window.AdminTeleportNpcsTab.attach(this);
     if (window.AdminUiLayoutsTab) window.AdminUiLayoutsTab.attach(this);
     if (window.AdminEquipmentsTab) window.AdminEquipmentsTab.attach(this);
+    if (window.AdminFishingRodsTab) window.AdminFishingRodsTab.attach(this);
     if (window.AdminEquipmentSetsTab) window.AdminEquipmentSetsTab.attach(this);
     if (window.AdminItemsTab) window.AdminItemsTab.attach(this);
     if (window.AdminShopsTab) window.AdminShopsTab.attach(this);
@@ -155,6 +158,7 @@ class EtheriaAdminStudio {
     if (typeof this.loadQuestTemplates === 'function') await this.loadQuestTemplates();
     if (typeof this.loadUiLayoutTemplates === 'function') await this.loadUiLayoutTemplates();
     if (typeof this.loadEquipmentTemplates === 'function') await this.loadEquipmentTemplates();
+    if (typeof this.loadFishingRods === 'function') await this.loadFishingRods();
     if (typeof this.loadEquipmentSlots === 'function') await this.loadEquipmentSlots();
     if (typeof this.loadItemTemplates === 'function') await this.loadItemTemplates();
     if (typeof this.loadShops === 'function') await this.loadShops();
@@ -338,6 +342,7 @@ class EtheriaAdminStudio {
         const ovlCount = Array.isArray(m.overlapMeshJson) ? m.overlapMeshJson.length : 0;
         const bldCount = Array.isArray(m.buildingMeshJson) ? m.buildingMeshJson.length : 0;
         const pltCount = Array.isArray(m.plantationMeshJson) ? m.plantationMeshJson.length : 0;
+        const fshCount = Array.isArray(m.fishingMeshJson) ? m.fishingMeshJson.length : 0;
         const prtCount = Array.isArray(m.outgoingPortals) ? m.outgoingPortals.length : 0;
         const npcCount = Array.isArray(m.npcs) ? m.npcs.length : 0;
         const statusBadge = m.isActive
@@ -351,7 +356,7 @@ class EtheriaAdminStudio {
           ${statusBadge}
         </div>
         <div style="font-size:0.7rem; color:var(--text-muted);">
-          ${m.code} &bull; 🛑${colCount} &bull; 🟦${ovlCount} &bull; 🏗️${bldCount} &bull; 🌾${pltCount} &bull; 🌀${prtCount} &bull; 🧙${npcCount}
+          ${m.code} &bull; 🛑${colCount} &bull; 🟦${ovlCount} &bull; 🏗️${bldCount} &bull; 🌾${pltCount} &bull; 🎣${fshCount} &bull; 🌀${prtCount} &bull; 🧙${npcCount}
         </div>
       </div>`;
       })
@@ -386,12 +391,14 @@ class EtheriaAdminStudio {
     this.overlapPolygons = [];
     this.buildingPolygons = [];
     this.plantationPolygons = [];
+    this.fishingPolygons = [];
     this.portals = [];
     this.npcs = [];
     this.activeCollisionPolyIndex = -1;
     this.activeOverlapPolyIndex = -1;
     this.activeBuildingPolyIndex = -1;
     this.activePlantationPolyIndex = -1;
+    this.activeFishingPolyIndex = -1;
     this.cameraInitializedForUrl = '';
     if (typeof this.clearHistory === 'function') this.clearHistory();
 
@@ -463,6 +470,7 @@ class EtheriaAdminStudio {
     this.overlapPolygons = Array.isArray(m.overlapMeshJson) ? JSON.parse(JSON.stringify(m.overlapMeshJson)) : [];
     this.buildingPolygons = Array.isArray(m.buildingMeshJson) ? JSON.parse(JSON.stringify(m.buildingMeshJson)) : [];
     this.plantationPolygons = Array.isArray(m.plantationMeshJson) ? JSON.parse(JSON.stringify(m.plantationMeshJson)) : [];
+    this.fishingPolygons = Array.isArray(m.fishingMeshJson) ? JSON.parse(JSON.stringify(m.fishingMeshJson)) : [];
     this.portals = Array.isArray(m.outgoingPortals) ? JSON.parse(JSON.stringify(m.outgoingPortals)) : [];
     this.npcs = Array.isArray(m.npcs) ? JSON.parse(JSON.stringify(m.npcs)) : [];
 
@@ -470,6 +478,7 @@ class EtheriaAdminStudio {
     this.activeOverlapPolyIndex = this.overlapPolygons.length - 1;
     this.activeBuildingPolyIndex = this.buildingPolygons.length - 1;
     this.activePlantationPolyIndex = this.plantationPolygons.length - 1;
+    this.activeFishingPolyIndex = this.fishingPolygons.length - 1;
 
     if (prevMapId !== m.id) {
       this.cameraInitializedForUrl = '';
@@ -543,6 +552,7 @@ class EtheriaAdminStudio {
         overlapMeshJson: this.overlapPolygons,
         buildingMeshJson: this.buildingPolygons,
         plantationMeshJson: this.plantationPolygons,
+        fishingMeshJson: this.fishingPolygons,
         portals: this.portals,
         npcs: this.npcs,
       };

@@ -23,6 +23,7 @@ class PlayStatsModalController {
       { code: 'ORNAMENT_2', label: 'Talismã', icon: '🧿', col: 'right' },
       { code: 'WINGS', label: 'Asas', icon: '🪽', col: 'center' },
       { code: 'FLYING_MOUNT', label: 'Montaria', icon: '🦅', col: 'center' },
+      { code: 'FISHING_ROD', label: 'Vara de Pesca', icon: '🎣', col: 'center' },
     ];
 
     client.openStatsModal = async function (initialTab) {
@@ -153,7 +154,7 @@ class PlayStatsModalController {
           const isSelected = this._selectedEquipSlot === s.code;
           const rar = it ? (rarityMap[String(it.rarityTier || '').toUpperCase()] || rarityMap.F || {}) : null;
           const borderStyle = rar ? (rar.isCosmic ? 'border:1.5px solid #000; box-shadow:0 0 8px #000;' : `border:1.5px solid ${rar.border}; box-shadow:0 0 6px ${rar.glow};`) : 'border:1px dashed #334155;';
-          const badgeTxt = s.code === 'FLYING_MOUNT' ? 'VOO' : (s.code === 'WINGS' ? 'ASA' : s.code.slice(0, 3));
+          const badgeTxt = s.code === 'FLYING_MOUNT' ? 'VOO' : (s.code === 'WINGS' ? 'ASA' : (s.code === 'FISHING_ROD' ? 'VARA' : s.code.slice(0, 3)));
 
           return `
             <div class="stats-slot-box ${isSelected ? 'selected' : ''}" onclick="PlayApp.selectEquipSlot('${s.code}')" style="${borderStyle}" title="${s.label} (${s.code}): ${hasItem ? it.namePtBr : 'Vazio'}">

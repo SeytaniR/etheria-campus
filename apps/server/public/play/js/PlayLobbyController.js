@@ -398,6 +398,7 @@ class PlayLobbyController {
     };
 
     client.backToLobby = function () {
+      window.PlayFishingController?.forceStopLocal?.(true);
       this.activeChar = null;
       const worldScreen = document.getElementById('worldScreen');
       if (worldScreen) worldScreen.style.display = 'none';

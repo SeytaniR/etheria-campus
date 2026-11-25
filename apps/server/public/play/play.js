@@ -83,6 +83,7 @@ class EtheriaPlayClient {
     if (window.PlayHudController) window.PlayHudController.init(this);
     if (window.PlayPetsController) window.PlayPetsController.init(this);
     if (window.PlayHunterController) window.PlayHunterController.attach(this);
+    if (window.PlayFishingController) window.PlayFishingController.init(this);
     if (window.ActionCombatArena) {
       this.actionCombatArena = new ActionCombatArena(this);
       this.actionArena = this.actionCombatArena;
@@ -148,6 +149,7 @@ class EtheriaPlayClient {
     }
   }
   logout() {
+    window.PlayFishingController?.forceStopLocal(true);
     this.token = '';
     localStorage.removeItem('etheria_play_token');
     this.activeChar = null;
@@ -216,11 +218,12 @@ class EtheriaPlayClient {
     return { width: Math.max(200, Number(w)), height: Math.max(200, Number(h)) };
   }
   async loadMapIntoWorld(mapId, startX, startY, arrivedAtPortalId = null, opts = {}) {
+    window.PlayFishingController?.forceStopLocal(true);
     try {
       const mapData = await this.api(`/api/play/map/${mapId}`);
       this.currentMap = mapData;
       this.mesh = new ClientPolygonMesh(
-        mapData.collisionMeshJson, mapData.overlapMeshJson, mapData.overlapOpacity, mapData.buildingMeshJson, mapData.plantationMeshJson
+        mapData.collisionMeshJson, mapData.overlapMeshJson, mapData.overlapOpacity, mapData.buildingMeshJson, mapData.plantationMeshJson, mapData.fishingMeshJson
       );
       this.playerX = startX !== undefined ? Number(startX) : Number(mapData.spawnX);
       this.playerY = startY !== undefined ? Number(startY) : Number(mapData.spawnY);
@@ -367,6 +370,12 @@ class EtheriaPlayClient {
   }
   setDpad(dx, dy) {
     if (window.PlayPartyController?.isFollower()) return;
+    if (window.PlayFishingController?.isFishing) {
+      if (dx !== 0 || dy !== 0) window.PlayFishingController.notifyMoveBlocked();
+      this.dpadDx = 0;
+      this.dpadDy = 0;
+      return;
+    }
     this.dpadDx = dx;
     this.dpadDy = dy;
     if (dx !== 0 || dy !== 0) {
@@ -428,7 +437,7 @@ class EtheriaPlayClient {
       if (window.PlayPetsController) window.PlayPetsController.updateFollowerPhysics(this, dt);
       return;
     }
-    const lockManualMove = Boolean(this.isLandingFlight && this.flightLandingTarget);
+    const lockManualMove = Boolean(this.isLandingFlight && this.flightLandingTarget) || Boolean(window.PlayFishingController?.isFishing);
     let vx = lockManualMove ? 0 : this.dpadDx;
     let vy = lockManualMove ? 0 : this.dpadDy;
     if (!lockManualMove) {
@@ -546,6 +555,7 @@ class EtheriaPlayClient {
       this.isMoving = false;
     }
     this.checkPortalsAndNpcs(now);
+    window.PlayFishingController?.update(this, now);
     window.PlayFlightAndWingsController?.updateFlightPhysics(this, dt, now);
     if (window.PlayPetsController) window.PlayPetsController.updateFollowerPhysics(this, dt);
     if (window.PlayMapPresenceController) window.PlayMapPresenceController.syncHeartbeat(now);
@@ -584,6 +594,7 @@ class EtheriaPlayClient {
     }
   }
   async triggerMapEncounter() {
+    window.PlayFishingController?.forceStopLocal(true);
     if (this.isFlying || (this.flightAltitudeCurrent || 0) > 0.5 || this.isEncounterLoading || !this.activeChar || !this.currentMap || this.currentMap.mapType?.code === 'DUNGEON' || !this.currentMap.mapType?.allowMonsterSpawn || this.currentMap.canSpawnMonsters === false) return;
     this.isEncounterLoading = true;
     this.moveTargetX = null;
