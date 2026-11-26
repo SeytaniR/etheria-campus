@@ -536,6 +536,7 @@ model ItemTemplate {
   equipmentSlot         EquipmentSlot?           @relation(fields: [equipmentSlotCode], references: [code])
   equipmentSet          EquipmentSet?            @relation(fields: [equipmentSetId], references: [id], onDelete: SetNull)
   inventoryStacks       CharacterInventoryItem[]
+  crystalShopOffers     CrystalShopOffer[]
 
   @@index([itemCategory])
   @@index([equipmentSlotCode])
@@ -553,10 +554,12 @@ model UserAccount {
   email                String            @unique
   passwordHash         String            @map("password_hash")
   role                 String            @default("PLAYER") /// PLAYER, GM, ADMIN, DEV
-  tablePermissionsJson Json?             @map("table_permissions_json") /// Permissões por tabela para ADMIN: { [tableCode]: "NONE" | "READ" | "READ_WRITE" }
-  locale               String            @default("pt-BR")
-  createdAt            DateTime          @default(now()) @map("created_at")
+  tablePermissionsJson Json?                @map("table_permissions_json") /// Permissões por tabela para ADMIN: { [tableCode]: "NONE" | "READ" | "READ_WRITE" }
+  locale               String               @default("pt-BR")
+  crystals             BigInt               @default(0) @map("crystals") /// Moeda Premium (Cristais) vinculada à Conta
+  createdAt            DateTime             @default(now()) @map("created_at")
   characters           PlayerCharacter[]
+  crystalTransactions  CrystalTransaction[]
 
   @@map("user_accounts")
 }
@@ -868,4 +871,52 @@ model CharacterEventProgress {
   @@unique([characterId, eventTemplateId])
   @@index([characterId])
   @@map("character_event_progress")
+}
+
+// ----------------------------------------------------------------------------
+// 11. MOEDA PREMIUM (CRISTAIS POR CONTA) & LOJA CRISTAL MODULAR
+// ----------------------------------------------------------------------------
+
+/// Histórico auditável de movimentações da moeda Cristal vinculada à Conta.
+model CrystalTransaction {
+  id            Int         @id @default(autoincrement())
+  userAccountId Int         @map("user_account_id")
+  characterId   Int?        @map("character_id")
+  deltaCrystals BigInt      @map("delta_crystals")
+  balanceAfter  BigInt      @map("balance_after")
+  reason        String
+  referenceCode String?     @map("reference_code")
+  metadataJson  Json        @default("{}") @map("metadata_json")
+  createdAt     DateTime    @default(now()) @map("created_at")
+
+  userAccount   UserAccount @relation(fields: [userAccountId], references: [id], onDelete: Cascade)
+
+  @@index([userAccountId, createdAt])
+  @@map("crystal_transactions")
+}
+
+/// Ofertas da Loja Cristal (/play -> Loja) configuradas pelo Admin em Carrossel ou Grid.
+model CrystalShopOffer {
+  id              Int          @id @default(autoincrement())
+  code            String       @unique
+  itemTemplateId  Int          @map("item_template_id")
+  quantity        Int          @default(1)
+  priceCrystals   Int          @map("price_crystals")
+  titlePtBr       String?      @map("title_pt_br")
+  descriptionPtBr String?      @map("description_pt_br")
+  bannerImageUrl  String       @default("") @map("banner_image_url")
+  iconImageUrl    String       @default("") @map("icon_image_url")
+  isFeatured      Boolean      @default(false) @map("is_featured")
+  sortOrder       Int          @default(0) @map("sort_order")
+  isActive        Boolean      @default(true) @map("is_active")
+  startsAt        DateTime?    @map("starts_at")
+  endsAt          DateTime?    @map("ends_at")
+  createdAt       DateTime     @default(now()) @map("created_at")
+  updatedAt       DateTime     @updatedAt @map("updated_at")
+
+  itemTemplate    ItemTemplate @relation(fields: [itemTemplateId], references: [id], onDelete: Cascade)
+
+  @@index([isActive, isFeatured, sortOrder])
+  @@index([itemTemplateId])
+  @@map("crystal_shop_offers")
 }

@@ -46,7 +46,7 @@ class PlayHudController {
       playerDir: 0,
       equippedPets: [],
       gold: 0,
-      diamonds: 1500,
+      diamonds: 0,
       shortcuts: [
         { id: 1, slotNum: 1, item: null, name: 'Slot #1 (Vazio)' },
         { id: 2, slotNum: 2, item: null, name: 'Slot #2 (Vazio)' },
@@ -142,7 +142,7 @@ class PlayHudController {
               </div>
               <div class="hud-currency-badge hud-crystal-badge" title="Cristais">
                 <img src="/play/assets/hud/crystal_gem_icon.png" alt="Cristal" />
-                <span id="hudCrystalAmount">1,500</span>
+                <span id="hudCrystalAmount">0</span>
               </div>
             </div>
           </div>
@@ -488,7 +488,7 @@ class PlayHudController {
 
     switch (action) {
       case 'shop':
-        this.playApp.showToast ? this.playApp.showToast('🏪 Loja em breve!') : alert('🏪 Loja em breve!');
+        window.PlayCrystalShopController?.openModal?.(this.playApp);
         break;
       case 'pets':
         this.openPetsWindow();
@@ -523,6 +523,7 @@ class PlayHudController {
       document.body.classList.remove('is-fishing');
       window.PlayFishingController?.onEnterCombat?.();
       window.PlayEventsController?.closeModal?.();
+      window.PlayCrystalShopController?.closeModal?.();
     } else {
       document.body.classList.remove('is-in-combat');
       window.PlayFishingController?.onExitCombat?.();
@@ -681,10 +682,15 @@ class PlayHudController {
       fillXp.style.width = `${pct}%`;
     }
 
-    // 4. Moedas (Ouro e Cristais)
+    // 4. Moedas (Ouro do Personagem e Cristais da Conta)
     const gold = charData.gold !== undefined ? charData.gold : this.state.gold;
-    const diamonds = charData.diamonds !== undefined ? charData.diamonds : this.state.diamonds;
-    this.updateCurrencies(gold, diamonds);
+    const crystals =
+      charData.crystals !== undefined
+        ? charData.crystals
+        : charData.diamonds !== undefined
+        ? charData.diamonds
+        : this.state.diamonds;
+    this.updateCurrencies(gold, crystals);
 
     // 5. Pets equipados vinculados ao personagem
     const pets = charData.equippedPets || charData.pets;
@@ -696,7 +702,7 @@ class PlayHudController {
   /**
    * Atualiza as moedas do jogador.
    */
-  updateCurrencies(gold, diamonds = 1500) {
+  updateCurrencies(gold, diamonds = 0) {
     this.state.gold = Number(gold) || 0;
     this.state.diamonds = Number(diamonds) || 0;
 

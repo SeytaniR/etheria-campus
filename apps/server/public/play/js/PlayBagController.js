@@ -138,6 +138,9 @@ const PlayBagController = {
       const res = await this.client.api(`/api/play/characters/${this.client.activeChar.id}/inventory`);
       this.currentBag = res;
       this.client.activeChar.gold = Number(res?.gold ?? this.client.activeChar.gold ?? 0);
+      const realCrystals = Math.max(0, Number(res?.crystals ?? res?.diamonds ?? this.client.activeChar.crystals ?? 0));
+      this.client.activeChar.crystals = realCrystals;
+      this.client.activeChar.diamonds = realCrystals;
       this.client.updateHudInfo?.();
       this.renderBagGrid();
     } catch (err) {
@@ -158,11 +161,12 @@ const PlayBagController = {
     const filterRarity = this.activeRarity;
     const query = this.searchQuery.trim().toLowerCase();
 
-    // Toolbar superior com Ouro, Capacidade e Botão Organizar
+    // Toolbar superior com Ouro, Cristais, Capacidade e Botão Organizar
     let html = `
       <div style="display:flex; justify-content:space-between; align-items:center; background:#020617; border:1px solid #334155; border-radius:8px; padding:7px 10px; gap:8px;">
-        <div style="display:flex; align-items:center; gap:10px;">
+        <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
           <span style="color:#fde047; font-size:0.86rem; font-weight:800; font-family:monospace;">🪙 ${Number(bag.gold || 0).toLocaleString('pt-BR')}</span>
+          <span style="color:#7dd3fc; font-size:0.86rem; font-weight:800; font-family:monospace; display:inline-flex; align-items:center; gap:3px;"><img src="/play/assets/hud/crystal_gem_icon.png" alt="Cristal" style="width:14px; height:14px; object-fit:contain;" /> ${Number(bag.crystals ?? bag.diamonds ?? 0).toLocaleString('pt-BR')}</span>
           <span style="color:#94a3b8; font-size:0.75rem; font-weight:700;">🎒 ${occupied} / ${unlocked} Slots</span>
         </div>
         <button type="button" class="btn-primary" style="padding:3px 9px; font-size:0.73rem; font-weight:700; border-radius:6px; background:#1e293b; border:1px solid #475569;" onclick="window.PlayBagController.triggerAutoSort()">

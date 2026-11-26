@@ -139,6 +139,7 @@ class AdminAuth {
         'equipment-sets': 'MONSTERS',
         items: 'MONSTERS',
         shops: 'SHOPS',
+        'crystal-shop': 'SHOPS',
         experience: 'ATTRIBUTES',
         attributes: 'ATTRIBUTES',
         skills: 'SKILLS',
@@ -163,6 +164,7 @@ class AdminAuth {
         'equipment-sets': document.getElementById('tabBtnEquipmentSets'),
         items: document.getElementById('tabBtnItems'),
         shops: document.getElementById('tabBtnShops'),
+        'crystal-shop': document.getElementById('tabBtnCrystalShop'),
         experience: document.getElementById('tabBtnExperience'),
         attributes: document.getElementById('tabBtnAttributes'),
         skills: document.getElementById('tabBtnSkills'),
@@ -226,6 +228,7 @@ class AdminAuth {
         { id: 'tabEquipmentSets', btn: 'tabBtnEquipmentSets', key: 'equipment-sets', code: 'MONSTERS' },
         { id: 'tabItems', btn: 'tabBtnItems', key: 'items', code: 'MONSTERS' },
         { id: 'tabShops', btn: 'tabBtnShops', key: 'shops', code: 'SHOPS' },
+        { id: 'tabCrystalShop', btn: 'tabBtnCrystalShop', key: 'crystal-shop', code: 'SHOPS' },
         { id: 'tabExperience', btn: 'tabBtnExperience', key: 'experience', code: 'ATTRIBUTES' },
         { id: 'tabSkills', btn: 'tabBtnSkills', key: 'skills', code: 'SKILLS' },
         { id: 'tabStatusEffects', btn: 'tabBtnStatusEffects', key: 'status-effects', code: 'STATUS_EFFECTS' },
@@ -287,6 +290,9 @@ class AdminAuth {
       if (tab === 'shops' && typeof this.loadShops === 'function') {
         this.loadShops();
       }
+      if (tab === 'crystal-shop' && typeof this.loadCrystalShopTab === 'function') {
+        this.loadCrystalShopTab();
+      }
       if (tab === 'experience' && typeof this.renderExperienceCrudTable === 'function') {
         this.renderExperienceCrudTable();
         if (typeof this.renderXpCurveCanvas === 'function') this.renderXpCurveCanvas();
@@ -335,6 +341,7 @@ class AdminAuth {
         'equipment-sets': 'MONSTERS',
         items: 'MONSTERS',
         shops: 'SHOPS',
+        'crystal-shop': 'SHOPS',
         experience: 'ATTRIBUTES',
         attributes: 'ATTRIBUTES',
         skills: 'SKILLS',
@@ -361,6 +368,7 @@ class AdminAuth {
           'equipment-sets': document.getElementById('tabEquipmentSets'),
           items: document.getElementById('tabItems'),
           shops: document.getElementById('tabShops'),
+          'crystal-shop': document.getElementById('tabCrystalShop'),
           experience: document.getElementById('tabExperience'),
           attributes: document.getElementById('tabAttributes'),
           skills: document.getElementById('tabSkills'),

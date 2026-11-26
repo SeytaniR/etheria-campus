@@ -8,9 +8,9 @@
 ---
 
 ## 📌 Status Atual do Projeto
-* **Versão Atual:** `v0.69.0`
+* **Versão Atual:** `v0.70.0`
 * **Última Atualização:** `2026-11-26`
-* **Fase Atual:** **Sistema Modular de Eventos (`v0.69.0` — Hub Responsivo + Carrossel + Grid de Ícones + Login Diário 7d/30d + Admin CRUD)** — Criadas tabelas `GameEventTemplate` e `CharacterEventProgress`, helpers de virada 00:00 BRT e verificação de mochila cheia (`EventDateAndRewardHelper.ts`), motor e seeds (`GameEventsService.ts`), CRUD/upload admin (`AdminEventsController.ts`, `AdminEventsModalDom.js`, `AdminEventsTab.js`), hub modular `/play` (`PlayEventsController.js`, `PlayEventDailyLoginModule.js`, `play_events.css`), badge `#hudBottomEventsBadge`, 4 PNGs locais em `apps/server/public/play/assets/events/` e permissão RBAC `EVENTS`. `build`, `typecheck` e **9/9 suítes no `npm test`** (`test_events_system.mjs`: **6/6**) aprovados.
+* **Fase Atual:** **Moeda Cristal por Conta & Loja Cristal Modular (`v0.70.0`)** — Implementado saldo real de Cristais em `UserAccount.crystals` (iniciando em `0`, removendo placeholder `1500` na HUD e Mochila) com histórico `CrystalTransaction` e débito CAS (`CrystalCurrencyService.ts`), ofertas `CrystalShopOffer`, compra autoritativa com proteção prévia de mochila cheia (`CrystalShopService.ts`), aba dedicada `💎 Loja Cristal` no `/admin` (`AdminCrystalShopController.ts`, `AdminCrystalShopModalDom.js`, `AdminCrystalShopTab.js`) e Hub responsivo no `/play` (`PlayCrystalShopController.js`, `PlayCrystalShopItemModule.js`, `play_crystal_shop.css`). `typecheck`, builds e **10/10 suítes no `npm test`** (`test_crystal_shop_system.mjs`: **6/6**) aprovados.
 * **Repositório Oficial:** `https://github.com/SeytaniR/etheria-campus`
 * **Fonte Bruta de Assets:** `https://github.com/SeytaniR/mcrework` (`https://seytanir.github.io/mcrework/`)
 

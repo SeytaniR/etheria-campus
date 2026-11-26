@@ -165,6 +165,7 @@ export class GamePlayController {
         where: { userAccountId },
         orderBy: { id: 'asc' },
         include: {
+          userAccount: { select: { crystals: true } },
           classTemplate: true,
           pets: {
             include: {
@@ -337,6 +338,8 @@ export class GamePlayController {
       experience: Number(c.experience ?? 0),
       maxXp: charMaxXp,
       gold: Number(c.gold ?? 0),
+      crystals: Math.max(0, Number(c.userAccount?.crystals ?? 0)),
+      diamonds: Math.max(0, Number(c.userAccount?.crystals ?? 0)),
       unspentStatPoints: c.unspentStatPoints,
       distributedStatsJson: c.distributedStatsJson,
       equippedItemsJson: c.equippedItemsJson || {},
@@ -384,6 +387,7 @@ export class GamePlayController {
     const c = await this.prisma.playerCharacter.findFirst({
       where: isElevated ? { id: characterId } : { id: characterId, userAccountId },
       include: {
+        userAccount: { select: { crystals: true } },
         classTemplate: true,
         pets: {
           include: {
@@ -454,7 +458,10 @@ export class GamePlayController {
         posX: spawnX,
         posY: spawnY,
       },
-      include: { classTemplate: true },
+      include: {
+        userAccount: { select: { crystals: true } },
+        classTemplate: true,
+      },
     });
 
     const i18nMap = await I18nCache.getTranslations(this.prisma);

@@ -5,6 +5,24 @@ Qualquer IA trabalhando neste repositório **DEVE** incrementar a versão e regi
 
 ---
 
+## [v0.70.0] - 2026-11-26
+### Moeda Cristal por Conta (`UserAccount.crystals`) & Loja Cristal Modular (`/play` e `/admin`)
+* **Schema Prisma (`UserAccount.crystals`, `CrystalTransaction`, `CrystalShopOffer`):**
+  * Adicionado saldo real de **Cristais (`crystals BigInt @default(0)`)** por Conta de Usuário, compartilhado entre todos os personagens da conta, com trilha de auditoria imutável (`crystal_transactions`) e catálogo de ofertas `crystal_shop_offers`.
+* **Remoção de Placeholder & Propagação Real (`CrystalCurrencyService.ts`, `CharacterInventoryService.ts`, `GamePlayController.ts`, `PlayHudController.js`, `PlayBagController.js`):**
+  * Removido o valor fictício `1.500` da HUD e do serviço de inventário; todas as novas contas começam com `0` Cristais reais sincronizados na HUD superior e na barra da Mochila.
+  * Implementado débito atômico condicional CAS (`debitCrystalsAtomic`) impedindo saldo negativo e registrando toda operação no ledger.
+* **Loja Cristal Autoritativa (`CrystalShopService.ts`, `AdminCrystalShopController.ts`, `PlayRouter.ts`, `AdminRouter.ts`, `AssetMirrorService.ts`):**
+  * Endpoint `GET /api/play/characters/:charId/crystal-shop` separando Destaques (`isFeatured=true`) e Grid (`isFeatured=false`) com vigência opcional e metadados completos do item.
+  * Endpoint `POST /api/play/characters/:charId/crystal-shop/:offerId/buy` validando espaço livre na mochila **antes** de debitar Cristais e entregando o pacote em transação única.
+  * CRUD completo em `/api/admin/crystal-shop*` (permissão `SHOPS`) incluindo upload local de banner e ícone sob `/play/assets/shop/uploaded/`.
+* **Interfaces `/play` & `/admin` (`PlayCrystalShopController.js`, `PlayCrystalShopItemModule.js`, `play_crystal_shop.css`, `AdminCrystalShopModalDom.js`, `AdminCrystalShopTab.js`):**
+  * Botão `Loja` no menu inferior abre o Hub minimalista e responsivo (Desktop, Mobile Portrait e Landscape): Carrossel horizontal superior (swipe + bolinhas clicáveis) + Grid limpa abaixo (ícone + `xQtd` + preço discreto em Cristais) + Submódulo de ficha completa do item (nome, raridade, nível, slot/conjunto, descrição, bônus de combate, botão `← Voltar` e compra em Cristais).
+  * Nova aba dedicada **`💎 Loja Cristal`** no `/admin`.
+* **Testes (`tests/test_crystal_shop_system.mjs`, `tests/run_all_tests.mjs`):** **6/6** verificações da suíte da Loja Cristal e **10/10 suítes** em `npm test` aprovadas.
+
+---
+
 ## [v0.69.0] - 2026-11-26
 ### Sistema Modular de Eventos (Carrossel de Destaques, Grid de Ícones, Check-in Diário 7d/30d & Admin CRUD)
 * **Schema Prisma (`GameEventTemplate`, `CharacterEventProgress`):**

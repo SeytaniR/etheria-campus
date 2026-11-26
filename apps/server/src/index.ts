@@ -36,6 +36,7 @@ import { AdminExperienceController } from './controllers/AdminExperienceControll
 import { AdminWorldMapsController } from './controllers/AdminWorldMapsController.js';
 import { AdminMapUploadController } from './controllers/AdminMapUploadController.js';
 import { AdminEventsController } from './controllers/AdminEventsController.js';
+import { AdminCrystalShopController } from './controllers/AdminCrystalShopController.js';
 import { TemporaryCombatController } from './controllers/TemporaryCombatController.js';
 import { DungeonService } from './controllers/DungeonService.js';
 import { MonsterGlobalConfigService } from './controllers/MonsterGlobalConfigService.js';
@@ -93,6 +94,7 @@ export class EtheriaServerApp {
   private readonly worldMapsController: AdminWorldMapsController;
   private readonly mapUploadController: AdminMapUploadController;
   private readonly eventsController: AdminEventsController;
+  private readonly crystalShopController: AdminCrystalShopController;
   private readonly combatController: TemporaryCombatController;
   private readonly assetMirrorService: AssetMirrorService;
   private readonly adminRouter: AdminRouter;
@@ -125,6 +127,7 @@ export class EtheriaServerApp {
     this.publicDir = path.resolve(__dirname, '../public');
     this.mapUploadController = new AdminMapUploadController(this.publicDir);
     this.eventsController = new AdminEventsController(this.prisma, this.publicDir);
+    this.crystalShopController = new AdminCrystalShopController(this.prisma, this.publicDir);
 
     const sendJson = this.sendJson.bind(this);
     const readJsonBody = this.readJsonBody.bind(this);
@@ -148,6 +151,7 @@ export class EtheriaServerApp {
       experienceController: this.experienceController,
       worldMapsController: this.worldMapsController,
       eventsController: this.eventsController,
+      crystalShopController: this.crystalShopController,
       sendJson,
       readJsonBody,
     });

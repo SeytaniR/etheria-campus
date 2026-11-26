@@ -426,6 +426,15 @@ export class AssetMirrorService {
       if (ev.iconImageUrl && ev.iconImageUrl.startsWith('/play/assets/')) urls.add(ev.iconImageUrl);
     }
 
+    const activeCrystalOffers = await prisma.crystalShopOffer.findMany({
+      where: { isActive: true },
+      select: { bannerImageUrl: true, iconImageUrl: true },
+    });
+    for (const offer of activeCrystalOffers) {
+      if (offer.bannerImageUrl && offer.bannerImageUrl.startsWith('/play/assets/')) urls.add(offer.bannerImageUrl);
+      if (offer.iconImageUrl && offer.iconImageUrl.startsWith('/play/assets/')) urls.add(offer.iconImageUrl);
+    }
+
     // Imagens dos mapas gerais e logo já hospedados na VPS
     urls.add('/assets/worldmap/world_map_1_base.png');
     urls.add('/assets/worldmap/world_map_2_base.png');

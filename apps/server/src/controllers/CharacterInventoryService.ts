@@ -107,7 +107,11 @@ export class CharacterInventoryService {
     const [pc, rows, i18nMap] = await Promise.all([
       prisma.playerCharacter.findUnique({
         where: { id: safeCharId },
-        select: { id: true, gold: true },
+        select: {
+          id: true,
+          gold: true,
+          userAccount: { select: { crystals: true } },
+        },
       }),
       prisma.characterInventoryItem.findMany({
         where: { characterId: safeCharId, quantity: { gt: 0 } },
@@ -153,10 +157,12 @@ export class CharacterInventoryService {
       });
     }
 
+    const realCrystals = Math.max(0, Number(pc?.userAccount?.crystals ?? 0));
     return {
       characterId: safeCharId,
       gold: Number(pc?.gold ?? 0),
-      diamonds: 1500,
+      crystals: realCrystals,
+      diamonds: realCrystals,
       bagLevel: 1,
       unlockedSlotsCount: unlockedCount,
       totalSlotsCount: INVENTORY_CONFIG.TOTAL_SLOTS,

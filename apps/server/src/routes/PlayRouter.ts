@@ -31,6 +31,7 @@ import { MapPresenceService } from '../controllers/MapPresenceService.js';
 import { PartyService } from '../controllers/PartyService.js';
 import { FishingService } from '../controllers/FishingService.js';
 import { GameEventsService } from '../controllers/GameEventsService.js';
+import { CrystalShopService } from '../controllers/CrystalShopService.js';
 import { PartyRouter } from './PartyRouter.js';
 import { PlayCombatRouter } from './PlayCombatRouter.js';
 import { RateLimiter } from '../security/RateLimiter.js';
@@ -829,6 +830,38 @@ export class PlayRouter {
         this.deps.sendJson(res, 200, await GameEventsService.claimEventReward(this.deps.prisma, charId, eventId));
       } catch (err: any) {
         this.deps.sendJson(res, 400, { error: err.message || 'Não foi possível resgatar a recompensa do evento.' });
+      }
+      return true;
+    }
+
+    // 💎 Sistema Autoritário da Loja Cristal (Moeda Cristal da Conta)
+    const getCrystalShopMatch = pathname.match(/^\/api\/play\/characters\/(\d+)\/crystal-shop$/);
+    if (getCrystalShopMatch && method === 'GET') {
+      const charId = Number(getCrystalShopMatch[1]);
+      if (!charId || !(await this.verifyCharacterOwnership(userAccountId, session.role, charId))) {
+        this.deps.sendJson(res, 403, { error: 'Acesso negado: este personagem não pertence à sua conta.' });
+        return true;
+      }
+      try {
+        this.deps.sendJson(res, 200, await CrystalShopService.getPlayShopState(this.deps.prisma, charId));
+      } catch (err: any) {
+        this.deps.sendJson(res, 400, { error: err.message || 'Erro ao carregar Loja Cristal.' });
+      }
+      return true;
+    }
+
+    const buyCrystalShopMatch = pathname.match(/^\/api\/play\/characters\/(\d+)\/crystal-shop\/(\d+)\/buy$/);
+    if (buyCrystalShopMatch && method === 'POST') {
+      const charId = Number(buyCrystalShopMatch[1]);
+      const offerId = Number(buyCrystalShopMatch[2]);
+      if (!charId || !offerId || !(await this.verifyCharacterOwnership(userAccountId, session.role, charId))) {
+        this.deps.sendJson(res, 403, { error: 'Acesso negado: este personagem não pertence à sua conta.' });
+        return true;
+      }
+      try {
+        this.deps.sendJson(res, 200, await CrystalShopService.purchaseOffer(this.deps.prisma, charId, offerId));
+      } catch (err: any) {
+        this.deps.sendJson(res, 400, { error: err.message || 'Não foi possível concluir a compra em Cristais.' });
       }
       return true;
     }
