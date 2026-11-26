@@ -18,9 +18,12 @@ import * as vm from 'node:vm';
 import { MapPolygonMesh } from '../packages/shared/dist/index.js';
 import {
   computeEffectiveRankWeights,
+  FishingService,
   pickNextAvailableBait,
   rollFishByRankFirst,
 } from '../apps/server/dist/controllers/FishingService.js';
+import { CharacterActivityStateService } from '../apps/server/dist/controllers/CharacterActivityStateService.js';
+import { I18nCache } from '../packages/database/dist/I18nCache.js';
 import { normalizeFishingRodConfig } from '../apps/server/dist/controllers/AdminFishingRodsController.js';
 import { AdminUiLayoutsController } from '../apps/server/dist/controllers/AdminUiLayoutsController.js';
 
@@ -30,10 +33,10 @@ const repoRoot = path.resolve(__dirname, '..');
 
 let passed = 0;
 let total = 0;
-function test(name, fn) {
+async function test(name, fn) {
   total++;
   try {
-    fn();
+    await fn();
     passed++;
     console.log(`✅ [PASS] ${name}`);
   } catch (err) {
@@ -42,7 +45,7 @@ function test(name, fn) {
   }
 }
 
-test('MapPolygonMesh.findClosestPoint calcula distância 0 dentro e projeta borda próxima dentro do limite', () => {
+await test('MapPolygonMesh.findClosestPoint calcula distância 0 dentro e projeta borda próxima dentro do limite', () => {
   const pond = [
     {
       id: 'fsh_1',
@@ -72,7 +75,7 @@ test('MapPolygonMesh.findClosestPoint calcula distância 0 dentro e projeta bord
   assert.equal(tooFar, null);
 });
 
-test('ClientPolygonMesh.findClosestFishingPoint mantém paridade geométrica exata com o servidor', () => {
+await test('ClientPolygonMesh.findClosestFishingPoint mantém paridade geométrica exata com o servidor', () => {
   const code = fs.readFileSync(
     path.join(repoRoot, 'apps/server/public/play/js/ClientPolygonMesh.js'),
     'utf8'
@@ -101,7 +104,7 @@ test('ClientPolygonMesh.findClosestFishingPoint mantém paridade geométrica exa
   assert.equal(mesh.findClosestFishingPoint(600, 360, 96), null);
 });
 
-test('pickNextAvailableBait respeita estritamente a ordem 1 -> 2 -> 3 e avança quando a isca zera', () => {
+await test('pickNextAvailableBait respeita estritamente a ordem 1 -> 2 -> 3 e avança quando a isca zera', () => {
   const queue = [101, 102, 103];
   const inv = new Map([
     [101, 2],
@@ -118,7 +121,7 @@ test('pickNextAvailableBait respeita estritamente a ordem 1 -> 2 -> 3 e avança 
   assert.equal(pickNextAvailableBait(queue, inv), null);
 });
 
-test('rollFishByRankFirst redistribui pesos entre ranks disponíveis e aplica bônus de isca para raridades altas', () => {
+await test('rollFishByRankFirst redistribui pesos entre ranks disponíveis e aplica bônus de isca para raridades altas', () => {
   const rodWeights = { F: 50, D: 25, C: 15, B: 6, A: 3, S: 1, SS: 0 };
   const baitBonus = { F: 0, D: 0, C: 0, B: 10, A: 15, S: 10, SS: 5 };
   const effective = computeEffectiveRankWeights(rodWeights, baitBonus);
@@ -151,7 +154,7 @@ test('rollFishByRankFirst redistribui pesos entre ranks disponíveis e aplica b�
   assert.equal(rollFishByRankFirst(effective, new Map()), null);
 });
 
-test('normalizeFishingRodConfig aplica limites e defaults seguros', () => {
+await test('normalizeFishingRodConfig aplica limites e defaults seguros', () => {
   const def = normalizeFishingRodConfig({});
   assert.equal(def.castIntervalSec, 10);
   assert.equal(def.catchChancePct, 65);
@@ -162,7 +165,7 @@ test('normalizeFishingRodConfig aplica limites e defaults seguros', () => {
   assert.equal(clamped.rankWeights.SS, 20);
 });
 
-test('AdminUiLayoutsController registra as 3 novas interfaces de pesca para /admin e HUD pessoal', () => {
+await test('AdminUiLayoutsController registra as 3 novas interfaces de pesca para /admin e HUD pessoal', () => {
   const seeds = AdminUiLayoutsController.getDefaultSeeds();
   const codes = new Set(seeds.map((s) => s.code));
   assert.ok(codes.has('HUD_FISHING_ACTION_BTN'));
@@ -173,6 +176,231 @@ test('AdminUiLayoutsController registra as 3 novas interfaces de pesca para /adm
     const entry = seeds.find((s) => s.code === code);
     assert.ok(entry.mobilePortrait && entry.mobileLandscape && entry.desktop);
   }
+});
+
+await test('CharacterActivityStateService e FishingService impõem estado único mutuamente exclusivo (EXPLORING / COMBAT / FISHING)', async () => {
+  CharacterActivityStateService.clearAllForTests();
+  I18nCache.invalidate();
+  const charId = 777;
+  const mockPrisma = {
+    i18nTranslation: { findMany: async () => [] },
+    playerCharacter: {
+      findUnique: async ({ where }) => ({
+        id: where.id,
+        level: 60,
+        currentMapId: 1,
+        posX: 150,
+        posY: 150,
+        isFlying: false,
+        equippedItemsJson: { FISHING_ROD: 901 },
+      }),
+    },
+    itemTemplate: {
+      count: async () => 1,
+      findUnique: async ({ where }) =>
+        where.id === 901
+          ? {
+              id: 901,
+              code: 'rod_1',
+              nameI18nKey: 'item.rod_1',
+              itemCategory: 'FISHING_ROD',
+              equipmentSlotCode: 'FISHING_ROD',
+              isActive: true,
+              requiredLevel: 50,
+              rarityTier: 'F',
+              mcreworkIconKey: 'assets/equipment/icons/equip_normal_600001.png',
+              specialEffectJson: {
+                fishingRodConfig: { castIntervalSec: 10, catchChancePct: 65, rankWeights: { F: 100 } },
+              },
+            }
+          : null,
+    },
+    gameMap: {
+      findUnique: async () => ({
+        id: 1,
+        fishingMeshJson: [
+          {
+            id: 'pond_test',
+            name: 'Lago Teste',
+            points: [
+              { x: 100, y: 100 },
+              { x: 200, y: 100 },
+              { x: 200, y: 200 },
+              { x: 100, y: 200 },
+            ],
+          },
+        ],
+      }),
+    },
+    characterInventoryItem: { findMany: async () => [] },
+  };
+
+  assert.equal(CharacterActivityStateService.getState(charId), 'EXPLORING');
+
+  // EXPLORING -> COMBAT bloqueia pesca
+  assert.deepEqual(CharacterActivityStateService.enterCombat(charId, 'battle_1'), { ok: true });
+  assert.equal(CharacterActivityStateService.getState(charId), 'COMBAT');
+  const blockedFish = CharacterActivityStateService.enterFishing(charId);
+  assert.equal(blockedFish.ok, false);
+  await assert.rejects(
+    FishingService.startFishing(mockPrisma, 'PLAYER', charId, { posX: 150, posY: 150 }),
+    /combate/i
+  );
+
+  // COMBAT -> EXPLORING libera pesca
+  CharacterActivityStateService.exitCombat(charId, 'battle_1');
+  assert.equal(CharacterActivityStateService.getState(charId), 'EXPLORING');
+
+  // EXPLORING -> FISHING bloqueia combate direto até parar
+  const started = await FishingService.startFishing(mockPrisma, 'PLAYER', charId, { posX: 150, posY: 150 });
+  assert.equal(started.active, true);
+  assert.equal(CharacterActivityStateService.getState(charId), 'FISHING');
+  assert.equal(FishingService.hasActiveSession(charId), true);
+  const blockedCombat = CharacterActivityStateService.enterCombat(charId, 'battle_2');
+  assert.equal(blockedCombat.ok, false);
+
+  // tickFishing interrompe imediatamente caso combate seja ativado
+  CharacterActivityStateService.forceEnterCombat(charId, 'battle_force');
+  const tickRes = await FishingService.tickFishing(mockPrisma, charId);
+  assert.equal(tickRes.active, false);
+  assert.equal(tickRes.stoppedReason, 'IN_COMBAT');
+  assert.equal(FishingService.hasActiveSession(charId), false);
+  CharacterActivityStateService.exitCombat(charId, 'battle_force');
+  assert.equal(CharacterActivityStateService.getState(charId), 'EXPLORING');
+
+  // stopSession devolve FISHING -> EXPLORING
+  await FishingService.startFishing(mockPrisma, 'PLAYER', charId, { posX: 150, posY: 150 });
+  assert.equal(CharacterActivityStateService.getState(charId), 'FISHING');
+  FishingService.stopSession(charId);
+  assert.equal(CharacterActivityStateService.getState(charId), 'EXPLORING');
+
+  CharacterActivityStateService.clearAllForTests();
+  I18nCache.invalidate();
+});
+
+await test('Frontend PlayFishingController e CSS ocultam UI de pesca e bloqueiam ações durante combate', async () => {
+  const code = fs.readFileSync(
+    path.join(repoRoot, 'apps/server/public/play/js/PlayFishingController.js'),
+    'utf8'
+  );
+  const chatCss = fs.readFileSync(
+    path.join(repoRoot, 'apps/server/public/play/css/play_chat_and_modals.css'),
+    'utf8'
+  );
+  const fishCss = fs.readFileSync(
+    path.join(repoRoot, 'apps/server/public/play/css/play_fishing.css'),
+    'utf8'
+  );
+
+  assert.match(chatCss, /body\.is-in-combat\s+#hudFishingActionBtn[\s\S]*display:\s*none\s*!important/i);
+  assert.match(fishCss, /body\.is-in-combat\s+#hudFishingActionBtn[\s\S]*display:\s*none\s*!important/i);
+
+  const elements = new Map();
+  const makeEl = (id) => ({
+    id,
+    className: '',
+    innerHTML: '',
+    dataset: {},
+    style: { display: 'none' },
+    children: [],
+    setAttribute() {},
+    appendChild(child) { this.children.push(child); },
+  });
+  elements.set('worldScreen', makeEl('worldScreen'));
+
+  const bodyClasses = new Set();
+  const sandbox = {
+    performance,
+    localStorage: { getItem: () => null, setItem() {} },
+    document: {
+      body: {
+        children: [],
+        classList: {
+          add: (...cls) => cls.forEach((c) => bodyClasses.add(c)),
+          remove: (...cls) => cls.forEach((c) => bodyClasses.delete(c)),
+          contains: (c) => bodyClasses.has(c),
+          toggle: (c, force) => {
+            const on = force === undefined ? !bodyClasses.has(c) : Boolean(force);
+            if (on) bodyClasses.add(c);
+            else bodyClasses.delete(c);
+            return on;
+          },
+        },
+        appendChild(el) { this.children.push(el); },
+      },
+      getElementById: (id) => elements.get(id) || null,
+      createElement: () => {
+        let currentId = '';
+        const el = makeEl('');
+        return new Proxy(el, {
+          set(target, prop, value) {
+            target[prop] = value;
+            if (prop === 'id') {
+              currentId = value;
+              elements.set(currentId, target);
+            }
+            return true;
+          },
+        });
+      },
+    },
+    window: null,
+  };
+  sandbox.window = sandbox;
+  vm.runInNewContext(code, sandbox);
+
+  let apiCalls = 0;
+  const mockClient = {
+    activeChar: { id: 10 },
+    token: 'tok',
+    playerX: 150,
+    playerY: 150,
+    isFlying: false,
+    isEncounterLoading: false,
+    actionCombatArena: { isActive: false, isTransitioning: false },
+    showNotification() {},
+    api: async (url) => {
+      apiCalls++;
+      return { ok: true, url };
+    },
+  };
+
+  const ctrl = sandbox.PlayFishingController.init(mockClient);
+  const btn = elements.get('hudFishingActionBtn');
+  const bar = elements.get('hudFishingStatusBar');
+  const modal = elements.get('fishingSetupModal');
+
+  // Em EXPLORING perto da água -> botão visível
+  ctrl.nearWaterPoint = { point: { x: 160, y: 150 } };
+  ctrl.syncHudVisibility();
+  assert.equal(btn.style.display, 'flex');
+
+  // Simula pesca ativa e entrada abrupta em combate
+  ctrl.isFishing = true;
+  ctrl.activeSession = { rodNamePtBr: 'Vara Teste', baitQueue: [] };
+  modal.style.display = 'flex';
+  ctrl.syncHudVisibility();
+  assert.equal(bar.style.display, 'flex');
+  assert.equal(btn.style.display, 'none');
+
+  mockClient.actionCombatArena.isActive = true;
+  bodyClasses.add('is-in-combat');
+  ctrl.onEnterCombat();
+
+  assert.equal(ctrl.isFishing, false);
+  assert.equal(btn.style.display, 'none');
+  assert.equal(bar.style.display, 'none');
+  assert.equal(modal.style.display, 'none');
+
+  const callsBeforeCombatGuards = apiCalls;
+  await ctrl.openSetupModal();
+  await ctrl.startFishing();
+  assert.equal(apiCalls, callsBeforeCombatGuards);
+
+  ctrl.setHudEditorPreview(true);
+  assert.equal(ctrl.hudEditorPreview, false);
+  assert.equal(btn.style.display, 'none');
+  assert.equal(bar.style.display, 'none');
 });
 
 console.log(`\nResumo Sistema de Pesca: ${passed}/${total} testes aprovados.`);

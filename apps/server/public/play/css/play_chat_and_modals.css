@@ -716,6 +716,9 @@ body.is-in-combat #hudShortcutsSection,
 body.is-in-combat #hudChatSection,
 body.is-in-combat #hudJoystickSection,
 body.is-in-combat #interactionPrompt,
+body.is-in-combat #hudFishingActionBtn,
+body.is-in-combat #hudFishingStatusBar,
+body.is-in-combat #fishingSetupModal,
 body.is-in-combat .touch-dpad,
 body.is-in-combat .hud-bottom-right {
   display: none !important;

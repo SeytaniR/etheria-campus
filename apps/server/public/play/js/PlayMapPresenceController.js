@@ -137,8 +137,8 @@ class PlayMapPresenceController {
     );
 
     const groundOffsetY = other.groundOffsetY || 0;
-    // Se o personagem estiver em combate, ele fica parado em pose idle (action = 0)
-    const action = other.isInCombat ? 0 : (other.isMoving ? 1 : 0);
+    // Se o personagem estiver em combate ou pescando, ele fica parado em pose idle (action = 0)
+    const action = (other.isInCombat || other.isFishing) ? 0 : (other.isMoving ? 1 : 0);
     const dir = other.dir !== undefined ? other.dir : 0;
 
     // 1. Desenha o modelo 2.5D do jogador (com Asas e Montaria Voadora se equipadas)
@@ -200,6 +200,18 @@ class PlayMapPresenceController {
     // 3. Se o jogador estiver em combate: desenha as duas espadas se batendo sobre a cabeça
     if (other.isInCombat) {
       this.drawCombatSwords(ctx, other.posX, nameY - 26, now);
+    } else if (other.isFishing) {
+      ctx.save();
+      ctx.font = 'bold 9px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillStyle = 'rgba(8, 51, 68, 0.92)';
+      ctx.fillRect(other.posX - 36, nameY - 26, 72, 13);
+      ctx.strokeStyle = '#22d3ee';
+      ctx.lineWidth = 1;
+      ctx.strokeRect(other.posX - 36, nameY - 26, 72, 13);
+      ctx.fillStyle = '#ecfeff';
+      ctx.fillText('🎣 PESCANDO', other.posX, nameY - 16);
+      ctx.restore();
     }
   }
 

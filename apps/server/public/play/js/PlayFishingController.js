@@ -101,8 +101,38 @@ class PlayFishingController {
     window.PlayUiLayoutApplier?.applyAll();
   }
 
+  isCombatBlocking() {
+    if (typeof this.client?.isInCombatState === 'function') {
+      return Boolean(this.client.isInCombatState());
+    }
+    return Boolean(
+      this.client?.actionCombatArena?.isActive ||
+      this.client?.actionCombatArena?.isTransitioning ||
+      this.client?.isEncounterLoading ||
+      (typeof window !== 'undefined' && window.BattleTransitionController?.isActive) ||
+      (typeof document !== 'undefined' && document.body?.classList?.contains?.('is-in-combat'))
+    );
+  }
+
+  onEnterCombat() {
+    this.closeSetupModal();
+    this.hudEditorPreview = false;
+    this.nearWaterPoint = null;
+    if (this.isFishing || this.activeSession) {
+      this.forceStopLocal(true);
+    } else {
+      this.syncHudVisibility();
+    }
+  }
+
+  onExitCombat() {
+    this.lastProximityCheckAt = 0;
+    this.syncHudVisibility();
+  }
+
   setHudEditorPreview(enabled) {
-    this.hudEditorPreview = Boolean(enabled);
+    const allowed = Boolean(enabled) && !this.isCombatBlocking();
+    this.hudEditorPreview = allowed;
     const btn = document.getElementById('hudFishingActionBtn');
     const bar = document.getElementById('hudFishingStatusBar');
     if (btn) {
@@ -124,16 +154,26 @@ class PlayFishingController {
   syncHudVisibility() {
     const btn = document.getElementById('hudFishingActionBtn');
     const bar = document.getElementById('hudFishingStatusBar');
-    const inCombat = Boolean(this.client?.actionCombatArena?.isActive);
+    const inCombat = this.isCombatBlocking();
+    const allowPreview = Boolean(this.hudEditorPreview) && !inCombat;
+
+    if (inCombat) {
+      this.closeSetupModal();
+    }
+    if (typeof document !== 'undefined') {
+      document.body?.classList?.toggle?.('is-fishing', !inCombat && Boolean(this.isFishing));
+    }
 
     if (btn) {
-      const showBtn = this.hudEditorPreview || (!inCombat && !this.isFishing && !this.client?.isFlying && Boolean(this.nearWaterPoint));
-      btn.dataset.fishingVisible = showBtn ? 'true' : 'false';
+      if (!allowPreview && btn.dataset) btn.dataset.fishingEditorPreview = 'false';
+      const showBtn = allowPreview || (!inCombat && !this.isFishing && !this.client?.isFlying && Boolean(this.nearWaterPoint));
+      if (btn.dataset) btn.dataset.fishingVisible = showBtn ? 'true' : 'false';
       btn.style.display = showBtn ? 'flex' : 'none';
     }
     if (bar) {
-      const showBar = this.hudEditorPreview || (!inCombat && this.isFishing);
-      bar.dataset.fishingVisible = showBar ? 'true' : 'false';
+      if (!allowPreview && bar.dataset) bar.dataset.fishingEditorPreview = 'false';
+      const showBar = allowPreview || (!inCombat && this.isFishing);
+      if (bar.dataset) bar.dataset.fishingVisible = showBar ? 'true' : 'false';
       bar.style.display = showBar ? 'flex' : 'none';
     }
   }
@@ -187,6 +227,13 @@ class PlayFishingController {
 
   async openSetupModal() {
     if (!this.client?.activeChar) return;
+    if (this.isCombatBlocking()) {
+      this.closeSetupModal();
+      this.syncHudVisibility();
+      this.client.showNotification?.('⚔️ Não é possível pescar durante uma batalha.', 'warning');
+      return;
+    }
+    if (this.isFishing) return;
     if (this.client.isFlying) {
       this.client.showNotification?.('🦅 Pouse no chão antes de pescar.', 'warning');
       return;
@@ -198,6 +245,12 @@ class PlayFishingController {
 
     try {
       const status = await this.client.api(`/api/play/fishing/status?characterId=${this.client.activeChar.id}`);
+      if (this.isCombatBlocking() || status?.inCombat || status?.activityState === 'COMBAT') {
+        this.closeSetupModal();
+        this.syncHudVisibility();
+        this.client.showNotification?.('⚔️ Não é possível pescar durante uma batalha.', 'warning');
+        return;
+      }
       this.equippedRod = status.equippedRod || null;
       this.baitsInBag = status.baitsInBag || [];
       this.mergeBaitsWithSavedOrder(this.baitsInBag);
@@ -317,6 +370,17 @@ class PlayFishingController {
 
   async startFishing() {
     if (!this.client?.activeChar) return;
+    if (this.isCombatBlocking()) {
+      this.closeSetupModal();
+      this.syncHudVisibility();
+      this.client.showNotification?.('⚔️ Não é possível pescar durante uma batalha.', 'warning');
+      return;
+    }
+    if (this.client.isFlying) {
+      this.client.showNotification?.('🦅 Pouse no chão antes de pescar.', 'warning');
+      return;
+    }
+    if (this.isFishing) return;
     const baitQueue = this.orderedBaits.filter((b) => b.enabled !== false).map((b) => Number(b.itemTemplateId));
     this.saveBaitOrder();
 
@@ -330,6 +394,13 @@ class PlayFishingController {
           posY: Math.round(this.client.playerY),
         }),
       });
+
+      if (this.isCombatBlocking()) {
+        this.closeSetupModal();
+        this.isFishing = true;
+        this.forceStopLocal(true);
+        return;
+      }
 
       this.closeSetupModal();
       this.activeSession = res.session;
@@ -395,12 +466,21 @@ class PlayFishingController {
 
   async runTick() {
     if (!this.isFishing || this.tickPending || !this.client?.activeChar) return;
+    if (this.isCombatBlocking()) {
+      this.forceStopLocal(true);
+      return;
+    }
     this.tickPending = true;
     try {
       const res = await this.client.api('/api/play/fishing/tick', {
         method: 'POST',
         body: JSON.stringify({ characterId: this.client.activeChar.id }),
       });
+
+      if (this.isCombatBlocking()) {
+        this.forceStopLocal(true);
+        return;
+      }
 
       if (!res.active) {
         this.forceStopLocal(false);
@@ -452,7 +532,8 @@ class PlayFishingController {
 
   update(client, now) {
     this.client = client;
-    if (client.actionCombatArena?.isActive || client.isFlying) {
+    if (this.isCombatBlocking() || client.isFlying) {
+      this.closeSetupModal();
       if (this.isFishing) this.forceStopLocal(true);
       this.nearWaterPoint = null;
       this.syncHudVisibility();
@@ -501,7 +582,7 @@ class PlayFishingController {
   }
 
   drawWorldFishingEffects(client, ctx, now) {
-    if (!this.isFishing || !this.activeSession) return;
+    if (this.isCombatBlocking() || !this.isFishing || !this.activeSession) return;
     const wp = this.activeSession.waterPoint || this.nearWaterPoint?.point;
     if (!wp) return;
 
@@ -562,7 +643,7 @@ class PlayFishingController {
       ctx.restore();
     }
 
-    if (!this.isFishing || !this.activeSession) return;
+    if (this.isCombatBlocking() || !this.isFishing || !this.activeSession) return;
     const progress = Math.max(0, Math.min(1, (now - this.cycleStartedAt) / this.cycleDurationMs));
     const iconY = nameY - 34;
 

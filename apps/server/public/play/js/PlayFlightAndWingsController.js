@@ -327,8 +327,12 @@ class PlayFlightAndWingsController {
       client.showNotification?.('Equipe uma Montaria Voadora primeiro.', 'info');
       return;
     }
-    if (client.actionCombatArena?.isActive) {
+    if (client.actionCombatArena?.isActive || client.isInCombatState?.()) {
       client.showNotification?.('Não é possível voar dentro da arena de combate.', 'info');
+      return;
+    }
+    if (window.PlayFishingController?.isFishing) {
+      client.showNotification?.('🎣 Pare de pescar antes de levantar voo.', 'warning');
       return;
     }
     if (client.isFlying && !client.isLandingFlight) {
@@ -340,7 +344,11 @@ class PlayFlightAndWingsController {
 
   static startTakeoff(client) {
     const mount = client?.activeChar?.visualAppearance?.equippedMount;
-    if (!mount || client.actionArena?.isActive || client.actionCombatArena?.isActive) return;
+    if (!mount || client.actionArena?.isActive || client.actionCombatArena?.isActive || client.isInCombatState?.()) return;
+    if (window.PlayFishingController?.isFishing) {
+      client.showNotification?.('🎣 Pare de pescar antes de levantar voo.', 'warning');
+      return;
+    }
     client.isFlying = true;
     client.isLandingFlight = false;
     client.flightLandingTarget = null;

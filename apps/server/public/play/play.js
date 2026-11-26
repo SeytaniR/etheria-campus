@@ -368,6 +368,20 @@ class EtheriaPlayClient {
     const sector = Math.round((90 - angle) / 45);
     return ((sector % 8) + 8) % 8;
   }
+  isInCombatState() {
+    return Boolean(
+      this.actionCombatArena?.isActive ||
+      this.actionCombatArena?.isTransitioning ||
+      window.BattleTransitionController?.isActive ||
+      this.isEncounterLoading ||
+      (typeof document !== 'undefined' && document.body?.classList?.contains('is-in-combat'))
+    );
+  }
+  getActivityState() {
+    if (this.isInCombatState()) return 'COMBAT';
+    if (window.PlayFishingController?.isFishing) return 'FISHING';
+    return 'EXPLORING';
+  }
   setDpad(dx, dy) {
     if (window.PlayPartyController?.isFollower()) return;
     if (window.PlayFishingController?.isFishing) {
@@ -437,7 +451,17 @@ class EtheriaPlayClient {
       if (window.PlayPetsController) window.PlayPetsController.updateFollowerPhysics(this, dt);
       return;
     }
-    const lockManualMove = Boolean(this.isLandingFlight && this.flightLandingTarget) || Boolean(window.PlayFishingController?.isFishing);
+    const isFishingLocked = Boolean(window.PlayFishingController?.isFishing);
+    if (isFishingLocked) {
+      this.currentPath = null;
+      this.moveTargetX = null;
+      this.moveTargetY = null;
+      this.targetDestX = null;
+      this.targetDestY = null;
+      this.dpadDx = 0;
+      this.dpadDy = 0;
+    }
+    const lockManualMove = Boolean(this.isLandingFlight && this.flightLandingTarget) || isFishingLocked;
     let vx = lockManualMove ? 0 : this.dpadDx;
     let vy = lockManualMove ? 0 : this.dpadDy;
     if (!lockManualMove) {
@@ -446,7 +470,10 @@ class EtheriaPlayClient {
       if (this.keysDown.has('a') || this.keysDown.has('arrowleft')) vx -= 1;
       if (this.keysDown.has('d') || this.keysDown.has('arrowright')) vx += 1;
     }
-    if (vx === 0 && vy === 0 && this.currentPath && this.currentPath.length > 0) {
+    if (lockManualMove) {
+      vx = 0;
+      vy = 0;
+    } else if (vx === 0 && vy === 0 && this.currentPath && this.currentPath.length > 0) {
       const wp = this.currentPath[0];
       const dx = wp.x - this.playerX;
       const dy = wp.y - this.playerY;
@@ -561,7 +588,11 @@ class EtheriaPlayClient {
     if (window.PlayMapPresenceController) window.PlayMapPresenceController.syncHeartbeat(now);
   }
   async checkAndStartDungeon(mapData) {
-    if (!this.activeChar || !mapData || this.actionCombatArena?.isActive) return;
+    if (!this.activeChar || !mapData || this.isInCombatState()) return;
+    if (this.getActivityState() === 'FISHING') {
+      this.showNotification?.('🎣 Pare de pescar antes de entrar em combate na Masmorra.', 'warning');
+      return;
+    }
     if (window.PlayFlightAndWingsController && !window.PlayFlightAndWingsController.assertGroundedForCombat(this, 'entrar em combate na Masmorra')) return;
     try {
       const res = await this.api('/api/play/dungeon/enter-battle', { method: 'POST', body: JSON.stringify({ characterId: this.activeChar.id, mapId: mapData.id }) });
@@ -586,7 +617,7 @@ class EtheriaPlayClient {
     } catch (err) { alert(`Erro: ${err.message}`); }
   }
   checkRandomEncounter(now) {
-    if (this.isFlying || (this.flightAltitudeCurrent || 0) > 0.5 || this.actionCombatArena?.isActive || this.isEncounterLoading || !this.currentMap || !this.activeChar || now < this.encounterCooldownUntil) return;
+    if (this.getActivityState() !== 'EXPLORING' || this.isFlying || (this.flightAltitudeCurrent || 0) > 0.5 || this.actionCombatArena?.isActive || this.isEncounterLoading || !this.currentMap || !this.activeChar || now < this.encounterCooldownUntil) return;
     if (this.currentMap.mapType?.code === 'DUNGEON' || !this.currentMap.mapType?.allowMonsterSpawn || this.currentMap.canSpawnMonsters === false) return;
     const rate = Number(this.currentMap.encounterRatePct) || 0;
     if (rate > 0 && Math.random() * 100 < rate) {
@@ -594,9 +625,11 @@ class EtheriaPlayClient {
     }
   }
   async triggerMapEncounter() {
-    window.PlayFishingController?.forceStopLocal(true);
+    if (this.getActivityState() !== 'EXPLORING') return;
     if (this.isFlying || (this.flightAltitudeCurrent || 0) > 0.5 || this.isEncounterLoading || !this.activeChar || !this.currentMap || this.currentMap.mapType?.code === 'DUNGEON' || !this.currentMap.mapType?.allowMonsterSpawn || this.currentMap.canSpawnMonsters === false) return;
     this.isEncounterLoading = true;
+    window.PlayFishingController?.closeSetupModal?.();
+    window.PlayFishingController?.syncHudVisibility?.();
     this.moveTargetX = null;
     this.moveTargetY = null;
     this.targetDestX = null;
@@ -632,6 +665,7 @@ class EtheriaPlayClient {
       }
     } finally {
       this.isEncounterLoading = false;
+      window.PlayFishingController?.syncHudVisibility?.();
     }
   }
   checkPortalsAndNpcs(now) {

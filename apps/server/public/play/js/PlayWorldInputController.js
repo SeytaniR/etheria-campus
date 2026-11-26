@@ -45,6 +45,10 @@ class PlayWorldInputController {
         if (window.PlayDungeonChestController?.handleCanvasClick(client.actionCombatArena, worldPt)) return;
         if (window.PlayNativeAppController?.handleArenaPointer(client, worldPt)) return;
       }
+      if (window.PlayFishingController?.isFishing) {
+        window.PlayFishingController.notifyMoveBlocked();
+        return;
+      }
       // Se o clique foi em um portal, PortalTravelController conduz o herói e abre confirmação
       if (window.PortalTravelController?.handleCanvasClick(client, worldPt)) {
         return;
@@ -58,10 +62,6 @@ class PlayWorldInputController {
         }
       }
       if (client.isLandingFlight) return;
-      if (window.PlayFishingController?.isFishing) {
-        window.PlayFishingController.notifyMoveBlocked();
-        return;
-      }
       client.targetDestX = worldPt.x; client.targetDestY = worldPt.y; client.lastRepathTime = 0;
       if (client.mesh && !client.gmNoClip && !client.isFlying) {
         const path = client.mesh.findPath(client.playerX, client.playerY, worldPt.x, worldPt.y);

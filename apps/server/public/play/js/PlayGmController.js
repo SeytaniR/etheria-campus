@@ -205,6 +205,11 @@ class PlayGmController {
         alert('Selecione primeiro um personagem.');
         return;
       }
+      if (this.isInCombatState?.()) return;
+      if (window.PlayFishingController?.isFishing) {
+        this.showNotification?.('🎣 Pare de pescar antes de iniciar uma luta.', 'warning');
+        return;
+      }
       if (window.PlayFlightAndWingsController && !window.PlayFlightAndWingsController.assertGroundedForCombat(this, 'iniciar uma luta')) {
         return;
       }

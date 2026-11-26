@@ -5,6 +5,21 @@ Qualquer IA trabalhando neste repositório **DEVE** incrementar a versão e regi
 
 ---
 
+## [v0.67.2] - 2026-11-25
+### Estado Único de Atividade (`EXPLORING` | `COMBAT` | `FISHING`) & Ocultação Total da Pesca em Batalha
+* **Backend Autoritativo (`CharacterActivityStateService.ts`, `FishingService.ts`, `TemporaryCombatController.ts`, `DungeonService.ts`, `PlayCombatRouter.ts`, `MapPresenceService.ts`):**
+  * Criado `CharacterActivityStateService` impondo exclusividade mútua entre `EXPLORING` (livre/andando/voando), `COMBAT` (batalha na arena ou dungeon) e `FISHING` (pesca contínua AFK), com bloqueio de transições diretas ilegais (`COMBAT` ⇄ `FISHING`) e TTL de segurança (20 min) em combates abandonados.
+  * `FishingService.startFishing()` e `tickFishing()` agora rejeitam ou encerram automaticamente (`stoppedReason: 'IN_COMBAT'`) qualquer sessão quando o personagem entra em combate; `stopSession()` sincroniza retorno para `EXPLORING`.
+  * `TemporaryCombatController`, `DungeonService` e `PlayCombatRouter` bloqueiam início de combate/encontro/quest-battle/GM/dungeon enquanto em `FISHING`, mantêm o estado `COMBAT` ativo na arena e expõem `POST /api/play/combat/leave` para limpeza limpa em recuo, derrota e retorno/F5.
+  * `MapPresenceService` propaga `activityState` e `isFishing` em tempo real para presença multiplayer e limpa pesca/atividade no respawn.
+* **Frontend & HUD (`/play` — `PlayFishingController.js`, `play.js`, `PlayHudController.js`, `PlayUiLayoutApplier.js`, `PlayClientHudEditor.js`, `ActionCombatArena.js`, `PlayWorldInputController.js`, `PlayQuestsController.js`, `PlayGmController.js`, `PlayFlightAndWingsController.js`, `PlayLobbyController.js`, `PlayMapPresenceController.js`, `play_chat_and_modals.css`, `play_fishing.css`):**
+  * Adicionados `isInCombatState()` e `getActivityState()` centrais em `play.js`, garantindo ocultação imediata de `#hudFishingActionBtn`, `#hudFishingStatusBar` e `#fishingSetupModal` via CSS (`body.is-in-combat`, `display: none !important`), `PlayUiLayoutApplier`, `PlayHudController.setCombatMode()` e `PlayFishingController.onEnterCombat()`.
+  * Corrigida dessincronização no `gameLoop` (que pulava `PlayFishingController.update` durante a arena), preview de editor HUD em combate, cliques em portais/NPCs durante pesca (`PlayWorldInputController.js` + limpeza de path em `updatePhysics`), bloqueio de voo e combates durante pesca, e indicador `🎣 PESCANDO` em jogadores remotos.
+  * Cache-busting atualizado para `?v=20261125_state1` em `apps/server/public/play/index.html`.
+* **Testes:** Suíte `tests/test_fishing_system.mjs` ampliada para **8/8 verificações** cobrindo `CharacterActivityStateService`, `FishingService` e `PlayFishingController` + CSS em memória (**8/8 suítes em `npm test` aprovadas**).
+
+---
+
 ## [v0.67.1] - 2026-11-25
 ### Palco 2.5D Interativo no `/admin` para Armas Principais (`WEAPON_1`) & Simetria de Encaixe na Mão
 * **Palco 2.5D de Calibração no `/admin` (`AdminEquipmentModalDom.js`, `AdminEquipmentVisualPreview.js`, `AdminEquipmentsTab.js`):**

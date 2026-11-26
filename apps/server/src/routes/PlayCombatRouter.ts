@@ -7,7 +7,7 @@
  *   - Aplica validação autoritária anti-cheat (`CombatAntiCheatService`) na conclusão de combates.
  *   - Restringe integralmente `/api/play/temporary-combat/*` a contas `GM`, `ADMIN` ou `DEV`.
  *   - Mantém `PlayRouter.ts` modularizado estritamente abaixo de 1.000 linhas (Regra #7).
- * @dependencies node:http, @etheria/database, TemporaryCombatController, AdminQuestsController, MonsterCombatBuilder, DungeonService, DungeonChestService, CharacterProgressionService, PartyService, CombatAntiCheatService
+ * @dependencies node:http, @etheria/database, TemporaryCombatController, AdminQuestsController, MonsterCombatBuilder, DungeonService, DungeonChestService, CharacterProgressionService, PartyService, CombatAntiCheatService, CharacterActivityStateService, MapPresenceService
  */
 
 import type * as http from 'node:http';
@@ -20,6 +20,8 @@ import { DungeonChestService } from '../controllers/DungeonChestService.js';
 import { CharacterProgressionService } from '../controllers/CharacterProgressionService.js';
 import { PartyService } from '../controllers/PartyService.js';
 import { CombatAntiCheatService } from '../security/CombatAntiCheatService.js';
+import { CharacterActivityStateService } from '../controllers/CharacterActivityStateService.js';
+import { MapPresenceService } from '../controllers/MapPresenceService.js';
 
 export interface PlayCombatRouterDeps {
   prisma: PrismaClient;
@@ -182,6 +184,10 @@ export class PlayCombatRouter {
         this.deps.sendJson(res, 403, { error: 'Acesso negado: este personagem não pertence à sua conta.' });
         return true;
       }
+      if (characterId > 0 && CharacterActivityStateService.isFishing(characterId)) {
+        this.deps.sendJson(res, 409, { error: 'Pare de pescar antes de entrar em combate.' });
+        return true;
+      }
 
       const encCheck = CombatAntiCheatService.checkEncounterAllowed(characterId, role, false);
       if (!encCheck.ok) {
@@ -219,6 +225,10 @@ export class PlayCombatRouter {
       }
       if ((character as any).isFlying) {
         this.deps.sendJson(res, 400, { error: 'Você precisa estar no chão para iniciar uma luta! Pouse sua montaria primeiro.' });
+        return true;
+      }
+      if (CharacterActivityStateService.isFishing(characterId)) {
+        this.deps.sendJson(res, 400, { error: 'Pare de pescar antes de iniciar uma luta!' });
         return true;
       }
 
@@ -327,6 +337,27 @@ export class PlayCombatRouter {
       return true;
     }
 
+    if (pathname === '/api/play/combat/leave' && method === 'POST') {
+      const body = await this.deps.readJsonBody<{ characterId?: number; battleId?: string; reason?: string }>(req);
+      const characterId = Number(body.characterId) || 0;
+      if (characterId <= 0 || !(await this.deps.verifyCharacterOwnership(userAccountId, role, characterId))) {
+        this.deps.sendJson(res, 403, { error: 'Acesso negado: este personagem não pertence à sua conta.' });
+        return true;
+      }
+      const battleId = body.battleId ? String(body.battleId) : '';
+      if (battleId) {
+        const b = this.deps.combatController.getBattleState(battleId);
+        if (b && Number(b.characterId) === characterId && !b.isDungeon) {
+          this.deps.combatController.endBattle(battleId);
+        }
+      }
+      this.deps.combatController.endActiveBattlesForCharacter(characterId);
+      CharacterActivityStateService.exitCombat(characterId);
+      MapPresenceService.setCombatStatus(characterId, false);
+      this.deps.sendJson(res, 200, { ok: true, activityState: CharacterActivityStateService.getState(characterId) });
+      return true;
+    }
+
     // Rotas do Simulador de Combate (EXCLUSIVO GM / ADMIN / DEV)
     if (pathname.startsWith('/api/play/temporary-combat/')) {
       if (!['ADMIN', 'GM', 'DEV'].includes(role)) {
@@ -351,6 +382,10 @@ export class PlayCombatRouter {
         const characterId = Number(body.characterId) || 0;
         if (characterId > 0 && !(await this.deps.verifyCharacterOwnership(userAccountId, role, characterId))) {
           this.deps.sendJson(res, 403, { error: 'Acesso negado: este personagem não pertence à sua conta.' });
+          return true;
+        }
+        if (characterId > 0 && CharacterActivityStateService.isFishing(characterId)) {
+          this.deps.sendJson(res, 409, { error: 'Pare de pescar antes de entrar em combate.' });
           return true;
         }
         const state = await this.deps.combatController.startBattle(

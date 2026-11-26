@@ -274,15 +274,16 @@ class PlayUiLayoutApplier {
       return;
     }
 
-    // 0.1 Controles contextuais de Pesca (só visíveis perto da água / pescando / no Editor Pessoal de HUD)
-    if (
-      (el.id === 'hudFishingActionBtn' || el.id === 'hudFishingStatusBar') &&
-      !isStagePreview &&
-      el.dataset.fishingEditorPreview !== 'true' &&
-      el.dataset.fishingVisible !== 'true'
-    ) {
-      el.style.setProperty('display', 'none', 'important');
-      return;
+    // 0.1 Controles contextuais de Pesca (ocultos em combate; fora de combate, só visíveis perto da água / pescando / no Editor Pessoal)
+    if (el.id === 'hudFishingActionBtn' || el.id === 'hudFishingStatusBar') {
+      const inCombat = typeof document !== 'undefined' && document.body?.classList?.contains?.('is-in-combat');
+      if (
+        inCombat ||
+        (!isStagePreview && el.dataset.fishingEditorPreview !== 'true' && el.dataset.fishingVisible !== 'true')
+      ) {
+        el.style.setProperty('display', 'none', 'important');
+        return;
+      }
     }
 
     // 1. Visibilidade explícita

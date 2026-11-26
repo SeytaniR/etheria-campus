@@ -244,3 +244,11 @@
   0%, 100% { transform: rotate(-10deg); }
   50% { transform: rotate(12deg); }
 }
+
+body.is-in-combat #hudFishingActionBtn,
+body.is-in-combat #hudFishingStatusBar,
+body.is-in-combat #fishingSetupModal {
+  display: none !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}

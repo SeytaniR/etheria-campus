@@ -154,6 +154,7 @@ class ActionCombatArena {
   }
 
   openArena(battleState) {
+    window.PlayFishingController?.onEnterCombat?.();
     this.isDungeonMode = Boolean(battleState.isDungeon);
     this.dungeonExitDestination = null;
     this.dungeonChest = null; this.lastKilledMonsterPos = null;
@@ -311,12 +312,30 @@ class ActionCombatArena {
   startFightNow() { window.ArenaHudControls?.startFightNow(this); }
 
   closeArena() {
+    const leavingBattleId = this.currentBattle?.battleId || null;
+    const wasDungeon = Boolean(this.isDungeonMode);
+    const battleOutcome = this.battleOutcome;
+    const leavingCharId = this.client?.activeChar?.id;
+
     this.isTransitioning = false; this.isActive = false; this.combatState = 'INACTIVE';
     this.dungeonChest = null; this.lastKilledMonsterPos = null;
     window.PlayDungeonChestController?.clearPromptButton?.();
     this.pets = []; this.monsters = []; this.projectiles = []; this.selectedTargetMob = null;
     if (window.PlayHudController?.setCombatMode) window.PlayHudController.setCombatMode(false);
-    else document.body.classList.remove('is-in-combat');
+    else {
+      document.body.classList.remove('is-in-combat');
+      window.PlayFishingController?.onExitCombat?.();
+    }
+    if (leavingCharId && this.client?.token && !wasDungeon && battleOutcome !== 'VICTORY') {
+      void this.client.api('/api/play/combat/leave', {
+        method: 'POST',
+        body: JSON.stringify({
+          characterId: leavingCharId,
+          battleId: leavingBattleId,
+          reason: battleOutcome || 'CLOSE',
+        }),
+      }).catch(() => {});
+    }
     const vig = document.getElementById('veilVignetteOverlay'); if (vig) vig.classList.remove('active');
     ['actionCombatModal', 'actionPrepBanner', 'actionResultBanner'].forEach((id) => { const el = document.getElementById(id); if (el) el.style.display = 'none'; });
     const outcome = document.getElementById('combatOutcomeModal'); if (outcome) outcome.classList.remove('active');

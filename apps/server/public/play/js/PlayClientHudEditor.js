@@ -134,7 +134,8 @@ class PlayClientHudEditor {
     }
 
     this.injectEditorOverlayDom();
-    window.PlayFishingController?.setHudEditorPreview?.(true);
+    const isCombat = Boolean(window.PlayApp?.isInCombatState?.() || window.PlayApp?.actionArena?.isActive);
+    window.PlayFishingController?.setHudEditorPreview?.(!isCombat);
     this.bindStagePointerEvents();
     this.updateGizmoAndControls();
   }

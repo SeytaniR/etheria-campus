@@ -6,7 +6,7 @@
  *   - Gerencia sessão contínua com fila ordenada de iscas (`FISHING_BAIT`), consumindo 1 unidade a cada ciclo `T` e avançando para a próxima quando acabar.
  *   - Executa sorteio Rank-First com redistribuição automática entre ranks que possuem peixes cadastrados (`FISH`), aplicando bônus de fisgada e raridade da isca ativa.
  * @rules Segue estritamente AGENTS.md (Cláusula 0 servidor autoritativo, Regra #1 JSDoc, Regra #7 < 1.000 linhas).
- * @dependencies @prisma/client, @etheria/database (I18nCache), @etheria/shared (MapPolygonMesh), ./CharacterInventoryService.js, ./AdminFishingRodsController.js, ./AssetMirrorService.js
+ * @dependencies @prisma/client, @etheria/database (I18nCache), @etheria/shared (MapPolygonMesh), ./CharacterInventoryService.js, ./AdminFishingRodsController.js, ./AssetMirrorService.js, ./CharacterActivityStateService.js, ./MapPresenceService.js
  */
 
 import type { PrismaClient } from '@prisma/client';
@@ -20,6 +20,8 @@ import {
   type FishingRodConfig,
 } from './AdminFishingRodsController.js';
 import { AssetMirrorService } from './AssetMirrorService.js';
+import { CharacterActivityStateService } from './CharacterActivityStateService.js';
+import { MapPresenceService } from './MapPresenceService.js';
 
 export const FISHING_PROXIMITY_PX = 96;
 export const FISHING_SERVER_PROXIMITY_TOLERANCE_PX = 128;
@@ -145,7 +147,9 @@ export class FishingService {
   private static readonly activeSessions = new Map<number, FishingSessionState>();
 
   public static stopSession(characterId: number): boolean {
-    return this.activeSessions.delete(Number(characterId));
+    const id = Number(characterId);
+    CharacterActivityStateService.exitFishing(id);
+    return this.activeSessions.delete(id);
   }
 
   public static hasActiveSession(characterId: number): boolean {
@@ -226,12 +230,15 @@ export class FishingService {
     ]);
 
     const activeSession = this.activeSessions.get(safeCharId) || null;
+    const inCombat = CharacterActivityStateService.isInCombat(safeCharId) || MapPresenceService.isCharacterInCombat(safeCharId);
     return {
       equippedRod,
       baitsInBag,
       activeSession: activeSession ? this.serializeSession(activeSession) : null,
       fishPoolCount: fishCount,
       proximityPx: FISHING_PROXIMITY_PX,
+      activityState: CharacterActivityStateService.getState(safeCharId),
+      inCombat,
     };
   }
 
@@ -261,6 +268,9 @@ export class FishingService {
     dto: { baitQueue?: number[]; posX?: number; posY?: number }
   ) {
     const safeCharId = Number(characterId);
+    if (CharacterActivityStateService.isInCombat(safeCharId) || MapPresenceService.isCharacterInCombat(safeCharId)) {
+      throw new Error('Não é possível pescar enquanto estiver em combate.');
+    }
     const [pc, i18nMap, fishCount] = await Promise.all([
       prisma.playerCharacter.findUnique({ where: { id: safeCharId } }),
       I18nCache.getTranslations(prisma),
@@ -340,6 +350,11 @@ export class FishingService {
       tickInFlight: false,
     };
 
+    const transition = CharacterActivityStateService.enterFishing(safeCharId);
+    if (!transition.ok) {
+      throw new Error(transition.error);
+    }
+
     this.activeSessions.set(safeCharId, session);
     const baitsInBag = await this.loadBaitsInBag(prisma, safeCharId, i18nMap);
 
@@ -356,6 +371,10 @@ export class FishingService {
     const session = this.activeSessions.get(safeCharId);
     if (!session) {
       return { ok: true, active: false, stoppedReason: 'NO_SESSION' };
+    }
+    if (CharacterActivityStateService.isInCombat(safeCharId) || MapPresenceService.isCharacterInCombat(safeCharId)) {
+      this.stopSession(safeCharId);
+      return { ok: true, active: false, stoppedReason: 'IN_COMBAT', message: 'Pesca encerrada: personagem em combate.' };
     }
     if (session.tickInFlight) {
       return {
@@ -380,6 +399,11 @@ export class FishingService {
 
     session.tickInFlight = true;
     try {
+      if (CharacterActivityStateService.isInCombat(safeCharId) || MapPresenceService.isCharacterInCombat(safeCharId)) {
+        this.stopSession(safeCharId);
+        return { ok: true, active: false, stoppedReason: 'IN_COMBAT', message: 'Pesca encerrada: personagem em combate.' };
+      }
+
       const [pc, i18nMap, activeFishes] = await Promise.all([
         prisma.playerCharacter.findUnique({
           where: { id: safeCharId },
@@ -393,13 +417,13 @@ export class FishingService {
       ]);
 
       if (!pc || pc.currentMapId !== session.mapId || (pc as any).isFlying) {
-        this.activeSessions.delete(safeCharId);
+        this.stopSession(safeCharId);
         return { ok: true, active: false, stoppedReason: 'STATE_CHANGED' };
       }
 
       const eqMap = (pc.equippedItemsJson && typeof pc.equippedItemsJson === 'object' ? pc.equippedItemsJson : {}) as Record<string, number>;
       if (Number(eqMap.FISHING_ROD) !== session.rodItemId) {
-        this.activeSessions.delete(safeCharId);
+        this.stopSession(safeCharId);
         return { ok: true, active: false, stoppedReason: 'ROD_UNEQUIPPED', message: 'Vara de Pesca desequipada. Pesca encerrada.' };
       }
 
@@ -478,7 +502,7 @@ export class FishingService {
       session.lastCycleAt = Date.now();
       session.attemptsCount += 1;
       if (bagFull) {
-        this.activeSessions.delete(safeCharId);
+        this.stopSession(safeCharId);
         return {
           ok: true,
           active: false,

@@ -516,8 +516,11 @@ class PlayHudController {
   setCombatMode(isActive) {
     if (isActive) {
       document.body.classList.add('is-in-combat');
+      document.body.classList.remove('is-fishing');
+      window.PlayFishingController?.onEnterCombat?.();
     } else {
       document.body.classList.remove('is-in-combat');
+      window.PlayFishingController?.onExitCombat?.();
     }
   }
 

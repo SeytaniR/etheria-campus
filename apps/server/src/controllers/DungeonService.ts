@@ -8,7 +8,7 @@
  *     ambos com debuff de -30% no dano final aplicado e lógica de aggro curto.
  *   - Gerencia conclusão (vitória total), derrota (morte -> santuário) e fuga (gasta ingresso do dia).
  * @rules Segue estritamente AGENTS.md (Instância diária autoritativa, Regra #7 < 1.000 linhas, Zero Hardcode).
- * @dependencies node:http, @prisma/client, @etheria/database (I18nCache), @etheria/shared (MapPolygonMesh), ./MapSpawnResolver.js, ./MonsterCombatBuilder.js, ./MonsterGlobalConfigService.js, ./AssetMirrorService.js, ./MapPresenceService.js, ./DungeonChestService.js
+ * @dependencies node:http, @prisma/client, @etheria/database (I18nCache), @etheria/shared (MapPolygonMesh), ./MapSpawnResolver.js, ./MonsterCombatBuilder.js, ./MonsterGlobalConfigService.js, ./AssetMirrorService.js, ./MapPresenceService.js, ./DungeonChestService.js, ./CharacterActivityStateService.js
  */
 
 import type * as http from 'node:http';
@@ -22,6 +22,7 @@ import type { TemporaryCombatController, CombatUnit } from './TemporaryCombatCon
 import { AssetMirrorService } from './AssetMirrorService.js';
 import { MapPresenceService } from './MapPresenceService.js';
 import { DungeonChestService } from './DungeonChestService.js';
+import { CharacterActivityStateService } from './CharacterActivityStateService.js';
 
 export class DungeonService {
   private static readonly mcreworkPagesBaseUrl = '/api/assets/mcrework';
@@ -155,6 +156,9 @@ export class DungeonService {
     const charFlight = await prisma.playerCharacter.findUnique({ where: { id: Number(characterId) }, select: { isFlying: true } });
     if ((charFlight as any)?.isFlying) {
       throw new Error('Você precisa estar no chão para iniciar uma luta na Masmorra! Pouse sua montaria primeiro.');
+    }
+    if (CharacterActivityStateService.isFishing(Number(characterId))) {
+      throw new Error('Pare de pescar antes de entrar em combate na Masmorra.');
     }
     const today = this.getTodayDateStr();
     const existing = await (prisma as any).dungeonRun.findUnique({
@@ -375,6 +379,9 @@ export class DungeonService {
     if ((charFlight as any)?.isFlying) {
       throw new Error('Você precisa estar no chão para iniciar uma luta na Masmorra! Pouse sua montaria primeiro.');
     }
+    if (CharacterActivityStateService.isFishing(Number(characterId))) {
+      throw new Error('Pare de pescar antes de entrar em combate na Masmorra.');
+    }
     const today = this.getTodayDateStr();
     let run = await (prisma as any).dungeonRun.findUnique({
       where: {
@@ -569,6 +576,7 @@ export class DungeonService {
       data: { status: 'COMPLETED', finishedAt: new Date() },
     });
 
+    CharacterActivityStateService.exitCombat(Number(characterId));
     MapPresenceService.removePlayer(characterId);
     await prisma.playerCharacter.update({
       where: { id: Number(characterId) },
@@ -614,6 +622,7 @@ export class DungeonService {
       });
     }
 
+    CharacterActivityStateService.exitCombat(Number(characterId));
     MapPresenceService.removePlayer(characterId);
     await prisma.playerCharacter.update({
       where: { id: Number(characterId) },
@@ -635,6 +644,7 @@ export class DungeonService {
     characterId: number,
     dungeonMapId: number
   ): Promise<void> {
+    CharacterActivityStateService.exitCombat(Number(characterId));
     const today = this.getTodayDateStr();
     await (prisma as any).dungeonRun.updateMany({
       where: {

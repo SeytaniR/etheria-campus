@@ -6,7 +6,7 @@
  *   1. Mantém rastreamento otimizado de jogadores online por mapa em memória com remoção automática após 15s sem heartbeat.
  *   2. Mantém cache de metadados visuais (`metadataCache`) limitado a 2000 entradas com TTL de 5 minutos, invalidado em troca de equipamentos, pet seguidor ou level up.
  *   3. Processa respawn autoritário de personagens caídos para o spawn seguro da Cidade/Vila mais próxima, esvaziando buffers de posição.
- * @dependencies @prisma/client, ./PartyService.js, ./CharacterEquipmentService.js, ./MapRuntimeCacheService.js
+ * @dependencies @prisma/client, ./PartyService.js, ./CharacterEquipmentService.js, ./MapRuntimeCacheService.js, ./CharacterActivityStateService.js, ./FishingService.js
  */
 
 import type { PrismaClient } from '@prisma/client';
@@ -18,6 +18,8 @@ import {
   type EquippedWingsVisualDto,
 } from './CharacterEquipmentService.js';
 import { MapRuntimeCacheService } from './MapRuntimeCacheService.js';
+import { CharacterActivityStateService, type CharacterActivityState } from './CharacterActivityStateService.js';
+import { FishingService } from './FishingService.js';
 
 export interface MapPlayerPresence {
   characterId: number;
@@ -48,6 +50,8 @@ export interface MapPlayerPresence {
   dir: number;
   isMoving: boolean;
   isInCombat: boolean;
+  isFishing?: boolean;
+  activityState?: CharacterActivityState;
   isFlying?: boolean;
   flightAltitude?: number;
   partyId?: string | null;
@@ -190,6 +194,15 @@ export class MapPresenceService {
       });
     }
 
+    const authState = CharacterActivityStateService.getState(characterId);
+    const effectiveInCombat = authState === 'COMBAT' || (authState === 'EXPLORING' && Boolean(dto.isInCombat));
+    const effectiveFishing = !effectiveInCombat && authState === 'FISHING';
+    const activityState: CharacterActivityState = effectiveInCombat
+      ? 'COMBAT'
+      : effectiveFishing
+      ? 'FISHING'
+      : 'EXPLORING';
+
     const presenceData: MapPlayerPresence = {
       characterId,
       name: meta?.name || 'Aventureiro',
@@ -211,10 +224,12 @@ export class MapPresenceService {
       posX: Number(dto.posX) || 500,
       posY: Number(dto.posY) || 500,
       dir: dto.dir !== undefined ? Number(dto.dir) : 0,
-      isMoving: Boolean(dto.isMoving),
-      isInCombat: Boolean(dto.isInCombat),
-      isFlying: Boolean(dto.isFlying && meta?.equippedMount && !dto.isInCombat),
-      flightAltitude: Number(dto.flightAltitude) || 0,
+      isMoving: activityState === 'EXPLORING' ? Boolean(dto.isMoving) : false,
+      isInCombat: effectiveInCombat,
+      isFishing: effectiveFishing,
+      activityState,
+      isFlying: Boolean(dto.isFlying && meta?.equippedMount && activityState === 'EXPLORING'),
+      flightAltitude: activityState === 'EXPLORING' ? Number(dto.flightAltitude) || 0 : 0,
       partyId: party?.id ?? null,
       isPartyLeader: party ? party.leaderCharacterId === characterId : false,
       partyLeaderId: party?.leaderCharacterId ?? null,
@@ -286,15 +301,33 @@ export class MapPresenceService {
   }
 
   /**
+   * Verifica se o personagem está em combate no estado autoritativo ou em presença no mapa.
+   */
+  public static isCharacterInCombat(characterId: number): boolean {
+    if (CharacterActivityStateService.isInCombat(characterId)) return true;
+    for (const mapPlayers of this.playersByMap.values()) {
+      const p = mapPlayers.get(characterId);
+      if (p?.isInCombat) return true;
+    }
+    return false;
+  }
+
+  /**
    * Atualiza expressamente o status de combate de um jogador.
    */
   public static setCombatStatus(characterId: number, isInCombat: boolean): void {
+    const nextState: CharacterActivityState = isInCombat
+      ? 'COMBAT'
+      : CharacterActivityStateService.getState(characterId);
     for (const mapPlayers of this.playersByMap.values()) {
       const p = mapPlayers.get(characterId);
       if (p) {
         p.isInCombat = isInCombat;
+        p.activityState = nextState;
         if (isInCombat) {
           p.isMoving = false;
+          p.isFishing = false;
+          p.isFlying = false;
         }
         break;
       }
@@ -372,6 +405,8 @@ export class MapPresenceService {
         },
       });
 
+      FishingService.stopSession(characterId);
+      CharacterActivityStateService.resetCharacter(characterId);
       this.setCombatStatus(characterId, false);
       return {
         success: true,
@@ -408,6 +443,8 @@ export class MapPresenceService {
     });
 
     this.removePlayer(characterId);
+    FishingService.stopSession(characterId);
+    CharacterActivityStateService.resetCharacter(characterId);
     this.setCombatStatus(characterId, false);
 
     return {

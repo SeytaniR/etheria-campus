@@ -394,11 +394,24 @@ class PlayLobbyController {
       if (window.PlayPartyController) {
         window.PlayPartyController.init(this);
       }
+      if (this.token) {
+        void this.api('/api/play/combat/leave', {
+          method: 'POST',
+          body: JSON.stringify({ characterId: found.id, reason: 'WORLD_ENTER' }),
+        }).catch(() => {});
+      }
       await this.loadMapIntoWorld(found.currentMapId || 1, this.playerX, this.playerY, null, { restoreFromChar: true });
     };
 
     client.backToLobby = function () {
+      const prevCharId = this.activeChar?.id;
       window.PlayFishingController?.forceStopLocal?.(true);
+      if (prevCharId && this.token) {
+        void this.api('/api/play/combat/leave', {
+          method: 'POST',
+          body: JSON.stringify({ characterId: prevCharId, reason: 'WORLD_ENTER' }),
+        }).catch(() => {});
+      }
       this.activeChar = null;
       const worldScreen = document.getElementById('worldScreen');
       if (worldScreen) worldScreen.style.display = 'none';

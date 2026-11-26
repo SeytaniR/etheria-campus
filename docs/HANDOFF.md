@@ -8,9 +8,9 @@
 ---
 
 ## 📌 Status Atual do Projeto
-* **Versão Atual:** `v0.67.1`
+* **Versão Atual:** `v0.67.2`
 * **Última Atualização:** `2026-11-25`
-* **Fase Atual:** **Palco 2.5D Interativo & Calibração Fina de Armas Principais (`WEAPON_1`, `v0.67.1`)** — Modal de Equipamentos (`/admin`) atualizado com mapa real, 12 classes + alternância `Base`/`Reborn`, zoom `1x–3x` (padrão `2x` em armas), arraste direto no canvas (Global ou por Direção), sliders `-5/-1/+1/+5/↩0` para X/Y/Z/Escala e ajustes direcionais, seletor feminino separado (`equip_fc*`) + `femaleOffsetX`/`femaleOffsetY` opcionais, e correção de assimetria X nas direções esquerdas em `PlayFlightAndWingsController.js` + `CharacterEquipmentService.ts`. Suíte `npm test` com **8 módulos aprovados**; todos os arquivos < 1.000 linhas (Regra #7). **Nota de produção:** a VPS `40-65-63-193.sslip.io` estava em `v0.66.0` antes deste push (aguardando deploy via `scripts/deploy_vps.py` na VPS).
+* **Fase Atual:** **Estado Único do Personagem (`EXPLORING` | `COMBAT` | `FISHING`) & Pesca em Batalha (`v0.67.2`)** — Implementado `CharacterActivityStateService.ts` + integrações em `FishingService.ts`, `TemporaryCombatController.ts`, `DungeonService.ts`, `PlayCombatRouter.ts` (`POST /api/play/combat/leave`) e `MapPresenceService.ts`, garantindo exclusividade mútua autoritativa entre exploração, combate e pesca no servidor e no `/play` (CSS `!important`, `PlayFishingController`, `PlayHudController`, `PlayUiLayoutApplier`, `ActionCombatArena`, `PlayWorldInputController`, `play.js` com `?v=20261125_state1`). `npm run typecheck`, build do servidor e **8/8 suítes em `npm test`** aprovados (`test_fishing_system.mjs`: **8/8**); todos os arquivos < 1.000 linhas (Regra #7). **Pronto para deploy na VPS Azure (`40-65-63-193.sslip.io`).**
 * **Repositório Oficial:** `https://github.com/SeytaniR/etheria-campus`
 * **Fonte Bruta de Assets:** `https://github.com/SeytaniR/mcrework` (`https://seytanir.github.io/mcrework/`)
 

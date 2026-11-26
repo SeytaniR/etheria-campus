@@ -6,7 +6,7 @@
  *   utilizam exatamente os mesmos processadores (`MonsterCombatBuilder` e `CombatDamageCalculator`),
  *   sem redutores artificiais, com escalonamento balanceado de nível, buff A/S/SS e vantagens elementais.
  * @rules Segue estritamente AGENTS.md (Combate 100% autoritativo server-side, Zero Hardcode, Regra #7 < 1.000 linhas).
- * @dependencies @prisma/client, @etheria/database (I18nCache), @etheria/shared (CombatDamageCalculator), node:crypto, ./MapSpawnResolver.js, ./CombatUtilityHelper.js, ./MonsterCombatBuilder.js, ./MonsterGlobalConfigService.js, ./PartyService.js, ./CharacterPetService.js, ./CharacterEquipmentService.js, ./AssetMirrorService.js
+ * @dependencies @prisma/client, @etheria/database (I18nCache), @etheria/shared (CombatDamageCalculator), node:crypto, ./MapSpawnResolver.js, ./CombatUtilityHelper.js, ./MonsterCombatBuilder.js, ./MonsterGlobalConfigService.js, ./PartyService.js, ./CharacterPetService.js, ./CharacterEquipmentService.js, ./AssetMirrorService.js, ./CharacterActivityStateService.js, ./MapPresenceService.js
  */
 
 import { PrismaClient, type MonsterTemplate } from '@prisma/client';
@@ -21,6 +21,8 @@ import { PartyService } from './PartyService.js';
 import { CharacterPetService } from './CharacterPetService.js';
 import { CharacterEquipmentService, type EquippedWeaponVisualDto, type EquippedWingsVisualDto } from './CharacterEquipmentService.js';
 import { AssetMirrorService } from './AssetMirrorService.js';
+import { CharacterActivityStateService } from './CharacterActivityStateService.js';
+import { MapPresenceService } from './MapPresenceService.js';
 
 export interface ActiveStatusInstance {
   code: string;
@@ -202,6 +204,9 @@ export class TemporaryCombatController {
       if ((charFlight as any)?.isFlying) {
         throw new Error('Você precisa estar no chão para iniciar uma luta! Pouse sua montaria primeiro.');
       }
+      if (CharacterActivityStateService.isFishing(characterId)) {
+        throw new Error('Pare de pescar antes de entrar em combate.');
+      }
     }
     const scalingCtx = preloadedCtx || (await MonsterCombatBuilder.loadScalingContext(this.prisma));
 
@@ -275,6 +280,9 @@ export class TemporaryCombatController {
     });
     if ((pc as any)?.isFlying) {
       throw new Error('Você precisa estar no chão antes de entrar em combate.');
+    }
+    if (CharacterActivityStateService.isFishing(characterId)) {
+      throw new Error('Pare de pescar antes de entrar em combate.');
     }
 
     // Filtra apenas pets em formação (deploySlot 1..3 solo; deploySlot 1 em equipe) que não estejam inativados
@@ -637,6 +645,11 @@ export class TemporaryCombatController {
     };
 
     this.activeBattles.set(battleId, state);
+    const activeCharId = Number(state.characterId) || 0;
+    if (activeCharId > 0) {
+      CharacterActivityStateService.forceEnterCombat(activeCharId, battleId);
+      MapPresenceService.setCombatStatus(activeCharId, true);
+    }
     return state;
   }
 
@@ -868,6 +881,8 @@ export class TemporaryCombatController {
     battle.victoryRecorded = true;
     battle.isFinished = true;
     battle.winner = 'PLAYER';
+    CharacterActivityStateService.exitCombat(Number(battle.characterId), battleId);
+    MapPresenceService.setCombatStatus(Number(battle.characterId), false);
     for (const mob of battle.monsters) {
       mob.hp = 0;
       mob.isAlive = false;
@@ -932,6 +947,26 @@ export class TemporaryCombatController {
   }
 
   public endBattle(battleId: string): boolean {
-    return this.activeBattles.delete(battleId);
+    const b = this.activeBattles.get(battleId);
+    const deleted = this.activeBattles.delete(battleId);
+    if (b) {
+      CharacterActivityStateService.exitCombat(Number(b.characterId), battleId);
+      MapPresenceService.setCombatStatus(Number(b.characterId), false);
+    }
+    return deleted;
+  }
+
+  public endActiveBattlesForCharacter(characterId: number): number {
+    const cid = Number(characterId);
+    let removed = 0;
+    for (const [id, b] of this.activeBattles.entries()) {
+      if (Number(b.characterId) === cid && (!b.isDungeon || b.isFinished)) {
+        this.activeBattles.delete(id);
+        removed++;
+      }
+    }
+    CharacterActivityStateService.exitCombat(cid);
+    MapPresenceService.setCombatStatus(cid, false);
+    return removed;
   }
 }
