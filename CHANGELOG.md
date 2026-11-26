@@ -5,6 +5,19 @@ Qualquer IA trabalhando neste repositório **DEVE** incrementar a versão e regi
 
 ---
 
+## [v0.68.1] - 2026-11-26
+### Refatoração Modular Preventiva (Regra #7 `< 1.000` linhas)
+* **`/admin` Equipamentos (`AdminEquipmentsTab.js` + `AdminEquipmentTableView.js`, `admin/index.html`):**
+  * Extraídos injeção do botão/painel da aba `#tabEquipments`, filtros da tabela/galeria, badges de combate e renderização desktop/mobile para `apps/server/public/admin/js/AdminEquipmentTableView.js` (`348` linhas), reduzindo `AdminEquipmentsTab.js` de `986` para `585` linhas sem alterar comportamento.
+* **Controlador de Combate (`TemporaryCombatController.ts` + `TemporaryCombatTypes.ts` + `TemporaryCombatActionResolver.ts`):**
+  * Extraídos contratos DTO (`ActiveStatusInstance`, `CombatUnit`, `FloatingCombatNumber`, `TemporaryBattleState`) para `TemporaryCombatTypes.ts` (`124` linhas) com re-exportação compatível no controlador principal.
+  * Extraídos resolução de acerto, execução de ações (`ATTACK`, `SKILL`, `DEFEND`), `autoResolve`, purificação de debuffs e consolidação de vitória em tempo real para `TemporaryCombatActionResolver.ts` (`268` linhas), reduzindo `TemporaryCombatController.ts` de `972` para `593` linhas.
+* **`/play` HUD (`PlayHudController.js` + `PlayHudMinimapAndModals.js`, `play/index.html`):**
+  * Extraídos `openSettingsMenu`, `openPetsWindow`, `updatePets` e `updateMinimap` para `apps/server/public/play/js/PlayHudMinimapAndModals.js` (`239` linhas) com delegação transparente na HUD, reduzindo `PlayHudController.js` de `961` para `656` linhas.
+* **Validação & Cache-Busting:** Cache-buster `?v=20261126_mod1` em `admin/index.html` e `play/index.html`; `npm run build:packages`, build de `@etheria/server`, `npm run typecheck`, `node --check` e **8/8 suítes em `npm test`** aprovados sem regressões.
+
+---
+
 ## [v0.68.0] - 2026-11-26
 ### Pacote Completo de Pesca (60 Ícones Transparentes + 36 Peixes, 12 Iscas & 12 Varas)
 * **Extração & Transparência Real (`scripts/extract_fishing_assets.ps1`):**

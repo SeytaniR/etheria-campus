@@ -8,9 +8,9 @@
 ---
 
 ## 📌 Status Atual do Projeto
-* **Versão Atual:** `v0.68.0`
+* **Versão Atual:** `v0.68.1`
 * **Última Atualização:** `2026-11-26`
-* **Fase Atual:** **Pacote Completo de Pesca (`v0.68.0` — 60 Ícones PNG Transparentes + 36 Peixes, 12 Iscas & 12 Varas)** — Extraídos 60 PNGs RGBA `160×160` em `apps/server/public/play/assets/fishing/{fish,baits,rods}/` via `scripts/extract_fishing_assets.ps1`, corrigido suporte a ícones locais `/play/assets/*` em `/admin` e `/play` (`CharacterEquipmentService`, `ItemContainerOpeningService`, `AssetMirrorService`, `AdminItemsTab.js`, `AdminFishingRodsTab.js`), e implementado seed idempotente `scripts/seed_fishing_pack_v1.mjs` (36 novos peixes `F..SS`, correção do ícone da `Minhoca` + 11 novas iscas, e 12 novas varas `rod_7..rod_18` com i18n `pt-BR`/`en-US`/`es-ES`, preservando `Lambari` e `rod_1..rod_6`). `npm run typecheck`, build e **8/8 suítes no `npm test`** (`test_fishing_system.mjs`: **9/9**) aprovados.
+* **Fase Atual:** **Refatoração Modular Preventiva (`v0.68.1` — Regra #7 `< 1.000` linhas)** — Desacoplados os 3 arquivos que estavam próximos ao teto: `AdminEquipmentsTab.js` (`585` linhas) ← `AdminEquipmentTableView.js` (`348` linhas), `TemporaryCombatController.ts` (`593` linhas) ← `TemporaryCombatTypes.ts` (`124` linhas) + `TemporaryCombatActionResolver.ts` (`268` linhas), e `PlayHudController.js` (`656` linhas) ← `PlayHudMinimapAndModals.js` (`239` linhas). Zero alteração comportamental; `build`, `typecheck` e **8/8 suítes no `npm test`** aprovados e publicados na VPS.
 * **Repositório Oficial:** `https://github.com/SeytaniR/etheria-campus`
 * **Fonte Bruta de Assets:** `https://github.com/SeytaniR/mcrework` (`https://seytanir.github.io/mcrework/`)
 
