@@ -588,6 +588,7 @@ model PlayerCharacter {
   questProgress       CharacterQuestProgress[]
   inventoryItems      CharacterInventoryItem[]
   dungeonRuns         DungeonRun[]
+  eventProgresses     CharacterEventProgress[]
 
   @@index([userAccountId])
   @@index([currentMapId])
@@ -820,4 +821,51 @@ model MonsterGlobalConfig {
   updatedAt                    DateTime @updatedAt @map("updated_at")
 
   @@map("monster_global_configs")
+}
+
+// ----------------------------------------------------------------------------
+// 10. SISTEMA MODULAR DE EVENTOS E CHECK-IN DIÁRIO
+// ----------------------------------------------------------------------------
+
+/// Modelos de Eventos configuráveis via Admin (Carrossel de Destaques & Grid de Ícones).
+model GameEventTemplate {
+  id              Int      @id @default(autoincrement())
+  code            String   @unique
+  eventType       String   @default("DAILY_LOGIN") @map("event_type") /// DAILY_LOGIN, etc.
+  titlePtBr       String   @map("title_pt_br")
+  descriptionPtBr String   @default("") @map("description_pt_br")
+  bannerImageUrl  String   @default("") @map("banner_image_url")
+  iconImageUrl    String   @default("") @map("icon_image_url")
+  isFeatured      Boolean  @default(false) @map("is_featured")
+  sortOrder       Int      @default(0) @map("sort_order")
+  isActive        Boolean  @default(true) @map("is_active")
+  startsAt        DateTime? @map("starts_at")
+  endsAt          DateTime? @map("ends_at")
+  configJson      Json     @default("{}") @map("config_json")
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  progresses      CharacterEventProgress[]
+
+  @@index([isActive, isFeatured, sortOrder])
+  @@map("game_event_templates")
+}
+
+/// Progresso individual de eventos por Personagem (cumulativo por dia BRT sem reinício).
+model CharacterEventProgress {
+  id                 Int               @id @default(autoincrement())
+  characterId        Int               @map("character_id")
+  eventTemplateId    Int               @map("event_template_id")
+  claimedDaysCount   Int               @default(0) @map("claimed_days_count")
+  lastClaimDateKey   String?           @map("last_claim_date_key") /// YYYY-MM-DD (America/Sao_Paulo)
+  claimedHistoryJson Json              @default("[]") @map("claimed_history_json")
+  isCompleted        Boolean           @default(false) @map("is_completed")
+  updatedAt          DateTime          @updatedAt @map("updated_at")
+
+  character          PlayerCharacter   @relation(fields: [characterId], references: [id], onDelete: Cascade)
+  eventTemplate      GameEventTemplate @relation(fields: [eventTemplateId], references: [id], onDelete: Cascade)
+
+  @@unique([characterId, eventTemplateId])
+  @@index([characterId])
+  @@map("character_event_progress")
 }

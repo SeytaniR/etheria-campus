@@ -233,7 +233,10 @@ class PlayHudController {
             <span class="hud-menu-label">Quests</span>
           </button>
           <button type="button" class="hud-menu-btn" data-action="events" title="Eventos">
-            <span class="hud-menu-icon-wrap"><img src="/play/assets/hud/menu_events.png" alt="Eventos" /></span>
+            <span class="hud-menu-icon-wrap">
+              <img src="/play/assets/hud/menu_events.png" alt="Eventos" />
+              <span id="hudBottomEventsBadge" class="hud-menu-badge" style="display:none;">0</span>
+            </span>
             <span class="hud-menu-label">Eventos</span>
           </button>
         </div>
@@ -342,6 +345,7 @@ class PlayHudController {
       });
     }
     this.playApp?.updateQuestHudBadge?.();
+    window.PlayEventsController?.refreshBadge?.(this.playApp);
 
     // 9. HUD de Chat Multi-Canal Autoritário
     if (window.PlayChatController) {
@@ -505,7 +509,7 @@ class PlayHudController {
         }
         break;
       case 'events':
-        this.playApp.showToast ? this.playApp.showToast('🎁 Eventos e Recompensas Diárias em breve!') : alert('🎁 Eventos em breve!');
+        window.PlayEventsController?.openModal?.(this.playApp);
         break;
     }
   }
@@ -518,6 +522,7 @@ class PlayHudController {
       document.body.classList.add('is-in-combat');
       document.body.classList.remove('is-fishing');
       window.PlayFishingController?.onEnterCombat?.();
+      window.PlayEventsController?.closeModal?.();
     } else {
       document.body.classList.remove('is-in-combat');
       window.PlayFishingController?.onExitCombat?.();

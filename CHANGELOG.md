@@ -5,6 +5,23 @@ Qualquer IA trabalhando neste repositório **DEVE** incrementar a versão e regi
 
 ---
 
+## [v0.69.0] - 2026-11-26
+### Sistema Modular de Eventos (Carrossel de Destaques, Grid de Ícones, Check-in Diário 7d/30d & Admin CRUD)
+* **Schema Prisma (`GameEventTemplate`, `CharacterEventProgress`):**
+  * Adicionadas tabelas aditivas para templates de eventos (`isFeatured`, `sortOrder`, `startsAt`, `endsAt`, `bannerImageUrl`, `iconImageUrl`, `configJson`) e progresso por personagem (`claimedDaysCount`, `lastClaimDateKey`, `claimedHistoryJson`, `isCompleted`).
+* **Backend Autoritário (`EventDateAndRewardHelper.ts`, `GameEventsService.ts`, `AdminEventsController.ts`, `AdminRouter.ts`, `PlayRouter.ts`, `AdminAuthService.ts`, `AssetMirrorService.ts`):**
+  * Virada diária estrita às **00:00 Horário de Brasília (`America/Sao_Paulo`, UTC-3)**, regra acumulativa por personagem sem reset ao faltar dias e sem reinício ao concluir o evento.
+  * Seed idempotente dos 2 eventos iniciais: **Login Seguido — 7 Dias** (`daily_login_7d`, Destaque no Carrossel) e **Jornada de Login — 30 Dias** (`daily_login_30d`, Grid de Ícones), com proteção de mochila cheia sem consumir o check-in e entrega atômica de Ouro, XP e Itens.
+  * Adicionada permissão granular `'EVENTS'` no RBAC e rotas `/api/admin/events*` (CRUD + listagem/upload local de banners e ícones em `apps/server/public/play/assets/events/uploaded/`) e `/api/play/characters/:charId/events*`.
+* **Assets Locais & UI `/play` (`PlayEventsController.js`, `PlayEventDailyLoginModule.js`, `play_events.css`, `PlayHudController.js`, `PlayLobbyController.js`, `play/index.html`):**
+  * Geradas e hospedadas localmente 4 artes PNG em `apps/server/public/play/assets/events/` (`banner_login_7d.png`, `icon_login_7d.png`, `banner_login_30d.png`, `icon_login_30d.png`) registradas no manifesto de pré-cache.
+  * Hub minimalista e responsivo (Desktop, Mobile Portrait e Landscape) com carrossel horizontal superior (swipe + bolinhas clicáveis) apenas para destaques, grid limpa somente com ícones abaixo, submódulo plugável `DAILY_LOGIN` com botão `← Voltar` e badge de pendências `#hudBottomEventsBadge` no menu inferior.
+* **Admin `/admin` (`AdminEventsModalDom.js`, `AdminEventsTab.js`, `AdminAuth.js`, `AdminUsersTab.js`, `admin/index.html`):**
+  * Nova aba `🎉 Eventos` para criar, editar, ordenar, alternar Carrossel/Grid, configurar vigência, subir/trocar banners e ícones locais e personalizar recompensas dia a dia.
+* **Testes (`tests/test_events_system.mjs`, `tests/run_all_tests.mjs`):** **6/6** verificações da nova suíte e **9/9 suítes** em `npm test` aprovadas.
+
+---
+
 ## [v0.68.1] - 2026-11-26
 ### Refatoração Modular Preventiva (Regra #7 `< 1.000` linhas)
 * **`/admin` Equipamentos (`AdminEquipmentsTab.js` + `AdminEquipmentTableView.js`, `admin/index.html`):**

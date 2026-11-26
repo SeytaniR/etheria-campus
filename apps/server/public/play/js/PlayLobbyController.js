@@ -401,6 +401,7 @@ class PlayLobbyController {
         }).catch(() => {});
       }
       await this.loadMapIntoWorld(found.currentMapId || 1, this.playerX, this.playerY, null, { restoreFromChar: true });
+      window.PlayEventsController?.refreshBadge?.(this);
     };
 
     client.backToLobby = function () {

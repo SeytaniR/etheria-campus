@@ -8,9 +8,9 @@
 ---
 
 ## 📌 Status Atual do Projeto
-* **Versão Atual:** `v0.68.1`
+* **Versão Atual:** `v0.69.0`
 * **Última Atualização:** `2026-11-26`
-* **Fase Atual:** **Refatoração Modular Preventiva (`v0.68.1` — Regra #7 `< 1.000` linhas)** — Desacoplados os 3 arquivos que estavam próximos ao teto: `AdminEquipmentsTab.js` (`585` linhas) ← `AdminEquipmentTableView.js` (`348` linhas), `TemporaryCombatController.ts` (`593` linhas) ← `TemporaryCombatTypes.ts` (`124` linhas) + `TemporaryCombatActionResolver.ts` (`268` linhas), e `PlayHudController.js` (`656` linhas) ← `PlayHudMinimapAndModals.js` (`239` linhas). Zero alteração comportamental; `build`, `typecheck` e **8/8 suítes no `npm test`** aprovados e publicados na VPS.
+* **Fase Atual:** **Sistema Modular de Eventos (`v0.69.0` — Hub Responsivo + Carrossel + Grid de Ícones + Login Diário 7d/30d + Admin CRUD)** — Criadas tabelas `GameEventTemplate` e `CharacterEventProgress`, helpers de virada 00:00 BRT e verificação de mochila cheia (`EventDateAndRewardHelper.ts`), motor e seeds (`GameEventsService.ts`), CRUD/upload admin (`AdminEventsController.ts`, `AdminEventsModalDom.js`, `AdminEventsTab.js`), hub modular `/play` (`PlayEventsController.js`, `PlayEventDailyLoginModule.js`, `play_events.css`), badge `#hudBottomEventsBadge`, 4 PNGs locais em `apps/server/public/play/assets/events/` e permissão RBAC `EVENTS`. `build`, `typecheck` e **9/9 suítes no `npm test`** (`test_events_system.mjs`: **6/6**) aprovados.
 * **Repositório Oficial:** `https://github.com/SeytaniR/etheria-campus`
 * **Fonte Bruta de Assets:** `https://github.com/SeytaniR/mcrework` (`https://seytanir.github.io/mcrework/`)
 

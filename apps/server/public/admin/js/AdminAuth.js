@@ -144,6 +144,7 @@ class AdminAuth {
         skills: 'SKILLS',
         'status-effects': 'STATUS_EFFECTS',
         quests: 'QUESTS',
+        events: 'EVENTS',
         users: 'USERS',
       };
 
@@ -167,6 +168,7 @@ class AdminAuth {
         skills: document.getElementById('tabBtnSkills'),
         'status-effects': document.getElementById('tabBtnStatusEffects'),
         quests: document.getElementById('tabBtnQuests'),
+        events: document.getElementById('tabBtnEvents'),
         users: document.getElementById('tabBtnUsers'),
       };
 
@@ -214,6 +216,7 @@ class AdminAuth {
         { id: 'tabNpcs', btn: 'tabBtnNpcs', key: 'npcs', code: 'NPCS' },
         { id: 'tabHunterCosts', btn: 'tabBtnHunterCosts', key: 'hunter-costs', code: 'NPCS' },
         { id: 'tabQuests', btn: 'tabBtnQuests', key: 'quests', code: 'QUESTS' },
+        { id: 'tabEvents', btn: 'tabBtnEvents', key: 'events', code: 'EVENTS' },
         { id: 'tabClasses', btn: 'tabBtnClasses', key: 'classes', code: 'CLASSES' },
         { id: 'tabMonsters', btn: 'tabBtnMonsters', key: 'monsters', code: 'MONSTERS' },
         { id: 'tabMonsterConfig', btn: 'tabBtnMonsterConfig', key: 'monster-config', code: 'MONSTERS' },
@@ -253,6 +256,9 @@ class AdminAuth {
       }
       if (tab === 'quests' && typeof this.renderQuestsCrudTable === 'function') {
         this.renderQuestsCrudTable();
+      }
+      if (tab === 'events' && typeof this.loadEventsTab === 'function') {
+        this.loadEventsTab();
       }
       if (tab === 'classes') {
         this.renderClassesCrudTable();
@@ -334,6 +340,7 @@ class AdminAuth {
         skills: 'SKILLS',
         'status-effects': 'STATUS_EFFECTS',
         quests: 'QUESTS',
+        events: 'EVENTS',
       };
 
       const code = tabMap[tabKey];
@@ -359,6 +366,7 @@ class AdminAuth {
           skills: document.getElementById('tabSkills'),
           'status-effects': document.getElementById('tabStatusEffects'),
           quests: document.getElementById('tabQuests'),
+          events: document.getElementById('tabEvents'),
         };
 
         const targetEl = containerMap[tabKey];

@@ -408,6 +408,24 @@ export class AssetMirrorService {
       if (ci.mcreworkIconKey) urls.add(ci.mcreworkIconKey);
     }
 
+    // Imagens de Eventos ativos locais sob `/play/assets/`
+    const eventAssets = [
+      '/play/assets/events/banner_login_7d.png',
+      '/play/assets/events/icon_login_7d.png',
+      '/play/assets/events/banner_login_30d.png',
+      '/play/assets/events/icon_login_30d.png',
+    ];
+    for (const ea of eventAssets) urls.add(ea);
+
+    const activeEvents = await prisma.gameEventTemplate.findMany({
+      where: { isActive: true },
+      select: { bannerImageUrl: true, iconImageUrl: true },
+    });
+    for (const ev of activeEvents) {
+      if (ev.bannerImageUrl && ev.bannerImageUrl.startsWith('/play/assets/')) urls.add(ev.bannerImageUrl);
+      if (ev.iconImageUrl && ev.iconImageUrl.startsWith('/play/assets/')) urls.add(ev.iconImageUrl);
+    }
+
     // Imagens dos mapas gerais e logo já hospedados na VPS
     urls.add('/assets/worldmap/world_map_1_base.png');
     urls.add('/assets/worldmap/world_map_2_base.png');

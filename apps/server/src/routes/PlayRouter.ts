@@ -30,6 +30,7 @@ import { GameChatService } from '../controllers/GameChatService.js';
 import { MapPresenceService } from '../controllers/MapPresenceService.js';
 import { PartyService } from '../controllers/PartyService.js';
 import { FishingService } from '../controllers/FishingService.js';
+import { GameEventsService } from '../controllers/GameEventsService.js';
 import { PartyRouter } from './PartyRouter.js';
 import { PlayCombatRouter } from './PlayCombatRouter.js';
 import { RateLimiter } from '../security/RateLimiter.js';
@@ -797,6 +798,38 @@ export class PlayRouter {
       }
       FishingService.stopSession(charId);
       this.deps.sendJson(res, 200, { ok: true, stopped: true });
+      return true;
+    }
+
+    // 🎉 Sistema Modular de Eventos & Check-in Diário (00:00 BRT)
+    const getEventsMatch = pathname.match(/^\/api\/play\/characters\/(\d+)\/events$/);
+    if (getEventsMatch && method === 'GET') {
+      const charId = Number(getEventsMatch[1]);
+      if (!charId || !(await this.verifyCharacterOwnership(userAccountId, session.role, charId))) {
+        this.deps.sendJson(res, 403, { error: 'Acesso negado: este personagem não pertence à sua conta.' });
+        return true;
+      }
+      try {
+        this.deps.sendJson(res, 200, await GameEventsService.getPlayEventsState(this.deps.prisma, charId));
+      } catch (err: any) {
+        this.deps.sendJson(res, 400, { error: err.message || 'Erro ao carregar eventos do personagem.' });
+      }
+      return true;
+    }
+
+    const claimEventMatch = pathname.match(/^\/api\/play\/characters\/(\d+)\/events\/(\d+)\/claim$/);
+    if (claimEventMatch && method === 'POST') {
+      const charId = Number(claimEventMatch[1]);
+      const eventId = Number(claimEventMatch[2]);
+      if (!charId || !eventId || !(await this.verifyCharacterOwnership(userAccountId, session.role, charId))) {
+        this.deps.sendJson(res, 403, { error: 'Acesso negado: este personagem não pertence à sua conta.' });
+        return true;
+      }
+      try {
+        this.deps.sendJson(res, 200, await GameEventsService.claimEventReward(this.deps.prisma, charId, eventId));
+      } catch (err: any) {
+        this.deps.sendJson(res, 400, { error: err.message || 'Não foi possível resgatar a recompensa do evento.' });
+      }
       return true;
     }
 

@@ -19,6 +19,7 @@ class AdminUsersTab {
       { code: 'SKILLS', namePtBr: 'Habilidades', icon: '⚡', desc: 'Habilidades ativas, passivas, alcances e custos' },
       { code: 'STATUS_EFFECTS', namePtBr: 'Buffs & Debuffs', icon: '💫', desc: 'Efeitos de status, DoTs, CC e gatilhos' },
       { code: 'QUESTS', namePtBr: 'Quests & Capítulos', icon: '📜', desc: 'Missões lineares, episódios e requisitos' },
+      { code: 'EVENTS', namePtBr: 'Eventos & Check-in', icon: '🎉', desc: 'Carrossel de destaques, ícones e prêmios diários' },
     ];
 
     app.loadUsers = async function () {

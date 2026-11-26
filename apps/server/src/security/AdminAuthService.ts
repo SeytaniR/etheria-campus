@@ -27,6 +27,7 @@ export const ALL_TABLE_CODES = [
   'SKILLS',
   'STATUS_EFFECTS',
   'QUESTS',
+  'EVENTS',
   'USERS',
 ] as const;
 

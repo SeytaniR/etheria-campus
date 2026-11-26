@@ -24,6 +24,7 @@ const suites = [
   'tests/test_wings_and_chests.mjs',
   'tests/test_weapon_visuals.mjs',
   'tests/test_fishing_system.mjs',
+  'tests/test_events_system.mjs',
   'tests/test_action_motion_engine.mjs',
 ];
 

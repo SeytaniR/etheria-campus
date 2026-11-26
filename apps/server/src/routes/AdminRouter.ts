@@ -26,6 +26,7 @@ import type { AdminAttributesController } from '../controllers/AdminAttributesCo
 import type { AdminExperienceController } from '../controllers/AdminExperienceController.js';
 import type { AdminWorldMapsController } from '../controllers/AdminWorldMapsController.js';
 import type { AdminMapUploadController } from '../controllers/AdminMapUploadController.js';
+import type { AdminEventsController } from '../controllers/AdminEventsController.js';
 import { HunterPetController } from '../controllers/HunterPetController.js';
 import { DungeonChestService } from '../controllers/DungeonChestService.js';
 import { MonsterGlobalConfigService } from '../controllers/MonsterGlobalConfigService.js';
@@ -49,6 +50,7 @@ export interface AdminRouterDeps {
   attributesController: AdminAttributesController;
   experienceController: AdminExperienceController;
   worldMapsController: AdminWorldMapsController;
+  eventsController: AdminEventsController;
   sendJson: (res: http.ServerResponse, statusCode: number, data: unknown) => void;
   readJsonBody: <T = any>(req: http.IncomingMessage, maxBytes?: number) => Promise<T>;
 }
@@ -761,6 +763,18 @@ export class AdminRouter {
       this.deps.sendJson,
       this.deps.readJsonBody,
       (mode) => this.enforceTablePermission(res, session, 'MONSTERS', mode)
+    )) {
+      return true;
+    }
+
+    if (await this.deps.eventsController.handleAdminRoutes(
+      req,
+      res,
+      pathname,
+      method,
+      this.deps.sendJson,
+      this.deps.readJsonBody,
+      (mode) => this.enforceTablePermission(res, session, 'EVENTS', mode)
     )) {
       return true;
     }
