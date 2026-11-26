@@ -23,9 +23,18 @@ import {
   rollFishByRankFirst,
 } from '../apps/server/dist/controllers/FishingService.js';
 import { CharacterActivityStateService } from '../apps/server/dist/controllers/CharacterActivityStateService.js';
+import { AssetMirrorService } from '../apps/server/dist/controllers/AssetMirrorService.js';
+import { CharacterInventoryService } from '../apps/server/dist/controllers/CharacterInventoryService.js';
 import { I18nCache } from '../packages/database/dist/I18nCache.js';
 import { normalizeFishingRodConfig } from '../apps/server/dist/controllers/AdminFishingRodsController.js';
 import { AdminUiLayoutsController } from '../apps/server/dist/controllers/AdminUiLayoutsController.js';
+import {
+  FISH_CATALOG,
+  BAIT_CATALOG,
+  ROD_CATALOG,
+  MINHOCA_ICON_PATH,
+  MINHOCA_DEFAULT_CONFIG,
+} from '../scripts/seed_fishing_pack_v1.mjs';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -401,6 +410,60 @@ await test('Frontend PlayFishingController e CSS ocultam UI de pesca e bloqueiam
   assert.equal(ctrl.hudEditorPreview, false);
   assert.equal(btn.style.display, 'none');
   assert.equal(bar.style.display, 'none');
+});
+
+await test('Pacote de Pesca v0.68.0 possui 60 PNGs RGBA 160x160 transparentes, URLs preservadas e catálogo F..SS íntegro', () => {
+  assert.equal(FISH_CATALOG.length, 36);
+  assert.equal(BAIT_CATALOG.length, 11);
+  assert.equal(ROD_CATALOG.length, 12);
+  assert.ok(MINHOCA_DEFAULT_CONFIG.catchChanceBonusPct > 0);
+
+  // Todos os 7 ranks presentes no catálogo de peixes
+  const fishRanks = new Set(FISH_CATALOG.map((f) => f.rarityTier));
+  for (const r of ['F', 'D', 'C', 'B', 'A', 'S', 'SS']) {
+    assert.ok(fishRanks.has(r), `Rank ${r} ausente em FISH_CATALOG`);
+  }
+
+  // Todos os 60 arquivos PNG existem, têm 160x160 e canal alpha (colorType = 6)
+  const expectedIconPaths = [
+    ...FISH_CATALOG.map((f) => f.iconPath),
+    MINHOCA_ICON_PATH,
+    ...BAIT_CATALOG.map((b) => b.iconPath),
+    ...ROD_CATALOG.map((r) => r.iconPath),
+  ];
+  assert.equal(expectedIconPaths.length, 60);
+  assert.equal(new Set(expectedIconPaths).size, 60, 'Os 60 caminhos de ícones devem ser únicos');
+
+  const pngSig = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]);
+  for (const webPath of expectedIconPaths) {
+    assert.ok(webPath.startsWith('/play/assets/fishing/'));
+    assert.equal(AssetMirrorService.toSameOriginUrl(webPath), webPath);
+    assert.equal(CharacterInventoryService.resolveIconUrl(webPath), webPath);
+
+    const diskPath = path.join(repoRoot, 'apps/server/public', webPath.replace(/^\/+/, ''));
+    assert.ok(fs.existsSync(diskPath), `PNG ausente em disco: ${diskPath}`);
+    const buf = fs.readFileSync(diskPath);
+    assert.ok(buf.subarray(0, 8).equals(pngSig), `Assinatura PNG inválida: ${webPath}`);
+    assert.equal(buf.readUInt32BE(16), 160, `Largura != 160 em ${webPath}`);
+    assert.equal(buf.readUInt32BE(20), 160, `Altura != 160 em ${webPath}`);
+    assert.equal(buf[24], 8, `Bit depth != 8 em ${webPath}`);
+    assert.equal(buf[25], 6, `ColorType != 6 (RGBA transparente) em ${webPath}`);
+  }
+
+  // Varas novas rod_7..rod_18: pesos somam 100%, nível >= 50 e trilíngue pt-BR/en-US/es-ES
+  const allEntries = [...FISH_CATALOG, ...BAIT_CATALOG, ...ROD_CATALOG];
+  assert.equal(new Set(allEntries.map((e) => e.code)).size, 59);
+  for (const entry of allEntries) {
+    for (const loc of ['pt-BR', 'en-US', 'es-ES']) {
+      assert.ok(entry.names?.[loc]?.trim().length >= 2, `Nome ${loc} inválido em ${entry.code}`);
+      assert.ok(entry.descs?.[loc]?.trim().length >= 10, `Descrição ${loc} inválida em ${entry.code}`);
+    }
+  }
+  for (const rod of ROD_CATALOG) {
+    assert.ok(rod.requiredLevel >= 50, `${rod.code} deve exigir nível >= 50`);
+    const sum = Object.values(rod.fishingRodConfig.rankWeights).reduce((acc, v) => acc + Number(v), 0);
+    assert.ok(Math.abs(sum - 100) < 0.001, `${rod.code} soma de pesos = ${sum} (esperado 100)`);
+  }
 });
 
 console.log(`\nResumo Sistema de Pesca: ${passed}/${total} testes aprovados.`);

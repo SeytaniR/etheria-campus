@@ -9,12 +9,13 @@
  *   - Credita os itens ganhos e ouro bônus na mochila do personagem.
  *   - Retorna os metadados enriquecidos para o modal com animação de roleta e revelação de itens.
  * @rules Segue estritamente AGENTS.md (Sorteio e transação autoritativa server-side, Regra #7 < 1.000 linhas).
- * @dependencies @etheria/database (PrismaClient, I18nCache), ./CharacterInventoryService.js
+ * @dependencies @etheria/database (PrismaClient, I18nCache), ./CharacterInventoryService.js, ./AssetMirrorService.js
  */
 
 import type { PrismaClient } from '@etheria/database';
 import { I18nCache } from '@etheria/database';
 import { CharacterInventoryService } from './CharacterInventoryService.js';
+import { AssetMirrorService } from './AssetMirrorService.js';
 
 export interface ItemContainerEntryDto {
   itemTemplateId: number;
@@ -54,8 +55,9 @@ export interface RouletteSliceSummary {
 
 export class ItemContainerOpeningService {
   private static resolveIconUrl(mcreworkIconKey: string | null | undefined): string {
-    const key = mcreworkIconKey || 'assets/items/icons/item_normal_060009.png';
-    return `/api/assets/mcrework/${key.replace(/^\/+/, '')}`;
+    return AssetMirrorService.toSameOriginUrl(
+      mcreworkIconKey || 'assets/items/icons/item_normal_060009.png'
+    );
   }
 
   /**

@@ -8,9 +8,9 @@
 ---
 
 ## 📌 Status Atual do Projeto
-* **Versão Atual:** `v0.67.2`
-* **Última Atualização:** `2026-11-25`
-* **Fase Atual:** **Estado Único do Personagem (`EXPLORING` | `COMBAT` | `FISHING`) & Pesca em Batalha (`v0.67.2`)** — Implementado `CharacterActivityStateService.ts` + integrações em `FishingService.ts`, `TemporaryCombatController.ts`, `DungeonService.ts`, `PlayCombatRouter.ts` (`POST /api/play/combat/leave`) e `MapPresenceService.ts`, garantindo exclusividade mútua autoritativa entre exploração, combate e pesca no servidor e no `/play` (CSS `!important`, `PlayFishingController`, `PlayHudController`, `PlayUiLayoutApplier`, `ActionCombatArena`, `PlayWorldInputController`, `play.js` com `?v=20261125_state1`). `npm run typecheck`, build do servidor e **8/8 suítes em `npm test`** aprovados (`test_fishing_system.mjs`: **8/8**); todos os arquivos < 1.000 linhas (Regra #7). **Pronto para deploy na VPS Azure (`40-65-63-193.sslip.io`).**
+* **Versão Atual:** `v0.68.0`
+* **Última Atualização:** `2026-11-26`
+* **Fase Atual:** **Pacote Completo de Pesca (`v0.68.0` — 60 Ícones PNG Transparentes + 36 Peixes, 12 Iscas & 12 Varas)** — Extraídos 60 PNGs RGBA `160×160` em `apps/server/public/play/assets/fishing/{fish,baits,rods}/` via `scripts/extract_fishing_assets.ps1`, corrigido suporte a ícones locais `/play/assets/*` em `/admin` e `/play` (`CharacterEquipmentService`, `ItemContainerOpeningService`, `AssetMirrorService`, `AdminItemsTab.js`, `AdminFishingRodsTab.js`), e implementado seed idempotente `scripts/seed_fishing_pack_v1.mjs` (36 novos peixes `F..SS`, correção do ícone da `Minhoca` + 11 novas iscas, e 12 novas varas `rod_7..rod_18` com i18n `pt-BR`/`en-US`/`es-ES`, preservando `Lambari` e `rod_1..rod_6`). `npm run typecheck`, build e **8/8 suítes no `npm test`** (`test_fishing_system.mjs`: **9/9**) aprovados.
 * **Repositório Oficial:** `https://github.com/SeytaniR/etheria-campus`
 * **Fonte Bruta de Assets:** `https://github.com/SeytaniR/mcrework` (`https://seytanir.github.io/mcrework/`)
 

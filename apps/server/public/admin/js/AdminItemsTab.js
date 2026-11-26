@@ -257,11 +257,15 @@ class AdminItemsTab {
     app.updateItemIconPreview = function (iconKey) {
       const preview = document.getElementById('itemActiveIconImg');
       const badge = document.getElementById('itemActiveIconBadge');
-      if (!iconKey) iconKey = 'assets/items/icons/item_normal_060009.png';
-      const clean = iconKey.replace(/^\/+/, '');
-      const url = `/api/assets/mcrework/${clean}`;
+      const trimmed = String(iconKey || 'assets/items/icons/item_normal_060009.png').trim();
+      const isDirect =
+        trimmed.startsWith('/play/') ||
+        trimmed.startsWith('/assets/') ||
+        trimmed.startsWith('/api/') ||
+        /^https?:\/\//i.test(trimmed);
+      const url = isDirect ? trimmed : `/api/assets/mcrework/${trimmed.replace(/^\/+/, '')}`;
       if (preview) preview.src = url;
-      if (badge) badge.textContent = clean;
+      if (badge) badge.textContent = isDirect ? trimmed : trimmed.replace(/^\/+/, '');
     };
 
     app.selectMcreworkItemByIndex = function (idx) {

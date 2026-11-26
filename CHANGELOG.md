@@ -5,6 +5,21 @@ Qualquer IA trabalhando neste repositório **DEVE** incrementar a versão e regi
 
 ---
 
+## [v0.68.0] - 2026-11-26
+### Pacote Completo de Pesca (60 Ícones Transparentes + 36 Peixes, 12 Iscas & 12 Varas)
+* **Extração & Transparência Real (`scripts/extract_fishing_assets.ps1`):**
+  * Processadas as 5 folhas enviadas em grade 4×3 com remoção de fundo branco por BFS a partir das bordas, limpeza seletiva de bolsos internos nas linhas/anzóis, anti-aliasing/defringing de halo (preservando brancos internos de listras, asas e mostradores, além de auras translúcidas nas varas mágicas) e geração de **60 ícones PNG `160×160` RGBA transparentes** em `apps/server/public/play/assets/fishing/{fish,baits,rods}/`.
+* **Suporte a Ícones Locais Customizados `/play/assets/` (`CharacterEquipmentService.ts`, `ItemContainerOpeningService.ts`, `AssetMirrorService.ts`, `AdminItemsTab.js`, `AdminFishingRodsTab.js`, `admin/index.html`):**
+  * `CharacterEquipmentService` e `ItemContainerOpeningService` delegam para `AssetMirrorService.toSameOriginUrl()` em vez de prefixar `/api/assets/mcrework/`.
+  * `AssetMirrorService.buildPlayAssetsManifest` passa a incluir ícones `/play/assets/*` cadastrados em `item_templates` no manifesto de pré-cache de `/play`.
+  * Preview de ícones em `AdminItemsTab.js` e `AdminFishingRodsTab.js` suporta URLs locais diretas `/play/assets/*` (cache-buster `?v=20261126_fish2`).
+* **Seed Idempotente em Produção (`scripts/seed_fishing_pack_v1.mjs`):**
+  * Corrigido o ícone da isca `Minhoca` (`item_minhoca_rilyq`) para `/play/assets/fishing/baits/bait_minhoca_viva.png` (com bônus inicial leve `+4% fisgada, +4 D, +1 C` quando zerada), preservando integralmente `item_lambari_uutu9` e `rod_1`..`rod_6`.
+  * Cadastrados **36 peixes (`FISH`)** distribuídos pelos 7 ranks (`F=6, D=6, C=6, B=6, A=5, S=4, SS=3`), **11 novas iscas (`FISHING_BAIT`)** completando 12 com a Minhoca, e **12 novas varas (`FISHING_ROD`, `rod_7`..`rod_18`, Nv.50–80)** com traduções completas em `pt-BR`, `en-US` e `es-ES`.
+* **Testes:** `tests/test_fishing_system.mjs` ampliado para **9/9 verificações** validando os 60 PNGs 160×160 RGBA, resolução de URLs e consistência do catálogo (**8/8 suítes em `npm test` aprovadas**).
+
+---
+
 ## [v0.67.2] - 2026-11-25
 ### Estado Único de Atividade (`EXPLORING` | `COMBAT` | `FISHING`) & Ocultação Total da Pesca em Batalha
 * **Backend Autoritativo (`CharacterActivityStateService.ts`, `FishingService.ts`, `TemporaryCombatController.ts`, `DungeonService.ts`, `PlayCombatRouter.ts`, `MapPresenceService.ts`):**

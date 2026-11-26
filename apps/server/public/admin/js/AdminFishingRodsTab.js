@@ -53,11 +53,17 @@ class AdminFishingRodsTab {
     };
 
     app.updateFishingRodIconPreview = function (iconKey) {
-      const clean = (iconKey || 'assets/equipment/icons/equip_normal_600001.png').replace(/^\/+/, '');
+      const trimmed = String(iconKey || 'assets/equipment/icons/equip_normal_600001.png').trim();
+      const isDirect =
+        trimmed.startsWith('/play/') ||
+        trimmed.startsWith('/assets/') ||
+        trimmed.startsWith('/api/') ||
+        /^https?:\/\//i.test(trimmed);
+      const url = isDirect ? trimmed : `/api/assets/mcrework/${trimmed.replace(/^\/+/, '')}`;
       const img = document.getElementById('rodActiveIconImg');
       const badge = document.getElementById('rodActiveIconBadge');
-      if (img) img.src = `/api/assets/mcrework/${clean}`;
-      if (badge) badge.textContent = clean;
+      if (img) img.src = url;
+      if (badge) badge.textContent = isDirect ? trimmed : trimmed.replace(/^\/+/, '');
     };
 
     app.updateFishingRodRankSumBadge = function () {

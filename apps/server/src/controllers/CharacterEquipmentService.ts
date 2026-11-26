@@ -7,7 +7,7 @@
  *   - Consolida e calcula bônus de atributos de combate derivados dos equipamentos ativos.
  *   - Previne qualquer tipo de duplicação, BOLA/IDOR ou trapaça de status vinda do cliente.
  * @rules Segue estritamente AGENTS.md (Limite < 1.000 linhas, SRP, Servidor Autoritário).
- * @dependencies @prisma/client, @etheria/database (I18nCache), @etheria/shared (GameRulesConstants), ./CharacterInventoryService.js, ./MapPresenceService.js, ./MapRuntimeCacheService.js
+ * @dependencies @prisma/client, @etheria/database (I18nCache), @etheria/shared (GameRulesConstants), ./CharacterInventoryService.js, ./MapPresenceService.js, ./MapRuntimeCacheService.js, ./AssetMirrorService.js
  */
 
 import { PrismaClient } from '@prisma/client';
@@ -16,6 +16,7 @@ import { VALID_CHARACTER_EQUIPMENT_SLOTS, type CharacterEquipmentSlotCode } from
 import { CharacterInventoryService } from './CharacterInventoryService.js';
 import { MapPresenceService } from './MapPresenceService.js';
 import { MapRuntimeCacheService } from './MapRuntimeCacheService.js';
+import { AssetMirrorService } from './AssetMirrorService.js';
 
 export { VALID_CHARACTER_EQUIPMENT_SLOTS, type CharacterEquipmentSlotCode };
 
@@ -112,8 +113,9 @@ export interface EquippedSlotDetailDto {
 
 export class CharacterEquipmentService {
   private static resolveIconUrl(mcreworkIconKey: string | null | undefined): string {
-    const key = mcreworkIconKey || 'assets/equipment/icons/equip_normal_200001.png';
-    return `/api/assets/mcrework/${key.replace(/^\/+/, '')}`;
+    return AssetMirrorService.toSameOriginUrl(
+      mcreworkIconKey || 'assets/equipment/icons/equip_normal_200001.png'
+    );
   }
 
   private static resolveCharacterActiveCharKey(character: any): string | null {

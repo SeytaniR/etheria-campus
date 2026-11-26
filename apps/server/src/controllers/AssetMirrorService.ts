@@ -399,6 +399,15 @@ export class AssetMirrorService {
       urls.add(`/api/assets/mcrework/${rel}`);
     }
 
+    // Ícones customizados locais sob `/play/assets/` (ex: ícones de pesca recortados localmente)
+    const customLocalItems = await prisma.itemTemplate.findMany({
+      where: { mcreworkIconKey: { startsWith: '/play/assets/' } },
+      select: { mcreworkIconKey: true },
+    });
+    for (const ci of customLocalItems) {
+      if (ci.mcreworkIconKey) urls.add(ci.mcreworkIconKey);
+    }
+
     // Imagens dos mapas gerais e logo já hospedados na VPS
     urls.add('/assets/worldmap/world_map_1_base.png');
     urls.add('/assets/worldmap/world_map_2_base.png');
