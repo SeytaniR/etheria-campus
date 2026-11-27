@@ -19,6 +19,7 @@ class ActionVfxRenderer {
     this.veilEffectsEnabled = localStorage.getItem('etheria_veil_effects') !== 'false';
     this.veilSpores = [];
     this.veilTendrils = [];
+    this.veilDungeonPockets = [];
     this.veilLightning = null;
     this.nextVeilLightningTime = performance.now() + 3500;
     this.lastVeilTime = performance.now();
@@ -434,12 +435,18 @@ class ActionVfxRenderer {
      ========================================================================== */
 
   /**
-   * Inicializa partículas e raízes dimensionais preenchendo a tela toda e a arena instanciada.
+   * Inicializa partículas, bolsões de névoa e raízes dimensionais cobrindo toda a arena ou todo o mapa da Dungeon.
    */
-  initVeilAtmosphere(cx, cy, rx, ry, viewL, viewT, viewW, viewH) {
-    this.lastArenaKey = `${Math.round(cx)}_${Math.round(cy)}_${Math.round(rx)}_${Math.round(ry)}`;
+  initVeilAtmosphere(cx, cy, rx, ry, viewL, viewT, viewW, viewH, arena = null) {
+    const isDungeon = Boolean(arena?.isDungeonMode);
+    const mapW = Math.max(800, Number(arena?.mapWidth) || 2400);
+    const mapH = Math.max(600, Number(arena?.mapHeight) || 1800);
+    this.lastArenaKey = isDungeon
+      ? `D_${Math.round(mapW)}_${Math.round(mapH)}`
+      : `A_${Math.round(cx)}_${Math.round(cy)}_${Math.round(rx)}_${Math.round(ry)}`;
     this.veilSpores = [];
     this.veilTendrils = [];
+    this.veilDungeonPockets = [];
     this.veilLightning = null;
     this.nextVeilLightningTime = performance.now() + 3000 + Math.random() * 2500;
     this.lastVeilTime = performance.now();
@@ -449,22 +456,35 @@ class ActionVfxRenderer {
     const vw = typeof viewW === 'number' ? Math.max(1600, viewW) : 2200;
     const vh = typeof viewH === 'number' ? Math.max(1200, viewH) : 1600;
 
-    // 1. Esporos e Cinzas Dimensionais Flutuantes (160 partículas cobrindo toda a tela visível)
+    // 1. Esporos e Cinzas Dimensionais Flutuantes (estratificados em todo o mapa na Dungeon, ou viewport na Arena)
     const sporeColors = [
       { r: 203, g: 213, b: 225 }, // 55% Cinza Ectoplasmático / Cinzas do Véu
       { r: 56, g: 189, b: 248 },  // 25% Ciano Necrótico Fantasmal
       { r: 244, g: 63, b: 94 },   // 20% Carmesim Dimensional
     ];
 
-    for (let i = 0; i < 160; i++) {
+    const gridCols = isDungeon ? 16 : 16;
+    const gridRows = isDungeon ? 12 : 10;
+    const totalSpores = gridCols * gridRows;
+
+    for (let i = 0; i < totalSpores; i++) {
+      const colIdx = i % gridCols;
+      const rowIdx = Math.floor(i / gridCols);
       const depth = 0.35 + Math.random() * 0.85;
       const roll = Math.random();
       const col = roll > 0.80 ? sporeColors[2] : (roll > 0.55 ? sporeColors[1] : sporeColors[0]);
       const glowType = roll > 0.80 ? 'crimson' : (roll > 0.55 ? 'cyan' : 'ash');
 
+      const baseX = isDungeon
+        ? ((colIdx + Math.random()) / gridCols) * mapW
+        : vl + Math.random() * vw;
+      const y = isDungeon
+        ? ((rowIdx + Math.random()) / gridRows) * mapH
+        : vt + Math.random() * vh;
+
       this.veilSpores.push({
-        baseX: vl + Math.random() * vw,
-        y: vt + Math.random() * vh,
+        baseX,
+        y,
         depth,
         size: (1.2 + Math.random() * 2.5) * depth,
         vy: -(9 + Math.random() * 24) * depth,
@@ -480,7 +500,60 @@ class ActionVfxRenderer {
       });
     }
 
-    // 2. Vinhas e Raízes Eldritch Rastejantes enraizadas na borda elíptica da arena
+    // 2. Vinhas/Raízes Eldritch e Bolsões de Névoa
+    if (isDungeon) {
+      const pocketCols = 6;
+      const pocketRows = 5;
+      for (let r = 0; r < pocketRows; r++) {
+        for (let c = 0; c < pocketCols; c++) {
+          const px = ((c + 0.15 + Math.random() * 0.7) / pocketCols) * mapW;
+          const py = ((r + 0.15 + Math.random() * 0.7) / pocketRows) * mapH;
+          this.veilDungeonPockets.push({
+            x: px,
+            y: py,
+            rx: 130 + Math.random() * 140,
+            ry: 90 + Math.random() * 100,
+            rot: Math.random() * Math.PI,
+            alpha: 0.16 + Math.random() * 0.14,
+            phase: Math.random() * Math.PI * 2,
+          });
+        }
+      }
+
+      const tendrilCols = 7;
+      const tendrilRows = 5;
+      for (let r = 0; r < tendrilRows; r++) {
+        for (let c = 0; c < tendrilCols; c++) {
+          const startX = ((c + 0.12 + Math.random() * 0.76) / tendrilCols) * mapW;
+          const startY = ((r + 0.12 + Math.random() * 0.76) / tendrilRows) * mapH;
+          const inwardAng = Math.random() * Math.PI * 2;
+          const length = 42 + Math.random() * 88;
+          const numNodes = 6;
+          const nodes = [];
+          for (let n = 0; n <= numNodes; n++) {
+            const t = n / numNodes;
+            nodes.push({
+              relDist: t * length,
+              lateralJitter: (Math.random() - 0.5) * 14 * Math.sin(t * Math.PI),
+              swayFreq: 1.1 + Math.random() * 1.6,
+              swayPhase: Math.random() * Math.PI * 2,
+            });
+          }
+          this.veilTendrils.push({
+            startX,
+            startY,
+            baseAng: inwardAng,
+            inwardAng,
+            nodes,
+            length,
+            thick: 2.6 + Math.random() * 2.2,
+            tipPulsePhase: Math.random() * Math.PI * 2,
+          });
+        }
+      }
+      return;
+    }
+
     const numTendrils = 22;
     for (let i = 0; i < numTendrils; i++) {
       const baseAng = (i / numTendrils) * Math.PI * 2 + (Math.random() * 0.18 - 0.09);
@@ -513,7 +586,7 @@ class ActionVfxRenderer {
   }
 
   /**
-   * Renderiza a atmosfera do solo do Véu (escurecimento em tela toda, piso abissal da arena e raízes).
+   * Renderiza a atmosfera do solo do Véu (escurecimento em tela toda, bolsões/piso abissal e raízes).
    */
   drawVeilFloorAtmosphere(ctx, arena, now, zoom = 1.0) {
     const cx = arena.arenaCenterX;
@@ -530,18 +603,44 @@ class ActionVfxRenderer {
     const viewW = canvas.width / zoom;
     const viewH = canvas.height / zoom;
 
-    const curKey = `${Math.round(cx)}_${Math.round(cy)}_${Math.round(rx)}_${Math.round(ry)}`;
+    const mapW = Math.max(800, Number(arena?.mapWidth) || 2400);
+    const mapH = Math.max(600, Number(arena?.mapHeight) || 1800);
+    const curKey = arena.isDungeonMode
+      ? `D_${Math.round(mapW)}_${Math.round(mapH)}`
+      : `A_${Math.round(cx)}_${Math.round(cy)}_${Math.round(rx)}_${Math.round(ry)}`;
     if (curKey !== this.lastArenaKey || this.veilSpores.length === 0) {
-      this.initVeilAtmosphere(cx, cy, rx, ry, viewL, viewT, viewW, viewH);
+      this.initVeilAtmosphere(cx, cy, rx, ry, viewL, viewT, viewW, viewH, arena);
     }
 
     ctx.save();
 
     // 1. Camada Sombria Global do Véu Cobrindo Toda a Tela Visível (Mundo Invertido Fullscreen)
-    ctx.fillStyle = arena.isDungeonMode ? 'rgba(7, 11, 24, 0.38)' : 'rgba(7, 11, 24, 0.58)';
+    ctx.fillStyle = arena.isDungeonMode ? 'rgba(7, 11, 24, 0.34)' : 'rgba(7, 11, 24, 0.58)';
     ctx.fillRect(viewL - 80, viewT - 80, viewW + 160, viewH + 160);
 
     if (arena.isDungeonMode) {
+      const tSec = now * 0.001;
+      for (const pocket of this.veilDungeonPockets) {
+        if (
+          pocket.x + pocket.rx < viewL - 120 ||
+          pocket.x - pocket.rx > viewL + viewW + 120 ||
+          pocket.y + pocket.ry < viewT - 120 ||
+          pocket.y - pocket.ry > viewT + viewH + 120
+        ) {
+          continue;
+        }
+        const pulse = 0.82 + 0.18 * Math.sin(tSec * 1.1 + pocket.phase);
+        const radiusMax = Math.max(pocket.rx, pocket.ry);
+        const grad = ctx.createRadialGradient(pocket.x, pocket.y, radiusMax * 0.1, pocket.x, pocket.y, radiusMax);
+        grad.addColorStop(0, `rgba(18, 28, 62, ${pocket.alpha * pulse})`);
+        grad.addColorStop(0.6, `rgba(12, 20, 48, ${pocket.alpha * 0.55 * pulse})`);
+        grad.addColorStop(1, 'rgba(6, 10, 26, 0)');
+        ctx.fillStyle = grad;
+        ctx.beginPath();
+        ctx.ellipse(pocket.x, pocket.y, pocket.rx, pocket.ry, pocket.rot, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      this.drawVeilTendrilsList(ctx, this.veilTendrils, now, viewL, viewT, viewW, viewH);
       ctx.restore();
       return;
     }
@@ -574,48 +673,7 @@ class ActionVfxRenderer {
     }
 
     // 4. Raízes e Tentáculos Eldritch Rastejantes
-    for (const tendril of this.veilTendrils) {
-      ctx.beginPath();
-      ctx.moveTo(tendril.startX, tendril.startY);
-      let prevX = tendril.startX;
-      let prevY = tendril.startY;
-
-      for (let n = 1; n < tendril.nodes.length; n++) {
-        const node = tendril.nodes[n];
-        const dist = node.relDist;
-        const sway = Math.sin((now / 1000) * node.swayFreq + node.swayPhase) * 5.5;
-        const ang = tendril.inwardAng + (node.lateralJitter + sway) * 0.04;
-        const nx = tendril.startX + Math.cos(ang) * dist;
-        const ny = tendril.startY + Math.sin(ang) * dist * (ry / rx);
-        const mx = (prevX + nx) / 2;
-        const my = (prevY + ny) / 2;
-        ctx.quadraticCurveTo(prevX, prevY, mx, my);
-        prevX = nx;
-        prevY = ny;
-      }
-      ctx.lineTo(prevX, prevY);
-      ctx.strokeStyle = '#180718';
-      ctx.lineWidth = tendril.thick / zoom;
-      ctx.lineCap = 'round';
-      ctx.stroke();
-
-      // Veia interna avermelhada pulsante
-      ctx.strokeStyle = 'rgba(225, 29, 72, 0.58)';
-      ctx.lineWidth = Math.max(1, (tendril.thick * 0.38) / zoom);
-      ctx.stroke();
-
-      // Ponta bioluminescente orgânica sem shadowBlur (duplo fill rápido)
-      const tipPulse = 0.65 + 0.35 * Math.sin((now / 230) + tendril.tipPulsePhase);
-      const tipR = (2.2 * tipPulse) / zoom;
-      ctx.beginPath();
-      ctx.arc(prevX, prevY, tipR * 1.8, 0, Math.PI * 2);
-      ctx.fillStyle = `rgba(244, 63, 94, ${0.30 * tipPulse})`;
-      ctx.fill();
-      ctx.beginPath();
-      ctx.arc(prevX, prevY, tipR, 0, Math.PI * 2);
-      ctx.fillStyle = `rgba(255, 120, 150, ${0.92 * tipPulse})`;
-      ctx.fill();
-    }
+    this.drawVeilTendrilsList(ctx, now, zoom, ry / Math.max(1, rx), viewL, viewT, viewW, viewH);
 
     // 5. Barreira Elíptica da Arena com Descargas Estáticas de Energia
     const perimeterArcs = 14;
@@ -634,6 +692,57 @@ class ActionVfxRenderer {
     }
 
     ctx.restore();
+  }
+
+  drawVeilTendrilsList(ctx, now, zoom, yRatio, viewL, viewT, viewW, viewH) {
+    for (const tendril of this.veilTendrils) {
+      if (
+        tendril.startX < viewL - 180 ||
+        tendril.startX > viewL + viewW + 180 ||
+        tendril.startY < viewT - 180 ||
+        tendril.startY > viewT + viewH + 180
+      ) {
+        continue;
+      }
+      ctx.beginPath();
+      ctx.moveTo(tendril.startX, tendril.startY);
+      let prevX = tendril.startX;
+      let prevY = tendril.startY;
+
+      for (let n = 1; n < tendril.nodes.length; n++) {
+        const node = tendril.nodes[n];
+        const dist = node.relDist;
+        const sway = Math.sin((now / 1000) * node.swayFreq + node.swayPhase) * 5.5;
+        const ang = tendril.inwardAng + (node.lateralJitter + sway) * 0.04;
+        const nx = tendril.startX + Math.cos(ang) * dist;
+        const ny = tendril.startY + Math.sin(ang) * dist * yRatio;
+        const mx = (prevX + nx) / 2;
+        const my = (prevY + ny) / 2;
+        ctx.quadraticCurveTo(prevX, prevY, mx, my);
+        prevX = nx;
+        prevY = ny;
+      }
+      ctx.lineTo(prevX, prevY);
+      ctx.strokeStyle = '#180718';
+      ctx.lineWidth = tendril.thick / zoom;
+      ctx.lineCap = 'round';
+      ctx.stroke();
+
+      ctx.strokeStyle = 'rgba(225, 29, 72, 0.58)';
+      ctx.lineWidth = Math.max(1, (tendril.thick * 0.38) / zoom);
+      ctx.stroke();
+
+      const tipPulse = 0.65 + 0.35 * Math.sin((now / 230) + tendril.tipPulsePhase);
+      const tipR = (2.2 * tipPulse) / zoom;
+      ctx.beginPath();
+      ctx.arc(prevX, prevY, tipR * 1.8, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(244, 63, 94, ${0.30 * tipPulse})`;
+      ctx.fill();
+      ctx.beginPath();
+      ctx.arc(prevX, prevY, tipR, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(255, 120, 150, ${0.92 * tipPulse})`;
+      ctx.fill();
+    }
   }
 
   /**
@@ -717,28 +826,27 @@ class ActionVfxRenderer {
       }
     }
 
-    // 3. Atualização e Renderização dos Esporos / Cinzas Dimensionais Cobrindo a Tela Toda (Textura offscreen ultrarrápida)
-    const minY = viewT - 40;
-    const maxY = viewT + viewH + 40;
+    // 3. Atualização e Renderização dos Esporos / Cinzas Dimensionais Cobrindo o Mapa Todo (Wrap-Around Toroidal)
+    const isDungeon = Boolean(arena?.isDungeonMode);
+    const mapBounds = arena?.client?.getMapBounds?.();
+    const mapW = Number(arena?.currentBattle?.mapWidth) || Number(mapBounds?.width) || 2000;
+    const mapH = Number(arena?.currentBattle?.mapHeight) || Number(mapBounds?.height) || 1500;
+    const boxX = isDungeon ? 0 : viewL - 120;
+    const boxY = isDungeon ? -20 : viewT - 80;
+    const spanX = isDungeon ? Math.max(200, mapW) : Math.max(200, viewW + 240);
+    const spanY = isDungeon ? Math.max(200, mapH + 40) : Math.max(200, viewH + 160);
 
     for (const sp of this.veilSpores) {
-      sp.y += sp.vy * dt;
-
-      // Wrap-around vertical em tela cheia
-      if (sp.y < minY) {
-        sp.y = maxY + Math.random() * 30;
-        sp.baseX = viewL + Math.random() * viewW;
-      } else if (sp.y > maxY + 60) {
-        sp.y = minY;
-      }
-
-      // Reajuste horizontal suave se a câmera deslizar
-      if (sp.baseX < viewL - 120) sp.baseX = viewL + viewW + Math.random() * 40;
-      else if (sp.baseX > viewL + viewW + 120) sp.baseX = viewL - Math.random() * 40;
+      sp.y = boxY + ((((sp.y + sp.vy * dt - boxY) % spanY) + spanY) % spanY);
+      sp.baseX = boxX + ((((sp.baseX - boxX) % spanX) + spanX) % spanX);
 
       const swayX = Math.sin((now / 1000) * sp.freq + sp.phase) * sp.amp;
       const renderX = sp.baseX + swayX;
       const renderY = sp.y;
+
+      if (renderX < viewL - 48 || renderX > viewL + viewW + 48 || renderY < viewT - 48 || renderY > viewT + viewH + 48) {
+        continue;
+      }
 
       const pulse = 0.8 + 0.2 * Math.sin((now / 1000) * sp.pulseSpeed + sp.phase);
       const alpha = Math.max(0.1, Math.min(1.0, sp.baseAlpha * pulse));

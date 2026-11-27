@@ -266,7 +266,20 @@ class ActionCombatArena {
     const rawMobModels = mStates.map((m, idx) => window.ArenaPhysicsSolver.createAiUnitModel(m, idx, true, this.isDungeonMode && m.spawnX !== undefined ? m.spawnX : spawns.mx, this.isDungeonMode && m.spawnY !== undefined ? m.spawnY : spawns.my, mDir, battleSpeed, getSp, battleState.monsterTemplateId));
 
     if (window.ArenaPhysicsSolver) {
-      const petCoords = window.ArenaPhysicsSolver.buildTeamFormationPositions(spawns.px, spawns.py, spawns.mx, spawns.my, rawPetModels, this.arenaCenterX, this.arenaCenterY, this.arenaRadiusX, this.arenaRadiusY, isBlockedFn, [{ x: spawns.px, y: spawns.py }]);
+      let allyFacingX = spawns.mx;
+      let allyFacingY = spawns.my;
+      if (this.isDungeonMode && rawMobModels.length > 0) {
+        let bestDist = Infinity;
+        for (const m of rawMobModels) {
+          const d = Math.hypot(m.x - spawns.px, m.y - spawns.py);
+          if (d < bestDist) {
+            bestDist = d;
+            allyFacingX = m.x;
+            allyFacingY = m.y;
+          }
+        }
+      }
+      const petCoords = window.ArenaPhysicsSolver.buildTeamFormationPositions(spawns.px, spawns.py, allyFacingX, allyFacingY, rawPetModels, this.arenaCenterX, this.arenaCenterY, this.arenaRadiusX, this.arenaRadiusY, isBlockedFn, [{ x: spawns.px, y: spawns.py }]);
       rawPetModels.forEach((p, idx) => { if (petCoords[idx]) { p.x = petCoords[idx].x; p.y = petCoords[idx].y; } });
       if (!this.isDungeonMode) {
         const mobCoords = window.ArenaPhysicsSolver.buildTeamFormationPositions(spawns.mx, spawns.my, spawns.px, spawns.py, rawMobModels, this.arenaCenterX, this.arenaCenterY, this.arenaRadiusX, this.arenaRadiusY, isBlockedFn, [{ x: spawns.px, y: spawns.py }, ...rawPetModels]);

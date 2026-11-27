@@ -8,9 +8,9 @@
 ---
 
 ## 📌 Status Atual do Projeto
-* **Versão Atual:** `v0.70.0`
-* **Última Atualização:** `2026-11-26`
-* **Fase Atual:** **Moeda Cristal por Conta & Loja Cristal Modular (`v0.70.0`)** — Implementado saldo real de Cristais em `UserAccount.crystals` (iniciando em `0`, removendo placeholder `1500` na HUD e Mochila) com histórico `CrystalTransaction` e débito CAS (`CrystalCurrencyService.ts`), ofertas `CrystalShopOffer`, compra autoritativa com proteção prévia de mochila cheia (`CrystalShopService.ts`), aba dedicada `💎 Loja Cristal` no `/admin` (`AdminCrystalShopController.ts`, `AdminCrystalShopModalDom.js`, `AdminCrystalShopTab.js`) e Hub responsivo no `/play` (`PlayCrystalShopController.js`, `PlayCrystalShopItemModule.js`, `play_crystal_shop.css`). `typecheck`, builds e **10/10 suítes no `npm test`** (`test_crystal_shop_system.mjs`: **6/6**) aprovados.
+* **Versão Atual:** `v0.71.0`
+* **Última Atualização:** `2026-11-27`
+* **Fase Atual:** **Formação Tática de Batalha, Véu Full-Map em Dungeons & Correção de Equipes (`v0.71.0`)** — Ampliado espaçamento entre equipes e unidades com vanguarda MELEE / retaguarda RANGED em Arena (`ArenaPhysicsSolver.js`, `ActionCombatArena.js`) e Dungeons abertas (`DungeonService.ts`), distribuídos esporos, bolsões abissais e raízes do Véu pelos 4 quadrantes do mapa inteiro da Dungeon com *viewport culling* (`ActionVfxRenderer.js`), e corrigidas inconsistências de resposta/campos (`ok`/`success`, `leaderCharacterId`, `currentHp`/`currentMp`, convites e `/nearby`) no módulo de Equipes (`PartyService.ts`, `PartyRouter.ts`, `PlayPartyController.js`). Builds, `typecheck` e **11/11 suítes no `npm test`** (`test_combat_veil_and_party.mjs`: **4/4**) aprovados.
 * **Repositório Oficial:** `https://github.com/SeytaniR/etheria-campus`
 * **Fonte Bruta de Assets:** `https://github.com/SeytaniR/mcrework` (`https://seytanir.github.io/mcrework/`)
 

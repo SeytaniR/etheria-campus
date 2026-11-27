@@ -47,6 +47,8 @@ export class PartyRouter {
       const invites = PartyService.getPendingInvites(characterId);
 
       this.deps.sendJson(res, 200, {
+        ok: true,
+        success: true,
         inParty: Boolean(party),
         party: party || null,
         invites,
@@ -64,7 +66,13 @@ export class PartyRouter {
         return true;
       }
 
-      const nearbyAll = MapPresenceService.getNearbyPlayers(characterId, mapId, 400);
+      const [reqChar, nearbyAll] = await Promise.all([
+        this.deps.prisma.playerCharacter.findUnique({ where: { id: characterId }, select: { posX: true, posY: true } }),
+        Promise.resolve(MapPresenceService.getNearbyPlayers(characterId, mapId, 400)),
+      ]);
+      const rx = Number(reqChar?.posX ?? 500);
+      const ry = Number(reqChar?.posY ?? 500);
+
       const candidates = nearbyAll.map((p) => {
         const pParty = PartyService.getPartyByCharacterId(p.characterId);
         return {
@@ -76,48 +84,53 @@ export class PartyRouter {
           thumbUrl: p.thumbUrl,
           posX: p.posX,
           posY: p.posY,
+          distance: Math.round(Math.hypot((p.posX || 0) - rx, (p.posY || 0) - ry)),
           inParty: Boolean(pParty),
         };
       });
 
-      this.deps.sendJson(res, 200, { candidates });
+      this.deps.sendJson(res, 200, { ok: true, success: true, candidates, nearbyPlayers: candidates });
       return true;
     }
 
     // 3. Criar Equipe
     if (pathname === '/api/play/party/create' && method === 'POST') {
-      const body = await this.deps.readJsonBody<{ characterId: number }>(req);
-      const charId = Number(body.characterId);
-      if (!charId || !(await this.deps.verifyCharacterOwnership(userAccountId, session.role, charId))) {
-        this.deps.sendJson(res, 403, { error: 'Personagem inválido.' });
-        return true;
+      try {
+        const body = await this.deps.readJsonBody<{ characterId: number }>(req);
+        const charId = Number(body.characterId);
+        if (!charId || !(await this.deps.verifyCharacterOwnership(userAccountId, session.role, charId))) {
+          this.deps.sendJson(res, 403, { error: 'Personagem inválido.' });
+          return true;
+        }
+
+        const pc = await this.deps.prisma.playerCharacter.findUnique({
+          where: { id: charId },
+          include: { classTemplate: true },
+        });
+        if (!pc) {
+          this.deps.sendJson(res, 404, { error: 'Personagem não encontrado.' });
+          return true;
+        }
+
+        const party = PartyService.createParty(charId, userAccountId, {
+          name: pc.name,
+          level: pc.level || 1,
+          classCode: pc.classTemplate?.code || 'WARRIOR',
+          mcreworkCharKey: pc.classTemplate?.mcreworkCharKey || '100101',
+          thumbUrl: `/api/assets/mcrework/assets/characters/${pc.classTemplate?.mcreworkCharKey || '100101'}/thumb.webp`,
+          hp: 100,
+          maxHp: 100,
+          mp: 50,
+          maxMp: 50,
+          mapId: pc.currentMapId || 1,
+          posX: pc.posX || 500,
+          posY: pc.posY || 500,
+        });
+
+        this.deps.sendJson(res, 200, { ok: true, success: true, party });
+      } catch (err: any) {
+        this.deps.sendJson(res, 400, { error: err?.message || 'Erro ao criar equipe.' });
       }
-
-      const pc = await this.deps.prisma.playerCharacter.findUnique({
-        where: { id: charId },
-        include: { classTemplate: true },
-      });
-      if (!pc) {
-        this.deps.sendJson(res, 404, { error: 'Personagem não encontrado.' });
-        return true;
-      }
-
-      const party = PartyService.createParty(charId, userAccountId, {
-        name: pc.name,
-        level: pc.level || 1,
-        classCode: pc.classTemplate?.code || 'WARRIOR',
-        mcreworkCharKey: pc.classTemplate?.mcreworkCharKey || '100101',
-        thumbUrl: `/api/assets/mcrework/assets/characters/${pc.classTemplate?.mcreworkCharKey || '100101'}/thumb.webp`,
-        hp: 100,
-        maxHp: 100,
-        mp: 50,
-        maxMp: 50,
-        mapId: pc.currentMapId || 1,
-        posX: pc.posX || 500,
-        posY: pc.posY || 500,
-      });
-
-      this.deps.sendJson(res, 200, { success: true, party });
       return true;
     }
 
@@ -169,7 +182,7 @@ export class PartyRouter {
           }
         );
 
-        this.deps.sendJson(res, 200, { success: true, invite });
+        this.deps.sendJson(res, 200, { ok: true, success: true, invite });
       } catch (err: any) {
         this.deps.sendJson(res, 400, { error: err.message || 'Erro ao enviar convite.' });
       }
@@ -215,7 +228,7 @@ export class PartyRouter {
           String(body.inviteId)
         );
 
-        this.deps.sendJson(res, 200, { success: true, party });
+        this.deps.sendJson(res, 200, { ok: true, success: true, party });
       } catch (err: any) {
         this.deps.sendJson(res, 400, { error: err.message || 'Erro ao aceitar convite.' });
       }
@@ -232,21 +245,25 @@ export class PartyRouter {
       }
 
       PartyService.declineInvite(charId, String(body.inviteId));
-      this.deps.sendJson(res, 200, { success: true });
+      this.deps.sendJson(res, 200, { ok: true, success: true });
       return true;
     }
 
     // 7. Sair da Equipe
     if (pathname === '/api/play/party/leave' && method === 'POST') {
-      const body = await this.deps.readJsonBody<{ characterId: number }>(req);
-      const charId = Number(body.characterId);
-      if (!charId || !(await this.deps.verifyCharacterOwnership(userAccountId, session.role, charId))) {
-        this.deps.sendJson(res, 403, { error: 'Personagem inválido.' });
-        return true;
-      }
+      try {
+        const body = await this.deps.readJsonBody<{ characterId: number }>(req);
+        const charId = Number(body.characterId);
+        if (!charId || !(await this.deps.verifyCharacterOwnership(userAccountId, session.role, charId))) {
+          this.deps.sendJson(res, 403, { error: 'Personagem inválido.' });
+          return true;
+        }
 
-      const resLeave = PartyService.leaveParty(charId);
-      this.deps.sendJson(res, 200, { success: true, ...resLeave });
+        const resLeave = PartyService.leaveParty(charId);
+        this.deps.sendJson(res, 200, { ok: true, success: true, ...resLeave });
+      } catch (err: any) {
+        this.deps.sendJson(res, 400, { error: err?.message || 'Erro ao sair da equipe.' });
+      }
       return true;
     }
 
@@ -262,7 +279,7 @@ export class PartyRouter {
 
       try {
         const party = PartyService.kickMember(charId, targetId);
-        this.deps.sendJson(res, 200, { success: true, party });
+        this.deps.sendJson(res, 200, { ok: true, success: true, party });
       } catch (err: any) {
         this.deps.sendJson(res, 400, { error: err.message || 'Erro ao expulsar membro.' });
       }
@@ -281,7 +298,7 @@ export class PartyRouter {
 
       try {
         const party = PartyService.transferLeadership(charId, targetId);
-        this.deps.sendJson(res, 200, { success: true, party });
+        this.deps.sendJson(res, 200, { ok: true, success: true, party });
       } catch (err: any) {
         this.deps.sendJson(res, 400, { error: err.message || 'Erro ao transferir liderança.' });
       }

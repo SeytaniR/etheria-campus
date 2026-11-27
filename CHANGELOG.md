@@ -5,6 +5,22 @@ Qualquer IA trabalhando neste repositório **DEVE** incrementar a versão e regi
 
 ---
 
+## [v0.71.0] - 2026-11-27
+### Formação Tática de Batalha (Arena + Dungeon), Véu em Mapa Inteiro nas Dungeons & Correção de Equipes (Party)
+* **Espaçamento e Formação Tática MELEE / RANGED (`ArenaPhysicsSolver.js`, `DungeonService.ts`, `ActionCombatArena.js`):**
+  * Ampliadas as faixas de separação entre equipes (`findFairSpawnPositions`: `[560..200]px`) e espaçamento entre unidades na fila (`buildTeamFormationPositions`: `latStep=118`, `rowStep=98`, `stagger=38`) com distribuição automática de vanguarda **MELEE** e retaguarda **RANGED** tanto para aliados quanto para adversários.
+  * Em Dungeons em mapa aberto (`DungeonService.generateDungeonSpawnCoords` + `assignDungeonFormationSpawns`), ampliada a distância de segurança e separação entre inimigos/boss e alocados os inimigos **MELEE** nos pontos de menor `bfsDist` (vanguarda) e **RANGED** atrás.
+  * Ajustada a orientação inicial da formação dos pets aliados na Dungeon (`ActionCombatArena.js`) para mirar o inimigo mais próximo em vez do centro geométrico do mapa.
+* **Efeitos do Véu Distribuídos em Todo o Mapa da Dungeon (`ActionVfxRenderer.js`):**
+  * Substituída a inicialização concentrada no modo Dungeon por distribuição estratificada de esporos (`veilSpores`), bolsões abissais de névoa (`veilDungeonPockets`) e raízes/vinhas eldritch (`veilTendrils`) cobrindo os 4 quadrantes do mapa inteiro (`0..mapW` × `0..mapH`), com envoltória toroidal contínua e *viewport culling* para manter fluidez.
+* **Correção Completa do Módulo de Equipes (`PartyService.ts`, `PartyRouter.ts`, `PlayPartyController.js`):**
+  * Padronizadas todas as rotas de `/api/play/party/*` para retornarem `{ ok: true, success: true, ... }`, adicionando `try/catch`, lookup de coordenadas e cálculo real de distância em `/api/play/party/nearby` (`nearbyPlayers`).
+  * Corrigidas divergências no frontend (`PlayPartyController.js`): carregamento inicial via `fetchPartyState()`, leitura de `leaderCharacterId`, `currentHp`/`currentMp`, campos de convite (`id`/`fromCharacterName`), fallback local `/play/assets/hud/player_avatar_frame.png` (Regra #10) e checagem consistente `res.ok || res.success` em criação, convite e saída da equipe.
+* **Testes & Qualidade (`tests/test_combat_veil_and_party.mjs`, `tests/run_all_tests.mjs`):**
+  * Nova suíte automatizada (`4/4` testes) cobrindo Arena/Dungeon spawns + formação MELEE/RANGED, distribuição full-map do Véu e fluxo completo de criação/saída de Party; **11/11 suítes** em `npm test` aprovadas.
+
+---
+
 ## [v0.70.0] - 2026-11-26
 ### Moeda Cristal por Conta (`UserAccount.crystals`) & Loja Cristal Modular (`/play` e `/admin`)
 * **Schema Prisma (`UserAccount.crystals`, `CrystalTransaction`, `CrystalShopOffer`):**

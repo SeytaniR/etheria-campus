@@ -33,6 +33,7 @@ class PlayPartyController {
     this.client = clientApp || window.PlayApp;
     this.injectHudElements();
     this.setupGlobalShortcuts();
+    void this.fetchPartyState();
   }
 
   /**
@@ -62,7 +63,8 @@ class PlayPartyController {
    */
   isLeader() {
     if (!this.hasParty()) return false;
-    return this.party.leaderId === this.getLocalCharId();
+    const leaderId = Number(this.party.leaderCharacterId ?? this.party.leaderId ?? 0);
+    return leaderId > 0 && leaderId === this.getLocalCharId();
   }
 
   /**
@@ -70,7 +72,8 @@ class PlayPartyController {
    */
   isFollower() {
     if (!this.hasParty()) return false;
-    return this.party.leaderId !== this.getLocalCharId();
+    const leaderId = Number(this.party.leaderCharacterId ?? this.party.leaderId ?? 0);
+    return leaderId > 0 && leaderId !== this.getLocalCharId();
   }
 
   /**
@@ -267,7 +270,8 @@ class PlayPartyController {
     this.isOpen = true;
     backdrop.classList.add('active');
     this.renderModalContent();
-    this.fetchNearbyPlayers();
+    void this.fetchPartyState();
+    void this.fetchNearbyPlayers();
   }
 
   closeModal() {
@@ -336,9 +340,13 @@ class PlayPartyController {
     for (let i = 0; i < 3; i++) {
       const member = members[i];
       if (member) {
-        const isMe = member.characterId === myCharId;
-        const hpPercent = Math.max(0, Math.min(100, Math.round((member.hp / Math.max(1, member.maxHp)) * 100)));
-        const mpPercent = Math.max(0, Math.min(100, Math.round((member.mp / Math.max(1, member.maxMp)) * 100)));
+        const isMe = Number(member.characterId) === myCharId;
+        const curHp = Number(member.currentHp ?? member.hp ?? 100);
+        const maxHp = Math.max(1, Number(member.maxHp ?? 100));
+        const curMp = Number(member.currentMp ?? member.mp ?? 50);
+        const maxMp = Math.max(1, Number(member.maxMp ?? 50));
+        const hpPercent = Math.max(0, Math.min(100, Math.round((curHp / maxHp) * 100)));
+        const mpPercent = Math.max(0, Math.min(100, Math.round((curMp / maxMp) * 100)));
         const thumb = member.thumbUrl || `/api/assets/mcrework/assets/characters/${member.mcreworkCharKey || '100101'}/thumb.webp`;
 
         let actionBtns = '';
@@ -355,7 +363,7 @@ class PlayPartyController {
         membersHtml += `
           <div class="party-member-card ${member.isLeader ? 'is-leader-card' : ''} ${isMe ? 'is-me-card' : ''}">
             <div class="party-member-avatar">
-              <img src="${thumb}" alt="${safeMemberName}" onerror="this.src='/play/assets/hud/avatar_frame.png'" />
+              <img src="${thumb}" alt="${safeMemberName}" onerror="this.src='/play/assets/hud/player_avatar_frame.png'" />
             </div>
             <div class="party-member-info">
               <div class="party-member-name-row">
@@ -367,11 +375,11 @@ class PlayPartyController {
               <div class="party-bars-container">
                 <div class="party-bar-wrap">
                   <div class="party-bar-fill-hp" style="width:${hpPercent}%;"></div>
-                  <div class="party-bar-text">HP ${member.hp}/${member.maxHp}</div>
+                  <div class="party-bar-text">HP ${curHp}/${maxHp}</div>
                 </div>
                 <div class="party-bar-wrap">
                   <div class="party-bar-fill-mp" style="width:${mpPercent}%;"></div>
-                  <div class="party-bar-text">MP ${member.mp}/${member.maxMp}</div>
+                  <div class="party-bar-text">MP ${curMp}/${maxMp}</div>
                 </div>
               </div>
             </div>
@@ -462,6 +470,23 @@ class PlayPartyController {
     `).join('');
   }
 
+  async fetchPartyState() {
+    const client = this.getClient();
+    const charId = this.getLocalCharId();
+    if (!client || !charId) return;
+
+    try {
+      const res = await client.api(`/api/play/party/state?characterId=${charId}`);
+      if (res && (res.ok || res.success)) {
+        this.party = res.party || null;
+        this.pendingInvites = Array.isArray(res.invites) ? res.invites : [];
+        this.updateHudButton();
+        this.renderPendingInvitesBanners();
+        if (this.isOpen) this.renderModalContent();
+      }
+    } catch (_) {}
+  }
+
   /**
    * Busca jogadores próximos via API.
    */
@@ -473,8 +498,9 @@ class PlayPartyController {
     try {
       const mapId = client.currentMap?.id || 1;
       const res = await client.api(`/api/play/party/nearby?characterId=${charId}&mapId=${mapId}`);
-      if (res && res.ok && Array.isArray(res.nearbyPlayers)) {
-        this.nearbyPlayers = res.nearbyPlayers;
+      const list = res?.nearbyPlayers || res?.candidates;
+      if (res && (res.ok || res.success) && Array.isArray(list)) {
+        this.nearbyPlayers = list;
         const container = document.getElementById('partyNearbyList');
         if (container) {
           container.innerHTML = this.renderNearbyPlayersHtml();
@@ -492,10 +518,12 @@ class PlayPartyController {
 
     const now = Date.now();
     const activeInvites = this.pendingInvites.filter((inv) => inv.expiresAt > now);
+    const getInvId = (inv) => inv.id || inv.inviteId;
+    const getFromName = (inv) => inv.fromCharacterName || inv.fromName || 'Aventureiro';
 
     // Remove banners de convites não mais ativos
     for (const [inviteId, timerId] of this.inviteBannerTimers.entries()) {
-      if (!activeInvites.some((inv) => inv.inviteId === inviteId)) {
+      if (!activeInvites.some((inv) => getInvId(inv) === inviteId)) {
         clearInterval(timerId);
         this.inviteBannerTimers.delete(inviteId);
         const el = document.getElementById(`inviteBanner_${inviteId}`);
@@ -505,10 +533,12 @@ class PlayPartyController {
 
     // Cria/atualiza banners para convites ativos
     for (const inv of activeInvites) {
-      let banner = document.getElementById(`inviteBanner_${inv.inviteId}`);
+      const invId = getInvId(inv);
+      const fromName = getFromName(inv);
+      let banner = document.getElementById(`inviteBanner_${invId}`);
       if (!banner) {
         banner = document.createElement('div');
-        banner.id = `inviteBanner_${inv.inviteId}`;
+        banner.id = `inviteBanner_${invId}`;
         banner.className = 'party-invite-banner';
         banner.style.pointerEvents = 'auto';
         container.appendChild(banner);
@@ -516,31 +546,32 @@ class PlayPartyController {
         // Temporizador de contagem regressiva
         const intervalId = setInterval(() => {
           const remainingSec = Math.max(0, Math.ceil((inv.expiresAt - Date.now()) / 1000));
-          const timerEl = document.getElementById(`inviteTimer_${inv.inviteId}`);
+          const timerEl = document.getElementById(`inviteTimer_${invId}`);
           if (timerEl) timerEl.textContent = `${remainingSec}s`;
           if (remainingSec <= 0) {
             clearInterval(intervalId);
-            this.inviteBannerTimers.delete(inv.inviteId);
+            this.inviteBannerTimers.delete(invId);
             banner.remove();
           }
         }, 1000);
-        this.inviteBannerTimers.set(inv.inviteId, intervalId);
+        this.inviteBannerTimers.set(invId, intervalId);
       }
 
       const remainingSec = Math.max(0, Math.ceil((inv.expiresAt - now) / 1000));
+      const safeName = window.EtheriaSanitizer ? window.EtheriaSanitizer.escapeHtml(fromName) : String(fromName);
       banner.innerHTML = `
         <div class="party-invite-banner-header">
           <span>⚔️ Convite de Equipe!</span>
-          <span class="party-invite-banner-timer" id="inviteTimer_${inv.inviteId}">${remainingSec}s</span>
+          <span class="party-invite-banner-timer" id="inviteTimer_${invId}">${remainingSec}s</span>
         </div>
         <div class="party-invite-banner-body">
-          <strong>${window.EtheriaSanitizer ? window.EtheriaSanitizer.escapeHtml(inv.fromName) : inv.fromName}</strong> (Nv.${inv.fromLevel}) convidou você para formar uma equipe!
+          <strong>${safeName}</strong> (Nv.${inv.fromLevel || 1}) convidou você para formar uma equipe!
         </div>
         <div class="party-invite-banner-actions">
-          <button type="button" class="party-invite-btn-decline" onclick="window.PlayPartyController.declineInvite('${inv.inviteId}')">
+          <button type="button" class="party-invite-btn-decline" onclick="window.PlayPartyController.declineInvite('${invId}')">
             ✕ Recusar
           </button>
-          <button type="button" class="party-invite-btn-accept" onclick="window.PlayPartyController.acceptInvite('${inv.inviteId}')">
+          <button type="button" class="party-invite-btn-accept" onclick="window.PlayPartyController.acceptInvite('${invId}')">
             ✓ Aceitar
           </button>
         </div>
@@ -560,7 +591,7 @@ class PlayPartyController {
         method: 'POST',
         body: JSON.stringify({ characterId: charId }),
       });
-      if (res && res.ok && res.party) {
+      if (res && (res.ok || res.success) && res.party) {
         this.party = res.party;
         this.updateHudButton();
         this.renderModalContent();
@@ -585,7 +616,7 @@ class PlayPartyController {
         method: 'POST',
         body: JSON.stringify({ characterId: charId, targetCharacterId: targetCharId }),
       });
-      if (res && res.ok) {
+      if (res && (res.ok || res.success)) {
         if (window.PlayChatController) {
           window.PlayChatController.addSystemNotice(`[Equipe] Convite enviado com sucesso!`);
         }
@@ -608,9 +639,9 @@ class PlayPartyController {
         method: 'POST',
         body: JSON.stringify({ characterId: charId, inviteId }),
       });
-      if (res && res.ok && res.party) {
+      if (res && (res.ok || res.success) && res.party) {
         this.party = res.party;
-        this.pendingInvites = this.pendingInvites.filter((inv) => inv.inviteId !== inviteId);
+        this.pendingInvites = this.pendingInvites.filter((inv) => (inv.id || inv.inviteId) !== inviteId);
         this.renderPendingInvitesBanners();
         this.updateHudButton();
         this.renderModalContent();
@@ -635,7 +666,7 @@ class PlayPartyController {
         method: 'POST',
         body: JSON.stringify({ characterId: charId, inviteId }),
       });
-      this.pendingInvites = this.pendingInvites.filter((inv) => inv.inviteId !== inviteId);
+      this.pendingInvites = this.pendingInvites.filter((inv) => (inv.id || inv.inviteId) !== inviteId);
       this.renderPendingInvitesBanners();
       this.updateHudButton();
     } catch (_) {}
@@ -653,7 +684,7 @@ class PlayPartyController {
         method: 'POST',
         body: JSON.stringify({ characterId: charId }),
       });
-      if (res && res.ok) {
+      if (res && (res.ok || res.success)) {
         this.party = null;
         this.updateHudButton();
         this.renderModalContent();
@@ -680,7 +711,7 @@ class PlayPartyController {
         method: 'POST',
         body: JSON.stringify({ characterId: charId, targetCharacterId: targetCharId }),
       });
-      if (res && res.ok && res.party) {
+      if (res && (res.ok || res.success) && res.party) {
         this.party = res.party;
         this.renderModalContent();
         if (window.PlayChatController) {
@@ -706,7 +737,7 @@ class PlayPartyController {
         method: 'POST',
         body: JSON.stringify({ characterId: charId, targetCharacterId: targetCharId }),
       });
-      if (res && res.ok && res.party) {
+      if (res && (res.ok || res.success) && res.party) {
         this.party = res.party;
         this.updateHudButton();
         this.renderModalContent();

@@ -27,6 +27,7 @@ const suites = [
   'tests/test_events_system.mjs',
   'tests/test_crystal_shop_system.mjs',
   'tests/test_action_motion_engine.mjs',
+  'tests/test_combat_veil_and_party.mjs',
 ];
 
 let failed = 0;

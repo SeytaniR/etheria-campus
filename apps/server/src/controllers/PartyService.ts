@@ -56,6 +56,7 @@ export interface Party {
   createdAt: number;
   currentMapId: number;
   activeBattleId?: string | null;
+  targetMapChange?: { mapId: number; posX: number; posY: number; timestamp: number } | null;
 }
 
 export class PartyService {
@@ -430,6 +431,12 @@ export class PartyService {
     if (!party || party.leaderCharacterId !== leaderCharId) return [];
 
     party.currentMapId = newMapId;
+    party.targetMapChange = {
+      mapId: newMapId,
+      posX: spawnX,
+      posY: spawnY,
+      timestamp: Date.now(),
+    };
     const followerIds: number[] = [];
 
     party.members.forEach((m) => {

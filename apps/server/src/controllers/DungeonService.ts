@@ -225,7 +225,7 @@ export class DungeonService {
     playerX: number,
     playerY: number,
     totalCount: number
-  ): { mobPoints: Array<{ x: number; y: number }>; bossPoint: { x: number; y: number } } {
+  ): { mobPoints: Array<{ x: number; y: number; bfsDist: number; euclid: number }>; bossPoint: { x: number; y: number } } {
     const mesh = new MapPolygonMesh(collisionPolys);
     const padX = Math.min(72, Math.round(width * 0.05));
     const padY = Math.min(72, Math.round(height * 0.05));
@@ -311,8 +311,8 @@ export class DungeonService {
       bossPoint = { x: reachable[0].x, y: reachable[0].y };
     }
 
-    // 2. Monstros comuns distribuídos apenas em células acessíveis (longe do spawn do jogador e espaçados)
-    const mobPoints: Array<{ x: number; y: number }> = [];
+    // 2. Monstros comuns distribuídos apenas em células acessíveis (longe do jogador e com amplo espaçamento pelo mapa todo)
+    const mobPoints: Array<{ x: number; y: number; bfsDist: number; euclid: number }> = [];
     const shuffled = reachable.slice(1);
     for (let i = shuffled.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
@@ -320,10 +320,11 @@ export class DungeonService {
     }
 
     const passes = [
-      { safeR: 250, minSep: 115, bossSep: 95 },
-      { safeR: 185, minSep: 72, bossSep: 65 },
-      { safeR: 120, minSep: 40, bossSep: 35 },
-      { safeR: 60, minSep: 18, bossSep: 18 },
+      { safeR: 380, minSep: 195, bossSep: 230 },
+      { safeR: 300, minSep: 155, bossSep: 180 },
+      { safeR: 230, minSep: 120, bossSep: 140 },
+      { safeR: 160, minSep: 88, bossSep: 95 },
+      { safeR: 100, minSep: 60, bossSep: 60 },
     ];
     for (const p of passes) {
       for (const cand of shuffled) {
@@ -334,7 +335,7 @@ export class DungeonService {
         for (const existing of mobPoints) {
           if (Math.hypot(cand.x - existing.x, cand.y - existing.y) < p.minSep) { tooClose = true; break; }
         }
-        if (!tooClose) mobPoints.push({ x: cand.x, y: cand.y });
+        if (!tooClose) mobPoints.push({ x: cand.x, y: cand.y, bfsDist: cand.bfsDist, euclid: cand.euclid });
       }
       if (mobPoints.length >= totalCount) break;
     }
@@ -344,18 +345,47 @@ export class DungeonService {
     while (mobPoints.length < totalCount) {
       if (reachable.length > 0) {
         const pick = reachable[fbIdx % reachable.length];
-        mobPoints.push({ x: pick.x, y: pick.y });
+        mobPoints.push({ x: pick.x, y: pick.y, bfsDist: pick.bfsDist, euclid: pick.euclid });
         fbIdx++;
       } else {
         const ang = (mobPoints.length / Math.max(1, totalCount)) * Math.PI * 2;
-        mobPoints.push({
-          x: Math.max(padX, Math.min(width - padX, Math.round(playerX + Math.cos(ang) * 220))),
-          y: Math.max(padY, Math.min(height - padY, Math.round(playerY + Math.sin(ang) * 180))),
-        });
+        const fx = Math.max(padX, Math.min(width - padX, Math.round(playerX + Math.cos(ang) * 260)));
+        const fy = Math.max(padY, Math.min(height - padY, Math.round(playerY + Math.sin(ang) * 210)));
+        mobPoints.push({ x: fx, y: fy, bfsDist: 260, euclid: 260 });
       }
     }
 
     return { mobPoints, bossPoint };
+  }
+
+  /**
+   * Atribui formação tática na Dungeon posicionando inimigos MELEE nos pontos mais próximos
+   * ao caminho de abordagem do jogador (vanguarda) e RANGED nos pontos mais recuados (retaguarda).
+   */
+  public static assignDungeonFormationSpawns(
+    units: CombatUnit[],
+    mobPoints: Array<{ x: number; y: number; bfsDist: number; euclid: number }>
+  ): void {
+    if (!Array.isArray(units) || units.length === 0 || !Array.isArray(mobPoints) || mobPoints.length === 0) return;
+
+    const sortedPoints = [...mobPoints].sort((a, b) =>
+      a.bfsDist !== b.bfsDist ? a.bfsDist - b.bfsDist : a.euclid - b.euclid
+    );
+
+    const melee: CombatUnit[] = [];
+    const ranged: CombatUnit[] = [];
+    for (const u of units) {
+      const isRanged = u.combatStyle === 'RANGED' || (Number(u.attackRange) || 60) >= 130;
+      if (isRanged) ranged.push(u);
+      else melee.push(u);
+    }
+
+    const orderedUnits = [...melee, ...ranged];
+    orderedUnits.forEach((unit, idx) => {
+      const pt = sortedPoints[idx % sortedPoints.length];
+      unit.spawnX = pt.x;
+      unit.spawnY = pt.y;
+    });
   }
 
   /**
@@ -502,10 +532,10 @@ export class DungeonService {
       unit.hp = unit.maxHp;
       unit.damageDealtMultiplier = cfg.dungeonNormalDamageDealtMult;
       unit.aggroRadius = cfg.dungeonNormalAggroRadius;
-      unit.spawnX = mobPoints[i].x;
-      unit.spawnY = mobPoints[i].y;
       monsterUnits.push(unit);
     }
+
+    this.assignDungeonFormationSpawns(monsterUnits, mobPoints);
 
     // Spawna o Boss Específico da Dungeon (Status de BOSS + modificadores globais de Dungeon)
     const bossLvl = MonsterCombatBuilder.resolveBalancedMapMonsterLevel(

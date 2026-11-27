@@ -53,8 +53,8 @@ class ArenaPhysicsSolver {
     }
     const ryRatio = ry / Math.max(1, rx);
 
-    // 1. Tenta pares simétricos centrados em (cx, cy) com corredor livre de ponta a ponta
-    for (const dist of [320, 270, 220, 180, 140]) {
+    // 1. Tenta pares simétricos centrados em (cx, cy) com corredor livre de ponta a ponta (espaçamento amplo entre equipes)
+    for (const dist of [560, 480, 400, 330, 260, 200]) {
       const half = dist / 2;
       for (const ang of angles) {
         const px = Math.round(cx - Math.cos(ang) * half);
@@ -62,8 +62,8 @@ class ArenaPhysicsSolver {
         const mx = Math.round(cx + Math.cos(ang) * half);
         const my = Math.round(cy + Math.sin(ang) * (half * ryRatio));
         if (
-          this.isPointValidInArena(px, py, cx, cy, rx, ry, isBlockedFn, 0.90) &&
-          this.isPointValidInArena(mx, my, cx, cy, rx, ry, isBlockedFn, 0.90) &&
+          this.isPointValidInArena(px, py, cx, cy, rx, ry, isBlockedFn, 0.88) &&
+          this.isPointValidInArena(mx, my, cx, cy, rx, ry, isBlockedFn, 0.88) &&
           this.isCorridorClear(px, py, cx, cy, isBlockedFn, 10) &&
           this.isCorridorClear(cx, cy, mx, my, isBlockedFn, 10)
         ) {
@@ -72,14 +72,14 @@ class ArenaPhysicsSolver {
       }
     }
 
-    // 2. Corredor estreito: mantém o jogador na posição segura próxima a (cx, cy) e busca ângulo livre para os monstros
+    // 2. Corredor estreito: mantém o jogador na posição segura próxima a (cx, cy) e busca ângulo livre distante para os monstros
     const safePlayer = this.findNearestFreePoint(cx, cy, cx, cy, rx, ry, isBlockedFn, [], 24, 24);
-    for (const mDist of [230, 190, 155, 125, 95]) {
+    for (const mDist of [400, 330, 260, 200, 150]) {
       for (const ang of angles) {
         const mx = Math.round(safePlayer.x + Math.cos(ang) * mDist);
         const my = Math.round(safePlayer.y + Math.sin(ang) * (mDist * ryRatio));
         if (
-          this.isPointValidInArena(mx, my, cx, cy, rx, ry, isBlockedFn, 0.92) &&
+          this.isPointValidInArena(mx, my, cx, cy, rx, ry, isBlockedFn, 0.90) &&
           this.isCorridorClear(safePlayer.x, safePlayer.y, mx, my, isBlockedFn, 8)
         ) {
           return { px: safePlayer.x, py: safePlayer.y, mx, my };
@@ -455,7 +455,8 @@ class ArenaPhysicsSolver {
     const meleeUnits = [];
     const rangedUnits = [];
     units.forEach((u, idx) => {
-      if (u.combatStyle === 'RANGED') rangedUnits.push({ u, idx });
+      const isRanged = u.combatStyle === 'RANGED' || Number(u.attackRange) >= 130;
+      if (isRanged) rangedUnits.push({ u, idx });
       else meleeUnits.push({ u, idx });
     });
 
@@ -463,27 +464,43 @@ class ArenaPhysicsSolver {
     const occupied = [...alreadyPlaced];
 
     const isAllyPetGroup = units.length > 0 && units[0]?.team === 'ALLY';
+    const perRow = 4;
+    const latStep = 118;
+    const rowStep = 98;
+    const stagger = 38;
+
     const placeRowGroup = (group, forwardOffset) => {
-      const perRow = 4;
       group.forEach((item, posIdx) => {
         const row = Math.floor(posIdx / perRow);
         const col = posIdx % perRow;
         const rowCount = Math.min(perRow, group.length - row * perRow);
         const latOffset = rowCount === 1 && isAllyPetGroup
-          ? 34
-          : (col - (rowCount - 1) / 2) * 82 + (row % 2 === 1 ? 26 : 0);
-        const depthOffset = forwardOffset - row * 68;
+          ? (forwardOffset >= 0 ? 52 : -52)
+          : (col - (rowCount - 1) / 2) * latStep + (row % 2 === 1 ? stagger : 0);
+        const depthOffset = forwardOffset - row * rowStep;
 
         const rawX = anchorX + fwdX * depthOffset + rightX * latOffset;
         const rawY = anchorY + fwdY * depthOffset + rightY * latOffset;
-        const free = this.findNearestFreePoint(rawX, rawY, cx, cy, rx, ry, isBlockedFn, occupied, 58, 42);
+        const free = this.findNearestFreePoint(rawX, rawY, cx, cy, rx, ry, isBlockedFn, occupied, 86, 64);
         placements[item.idx] = free;
         occupied.push(free);
       });
     };
 
-    placeRowGroup(meleeUnits, isAllyPetGroup ? 86 : 36);
-    placeRowGroup(rangedUnits, isAllyPetGroup ? 44 : (meleeUnits.length > 0 ? -92 : 0));
+    if (isAllyPetGroup) {
+      // Aliados: Melees na vanguarda (à frente do herói) e Rangeds na retaguarda (atrás do herói)
+      placeRowGroup(meleeUnits, 96);
+      placeRowGroup(rangedUnits, -90);
+    } else {
+      // Adversários: Melees sempre na linha de frente e Rangeds claramente atrás das linhas melee
+      const meleeFrontOffset = 58;
+      const meleeRows = Math.ceil(meleeUnits.length / perRow);
+      const rangedBackOffset = meleeUnits.length > 0
+        ? meleeFrontOffset - (meleeRows - 1) * rowStep - 122
+        : -24;
+      placeRowGroup(meleeUnits, meleeFrontOffset);
+      placeRowGroup(rangedUnits, rangedBackOffset);
+    }
     return placements;
   }
 
